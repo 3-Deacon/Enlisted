@@ -10,7 +10,7 @@ namespace Enlisted.Features.Escalation
     /// Ranges (per docs/Features/Core/core-gameplay.md):
     /// - Scrutiny: 0–10
     /// - Discipline: 0–10
-    /// - Soldier reputation: -50..+50 (renamed from LanceReputation)
+    /// - Soldier reputation: -50..+100 (renamed from LanceReputation)
     /// - Lord reputation: 0–100 (NEW)
     /// - Officer reputation: 0–100 (NEW)
     /// - Medical risk: 0–5
@@ -25,7 +25,7 @@ namespace Enlisted.Features.Escalation
         public const int DisciplineMin = 0;
         public const int DisciplineMax = 10;
         public const int SoldierReputationMin = -50;
-        public const int SoldierReputationMax = 50;
+        public const int SoldierReputationMax = 100;
         public const int LordReputationMin = 0;
         public const int LordReputationMax = 100;
         public const int OfficerReputationMin = 0;
