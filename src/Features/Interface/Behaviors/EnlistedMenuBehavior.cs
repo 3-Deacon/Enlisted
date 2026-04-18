@@ -11,6 +11,7 @@ using Enlisted.Features.Content.Models;
 using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.News.Models;
@@ -4222,14 +4223,24 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 if (qm != null && qm.IsAlive)
                 {
+                    var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                    if (party == null)
+                    {
+                        ModLogger.ErrorCode("Quartermaster", "E-QM-PARTY-001",
+                            "Both QM and enlisted lord have no party — cannot open conversation with correct scene");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                        return;
+                    }
+
                     ModLogger.Info("Quartermaster",
                         $"Opening conversation with quartermaster '{qm.Name}' ({enlistment.QuartermasterArchetype})");
 
                     // Open conversation with quartermaster Hero
                     // The dialog tree is registered in EnlistedDialogManager
                     var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                    var qmData = new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party);
-                    
+                    var qmData = new ConversationCharacterData(qm.CharacterObject, party);
+
                     // Use sea conversation scene if at sea, otherwise use map conversation
                     // Mirrors lord conversation behavior for proper scene selection
                     if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
@@ -4277,6 +4288,16 @@ namespace Enlisted.Features.Interface.Behaviors
                 var qm = enlistment.GetOrCreateQuartermaster();
                 if (qm != null && qm.IsAlive)
                 {
+                    var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                    if (party == null)
+                    {
+                        ModLogger.ErrorCode("Quartermaster", "E-QM-PARTY-001",
+                            "Both QM and enlisted lord have no party — cannot open baggage-request conversation with correct scene");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                        return;
+                    }
+
                     // Set baggage request context before opening conversation
                     var dialogManager = EnlistedDialogManager.Instance;
                     if (dialogManager != null)
@@ -4288,8 +4309,8 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     // Open conversation with quartermaster
                     var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                    var qmData = new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party);
-                    
+                    var qmData = new ConversationCharacterData(qm.CharacterObject, party);
+
                     // Use sea conversation scene if at sea, otherwise use map conversation
                     if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                     {

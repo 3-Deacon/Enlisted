@@ -221,9 +221,19 @@ namespace Enlisted.Features.Equipment.Behaviors
                     {
                         try
                         {
+                            var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                            if (party == null)
+                            {
+                                ModLogger.ErrorCode("Quartermaster", "E-QM-PARTY-001",
+                                    "Both QM and enlisted lord have no party — cannot restart QM conversation from rations menu with correct scene");
+                                InformationManager.DisplayMessage(new InformationMessage(
+                                    new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                                return;
+                            }
+
                             var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, qmHero.PartyBelongedTo?.Party);
-                            
+                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, party);
+
                             // Use sea conversation scene if at sea, otherwise use map conversation
                             if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                             {
@@ -1916,9 +1926,19 @@ namespace Enlisted.Features.Equipment.Behaviors
                     {
                         try
                         {
+                            var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                            if (party == null)
+                            {
+                                ModLogger.ErrorCode("Quartermaster", "E-QM-PARTY-001",
+                                    "Both QM and enlisted lord have no party — cannot restart QM conversation from popup with correct scene");
+                                InformationManager.DisplayMessage(new InformationMessage(
+                                    new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                                return;
+                            }
+
                             var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, qmHero.PartyBelongedTo?.Party);
-                            
+                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, party);
+
                             // Use sea conversation scene if at sea, otherwise use map conversation
                             if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                             {

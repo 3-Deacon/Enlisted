@@ -275,7 +275,8 @@
     <Compile Include="src\Features\Equipment\Behaviors\TroopDiscoveryValidator.cs"/>
     <Compile Include="src\Features\Equipment\Behaviors\QuartermasterManager.cs"/>
     <Compile Include="src\Features\Equipment\Managers\QMInventoryState.cs"/>
-    
+    <Compile Include="src\Features\Equipment\Managers\QuartermasterPartyResolver.cs" />
+
     <!-- Quartermaster UI (Gauntlet) -->
     <Compile Include="src\Features\Equipment\UI\QuartermasterEquipmentSelectorBehavior.cs"/>
     <Compile Include="src\Features\Equipment\UI\QuartermasterEquipmentSelectorVM.cs"/>

@@ -3,14 +3,19 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Conversation;
 using TaleWorlds.CampaignSystem.Party;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
     /// <summary>
-    /// Ensures quartermaster conversations use the correct scene (sea/land) based on
-    /// the enlisted lord's party position. Without this, QM conversations default to
-    /// land scenes even when the party is at sea.
+    /// Ensures quartermaster conversations use the correct scene (sea/land) based
+    /// on the enlisted lord's party position. Without this, QM conversations
+    /// default to land scenes even when the party is at sea.
+    ///
+    /// Patch retained even with QuartermasterPartyResolver available because some
+    /// engine paths reach OpenMapConversation without going through our migrated
+    /// call sites — this is the safety net.
     /// </summary>
     [HarmonyPatch(typeof(ConversationManager), "OpenMapConversation")]
     internal class QuartermasterConversationScenePatch
@@ -22,38 +27,39 @@ namespace Enlisted.Mod.GameAdapters.Patches
         {
             try
             {
-                // Check if this is a quartermaster conversation
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment == null || !enlistment.IsEnlisted)
                 {
                     return;
                 }
-                
+
                 var qmHero = enlistment.GetOrCreateQuartermaster();
                 if (qmHero == null || conversationPartnerData.Character != qmHero.CharacterObject)
                 {
                     return; // Not a QM conversation
                 }
-                
-                // QM hero doesn't have its own party, so use the enlisted lord's party
-                // This ensures the conversation scene (sea/land/terrain) matches the actual location
-                var lordParty = enlistment.EnlistedLord?.PartyBelongedTo;
-                if (lordParty != null)
+
+                var effectiveParty = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                if (effectiveParty == null)
                 {
-                    conversationPartnerData = new ConversationCharacterData(
-                        character: conversationPartnerData.Character,
-                        party: lordParty.Party, // Use lord's party instead of QM's (null) party
-                        noHorse: conversationPartnerData.NoHorse,
-                        noWeapon: conversationPartnerData.NoWeapon,
-                        spawnAfterFight: conversationPartnerData.SpawnedAfterFight,
-                        isCivilianEquipmentRequiredForLeader: false,
-                        isCivilianEquipmentRequiredForBodyGuardCharacters: false,
-                        noBodyguards: conversationPartnerData.NoBodyguards
-                    );
-                    
-                    ModLogger.Debug("Interface", 
-                        $"QM conversation scene fix: Using lord's party for scene determination");
+                    ModLogger.Warn("Interface",
+                        "QM conversation scene patch: resolver returned null — leaving partner data unchanged");
+                    return;
                 }
+
+                conversationPartnerData = new ConversationCharacterData(
+                    character: conversationPartnerData.Character,
+                    party: effectiveParty,
+                    noHorse: conversationPartnerData.NoHorse,
+                    noWeapon: conversationPartnerData.NoWeapon,
+                    spawnAfterFight: conversationPartnerData.SpawnedAfterFight,
+                    isCivilianEquipmentRequiredForLeader: false,
+                    isCivilianEquipmentRequiredForBodyGuardCharacters: false,
+                    noBodyguards: conversationPartnerData.NoBodyguards
+                );
+
+                ModLogger.Debug("Interface",
+                    "QM conversation scene fix: effective party resolved via QuartermasterPartyResolver");
             }
             catch (System.Exception ex)
             {

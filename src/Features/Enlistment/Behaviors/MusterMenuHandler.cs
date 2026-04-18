@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Enlisted.Features.Context;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Ranks.Behaviors;
@@ -3704,11 +3705,21 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var qm = enlistment.GetOrCreateQuartermaster();
             if (qm != null && qm.IsAlive)
             {
+                var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                if (party == null)
+                {
+                    ModLogger.ErrorCode(LogCategory, "E-QM-PARTY-001",
+                        "Both QM and enlisted lord have no party — cannot open muster-complete QM conversation with correct scene");
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                    return;
+                }
+
                 ModLogger.Info(LogCategory, "Opening quartermaster conversation from muster complete menu");
                 _qmOpenedFromMuster = true;
                 CampaignMapConversation.OpenConversation(
                     new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty),
-                    new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party));
+                    new ConversationCharacterData(qm.CharacterObject, party));
             }
             else
             {
