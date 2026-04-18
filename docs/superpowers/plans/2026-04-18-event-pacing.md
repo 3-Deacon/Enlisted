@@ -2,6 +2,41 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+---
+
+## Current status — Phase 1 complete, resuming at Task 11
+
+**Phase 1 (infrastructure, no-op at runtime):** ✅ 10 commits landed and smoke-tested in-game 2026-04-18. No `E-PACE-*` warnings, save/load clean in 5ms, no SaveableType errors.
+
+| # | Task | Commit(s) |
+|---|---|---|
+| 0 | Register E-PACE codes in `docs/error-codes.md` | `fd297e3` |
+| 1 | `StoryTier` + `StoryBeat` enums | `ccc1e6d` + `1c75759` (CRLF/doc fix) |
+| 2 | `RelevanceKey` struct | `4260f51` |
+| 3 | `StoryCandidate` / `StoryCandidatePersistent` / `IStorySource` | `8bbc21c` |
+| 4 | `RelevanceFilter` (uses existing `CampaignTriggerTrackerBehavior`) | `a7e75b3` |
+| 5 | `SeverityClassifier` (beat weights + tier caps) | `324dbfb` |
+| 6 | `StoryAggregator` (48h window compression) | `070f292` |
+| 7 | `events_quiet_stretch.json` (3 events, auto-loaded by `EventCatalog`) | `26b0000` |
+| 8 | `StoryDirector` skeleton — registered in `src/Mod.Entry/SubModule.cs` after `MapIncidentManager`, before `DecisionManager`. `Route` is a no-op. | `fa1f8a2` |
+| 9 | Save-type registration in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` — class offset `30`, enum offsets `80`/`81`, container for `List<StoryCandidatePersistent>` | `9eb56e6` |
+
+**Phase 2 starts at Task 11** (`### Task 11: Add DensitySettings config reader`). Tasks 11–16 add the config reader, Modal delivery with guards, the `AddPersonalDispatch` wrapper, the Headlines accordion, muster digest, and quiet-stretch fallback tick. After Phase 2, Route is live and the Director actually delivers content.
+
+**Execution pattern that worked in Phase 1:** subagent-driven development with haiku for mechanical tasks and sonnet for TaleWorlds API work. Per-task flow = implementer → spec reviewer → code quality reviewer. MINOR issues from reviewers get fixed and re-reviewed before marking done. See conversation history under commits listed above.
+
+**Environment notes:**
+- Parallel AI sessions may edit files (`.codex/config.toml`, `Enlisted.csproj`) concurrently. Subagents must commit selectively with `git add <path>` — never `git add -A`.
+- Decompile lives at `C:\Dev\Enlisted\Decompile\` (one level up from this repo). Verify all TaleWorlds APIs there, never web/training.
+- Error-code registry format: `E-<SUBSYSTEM>-<NNN>`, never renumber, gaps fine. PACE section is at the bottom of `docs/error-codes.md`.
+- Logging API: `ModLogger.ErrorCode(category, code, message, ex)` / `ModLogger.WarnCode(category, code, message)` from `Enlisted.Mod.Core.Logging` — dual-emits to session log + on-screen panel.
+
+**Two unrelated-but-noticed follow-ups** (out of scope for this plan, flag if the user asks):
+- `W-UI-001` decision-availability warnings spam at WARN severity — should probably be INFO.
+- One-shot NRE in `[Settlement] Synthetic perk trigger suppressed error` (Session-A line 273). Suppressed so harmless, but a separate bug.
+
+---
+
 **Goal:** Introduce a `StoryDirector` that gates the **Modal** delivery path (floor + wall-clock + category cooldown) and adds a **Headlines** accordion on `enlisted_status` surfacing high-severity items from the existing `EnlistedNewsBehavior` feeds. Beat-anchored, relevance-filtered, speed-aware. Preserves all authored content and existing consumer contracts.
 
 **Architecture:** Additive director. Sources keep producing `EventDefinition` from `EventCatalog` / `DecisionCatalog` as today; they now emit a `StoryCandidate` carrying that `EventDefinition` (for interactive items) into the Director instead of calling `EventDeliveryManager.QueueEvent` directly. The Director routes: Modal-eligible → modal (through existing delivery), otherwise defer or write an observational `DispatchItem` into the appropriate news feed. `_personalFeed` / `_kingdomFeed` / DispatchItem remain the authoritative news data model; the Headlines accordion is a filtered view, not a duplicate store.
