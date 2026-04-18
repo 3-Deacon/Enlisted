@@ -430,6 +430,9 @@
     <Compile Include="src\Features\Content\StoryBeat.cs"/>
     <Compile Include="src\Features\Content\StoryTier.cs"/>
     <Compile Include="src\Features\Content\RelevanceKey.cs"/>
+    <Compile Include="src\Features\Content\IStorySource.cs"/>
+    <Compile Include="src\Features\Content\StoryCandidate.cs"/>
+    <Compile Include="src\Features\Content\StoryCandidatePersistent.cs"/>
 
     <!-- Decisions System -->
     <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
