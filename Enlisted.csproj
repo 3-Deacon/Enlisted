@@ -427,7 +427,9 @@
     <Compile Include="src\Features\Content\MapIncidentManager.cs"/>
     <Compile Include="src\Features\Content\GlobalEventPacer.cs"/>
     <Compile Include="src\Features\Content\IncidentEffectTranslator.cs"/>
-    
+    <Compile Include="src\Features\Content\StoryBeat.cs"/>
+    <Compile Include="src\Features\Content\StoryTier.cs"/>
+
     <!-- Decisions System -->
     <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
     <Compile Include="src\Features\Content\DecisionManager.cs"/>
