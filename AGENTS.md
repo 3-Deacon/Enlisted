@@ -1,76 +1,192 @@
 # Enlisted - Bannerlord v1.3.13 Mod
 
-## Working Agreements
+C# mod transforming Mount & Blade II: Bannerlord into a soldier career simulator. Player enlists with a lord, follows orders, earns wages, progresses through 9 ranks. 245+ narrative content pieces, data-driven via JSON + XML.
 
-- Target Bannerlord **v1.3.13** - NEVER assume APIs from later versions
-- Verify ALL Bannerlord APIs against local `Decompile/` directory (NOT online docs)
-- Run `python Tools/Validation/validate_content.py` before committing
-- Run `dotnet build -c "Enlisted RETAIL" /p:Platform=x64` to build
-- Ask before adding new production dependencies
+This file is the shared source of truth for AI coding agents (Claude Code, Codex, Cursor, Copilot, Aider, etc.). Tool-specific extras live alongside: `CLAUDE.md` imports this file.
 
-## Repository Expectations
+---
 
-- New C# files MUST be manually added to `Enlisted.csproj`
-- JSON field order: fallback field MUST immediately follow ID field
-- All event options MUST have tooltips (<80 chars)
-- Use `ModLogger.Log()` with error codes: `E-SYSTEM-###`
-- Braces required on all control statements
+## Quick Commands
 
-## Critical Patterns (Will Break Mod if Violated)
+```bash
+# Build (always use this exact configuration)
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+
+# Validate content (ALWAYS before commit)
+python Tools/Validation/validate_content.py
+
+# Sync localization strings
+python Tools/Validation/sync_event_strings.py
+
+# Upload to Steam Workshop
+./Tools/Steam/upload.ps1
+```
+
+---
+
+## Critical Rules (Will Break Mod)
+
+### 1. Target Bannerlord v1.3.13
+
+- NEVER assume APIs from later versions
+- ALWAYS verify APIs against local `Decompile/` directory (NOT online docs)
+
+### 2. New C# Files Must Be Registered in .csproj
+
+```xml
+<Compile Include="src\Features\MyFeature\MyNewClass.cs"/>
+```
+
+### 3. Gold Transactions — use GiveGoldAction
 
 ```csharp
-// Gold transactions - use GiveGoldAction, NOT ChangeHeroGold
+// CORRECT - visible in UI
 GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, amount);
+// WRONG - not visible, breaks UI feedback
+Hero.MainHero.ChangeHeroGold(amount);
+```
 
-// Equipment iteration - use numeric loop, NOT Enum.GetValues
+### 4. Equipment Iteration — numeric loop only
+
+```csharp
+// CORRECT
 for (int i = 0; i < (int)EquipmentIndex.NumEquipmentSetSlots; i++)
+// WRONG - crashes (Enum.GetValues includes count values)
+foreach (EquipmentIndex slot in Enum.GetValues(typeof(EquipmentIndex)))
+```
 
-// Hero access - use null-safe guard
+### 5. Hero Safety — null-safe, IsAlive checks
+
+```csharp
 var hero = CampaignSafetyGuard.SafeMainHero;
 if (hero == null) return;
-
-// Always check IsAlive before tracking
 if (hero.IsAlive) VisualTrackerManager.RegisterObject(hero);
 ```
 
-## Key Documentation
+### 6. JSON Field Order — fallback immediately after ID
 
-Read these before making changes:
+```json
+{ "titleId": "key", "title": "Fallback", "setupId": "key2", "setup": "Text" }
+```
 
-- `@docs/BLUEPRINT.md` - Architecture, standards, common pitfalls
-- `@docs/INDEX.md` - Master documentation catalog
-- `@src/WARP.md` - Critical C# patterns
-- `@ModuleData/WARP.md` - JSON content rules
-- `@docs/Features/Content/writing-style-guide.md` - Voice, tone for content
+### 7. Event Tooltips Required
+
+All options need tooltips (<80 chars). Format: action + effects + cooldown.
+
+### 8. Save System Registration
+
+In `EnlistedSaveDefiner` — missing = "Cannot Create Save" error:
+
+```csharp
+DefineEnumType(typeof(MyNewEnum));
+DefineClassType(typeof(MyNewClass));
+```
+
+Persist in-progress flags in `SyncData()` too — otherwise state is lost on reload.
+
+---
+
+## Code Standards
+
+- Braces required on all control statements (no single-line `if`)
+- `ModLogger.Log()` with error codes: `E-SYSTEM-###`
+- Localized strings: `new TextObject("{=id}Fallback")`
+- Private fields: `_camelCase`
+- Comments describe current behavior — never changelogs, PR references, or "added for X"
+
+### Safe Patterns
+
+```csharp
+// Deferred menu activation
+NextFrameDispatcher.RunNextFrame(() => GameMenu.ActivateGameMenu("menu_id"));
+// Item comparison by StringId (not reference equality)
+if (element.Item.StringId == targetItem.StringId)
+// Settlement safety check
+if (!PlayerEncounter.InsideSettlement) PlayerEncounter.Finish();
+// Centralized manager for reputation/needs changes
+EscalationManager.Instance.ModifyReputation(ReputationType.Soldier, 5, "reason");
+```
+
+---
 
 ## Project Structure
 
 ```
-src/Features/     - All gameplay features (C#)
-ModuleData/       - JSON config, events, orders, decisions
-docs/             - All documentation
-Tools/Validation/ - Validators (run before commit)
-Decompile/        - Bannerlord v1.3.13 API reference (AUTHORITATIVE)
+src/Features/          C# gameplay features
+ModuleData/Enlisted/   JSON events, orders, decisions
+ModuleData/Languages/  enlisted_strings.xml (localization)
+docs/                  All documentation (see docs/INDEX.md)
+Tools/Validation/      Validators (run before commit)
+Decompile/             Bannerlord v1.3.13 API — AUTHORITATIVE
 ```
 
-## Commands
+### Key Feature Folders
 
-```bash
-# Build
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+- `Enlistment/` — Service state, retirement
+- `Orders/` — Mission directives
+- `Content/` — Events, decisions, narrative
+- `Escalation/` — Reputation, scrutiny/discipline
+- `Company/` — Readiness, supply needs
+- `Equipment/` — Quartermaster, gear
 
-# Validate (ALWAYS before commit)
-python Tools/Validation/validate_content.py
-
-# Sync localization
-python Tools/Validation/sync_event_strings.py
-```
+---
 
 ## Pre-Commit Checklist
 
 - [ ] APIs verified against `Decompile/` (v1.3.13)
 - [ ] New C# files added to `Enlisted.csproj`
 - [ ] JSON field order correct (fallback after ID)
-- [ ] Tooltips on all event options
-- [ ] Validation passes
-- [ ] Build succeeds
+- [ ] Tooltips on all event options (<80 chars)
+- [ ] `python Tools/Validation/validate_content.py` passes
+- [ ] `dotnet build -c "Enlisted RETAIL" /p:Platform=x64` succeeds
+
+---
+
+## Key Documentation
+
+Link, don't duplicate — open these for depth:
+
+| Topic | File |
+| :--- | :--- |
+| Architecture & standards | [docs/BLUEPRINT.md](docs/BLUEPRINT.md) |
+| Master documentation catalog | [docs/INDEX.md](docs/INDEX.md) |
+| Build setup, developer onboarding | [docs/DEVELOPER-GUIDE.md](docs/DEVELOPER-GUIDE.md) |
+| Logging, saves, dialogue, menu patterns | [Tools/TECHNICAL-REFERENCE.md](Tools/TECHNICAL-REFERENCE.md) |
+| Validation tool reference | [Tools/README.md](Tools/README.md) |
+| Writing style (voice, tone) | [docs/Features/Content/writing-style-guide.md](docs/Features/Content/writing-style-guide.md) |
+
+---
+
+## Common Pitfalls
+
+1. `ChangeHeroGold` instead of `GiveGoldAction`
+2. `Enum.GetValues` for equipment iteration
+3. Tracking a hero without checking `IsAlive`
+4. `PlayerEncounter.Finish()` while inside a settlement
+5. Forgetting to add new files to `.csproj`
+6. Missing tooltips on event options
+7. Wrong JSON field order (ID and fallback not adjacent)
+8. Not persisting in-progress flags in `SyncData()`
+9. Missing `SaveableTypeDefiner` registration
+10. Relying on external API docs (wrong version)
+
+Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
+
+---
+
+## Deprecated Systems
+
+- **Morale System** — Removed 2026-01-11, save-load only
+- **Company Rest** — Removed 2026-01-11, save-load only
+- Player Fatigue (0-24 budget) remains functional
+
+---
+
+## External Resources
+
+- Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=3621116083>
+- Requires: Harmony for Bannerlord
+
+---
+
+**When in doubt, check `Decompile/`. Never hallucinate APIs.**

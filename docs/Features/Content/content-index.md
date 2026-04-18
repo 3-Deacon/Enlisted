@@ -415,7 +415,7 @@ Triggered during the 12-day muster cycle. See `quartermaster-dialogue-implementa
 | Crisis | 7 | `supply_crisis_grunt` - Whispers of Desertion | `supply_crisis_nco` - One of Yours Is Leaving | `supply_crisis_cmd` - Desertions Imminent |
 
 **Effects:** Soldier/Officer/Lord Rep, Discipline, Morale, HP, Gold (varies by tier and choice)  
-**See:** [Company Events - Pressure Arcs](../../Core/company-events.md#pressure-arc-events) | [Implementation Plan (Archived)](../../Archive/supply-pressure-arc-test-IMPLEMENTED.md)
+**See:** [Company Events - Pressure Arcs](../../Core/company-events.md#pressure-arc-events)
 
 ### Role: Scout (6)
 

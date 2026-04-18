@@ -2,8 +2,8 @@
 
 **Summary:** Master index of all documentation files organized by category. Use this to find documentation for specific topics or systems.
 
-**Last Updated:** 2026-01-08 (Rules system optimization: Context-aware WARP.md files, token reduction ~64%)
-**Total Documents:** 58
+**Last Updated:** 2026-04-18
+**Total Documents:** 43
 
 > **Note:** Documents marked "⚠️ Mixed" have core features implemented but also contain planned/designed features not yet in code. Check their Implementation Checklist sections for details.
 
@@ -112,9 +112,6 @@
 | [README.md](README.md) | Main entry point and mod overview | ✅ Current |
 | [BLUEPRINT.md](BLUEPRINT.md) | Project architecture and coding standards | ✅ Current |
 | [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Build guide, development patterns, validation (Phase 7 project structure checks) | ✅ Current |
-| [../WARP.md](../WARP.md) | AI agent routing document: project context (2026, v1.3.13), required reading, TOP 5 critical rules, task routing to subdirectory rules | ✅ Current |
-| [../src/WARP.md](../src/WARP.md) | Context-aware C# development rules: critical patterns (gold, equipment, save system, hero safety), new file checklist | ✅ Current |
-| [../ModuleData/WARP.md](../ModuleData/WARP.md) | Context-aware JSON content rules: field ordering, tooltips, order events, validation | ✅ Current |
 | [ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) | Orchestrator scheduling unification: pre-schedules opportunities 24h ahead, locks schedule to prevent disappearance on context changes, narrative hint integration, removes menu cache for single source of truth | ✅ Implemented |
 
 ---
@@ -130,7 +127,6 @@
 | [index.md](Features/Core/index.md) | Core features index | ✅ Current |
 | [core-gameplay.md](Features/Core/core-gameplay.md) | Complete gameplay overview covering all major systems and how they interact | ✅ Current |
 | [enlistment.md](Features/Core/enlistment.md) | Enlistment system: joining process, lord selection, initial rank assignment, contract terms | ✅ Current |
-| [orders-system.md](Features/Core/orders-system.md) | ⚠️ **LEGACY** - Replaced by [Order Progression System](order-progression-system.md) | 🗄️ Deprecated |
 | [order-progression-system.md](Features/Core/order-progression-system.md) | Multi-day order execution: phase progression (4/day), slot events during duty, consequence accumulation, order forecasting with imminent warnings. 17 orders with 84 order events active. | ✅ Implemented |
 | [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, discipline score), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
 | [pay-system.md](Features/Core/pay-system.md) | Wages and payment: 12-day muster cycle, rank-based pay scales, wage modifiers (performance, reputation, lord wealth), pay tension (mutiny risk), deductions (fines, missing gear) | ✅ Current |
@@ -158,7 +154,6 @@
 
 | Document | Topic | Status |
 | --- | --- | --- |
-| [README.md](Features/Identity/README.md) | Identity folder overview | ✅ Current |
 | [identity-system.md](Features/Identity/identity-system.md) | Trait and identity system: personality traits (acquired through events/actions), trait effects on events/dialogues/options, reputation tracking (soldier rep, QM rep, discipline), identity development over career | ✅ Current |
 
 ### Combat & Training
@@ -167,7 +162,6 @@
 
 | Document | Topic | Status |
 | --- | --- | --- |
-| [README.md](Features/Combat/README.md) | Combat folder overview | ✅ Current |
 | [training-system.md](Features/Combat/training-system.md) | Training and XP: camp training actions (weapon drills, fitness), skill progression (XP rates, skill caps by rank), training events (success/injury/fatigue), cooldowns | ✅ Current |
 | [formation-assignment.md](Features/Combat/formation-assignment.md) | Battle formation logic: T1-T6 soldiers auto-assigned to formation based on equipped weapons (bow→Ranged, horse→Cavalry, both→Horse Archer, melee→Infantry), teleported to formation position. T7+ commanders control their own party, no auto-assignment. | ✅ Current |
 | [battle-ai-plan.md](Features/Combat/battle-ai-plan.md) | Battle AI upgrade plan: native AI analysis (architecture, tactics, behaviors, query systems, morale, terrain, siege), identified gaps, Battle Orchestrator proposal (commander-layer AI for reserves, concentration, coordinated withdrawal), modding entry points | 📋 Plan |
@@ -241,7 +235,6 @@
 | Document | Purpose | Status |
 | --- | --- | --- |
 | [README.md](Reference/README.md) | Reference overview and how to use reference docs | ✅ Current |
-| [AGENTIC_LESSONS.md](AGENTIC_LESSONS.md) | Agentic AI architectural lessons (RAG, Contextual Memory, Patterns) | ✅ Reference |
 | [native-apis.md](Reference/native-apis.md) | Campaign System API reference: Bannerlord API patterns, CampaignBehavior structure, common APIs (Hero, Party, Clan, Settlement), event hooks, save/load patterns - use for API verification against decompiled source | 📚 Reference |
 | [native-skill-xp.md](Reference/native-skill-xp.md) | Skill progression reference: attribute/skill hierarchy, focus points, learning rates, XP calculation formulas, thematic aliases - use when implementing training/skill systems | 📚 Reference |
 | [content-effects-reference.md](Reference/content-effects-reference.md) | Complete effects reference: all effect types (skill XP, gold, HP, reputation, escalation, company needs, party, narrative), native API integration, processing flow - use when writing content JSON | 📚 Reference |

@@ -4,7 +4,7 @@
 
 **Status:** 📋 Specification  
 **Last Updated:** 2025-12-24  
-**Related Docs:** [ui-systems-master.md](ui-systems-master.md), [quartermaster-system.md](../Equipment/quartermaster-system.md), [orders-system.md](../Core/orders-system.md)
+**Related Docs:** [ui-systems-master.md](ui-systems-master.md), [quartermaster-system.md](../Equipment/quartermaster-system.md), [order-progression-system.md](../Core/order-progression-system.md)
 
 ---
 

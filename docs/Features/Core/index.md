@@ -72,7 +72,7 @@ The Quartermaster is your primary contact for gear and provisions. Access is gat
 The foundational systems that enable the Enlisted experience.
 
 - **[Enlistment System](enlistment.md)** - Service mechanics, army following, and discharge.
-- **[Orders System](orders-system.md)** - Chain of command directives: 16 orders across 3 tiers, strategic context filtering, success/failure resolution.
+- **[Order Progression System](order-progression-system.md)** - Chain of command directives: 16 orders across 3 tiers, strategic context filtering, success/failure resolution.
 - **[Promotion System](promotion-system.md)** - Rank progression T1-T9: XP sources, multi-factor requirements, proving events, culture-specific ranks.
 - **[Pay System](pay-system.md)** - Wages, pay muster, and pay tension.
 - **[Company Events](company-events.md)** - Role-based narrative and social events.

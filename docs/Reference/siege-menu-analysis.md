@@ -1,7 +1,8 @@
-# Native Siege Menu System Research
+# Native Siege Menu System Analysis
 
 **Date:** 2026-01-02  
-**Purpose:** Comprehensive research to determine correct handling of siege encounters for enlisted soldiers
+**Status:** Reference documentation  
+**Purpose:** Comprehensive analysis of native siege menu behavior to guide correct handling of siege encounters for enlisted soldiers
 
 ## Menu Flow Diagram
 
