@@ -60,8 +60,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Encounter", "E-PATCH-023",
-                    "Error in EncounterCaptureEnemySuppressionPatch", ex);
+                ModLogger.Caught("Encounter", "Error in EncounterCaptureEnemySuppressionPatch", ex);
             }
         }
     }

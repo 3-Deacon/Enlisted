@@ -86,7 +86,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (System.Exception ex)
             {
-                ModLogger.ErrorCode("CaptivityFix", "E-PATCH-015", "Error cleaning prison rosters", ex);
+                ModLogger.Caught("CaptivityFix", "Error cleaning prison rosters", ex);
             }
         }
     }

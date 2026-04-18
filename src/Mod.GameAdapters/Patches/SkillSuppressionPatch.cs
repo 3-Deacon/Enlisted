@@ -86,7 +86,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SkillSuppression", "E-PATCH-016", "Error in skill suppression patch", ex);
+                ModLogger.Caught("SkillSuppression", "Error in skill suppression patch", ex);
                 return true; // Fail open - allow normal behavior on error
             }
         }
@@ -181,7 +181,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("CombatXP", "E-PATCH-017", "Error tracking combat XP for enlistment", ex);
+                ModLogger.Caught("CombatXP", "Error tracking combat XP for enlistment", ex);
             }
         }
         
@@ -207,7 +207,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("CombatXP", "E-PATCH-018", "Error flushing accumulated combat XP", ex);
+                ModLogger.Caught("CombatXP", "Error flushing accumulated combat XP", ex);
             }
         }
     }

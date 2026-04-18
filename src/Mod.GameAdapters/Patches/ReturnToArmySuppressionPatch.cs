@@ -51,7 +51,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-PATCH-017", "Error in ReturnToArmySuppressionPatch", ex);
+                ModLogger.Caught("Interface", "Error in ReturnToArmySuppressionPatch", ex);
                 // Fail open - allow native behavior on error
             }
         }

@@ -228,7 +228,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode("LootBlock", "E-PATCH-009", "Error in loot screen patch", ex);
+                    ModLogger.Caught("LootBlock", "Error in loot screen patch", ex);
                     return true; // Allow loot on error to prevent breaking gameplay
                 }
             }

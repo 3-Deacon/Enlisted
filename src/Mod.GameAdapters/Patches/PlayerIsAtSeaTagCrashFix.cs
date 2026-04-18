@@ -43,7 +43,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (System.Exception ex)
             {
-                ModLogger.ErrorCode("ConversationFix", "E-NAVALPATCH-003", "PlayerIsAtSeaTag safety catch", ex);
+                ModLogger.Caught("ConversationFix", "PlayerIsAtSeaTag safety catch", ex);
                 __result = false;
                 return false;
             }

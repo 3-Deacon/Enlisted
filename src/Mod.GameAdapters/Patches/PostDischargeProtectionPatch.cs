@@ -108,7 +108,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("PostDischargeProtection", "E-PATCH-011", "Error in activation protection patch", ex);
+                ModLogger.Caught("PostDischargeProtection", "Error in activation protection patch", ex);
                 return true; // Fail open - allow activation if we can't determine state
             }
         }

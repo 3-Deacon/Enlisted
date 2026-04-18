@@ -48,7 +48,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("TownLeave", "E-PATCH-028", "Error in TownLeaveButtonPatch", ex);
+                ModLogger.Caught("TownLeave", "Error in TownLeaveButtonPatch", ex);
                 // Fail open - allow native behavior on error
             }
         }
@@ -92,7 +92,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("TownLeave", "E-PATCH-029", "Error in SettlementOutsideLeaveButtonPatch", ex);
+                ModLogger.Caught("TownLeave", "Error in SettlementOutsideLeaveButtonPatch", ex);
                 // Fail open - allow native behavior on error
             }
         }

@@ -224,7 +224,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("VisibilityEnforcement", "E-PATCH-012", "Error in visibility enforcement patch", ex);
+                ModLogger.Caught("VisibilityEnforcement", "Error in visibility enforcement patch", ex);
                 return true; // Fail open - allow visibility if we can't determine state
             }
         }
