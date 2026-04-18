@@ -48,8 +48,9 @@ Match the task to the right skill:
 | Before proposing a bug fix | `superpowers:systematic-debugging` |
 | Before claiming work done | `superpowers:verification-before-completion` |
 | New feature implementation | `superpowers:test-driven-development` |
-| Executing a multi-task plan | `superpowers:subagent-driven-development` |
+| Before designing any feature | `superpowers:brainstorming` |
 | Writing an implementation plan | `superpowers:writing-plans` |
+| Executing a multi-task plan | `superpowers:subagent-driven-development` |
 | Security review of the branch | `security-review` |
 | Updating this CLAUDE.md file | `claude-md-management:revise-claude-md` |
 | Reducing permission prompts | `fewer-permission-prompts` |
