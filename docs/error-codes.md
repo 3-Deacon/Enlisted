@@ -427,3 +427,11 @@ pattern where practical.
 | E-DIAG-004 | Failed to log behaviors | See exception log | Core |
 | E-BAG-001 | Error processing emergency baggage access | See exception log | Dialogue |
 | E-BAG-002 | Error processing column halt request | See exception log | Dialogue |
+
+## Pacing (PACE)
+
+| Code | Meaning | Remediation | Owner |
+|---|---|---|---|
+| E-PACE-001 | `StoryDirector.EmitCandidate` threw — candidate dropped silently | See exception log; relevance filter or classifier likely received unexpected state | Content |
+| E-PACE-002 | Quiet-stretch fallback tick threw — no fallback fired this day | See exception log; confirm `EventCatalog.GetEventsByCategory("quiet_stretch")` returns events | Content |
+| E-PACE-003 | `EnlistedNewsBehavior.AddPersonalDispatch` threw — dispatch item dropped | See exception log; likely DispatchItem construction or dedup logic regressed | Content |
