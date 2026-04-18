@@ -9,6 +9,20 @@ unused number in the relevant subsystem. Removed codes (code deleted from
 source) get strikethrough + a `removed YYYY-MM-DD` note; do not delete rows
 so log readers can still look up historical codes.
 
+## Where codes surface
+
+- **In-game, on-screen.** `ModLogger.ErrorCode` and `ModLogger.WarnCode` display
+  the code plus a truncated message in the info panel: **red** for errors,
+  **yellow** for warnings. Look in the bottom-left message feed while playing.
+  Toggle off with `ModLogger.ShowCodedMessagesOnScreen = false` for silent
+  release builds.
+- **Session log file.** Every coded call also writes to
+  `Modules/Enlisted/Debugging/Session-A_*.log` with full exception stack
+  traces (first occurrence per session).
+
+The on-screen toast is the fast signal that something failed; the log file is
+the source of truth for post-mortem analysis.
+
 ## Engine parallel
 
 The Bannerlord engine has its own time-mode capture pattern for popups in the

@@ -55,6 +55,14 @@ ModLogger.Debug("Category", "detailed info");
 ModLogger.Warn("Category", "warning");
 ModLogger.Error("Category", "error details");
 ModLogger.LogOnce("UniqueKey", "Category", "message"); // Only logs once per session
+
+// Coded variants — registered in docs/error-codes.md. ErrorCode and WarnCode
+// additionally surface the code + message on-screen (red / yellow toast) so
+// developers and players notice failures without tailing the log. Toggle with
+// ModLogger.ShowCodedMessagesOnScreen (default true).
+ModLogger.ErrorCode("Category", "E-CATEGORY-NNN", "error details", ex);
+ModLogger.WarnCode("Category", "E-CATEGORY-NNN", "warning");
+ModLogger.ErrorCodeOnce("UniqueKey", "Category", "E-CATEGORY-NNN", "error", ex);
 ```
 
 ### Categories
