@@ -9,7 +9,9 @@ This file is the shared source of truth for AI coding agents (Claude Code, Codex
 ## Quick Commands
 
 ```bash
-# Build (always use this exact configuration)
+# Build — produces Enlisted.dll in BOTH Win64_Shipping_Client/ and
+# Win64_Shipping_wEditor/ via csproj post-build mirror. Close BannerlordLauncher
+# first — it holds the DLL open and fails the copy with MSB3021.
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 
 # Validate content (ALWAYS before commit)
@@ -107,7 +109,7 @@ Line endings are enforced by `.gitattributes` (`.cs` / `.csproj` / `.sln` / `.ps
 ## Code Standards
 
 - Braces required on all control statements (no single-line `if`)
-- `ModLogger.Log()` with error codes: `E-SYSTEM-###`
+- `ModLogger.ErrorCode(category, code, message, ex)` for errors — dual-emits to log AND on-screen red toast. Codes follow `E-<SUBSYSTEM>-NNN` (subsystem varies: `QM`, `UI`, `TIME`, etc.) and MUST be registered in [docs/error-codes.md](docs/error-codes.md) before use
 - Localized strings: `new TextObject("{=id}Fallback")`
 - Private fields: `_camelCase`
 - Comments describe current behavior — never changelogs, PR references, or "added for X"
@@ -157,6 +159,7 @@ Tools/Validation/      Validators (run before commit)
 - [ ] Tooltips on all event options (<80 chars)
 - [ ] `python Tools/Validation/validate_content.py` passes
 - [ ] `dotnet build -c "Enlisted RETAIL" /p:Platform=x64` succeeds
+- [ ] New error codes registered in [docs/error-codes.md](docs/error-codes.md)
 
 ---
 
