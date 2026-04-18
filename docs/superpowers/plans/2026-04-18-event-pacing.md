@@ -1341,6 +1341,94 @@ Beat `OrderComplete`, Tier `Modal`, Severity 0.85, Category `promotion.tier_{tie
 git commit -m "refactor: PromotionBehavior routes through Director (bypass floor)"
 ```
 
+### Task 21b: PromotionBehavior — annotate ceremony ShowInquiry as intentional bypass
+
+**File:** `src/Features/Ranks/Behaviors/PromotionBehavior.cs:434`
+
+**Context:** `TriggerPromotionNotification` fires a ceremonial `ShowInquiry` modal (title + body + single "Understood" button) *synchronously from inside the proving event's success callback*. The proving event itself was already gated by the Director in Task 21. The ceremony popup is the completion half of a two-beat narrative moment — it must fire immediately after the proving option is chosen, within the same wall-clock second.
+
+Routing the ceremony through the Director is the **wrong** fix: `ChainContinuation = true` bypasses the in-game floor and category cooldown but still respects the 60s wall-clock guard, which would swallow the ceremony. And the ceremony has no `Options`/`Effects`/`Requirements` graph — it is not an `EventDefinition`, only an inline `InquiryData`. So we annotate it as an intentional bypass, matching the pattern used for `DebugToolsBehavior` (Task 29).
+
+- [ ] **Step 1: Add annotating comment above the ShowInquiry call**
+
+Directly above line 434:
+
+```csharp
+// Intentional bypass of StoryDirector — this ceremony popup fires synchronously
+// as the completion beat of a proving event that the Director already paced.
+// Routing it through the Director would trip the 60s wall-clock guard and
+// swallow the ceremony. If the promotion ceremony UX changes (e.g. demoted
+// to accordion headline instead of a modal), revisit this bypass.
+InformationManager.ShowInquiry(data);
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Ranks/Behaviors/PromotionBehavior.cs
+git commit -m "refactor: annotate PromotionBehavior ceremony ShowInquiry as Director bypass"
+```
+
+---
+
+### Task 21c: OrderManager — annotate insubordination warning as intentional bypass
+
+**File:** `src/Features/Orders/Behaviors/OrderManager.cs:1043`
+
+**Context:** `TriggerDischargeWarning` fires a system-initiated `ShowInquiry` after the player declines orders repeatedly. It's a pure feedback modal — no options, no effects, no `EventDefinition` graph. Fires at most once per decline-count threshold crossing, so it self-paces by trigger condition.
+
+Router support for observational modals (non-`EventDefinition` Modal candidates) is a followup. For v1: annotate as bypass.
+
+- [ ] **Step 1: Add annotating comment**
+
+Above line 1043:
+
+```csharp
+// Intentional bypass of StoryDirector — this warning fires once per decline-count
+// threshold and is self-paced by its trigger condition. Routing through Director
+// would require observational-modal support (InteractiveEvent == null + tier == Modal),
+// which is a followup. If the warning starts firing excessively, revisit.
+InformationManager.ShowInquiry(new InquiryData( ... ), true);
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Orders/Behaviors/OrderManager.cs
+git commit -m "refactor: annotate OrderManager insubordination warning as Director bypass"
+```
+
+---
+
+### Task 21d: CampOpportunityGenerator — annotate dereliction notification as intentional bypass
+
+**File:** `src/Features/Camp/CampOpportunityGenerator.cs:1594`
+
+**Context:** "Dereliction of Duty" modal fires when the player is caught skipping duty. Like insubordination, it's a player-feedback modal with no options/effects — self-paces by the underlying detection probability and scrutiny state.
+
+- [ ] **Step 1: Add annotating comment**
+
+Above line 1594:
+
+```csharp
+// Intentional bypass of StoryDirector — fires on detection check; self-paced by
+// the underlying detection probability and scrutiny state. Observational-modal
+// routing is a followup.
+InformationManager.ShowInquiry(new InquiryData( ... ), true);
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Camp/CampOpportunityGenerator.cs
+git commit -m "refactor: annotate CampOpportunityGenerator dereliction modal as Director bypass"
+```
+
+---
+
 ### Task 22: EscalationManager
 
 **File:** `src/Features/Escalation/EscalationManager.cs:938`
@@ -1430,6 +1518,34 @@ Beat `EscalationThreshold`, Tier `Modal`, Severity 0.70, Category `retinue.loyal
 ```bash
 git commit -m "refactor: RetinueManager loyalty threshold routes through Director"
 ```
+
+### Task 28b: RetinueManager — annotate Commander's Commission as intentional bypass
+
+**File:** `src/Features/Retinue/Core/RetinueManager.cs:1017`
+
+**Context:** "Commander's Commission" modal fires when the player reaches T7 — a retinue-unlock narrative beat that follows the T7 promotion ceremony. Same two-beat-chain reasoning as `PromotionBehavior.cs:434` (Task 21b): tied to a Director-gated event the player just completed, must fire within seconds, has no `EventDefinition` graph. Fires exactly once per character (T7 is one-time), so zero spam risk.
+
+- [ ] **Step 1: Add annotating comment**
+
+Above line 1017:
+
+```csharp
+// Intentional bypass of StoryDirector — fires exactly once when the player reaches
+// T7, immediately after the promotion ceremony (PromotionBehavior.cs:434). Same
+// two-beat chain reasoning as Task 21b: routing through Director would trip the
+// 60s wall-clock guard and swallow this commission modal.
+InformationManager.ShowInquiry(new InquiryData( ... ));
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Retinue/Core/RetinueManager.cs
+git commit -m "refactor: annotate RetinueManager Commander's Commission as Director bypass"
+```
+
+---
 
 ### Task 29: DebugToolsBehavior — explicit bypass
 
@@ -1549,6 +1665,18 @@ git commit -m "docs: link event-pacing spec/plan/verification from INDEX + BLUEP
 - `EventDeliveryManager.QueueEvent` access modifier changes — intentionally kept public (with a conventional comment that only Director + debug should call it)
 - Removal of `CampRoutineProcessor`'s existing `AddToNewsFeed` pattern (already writes to `_personalFeed` — leave alone; a future task can route through Director if needed)
 
+## Followups (parked for a subsequent spec)
+
+Identified during the adversarial audit but deliberately out of this plan. Each deserves its own design pass.
+
+- **Ambient reputation surfacing.** `EscalationManager.ModifyLordReputation(delta, reason)` at `EscalationManager.cs:473` is a pure mutator — reputation deltas from event effects currently only appear in `ModLogger`. Could emit Log-tier Director candidates so players see a scrolling "+1 Lord Relation (for X)" trail in the news feed. Design question: which reasons surface, and do we aggregate same-day deltas into one entry? Not a refactor prerequisite; decide separately.
+
+- **Promotion pre-thresholds / rank-approaching hints.** No content today surfaces "1 battle from Sergeant" or "scrutiny at 60, one more incident and you'll be Watched." These would be Pertinent-tier Director candidates at sub-threshold boundaries (e.g. 80% of promotion requirement met; scrutiny ≥ (threshold − 15); medical risk ≥ 2). Design question: which thresholds get hints, and at what proximity? Not a refactor prerequisite.
+
+- **Promotion ceremony demotion option.** Task 21b preserves the proving → ceremony two-modal flow. If playtesting finds the ceremony feels redundant after the proving event, a followup can demote the ceremony to an accordion Headline + chat banner (the chat banner at `PromotionBehavior.cs:411, 415` already prints the rank change). Preserves all information, drops one modal per promotion. Design call only — do not pre-implement.
+
+- **Observational modal support in StoryDirector.** Tasks 21b, 21c, 21d, 28b annotate four system-initiated `ShowInquiry` sites as intentional bypass because they have no `EventDefinition` graph (no options, effects, requirements, or chains — just title + body + "Understood"). A proper router would add an `ObservationalModal` path to `StoryDirector.Route`: `tier == Modal && InteractiveEvent == null` renders via `ShowInquiry` using `RenderedTitle`/`RenderedBody`, subject to the same guards as interactive modals. Worth doing after v1 ships and playtest confirms the 4 bypassed sites don't cause pacing issues in practice.
+
 ## Notes on departures from v1
 
 - **v1 Task 24 (make QueueEvent internal) is DELETED.** The Director is additive; `QueueEvent` stays public.
@@ -1563,6 +1691,12 @@ git commit -m "docs: link event-pacing spec/plan/verification from INDEX + BLUEP
 
 - **Spec coverage:** Tiers (Tasks 1, 8, 12), beats (Task 5), relevance (Task 4 via CampaignTriggerTrackerBehavior), severity (Task 5), aggregation (Task 6), digest (Task 15), modal guards (Task 12), wall-clock (Task 12), speed downshift (Task 12), density (Task 11), fallback (Tasks 7, 16), quiet-stretch (Tasks 7, 16), caller migrations (Tasks 17–29), retry (Task 30), smoke tests (Task 31).
 - **All 14 production `QueueEvent` callers accounted for:** MapIncident (17), ContentOrchestrator (18), EnlistedMenuBehavior (19), EventPacingManager (20), Promotion (21), Escalation (22), Enlistment ×2 (23), CompanySim ×2 (24), CampOpportunity ×2 (25), OrderProgression ×2 (26), RetinueCasualty (27), Retinue (28), Debug (29 — bypass).
+- **Plus four non-QueueEvent system-initiated modal sites accounted for (all annotated as intentional bypass):**
+  - `PromotionBehavior.cs:434` (ceremony popup) — Task 21b; two-beat chain after proving event
+  - `OrderManager.cs:1043` (insubordination warning) — Task 21c; self-paced by decline-count threshold
+  - `CampOpportunityGenerator.cs:1594` (dereliction notification) — Task 21d; self-paced by detection check
+  - `RetinueManager.cs:1017` (Commander's Commission at T7) — Task 28b; two-beat chain after T7 promotion
+- **User-initiated `ShowInquiry` sites are NOT gated** (intentional): `EnlistedMenuBehavior` leave/desert/orders confirmations, `CampMenuHandler` retinue confirmations, `MusterMenuHandler` muster confirmations. Player clicked a menu option; the modal is a natural continuation of that click, not a system-initiated interrupt.
 - **No deletion of authored content:** OrderProgression retains `EventCatalog.GetEventsByOrderType`; ContentOrchestrator retains opportunity delivery; MapIncident retains `EventCatalog.GetEventsForContext`; EnlistedNewsBehavior retains `DispatchItem` and `GetPersonalFeedSince`.
 - **Path corrections:** `Events/` (capital E); `src/Features/Enlistment/Behaviors/MusterMenuHandler.cs`; `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`.
 - **No reintroduction of removed concepts:** quiet-stretch JSON uses only `lordReputation` effect; no `morale`, no `officerReputation`, no `soldierReputation`.
