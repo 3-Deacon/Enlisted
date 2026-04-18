@@ -96,6 +96,22 @@ namespace Enlisted.Mod.Core.Logging
         /// </summary>
         public static void Flush() { RewriteFooter(); }
 
+        /// <summary>
+        /// Reset all in-memory counters and re-enable footer writing for a new session.
+        /// Called from <c>ModLogger.Initialize()</c> so save-reload within the same
+        /// process starts with a clean slate.
+        /// </summary>
+        public static void Reset()
+        {
+            lock (Sync)
+            {
+                Surfaced.Clear();
+                CaughtSites.Clear();
+                ExpectedKeys.Clear();
+                _footerDisabled = false;
+            }
+        }
+
         private static void RewriteFooter()
         {
             if (_footerDisabled) return;

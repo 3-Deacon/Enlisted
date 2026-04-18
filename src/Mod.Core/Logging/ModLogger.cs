@@ -63,7 +63,12 @@ namespace Enlisted.Mod.Core.Logging
 		// This gives end-user logs real stack traces without requiring Debug log level, but avoids spam.
 		private static readonly HashSet<string> LoggedExceptionDetails = new HashSet<string>();
 
-		// Throttle state for Caught(): fingerprint -> (firstTickUtc, count)
+		// Throttle state for Caught(): fingerprint -> (firstTickUtc, count).
+		// The dictionary is bounded by the static set of Caught(...) call sites: the
+		// fingerprint is category|file|line, where file and line come from compile-time
+		// CallerFilePath/CallerLineNumber attributes and therefore cannot vary at runtime.
+		// Implicit guard-rail: if a caller ever passes a dynamic category string the
+		// dictionary could grow unbounded, but all known callers use string literals.
 		private static readonly Dictionary<string, (DateTime window, int count)> CaughtThrottle
 			= new Dictionary<string, (DateTime, int)>();
 		private static readonly TimeSpan CaughtWindow = TimeSpan.FromSeconds(60);
@@ -116,6 +121,10 @@ namespace Enlisted.Mod.Core.Logging
 					LoggedOnceKeys.Clear();
 					ThrottleCache.Clear();
 					SummaryData.Clear();
+					CaughtThrottle.Clear();
+					ExpectedThrottle.Clear();
+					SurfacedToastedCodes.Clear();
+					SessionSummaryFooter.Reset();
 
 					// Write initialization message - this will test if logging works
 					WriteInternal("INFO", "Init", $"Logger initialized (session: {_sessionId}, path: {_logFilePath})");
@@ -281,6 +290,8 @@ namespace Enlisted.Mod.Core.Logging
 			if (!IsEnabled(category, LogLevel.Error)) return;
 
 			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
+
 			var fingerprint = $"{category}|{shortFile}|{callerLine}";
 			var now = DateTime.UtcNow;
 
@@ -297,7 +308,7 @@ namespace Enlisted.Mod.Core.Logging
 					if (state.count > 1)
 					{
 						WriteInternal("ERROR", category,
-							$"[{shortFile}:{callerLine}] (suppressed {state.count - 1}x)");
+							$"[{shortFile}:{callerLine}] (previous window suppressed {state.count - 1}x)");
 					}
 				}
 				CaughtThrottle[fingerprint] = (now, 1);
@@ -306,8 +317,6 @@ namespace Enlisted.Mod.Core.Logging
 			var ctxLine = FormatCtx(ctx);
 			var header = $"{summary} [at {shortFile}:{callerLine}]";
 			Error(category, string.IsNullOrEmpty(ctxLine) ? header : header + " | " + ctxLine, ex);
-
-			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
 		}
 
 		/// <summary>
@@ -323,6 +332,8 @@ namespace Enlisted.Mod.Core.Logging
 		{
 			if (!IsEnabled(category, LogLevel.Info)) return;
 
+			SessionSummaryFooter.RecordExpected(category, key);
+
 			var now = DateTime.UtcNow;
 			lock (Sync)
 			{
@@ -337,8 +348,6 @@ namespace Enlisted.Mod.Core.Logging
 
 			var ctxLine = FormatCtx(ctx);
 			Info(category, string.IsNullOrEmpty(ctxLine) ? summary : summary + " | " + ctxLine);
-
-			SessionSummaryFooter.RecordExpected(category, key);
 		}
 
 		/// <summary>
