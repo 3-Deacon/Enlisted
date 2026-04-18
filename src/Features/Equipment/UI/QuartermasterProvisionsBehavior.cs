@@ -5,6 +5,8 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
 using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -177,9 +179,18 @@ namespace Enlisted.Features.Equipment.UI
                 // Set up input handling
                 _gauntletLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
                 _gauntletLayer.InputRestrictions.SetInputRestrictions();
-                
-                // Add layer to screen
-                ScreenManager.TopScreen.AddLayer(_gauntletLayer);
+
+                var topScreen = ScreenManager.TopScreen;
+                if (topScreen == null)
+                {
+                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-005", "ScreenManager.TopScreen is null — cannot add provisions layer");
+                    CloseProvisionsScreen(false);
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
+                    return;
+                }
+
+                topScreen.AddLayer(_gauntletLayer);
                 _gauntletLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_gauntletLayer);
                 
@@ -187,8 +198,10 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Failed to open provisions screen", ex);
+                ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-004", "Failed to open provisions screen", ex);
                 CloseProvisionsScreen(false);
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=qm_ui_provisions_failed}Provisions screen failed to open. Check the log for details.").ToString()));
             }
         }
         

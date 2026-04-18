@@ -4245,16 +4245,17 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
                 else
                 {
-                    // Fallback: Direct to menu if hero creation/conversation fails
-                    ModLogger.Warn("Quartermaster", "Quartermaster Hero unavailable, falling back to direct menu");
-                    OpenQuartermasterMenuDirectly();
+                    // QM hero creation must succeed when enlisted. If we get here, hero spawn failed upstream.
+                    ModLogger.ErrorCode("Quartermaster", "E-QM-025", "GetOrCreateQuartermaster returned null or dead hero while enlisted");
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=menu_qm_hero_unavailable}The quartermaster could not be reached. This is a bug — please report it.").ToString()));
                 }
             }
             catch (Exception ex)
             {
                 ModLogger.ErrorCode("Interface", "E-UI-038", "Error opening quartermaster conversation", ex);
-                // Fallback to direct menu access
-                OpenQuartermasterMenuDirectly();
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=menu_qm_open_failed}Failed to open the quartermaster conversation. Check the log for details.").ToString()));
             }
         }
 
@@ -4311,21 +4312,6 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 ModLogger.ErrorCode("Interface", "E-UI-041", "Error opening baggage request conversation", ex);
             }
-        }
-
-        /// <summary>
-        ///     Fallback handler when quartermaster conversation cannot be opened.
-        ///     The GameMenu equipment system was removed in favor of conversation-driven Gauntlet UI.
-        /// </summary>
-        private void OpenQuartermasterMenuDirectly()
-        {
-            // The old GameMenu-based quartermaster system has been removed.
-            // Equipment access is now conversation-driven with Gauntlet UI.
-            // This fallback should not be reached in normal operation.
-            ModLogger.ErrorCode("Quartermaster", "E-QM-025",
-                "Cannot open QM: conversation failed and no fallback available");
-            InformationManager.DisplayMessage(new InformationMessage(
-                new TextObject("{=menu_qm_unavailable}Quartermaster services temporarily unavailable.").ToString()));
         }
 
         /// <summary>

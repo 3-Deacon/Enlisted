@@ -1935,8 +1935,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                     return !baggageManager.IsEmergencyAccessOnCooldown();
 
                 default:
-                    ModLogger.Warn("EnlistedDialogManager", $"Unknown gate condition: {gateCondition}");
-                    return true; // Unknown conditions pass to avoid blocking
+                    ModLogger.ErrorCode("EnlistedDialogManager", "E-DIALOG-002", $"Unknown gate condition '{gateCondition}' — option will be treated as gated (hidden/redirected). Add a handler to CheckGateCondition or fix the JSON.");
+                    return false;
             }
         }
 
@@ -2007,10 +2007,6 @@ namespace Enlisted.Features.Conversations.Behaviors
                         OnQuartermasterProvisionsRequest();
                         break;
 
-                    case "supply_report":
-                        // Show supply report (existing system)
-                        break;
-
                     case "close":
                         // Conversation closes naturally
                         break;
@@ -2032,7 +2028,9 @@ namespace Enlisted.Features.Conversations.Behaviors
                         break;
 
                     default:
-                        ModLogger.Warn("EnlistedDialogManager", $"Unknown dialogue action: {action}");
+                        ModLogger.ErrorCode("EnlistedDialogManager", "E-DIALOG-001", $"Unknown dialogue action: '{action}' — this option will not do anything. Dialogue JSON references an action with no handler.");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=dialog_unknown_action}That option is misconfigured and does nothing. Please report this bug.").ToString()));
                         break;
                 }
             }

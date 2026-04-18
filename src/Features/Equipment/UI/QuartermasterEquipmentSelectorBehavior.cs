@@ -7,6 +7,8 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
 using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -199,10 +201,13 @@ namespace Enlisted.Features.Equipment.UI
                     CloseEquipmentSelector(false);
                 }
                 
-                if (availableVariants == null || availableVariants.Count <= 1)
+                if (availableVariants == null || availableVariants.Count == 0)
                 {
-                    ModLogger.Info("QuartermasterUI", "No equipment variants available for grid UI - using conversation fallback");
-                    ShowConversationFallback(availableVariants, equipmentType);
+                    ModLogger.Warn("QuartermasterUI", $"No equipment variants available for {equipmentType} — grid not opened");
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_no_variants_for_type}The quartermaster has no {EQUIPMENT_TYPE} available for your rank and formation.")
+                            .SetTextVariable("EQUIPMENT_TYPE", equipmentType ?? "equipment")
+                            .ToString()));
                     return;
                 }
                 
@@ -244,9 +249,10 @@ namespace Enlisted.Features.Equipment.UI
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
-                    ModLogger.Error("QuartermasterUI", "ScreenManager.TopScreen is null - cannot add layer");
+                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-001", "ScreenManager.TopScreen is null - cannot add layer");
                     CloseEquipmentSelector();
-                    ShowConversationFallback(availableVariants, equipmentType);
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
                     return;
                 }
                 
@@ -261,33 +267,14 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Grid UI failed, using conversation fallback", ex);
+                ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-002", "Equipment selector failed to open", ex);
                 CloseEquipmentSelector();
-                ShowConversationFallback(availableVariants, equipmentType);
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=qm_ui_open_failed}Quartermaster screen failed to open. Check the log for details.").ToString()));
             }
         }
-        
-        /// <summary>
-        /// Fallback to conversation-based selection when grid UI is unavailable.
-        /// </summary>
-        private static void ShowConversationFallback(List<EquipmentVariantOption> availableVariants, string equipmentType)
-        {
-            try
-            {
-                var quartermasterManager = QuartermasterManager.Instance;
-                if (quartermasterManager != null)
-                {
-                    var method = typeof(QuartermasterManager).GetMethod("ShowConversationBasedEquipmentSelection", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    method?.Invoke(quartermasterManager, [availableVariants, equipmentType]);
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("QuartermasterUI", "Both grid and conversation UI failed", ex);
-            }
-        }
-        
+
+
         /// <summary>
         /// Close equipment selector and clean up UI resources.
         /// By default, returns to the quartermaster conversation hub for continued shopping.
@@ -446,7 +433,18 @@ namespace Enlisted.Features.Equipment.UI
                 
                 // Apply input restrictions and add layer to screen
                 _upgradeLayer.InputRestrictions.SetInputRestrictions();
-                ScreenManager.TopScreen.AddLayer(_upgradeLayer);
+
+                var topScreen = ScreenManager.TopScreen;
+                if (topScreen == null)
+                {
+                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-006", "ScreenManager.TopScreen is null — cannot add upgrade layer");
+                    CloseUpgradeScreen();
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
+                    return;
+                }
+
+                topScreen.AddLayer(_upgradeLayer);
                 _upgradeLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_upgradeLayer);
                 
@@ -459,8 +457,10 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Failed to open upgrade screen", ex);
+                ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-003", "Failed to open upgrade screen", ex);
                 CloseUpgradeScreen();
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=qm_ui_upgrade_failed}Upgrade screen failed to open. Check the log for details.").ToString()));
             }
         }
         
