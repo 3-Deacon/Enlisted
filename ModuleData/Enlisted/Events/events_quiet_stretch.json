@@ -1,0 +1,129 @@
+{
+  "packId": "enlisted_quiet_stretch",
+  "schemaVersion": 2,
+  "events": [
+    {
+      "id": "evt_quiet_letter_from_home",
+      "titleId": "evt_quiet_letter_from_home_title",
+      "title": "Letter from Home",
+      "setupId": "evt_quiet_letter_from_home_setup",
+      "setup": "A courier finds you between watches. The hand is your sister's. You break the seal.",
+      "category": "quiet_stretch",
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 9
+        }
+      },
+      "timing": {
+        "cooldown_days": 20,
+        "priority": "normal",
+        "one_time": false
+      },
+      "options": [
+        {
+          "id": "read_letter",
+          "textId": "evt_quiet_letter_from_home_opt_read",
+          "text": "Read it.",
+          "tooltip": "Take a moment to read. +1 Lord Reputation.",
+          "effects": {
+            "lordReputation": 1
+          },
+          "resultTextId": "evt_quiet_letter_from_home_result",
+          "resultText": "You read it twice and fold it into your gear."
+        },
+        {
+          "id": "pocket_it",
+          "textId": "evt_quiet_letter_from_home_opt_pocket",
+          "text": "Pocket it for later.",
+          "tooltip": "Not the time. No effect.",
+          "effects": {},
+          "resultTextId": "evt_quiet_letter_from_home_result_pocket",
+          "resultText": "The letter stays unread until the watch is over."
+        }
+      ]
+    },
+    {
+      "id": "evt_quiet_sergeant_check_in",
+      "titleId": "evt_quiet_sergeant_check_in_title",
+      "title": "Sergeant's Word",
+      "setupId": "evt_quiet_sergeant_check_in_setup",
+      "setup": "The sergeant finds you during drill and nods once. \"Hard stretch ahead. Keep your edge.\"",
+      "category": "quiet_stretch",
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 9
+        }
+      },
+      "timing": {
+        "cooldown_days": 20,
+        "priority": "normal",
+        "one_time": false
+      },
+      "options": [
+        {
+          "id": "acknowledged",
+          "textId": "evt_quiet_sergeant_check_in_opt_ack",
+          "text": "Understood.",
+          "tooltip": "Acknowledge the warning. +1 Lord Reputation.",
+          "effects": {
+            "lordReputation": 1
+          },
+          "resultTextId": "evt_quiet_sergeant_check_in_result",
+          "resultText": "He moves on. The drill continues."
+        },
+        {
+          "id": "stay_silent",
+          "textId": "evt_quiet_sergeant_check_in_opt_silent",
+          "text": "Say nothing.",
+          "tooltip": "Hold your tongue. No effect.",
+          "effects": {},
+          "resultTextId": "evt_quiet_sergeant_check_in_result_silent",
+          "resultText": "You keep your eyes forward. The moment passes."
+        }
+      ]
+    },
+    {
+      "id": "evt_quiet_comrade_banter",
+      "titleId": "evt_quiet_comrade_banter_title",
+      "title": "Cook Fire Talk",
+      "setupId": "evt_quiet_comrade_banter_setup",
+      "setup": "A comrade squats beside you at the cook fire. \"Quiet few days. Too quiet, maybe.\"",
+      "category": "quiet_stretch",
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 9
+        }
+      },
+      "timing": {
+        "cooldown_days": 20,
+        "priority": "normal",
+        "one_time": false
+      },
+      "options": [
+        {
+          "id": "nod_and_drink",
+          "textId": "evt_quiet_comrade_banter_opt_nod",
+          "text": "Nod and drink.",
+          "tooltip": "Share the quiet without words. +1 Lord Reputation.",
+          "effects": {
+            "lordReputation": 1
+          },
+          "resultTextId": "evt_quiet_comrade_banter_result",
+          "resultText": "You share the watch without words."
+        },
+        {
+          "id": "change_subject",
+          "textId": "evt_quiet_comrade_banter_opt_change",
+          "text": "\"Aye. Could always be worse.\"",
+          "tooltip": "Deflect the omen. No effect.",
+          "effects": {},
+          "resultTextId": "evt_quiet_comrade_banter_result_change",
+          "resultText": "He grunts, stares into the fire, and says nothing more."
+        }
+      ]
+    }
+  ]
+}

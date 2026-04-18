@@ -79,7 +79,8 @@ VALID_CONTEXTS = {
 VALID_CATEGORIES = {
     "decision", "escalation", "role", "universal", "muster", "crisis", "general",
     "onboarding", "pay", "promotion", "retinue", "training", "threshold",
-    "medical", "map_incident"  # Medical system events and map incident events
+    "medical", "map_incident",  # Medical system events and map incident events
+    "quiet_stretch"  # Low-intensity narrative filler events for the Director fallback pool
 }
 
 # Valid severities for order events (from schema)
