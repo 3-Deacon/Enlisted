@@ -103,9 +103,9 @@ namespace Enlisted.Mod.Core.Logging
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
             try
             {
-                var block = BuildFooterBlock();
                 lock (Sync)
                 {
+                    var block = BuildFooterBlock();
                     var all = File.ReadAllText(path);
                     var idx = all.LastIndexOf(SentinelStart, StringComparison.Ordinal);
                     if (idx >= 0)
