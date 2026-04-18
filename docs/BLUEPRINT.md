@@ -11,7 +11,7 @@
 1. **Target Bannerlord v1.3.13** — Never assume APIs from later versions exist
 2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
 3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
-4. **Use ModLogger** with error codes (format: `E-SYSTEM-001`) for all logging
+4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API (three-tier `Surfaced` / `Caught` / `Expected` for new code; the older `ErrorCode` / `WarnCode` remain for existing call sites until Phase 4 migration completes)
 5. **Never suppress ReSharper warnings** without documented justification
 6. **Run validation** before committing: `python Tools/Validation/validate_content.py`
 7. **Check if features exist** by searching codebase first — never hallucinate
@@ -45,7 +45,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 1. **Target Version:** Bannerlord v1.3.13 (not latest)
 2. **API Verification:** Use `Decompile/` in workspace root (never online docs)
 3. **New C# Files:** Manually add to `Enlisted.csproj` → run validator
-4. **Logging:** Use `ModLogger` with error codes (`E-SYS-001`)
+4. **Logging:** Use `ModLogger` — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API
 5. **Opportunity Model:** Each opportunity once/day, commitment = click future to schedule, click current to fire
 6. **Code Quality:** Follow ReSharper, don't suppress without reason
 

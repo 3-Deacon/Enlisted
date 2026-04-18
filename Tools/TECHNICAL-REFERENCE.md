@@ -65,6 +65,26 @@ ModLogger.WarnCode("Category", "E-CATEGORY-NNN", "warning");
 ModLogger.ErrorCodeOnce("UniqueKey", "Category", "E-CATEGORY-NNN", "error", ex);
 ```
 
+> **For new call sites, prefer the three-tier API** (added during the
+> error-code redesign; spec:
+> [`docs/superpowers/specs/2026-04-18-error-code-redesign-design.md`](../docs/superpowers/specs/2026-04-18-error-code-redesign-design.md)).
+> Codes auto-hash from the summary string — you never pick a number, and
+> `docs/error-codes.md` regenerates from source. The old `ErrorCode` /
+> `WarnCode` above remain as deprecated wrappers until Phase 4 migration
+> completes.
+>
+> ```csharp
+> // Player/dev-facing failure — red toast once per session, full context in log
+> ModLogger.Surfaced("QM", "Error charging gold", ex, LogCtx.PlayerState());
+>
+> // Defensive catch in a Harmony patch / cleanup — log only, throttled 60s per site
+> ModLogger.Caught("PATCH", "Error in ReturnToArmySuppressionPatch", ex);
+>
+> // Known-branch early exit (no exception) — INFO level, throttled by key
+> ModLogger.Expected("RETIRE", "retire_first_term_ineligible",
+>                    "Cannot process first-term retirement - not eligible");
+> ```
+
 ### Categories
 
 - **Core:** Enlistment, Combat, Equipment, Events, Orders, Reputation
