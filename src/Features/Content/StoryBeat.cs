@@ -1,5 +1,9 @@
 namespace Enlisted.Features.Content
 {
+    /// <summary>
+    /// World-event or simulation beat that a story candidate can respond to.
+    /// Used by SeverityClassifier to weight candidates and by the Director to gate tier promotion.
+    /// </summary>
     public enum StoryBeat
     {
         LordCaptured,
