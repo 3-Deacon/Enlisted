@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -61,6 +62,11 @@ namespace Enlisted.Mod.Core.Logging
 		// Exception detail de-duplication: only write each unique exception detail once per session.
 		// This gives end-user logs real stack traces without requiring Debug log level, but avoids spam.
 		private static readonly HashSet<string> LoggedExceptionDetails = new HashSet<string>();
+
+		// Throttle state for Caught(): fingerprint -> (firstTickUtc, count)
+		private static readonly Dictionary<string, (DateTime window, int count)> CaughtThrottle
+			= new Dictionary<string, (DateTime, int)>();
+		private static readonly TimeSpan CaughtWindow = TimeSpan.FromSeconds(60);
 
 		/// <summary>
 		/// Tracks repeated messages for throttling.
@@ -246,6 +252,53 @@ namespace Enlisted.Mod.Core.Logging
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Log a caught exception at a defensive boundary. Writes to the session log
+		/// with file:line and stack. NEVER toasts on-screen. Throttled by
+		/// (category, callerFile, callerLine) on a 60s window — after the first
+		/// occurrence, further hits in the window are counted and flushed as a
+		/// single "(suppressed Nx)" line when the window rolls over.
+		/// </summary>
+		public static void Caught(
+			string category,
+			string summary,
+			Exception ex,
+			IDictionary<string, object> ctx = null,
+			[CallerFilePath] string callerFile = "",
+			[CallerLineNumber] int callerLine = 0)
+		{
+			if (!IsEnabled(category, LogLevel.Error)) return;
+
+			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+			var fingerprint = $"{category}|{shortFile}|{callerLine}";
+			var now = DateTime.UtcNow;
+
+			lock (Sync)
+			{
+				if (CaughtThrottle.TryGetValue(fingerprint, out var state))
+				{
+					if (now - state.window < CaughtWindow)
+					{
+						CaughtThrottle[fingerprint] = (state.window, state.count + 1);
+						return; // suppressed within the window; first-hit line already logged
+					}
+					// window expired — emit the tail count for the previous window
+					if (state.count > 1)
+					{
+						WriteInternal("ERROR", category,
+							$"[{shortFile}:{callerLine}] (suppressed {state.count - 1}x)");
+					}
+				}
+				CaughtThrottle[fingerprint] = (now, 1);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			var header = $"{summary} [at {shortFile}:{callerLine}]";
+			Error(category, string.IsNullOrEmpty(ctxLine) ? header : header + " | " + ctxLine, ex);
+
+			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
 		}
 
 		/// <summary>
@@ -666,6 +719,25 @@ namespace Enlisted.Mod.Core.Logging
 			}
 		}
 
+		private static string FormatCtx(IDictionary<string, object> ctx)
+		{
+			if (ctx == null || ctx.Count == 0) return string.Empty;
+			try
+			{
+				var parts = new List<string>(ctx.Count);
+				foreach (var kvp in ctx)
+				{
+					var v = kvp.Value == null ? "null" : kvp.Value.ToString();
+					parts.Add($"{kvp.Key}={v}");
+				}
+				return "ctx: " + string.Join(" ", parts);
+			}
+			catch
+			{
+				return string.Empty; // never let ctx formatting break logging
+			}
+		}
+
 		private static void WriteInternal(string level, string category, string message)
 		{
 			// Ensure path is set (in case Initialize wasn't called)
@@ -983,5 +1055,13 @@ namespace Enlisted.Mod.Core.Logging
 		}
 
 		#endregion
+	}
+
+	internal static class SessionSummaryFooter
+	{
+		public static void RecordCaught(string category, string file, int line) { /* Task 7 */ }
+		public static void RecordSurfaced(string code, string category, string summary, string file, int line) { /* Task 7 */ }
+		public static void RecordExpected(string category, string key) { /* Task 7 */ }
+		public static void Flush() { /* Task 7 */ }
 	}
 }
