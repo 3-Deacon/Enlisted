@@ -188,6 +188,12 @@ Link, don't duplicate — open these for depth:
 8. Not persisting in-progress flags in `SyncData()`
 9. Missing `SaveableTypeDefiner` registration
 10. Relying on external API docs (wrong version)
+11. Creating mod-spawned heroes (QM, etc.) with `Occupation.Wanderer` triggers
+    vanilla wanderer-introduction dialogue. Use `Occupation.Soldier`. Verified
+    in the developer-local decompile (sibling of repo root — see §1):
+    `TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem.CampaignBehaviors/LordConversationsCampaignBehavior.cs:607`
+    (`AddWandererConversations`) and `:1274` (`conversation_wanderer_on_condition`,
+    checks `Occupation == Occupation.Wanderer`).
 
 Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 

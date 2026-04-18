@@ -9797,8 +9797,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
 
                 // 4. Set Hero properties
-                // Use Soldier occupation to avoid triggering companion recruitment dialogue
-                // (Wanderer occupation causes vanilla companion recruitment to appear)
+                // Use Occupation.Soldier (not Wanderer) to prevent vanilla wanderer
+                // dialogue gating from firing against the QM. The engine gates the
+                // wanderer-introduction dialogue on Occupation == Wanderer — see
+                // LordConversationsCampaignBehavior.cs:1274 (conversation_wanderer_on_condition)
+                // and :607 (AddWandererConversations) in the developer-local decompile.
+                // See AGENTS.md "Common Pitfalls" item 11.
                 qm.SetNewOccupation(Occupation.Soldier);
                 qm.HiddenInEncyclopedia = true; // Don't clutter encyclopedia
                 qm.IsKnownToPlayer = true;
