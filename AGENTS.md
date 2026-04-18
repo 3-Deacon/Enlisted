@@ -200,6 +200,19 @@ Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 
 ---
 
+## Diagnostic Logs
+
+When debugging runtime issues, check both log sources:
+
+- **Native Bannerlord logs** — `C:\ProgramData\Mount and Blade II Bannerlord\`
+  (engine crashes, save errors, low-level TaleWorlds output)
+- **Enlisted mod logs** — `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging\`
+  (`ModLogger` output, session logs, conflict reports, validation reports)
+
+Details on log categories, session naming (`Session-A_*.log`), and error-code conventions live in [Tools/TECHNICAL-REFERENCE.md](Tools/TECHNICAL-REFERENCE.md).
+
+---
+
 ## External Resources
 
 - Steam Workshop: <https://steamcommunity.com/sharedfiles/filedetails/?id=3621116083>
