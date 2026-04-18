@@ -2735,6 +2735,7 @@
     <string id="qm_equipment_unavailable" text="Equipment information unavailable" />
     <string id="qm_no_variants_available" text="No {EQUIPMENT_TYPE} variants available" />
     <string id="qm_no_affordable_variants" text="No affordable {EQUIPMENT_TYPE} variants available. You need more gold." />
+    <string id="qm_party_unavailable" text="The quartermaster cannot be reached right now." />
     
     
     
