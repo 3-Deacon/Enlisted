@@ -68,6 +68,11 @@ namespace Enlisted.Mod.Core.Logging
 			= new Dictionary<string, (DateTime, int)>();
 		private static readonly TimeSpan CaughtWindow = TimeSpan.FromSeconds(60);
 
+		// Throttle state for Expected(): key -> (firstTickUtc, count)
+		private static readonly Dictionary<string, (DateTime window, int count)> ExpectedThrottle
+			= new Dictionary<string, (DateTime, int)>();
+		private static readonly TimeSpan ExpectedWindow = TimeSpan.FromSeconds(60);
+
 		/// <summary>
 		/// Tracks repeated messages for throttling.
 		/// </summary>
@@ -299,6 +304,37 @@ namespace Enlisted.Mod.Core.Logging
 			Error(category, string.IsNullOrEmpty(ctxLine) ? header : header + " | " + ctxLine, ex);
 
 			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
+		}
+
+		/// <summary>
+		/// Log a known-branch early exit (e.g., "cannot apply bonuses — no faction").
+		/// INFO level, no stack trace, no toast. Throttled by <paramref name="key"/>
+		/// on a 60s window.
+		/// </summary>
+		public static void Expected(
+			string category,
+			string key,
+			string summary,
+			IDictionary<string, object> ctx = null)
+		{
+			if (!IsEnabled(category, LogLevel.Info)) return;
+
+			var now = DateTime.UtcNow;
+			lock (Sync)
+			{
+				if (ExpectedThrottle.TryGetValue(key, out var state)
+					&& now - state.window < ExpectedWindow)
+				{
+					ExpectedThrottle[key] = (state.window, state.count + 1);
+					return;
+				}
+				ExpectedThrottle[key] = (now, 1);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			Info(category, string.IsNullOrEmpty(ctxLine) ? summary : summary + " | " + ctxLine);
+
+			SessionSummaryFooter.RecordExpected(category, key);
 		}
 
 		/// <summary>
