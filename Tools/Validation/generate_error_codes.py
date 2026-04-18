@@ -41,6 +41,33 @@ SURFACED_RE = re.compile(
 # Detect suspicious (non-literal) Surfaced calls so we can fail loudly.
 SUSPICIOUS_RE = re.compile(r'ModLogger\.Surfaced\s*\(')
 
+# Block and line comments. Block is non-greedy, multi-line via DOTALL.
+# Line comment matches // (including ///) up to but not including the newline.
+_BLOCK_COMMENT_RE = re.compile(r'/\*.*?\*/', re.DOTALL)
+_LINE_COMMENT_RE = re.compile(r'//[^\n]*')
+
+
+def _blank_preserving_newlines(match: re.Match) -> str:
+    """Replace a regex match with whitespace, preserving newlines so that
+    downstream line-number calculations (text[:pos].count("\\n")) remain
+    accurate."""
+    return "".join("\n" if ch == "\n" else " " for ch in match.group(0))
+
+
+def strip_comments(text: str) -> str:
+    """Strip C# // line comments and /* ... */ block comments from source
+    text, replacing them with whitespace so line numbers are preserved.
+
+    Block comments are stripped first because a block comment could contain
+    '//', and a preceding '//' on the same line would otherwise swallow a
+    block-comment opener. Naive (not string-aware): acceptable here because
+    we only care about locating 'ModLogger.Surfaced(' which is not plausibly
+    embedded in a string literal.
+    """
+    text = _BLOCK_COMMENT_RE.sub(_blank_preserving_newlines, text)
+    text = _LINE_COMMENT_RE.sub(_blank_preserving_newlines, text)
+    return text
+
 
 def compute_suffix(summary: str) -> str:
     h = hashlib.sha256(summary.encode("utf-8")).digest()
@@ -55,6 +82,12 @@ def scan() -> tuple[list[dict], list[str]]:
             text = cs_file.read_text(encoding="utf-8")
         except UnicodeDecodeError:
             text = cs_file.read_text(encoding="utf-8-sig")
+
+        # Strip C# comments before scanning so commented-out Surfaced calls
+        # (ghosts) and XML doc crefs like <see cref="ModLogger.Surfaced(...)"/>
+        # don't produce false positives. Whitespace replacement preserves
+        # line numbers for accurate error/registry reporting.
+        text = strip_comments(text)
 
         # Collect all Surfaced matches with their line numbers.
         matched_spans = []
