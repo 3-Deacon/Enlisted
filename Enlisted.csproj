@@ -433,6 +433,7 @@
     <Compile Include="src\Features\Content\IStorySource.cs"/>
     <Compile Include="src\Features\Content\StoryCandidate.cs"/>
     <Compile Include="src\Features\Content\StoryCandidatePersistent.cs"/>
+    <Compile Include="src\Features\Content\RelevanceFilter.cs"/>
 
     <!-- Decisions System -->
     <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
