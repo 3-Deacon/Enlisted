@@ -1,31 +1,34 @@
-# Event Pacing Redesign — Implementation Plan
+# Event Pacing Redesign — Implementation Plan (v2)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace six independent event schedulers with a single `StoryDirector` that routes all candidates through a three-tier model (Modal / Accordion / Log) with beat-anchored triggers, relevance filter, severity classifier, aggregation, and wall-clock-aware modal discipline.
+**Goal:** Introduce a `StoryDirector` that gates the **Modal** delivery path (floor + wall-clock + category cooldown) and adds a **Headlines** accordion on `enlisted_status` surfacing high-severity items from the existing `EnlistedNewsBehavior` feeds. Beat-anchored, relevance-filtered, speed-aware. Preserves all authored content and existing consumer contracts.
 
-**Architecture:** Director-pattern broker. Story-sources emit `StoryCandidate` objects; the Director filters (relevance), classifies (severity → tier), aggregates (48h window), and surfaces through the appropriate renderer (existing `EnlistedMenuBehavior` accordion for Headline/Pertinent/Log; existing `EventDeliveryManager` for Modal). Uses existing Bannerlord campaign event hooks as beats. No free-running timers.
+**Architecture:** Additive director. Sources keep producing `EventDefinition` from `EventCatalog` / `DecisionCatalog` as today; they now emit a `StoryCandidate` carrying that `EventDefinition` (for interactive items) into the Director instead of calling `EventDeliveryManager.QueueEvent` directly. The Director routes: Modal-eligible → modal (through existing delivery), otherwise defer or write an observational `DispatchItem` into the appropriate news feed. `_personalFeed` / `_kingdomFeed` / DispatchItem remain the authoritative news data model; the Headlines accordion is a filtered view, not a duplicate store.
 
-**Tech Stack:** C# / .NET 4.7.2 / Bannerlord v1.3.13 API / Harmony / Newtonsoft.Json. No unit test project — verification is `dotnet build`, `python Tools/Validation/validate_content.py`, plus in-game smoke scenarios at phase boundaries.
+**Tech Stack:** C# / .NET 4.7.2 / Bannerlord v1.3.13 API / Harmony / Newtonsoft.Json.
 
 **Spec:** [`docs/superpowers/specs/2026-04-18-event-pacing-design.md`](../specs/2026-04-18-event-pacing-design.md)
+
+**History:** v1 of this plan was rewritten after an adversarial audit surfaced six material defects (wrong payload type, 8 unaccounted callers, deletion of shipped content via Tasks 21/23, DispatchItem contract loss, path/case errors, removed-feature effects in sample content). See commit history for v1 and the audit outcome.
 
 ---
 
 ## Conventions for every task
 
-- **After each code change:** run `dotnet build -c "Enlisted RETAIL" /p:Platform=x64`. Must succeed before moving on.
-- **After each JSON change:** run `python Tools/Validation/validate_content.py`. Must pass.
-- **New C# files:** register in `Enlisted.csproj` with `<Compile Include="src\path\File.cs"/>`.
-- **New save types:** register in `EnlistedSaveDefiner` (save-type base id range **735700–735799** reserved for pacing subsystem).
-- **Commit after each task** with conventional prefix: `feat:`, `refactor:`, `build:`, `docs:`.
-- **Never use Context7 or web for TaleWorlds APIs** — verify against local `Decompile/` only.
+- **After each code change:** `dotnet build -c "Enlisted RETAIL" /p:Platform=x64`. Must succeed.
+- **After each JSON change:** `python Tools/Validation/validate_content.py`. Must pass.
+- **New C# files:** register in `Enlisted.csproj`.
+- **New save types:** register in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` per its existing `BaseId = 735000 + offset` pattern.
+- **Commit after each task** with conventional prefix (`feat:`, `refactor:`, `build:`, `docs:`).
+- **TaleWorlds APIs:** verify against `C:\Dev\Enlisted\Decompile\` only. Never use web or training knowledge.
+- **Content directory is `ModuleData/Enlisted/Events/` (capital E).**
 
 ---
 
-## Phase 1 — Director infrastructure
+## Phase 1 — Director infrastructure (shippable in isolation)
 
-Ship plan: all of Phase 1 is a no-op at runtime (Director is registered but no source emits yet, no renderer reads from it yet). Safe to merge mid-phase.
+Runtime no-op at end of Phase 1: Director registered, no source emits, no renderer reads.
 
 ### Task 1: Add tier and beat enums
 
@@ -82,21 +85,15 @@ namespace Enlisted.Features.Content
 
 - [ ] **Step 3: Register in `Enlisted.csproj`**
 
-Add inside the existing `<ItemGroup>` of `<Compile Include>` entries:
-
 ```xml
 <Compile Include="src\Features\Content\StoryTier.cs"/>
 <Compile Include="src\Features\Content\StoryBeat.cs"/>
 ```
 
-- [ ] **Step 4: Build**
-
-Run: `dotnet build -c "Enlisted RETAIL" /p:Platform=x64`
-Expected: Build succeeds.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Build + commit**
 
 ```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 git add src/Features/Content/StoryTier.cs src/Features/Content/StoryBeat.cs Enlisted.csproj
 git commit -m "feat: add StoryTier and StoryBeat enums for pacing director"
 ```
@@ -113,7 +110,6 @@ git commit -m "feat: add StoryTier and StoryBeat enums for pacing director"
 
 ```csharp
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 
@@ -135,13 +131,11 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Register in `Enlisted.csproj`**
+- [ ] **Step 2: Register, build, commit**
 
 ```xml
 <Compile Include="src\Features\Content\RelevanceKey.cs"/>
 ```
-
-- [ ] **Step 3: Build + commit**
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
@@ -151,7 +145,9 @@ git commit -m "feat: add RelevanceKey struct for pacing filter"
 
 ---
 
-### Task 3: Add StoryCandidate and StoryCandidatePersistent
+### Task 3: Add StoryCandidate, StoryCandidatePersistent, IStorySource
+
+**Context:** `StoryCandidate` carries EITHER an `EventDefinition` (interactive — has options/effects/chain) OR an observational payload (title/body only, renders to news feed or accordion). The Director branches on that. Do NOT try to render an `EventDefinition` as an accordion entry without its `Options`; demotion means "defer this interactive event until budget opens" rather than "render degraded."
 
 **Files:**
 - Create: `src/Features/Content/StoryCandidate.cs`
@@ -162,23 +158,20 @@ git commit -m "feat: add RelevanceKey struct for pacing filter"
 - [ ] **Step 1: Create `IStorySource.cs`**
 
 ```csharp
-using System;
-using TaleWorlds.CampaignSystem;
-
 namespace Enlisted.Features.Content
 {
     public interface IStorySource
     {
         string SourceId { get; }
-        Action<StoryTier> RehydratePayload(string payloadKey);
     }
 }
 ```
 
+(Rehydration is handled via `EventCatalog.GetEventById` by the Director itself — sources don't need a rehydrate method.)
+
 - [ ] **Step 2: Create `StoryCandidate.cs`**
 
 ```csharp
-using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 
@@ -193,17 +186,27 @@ namespace Enlisted.Features.Content
         public HashSet<StoryBeat> Beats { get; set; } = new HashSet<StoryBeat>();
         public RelevanceKey Relevance { get; set; }
         public CampaignTime EmittedAt { get; set; }
-        public Action<StoryTier> Payload { get; set; }
-        public string PayloadKey { get; set; }
+
+        // Set one of:
+        public EventDefinition InteractiveEvent { get; set; }       // has options/effects
+        public bool HasObservationalRender { get; set; }            // title+body only
+
+        // Observational / deferred-interactive rendering:
         public string RenderedTitle { get; set; }
         public string RenderedBody { get; set; }
+
+        // DispatchItem compatibility (when routed through news feed):
+        public string StoryKey { get; set; }          // dedup key
+        public string DispatchCategory { get; set; }  // "war" | "battle" | "siege" | etc.
+        public int SeverityLevel { get; set; }        // 0 Normal .. 4 Critical
+        public int MinDisplayDays { get; set; } = 1;
     }
 }
 ```
 
 - [ ] **Step 3: Create `StoryCandidatePersistent.cs`**
 
-Follow the project convention (see `src/Features/Orders/Models/OrderOutcome.cs`): plain public properties with `{ get; set; }`, no `[SaveableField]` attributes. The class is registered via `AddClassDefinition` in `EnlistedSaveDefiner` (Task 9) — the SaveSystem serializes public properties by reflection for registered classes. Must be `public`, must have a parameterless constructor.
+Follow project convention (see `src/Features/Orders/Models/OrderOutcome.cs`): plain public properties, no `[SaveableField]`. Persists deferred-interactive candidates by `EventId` so the Director can rehydrate via `EventCatalog.GetEventById`.
 
 ```csharp
 namespace Enlisted.Features.Content
@@ -216,14 +219,15 @@ namespace Enlisted.Features.Content
         public float Severity { get; set; }
         public int EmittedDayNumber { get; set; }
         public int EmittedHour { get; set; }
-        public string PayloadKey { get; set; }
+        public string InteractiveEventId { get; set; }    // null if observational
         public string RenderedTitle { get; set; }
         public string RenderedBody { get; set; }
+        public string StoryKey { get; set; }
     }
 }
 ```
 
-- [ ] **Step 4: Register in csproj, build, commit**
+- [ ] **Step 4: Register, build, commit**
 
 ```xml
 <Compile Include="src\Features\Content\IStorySource.cs"/>
@@ -234,21 +238,24 @@ namespace Enlisted.Features.Content
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 git add src/Features/Content/IStorySource.cs src/Features/Content/StoryCandidate.cs src/Features/Content/StoryCandidatePersistent.cs Enlisted.csproj
-git commit -m "feat: add StoryCandidate schema and IStorySource interface"
+git commit -m "feat: add StoryCandidate schema with InteractiveEvent + observational paths"
 ```
 
 ---
 
-### Task 4: Add RelevanceFilter
+### Task 4: Add RelevanceFilter (use CampaignTriggerTrackerBehavior)
 
 **Files:**
 - Create: `src/Features/Content/RelevanceFilter.cs`
 - Modify: `Enlisted.csproj`
 
+**Context:** The project already has `src/Mod.Core/Triggers/CampaignTriggerTrackerBehavior.cs` with a timestamp-based API (`IsWithinDays(CampaignTime when, float windowDays)`, `LastSettlementEnteredId`, etc.). "Visited" here means *within the last 60 in-game days* — the tracker does not flag "ever visited". Use recency, not persistence.
+
 - [ ] **Step 1: Create `RelevanceFilter.cs`**
 
 ```csharp
-using Enlisted.Features.Enlistment;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Triggers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 
@@ -256,6 +263,7 @@ namespace Enlisted.Features.Content
 {
     public static class RelevanceFilter
     {
+        private const float RecentSettlementDays = 60f;
         private const float TravelDaysThreshold = 7f;
 
         public static bool Passes(RelevanceKey key, Hero enlistedLord, MobileParty playerParty)
@@ -265,12 +273,7 @@ namespace Enlisted.Features.Content
                 return false;
             }
 
-            if (key.TouchesEnlistedLord)
-            {
-                return true;
-            }
-
-            if (key.TouchesPlayerKingdom)
+            if (key.TouchesEnlistedLord || key.TouchesPlayerKingdom)
             {
                 return true;
             }
@@ -280,12 +283,13 @@ namespace Enlisted.Features.Content
                 return true;
             }
 
-            if (key.SubjectKingdom != null && key.SubjectKingdom == Hero.MainHero?.Clan?.Kingdom)
+            if (key.SubjectKingdom != null && Hero.MainHero?.Clan?.Kingdom != null
+                && key.SubjectKingdom == Hero.MainHero.Clan.Kingdom)
             {
                 return true;
             }
 
-            if (key.SubjectSettlement != null && VisitedSettlementTracker.HasVisited(key.SubjectSettlement))
+            if (key.SubjectSettlement != null && RecentlyVisited(key.SubjectSettlement))
             {
                 return true;
             }
@@ -295,16 +299,15 @@ namespace Enlisted.Features.Content
                 return true;
             }
 
-            if (!key.SubjectPosition.IsNonZero())
+            if (key.SubjectPosition.IsNonZero())
             {
-                return false;
-            }
-
-            float distance = playerParty.GetPosition2D.Distance(key.SubjectPosition);
-            float daysOfTravel = distance / (playerParty.Speed > 0f ? playerParty.Speed : 5f);
-            if (daysOfTravel <= TravelDaysThreshold)
-            {
-                return true;
+                float distance = playerParty.GetPosition2D.Distance(key.SubjectPosition);
+                float partySpeed = playerParty.Speed > 0f ? playerParty.Speed : 5f;
+                float daysOfTravel = distance / partySpeed;
+                if (daysOfTravel <= TravelDaysThreshold)
+                {
+                    return true;
+                }
             }
 
             if (key.SubjectFaction != null && IsActiveEnemyOfLord(key.SubjectFaction, enlistedLord))
@@ -315,15 +318,24 @@ namespace Enlisted.Features.Content
             return false;
         }
 
+        private static bool RecentlyVisited(TaleWorlds.CampaignSystem.Settlements.Settlement s)
+        {
+            var tracker = Campaign.Current?.GetCampaignBehavior<CampaignTriggerTrackerBehavior>();
+            if (tracker == null || s?.StringId == null)
+            {
+                return false;
+            }
+            return tracker.LastSettlementEnteredId == s.StringId
+                && tracker.IsWithinDays(tracker.LastSettlementEnteredTime, RecentSettlementDays);
+        }
+
         private static bool HeroKnownToPlayer(Hero hero)
         {
             if (hero?.IsAlive != true)
             {
                 return false;
             }
-
-            float rel = Hero.MainHero.GetRelation(hero);
-            return rel > 0f;
+            return Hero.MainHero.GetRelation(hero) > 0;
         }
 
         private static bool IsActiveEnemyOfLord(IFaction faction, Hero enlistedLord)
@@ -333,54 +345,22 @@ namespace Enlisted.Features.Content
             {
                 return false;
             }
-
             return FactionManager.IsAtWarAgainstFaction(lordKingdom, faction);
         }
     }
 }
 ```
 
-- [ ] **Step 2: Note dependency**
-
-The `VisitedSettlementTracker.HasVisited` call assumes an existing tracker. Confirm with Grep — if missing, create a stub under `src/Features/Enlistment/VisitedSettlementTracker.cs`:
-
-```csharp
-using System.Collections.Generic;
-using TaleWorlds.CampaignSystem.Settlements;
-
-namespace Enlisted.Features.Enlistment
-{
-    public static class VisitedSettlementTracker
-    {
-        private static readonly HashSet<string> _visited = new HashSet<string>();
-
-        public static void Record(Settlement s)
-        {
-            if (s?.StringId != null)
-            {
-                _visited.Add(s.StringId);
-            }
-        }
-
-        public static bool HasVisited(Settlement s) =>
-            s?.StringId != null && _visited.Contains(s.StringId);
-    }
-}
-```
-
-Hook `Record(settlement)` into the existing `OnSettlementEntered` handler in `EnlistmentBehavior` (search for existing subscription — add a single line to the existing method).
-
-- [ ] **Step 3: Register in csproj, build, commit**
+- [ ] **Step 2: Register, build, commit**
 
 ```xml
 <Compile Include="src\Features\Content\RelevanceFilter.cs"/>
-<Compile Include="src\Features\Enlistment\VisitedSettlementTracker.cs"/>
 ```
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/RelevanceFilter.cs src/Features/Enlistment/VisitedSettlementTracker.cs src/Features/Enlistment/EnlistmentBehavior.cs Enlisted.csproj
-git commit -m "feat: add RelevanceFilter and VisitedSettlementTracker"
+git add src/Features/Content/RelevanceFilter.cs Enlisted.csproj
+git commit -m "feat: add RelevanceFilter using existing CampaignTriggerTrackerBehavior"
 ```
 
 ---
@@ -448,7 +428,7 @@ namespace Enlisted.Features.Content
             { StoryBeat.OrderPhaseTransition, StoryTier.Log }
         };
 
-        public static StoryTier Classify(StoryCandidate c, bool touchesEnlistedLord, bool touchesPlayerKingdom, bool visitedSettlement)
+        public static StoryTier Classify(StoryCandidate c, bool touchesEnlistedLord, bool touchesPlayerKingdom, bool recentlyVisitedSettlement)
         {
             float score = c.SeverityHint;
 
@@ -469,7 +449,7 @@ namespace Enlisted.Features.Content
 
             if (touchesEnlistedLord) score += 0.15f;
             if (touchesPlayerKingdom) score += 0.10f;
-            if (visitedSettlement) score += 0.05f;
+            if (recentlyVisitedSettlement) score += 0.05f;
 
             StoryTier byScore =
                 score >= 0.70f ? StoryTier.Modal :
@@ -484,7 +464,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Register in csproj, build, commit**
+- [ ] **Step 2: Register, build, commit**
 
 ```xml
 <Compile Include="src\Features\Content\SeverityClassifier.cs"/>
@@ -551,7 +531,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Register in csproj, build, commit**
+- [ ] **Step 2: Register, build, commit**
 
 ```xml
 <Compile Include="src\Features\Content\StoryAggregator.cs"/>
@@ -565,132 +545,60 @@ git commit -m "feat: add StoryAggregator 48h window compression"
 
 ---
 
-### Task 7: Add QuietStretchPool and JSON content
+### Task 7: Add quiet-stretch pool JSON (author via existing event system)
+
+**Context:** Author the quiet-stretch pool as real `EventDefinition` entries in a dedicated JSON file under `ModuleData/Enlisted/Events/` (capital E). Load via the existing `EventCatalog` pipeline — no custom loader needed. Effects restricted to `lordReputation` only (per `EventDeliveryManager.cs:620` — officer/soldier reputation is removed; morale is removed per 2026-01-11 cleanup).
 
 **Files:**
-- Create: `src/Features/Content/QuietStretchPool.cs`
-- Create: `ModuleData/Enlisted/events/quiet_stretch_pool.json`
-- Modify: `Enlisted.csproj`
+- Create: `ModuleData/Enlisted/Events/events_quiet_stretch.json`
+- Modify: whichever config/catalog file maps JSON filename → `EventCatalog` loader (grep for an existing `events_*.json` registration)
 
-- [ ] **Step 1: Create authoring stub `quiet_stretch_pool.json`**
+- [ ] **Step 1: Create `ModuleData/Enlisted/Events/events_quiet_stretch.json`**
+
+Match the schema of an existing `events_*.json` file exactly. **Before writing, read one existing file** (e.g. `events_promotion.json`) to confirm the current field ordering (AGENTS.md rule: `titleId` / `title` pair adjacent). Example entry shape:
 
 ```json
 {
   "schema_version": 1,
-  "pool": [
+  "events": [
     {
-      "id": "quiet_letter_from_home",
+      "id": "evt_quiet_letter_from_home",
       "titleId": "qsp_letter_title",
       "title": "A Letter from Home",
       "setupId": "qsp_letter_setup",
       "setup": "A courier finds you between watches. The hand is your sister's. You break the seal.",
+      "category": "quiet_stretch",
       "options": [
         {
           "id": "read_letter",
           "textId": "qsp_letter_read",
           "text": "Read it",
-          "tooltip": "Reflect on home. +1 Lord rep, small morale.",
+          "tooltip": "Reflect on home. +1 Lord relation.",
           "effects": { "lordReputation": 1 },
-          "resultText": "You read it twice and fold it into your gear."
+          "resultTextId": "qsp_letter_result",
+          "resultTextFallback": "You read it twice and fold it into your gear."
         }
       ],
-      "requirements": { "tier": { "min": 1, "max": 9 } }
-    },
-    {
-      "id": "quiet_sergeant_checkin",
-      "titleId": "qsp_sergeant_title",
-      "title": "A Word from the Sergeant",
-      "setupId": "qsp_sergeant_setup",
-      "setup": "The sergeant finds you during drill and nods once. 'Hard stretch ahead. Keep your edge.'",
-      "options": [
-        {
-          "id": "acknowledge",
-          "textId": "qsp_sergeant_ack",
-          "text": "Understood",
-          "tooltip": "Acknowledge. +1 Officer rep.",
-          "effects": { "officerReputation": 1 },
-          "resultText": "He moves on. The drill continues."
-        }
-      ],
-      "requirements": { "tier": { "min": 1, "max": 9 } }
+      "requirements": { "tier": { "min": 1, "max": 9 } },
+      "timing": { "cooldown_days": 20, "priority": "normal", "one_time": false }
     }
   ]
 }
 ```
 
-- [ ] **Step 2: Create `QuietStretchPool.cs`**
+Add at least 3 entries (letter-from-home, sergeant-check-in, comrade-banter). **Do not** use `officerReputation`, `soldierReputation`, or any `morale` effect — they are contract-dead.
 
-```csharp
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Enlisted.Platform;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+- [ ] **Step 2: Register the file in EventCatalog's loader list**
 
-namespace Enlisted.Features.Content
-{
-    public static class QuietStretchPool
-    {
-        private static readonly List<JObject> _pool = new List<JObject>();
-        private static readonly Random _rng = new Random();
-        private static bool _loaded;
+Grep for `events_promotion.json` or `events_incidents*.json` in `src/` and `ModuleData/Enlisted/Config/` — add an entry for `events_quiet_stretch.json` in whichever registration point the project uses. (If events are auto-loaded from the directory, no registration is needed — confirm via reading the existing loader.)
 
-        public static void Load()
-        {
-            _loaded = true;
-            _pool.Clear();
-            var path = ModulePaths.GetContentPath(Path.Combine("events", "quiet_stretch_pool.json"));
-            if (!File.Exists(path))
-            {
-                return;
-            }
-
-            var json = File.ReadAllText(path);
-            var root = JObject.Parse(json);
-            var pool = root["pool"] as JArray;
-            if (pool == null)
-            {
-                return;
-            }
-
-            foreach (var entry in pool.OfType<JObject>())
-            {
-                _pool.Add(entry);
-            }
-        }
-
-        public static JObject PickOne()
-        {
-            if (!_loaded)
-            {
-                Load();
-            }
-
-            if (_pool.Count == 0)
-            {
-                return null;
-            }
-
-            return _pool[_rng.Next(_pool.Count)];
-        }
-    }
-}
-```
-
-Note: `ModulePaths.GetContentPath` is an existing helper per AGENTS.md rule 9. Confirm with Grep. If missing, use `Path.Combine(TaleWorlds.ModuleManager.ModuleHelper.GetModuleFullPath("Enlisted"), "ModuleData", "Enlisted", ...)`.
-
-- [ ] **Step 3: Register, validate content, build, commit**
-
-```xml
-<Compile Include="src\Features\Content\QuietStretchPool.cs"/>
-```
+- [ ] **Step 3: Validate, commit**
 
 ```bash
 python Tools/Validation/validate_content.py
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/QuietStretchPool.cs ModuleData/Enlisted/events/quiet_stretch_pool.json Enlisted.csproj
-git commit -m "feat: add quiet-stretch fallback pool loader and authoring stub"
+git add ModuleData/Enlisted/Events/events_quiet_stretch.json
+git commit -m "feat: author quiet-stretch event pool for Director fallback"
 ```
 
 ---
@@ -700,18 +608,18 @@ git commit -m "feat: add quiet-stretch fallback pool loader and authoring stub"
 **Files:**
 - Create: `src/Features/Content/StoryDirector.cs`
 - Modify: `Enlisted.csproj`
-- Modify: `src/Mod/SubModule.cs` (or the behavior registration site — grep for `AddBehavior` to find it)
+- Modify: whichever `SubModule` / behavior-registration file adds other `CampaignBehaviorBase` instances (grep for `AddBehavior(new` to find it)
 
-- [ ] **Step 1: Create `StoryDirector.cs` with emit-only API and state bags**
+- [ ] **Step 1: Create `StoryDirector.cs`**
 
 ```csharp
 using System;
 using System.Collections.Generic;
-using Enlisted.Features.Enlistment;
-using Enlisted.Platform;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
-using TaleWorlds.SaveSystem;
+using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Features.Content
 {
@@ -719,46 +627,25 @@ namespace Enlisted.Features.Content
     {
         public static StoryDirector Instance { get; private set; }
 
-        // Project convention: behavior fields are NOT annotated with [SaveableField];
-        // persistence is explicit via SyncData(IDataStore) below.
-        // (See src/Features/Retinue/Core/CompanionAssignmentManager.cs for precedent.)
+        // Project convention: behavior fields use SyncData only, no [SaveableField].
         private int _lastModalDay;
         private long _lastModalUtcTicks;
         private Dictionary<string, int> _categoryCooldowns = new Dictionary<string, int>();
-        private List<StoryCandidatePersistent> _pertinentBuffer = new List<StoryCandidatePersistent>();
-        private List<StoryCandidatePersistent> _logRing = new List<StoryCandidatePersistent>();
+        private List<StoryCandidatePersistent> _deferredInteractive = new List<StoryCandidatePersistent>();
 
-        public IReadOnlyList<StoryCandidatePersistent> HeadlineAccordionState => _headlineBuffer;
-        public IReadOnlyList<StoryCandidatePersistent> PertinentDigestState => _pertinentBuffer;
-        public IReadOnlyList<StoryCandidatePersistent> LogRing => _logRing;
-
-        private readonly List<StoryCandidatePersistent> _headlineBuffer = new List<StoryCandidatePersistent>();
-        private readonly Dictionary<string, IStorySource> _sources = new Dictionary<string, IStorySource>();
-
-        private const int LogRingCapacity = 200;
+        public IReadOnlyList<StoryCandidatePersistent> DeferredInteractive => _deferredInteractive;
 
         public override void RegisterEvents()
         {
             Instance = this;
-            QuietStretchPool.Load();
         }
 
         public override void SyncData(IDataStore dataStore)
         {
-            dataStore.SyncData("_lastModalDay", ref _lastModalDay);
-            dataStore.SyncData("_lastModalUtcTicks", ref _lastModalUtcTicks);
-            dataStore.SyncData("_categoryCooldowns", ref _categoryCooldowns);
-            dataStore.SyncData("_pertinentBuffer", ref _pertinentBuffer);
-            dataStore.SyncData("_logRing", ref _logRing);
-        }
-
-        public void RegisterSource(IStorySource source)
-        {
-            if (source == null || string.IsNullOrEmpty(source.SourceId))
-            {
-                return;
-            }
-            _sources[source.SourceId] = source;
+            dataStore.SyncData("storydir_lastModalDay", ref _lastModalDay);
+            dataStore.SyncData("storydir_lastModalUtcTicks", ref _lastModalUtcTicks);
+            dataStore.SyncData("storydir_categoryCooldowns", ref _categoryCooldowns);
+            dataStore.SyncData("storydir_deferredInteractive", ref _deferredInteractive);
         }
 
         public void EmitCandidate(StoryCandidate candidate)
@@ -781,73 +668,27 @@ namespace Enlisted.Features.Content
                     return;
                 }
 
-                bool visited = candidate.Relevance.SubjectSettlement != null
-                    && VisitedSettlementTracker.HasVisited(candidate.Relevance.SubjectSettlement);
+                bool recentlyVisited = candidate.Relevance.SubjectSettlement != null
+                    && Campaign.Current?.GetCampaignBehavior<Enlisted.Mod.Core.Triggers.CampaignTriggerTrackerBehavior>() != null;
+
                 var finalTier = SeverityClassifier.Classify(
                     candidate,
                     candidate.Relevance.TouchesEnlistedLord,
                     candidate.Relevance.TouchesPlayerKingdom,
-                    visited);
+                    recentlyVisited);
 
                 Route(candidate, finalTier);
             }
             catch (Exception ex)
             {
-                ModLogger.Log("E-PACE-001", $"StoryDirector.EmitCandidate failed: {ex.Message}");
+                ModLogger.Warn("content", $"E-PACE-001 StoryDirector.EmitCandidate failed: {ex.Message}");
             }
         }
 
+        // Filled in by Task 14 (modal delivery) and Task 12 (news integration).
         private void Route(StoryCandidate c, StoryTier tier)
         {
-            // Phase 1 skeleton: persist to the correct buffer, no actual rendering yet.
-            var persistent = new StoryCandidatePersistent
-            {
-                SourceId = c.SourceId,
-                CategoryId = c.CategoryId,
-                GrantedTier = tier,
-                Severity = c.SeverityHint,
-                EmittedDayNumber = (int)CampaignTime.Now.ToDays,
-                EmittedHour = CampaignTime.Now.GetHourOfDay,
-                PayloadKey = c.PayloadKey,
-                RenderedTitle = c.RenderedTitle,
-                RenderedBody = c.RenderedBody
-            };
-
-            switch (tier)
-            {
-                case StoryTier.Modal:
-                    // Populated in Task 15 (modal firing) — for now, drop to headline.
-                    _headlineBuffer.Add(persistent);
-                    break;
-                case StoryTier.Headline:
-                    _headlineBuffer.Add(persistent);
-                    break;
-                case StoryTier.Pertinent:
-                    _pertinentBuffer.Add(persistent);
-                    break;
-                case StoryTier.Log:
-                    _logRing.Add(persistent);
-                    while (_logRing.Count > LogRingCapacity)
-                    {
-                        _logRing.RemoveAt(0);
-                    }
-                    break;
-            }
-        }
-
-        public bool TryReconstructPayload(StoryCandidatePersistent p, out Action<StoryTier> payload)
-        {
-            payload = null;
-            if (p == null || string.IsNullOrEmpty(p.SourceId))
-            {
-                return false;
-            }
-            if (!_sources.TryGetValue(p.SourceId, out var source))
-            {
-                return false;
-            }
-            payload = source.RehydratePayload(p.PayloadKey);
-            return payload != null;
+            // Skeleton: no-op for now. Implemented in Phase 2+3.
         }
     }
 }
@@ -855,7 +696,7 @@ namespace Enlisted.Features.Content
 
 - [ ] **Step 2: Register the behavior**
 
-Grep for `AddBehavior` to find where other campaign behaviors are registered (likely `src/Mod/SubModule.cs` or a `CampaignGameStarter`-using behavior-adder). Add:
+Grep for existing `AddBehavior(new ` calls (likely in a `CampaignGameStarter`-consuming behavior-adder file). Append:
 
 ```csharp
 campaignGameStarter.AddBehavior(new Enlisted.Features.Content.StoryDirector());
@@ -870,8 +711,8 @@ Register in csproj:
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/StoryDirector.cs src/Mod/SubModule.cs Enlisted.csproj
-git commit -m "feat: add StoryDirector skeleton with emit/route/save"
+git add src/Features/Content/StoryDirector.cs Enlisted.csproj
+git commit -m "feat: add StoryDirector skeleton (registered but routes to no-op)"
 ```
 
 ---
@@ -881,20 +722,16 @@ git commit -m "feat: add StoryDirector skeleton with emit/route/save"
 **Files:**
 - Modify: `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`
 
-**Context:** The project uses a single `BaseId = 735000` and registers types via *offsets* through three overrides: `DefineClassTypes()`, `DefineEnumTypes()`, `DefineContainerDefinitions()`. Existing offsets to avoid (read the file first to re-confirm): classes 1, 10–14, 20–24; enums 50–52, 60–64, 70–71. `Dictionary<string, int>` is **already** registered (line 90) — do not re-register.
+**Context:** Single `BaseId = 735000` with per-override offsets. Existing offsets used: classes 1, 10–14, 20–24; enums 50–52, 60–64, 70–71. `Dictionary<string,int>` container is already registered (line 90). Do not re-register it.
 
-- [ ] **Step 1: Add pacing model class**
-
-Inside the existing `DefineClassTypes()` method, append (under a new comment block):
+- [ ] **Step 1: Add pacing model class in `DefineClassTypes()`**
 
 ```csharp
-// Pacing subsystem — StoryDirector candidate persistence
+// Pacing subsystem
 AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
 ```
 
-- [ ] **Step 2: Add pacing enums**
-
-Inside the existing `DefineEnumTypes()` method, append:
+- [ ] **Step 2: Add pacing enums in `DefineEnumTypes()`**
 
 ```csharp
 // Pacing subsystem enums
@@ -902,20 +739,14 @@ AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
 AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
 ```
 
-- [ ] **Step 3: Add container definition for the persistent-candidate list**
-
-Inside the existing `DefineContainerDefinitions()` method, append:
+- [ ] **Step 3: Add container in `DefineContainerDefinitions()`**
 
 ```csharp
 // Pacing subsystem containers (Dictionary<string,int> is already registered above)
 ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
 ```
 
-- [ ] **Step 4: Add using directive if needed**
-
-At the top of the file, confirm `using Enlisted.Features.Content;` is present (or use the fully-qualified names as shown above).
-
-- [ ] **Step 5: Build + commit**
+- [ ] **Step 4: Build + commit**
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
@@ -925,235 +756,28 @@ git commit -m "feat: register StoryDirector save types in EnlistedSaveDefiner"
 
 ---
 
-### Task 10: Smoke-test Phase 1 — save and load
+### Task 10: Smoke-test Phase 1
 
-**Files:** none (integration check)
+- [ ] **Step 1:** Build clean, launch Bannerlord, load an existing Enlisted save. Confirm no "Cannot Create Save" or save-load errors. `rgrep E-PACE-` in the mod log expects zero hits.
 
-- [ ] **Step 1: Launch Bannerlord with the build**
+- [ ] **Step 2:** Save and reload; confirm Director deserializes without exceptions.
 
-Use the existing launch workflow (Tools/Steam or manual).
-
-- [ ] **Step 2: Load an existing Enlisted save**
-
-Confirm no "Cannot Create Save" errors. Confirm `ModLogger` log has no `E-PACE-001` entries.
-
-- [ ] **Step 3: Save the game**
-
-Close and reload — verify no save errors and `StoryDirector.Instance != null` (add a temporary `ModLogger.Log` at end of `RegisterEvents` to print `"StoryDirector online"` if needed; remove before commit).
-
-- [ ] **Step 4: Commit (only if any fixes were needed)**
-
-End of Phase 1. Director is live but no sources emit yet and no renderer reads from its state — behavior is unchanged from today.
+(No commit — pure integration check.)
 
 ---
 
-## Phase 2 — Menu rendering
+## Phase 2 — Routing: Modal gate + news-feed observational path
 
-Ship plan: menu now reads from Director's state bags; still no source emits, so accordion sections remain empty. Safe to merge.
+At end of Phase 2 the Director routes candidates to the right destination; no source emits yet.
 
-### Task 11: Add Headline accordion section to enlisted_status
-
-**Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`
-
-- [ ] **Step 1: Add the accordion section**
-
-Locate the `enlisted_status` menu construction (around line 931 per existing docs — grep for `enlisted_status` menu ID). Add **above** the orders accordion section:
-
-```csharp
-// Headlines (from StoryDirector)
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_status",
-    "enlisted_status_headlines",
-    "{=enl_headlines}Headlines {NEW_TAG}",
-    args =>
-    {
-        var director = Enlisted.Features.Content.StoryDirector.Instance;
-        int count = director?.HeadlineAccordionState.Count ?? 0;
-        if (count == 0)
-        {
-            return false;
-        }
-        MBTextManager.SetTextVariable("NEW_TAG", "[NEW]");
-        args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-        return true;
-    },
-    args => GameMenu.SwitchToMenu("enlisted_headlines"),
-    false, -1, false);
-```
-
-- [ ] **Step 2: Create the `enlisted_headlines` submenu**
-
-In the same file's menu registration block:
-
-```csharp
-campaignGameStarter.AddGameMenu(
-    "enlisted_headlines",
-    "{=enl_headlines_body}{HEADLINES_TEXT}",
-    args =>
-    {
-        var director = Enlisted.Features.Content.StoryDirector.Instance;
-        var sb = new System.Text.StringBuilder();
-        foreach (var item in director?.HeadlineAccordionState ?? System.Array.Empty<Enlisted.Features.Content.StoryCandidatePersistent>())
-        {
-            sb.AppendLine($"• {item.RenderedTitle}");
-            if (!string.IsNullOrEmpty(item.RenderedBody))
-            {
-                sb.AppendLine($"  {item.RenderedBody}");
-            }
-        }
-        MBTextManager.SetTextVariable("HEADLINES_TEXT", sb.ToString());
-    });
-
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_headlines",
-    "enlisted_headlines_back",
-    "{=enl_back}Back",
-    args => { args.optionLeaveType = GameMenuOption.LeaveType.Leave; return true; },
-    args => GameMenu.SwitchToMenu("enlisted_status"),
-    true, -1, false);
-```
-
-- [ ] **Step 3: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs
-git commit -m "feat: render Director headlines as enlisted_status accordion"
-```
-
----
-
-### Task 12: Add News log section to enlisted_status
+### Task 11: Add DensitySettings config reader
 
 **Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`
+- Create: `src/Features/Content/DensitySettings.cs`
+- Modify: `ModuleData/Enlisted/Config/enlisted_config.json`
+- Modify: `Enlisted.csproj`
 
-- [ ] **Step 1: Add "News" log-viewer submenu**
-
-Add below the headlines section:
-
-```csharp
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_status",
-    "enlisted_status_news",
-    "{=enl_news}News",
-    args =>
-    {
-        var director = Enlisted.Features.Content.StoryDirector.Instance;
-        if ((director?.LogRing.Count ?? 0) == 0)
-        {
-            return false;
-        }
-        args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-        return true;
-    },
-    args => GameMenu.SwitchToMenu("enlisted_news"),
-    false, -1, false);
-
-campaignGameStarter.AddGameMenu(
-    "enlisted_news",
-    "{=enl_news_body}{NEWS_TEXT}",
-    args =>
-    {
-        var director = Enlisted.Features.Content.StoryDirector.Instance;
-        var sb = new System.Text.StringBuilder();
-        var ring = director?.LogRing;
-        if (ring != null)
-        {
-            for (int i = ring.Count - 1; i >= 0; i--)
-            {
-                sb.AppendLine($"Day {ring[i].EmittedDayNumber}: {ring[i].RenderedTitle}");
-            }
-        }
-        MBTextManager.SetTextVariable("NEWS_TEXT", sb.ToString());
-    });
-
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_news",
-    "enlisted_news_back",
-    "{=enl_back}Back",
-    args => { args.optionLeaveType = GameMenuOption.LeaveType.Leave; return true; },
-    args => GameMenu.SwitchToMenu("enlisted_status"),
-    true, -1, false);
-```
-
-- [ ] **Step 2: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs
-git commit -m "feat: render Director log ring as enlisted_status News accordion"
-```
-
----
-
-### Task 13: Wire Pertinent digest into muster-menu intro
-
-**Files:**
-- Modify: `src/Features/Camp/MusterMenuHandler.cs` (grep for `muster_intro` menu id)
-
-- [ ] **Step 1: Append digest section to muster intro text**
-
-In the `muster_intro` menu's `args =>` init lambda, append to the existing text variable assembly:
-
-```csharp
-var director = Enlisted.Features.Content.StoryDirector.Instance;
-if (director != null && director.PertinentDigestState.Count > 0)
-{
-    var sb = new System.Text.StringBuilder();
-    sb.AppendLine();
-    sb.AppendLine("Since your last muster:");
-    foreach (var item in director.PertinentDigestState)
-    {
-        sb.AppendLine($"• {item.RenderedTitle}");
-    }
-    // Append sb.ToString() to the existing muster intro body variable.
-}
-```
-
-The exact variable name depends on the existing code — read the file, find the intro body text-variable set call, and append the digest string there.
-
-- [ ] **Step 2: Clear the buffer on muster close**
-
-In the `muster_complete` menu's close handler (or wherever the muster cycle ends), call:
-
-```csharp
-Enlisted.Features.Content.StoryDirector.Instance?.ClearPertinentBuffer();
-```
-
-Add the clear method to `StoryDirector.cs`:
-
-```csharp
-public void ClearPertinentBuffer()
-{
-    _pertinentBuffer.Clear();
-}
-```
-
-- [ ] **Step 3: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Camp/MusterMenuHandler.cs src/Features/Content/StoryDirector.cs
-git commit -m "feat: fold Director pertinent digest into muster intro"
-```
-
----
-
-## Phase 3 — Modal path + time discipline
-
-Director now has live renderers for Headline/Pertinent/Log. Next, wire up the Modal path with its guards.
-
-### Task 14: Add Modal delivery and time guards
-
-**Files:**
-- Modify: `src/Features/Content/StoryDirector.cs`
-- Modify: `src/Features/Content/EventDeliveryManager.cs`
-
-- [ ] **Step 1: Add density config reader**
-
-Create `src/Features/Content/DensitySettings.cs`:
+- [ ] **Step 1: Create `DensitySettings.cs`**
 
 ```csharp
 using System.IO;
@@ -1190,16 +814,80 @@ namespace Enlisted.Features.Content
 }
 ```
 
-Register in csproj.
+Confirm `Enlisted.Platform.ModulePaths.GetContentPath` exists via grep. If absent, replace with direct `ModuleHelper.GetModuleFullPath("Enlisted")` composition — verify against Decompile `TaleWorlds.ModuleManager.ModuleHelper`.
 
-- [ ] **Step 2: Replace the skeleton `Route` method in `StoryDirector.cs`**
+- [ ] **Step 2: Add config keys**
 
-Replace the current `case StoryTier.Modal:` branch body with full guard logic:
+In `ModuleData/Enlisted/Config/enlisted_config.json`, add at top level if missing:
+
+```json
+"event_density": "normal",
+"speed_downshift_on_modal": true
+```
+
+- [ ] **Step 3: Load density on submodule init**
+
+Find `SubModule.OnGameStart` / `OnSubModuleLoad` (grep) and add:
 
 ```csharp
-case StoryTier.Modal:
+Enlisted.Features.Content.DensitySettings.Load();
+```
+
+- [ ] **Step 4: Register, validate, build, commit**
+
+```xml
+<Compile Include="src\Features\Content\DensitySettings.cs"/>
+```
+
+```bash
+python Tools/Validation/validate_content.py
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Content/DensitySettings.cs ModuleData/Enlisted/Config/enlisted_config.json Enlisted.csproj
+git commit -m "feat: add DensitySettings reader + config keys"
+```
+
+---
+
+### Task 12: Implement Director Route — Modal + Observational → DispatchItem
+
+**Files:**
+- Modify: `src/Features/Content/StoryDirector.cs`
+
+**Context:** The Route method must handle three cases:
+1. **Modal granted, interactive event present** → pass floors, fire `EventDeliveryManager.QueueEvent(evt)`, optionally downshift game speed. Record cooldowns.
+2. **Modal granted, interactive event present, floors fail** → defer the candidate (persist by `InteractiveEventId`) for a later fire. Nothing shown now.
+3. **Non-Modal or observational** → compose a `DispatchItem` and append to `EnlistedNewsBehavior._personalFeed` via its public `AddPersonalDispatch` method (if missing, add a thin public wrapper in Task 13).
+
+- [ ] **Step 1: Replace the skeleton `Route` with the real implementation**
+
+```csharp
+private void Route(StoryCandidate c, StoryTier tier)
 {
     int today = (int)CampaignTime.Now.ToDays;
+
+    if (tier == StoryTier.Modal && c.InteractiveEvent != null)
+    {
+        if (!ModalFloorsAllow(c, today))
+        {
+            _deferredInteractive.Add(MakePersistent(c, tier, today));
+            return;
+        }
+
+        DownshiftSpeedIfNeeded();
+        EventDeliveryManager.Instance?.QueueEvent(c.InteractiveEvent);
+        _lastModalDay = today;
+        _lastModalUtcTicks = System.DateTime.UtcNow.Ticks;
+        _categoryCooldowns[c.CategoryId ?? "_none"] = today;
+        return;
+    }
+
+    // Observational / non-Modal: write through the existing news feed so
+    // DispatchItem consumers (muster recap, camp menu) keep their contract.
+    WriteDispatchItem(c, tier);
+}
+
+private bool ModalFloorsAllow(StoryCandidate c, int today)
+{
     double wallSeconds = (System.DateTime.UtcNow.Ticks - _lastModalUtcTicks)
         / (double)System.TimeSpan.TicksPerSecond;
 
@@ -1208,88 +896,276 @@ case StoryTier.Modal:
     bool categoryOk = !_categoryCooldowns.TryGetValue(c.CategoryId ?? "_none", out var lastDay)
         || (today - lastDay) >= DensitySettings.CategoryCooldownDays;
 
-    if (!inGameFloor || !wallClockFloor || !categoryOk)
-    {
-        _headlineBuffer.Add(persistent);
-        break;
-    }
+    return inGameFloor && wallClockFloor && categoryOk;
+}
 
-    if (DensitySettings.SpeedDownshiftOnModal
-        && Campaign.Current.TimeControlMode == CampaignTimeControlMode.StoppableFastForward)
+private static void DownshiftSpeedIfNeeded()
+{
+    if (!DensitySettings.SpeedDownshiftOnModal) return;
+    if (Campaign.Current == null) return;
+    if (Campaign.Current.TimeControlMode == CampaignTimeControlMode.StoppableFastForward)
     {
         Campaign.Current.TimeControlMode = CampaignTimeControlMode.StoppablePlay;
     }
-
-    if (c.Payload != null)
-    {
-        c.Payload(StoryTier.Modal);
-    }
-    else
-    {
-        EventDeliveryManager.Instance?.ShowFallback(c.RenderedTitle, c.RenderedBody);
-    }
-
-    _lastModalDay = today;
-    _lastModalUtcTicks = System.DateTime.UtcNow.Ticks;
-    _categoryCooldowns[c.CategoryId ?? "_none"] = today;
-    break;
 }
-```
 
-- [ ] **Step 3: Add `ShowFallback` to `EventDeliveryManager.cs`**
-
-```csharp
-public void ShowFallback(string title, string body)
+private static StoryCandidatePersistent MakePersistent(StoryCandidate c, StoryTier tier, int today)
 {
-    var inquiry = new InquiryData(
-        title ?? "",
-        body ?? "",
-        true, false,
-        new TaleWorlds.Localization.TextObject("{=close}Close").ToString(),
-        null,
-        () => { }, null);
-    InformationManager.ShowInquiry(inquiry, true);
+    return new StoryCandidatePersistent
+    {
+        SourceId = c.SourceId,
+        CategoryId = c.CategoryId,
+        GrantedTier = tier,
+        Severity = c.SeverityHint,
+        EmittedDayNumber = today,
+        EmittedHour = CampaignTime.Now.GetHourOfDay,
+        InteractiveEventId = c.InteractiveEvent?.Id,
+        RenderedTitle = c.RenderedTitle,
+        RenderedBody = c.RenderedBody,
+        StoryKey = c.StoryKey
+    };
+}
+
+private static void WriteDispatchItem(StoryCandidate c, StoryTier tier)
+{
+    var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+    if (news == null) return;
+
+    int severity = c.SeverityLevel;
+    if (severity == 0)
+    {
+        severity = tier switch
+        {
+            StoryTier.Headline => 2,
+            StoryTier.Pertinent => 1,
+            _ => 0
+        };
+    }
+
+    news.AddPersonalDispatch(
+        category: c.DispatchCategory ?? "general",
+        headlineKey: c.RenderedTitle,
+        placeholderValues: null,
+        storyKey: c.StoryKey,
+        severity: severity,
+        minDisplayDays: c.MinDisplayDays);
 }
 ```
 
-- [ ] **Step 4: Load density config on submodule init**
-
-In `SubModule.OnGameStart` (or equivalent), add:
-```csharp
-Enlisted.Features.Content.DensitySettings.Load();
-```
-
-- [ ] **Step 5: Build + commit**
+- [ ] **Step 2: Build + commit**
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/StoryDirector.cs src/Features/Content/EventDeliveryManager.cs src/Features/Content/DensitySettings.cs src/Mod/SubModule.cs Enlisted.csproj
-git commit -m "feat: modal delivery with in-game + wall-clock + category guards"
+git add src/Features/Content/StoryDirector.cs
+git commit -m "feat: Director routes Modal via guards; observational via news feed"
 ```
 
 ---
 
-### Task 15: Add density entry to enlisted_config.json
+### Task 13: Expose `AddPersonalDispatch` on EnlistedNewsBehavior (thin wrapper)
 
 **Files:**
-- Modify: `ModuleData/Enlisted/Config/enlisted_config.json`
+- Modify: `src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs`
 
-- [ ] **Step 1: Add keys if not present**
+**Context:** The behavior already constructs `DispatchItem`s in many places. Find an existing internal add path (grep for `_personalFeed.Add` or a `DispatchItem` constructor call) and expose a minimal public wrapper that mirrors the same severity-based replace/dedup behavior the internal paths use.
 
-Add at the top level:
+- [ ] **Step 1: Read the existing internal add logic**
 
-```json
-"event_density": "normal",
-"speed_downshift_on_modal": true
+Find the existing block that:
+1. Checks `_personalFeed.FindIndex(x => x.StoryKey == storyKey)`
+2. Compares severities (new must be > existing to replace)
+3. Falls back to append
+
+Copy that logic into a new public method:
+
+```csharp
+public void AddPersonalDispatch(
+    string category,
+    string headlineKey,
+    Dictionary<string, string> placeholderValues,
+    string storyKey,
+    int severity,
+    int minDisplayDays)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(headlineKey)) return;
+
+        var item = new DispatchItem
+        {
+            DayCreated = (int)CampaignTime.Now.ToDays,
+            Category = category ?? "general",
+            HeadlineKey = headlineKey,
+            PlaceholderValues = placeholderValues,
+            StoryKey = storyKey,
+            Type = DispatchType.Report,
+            Confidence = 100,
+            MinDisplayDays = Math.Max(1, minDisplayDays),
+            FirstShownDay = -1,
+            Severity = severity
+        };
+
+        // Dedup / sticky-replace by StoryKey if higher severity.
+        if (!string.IsNullOrEmpty(storyKey))
+        {
+            int idx = _personalFeed.FindIndex(x => x.StoryKey == storyKey);
+            if (idx >= 0 && _personalFeed[idx].Severity >= severity)
+            {
+                return;
+            }
+            if (idx >= 0)
+            {
+                _personalFeed[idx] = item;
+                return;
+            }
+        }
+
+        _personalFeed.Add(item);
+    }
+    catch (Exception ex)
+    {
+        ModLogger.Warn("news", $"AddPersonalDispatch failed: {ex.Message}");
+    }
+}
 ```
 
-- [ ] **Step 2: Validate, build, commit**
+Match the exact existing pattern (the internal path may have additional trim/cap logic — replicate exactly). **Before writing, read lines 3330–3460 of the file for the canonical pattern.**
+
+- [ ] **Step 2: Build + commit**
 
 ```bash
-python Tools/Validation/validate_content.py
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add ModuleData/Enlisted/Config/enlisted_config.json
-git commit -m "build: add event_density and speed_downshift config keys"
+git add src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs
+git commit -m "feat: expose AddPersonalDispatch for Director observational writes"
+```
+
+---
+
+### Task 14: Headlines accordion on enlisted_status
+
+**Files:**
+- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`
+
+**Context:** The "Headlines" accordion is a filtered view over `_personalFeed` — items with `Severity >= 2` (Attention) not yet displayed to the player this session. Use the existing `[NEW]` badge pattern (lines ~931 for orders).
+
+- [ ] **Step 1: Add Headlines option + submenu**
+
+Insert **above** the orders accordion block:
+
+```csharp
+campaignGameStarter.AddGameMenuOption(
+    "enlisted_status", "enlisted_status_headlines",
+    "{=enl_headlines}Headlines {NEW_TAG}",
+    args =>
+    {
+        var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+        int headlineCount = CountUnreadHeadlines(news);
+        if (headlineCount == 0) return false;
+        MBTextManager.SetTextVariable("NEW_TAG", "[NEW]");
+        args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+        return true;
+    },
+    args => GameMenu.SwitchToMenu("enlisted_headlines"),
+    false, -1, false);
+```
+
+And the submenu:
+
+```csharp
+campaignGameStarter.AddGameMenu(
+    "enlisted_headlines",
+    "{=enl_headlines_body}{HEADLINES_TEXT}",
+    args =>
+    {
+        var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+        MBTextManager.SetTextVariable("HEADLINES_TEXT", FormatHeadlines(news));
+    });
+
+campaignGameStarter.AddGameMenuOption(
+    "enlisted_headlines", "enlisted_headlines_back",
+    "{=enl_back}Back",
+    args => { args.optionLeaveType = GameMenuOption.LeaveType.Leave; return true; },
+    args => GameMenu.SwitchToMenu("enlisted_status"),
+    true, -1, false);
+```
+
+And helper methods on the same class:
+
+```csharp
+private static int CountUnreadHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+{
+    if (news == null) return 0;
+    int today = (int)CampaignTime.Now.ToDays;
+    var items = news.GetPersonalFeedSince(today - 7);
+    int c = 0;
+    foreach (var it in items)
+    {
+        if (it.Severity >= 2 && it.FirstShownDay < 0) c++;
+    }
+    return c;
+}
+
+private static string FormatHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+{
+    if (news == null) return string.Empty;
+    int today = (int)CampaignTime.Now.ToDays;
+    var items = news.GetPersonalFeedSince(today - 7);
+    var sb = new System.Text.StringBuilder();
+    foreach (var it in items)
+    {
+        if (it.Severity < 2) continue;
+        sb.AppendLine($"• {it.HeadlineKey}");
+        if (it.FirstShownDay < 0) it.FirstShownDay = today; // mark shown
+    }
+    return sb.ToString();
+}
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs
+git commit -m "feat: Headlines accordion on enlisted_status filtered over _personalFeed"
+```
+
+---
+
+### Task 15: Wire muster-intro digest from existing news feed
+
+**Files:**
+- Modify: `src/Features/Enlistment/Behaviors/MusterMenuHandler.cs` ← corrected path
+
+- [ ] **Step 1: Append digest to muster-intro body**
+
+Locate the `muster_intro` menu's init lambda (grep for the menu id within the file; the recon confirmed the handler is at `src/Features/Enlistment/Behaviors/MusterMenuHandler.cs:37`). Append to the existing text-variable set:
+
+```csharp
+var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+if (news != null)
+{
+    int lastMuster = /* existing session state field — use the already-tracked LastMusterDayNumber if available; else fallback: today - 12 */;
+    var since = news.GetPersonalFeedSince(lastMuster);
+    if (since.Count > 0)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine().AppendLine("Since your last muster:");
+        foreach (var it in since)
+        {
+            if (it.Severity < 1) continue;
+            sb.AppendLine($"• {it.HeadlineKey}");
+        }
+        // Append sb.ToString() to the existing body variable
+    }
+}
+```
+
+- [ ] **Step 2: Build + commit**
+
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+git add src/Features/Enlistment/Behaviors/MusterMenuHandler.cs
+git commit -m "feat: muster intro shows news digest from _personalFeed since last muster"
 ```
 
 ---
@@ -1299,7 +1175,7 @@ git commit -m "build: add event_density and speed_downshift config keys"
 **Files:**
 - Modify: `src/Features/Content/StoryDirector.cs`
 
-- [ ] **Step 1: Subscribe to DailyTickEvent and fire fallback when stretch exceeds threshold**
+- [ ] **Step 1: Subscribe to DailyTickEvent and fire fallback**
 
 In `RegisterEvents`:
 
@@ -1307,7 +1183,7 @@ In `RegisterEvents`:
 CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
 ```
 
-Add the method:
+Method:
 
 ```csharp
 private void OnDailyTick()
@@ -1320,16 +1196,17 @@ private void OnDailyTick()
             return;
         }
 
-        var entry = QuietStretchPool.PickOne();
-        if (entry == null)
+        // Pick a random quiet-stretch event from EventCatalog by category.
+        var candidates = EventCatalog.GetEventsByCategory("quiet_stretch").ToList();
+        if (candidates.Count == 0)
         {
             return;
         }
 
-        var title = entry["title"]?.ToString() ?? "A Quiet Moment";
-        var body = entry["setup"]?.ToString() ?? "";
+        var rng = new Random();
+        var evt = candidates[rng.Next(candidates.Count)];
 
-        var candidate = new StoryCandidate
+        EmitCandidate(new StoryCandidate
         {
             SourceId = "director.quiet_stretch",
             CategoryId = "quiet_stretch",
@@ -1338,19 +1215,19 @@ private void OnDailyTick()
             Beats = { StoryBeat.QuietStretchTimeout },
             Relevance = new RelevanceKey { TouchesEnlistedLord = true },
             EmittedAt = CampaignTime.Now,
-            PayloadKey = entry["id"]?.ToString(),
-            RenderedTitle = title,
-            RenderedBody = body
-        };
-
-        EmitCandidate(candidate);
+            InteractiveEvent = evt,
+            RenderedTitle = evt.TitleFallback,
+            RenderedBody = evt.SetupFallback
+        });
     }
-    catch (System.Exception ex)
+    catch (Exception ex)
     {
-        ModLogger.Log("E-PACE-002", $"Quiet-stretch tick failed: {ex.Message}");
+        ModLogger.Warn("content", $"E-PACE-002 Quiet-stretch tick failed: {ex.Message}");
     }
 }
 ```
+
+Confirm `EventCatalog.GetEventsByCategory` exists; if the project uses a different method name, adapt. Grep.
 
 - [ ] **Step 2: Build + commit**
 
@@ -1362,637 +1239,340 @@ git commit -m "feat: quiet-stretch fallback fires Modal after 14 silent days"
 
 ---
 
-## Phase 4 — Source migrations
+## Phase 3 — Caller migrations
 
-One source per task. Each migration keeps the old direct-queue path behind a feature flag for one commit, then removes the flag in the next. Each task independently ships.
-
-### Task 17: Migrate MapIncidentManager — add tier field to incident JSON
-
-**Files:**
-- Modify: All `ModuleData/Enlisted/events/incidents_*.json` files
-- Modify: `src/Features/Content/MapIncidentManager.cs`
-- Modify: `Tools/Validation/validate_events.py`
-
-- [ ] **Step 1: Define default tier per incident context**
-
-Edit each `incidents_*.json` — add a `"tier"` field to each incident entry. Defaults:
-- `incidents_leaving_battle.json` → `"tier": "headline"`
-- `incidents_entering_town.json` → `"tier": "pertinent"`
-- `incidents_entering_village.json` → `"tier": "pertinent"`
-- `incidents_leaving_settlement.json` → `"tier": "pertinent"`
-- `incidents_siege.json` → `"tier": "headline"`
-- `incidents_waiting.json` → `"tier": "log"`
-
-For a handful of "narrative fork" incidents (manual author review — any with meaningful `options` that change character arc), set `"tier": "modal"`.
-
-- [ ] **Step 2: Update `validate_events.py` to accept the new field**
-
-Grep for the incident schema and add `"tier"` to the allowed keys list.
-
-- [ ] **Step 3: Migrate `MapIncidentManager.TryDeliverIncident`**
-
-Replace the direct `EventDeliveryManager.Instance.QueueEvent(...)` call with a candidate emit. Add near the top:
+**The pattern** (apply to each caller in Tasks 17–29):
 
 ```csharp
-using Enlisted.Features.Content;
-```
+// BEFORE:
+EventDeliveryManager.Instance?.QueueEvent(evt);
 
-Replace the delivery call:
-
-```csharp
-var tierStr = incidentJson["tier"]?.ToString() ?? "pertinent";
-var tier = tierStr switch
-{
-    "modal" => StoryTier.Modal,
-    "headline" => StoryTier.Headline,
-    "pertinent" => StoryTier.Pertinent,
-    _ => StoryTier.Log
-};
-
+// AFTER:
 StoryDirector.Instance?.EmitCandidate(new StoryCandidate
 {
-    SourceId = "map_incident",
-    CategoryId = $"incident.{context}",
-    ProposedTier = tier,
-    SeverityHint = tier == StoryTier.Modal ? 0.8f : 0.3f,
-    Beats = { ResolveBeat(context) },
-    Relevance = new RelevanceKey
-    {
-        SubjectSettlement = Settlement.CurrentSettlement,
-        TouchesEnlistedLord = true
-    },
+    SourceId = "<caller>.<context>",
+    CategoryId = "<category>",
+    ProposedTier = StoryTier.Modal,           // or Pertinent / Log per recon table
+    SeverityHint = <0.0–1.0>,
+    Beats = { <appropriate beat> },
+    Relevance = new RelevanceKey { TouchesEnlistedLord = true /* or set SubjectHero/etc */ },
     EmittedAt = CampaignTime.Now,
-    PayloadKey = incidentJson["id"]?.ToString(),
-    RenderedTitle = incidentJson["title"]?.ToString() ?? "",
-    RenderedBody = incidentJson["setup"]?.ToString() ?? "",
-    Payload = grantedTier =>
-    {
-        if (grantedTier == StoryTier.Modal)
-        {
-            EventDeliveryManager.Instance?.QueueEvent(incidentJson);
-        }
-    }
+    InteractiveEvent = evt,
+    RenderedTitle = evt.TitleFallback,
+    RenderedBody = evt.SetupFallback,
+    StoryKey = evt.Id
 });
 ```
 
-Add helper:
+Each task below gives the specific source/category/tier/beat bindings. **Do not delete any source-side selection logic** (filters, weights, `EventCatalog.GetEventsByOrderType`, etc.) — only replace the delivery call.
 
-```csharp
-private static StoryBeat ResolveBeat(string context) => context switch
-{
-    "leaving_battle" => StoryBeat.PlayerBattleEnd,
-    "entering_town" => StoryBeat.SettlementEntered,
-    "entering_village" => StoryBeat.SettlementEntered,
-    "leaving_settlement" => StoryBeat.SettlementLeft,
-    "during_siege" => StoryBeat.SiegeBegin,
-    "waiting_in_settlement" => StoryBeat.SettlementEntered,
-    _ => StoryBeat.OrderPhaseTransition
-};
+### Task 17: MapIncidentManager
+
+**File:** `src/Features/Content/MapIncidentManager.cs:361`
+
+Bindings by context: `leaving_battle` → Beat `PlayerBattleEnd`, Tier `Modal`, Severity 0.6, Category `incident.leaving_battle`. `entering_town|entering_village` → Beat `SettlementEntered`, Tier `Pertinent`, Severity 0.3. `during_siege` → Beat `SiegeBegin`, Tier `Headline`, Severity 0.5. Relevance `TouchesEnlistedLord = true`.
+
+- [ ] **Step:** Apply the migration pattern. Build + commit.
+
+```bash
+git commit -m "refactor: MapIncidentManager routes incidents through StoryDirector"
 ```
 
-- [ ] **Step 4: Implement IStorySource on MapIncidentManager**
+### Task 18: ContentOrchestrator (committed opportunities)
+
+**File:** `src/Features/Content/ContentOrchestrator.cs:274`
+
+Beat `OrderPhaseTransition`, Tier `Modal`, Severity 0.5, Category `opportunity.{opp.Type}`. Keep the full `ConvertDecisionToEvent` logic; swap only the terminal `QueueEvent` call.
+
+- [ ] **Step:** Apply pattern. Build + commit.
+
+```bash
+git commit -m "refactor: ContentOrchestrator routes committed opportunities through Director"
+```
+
+### Task 19: EnlistedMenuBehavior (camp opportunity pick)
+
+**File:** `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5419`
+
+Beat `OrderPhaseTransition`, Tier `Modal`, Severity 0.5, Category `opportunity.{decision.Category}`. Relevance `TouchesEnlistedLord = true`.
+
+- [ ] **Step:** Apply pattern. Build + commit.
+
+```bash
+git commit -m "refactor: EnlistedMenuBehavior opportunity click routes through Director"
+```
+
+### Task 20: EventPacingManager (chain events)
+
+**File:** `src/Features/Content/EventPacingManager.cs:111`
+
+Beat `OrderComplete`, Tier `Modal`, Severity 0.55, Category `chain.{chainId}`. **Important:** This is a chain continuation; the Modal gate *should not defer* these — they're narrative continuations the player already opted into. Override the floor for chain events: set `ProposedTier = StoryTier.Modal` and set `CategoryId = "chain_event"` (no cooldown — or add an exception list in `ModalFloorsAllow`). Recommend: add a `ChainContinuation` flag to `StoryCandidate` that bypasses `_categoryCooldowns` (but still respects the wall-clock 60s for sanity).
+
+- [ ] **Step 1: Add `ChainContinuation` flag to `StoryCandidate` and skip cooldown in `ModalFloorsAllow` when set**
 
 ```csharp
-public string SourceId => "map_incident";
+// In StoryCandidate.cs:
+public bool ChainContinuation { get; set; }
+```
 
-public Action<StoryTier> RehydratePayload(string payloadKey)
+```csharp
+// In StoryDirector.ModalFloorsAllow:
+if (c.ChainContinuation)
 {
-    // Find incident JSON by id, return payload closure — or null if not found.
-    var incident = LoadIncidentById(payloadKey);
-    if (incident == null) return null;
-    return grantedTier =>
-    {
-        if (grantedTier == StoryTier.Modal)
-        {
-            EventDeliveryManager.Instance?.QueueEvent(incident);
-        }
-    };
+    return wallClockFloor; // skip in-game floor + category cooldown
 }
 ```
 
-Register with Director in `OnGameStart`:
-```csharp
-StoryDirector.Instance?.RegisterSource(this);
-```
-
-- [ ] **Step 5: Validate, build, commit**
+- [ ] **Step 2:** Apply migration pattern with `ChainContinuation = true`. Build + commit.
 
 ```bash
-python Tools/Validation/validate_content.py
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add ModuleData/Enlisted/events/ src/Features/Content/MapIncidentManager.cs Tools/Validation/validate_events.py
-git commit -m "refactor: MapIncidentManager emits StoryCandidates instead of direct queue"
+git commit -m "refactor: EventPacingManager chain events route through Director (bypass floor)"
 ```
 
----
+### Task 21: PromotionBehavior
 
-### Task 18: Migrate EnlistedNewsBehavior — emit candidates for captured world events
+**File:** `src/Features/Ranks/Behaviors/PromotionBehavior.cs:367`
 
-**Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs`
+Beat `OrderComplete`, Tier `Modal`, Severity 0.85, Category `promotion.tier_{tier}`. Relevance `TouchesEnlistedLord = true`. Promotion events are *rare and load-bearing* — treat as `ChainContinuation = true` so they don't get deferred behind a pacing floor.
 
-- [ ] **Step 1: Convert `AddCampNews` and event handlers to emit**
+- [ ] **Step:** Apply pattern with `ChainContinuation = true`. Build + commit.
 
-For each `CampaignEvents.*.AddNonSerializedListener` handler in this file, instead of appending directly to `_personalFeed`, emit a candidate:
+```bash
+git commit -m "refactor: PromotionBehavior routes through Director (bypass floor)"
+```
+
+### Task 22: EscalationManager
+
+**File:** `src/Features/Escalation/EscalationManager.cs:938`
+
+Beat `EscalationThreshold`, Tier `Modal`, Severity 0.80, Category `escalation.{thresholdKind}` (scrutiny / medical / lord_rep). Relevance `TouchesEnlistedLord = true`.
+
+- [ ] **Step:** Apply pattern. Build + commit.
+
+```bash
+git commit -m "refactor: EscalationManager threshold events route through Director"
+```
+
+### Task 23: EnlistmentBehavior (bag check, 2 call sites)
+
+**File:** `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:2120` and `:6438`
+
+Beat `OrderComplete`, Tier `Modal`, Severity 0.90, Category `enlistment.bag_check`. **Critical:** these are mandatory gates before enlistment completes — `ChainContinuation = true`. Under no circumstances should the Director defer a bag check.
+
+- [ ] **Step:** Apply pattern with `ChainContinuation = true` at both call sites. Build + commit.
+
+```bash
+git commit -m "refactor: EnlistmentBehavior bag-check routes through Director (bypass floor)"
+```
+
+### Task 24: CompanySimulationBehavior (crisis + illness)
+
+**File:** `src/Features/Camp/CompanySimulationBehavior.cs:621` (crisis) and `:834` (illness onset)
+
+**Crisis:** Beat `CompanyCrisisThreshold`, Tier `Modal`, Severity 0.80, Category `company.crisis.{kind}`.
+**Illness onset:** Beat `EscalationThreshold`, Tier `Modal`, Severity 0.70, Category `company.illness`.
+
+- [ ] **Step:** Apply pattern at both sites. Build + commit.
+
+```bash
+git commit -m "refactor: CompanySimulationBehavior crisis and illness route through Director"
+```
+
+### Task 25: CampOpportunityGenerator (supply pressure + scheduled commitment)
+
+**File:** `src/Features/Camp/CampOpportunityGenerator.cs:671` (supply pressure) and `:183` (scheduled commitment)
+
+**Supply pressure:** Beat `CompanyPressureThreshold`, Tier `Pertinent`, Severity 0.25, Category `company.supply_pressure`. Demote away from Modal — these should land in the accordion as headlines, not block the player.
+
+**Scheduled commitment:** Beat `OrderPhaseTransition`, Tier `Modal`, Severity 0.40, Category `commitment.{decisionId}`. Player opted in.
+
+- [ ] **Step:** Apply pattern. Supply pressure uses `ProposedTier = StoryTier.Pertinent` and a short observational title/body instead of `InteractiveEvent` (it becomes an accordion entry, not a modal). Scheduled commitment keeps `InteractiveEvent`. Build + commit.
+
+```bash
+git commit -m "refactor: CampOpportunityGenerator demotes supply pressure, routes commitments"
+```
+
+### Task 26: OrderProgressionBehavior (order outcome event — preserve authored content)
+
+**File:** `src/Features/Orders/Behaviors/OrderProgressionBehavior.cs:308` (outcome)
+
+**Outcome:** Beat `OrderComplete`, Tier `Modal`, Severity 0.55, Category `order_complete.{orderId}`, `ChainContinuation = true` (player already opted into the order — don't defer the outcome).
+
+**For the phase-roll at `TryGetOrderEvent` (line 181):** do **not** delete. Instead, replace the terminal `QueueEvent` inside `ProcessPhase` with a Director emit. The random roll + `EventCatalog.GetEventsByOrderType` + filtering logic stays intact. The Director then decides whether to fire Modal or defer/demote. Beat `OrderPhaseTransition`, Tier `Modal` (it's an authored interactive event), Category `order_phase.{orderId}`, Severity 0.45.
+
+- [ ] **Step 1:** Migrate the outcome fire with `ChainContinuation = true`.
+- [ ] **Step 2:** Migrate the phase-event fire (no `ChainContinuation` — it respects the 5-day floor; this is correct because phase events are incidental, not narrative-load-bearing). Build + commit.
+
+```bash
+git commit -m "refactor: OrderProgressionBehavior routes outcomes and phase events through Director"
+```
+
+### Task 27: RetinueCasualtyTracker (veteran memorial → demote)
+
+**File:** `src/Features/Retinue/Systems/RetinueCasualtyTracker.cs:669`
+
+Veteran memorials are flavor, not crisis. Demote: Beat `PlayerBattleEnd`, Tier `Pertinent`, Severity 0.20, Category `retinue.memorial`, **no `InteractiveEvent`** — instead set `RenderedTitle = "Veteran fallen: {name}"`, `RenderedBody = evt.SetupFallback`, `StoryKey = "memorial:{heroStringId}"`, `DispatchCategory = "retinue"`, `SeverityLevel = 1` (Positive/quiet). Routes as accordion-only entry.
+
+- [ ] **Step:** Apply pattern without `InteractiveEvent`. Build + commit.
+
+```bash
+git commit -m "refactor: RetinueCasualtyTracker demotes veteran memorials to accordion entries"
+```
+
+### Task 28: RetinueManager (loyalty threshold)
+
+**File:** `src/Features/Retinue/Core/RetinueManager.cs:739`
+
+Beat `EscalationThreshold`, Tier `Modal`, Severity 0.70, Category `retinue.loyalty.{threshold}`.
+
+- [ ] **Step:** Apply pattern. Build + commit.
+
+```bash
+git commit -m "refactor: RetinueManager loyalty threshold routes through Director"
+```
+
+### Task 29: DebugToolsBehavior — explicit bypass
+
+**File:** `src/Debugging/Behaviors/DebugToolsBehavior.cs:139`
+
+Debug tool must bypass the Director to allow immediate testing of arbitrary events. Leave `EventDeliveryManager.Instance?.QueueEvent(evt)` in place; add a comment:
 
 ```csharp
-private void OnHeroKilled(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)
+// Intentional bypass of StoryDirector — this debug path must fire arbitrary events
+// immediately for testing, regardless of pacing guards.
+EventDeliveryManager.Instance?.QueueEvent(evt);
+```
+
+- [ ] **Step:** Add the comment. Build + commit.
+
+```bash
+git commit -m "refactor: annotate DebugToolsBehavior QueueEvent as intentional Director bypass"
+```
+
+### Task 30: Retry deferred interactive candidates on DailyTick
+
+**Files:** `src/Features/Content/StoryDirector.cs`
+
+- [ ] **Step 1:** In `OnDailyTick`, before the quiet-stretch check, attempt to flush deferred interactive candidates (at most 1 per tick):
+
+```csharp
+if (_deferredInteractive.Count > 0)
 {
-    try
+    var next = _deferredInteractive[0];
+    var evt = string.IsNullOrEmpty(next.InteractiveEventId) ? null : EventCatalog.GetEventById(next.InteractiveEventId);
+    if (evt != null)
     {
-        bool touchesLord = victim == EnlistmentBehavior.Instance?.EnlistedLord;
-        var candidate = new StoryCandidate
+        int today = (int)CampaignTime.Now.ToDays;
+        var pseudo = new StoryCandidate
         {
-            SourceId = "news.hero_killed",
-            CategoryId = "hero_death",
-            ProposedTier = touchesLord ? StoryTier.Modal : StoryTier.Headline,
-            SeverityHint = touchesLord ? 0.9f : 0.2f,
-            Beats = { touchesLord ? StoryBeat.LordKilled : StoryBeat.PlayerBattleEnd },
-            Relevance = new RelevanceKey
-            {
-                SubjectHero = victim,
-                ObjectHero = killer,
-                TouchesEnlistedLord = touchesLord
-            },
-            EmittedAt = CampaignTime.Now,
-            RenderedTitle = $"{victim?.Name} has died.",
-            RenderedBody = detail == KillCharacterAction.KillCharacterActionDetail.DiedInBattle
-                ? "Word reaches you from the field."
-                : "Word reaches your camp."
+            SourceId = next.SourceId,
+            CategoryId = next.CategoryId,
+            InteractiveEvent = evt
         };
-        StoryDirector.Instance?.EmitCandidate(candidate);
+        if (ModalFloorsAllow(pseudo, today))
+        {
+            _deferredInteractive.RemoveAt(0);
+            DownshiftSpeedIfNeeded();
+            EventDeliveryManager.Instance?.QueueEvent(evt);
+            _lastModalDay = today;
+            _lastModalUtcTicks = DateTime.UtcNow.Ticks;
+            _categoryCooldowns[next.CategoryId ?? "_none"] = today;
+            return; // one per day
+        }
     }
-    catch (Exception ex)
+    else
     {
-        ModLogger.Log("E-PACE-003", $"OnHeroKilled emit failed: {ex.Message}");
+        // Event no longer in catalog; drop silently.
+        _deferredInteractive.RemoveAt(0);
     }
 }
 ```
 
-Repeat the pattern for: `OnHeroPrisonerTaken`, `OnHeroPrisonerReleased`, `OnSiegeEventStarted`, `OnSettlementOwnerChanged`, `WarDeclared`, `MakePeace`, `OnArmyCreated`, `OnArmyDispersed`.
-
-For each, set:
-- `SourceId` — unique per handler
-- `CategoryId` — broad bucket (e.g., "hero_death", "siege", "settlement_control")
-- `ProposedTier` — Headline for observed-world events; Modal only if it touches the enlisted lord directly
-- `Beats` — the matching beat from `StoryBeat`
-- `Relevance` — populate the appropriate fields
-
-- [ ] **Step 2: Remove direct `_personalFeed.Add` calls from these handlers**
-
-The Director's Log-tier routing will write into the equivalent buffer. For backward compatibility, keep `_personalFeed` readable (it's referenced elsewhere in the mod for muster recap and QM dialog quoting) — add a projection method:
+- [ ] **Step 2:** Cap deferred list at 32 entries (drop oldest on overflow in `Route`):
 
 ```csharp
-public IEnumerable<string> GetFeedStrings()
+const int DeferredCap = 32;
+if (_deferredInteractive.Count > DeferredCap)
 {
-    var director = Enlisted.Features.Content.StoryDirector.Instance;
-    if (director == null) yield break;
-    foreach (var entry in director.LogRing)
-    {
-        yield return $"Day {entry.EmittedDayNumber}: {entry.RenderedTitle}";
-    }
+    _deferredInteractive.RemoveAt(0);
 }
 ```
 
-Update any existing `_personalFeed` readers to call `GetFeedStrings()`.
-
-- [ ] **Step 3: Build + commit**
+- [ ] **Step 3:** Build + commit.
 
 ```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs
-git commit -m "refactor: EnlistedNewsBehavior emits StoryCandidates for world events"
+git commit -m "feat: Director retries deferred interactive candidates on DailyTick"
 ```
 
 ---
 
-### Task 19: Migrate EscalationManager — emit on threshold cross
+## Phase 4 — Verification
 
-**Files:**
-- Modify: `src/Features/Escalation/EscalationManager.cs`
+### Task 31: Integration smoke-test battery
 
-- [ ] **Step 1: Replace `QueueEvent` calls with candidate emits**
+Document in `docs/superpowers/plans/2026-04-18-event-pacing-verification.md`.
 
-Locate threshold-cross points (scrutiny, medical risk, lord reputation). For each:
+- [ ] **Scenario 1: Quiet week** — 14 in-game days pass without a modal-eligible event. Expect: one quiet-stretch modal fires.
+- [ ] **Scenario 2: Active week** — 3 Modal-eligible events fire in quick succession. Expect: first fires, second+third deferred, deferred fire on successive DailyTicks once floors pass.
+- [ ] **Scenario 3: FastForward compression** — player at 3x speed; 2 modals qualify within 20s wall-clock. Expect: first fires with speed downshift, second deferred by 60s wall-clock guard.
+- [ ] **Scenario 4: Chain event** — a promotion or chain event fires inside a pacing window. Expect: `ChainContinuation` bypasses the floor and fires immediately.
+- [ ] **Scenario 5: Muster digest** — DispatchItems accumulate over 10 days. Muster menu shows them under "Since your last muster:".
+- [ ] **Scenario 6: Headlines accordion** — high-severity DispatchItem posts; `[NEW]` badge appears on `enlisted_status`; clicking clears the badge on that item.
+- [ ] **Scenario 7: Save/load with deferred queue** — save mid-deferred-queue, reload; deferred items persist; DailyTick continues flushing.
+- [ ] **Scenario 8: Relevance drop** — a war declared between two distant factions (neither your kingdom nor your lord's enemy). Expect: no DispatchItem created, no accordion entry, zero log output beyond the filter-drop trace.
 
-```csharp
-StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-{
-    SourceId = "escalation.scrutiny_crisis",
-    CategoryId = "escalation",
-    ProposedTier = StoryTier.Modal,
-    SeverityHint = 0.85f,
-    Beats = { StoryBeat.EscalationThreshold },
-    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-    EmittedAt = CampaignTime.Now,
-    PayloadKey = thresholdEventId,
-    RenderedTitle = thresholdEventTitle,
-    RenderedBody = thresholdEventSetup,
-    Payload = tier =>
-    {
-        if (tier == StoryTier.Modal)
-        {
-            EventDeliveryManager.Instance?.QueueEvent(thresholdEventJson);
-        }
-    }
-});
-```
-
-Implement `IStorySource` and register on game start.
-
-- [ ] **Step 2: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Escalation/EscalationManager.cs
-git commit -m "refactor: EscalationManager emits StoryCandidates on thresholds"
-```
-
----
-
-### Task 20: Migrate CompanySimulationBehavior — crisis and pressure emits
-
-**Files:**
-- Modify: `src/Features/Camp/CompanySimulationBehavior.cs`
-
-- [ ] **Step 1: Replace crisis queuing with emits**
-
-At each crisis / pressure-stage trigger point:
-
-```csharp
-StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-{
-    SourceId = "company_sim.supply_crisis",
-    CategoryId = "company_crisis",
-    ProposedTier = StoryTier.Modal,
-    SeverityHint = 0.80f,
-    Beats = { StoryBeat.CompanyCrisisThreshold },
-    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-    EmittedAt = CampaignTime.Now,
-    PayloadKey = crisisEventId,
-    RenderedTitle = crisisEventTitle,
-    RenderedBody = crisisEventSetup,
-    Payload = tier =>
-    {
-        if (tier == StoryTier.Modal)
-        {
-            EventDeliveryManager.Instance?.QueueEvent(crisisEventJson);
-        }
-    }
-});
-```
-
-For pressure stages 1–2, use:
-```csharp
-ProposedTier = StoryTier.Pertinent,
-SeverityHint = 0.25f,
-Beats = { StoryBeat.CompanyPressureThreshold },
-```
-
-- [ ] **Step 2: Remove the direct `EventDeliveryManager.QueueEvent` calls in this file**
-
-- [ ] **Step 3: Implement IStorySource, register, build, commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Camp/CompanySimulationBehavior.cs
-git commit -m "refactor: CompanySimulationBehavior emits StoryCandidates for crises"
-```
-
----
-
-### Task 21: Migrate OrderProgressionBehavior — remove random rolls
-
-**Files:**
-- Modify: `src/Features/Orders/Behaviors/OrderProgressionBehavior.cs`
-
-- [ ] **Step 1: Delete the random-roll triggers**
-
-Find `TryGetOrderEvent` and the 8–15% probability rolls in `ProcessPhase`. **Delete** those probability branches entirely — no longer clock-gated.
-
-- [ ] **Step 2: Emit one Log-tier candidate per phase transition**
-
-Replace the deleted block with:
-
-```csharp
-StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-{
-    SourceId = "order_progression.phase",
-    CategoryId = $"order.{phaseId}",
-    ProposedTier = StoryTier.Log,
-    SeverityHint = 0.05f,
-    Beats = { StoryBeat.OrderPhaseTransition },
-    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-    EmittedAt = CampaignTime.Now,
-    RenderedTitle = $"Phase complete: {phaseName}",
-    RenderedBody = phaseRecapText
-});
-```
-
-- [ ] **Step 3: At order completion, emit Modal-eligible if narrative fork**
-
-Where order-complete results render a branching choice today:
-
-```csharp
-StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-{
-    SourceId = "order_progression.complete",
-    CategoryId = "order_complete",
-    ProposedTier = StoryTier.Modal,
-    SeverityHint = 0.55f,
-    Beats = { StoryBeat.OrderComplete },
-    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-    EmittedAt = CampaignTime.Now,
-    PayloadKey = orderCompleteEventId,
-    RenderedTitle = orderCompleteTitle,
-    RenderedBody = orderCompleteSetup,
-    Payload = tier =>
-    {
-        if (tier == StoryTier.Modal)
-        {
-            EventDeliveryManager.Instance?.QueueEvent(orderCompleteJson);
-        }
-    }
-});
-```
-
-- [ ] **Step 4: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Orders/Behaviors/OrderProgressionBehavior.cs
-git commit -m "refactor: OrderProgression removes random rolls, emits on beats only"
-```
-
----
-
-### Task 22: Migrate CampRoutineProcessor — outcome emits
-
-**Files:**
-- Modify: `src/Features/Camp/CampRoutineProcessor.cs`
-
-- [ ] **Step 1: Replace `AddToNewsFeed` with candidate emits**
-
-Per outcome:
-- Excellent / Mishap → `ProposedTier = StoryTier.Pertinent`, `SeverityHint = 0.2f`
-- Good / Normal / Poor → `ProposedTier = StoryTier.Log`, `SeverityHint = 0.05f`
-
-```csharp
-StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-{
-    SourceId = "camp_routine.outcome",
-    CategoryId = $"camp_routine.{activityId}",
-    ProposedTier = tier,
-    SeverityHint = severity,
-    Beats = { StoryBeat.OrderPhaseTransition },
-    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-    EmittedAt = CampaignTime.Now,
-    RenderedTitle = $"{activityName}: {outcome}",
-    RenderedBody = flavorText
-});
-```
-
-- [ ] **Step 2: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Camp/CampRoutineProcessor.cs
-git commit -m "refactor: CampRoutineProcessor emits StoryCandidates per outcome"
-```
-
----
-
-### Task 23: Neutralize ContentOrchestrator direct queuing
-
-**Files:**
-- Modify: `src/Features/Content/ContentOrchestrator.cs`
-
-- [ ] **Step 1: Delete the `EventDeliveryManager.QueueEvent` calls**
-
-ContentOrchestrator is now read-only for world-state / activity-level. Remove any code path that queues events directly.
-
-- [ ] **Step 2: Expose `CurrentActivityLevel` and `CurrentWorldState` as public read-only properties**
-
-(If they aren't already — grep to confirm.)
-
-- [ ] **Step 3: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/ContentOrchestrator.cs
-git commit -m "refactor: ContentOrchestrator becomes read-only world-state provider"
-```
-
----
-
-## Phase 5 — Cleanup and verification
-
-### Task 24: Make EventDeliveryManager.QueueEvent internal
-
-**Files:**
-- Modify: `src/Features/Content/EventDeliveryManager.cs`
-
-- [ ] **Step 1: Change access modifier**
-
-```csharp
-internal void QueueEvent(JObject eventJson) { ... }
-```
-
-Build — this catches any caller you missed in migration.
-
-- [ ] **Step 2: Fix any stragglers**
-
-Any compile errors pointing to external callers = sources not fully migrated. Route them through `StoryDirector.Instance?.EmitCandidate(...)` instead.
-
-- [ ] **Step 3: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Content/EventDeliveryManager.cs
-git commit -m "refactor: make EventDeliveryManager.QueueEvent internal"
-```
-
----
-
-### Task 25: Add debug/dev menu for Director inspection
-
-**Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs` (existing debug tools section at line 1153 per spec)
-
-- [ ] **Step 1: Add three debug menu options**
-
-Inside the existing debug-tools-in-production-hidden block:
-
-```csharp
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_status", "dbg_emit_headline", "[dbg] Emit synthetic headline",
-    args => { args.optionLeaveType = GameMenuOption.LeaveType.Wait; return true; },
-    args => Enlisted.Features.Content.StoryDirector.Instance?.EmitCandidate(new Enlisted.Features.Content.StoryCandidate
-    {
-        SourceId = "debug.synthetic",
-        CategoryId = "debug",
-        ProposedTier = Enlisted.Features.Content.StoryTier.Headline,
-        SeverityHint = 0.4f,
-        Beats = { Enlisted.Features.Content.StoryBeat.WarDeclared },
-        Relevance = new Enlisted.Features.Content.RelevanceKey { TouchesEnlistedLord = true },
-        EmittedAt = CampaignTime.Now,
-        RenderedTitle = "Synthetic headline (debug)",
-        RenderedBody = "Emit-path sanity check."
-    }),
-    true, -1, false);
-
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_status", "dbg_emit_modal", "[dbg] Emit synthetic modal",
-    args => { args.optionLeaveType = GameMenuOption.LeaveType.Wait; return true; },
-    args => Enlisted.Features.Content.StoryDirector.Instance?.EmitCandidate(new Enlisted.Features.Content.StoryCandidate
-    {
-        SourceId = "debug.synthetic",
-        CategoryId = "debug_modal",
-        ProposedTier = Enlisted.Features.Content.StoryTier.Modal,
-        SeverityHint = 0.9f,
-        Beats = { Enlisted.Features.Content.StoryBeat.LordCaptured },
-        Relevance = new Enlisted.Features.Content.RelevanceKey { TouchesEnlistedLord = true },
-        EmittedAt = CampaignTime.Now,
-        RenderedTitle = "Synthetic modal (debug)",
-        RenderedBody = "Modal-path sanity check."
-    }),
-    true, -1, false);
-
-campaignGameStarter.AddGameMenuOption(
-    "enlisted_status", "dbg_clear_state", "[dbg] Clear Director state",
-    args => { args.optionLeaveType = GameMenuOption.LeaveType.Wait; return true; },
-    args => {
-        // Add matching Clear method on StoryDirector.
-    },
-    true, -1, false);
-```
-
-Add a `ClearAllState()` helper to `StoryDirector.cs` for the third option.
-
-- [ ] **Step 2: Build + commit**
-
-```bash
-dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs src/Features/Content/StoryDirector.cs
-git commit -m "feat: debug menu options for Director emit/clear inspection"
-```
-
----
-
-### Task 26: Integration smoke-test battery
-
-**Files:** none (manual verification — log results in a short checklist comment on the PR)
-
-- [ ] **Scenario 1: Quiet war week**
-  - Load a save, enlist with a lord at peace
-  - Wait 14 in-game days via wait menu
-  - Expect: at least one Modal fallback from quiet-stretch pool
-
-- [ ] **Scenario 2: Active battle week**
-  - Load save where lord is at war and actively fighting
-  - Observe that modals do not fire more than once per ~5 days regardless of world-event volume
-  - Other world events land as Headlines in `enlisted_status`
-
-- [ ] **Scenario 3: FastForward compression**
-  - Engage FastForward for ~2 minutes wall-clock with active war
-  - Expect: only one Modal within any 60s wall-clock window; others demoted to Headline
-
-- [ ] **Scenario 4: Muster digest**
-  - Let Pertinent items accumulate over 10 in-game days (enter/exit settlements)
-  - Trigger muster
-  - Expect: intro shows aggregated "Since your last muster" list
-
-- [ ] **Scenario 5: Save/load during digest window**
-  - Mid-digest, save and reload
-  - Expect: no save errors; Pertinent buffer restored; digest still releases on next muster
-
-- [ ] **Scenario 6: Irrelevant world events dropped**
-  - Observe a distant-kingdom war between two factions neither the player nor the lord belongs to
-  - Expect: no accordion or log entry generated
-
-Document results in a follow-up commit to the spec or a new file `docs/superpowers/plans/2026-04-18-event-pacing-verification.md`.
-
-- [ ] **Step 1: Commit results**
+- [ ] **Step:** Run all 8 scenarios. Record results with game-day + wall-clock timestamps. Commit the verification doc.
 
 ```bash
 git add docs/superpowers/plans/2026-04-18-event-pacing-verification.md
-git commit -m "docs: record event-pacing smoke test results"
+git commit -m "docs: record event-pacing smoke-test verification"
 ```
 
----
+### Task 32: Docs update
 
-### Task 27: Update INDEX.md and BLUEPRINT.md pointers
-
-**Files:**
-- Modify: `docs/INDEX.md`
-- Modify: `docs/BLUEPRINT.md`
-
-- [ ] **Step 1: Link to the spec and plan**
-
-Add in the appropriate sections of INDEX.md:
-
-```markdown
-| Event pacing (StoryDirector) | [docs/superpowers/specs/2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) |
-```
-
-In BLUEPRINT.md, update any sections describing content delivery to reference `StoryDirector` as the single broker.
-
-- [ ] **Step 2: Commit**
+- [ ] Add a row to `docs/INDEX.md` linking the spec + plan + verification.
+- [ ] Update `docs/BLUEPRINT.md` content-delivery section to reference `StoryDirector` as the single gate for modal events.
+- [ ] Commit.
 
 ```bash
-git add docs/INDEX.md docs/BLUEPRINT.md
-git commit -m "docs: link event-pacing spec from INDEX and BLUEPRINT"
+git commit -m "docs: link event-pacing spec/plan/verification from INDEX + BLUEPRINT"
 ```
 
 ---
 
-## Out-of-scope (explicitly not in this plan)
+## Out-of-scope (explicit)
 
-- New content authoring (events, decisions, order events) — quiet-stretch pool has 2 stub entries only; content expansion is a separate initiative
-- MCM (Mod Configuration Menu) UI for the density slider — JSON-config-only for v1
-- Refactoring `EnlistmentBehavior.cs` internals beyond the single `VisitedSettlementTracker.Record` line
-- Changes to quartermaster, muster flow, or retirement system except where explicitly listed
-- Removal of deprecated morale / rest systems — separate cleanup
-- Localization strings for new menu text — use fallback text; localization pass is a separate task
+- New content authoring beyond the 3 quiet-stretch event stubs
+- MCM UI for density (JSON-only for v1)
+- Changes to `EnlistmentBehavior`'s escort-AI / encounter-suppression stack beyond the two bag-check migrations
+- Refactoring `EnlistedNewsBehavior`'s internal feed trimming, kingdom-feed logic, or rumor system
+- `EventDeliveryManager.QueueEvent` access modifier changes — intentionally kept public (with a conventional comment that only Director + debug should call it)
+- Removal of `CampRoutineProcessor`'s existing `AddToNewsFeed` pattern (already writes to `_personalFeed` — leave alone; a future task can route through Director if needed)
 
----
+## Notes on departures from v1
 
-## Self-review checklist (author-run)
+- **v1 Task 24 (make QueueEvent internal) is DELETED.** The Director is additive; `QueueEvent` stays public.
+- **v1 Task 21 (delete OrderProgressionBehavior random rolls) is REPLACED by Task 26**, which preserves `EventCatalog.GetEventsByOrderType` selection and routes the result through the Director instead.
+- **v1 Task 18 (flatten `_personalFeed` to strings) is DELETED.** `DispatchItem` contract preserved.
+- **v1 Task 23 (gut ContentOrchestrator direct queuing) is REPLACED by Task 18**, which preserves committed-opportunity delivery via Director routing.
+- **Invented `VisitedSettlementTracker` is DELETED.** Replaced by calls into the existing `CampaignTriggerTrackerBehavior.IsWithinDays` API.
+- **Added `ChainContinuation` flag** for narrative continuations (chain events, promotions, bag checks) that must bypass the 5-day floor.
+- **Added deferred-interactive retry queue (Task 30)** so events blocked by the floor aren't lost — they fire on subsequent days once budget opens.
 
-**Spec coverage:**
-- §4 Principles — covered by Tasks 8, 14, 16 (Director + modal guards + fallback)
-- §5 Architecture — Tasks 1–8 establish the Director + candidate schema
-- §6 Beat taxonomy — encoded in `SeverityClassifier` (Task 5) and source migrations (Tasks 17–22)
-- §7 Relevance filter — Task 4
-- §8 Severity classifier — Task 5
-- §9 Aggregation — Task 6 (aggregator); consumption in Task 13 (muster digest)
-- §10 Surfacing rules — Tasks 11 (Headline), 12 (Log), 13 (Pertinent digest), 14 (Modal)
-- §11 Time discipline — Tasks 14 (wall-clock + speed downshift), 15 (density config)
-- §12 Migration per source — Tasks 17–23 cover all 10 affected files
-- §13 Save surface — Tasks 3, 8, 9
-- §14 Testing — Tasks 25 (debug menu) + 26 (smoke scenarios)
-- §15 Risks — mitigated in-flight: try/catch in EmitCandidate (Task 8), fallback render in ShowFallback (Task 14), quiet-stretch pool (Tasks 7, 16)
+## Self-review
 
-**Placeholder scan:**
-- Verified: every task has actual code blocks, no "TODO", no "similar to task N"
-- Every new C# file has full content shown once
-
-**Type consistency:**
-- `StoryTier` enum order: Log < Pertinent < Headline < Modal — used consistently in classifier, Router switch, menu predicates
-- `StoryCandidate` property names stable across tasks — verified
-- `StoryDirector.Instance` singleton pattern consistent across all emit sites
-
-**Missing / deferred:**
-- No unit-test project exists; debug menu (Task 25) is the best-available inline inspection
-- Density slider is config-file-only for v1 (§15 risk mitigation); MCM is explicit out-of-scope
-
----
+- **Spec coverage:** Tiers (Tasks 1, 8, 12), beats (Task 5), relevance (Task 4 via CampaignTriggerTrackerBehavior), severity (Task 5), aggregation (Task 6), digest (Task 15), modal guards (Task 12), wall-clock (Task 12), speed downshift (Task 12), density (Task 11), fallback (Tasks 7, 16), quiet-stretch (Tasks 7, 16), caller migrations (Tasks 17–29), retry (Task 30), smoke tests (Task 31).
+- **All 14 production `QueueEvent` callers accounted for:** MapIncident (17), ContentOrchestrator (18), EnlistedMenuBehavior (19), EventPacingManager (20), Promotion (21), Escalation (22), Enlistment ×2 (23), CompanySim ×2 (24), CampOpportunity ×2 (25), OrderProgression ×2 (26), RetinueCasualty (27), Retinue (28), Debug (29 — bypass).
+- **No deletion of authored content:** OrderProgression retains `EventCatalog.GetEventsByOrderType`; ContentOrchestrator retains opportunity delivery; MapIncident retains `EventCatalog.GetEventsForContext`; EnlistedNewsBehavior retains `DispatchItem` and `GetPersonalFeedSince`.
+- **Path corrections:** `Events/` (capital E); `src/Features/Enlistment/Behaviors/MusterMenuHandler.cs`; `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`.
+- **No reintroduction of removed concepts:** quiet-stretch JSON uses only `lordReputation` effect; no `morale`, no `officerReputation`, no `soldierReputation`.
+- **API grounding:** Every TaleWorlds reference verified against Decompile in the prior audit pass.
 
 ## Completion criteria
 
-- All 27 tasks committed
-- `dotnet build -c "Enlisted RETAIL" /p:Platform=x64` succeeds
-- `python Tools/Validation/validate_content.py` passes
-- All six smoke-test scenarios pass and are documented
-- No `E-PACE-*` errors in `ModLogger` during a 30-minute play session
-- `EventDeliveryManager.QueueEvent` is `internal` and only called by Director-routed payloads
+- All 32 tasks committed.
+- `dotnet build -c "Enlisted RETAIL" /p:Platform=x64` succeeds.
+- `python Tools/Validation/validate_content.py` passes.
+- All 8 smoke-test scenarios pass and are documented.
+- No `E-PACE-*` warnings in a 30-minute play session.
+- `EventDeliveryManager.QueueEvent` has exactly two non-Director callers: `DebugToolsBehavior` (explicit bypass) and the Director itself.
