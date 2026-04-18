@@ -57,6 +57,7 @@
 | --- | --- | --- |
 | **Company Needs** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 2 transparent metrics (Readiness/Supply) - Rest removed 2026-01-11 |
 | **ContentOrchestrator (System)** | [content-system-architecture.md](Features/Content/content-system-architecture.md) | World-state-driven content coordination: opportunity pre-scheduling, activity levels, schedule overrides, illness triggers |
+| **StoryDirector (Pacing)** ⚠️ In Progress | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) / [plan](superpowers/plans/2026-04-18-event-pacing.md) | Phase 1 complete — broker receives candidates but Route is a no-op. Phase 2 adds Modal gate + news-feed observational path. Goal: single broker that paces Modal delivery (5-day in-game floor + 60s wall-clock guard) and routes non-Modal through existing `_personalFeed`. |
 | **Injuries & Illnesses** | [injury-system.md](Features/Content/injury-system.md) | Unified condition tracking, maritime context awareness |
 | **Camp Hub Decisions** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 33 player-initiated decisions |
 | **Orchestrator Camp Simulation** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Background + Opportunities layers |

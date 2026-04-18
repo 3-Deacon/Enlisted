@@ -1,7 +1,7 @@
 # Event Pacing Redesign — Design Spec
 
 **Date:** 2026-04-18
-**Status:** Draft — awaiting designer review
+**Status:** In progress — Phase 1 infrastructure landed + smoke-tested green (2026-04-18). Implementation plan at [docs/superpowers/plans/2026-04-18-event-pacing.md](../plans/2026-04-18-event-pacing.md) — see its top section for commit-by-commit progress. Phase 2 (Tasks 11–16) adds Modal routing + news-feed integration + Headlines accordion + muster digest + quiet-stretch fallback; after Phase 2 the Director actually delivers content.
 **Scope:** Unify event/popup pacing across all story-generating systems in Enlisted. Replace six independent schedulers with a single director that routes every candidate through a three-tier presentation model. Resolve the "too many popups, chaotic" feedback by applying narrative causality + wall-clock interrupt discipline + menu-first consumption.
 
 ---
