@@ -31,6 +31,7 @@ For third-party library docs, use the Context7 MCP with these IDs:
 
 - **Context7** — Third-party library docs only (Harmony, Newtonsoft). Not for TaleWorlds APIs.
 - **Microsoft Learn** — Use for .NET Framework 4.7.2 and C# language questions Context7 doesn't cover.
+- **Playwright** — UI testing if/when a browser-facing tool is added; not applicable to the mod itself.
 - **Cloudflare / Gmail / Google Drive / Google Calendar** — Not relevant to this project; ignore.
 
 ---

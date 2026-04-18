@@ -84,6 +84,21 @@ DefineClassType(typeof(MyNewClass));
 
 Persist in-progress flags in `SyncData()` too — otherwise state is lost on reload.
 
+### 9. Windows/WSL Portability
+
+This repo is developed on both Windows and Linux (WSL). For C# code that builds paths:
+
+```csharp
+// CORRECT - cross-platform
+Path.Combine(basePath, "Prompts", "order_prompts.json");
+ModulePaths.GetContentPath("Prompts"); // preferred for mod content
+
+// WRONG - breaks on Linux
+basePath + "\\Prompts\\order_prompts.json"
+```
+
+Line endings are enforced by `.gitattributes` (`.cs` / `.csproj` / `.sln` / `.ps1` = CRLF; everything else `text=auto`). Don't override locally.
+
 ---
 
 ## Code Standards
