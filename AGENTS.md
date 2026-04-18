@@ -172,6 +172,7 @@ Link, don't duplicate — open these for depth:
 | Logging, saves, dialogue, menu patterns | [Tools/TECHNICAL-REFERENCE.md](Tools/TECHNICAL-REFERENCE.md) |
 | Validation tool reference | [Tools/README.md](Tools/README.md) |
 | Writing style (voice, tone) | [docs/Features/Content/writing-style-guide.md](docs/Features/Content/writing-style-guide.md) |
+| Error code registry | [docs/error-codes.md](docs/error-codes.md) |
 
 ---
 
