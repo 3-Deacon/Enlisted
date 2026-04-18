@@ -1002,11 +1002,13 @@ namespace Enlisted.Mod.Core.Logging
 				// Create the new session log as Session-A
 				var newLogName = $"{SessionSlots[0]}_{utcNow:yyyy-MM-dd_HH-mm-ss}.log";
 				var newLogPath = Path.Combine(logDir, newLogName);
-				WriteSessionHeader(newLogPath, utcNow);
-				// Append the rich header block (mod version, game version, player
-				// snapshot) AFTER the basic file header. Runs exactly once per
-				// session because a new file is created on each Initialize().
+				// Emit the one-and-only header block (mod version, game version,
+				// player snapshot). File.AppendAllText creates the file if missing,
+				// so no separate WriteSessionHeader pass is needed.
 				WriteRawToSession(newLogPath, SessionHeaderWriter.Build());
+				// Publish the session log path to SessionSummaryFooter so it
+				// knows where to rewrite the rolling summary tail block.
+				SessionSummaryFooter.SessionLogPath = newLogPath;
 				WriteCombinedPointer(logDir, newLogName, null);
 				return newLogPath;
 			}
@@ -1045,26 +1047,6 @@ namespace Enlisted.Mod.Core.Logging
 				// ignore parse errors
 			}
 			return null;
-		}
-
-		private static void WriteSessionHeader(string path, DateTime utcNow)
-		{
-			try
-			{
-				var local = utcNow.ToLocalTime();
-				var header = new StringBuilder();
-				header.AppendLine("=== ENLISTED LOG SESSION START ===");
-				header.AppendLine($"Session File: {Path.GetFileName(path)}");
-				header.AppendLine($"Started (UTC): {utcNow:yyyy-MM-dd HH:mm:ss}");
-				header.AppendLine($"Started (Local): {local:yyyy-MM-dd HH:mm:ss}");
-				header.AppendLine("Build: Enlisted RETAIL");
-				header.AppendLine(new string('-', 60));
-				File.WriteAllText(path, header.ToString(), Encoding.UTF8);
-			}
-			catch
-			{
-				// best-effort header
-			}
 		}
 
 		/// <summary>
@@ -1175,13 +1157,5 @@ namespace Enlisted.Mod.Core.Logging
 		}
 
 		#endregion
-	}
-
-	internal static class SessionSummaryFooter
-	{
-		public static void RecordCaught(string category, string file, int line) { /* Task 7 */ }
-		public static void RecordSurfaced(string code, string category, string summary, string file, int line) { /* Task 7 */ }
-		public static void RecordExpected(string category, string key) { /* Task 7 */ }
-		public static void Flush() { /* Task 7 */ }
 	}
 }

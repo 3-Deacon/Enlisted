@@ -513,6 +513,25 @@ namespace Enlisted.Mod.Entry
         }
 
         /// <summary>
+        ///     Called when the mod module is being unloaded, typically on clean game exit.
+        ///     Flushes the session summary footer so final Surfaced/Caught/Expected counts
+        ///     are persisted at the tail of the session log. Wrapped defensively —
+        ///     logging failures must never prevent a clean shutdown.
+        /// </summary>
+        protected override void OnSubModuleUnloaded()
+        {
+            try
+            {
+                SessionSummaryFooter.Flush();
+            }
+            catch
+            {
+                // Never let a logging flush failure break game shutdown.
+            }
+            base.OnSubModuleUnloaded();
+        }
+
+        /// <summary>
         ///     Called when a mission (battle, siege, etc.) initializes its behaviors.
         ///     This is the proper place to add mission-specific behaviors like kill tracking.
         ///     Unlike dynamic addition during AfterMissionStarted, this runs before mission lifecycle begins.

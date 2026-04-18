@@ -207,6 +207,7 @@
     <Compile Include="src\Mod.Core\Logging\ModLogger.cs"/>
     <Compile Include="src\Mod.Core\Logging\LogCtx.cs"/>
     <Compile Include="src\Mod.Core\Logging\SessionHeaderWriter.cs"/>
+    <Compile Include="src\Mod.Core\Logging\SessionSummaryFooter.cs"/>
     <Compile Include="src\Mod.Core\Logging\ModConflictDiagnostics.cs"/>
     <Compile Include="src\Mod.Core\Logging\SessionDiagnostics.cs"/>
     
