@@ -73,6 +73,10 @@ namespace Enlisted.Mod.Core.Logging
 			= new Dictionary<string, (DateTime, int)>();
 		private static readonly TimeSpan ExpectedWindow = TimeSpan.FromSeconds(60);
 
+		// Surfaced(): codes that have already shown a toast this session. Subsequent
+		// hits only bump the footer counter; no new on-screen message.
+		private static readonly HashSet<string> SurfacedToastedCodes = new HashSet<string>();
+
 		/// <summary>
 		/// Tracks repeated messages for throttling.
 		/// </summary>
@@ -335,6 +339,43 @@ namespace Enlisted.Mod.Core.Logging
 			Info(category, string.IsNullOrEmpty(ctxLine) ? summary : summary + " | " + ctxLine);
 
 			SessionSummaryFooter.RecordExpected(category, key);
+		}
+
+		/// <summary>
+		/// Log a player/dev-facing failure. Writes full context + stack to the session
+		/// log AND shows a red on-screen toast ONCE per (category, code) per session.
+		/// Subsequent occurrences bump the session footer counter only.
+		/// </summary>
+		public static void Surfaced(
+			string category,
+			string summary,
+			Exception ex = null,
+			IDictionary<string, object> ctx = null,
+			[CallerFilePath] string callerFile = "",
+			[CallerLineNumber] int callerLine = 0)
+		{
+			var suffix = ComputeCodeSuffix(summary);
+			var code = $"E-{(category ?? "?").ToUpperInvariant()}-{suffix}";
+			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+
+			bool firstThisSession;
+			lock (Sync)
+			{
+				firstThisSession = SurfacedToastedCodes.Add(code);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			var logMsg = $"[{code}] {summary} [at {shortFile}:{callerLine}]";
+			if (!string.IsNullOrEmpty(ctxLine)) logMsg += " | " + ctxLine;
+
+			Error(category, logMsg, ex);
+
+			if (firstThisSession && ShowCodedMessagesOnScreen)
+			{
+				DisplayCodedMessageOnScreen(code, category, summary, Colors.Red);
+			}
+
+			SessionSummaryFooter.RecordSurfaced(code, category, summary, shortFile, callerLine);
 		}
 
 		/// <summary>
@@ -771,6 +812,20 @@ namespace Enlisted.Mod.Core.Logging
 			catch
 			{
 				return string.Empty; // never let ctx formatting break logging
+			}
+		}
+
+		/// <summary>
+		/// Deterministic 4-hex-char suffix of SHA-256(summary). Stable across runs
+		/// as long as the summary string is unchanged.
+		/// </summary>
+		internal static string ComputeCodeSuffix(string summary)
+		{
+			if (string.IsNullOrEmpty(summary)) return "0000";
+			using (var sha = System.Security.Cryptography.SHA256.Create())
+			{
+				var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(summary));
+				return bytes[0].ToString("x2") + bytes[1].ToString("x2");
 			}
 		}
 
