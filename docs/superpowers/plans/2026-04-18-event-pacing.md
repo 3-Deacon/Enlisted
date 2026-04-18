@@ -21,8 +21,41 @@
 - **New C# files:** register in `Enlisted.csproj`.
 - **New save types:** register in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` per its existing `BaseId = 735000 + offset` pattern.
 - **Commit after each task** with conventional prefix (`feat:`, `refactor:`, `build:`, `docs:`).
+- **Commit selectively** with `git add <file>` (not `git add -A`). The working tree may have in-flight changes from parallel docs work — preserve them.
 - **TaleWorlds APIs:** verify against `C:\Dev\Enlisted\Decompile\` only. Never use web or training knowledge.
 - **Content directory is `ModuleData/Enlisted/Events/` (capital E).**
+- **Logging uses `ModLogger.WarnCode(category, code, message)` / `ErrorCode(category, code, message, ex)`** from `Enlisted.Mod.Core.Logging` (not `Mod.Core.Util`). Dual-emits to log file + on-screen panel per `948fc72`.
+- **Error codes: `E-PACE-NNN`** under a new `Pacing (PACE)` section in `docs/error-codes.md` (registered in Task 0). Never renumber; append.
+
+---
+
+## Task 0: Register Pacing error codes in the registry
+
+**Files:**
+- Modify: `docs/error-codes.md`
+
+**Context:** Arch-fixes Commit 3 landed the project's error-code registry at `docs/error-codes.md` with format `E-<SUBSYSTEM>-<NNN>`. Policy: "never renumber, gaps are fine." Existing subsystems: QM, QM-UI, UI, DIALOG, SYSTEM, TIME, MUSTER, QM-PARTY, QM-DEAL. No PACE section exists yet. Add one with the two codes this plan will emit.
+
+- [ ] **Step 1: Append a new `## Pacing (PACE)` section**
+
+Append at the end of the file, after the last existing subsystem section:
+
+```markdown
+## Pacing (PACE)
+
+| Code | Meaning | Remediation | Owner |
+|---|---|---|---|
+| E-PACE-001 | `StoryDirector.EmitCandidate` threw — candidate dropped silently | See exception log; relevance filter or classifier likely received unexpected state | Content |
+| E-PACE-002 | Quiet-stretch fallback tick threw — no fallback fired this day | See exception log; confirm `EventCatalog.GetEventsByCategory("quiet_stretch")` returns events | Content |
+| E-PACE-003 | `EnlistedNewsBehavior.AddPersonalDispatch` threw — dispatch item dropped | See exception log; likely DispatchItem construction or dedup logic regressed | Content |
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add docs/error-codes.md
+git commit -m "docs: register E-PACE-* error codes for StoryDirector"
+```
 
 ---
 
@@ -616,7 +649,7 @@ git commit -m "feat: author quiet-stretch event pool for Director fallback"
 using System;
 using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core.Util;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
@@ -681,7 +714,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("content", $"E-PACE-001 StoryDirector.EmitCandidate failed: {ex.Message}");
+                ModLogger.ErrorCode("Content", "E-PACE-001", "StoryDirector.EmitCandidate failed", ex);
             }
         }
 
@@ -1024,7 +1057,7 @@ public void AddPersonalDispatch(
     }
     catch (Exception ex)
     {
-        ModLogger.Warn("news", $"AddPersonalDispatch failed: {ex.Message}");
+        ModLogger.ErrorCode("News", "E-PACE-003", "AddPersonalDispatch failed", ex);
     }
 }
 ```
@@ -1222,7 +1255,7 @@ private void OnDailyTick()
     }
     catch (Exception ex)
     {
-        ModLogger.Warn("content", $"E-PACE-002 Quiet-stretch tick failed: {ex.Message}");
+        ModLogger.ErrorCode("Content", "E-PACE-002", "Quiet-stretch tick failed", ex);
     }
 }
 ```
