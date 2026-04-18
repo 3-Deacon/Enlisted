@@ -20,6 +20,9 @@ python Tools/Validation/sync_event_strings.py
 
 # Upload to Steam Workshop
 ./Tools/Steam/upload.ps1
+
+# Regenerate ../Decompile/ from your local Bannerlord install (first-time setup)
+./Tools/Decompile-Bannerlord.bat
 ```
 
 ---
@@ -29,7 +32,7 @@ python Tools/Validation/sync_event_strings.py
 ### 1. Target Bannerlord v1.3.13
 
 - NEVER assume APIs from later versions
-- ALWAYS verify APIs against local `Decompile/` directory (NOT online docs)
+- ALWAYS verify APIs against `../Decompile/` (sibling of repo root, external to git; regenerate via `Tools/Decompile-Bannerlord.bat`). NOT online docs.
 
 ### 2. New C# Files Must Be Registered in .csproj
 
@@ -132,7 +135,7 @@ ModuleData/Enlisted/   JSON events, orders, decisions
 ModuleData/Languages/  enlisted_strings.xml (localization)
 docs/                  All documentation (see docs/INDEX.md)
 Tools/Validation/      Validators (run before commit)
-Decompile/             Bannerlord v1.3.13 API — AUTHORITATIVE
+../Decompile/          Bannerlord v1.3.13 API — AUTHORITATIVE (external to repo, regenerate with Tools/Decompile-Bannerlord.bat)
 ```
 
 ### Key Feature Folders

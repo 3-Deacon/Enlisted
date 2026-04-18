@@ -23,7 +23,7 @@ For third-party library docs, use the Context7 MCP with these IDs:
 | C# Language | `/websites/learn_microsoft_en-us_dotnet_csharp` |
 | Pydantic AI | `/pydantic/pydantic-ai` |
 
-**TaleWorlds APIs:** NEVER use Context7, web search, or training knowledge. Always use local `Decompile/` — it is the only authoritative reference for v1.3.13.
+**TaleWorlds APIs:** NEVER use Context7, web search, or training knowledge. Always use the decompile at `../Decompile/` (sibling of the repo root, not tracked in git) — it is the only authoritative reference for v1.3.13. Regenerate it with `Tools/Decompile-Bannerlord.bat` if missing.
 
 ---
 
