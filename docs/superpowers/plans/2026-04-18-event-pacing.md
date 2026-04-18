@@ -203,22 +203,22 @@ namespace Enlisted.Features.Content
 
 - [ ] **Step 3: Create `StoryCandidatePersistent.cs`**
 
-```csharp
-using TaleWorlds.SaveSystem;
+Follow the project convention (see `src/Features/Orders/Models/OrderOutcome.cs`): plain public properties with `{ get; set; }`, no `[SaveableField]` attributes. The class is registered via `AddClassDefinition` in `EnlistedSaveDefiner` (Task 9) — the SaveSystem serializes public properties by reflection for registered classes. Must be `public`, must have a parameterless constructor.
 
+```csharp
 namespace Enlisted.Features.Content
 {
     public sealed class StoryCandidatePersistent
     {
-        [SaveableField(1)] public string SourceId;
-        [SaveableField(2)] public string CategoryId;
-        [SaveableField(3)] public StoryTier GrantedTier;
-        [SaveableField(4)] public float Severity;
-        [SaveableField(5)] public int EmittedDayNumber;
-        [SaveableField(6)] public int EmittedHour;
-        [SaveableField(7)] public string PayloadKey;
-        [SaveableField(8)] public string RenderedTitle;
-        [SaveableField(9)] public string RenderedBody;
+        public string SourceId { get; set; }
+        public string CategoryId { get; set; }
+        public StoryTier GrantedTier { get; set; }
+        public float Severity { get; set; }
+        public int EmittedDayNumber { get; set; }
+        public int EmittedHour { get; set; }
+        public string PayloadKey { get; set; }
+        public string RenderedTitle { get; set; }
+        public string RenderedBody { get; set; }
     }
 }
 ```
@@ -295,12 +295,12 @@ namespace Enlisted.Features.Content
                 return true;
             }
 
-            if (!key.SubjectPosition.IsNonZero)
+            if (!key.SubjectPosition.IsNonZero())
             {
                 return false;
             }
 
-            float distance = playerParty.Position2D.Distance(key.SubjectPosition);
+            float distance = playerParty.GetPosition2D.Distance(key.SubjectPosition);
             float daysOfTravel = distance / (playerParty.Speed > 0f ? playerParty.Speed : 5f);
             if (daysOfTravel <= TravelDaysThreshold)
             {
@@ -719,11 +719,14 @@ namespace Enlisted.Features.Content
     {
         public static StoryDirector Instance { get; private set; }
 
-        [SaveableField(1)] private int _lastModalDay;
-        [SaveableField(2)] private long _lastModalUtcTicks;
-        [SaveableField(3)] private Dictionary<string, int> _categoryCooldowns = new Dictionary<string, int>();
-        [SaveableField(4)] private List<StoryCandidatePersistent> _pertinentBuffer = new List<StoryCandidatePersistent>();
-        [SaveableField(5)] private List<StoryCandidatePersistent> _logRing = new List<StoryCandidatePersistent>();
+        // Project convention: behavior fields are NOT annotated with [SaveableField];
+        // persistence is explicit via SyncData(IDataStore) below.
+        // (See src/Features/Retinue/Core/CompanionAssignmentManager.cs for precedent.)
+        private int _lastModalDay;
+        private long _lastModalUtcTicks;
+        private Dictionary<string, int> _categoryCooldowns = new Dictionary<string, int>();
+        private List<StoryCandidatePersistent> _pertinentBuffer = new List<StoryCandidatePersistent>();
+        private List<StoryCandidatePersistent> _logRing = new List<StoryCandidatePersistent>();
 
         public IReadOnlyList<StoryCandidatePersistent> HeadlineAccordionState => _headlineBuffer;
         public IReadOnlyList<StoryCandidatePersistent> PertinentDigestState => _pertinentBuffer;
@@ -876,28 +879,47 @@ git commit -m "feat: add StoryDirector skeleton with emit/route/save"
 ### Task 9: Register save types in EnlistedSaveDefiner
 
 **Files:**
-- Modify: `src/Features/Enlistment/EnlistedSaveDefiner.cs` (grep for file — exact path may differ)
+- Modify: `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`
 
-- [ ] **Step 1: Add pacing types to the existing definer**
+**Context:** The project uses a single `BaseId = 735000` and registers types via *offsets* through three overrides: `DefineClassTypes()`, `DefineEnumTypes()`, `DefineContainerDefinitions()`. Existing offsets to avoid (read the file first to re-confirm): classes 1, 10–14, 20–24; enums 50–52, 60–64, 70–71. `Dictionary<string, int>` is **already** registered (line 90) — do not re-register.
 
-Find the existing `DefineEnumType` / `DefineClassType` calls in `EnlistedSaveDefiner` and add in a pacing subsystem section with fresh ids in the 735700–735799 range:
+- [ ] **Step 1: Add pacing model class**
+
+Inside the existing `DefineClassTypes()` method, append (under a new comment block):
 
 ```csharp
-// Pacing subsystem (base ids 735700–735799)
-AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 735701);
-AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 735702);
-AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 735703);
-AddGenericClassDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>), 735704);
-AddGenericClassDefinition(typeof(System.Collections.Generic.Dictionary<string, int>), 735705);
+// Pacing subsystem — StoryDirector candidate persistence
+AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
 ```
 
-Adjust call names (`AddEnumDefinition` vs `DefineEnumType` etc.) to match the existing file — read it first before editing.
+- [ ] **Step 2: Add pacing enums**
 
-- [ ] **Step 2: Build + commit**
+Inside the existing `DefineEnumTypes()` method, append:
+
+```csharp
+// Pacing subsystem enums
+AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
+AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
+```
+
+- [ ] **Step 3: Add container definition for the persistent-candidate list**
+
+Inside the existing `DefineContainerDefinitions()` method, append:
+
+```csharp
+// Pacing subsystem containers (Dictionary<string,int> is already registered above)
+ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
+```
+
+- [ ] **Step 4: Add using directive if needed**
+
+At the top of the file, confirm `using Enlisted.Features.Content;` is present (or use the fully-qualified names as shown above).
+
+- [ ] **Step 5: Build + commit**
 
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
-git add src/Features/Enlistment/EnlistedSaveDefiner.cs
+git add src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs
 git commit -m "feat: register StoryDirector save types in EnlistedSaveDefiner"
 ```
 

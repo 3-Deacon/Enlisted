@@ -403,13 +403,16 @@ public sealed class StoryCandidatePersistent
 
 The `Payload` delegate is not persisted. On load, the source is asked to reconstruct via `IStorySource.RehydratePayload(PayloadKey)`. If reconstruction returns null, the Director falls back to rendering `RenderedTitle` + `RenderedBody` as a read-only entry (no interactive options). If even that fails, the entry drops silently with a `ModLogger.Log("E-PACE-001", ...)` warning.
 
-Register the following in `EnlistedSaveDefiner` (base id range 735700–735799, reserved for pacing subsystem):
+Register in the project's existing `EnlistedSaveDefiner` (`src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`). The definer uses a single `BaseId = 735000` with per-override offsets; the implementation plan uses class offset `30`, enum offsets `80`–`81`, and a container definition for `List<StoryCandidatePersistent>` (Dictionary<string,int> is already registered in the definer). Method pattern matches existing code:
 
 ```csharp
-DefineEnumType(typeof(StoryTier));
-DefineEnumType(typeof(StoryBeat));
-DefineClassType(typeof(StoryCandidatePersistent));
-DefineClassType(typeof(PertinentDigestEntry));
+// In DefineClassTypes():
+AddClassDefinition(typeof(StoryCandidatePersistent), 30);
+// In DefineEnumTypes():
+AddEnumDefinition(typeof(StoryTier), 80);
+AddEnumDefinition(typeof(StoryBeat), 81);
+// In DefineContainerDefinitions():
+ConstructContainerDefinition(typeof(List<StoryCandidatePersistent>));
 ```
 
 ## 14. Testing
