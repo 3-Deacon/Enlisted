@@ -414,6 +414,10 @@ namespace Enlisted.Mod.Entry
                     // Map incident system: delivers context-based events during travel (battle end, settlement entry/exit, siege).
                     campaignStarter.AddBehavior(new MapIncidentManager());
 
+                    // Story director: central broker that receives StoryCandidate emissions, filters by relevance,
+                    // classifies by severity, and routes to Modal or Observational delivery. Route is a no-op in Phase 1.
+                    campaignStarter.AddBehavior(new StoryDirector());
+
                     // Decision system: loads player-initiated decisions from JSON and provides them to the Decisions menu.
                     campaignStarter.AddBehavior(new DecisionManager());
 
