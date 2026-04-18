@@ -119,6 +119,7 @@ namespace Enlisted.Mod.Core.Logging
 
 					// Clear session-specific tracking
 					LoggedOnceKeys.Clear();
+					LoggedExceptionDetails.Clear();
 					ThrottleCache.Clear();
 					SummaryData.Clear();
 					CaughtThrottle.Clear();
@@ -290,6 +291,7 @@ namespace Enlisted.Mod.Core.Logging
 			if (!IsEnabled(category, LogLevel.Error)) return;
 
 			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+			// Record before throttle gate so suppressed hits are still counted in the footer.
 			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
 
 			var fingerprint = $"{category}|{shortFile}|{callerLine}";
@@ -332,6 +334,7 @@ namespace Enlisted.Mod.Core.Logging
 		{
 			if (!IsEnabled(category, LogLevel.Info)) return;
 
+			// Record before throttle gate so suppressed hits are still counted in the footer.
 			SessionSummaryFooter.RecordExpected(category, key);
 
 			var now = DateTime.UtcNow;
