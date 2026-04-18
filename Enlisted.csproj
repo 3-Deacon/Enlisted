@@ -434,6 +434,7 @@
     <Compile Include="src\Features\Content\StoryCandidate.cs"/>
     <Compile Include="src\Features\Content\StoryCandidatePersistent.cs"/>
     <Compile Include="src\Features\Content\RelevanceFilter.cs"/>
+    <Compile Include="src\Features\Content\SeverityClassifier.cs"/>
 
     <!-- Decisions System -->
     <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
