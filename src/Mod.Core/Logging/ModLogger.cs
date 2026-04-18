@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaleWorlds.Core;
+using TaleWorlds.Library;
 
 namespace Enlisted.Mod.Core.Logging
 {
@@ -247,21 +249,63 @@ namespace Enlisted.Mod.Core.Logging
 		}
 
 		/// <summary>
+		/// When true, coded errors and warnings also display an on-screen message so
+		/// developers and players see the failure without tailing the log file.
+		/// Toggle off for silent release builds via ModLogger.ShowCodedMessagesOnScreen.
+		/// </summary>
+		public static bool ShowCodedMessagesOnScreen { get; set; } = true;
+
+		/// <summary>
 		/// Log an error with a stable support code (searchable in user logs).
+		/// Also surfaces the code + message on-screen in red when
+		/// <see cref="ShowCodedMessagesOnScreen"/> is true.
 		/// </summary>
 		public static void ErrorCode(string category, string code, string message, Exception ex = null)
 		{
 			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
 			Error(category, $"{prefix}{message}", ex);
+			DisplayCodedMessageOnScreen(code, category, message, Colors.Red);
 		}
 
 		/// <summary>
 		/// Log a warning with a stable support code (searchable in user logs).
+		/// Also surfaces the code + message on-screen in yellow when
+		/// <see cref="ShowCodedMessagesOnScreen"/> is true.
 		/// </summary>
 		public static void WarnCode(string category, string code, string message)
 		{
 			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
 			Warn(category, $"{prefix}{message}");
+			DisplayCodedMessageOnScreen(code, category, message, Colors.Yellow);
+		}
+
+		/// <summary>
+		/// Push a coded log entry to the on-screen info panel. Swallows any display
+		/// failure so logging never breaks because of UI state.
+		/// </summary>
+		private static void DisplayCodedMessageOnScreen(string code, string category, string message, Color color)
+		{
+			if (!ShowCodedMessagesOnScreen)
+			{
+				return;
+			}
+			try
+			{
+				const int MaxMessageChars = 140;
+				var body = message ?? string.Empty;
+				if (body.Length > MaxMessageChars)
+				{
+					body = body.Substring(0, MaxMessageChars - 3) + "...";
+				}
+				var line = string.IsNullOrWhiteSpace(code)
+					? $"[{category}] {body}"
+					: $"[{code}] {body}";
+				InformationManager.DisplayMessage(new InformationMessage(line, color));
+			}
+			catch
+			{
+				// Never let a display failure break error logging — file log already captured it.
+			}
 		}
 
 		#endregion
