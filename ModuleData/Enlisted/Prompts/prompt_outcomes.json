@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "_comment": "Outcome pools for Order Prompt investigations. 50% nothing, 30% small reward, 15% event chain, 5% danger. Pre-rolled before player sees prompt.",
+  "outcomes": {
+    "nothing": [
+      {
+        "text": "Just the wind. Nothing there.",
+        "effects": {}
+      },
+      {
+        "text": "A rabbit bolts from the underbrush. False alarm.",
+        "effects": {}
+      },
+      {
+        "text": "You find nothing of interest. Time wasted, but at least you were thorough.",
+        "effects": {
+          "fatigue": 2,
+          "skill_xp": { "Scouting": 5 }
+        }
+      },
+      {
+        "text": "Tracks lead nowhere. Whoever was here is long gone.",
+        "effects": {}
+      },
+      {
+        "text": "Your imagination. The camp is quiet.",
+        "effects": {}
+      }
+    ],
+    "small_reward": [
+      {
+        "text": "You find a coin purse dropped by a careless traveler.",
+        "effects": {
+          "gold": "25-75",
+          "skill_xp": { "Scouting": 12 }
+        }
+      },
+      {
+        "text": "An abandoned pack contains useful supplies.",
+        "effects": {
+          "company_supplies": 3,
+          "skill_xp": { "Scouting": 10 }
+        }
+      },
+      {
+        "text": "A fellow soldier saw you checking the perimeter. Word gets around.",
+        "effects": {
+          "reputation": { "type": "Soldier", "value": 2 },
+          "skill_xp": { "Scouting": 8 }
+        }
+      },
+      {
+        "text": "Hidden cache of spare equipment. The quartermaster will be pleased.",
+        "effects": {
+          "company_supplies": 5,
+          "reputation": { "type": "Officer", "value": 1 },
+          "skill_xp": { "Scouting": 10 }
+        }
+      },
+      {
+        "text": "You learn something useful from the situation.",
+        "effects": {
+          "skill_xp": { "Scouting": 15, "Tactics": 5 }
+        }
+      }
+    ],
+    "event_chain": [
+      {
+        "text": "You find a deserter from another company, hiding in the brush...",
+        "chain_id": "deserter_encounter",
+        "trigger_event": "evt_deserter_chain_start"
+      },
+      {
+        "text": "A wounded soldier lies hidden in the grass, barely alive...",
+        "chain_id": "wounded_soldier",
+        "trigger_event": "evt_wounded_soldier_start"
+      },
+      {
+        "text": "An old man approaches with a tale of hidden treasure nearby...",
+        "chain_id": "treasure_rumor",
+        "trigger_event": "evt_treasure_rumor_start"
+      },
+      {
+        "text": "You overhear something you shouldn't. This could be valuable... or dangerous.",
+        "chain_id": "overheard_secret",
+        "trigger_event": "evt_overheard_secret_start"
+      }
+    ],
+    "danger": [
+      {
+        "text": "Ambush! Bandits were waiting in the bushes!",
+        "effects": {
+          "trigger_combat": "bandit_ambush_small",
+          "skill_xp": { "OneHanded": 10 }
+        }
+      },
+      {
+        "text": "You step into a concealed pit. Your ankle twists painfully.",
+        "effects": {
+          "injury": "sprained_ankle",
+          "fatigue": 15
+        }
+      },
+      {
+        "text": "An enemy scout! You exchange blows before they flee.",
+        "effects": {
+          "health_damage": 5,
+          "skill_xp": { "OneHanded": 5 }
+        }
+      },
+      {
+        "text": "Poisonous snake! You react just in time, but the bite still burns.",
+        "effects": {
+          "injury": "minor_poison",
+          "fatigue": 10
+        }
+      }
+    ]
+  }
+}

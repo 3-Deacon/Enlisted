@@ -100,13 +100,7 @@
     "decision_events": {
         "enabled": true,
         "events_folder": "Events",
-        "pacing": {
-            "max_per_day": 1,
-            "max_per_week": 4,
-            "min_hours_between": 12,
-            "per_event_cooldown_days": 7,
-            "per_category_cooldown_days": 2
-        },
+        "_comment": "Random event pacing removed - Order Prompt Model now handles event flow",
         "activity": {
             "enabled": true,
             "activity_match_boost": 2.0,
@@ -148,6 +142,24 @@
         "imminent_warning_min_hours": 4,
         "imminent_warning_max_hours": 8,
         "comment": "Imminent orders provide 4-8 hour advance warning before issue"
+    },
+    "order_prompts": {
+        "enabled": true,
+        "prompt_chance": 0.15,
+        "context_modifiers": {
+            "PostBattle": 0.08,
+            "RecentEngagement": 0.12,
+            "NormalCampaign": 0.15,
+            "Garrison": 0.10
+        },
+        "outcome_weights": {
+            "nothing": 50,
+            "small_reward": 30,
+            "event_chain": 15,
+            "danger": 5
+        },
+        "prompts_folder": "Prompts",
+        "comment": "Order Prompt Model: 15% chance per phase to show player a prompt. Pre-rolled outcomes."
     },
     "native_trait_mapping": {
         "enabled": true,

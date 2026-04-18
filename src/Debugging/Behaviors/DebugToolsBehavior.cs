@@ -54,32 +54,16 @@ namespace Enlisted.Debugging.Behaviors
 
 
         /// <summary>
-        /// Forces an immediate event selection attempt bypassing the pacing window.
-        /// Useful for testing event selection and delivery without waiting 3-5 days
+        /// [DEPRECATED] Random event forcing removed per Order Prompt Model.
+        /// Events now fire via player-driven Order Prompt system only.
+        /// Use ListEligibleEvents() to check what events could fire from prompts.
         /// </summary>
         public static void ForceEventSelection()
         {
-            var pacingManager = EventPacingManager.Instance;
-            if (pacingManager == null)
-            {
-                var warn = new TextObject("Cannot force event - EventPacingManager not found.");
-                InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
-                ModLogger.Warn("Debug", "ForceEventSelection: EventPacingManager.Instance is null");
-                return;
-            }
-
-            var enlist = EnlistmentBehavior.Instance;
-            if (enlist?.IsEnlisted != true)
-            {
-                var warn = new TextObject("Cannot force event - not enlisted.");
-                InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
-                return;
-            }
-
-            pacingManager.ForceEventAttempt();
-            var msg = new TextObject("Event selection forced (debug). Check if a popup appears.");
+            var msg = new TextObject("Random events removed. Events now fire via Order Prompt system.");
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
-            SessionDiagnostics.LogEvent("Debug", "ForceEventSelection", "Forced immediate event attempt");
+            ModLogger.Info("Debug", "ForceEventSelection: Random event system removed per Order Prompt Model");
+            SessionDiagnostics.LogEvent("Debug", "ForceEventSelection", "Deprecated - use Order Prompts");
         }
 
         /// <summary>
