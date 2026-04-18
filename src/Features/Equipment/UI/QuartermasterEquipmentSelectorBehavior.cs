@@ -14,6 +14,7 @@ using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.TimeControl;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -38,8 +39,11 @@ namespace Enlisted.Features.Equipment.UI
         // Track whether to return to conversation after closing
         private static bool _returnToConversationOnClose = true;
         
-        // Captured time state for restoring after UI closes
-        private static CampaignTimeControlMode? _capturedTimeMode;
+        // Time scope spanning the equipment selector's open lifetime.
+        // Held as a field because open (ShowEquipmentSelector) and close
+        // (CloseEquipmentSelector) are separate entry points — the scope
+        // captures on open and disposes in CloseEquipmentSelector's finally.
+        private static EnlistedTimeScope? _equipmentTimeScope;
         
         /// <summary>
         /// Returns true if the equipment selector UI is currently open.
@@ -213,14 +217,9 @@ namespace Enlisted.Features.Equipment.UI
                 
                 ModLogger.Debug("QuartermasterUI", $"Available variants: {availableVariants.Count}");
                 
-                // Capture current time mode and pause time while browsing equipment
-                if (Campaign.Current != null)
-                {
-                    _capturedTimeMode = Campaign.Current.TimeControlMode;
-                    Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
-                    Campaign.Current.SetTimeControlModeLock(true);
-                    ModLogger.Debug("QuartermasterUI", $"Time paused (captured: {_capturedTimeMode})");
-                }
+                // Capture via EnlistedTimeScope; disposed in CloseEquipmentSelector's finally.
+                _equipmentTimeScope = EnlistedTimeScope.Capture();
+                ModLogger.Debug("QuartermasterUI", "Time paused via EnlistedTimeScope for equipment selector");
                 
                 ModLogger.Debug("QuartermasterUI", "Creating Gauntlet layer...");
                 
@@ -326,20 +325,10 @@ namespace Enlisted.Features.Equipment.UI
                 _gauntletMovie = null;
                 _selectorViewModel = null;
                 
-                // Restore time control mode
-                if (Campaign.Current != null)
-                {
-                    Campaign.Current.SetTimeControlModeLock(false);
-                    
-                    if (_capturedTimeMode.HasValue)
-                    {
-                        var normalized = QuartermasterManager.NormalizeToStoppable(_capturedTimeMode.Value);
-                        Campaign.Current.TimeControlMode = normalized;
-                        ModLogger.Debug("QuartermasterUI", $"Time restored: {normalized}");
-                    }
-                    
-                    _capturedTimeMode = null;
-                }
+                // Dispose the scope to release lock and restore time mode.
+                _equipmentTimeScope?.Dispose();
+                _equipmentTimeScope = null;
+                ModLogger.Debug("QuartermasterUI", "Equipment selector time scope disposed");
             }
             
             // Return to quartermaster conversation after closing (only if still enlisted with valid QM)
@@ -381,8 +370,8 @@ namespace Enlisted.Features.Equipment.UI
         private static GauntletMovieIdentifier _upgradeMovie;
         private static QuartermasterUpgradeVm _upgradeViewModel;
         
-        // Captured time state for upgrade screen
-        private static CampaignTimeControlMode? _capturedUpgradeTimeMode;
+        // Time scope spanning the upgrade screen's open lifetime.
+        private static EnlistedTimeScope? _upgradeTimeScope;
         
         /// <summary>
         /// Check if upgrade screen is currently open.
@@ -405,14 +394,8 @@ namespace Enlisted.Features.Equipment.UI
                     CloseUpgradeScreen(false);
                 }
                 
-                // Capture current time mode and pause time while viewing upgrades
-                if (Campaign.Current != null)
-                {
-                    _capturedUpgradeTimeMode = Campaign.Current.TimeControlMode;
-                    Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
-                    Campaign.Current.SetTimeControlModeLock(true);
-                    ModLogger.Debug("QuartermasterUI", $"Time paused for upgrade screen (captured: {_capturedUpgradeTimeMode})");
-                }
+                _upgradeTimeScope = EnlistedTimeScope.Capture();
+                ModLogger.Debug("QuartermasterUI", "Time paused via EnlistedTimeScope for upgrade screen");
                 
                 ModLogger.Debug("QuartermasterUI", "Creating upgrade ViewModel");
                 
@@ -509,20 +492,9 @@ namespace Enlisted.Features.Equipment.UI
             }
             finally
             {
-                // Restore time control mode
-                if (Campaign.Current != null)
-                {
-                    Campaign.Current.SetTimeControlModeLock(false);
-                    
-                    if (_capturedUpgradeTimeMode.HasValue)
-                    {
-                        var normalized = QuartermasterManager.NormalizeToStoppable(_capturedUpgradeTimeMode.Value);
-                        Campaign.Current.TimeControlMode = normalized;
-                        ModLogger.Debug("QuartermasterUI", $"Time restored from upgrade screen: {normalized}");
-                    }
-                    
-                    _capturedUpgradeTimeMode = null;
-                }
+                _upgradeTimeScope?.Dispose();
+                _upgradeTimeScope = null;
+                ModLogger.Debug("QuartermasterUI", "Upgrade screen time scope disposed");
             }
             
             // Return to quartermaster conversation if requested (outside try-finally to avoid interrupting time restore)

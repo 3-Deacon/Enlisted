@@ -213,6 +213,7 @@
     <Compile Include="src\Mod.Core\CampaignSafetyGuard.cs"/>
     <Compile Include="src\Mod.Core\Triggers\CampaignTriggerTokens.cs"/>
     <Compile Include="src\Mod.Core\Triggers\CampaignTriggerTrackerBehavior.cs"/>
+    <Compile Include="src\Mod.Core\TimeControl\EnlistedTimeScope.cs" />
     <Compile Include="src\Mod.Core\Util\ModulePaths.cs"/>
     <Compile Include="src\Mod.Core\Util\PlayerContext.cs"/>
     <Compile Include="src\Mod.Core\Util\UiTextSanitizer.cs"/>

@@ -12,6 +12,7 @@ using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.TimeControl;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -30,8 +31,8 @@ namespace Enlisted.Features.Equipment.UI
         private static GauntletMovieIdentifier _gauntletMovie;
         private static QuartermasterProvisionsVm _provisionsViewModel;
         
-        // Captured time state for restoring after provisions screen closes
-        private static CampaignTimeControlMode? _capturedTimeMode;
+        // Time scope spanning the provisions screen's open lifetime.
+        private static EnlistedTimeScope? _provisionsTimeScope;
         
         // Track whether to return to QM conversation after closing
         private static bool _returnToConversationOnClose = true;
@@ -157,14 +158,8 @@ namespace Enlisted.Features.Equipment.UI
                     CloseProvisionsScreen(false);
                 }
                 
-                // Capture current time mode and pause time while purchasing provisions
-                if (Campaign.Current != null)
-                {
-                    _capturedTimeMode = Campaign.Current.TimeControlMode;
-                    Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
-                    Campaign.Current.SetTimeControlModeLock(true);
-                    ModLogger.Debug("QuartermasterUI", $"Time paused for provisions screen (captured: {_capturedTimeMode})");
-                }
+                _provisionsTimeScope = EnlistedTimeScope.Capture();
+                ModLogger.Debug("QuartermasterUI", "Time paused via EnlistedTimeScope for provisions screen");
                 
                 // Create ViewModel
                 _provisionsViewModel = new QuartermasterProvisionsVm();
@@ -274,20 +269,9 @@ namespace Enlisted.Features.Equipment.UI
                 _gauntletMovie = null;
                 _provisionsViewModel = null;
                 
-                // Restore time control mode
-                if (Campaign.Current != null)
-                {
-                    Campaign.Current.SetTimeControlModeLock(false);
-                    
-                    if (_capturedTimeMode.HasValue)
-                    {
-                        var normalized = QuartermasterManager.NormalizeToStoppable(_capturedTimeMode.Value);
-                        Campaign.Current.TimeControlMode = normalized;
-                        ModLogger.Debug("QuartermasterUI", $"Time restored from provisions screen: {normalized}");
-                    }
-                    
-                    _capturedTimeMode = null;
-                }
+                _provisionsTimeScope?.Dispose();
+                _provisionsTimeScope = null;
+                ModLogger.Debug("QuartermasterUI", "Provisions screen time scope disposed");
             }
         }
         
