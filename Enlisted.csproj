@@ -429,6 +429,7 @@
     <Compile Include="src\Features\Content\IncidentEffectTranslator.cs"/>
     <Compile Include="src\Features\Content\StoryBeat.cs"/>
     <Compile Include="src\Features\Content\StoryTier.cs"/>
+    <Compile Include="src\Features\Content\RelevanceKey.cs"/>
 
     <!-- Decisions System -->
     <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
