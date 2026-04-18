@@ -645,6 +645,14 @@
        ======================================================================== -->
   
   <Target Name="AfterBuild">
+    <!-- MIRROR BUILT ASSEMBLY TO wEditor PLATFORM SO BOTH GAME MODES LOAD THE MOD.
+         Shipping_Client is the default game build (hard-crashes on errors);
+         Shipping_wEditor is the editor build (surfaces errors more gracefully).
+         Testing on both avoids shipping bugs that only repro in one mode. -->
+    <MakeDir Directories="$(OutputPath)..\Win64_Shipping_wEditor"/>
+    <Copy SourceFiles="$(OutputPath)Enlisted.dll" DestinationFolder="$(OutputPath)..\Win64_Shipping_wEditor\" SkipUnchangedFiles="true"/>
+    <Copy SourceFiles="$(OutputPath)Enlisted.pdb" DestinationFolder="$(OutputPath)..\Win64_Shipping_wEditor\" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)Enlisted.pdb')"/>
+
     <!-- CREATE DIRECTORY STRUCTURE -->
     <MakeDir Directories="$(OutputPath)..\..\Debugging"/>
     <MakeDir Directories="$(OutputPath)..\..\GUI\Brushes"/>

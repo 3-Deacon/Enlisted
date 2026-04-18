@@ -38,11 +38,14 @@
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 ```
 
-**Output Location:**
+**Output Locations** (one build populates both; see [BUILD-CONFIGURATIONS.md](BUILD-CONFIGURATIONS.md) for why):
 
 ```text
 <BannerlordInstall>/Modules/Enlisted/bin/Win64_Shipping_Client/Enlisted.dll
+<BannerlordInstall>/Modules/Enlisted/bin/Win64_Shipping_wEditor/Enlisted.dll
 ```
+
+Close the Bannerlord launcher before building — `BannerlordLauncher` / `Watchdog` processes hold `Enlisted.dll` open and will fail the post-build copy.
 
 ---
 
