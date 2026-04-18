@@ -48,6 +48,7 @@ Match the task to the right skill:
 | Before proposing a bug fix | `superpowers:systematic-debugging` |
 | Before claiming work done | `superpowers:verification-before-completion` |
 | New feature implementation | `superpowers:test-driven-development` |
+| Executing a multi-task plan | `superpowers:subagent-driven-development` |
 | Writing an implementation plan | `superpowers:writing-plans` |
 | Security review of the branch | `security-review` |
 | Updating this CLAUDE.md file | `claude-md-management:revise-claude-md` |
@@ -61,6 +62,7 @@ Match the task to the right skill:
 - For broad codebase exploration (>3 searches), spawn an `Explore` subagent rather than searching directly
 - Parallelize independent Agent / tool calls; serialize only when one result feeds the next
 - If the user needs to run an interactive command, suggest the `!` prefix so output lands in-context
+- Another AI session may be editing files concurrently. Stage with `git add <path>`, never `git add -A` — in-flight edits belong to the other session and don't belong in your commit
 
 ---
 
