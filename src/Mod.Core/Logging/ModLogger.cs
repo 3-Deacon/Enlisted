@@ -1003,6 +1003,10 @@ namespace Enlisted.Mod.Core.Logging
 				var newLogName = $"{SessionSlots[0]}_{utcNow:yyyy-MM-dd_HH-mm-ss}.log";
 				var newLogPath = Path.Combine(logDir, newLogName);
 				WriteSessionHeader(newLogPath, utcNow);
+				// Append the rich header block (mod version, game version, player
+				// snapshot) AFTER the basic file header. Runs exactly once per
+				// session because a new file is created on each Initialize().
+				WriteRawToSession(newLogPath, SessionHeaderWriter.Build());
 				WriteCombinedPointer(logDir, newLogName, null);
 				return newLogPath;
 			}
@@ -1060,6 +1064,31 @@ namespace Enlisted.Mod.Core.Logging
 			catch
 			{
 				// best-effort header
+			}
+		}
+
+		/// <summary>
+		/// Append a raw, unprefixed block to the given session log file. Bypasses
+		/// the normal "[time] [LEVEL] [Category]" prefix so header content appears
+		/// verbatim. Swallows any IO failure — header emission must never break
+		/// the mod.
+		/// </summary>
+		private static void WriteRawToSession(string path, string text)
+		{
+			if (string.IsNullOrEmpty(text))
+			{
+				return;
+			}
+			try
+			{
+				lock (Sync)
+				{
+					File.AppendAllText(path, text, Encoding.UTF8);
+				}
+			}
+			catch
+			{
+				// swallow — never break the mod for header emission
 			}
 		}
 
