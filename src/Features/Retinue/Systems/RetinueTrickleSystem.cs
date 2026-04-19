@@ -27,7 +27,7 @@ namespace Enlisted.Features.Retinue.Systems
     /// </summary>
     public sealed class RetinueTrickleSystem : CampaignBehaviorBase
     {
-        private const string LogCategory = "Trickle";
+        private const string LogCategory = "TRICKLE";
 
         // Configurable trickle parameters
         private const int SoldiersPerTrickle = 1;
@@ -213,7 +213,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-RETINUE-001", "Error in daily trickle tick", ex);
+                ModLogger.Caught(LogCategory, "Error in daily trickle tick", ex);
             }
         }
 

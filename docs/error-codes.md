@@ -7,6 +7,33 @@ changes will be overwritten on the next run.
 For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 [error-codes-archive.md](error-codes-archive.md).
 
+## CAMP
+
+| Code | Summary | Source |
+|---|---|---|
+| E-CAMP-0092 | Error initializing reinforcement request menu | src/Features/Camp/CampMenuHandler.cs:2094 |
+| E-CAMP-0673 | Error initializing Faction Records | src/Features/Camp/CampMenuHandler.cs:581 |
+| E-CAMP-1199 | Error initializing purchase menu | src/Features/Camp/CampMenuHandler.cs:1464 |
+| E-CAMP-2540 | ExecutePurchase: manager null | src/Features/Camp/CampMenuHandler.cs:1701 |
+| E-CAMP-4c9c | Error initializing Lifetime Summary | src/Features/Camp/CampMenuHandler.cs:802 |
+| E-CAMP-7c0f | Error initializing Current Posting | src/Features/Camp/CampMenuHandler.cs:363 |
+| E-CAMP-9518 | ExecuteRequisition: manager null | src/Features/Camp/CampMenuHandler.cs:2110 |
+| E-CAMP-b154 | Error initializing dismiss menu | src/Features/Camp/CampMenuHandler.cs:1856 |
+| E-CAMP-c3d5 | Error initializing companion assignments | src/Features/Camp/CampMenuHandler.cs:2254 |
+| E-CAMP-c8fb | Error initializing Faction Detail | src/Features/Camp/CampMenuHandler.cs:696 |
+| E-CAMP-db74 | Error initializing Retinue menu | src/Features/Camp/CampMenuHandler.cs:1129 |
+
+## CAMPLIFE
+
+| Code | Summary | Source |
+|---|---|---|
+| E-CAMPLIFE-0311 | Failed to parse camp_opportunities.json — decisions won't appear in menu. Check JSON syntax. | src/Features/Camp/CampOpportunityGenerator.cs:1789 |
+| E-CAMPLIFE-2336 | No opportunity definitions found — check camp_opportunities.json exists and has valid content. Decisions won't appear in the accordion menu. | src/Features/Camp/CampOpportunityGenerator.cs:480 |
+| E-CAMPLIFE-537e | Opportunity definitions not yet loaded - loading now (this is normal on first access after load) | src/Features/Camp/CampOpportunityGenerator.cs:474 |
+| E-CAMPLIFE-7476 | No candidates passed filtering — check tier/context requirements in camp_opportunities.json match current state. | src/Features/Camp/CampOpportunityGenerator.cs:535 |
+| E-CAMPLIFE-7b2d | No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu. | src/Features/Camp/CampOpportunityGenerator.cs:1767 |
+| E-CAMPLIFE-803c | camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete. | src/Features/Camp/CampOpportunityGenerator.cs:1754 |
+
 ## ENLISTMENT
 
 | Code | Summary | Source |
@@ -31,6 +58,14 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | Code | Summary | Source |
 |---|---|---|
 | E-EQUIPMENT-4e07 | Gear handling on discharge failed | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:5621 |
+
+## FORMATIONASSIGNMENT
+
+| Code | Summary | Source |
+|---|---|---|
+| E-FORMATIONASSIGNMENT-0ae6 | Error setting up squad command | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:1288 |
+| E-FORMATIONASSIGNMENT-3e61 | Error during lord attach | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:688 |
+| E-FORMATIONASSIGNMENT-aac4 | Error teleporting player to formation | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:887 |
 
 ## INTERFACE
 

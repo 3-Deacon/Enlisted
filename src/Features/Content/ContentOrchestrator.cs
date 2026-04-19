@@ -73,7 +73,7 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class ContentOrchestrator : CampaignBehaviorBase
     {
-        private const string LogCategory = "Orchestrator";
+        private const string LogCategory = "ORCHESTRATOR";
 
         /// <summary>Singleton instance for global access.</summary>
         public static ContentOrchestrator Instance { get; private set; }
@@ -1057,7 +1057,7 @@ namespace Enlisted.Features.Content
             var generator = CampOpportunityGenerator.Instance;
             if (generator == null)
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-001", $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear");
+                ModLogger.Caught(LogCategory, $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear", null);
                 return new List<ScheduledOpportunity>();
             }
 
@@ -1244,9 +1244,9 @@ namespace Enlisted.Features.Content
             if (_scheduledOpportunities == null ||
                 !_scheduledOpportunities.TryGetValue(currentPhase, out var opportunities))
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-004",
+                ModLogger.Caught(LogCategory,
                     $"GetCurrentPhaseOpportunities: No schedule exists for {currentPhase} " +
-                    $"(_scheduledOpportunities={_scheduledOpportunities != null}, _scheduledDay={_scheduledDay})");
+                    $"(_scheduledOpportunities={_scheduledOpportunities != null}, _scheduledDay={_scheduledDay})", null);
                 return new List<ScheduledOpportunity>();
             }
 
@@ -1291,7 +1291,7 @@ namespace Enlisted.Features.Content
         {
             if (string.IsNullOrEmpty(opportunityId))
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-002", "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu");
+                ModLogger.Caught(LogCategory, "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu", null);
                 return;
             }
 
@@ -1348,8 +1348,8 @@ namespace Enlisted.Features.Content
 
             if (!found)
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-003",
-                    $"ConsumeOpportunity({opportunityId}): Not found in schedule - decision may reappear after phase change");
+                ModLogger.Caught(LogCategory,
+                    $"ConsumeOpportunity({opportunityId}): Not found in schedule - decision may reappear after phase change", null);
             }
         }
 

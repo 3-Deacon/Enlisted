@@ -23,7 +23,7 @@ namespace Enlisted.Features.Retinue.Systems
     /// </summary>
     public sealed class RetinueCasualtyTracker : CampaignBehaviorBase
     {
-        private const string LogCategory = "CasualtyTracker";
+        private const string LogCategory = "CASUALTYTRACKER";
 
         // Veteran emergence configuration
         private const float VeteranEmergenceChance = 0.15f; // 15% chance per eligible battle
@@ -119,7 +119,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CASUALTY-001", "Error in OnMapEventStarted", ex);
+                ModLogger.Caught(LogCategory, "Error in OnMapEventStarted", ex);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CASUALTY-002", "Error in OnMapEventEnded", ex);
+                ModLogger.Caught(LogCategory, "Error in OnMapEventEnded", ex);
                 _isInBattle = false;
             }
         }
@@ -172,7 +172,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CASUALTY-003", "Error in OnPlayerBattleEnd", ex);
+                ModLogger.Caught(LogCategory, "Error in OnPlayerBattleEnd", ex);
                 _isInBattle = false;
             }
         }
@@ -202,7 +202,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CASUALTY-004", "Error in daily sync", ex);
+                ModLogger.Caught(LogCategory, "Error in daily sync", ex);
             }
         }
 
@@ -607,7 +607,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(veteranCategory, "E-VET-001", "Error generating veteran name", ex);
+                ModLogger.Caught("VETERANS", "Error generating veteran name", ex);
                 return null;
             }
 

@@ -83,7 +83,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Content", "E-PACE-001", "StoryDirector.EmitCandidate failed", ex);
+                ModLogger.Caught("CONTENT", "StoryDirector.EmitCandidate failed", ex);
             }
         }
 

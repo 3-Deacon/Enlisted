@@ -25,7 +25,7 @@ namespace Enlisted.Features.Camp
     /// </summary>
     public sealed class CampMenuHandler : CampaignBehaviorBase
     {
-        private const string LogCategory = "Camp";
+        private const string LogCategory = "CAMP";
 
         // Menu IDs
         // NOTE: "Command Tent" is no longer a concept in the UI.
@@ -128,7 +128,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-001", "Failed to register camp menus", ex);
+                ModLogger.Caught(LogCategory, "Failed to register camp menus", ex);
             }
         }
 
@@ -360,7 +360,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-002", "Error initializing Current Posting", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing Current Posting", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("CURRENT_POSTING_TEXT",
                     new TextObject("{=enl_camp_error_current_posting}Error loading current posting data.").ToString());
             }
@@ -515,7 +515,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-003", "Error calculating days remaining", ex);
+                ModLogger.Caught(LogCategory, "Error calculating days remaining", ex);
                 return new TextObject("{=enl_unknown}Unknown").ToString();
             }
         }
@@ -578,7 +578,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-004", "Error initializing Faction Records", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing Faction Records", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("FACTION_RECORDS_TEXT",
                     new TextObject("{=enl_camp_error_faction_records}Error loading faction records.").ToString());
             }
@@ -693,7 +693,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-005", "Error initializing Faction Detail", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing Faction Detail", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("FACTION_DETAIL_TEXT",
                     new TextObject("{=enl_camp_error_faction_detail}Error loading faction detail.").ToString());
             }
@@ -799,7 +799,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-006", "Error initializing Lifetime Summary", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing Lifetime Summary", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("LIFETIME_SUMMARY_TEXT",
                     new TextObject("{=enl_camp_error_lifetime_summary}Error loading lifetime summary.").ToString());
             }
@@ -1126,7 +1126,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-007", "Error initializing Retinue menu", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing Retinue menu", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("RETINUE_STATUS_TEXT",
                     new TextObject("{=enl_retinue_error_loading_status}Error loading retinue status.").ToString());
             }
@@ -1461,7 +1461,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-008", "Error initializing purchase menu", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing purchase menu", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("RETINUE_PURCHASE_TEXT",
                     new TextObject("{=enl_camp_error_retinue_purchase}Error loading purchase options.").ToString());
             }
@@ -1698,7 +1698,7 @@ namespace Enlisted.Features.Camp
 
             if (manager == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-009", "ExecutePurchase: manager null");
+                ModLogger.Surfaced("CAMP", "ExecutePurchase: manager null", null, LogCtx.PlayerState());
                 return;
             }
 
@@ -1853,7 +1853,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-010", "Error initializing dismiss menu", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing dismiss menu", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("RETINUE_DISMISS_TEXT",
                     new TextObject("{=enl_camp_error_retinue_dismiss}Error loading dismiss options.").ToString());
             }
@@ -2091,7 +2091,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-011", "Error initializing reinforcement request menu", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing reinforcement request menu", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("REQUISITION_MENU_TEXT",
                     new TextObject("{=enl_camp_error_retinue_request}Error loading request details.").ToString());
                 MBTextManager.SetTextVariable("REQUISITION_CONFIRM_TEXT",
@@ -2107,7 +2107,7 @@ namespace Enlisted.Features.Camp
             var manager = RetinueManager.Instance;
             if (manager == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-012", "ExecuteRequisition: manager null");
+                ModLogger.Surfaced("CAMP", "ExecuteRequisition: manager null", null, LogCtx.PlayerState());
                 SwitchToMenuPreserveTime(RetinueMenuId);
                 return;
             }
@@ -2251,7 +2251,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-013", "Error initializing companion assignments", ex);
+                ModLogger.Surfaced("CAMP", "Error initializing companion assignments", ex, LogCtx.PlayerState());
                 MBTextManager.SetTextVariable("COMPANION_ASSIGNMENTS_TEXT",
                     new TextObject("{=enl_camp_error_companion_assignments}Error loading companion data.").ToString());
             }

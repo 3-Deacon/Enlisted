@@ -29,7 +29,7 @@ namespace Enlisted.Features.Camp
     /// </summary>
     public sealed class CampOpportunityGenerator : CampaignBehaviorBase
     {
-        private const string LogCategory = "CampLife";
+        private const string LogCategory = "CAMPLIFE";
         private const int FitnessThreshold = 40;
         private const int MaxOpportunitiesDefault = 3;
 
@@ -471,16 +471,14 @@ namespace Enlisted.Features.Camp
             // before OnSessionLaunched fires on this behavior
             if (!_definitionsLoaded)
             {
-                ModLogger.WarnCode(LogCategory, "W-CAMP-001", 
-                    "Opportunity definitions not yet loaded - loading now (this is normal on first access after load)");
+                ModLogger.Surfaced("CAMPLIFE", "Opportunity definitions not yet loaded - loading now (this is normal on first access after load)");
                 LoadOpportunityDefinitions();
                 
                 // Diagnostic: warn if still no definitions after loading
                 if (_opportunityDefinitions.Count == 0)
                 {
-                    ModLogger.WarnCode(LogCategory, "W-CAMP-002", 
-                        "No opportunity definitions found - check camp_opportunities.json exists and has valid content. " +
-                        "Decisions won't appear in the accordion menu.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "No opportunity definitions found — check camp_opportunities.json exists and has valid content. Decisions won't appear in the accordion menu.");
                 }
             }
 
@@ -534,10 +532,8 @@ namespace Enlisted.Features.Camp
             // Diagnostic: warn if no candidates despite having definitions and budget
             if (candidates.Count == 0 && _opportunityDefinitions.Count > 0 && budget > 0)
             {
-                ModLogger.WarnCode(LogCategory, "W-CAMP-003", 
-                    $"No candidates passed filtering (definitions={_opportunityDefinitions.Count}, budget={budget}). " +
-                    $"Check tier/context requirements in camp_opportunities.json match current state " +
-                    $"(tier={EnlistmentBehavior.Instance?.EnlistmentTier}, lordIs={campContext.LordSituation})");
+                ModLogger.Surfaced("CAMPLIFE",
+                    "No candidates passed filtering — check tier/context requirements in camp_opportunities.json match current state.");
             }
 
             // Cache promotion reputation need (calculated once, used for all fitness calculations)
@@ -1755,9 +1751,8 @@ namespace Enlisted.Features.Camp
                 var configPath = Path.Combine(ModulePaths.GetContentPath("Decisions"), "camp_opportunities.json");
                 if (!File.Exists(configPath))
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-CAMP-001", 
-                        $"camp_opportunities.json not found at {configPath} - decisions won't appear in menu. " +
-                        "Verify mod installation is complete.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete.");
                     _opportunityDefinitions = new List<CampOpportunity>();
                     _definitionsLoaded = true;
                     return;
@@ -1769,9 +1764,8 @@ namespace Enlisted.Features.Camp
 
                 if (opportunities == null)
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-CAMP-002", 
-                        "No 'opportunities' array found in camp_opportunities.json - file may be corrupt or invalid. " +
-                        "Decisions won't appear in menu.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu.");
                     _definitionsLoaded = true;
                     return;
                 }
@@ -1792,8 +1786,8 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-003", 
-                    "Failed to parse camp_opportunities.json - decisions won't appear in menu. Check JSON syntax.", ex);
+                ModLogger.Surfaced("CAMPLIFE",
+                    "Failed to parse camp_opportunities.json — decisions won't appear in menu. Check JSON syntax.", ex);
                 _opportunityDefinitions = new List<CampOpportunity>();
                 _definitionsLoaded = true; // Mark as loaded even on error to prevent retry loops
             }

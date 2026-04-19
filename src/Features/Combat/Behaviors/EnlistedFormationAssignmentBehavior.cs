@@ -88,7 +88,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     _hasLoggedInit = true;
                     var enlistment = EnlistmentBehavior.Instance;
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"=== BEHAVIOR ACTIVE === Mission: {Mission.Current?.Mode}, " +
                         $"Enlisted: {enlistment?.IsEnlisted}, OnLeave: {enlistment?.IsOnLeave}, " +
                         $"Agent.Main exists: {Agent.Main != null}");
@@ -101,7 +101,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         var stayBackCompanions = companions.Where(c => !(companionManager?.ShouldCompanionFight(c) ?? true)).ToList();
                         if (stayBackCompanions.Any())
                         {
-                            ModLogger.Debug("FormationAssignment",
+                            ModLogger.Debug("FORMATIONASSIGNMENT",
                                 $"Companions set to Stay Back: {string.Join(", ", stayBackCompanions.Select(c => c.Name))}");
                         }
                     }
@@ -111,7 +111,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-001", "Error in AfterStart", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error in AfterStart", ex);
             }
         }
 
@@ -146,7 +146,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-002", "Error in OnDeploymentFinished", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error in OnDeploymentFinished", ex);
             }
         }
 
@@ -172,7 +172,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-003", "Error in OnAgentBuild", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error in OnAgentBuild", ex);
             }
         }
 
@@ -223,7 +223,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 _companionsToRemove.Add(agent);
                 _companionRemovalDelayCounter = 0; // Reset delay counter when we add a new companion
 
-                ModLogger.Debug("FormationAssignment",
+                ModLogger.Debug("FORMATIONASSIGNMENT",
                     $"Stay Back companion {hero.Name} queued for removal (formation: {agent.Formation?.FormationIndex})");
             }
         }
@@ -263,7 +263,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     if (agent.Formation?.Captain == agent)
                     {
                         agent.Formation.Captain = null;
-                        ModLogger.Debug("FormationAssignment", $"Cleared {heroName} as formation captain before removal");
+                        ModLogger.Debug("FORMATIONASSIGNMENT", $"Cleared {heroName} as formation captain before removal");
                     }
 
                     // CRITICAL FIX: Clear captain status from ALL formations, not just own formation
@@ -275,7 +275,7 @@ namespace Enlisted.Features.Combat.Behaviors
                             if (formation?.Captain == agent)
                             {
                                 formation.Captain = null;
-                                ModLogger.Debug("FormationAssignment",
+                                ModLogger.Debug("FORMATIONASSIGNMENT",
                                     $"Cleared {heroName} as captain of {formation.FormationIndex} (Stay Back)");
                             }
                         }
@@ -289,21 +289,20 @@ namespace Enlisted.Features.Combat.Behaviors
 
                     if (stillActive)
                     {
-                        ModLogger.Warn("FormationAssignment",
+                        ModLogger.Warn("FORMATIONASSIGNMENT",
                             $"Companion {heroName} FadeOut called but agent still active - trying alternative removal");
                         // Try setting health to force removal
                         agent.Health = 0f;
                     }
                     else
                     {
-                        ModLogger.Info("FormationAssignment",
+                        ModLogger.Info("FORMATIONASSIGNMENT",
                             $"Companion {heroName} removed from battle (set to 'stay back')");
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-004",
-                        "Error removing stay-back companion", ex);
+                    ModLogger.Caught("FORMATIONASSIGNMENT", "Error removing stay-back companion", ex);
                 }
             }
 
@@ -332,7 +331,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 else if (_needsPositionFix && _positionFixAttempts >= MaxPositionFixAttempts)
                 {
                     // Log failure when we've exhausted all attempts
-                    ModLogger.Warn("FormationAssignment",
+                    ModLogger.Warn("FORMATIONASSIGNMENT",
                         $"Position fix FAILED after {MaxPositionFixAttempts} attempts - player may be at wrong position");
                     _needsPositionFix = false; // Stop trying
                 }
@@ -363,7 +362,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.LogOnce("formation_tick_error", "FormationAssignment",
+                ModLogger.LogOnce("formation_tick_error", "FORMATIONASSIGNMENT",
                     $"Error in OnMissionTick: {ex.Message}");
             }
         }
@@ -383,7 +382,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 // Only log once per callback to avoid spam
                 if (caller == "AfterStart" || caller == "OnDeploymentFinished")
                 {
-                    ModLogger.Debug("FormationAssignment",
+                    ModLogger.Debug("FORMATIONASSIGNMENT",
                         $"[{caller}] No player agent yet (null: {playerAgent == null})");
                 }
 
@@ -410,7 +409,7 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 // Not enlisted or on leave - don't force formation assignment
                 // Log this at Info level since it's an important state decision
-                ModLogger.LogOnce("formation_not_enlisted", "FormationAssignment",
+                ModLogger.LogOnce("formation_not_enlisted", "FORMATIONASSIGNMENT",
                     $"[{caller}] Skipping formation assignment - not enlisted or on leave " +
                     $"(Instance: {enlistment != null}, Enlisted: {enlistment?.IsEnlisted}, OnLeave: {enlistment?.IsOnLeave})");
                 _assignedAgent = playerAgent; // Mark as handled so we don't keep checking
@@ -420,7 +419,7 @@ namespace Enlisted.Features.Combat.Behaviors
             // Ensure mission is valid
             if (Mission.Current == null)
             {
-                ModLogger.Debug("FormationAssignment", $"[{caller}] Mission.Current is null");
+                ModLogger.Debug("FORMATIONASSIGNMENT", $"[{caller}] Mission.Current is null");
                 return;
             }
 
@@ -429,14 +428,14 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 if (!playerAgent.IsActive())
                 {
-                    ModLogger.Debug("FormationAssignment", $"[{caller}] Player agent not active yet");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", $"[{caller}] Player agent not active yet");
                     return;
                 }
             }
             catch
             {
                 // Agent might be in invalid state - skip
-                ModLogger.Debug("FormationAssignment", $"[{caller}] Player agent in invalid state");
+                ModLogger.Debug("FORMATIONASSIGNMENT", $"[{caller}] Player agent in invalid state");
                 return;
             }
 
@@ -446,7 +445,7 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 // Team might not be assigned yet (especially in OnAgentBuild)
                 // We'll try again next tick
-                ModLogger.Debug("FormationAssignment", $"[{caller}] Player team not assigned yet");
+                ModLogger.Debug("FORMATIONASSIGNMENT", $"[{caller}] Player team not assigned yet");
                 return;
             }
 
@@ -457,7 +456,7 @@ namespace Enlisted.Features.Combat.Behaviors
             // Skip auto-assignment and let the native game handle it - they're commanders now.
             if (isCommanderTier)
             {
-                ModLogger.Info("FormationAssignment",
+                ModLogger.Info("FORMATIONASSIGNMENT",
                     $"[{caller}] Commander tier (T{enlistmentTier}) - skipping formation assignment, player controls their own party");
                 _assignedAgent = playerAgent;
                 return;
@@ -473,13 +472,13 @@ namespace Enlisted.Features.Combat.Behaviors
             var targetFormation = playerTeam.GetFormation(formationClass);
             if (targetFormation == null)
             {
-                ModLogger.Debug("FormationAssignment",
+                ModLogger.Debug("FORMATIONASSIGNMENT",
                     $"[{caller}] Could not get {formationClass} formation from team");
                 return;
             }
 
             var targetFormationUnitCount = targetFormation.CountOfUnits;
-            ModLogger.Debug("FormationAssignment",
+            ModLogger.Debug("FORMATIONASSIGNMENT",
                 $"[{caller}] Target formation={formationClass}, Units={targetFormationUnitCount}, PlayerTeamSide={playerTeam.Side}, MissionTeams={Mission.Current?.Teams.Count()}");
 
             // If already in this formation but it is effectively empty (only player), try to anchor to lord's formation instead.
@@ -489,7 +488,7 @@ namespace Enlisted.Features.Combat.Behaviors
 
             if (playerAgent.Formation == targetFormation && !isSoloFormation)
             {
-                ModLogger.Info("FormationAssignment",
+                ModLogger.Info("FORMATIONASSIGNMENT",
                     $"[{caller}] Player already in {formationClass} formation - will still check position");
                 SetupSquadCommand(playerAgent, targetFormation, isTier4Plus);
                 _assignedAgent = playerAgent;
@@ -531,12 +530,12 @@ namespace Enlisted.Features.Combat.Behaviors
                 _needsPositionFix = true;
                 _positionFixAttempts = 0;
 
-                ModLogger.Info("FormationAssignment",
+                ModLogger.Info("FORMATIONASSIGNMENT",
                     $"[{caller}] Assigned enlisted soldier to {formationClass} formation (index: {targetFormation.Index})");
             }
             catch (Exception ex)
             {
-                ModLogger.LogOnce($"assign_error_{playerAgent.Index}", "FormationAssignment",
+                ModLogger.LogOnce($"assign_error_{playerAgent.Index}", "FORMATIONASSIGNMENT",
                     $"[{caller}] Failed to assign player to formation: {ex.Message}");
                 // Mark as assigned to prevent spamming this error for this agent
                 _assignedAgent = playerAgent;
@@ -616,7 +615,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     if (!_loggedSoloAttachOutcome)
                     {
-                        ModLogger.Info("FormationAssignment",
+                        ModLogger.Info("FORMATIONASSIGNMENT",
                             $"[{caller}] Joined allied formation (index {bestAlliedFormation.FormationIndex}, units {bestAlliedFormation.CountOfUnits})");
                         _loggedSoloAttachOutcome = true;
                     }
@@ -645,7 +644,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     if (!_loggedSoloAttachOutcome)
                     {
-                        ModLogger.Info("FormationAssignment",
+                        ModLogger.Info("FORMATIONASSIGNMENT",
                             $"[{caller}] Joined lord formation (index {lordFormation.FormationIndex}, units {lordFormation.CountOfUnits}, side={lordTeam.Side})");
                         _loggedSoloAttachOutcome = true;
                     }
@@ -674,7 +673,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 var missionTeamCount = missionTeams?.Count() ?? 0;
                 if (!_loggedSoloAttachMissing)
                 {
-                    ModLogger.Warn("FormationAssignment",
+                    ModLogger.Warn("FORMATIONASSIGNMENT",
                         $"[{caller}] Solo formation; no allied/lord formation yet (teams={missionTeamCount}). Will retry briefly.");
                     _loggedSoloAttachMissing = true;
                 }
@@ -686,7 +685,8 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-007", "Error during lord attach", ex);
+                ModLogger.Surfaced("FORMATIONASSIGNMENT", "Error during lord attach", ex,
+                    LogCtx.Of("Mission", Mission.Current?.Mode.ToString(), "Formation", desiredClass.ToString()));
                 return false;
             }
         }
@@ -862,21 +862,21 @@ namespace Enlisted.Features.Combat.Behaviors
                     var postPos = playerAgent.Position;
                     var actualMovement = prePos.Distance(postPos);
 
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"Teleported soldier to {teleportSource}: " +
                         $"was {distanceToTarget:F1}m away, moved {actualMovement:F1}m, " +
                         $"from ({prePos.x:F1},{prePos.y:F1}) to ({postPos.x:F1},{postPos.y:F1})");
 
                     if (actualMovement < 5f && distanceToTarget > 20f)
                     {
-                        ModLogger.Warn("FormationAssignment",
+                        ModLogger.Warn("FORMATIONASSIGNMENT",
                             $"TELEPORT MAY HAVE FAILED: Expected ~{distanceToTarget:F1}m but only moved {actualMovement:F1}m!");
                     }
                 }
                 else
                 {
                     // Log at INFO level - this is an important diagnostic for understanding spawn positions
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"Player already near {teleportSource} ({distanceToTarget:F1}m <= {teleportThreshold}m) - no teleport needed");
                 }
 
@@ -884,7 +884,8 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-005", "Error teleporting player to formation", ex);
+                ModLogger.Surfaced("FORMATIONASSIGNMENT", "Error teleporting player to formation", ex,
+                    LogCtx.Of("Mission", Mission.Current?.Mode.ToString(), "Formation", Agent.Main?.Formation?.FormationIndex.ToString()));
                 _needsPositionFix = false;
             }
         }
@@ -969,7 +970,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-006", "Error teleporting squad to formation", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error teleporting squad to formation", ex);
             }
 
             return teleportedCount;
@@ -996,7 +997,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 // Verify we have a valid formation to assign to
                 if (_playerSquadFormation == null)
                 {
-                    ModLogger.Debug("FormationAssignment", "Party assignment skipped: no player formation set");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Party assignment skipped: no player formation set");
                     return;
                 }
 
@@ -1024,7 +1025,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 var mainParty = PartyBase.MainParty;
                 if (mainParty == null)
                 {
-                    ModLogger.Debug("FormationAssignment", "Party assignment skipped: MainParty is null");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Party assignment skipped: MainParty is null");
                     return;
                 }
 
@@ -1100,14 +1101,14 @@ namespace Enlisted.Features.Combat.Behaviors
                             if (agent.Character?.IsHero == true)
                             {
                                 assignedCompanions++;
-                                ModLogger.Debug("FormationAssignment",
+                                ModLogger.Debug("FORMATIONASSIGNMENT",
                                     $"Assigned companion {agent.Character.Name} to player's squad");
                             }
                             else
                             {
                                 assignedRetinue++;
                                 var troopName = agent.Character?.Name?.ToString() ?? "unknown";
-                                ModLogger.Debug("FormationAssignment",
+                                ModLogger.Debug("FORMATIONASSIGNMENT",
                                     $"Assigned retinue soldier {troopName} to player's squad");
                             }
                         }
@@ -1157,7 +1158,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     _playerSquadFormation.PlayerOwner = playerAgent;
                     _playerSquadFormation.SetControlledByAI(false);
-                    ModLogger.Debug("FormationAssignment", "Reinforced player control of squad formation");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Reinforced player control of squad formation");
                 }
 
                 // CRITICAL: Clear captain if it's a player party member (companion)
@@ -1172,7 +1173,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     {
                         var captainName = currentCaptain.Character?.Name?.ToString() ?? "Unknown";
                         _playerSquadFormation.Captain = null;
-                        ModLogger.Info("FormationAssignment",
+                        ModLogger.Info("FORMATIONASSIGNMENT",
                             $"Cleared companion {captainName} as formation captain (player should command)");
                     }
                 }
@@ -1183,7 +1184,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     var teleportInfo = teleportedCount > 0 ? $", teleported={teleportedCount}" : "";
                     var spawnType = isReinforcement ? " [REINFORCEMENT]" : "";
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"Player party assignment{spawnType}: checked={agentsChecked}, found={partyAgentsFound}, " +
                         $"companions={assignedCompanions}, retinue={assignedRetinue}, already={alreadyAssigned}{teleportInfo}");
                 }
@@ -1198,14 +1199,14 @@ namespace Enlisted.Features.Combat.Behaviors
                     {
                         // Log the formation class (Infantry, Ranged, etc.) not PhysicalClass which can be misleading
                         var formationName = _playerSquadFormation.FormationIndex.ToString();
-                        ModLogger.Info("FormationAssignment",
+                        ModLogger.Info("FORMATIONASSIGNMENT",
                             $"=== UNIFIED SQUAD FORMED === {partyAgentsFound} party members in {formationName} formation (index {_playerSquadFormation.Index})");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-008", "Error assigning player party to formation", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error assigning player party to formation", ex);
                 _partyAssignmentComplete = true; // Stop trying on error
             }
         }
@@ -1252,7 +1253,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         // Player can remain as captain of their own formation
                     }
 
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"Command Setup: Commander tier (T7+) sergeant mode - formation {formation.FormationIndex} is player-controlled");
                 }
                 else
@@ -1278,13 +1279,14 @@ namespace Enlisted.Features.Combat.Behaviors
                         TransferArmyCommandToLord(playerAgent, team);
                     }
 
-                    ModLogger.Info("FormationAssignment",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"Command Setup: Below T7 - no command authority");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-009", "Error setting up squad command", ex);
+                ModLogger.Surfaced("FORMATIONASSIGNMENT", "Error setting up squad command", ex,
+                    LogCtx.Of("Mission", Mission.Current?.Mode.ToString(), "Formation", formation?.FormationIndex.ToString()));
             }
         }
 
@@ -1315,7 +1317,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (lordAgent != null)
                 {
                     team.PlayerOrderController.Owner = lordAgent;
-                    ModLogger.Debug("FormationAssignment", $"Army command transferred to Lord {lord.Name}");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", $"Army command transferred to Lord {lord.Name}");
                 }
                 else
                 {
@@ -1324,13 +1326,13 @@ namespace Enlisted.Features.Combat.Behaviors
                     if (general != null && general != playerAgent)
                     {
                         team.PlayerOrderController.Owner = general;
-                        ModLogger.Debug("FormationAssignment", "Army command transferred to Team General");
+                        ModLogger.Debug("FORMATIONASSIGNMENT", "Army command transferred to Team General");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-010", "Error transferring army command", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error transferring army command", ex);
             }
         }
 
@@ -1353,31 +1355,31 @@ namespace Enlisted.Features.Combat.Behaviors
                 // Horse + ranged weapon = Horse Archer formation
                 if (character.IsRanged && character.IsMounted)
                 {
-                    ModLogger.Debug("FormationAssignment", "Equipment detection: Horse Archer (mounted + ranged)");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Horse Archer (mounted + ranged)");
                     return FormationClass.HorseArcher;
                 }
 
                 // Horse equipped = Cavalry formation
                 if (character.IsMounted)
                 {
-                    ModLogger.Debug("FormationAssignment", "Equipment detection: Cavalry (mounted)");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Cavalry (mounted)");
                     return FormationClass.Cavalry;
                 }
 
                 // Ranged weapon (bow, crossbow, throwing) = Ranged formation
                 if (character.IsRanged)
                 {
-                    ModLogger.Debug("FormationAssignment", "Equipment detection: Ranged (bow/crossbow/throwing)");
+                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Ranged (bow/crossbow/throwing)");
                     return FormationClass.Ranged;
                 }
 
                 // Default to infantry (melee weapons or no weapons)
-                ModLogger.Debug("FormationAssignment", "Equipment detection: Infantry (default)");
+                ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Infantry (default)");
                 return FormationClass.Infantry;
             }
             catch (Exception ex)
             {
-                ModLogger.Error("FormationAssignment", "Error detecting formation from equipment", ex);
+                ModLogger.Error("FORMATIONASSIGNMENT", "Error detecting formation from equipment", ex);
                 return FormationClass.Infantry;
             }
         }
@@ -1410,7 +1412,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 logMessage += $", Tier={enlistment.EnlistmentTier}";
             }
 
-            ModLogger.LogOnce("formation_naval_skip", "FormationAssignment", logMessage);
+            ModLogger.LogOnce("formation_naval_skip", "FORMATIONASSIGNMENT", logMessage);
         }
 
         /// <summary>
@@ -1454,7 +1456,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FormationAssignment", "E-FORMASSIGN-011", "Error in OnEndMission", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error in OnEndMission", ex);
             }
         }
     }

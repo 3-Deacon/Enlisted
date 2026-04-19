@@ -18,7 +18,7 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class MapIncidentManager : CampaignBehaviorBase
     {
-        private const string LogCategory = "MapIncidents";
+        private const string LogCategory = "MAPINCIDENTS";
 
         // Cooldown durations for different incident types
         private const float BattleIncidentCooldownHours = 1f; // 1 battle per battle (effectively no time cooldown)
@@ -354,7 +354,7 @@ namespace Enlisted.Features.Content
                 var deliveryManager = EventDeliveryManager.Instance;
                 if (deliveryManager == null)
                 {
-                    ModLogger.WarnCode(LogCategory, "W-MAP-001", "EventDeliveryManager not available - map incidents won't fire");
+                    ModLogger.Caught(LogCategory, "EventDeliveryManager not available - map incidents won't fire", null);
                     return false;
                 }
 
@@ -379,7 +379,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MAP-001", $"Error delivering incident for context: {context}", ex);
+                ModLogger.Caught(LogCategory, $"Error delivering incident for context: {context}", ex);
                 return false;
             }
         }

@@ -17,7 +17,7 @@ namespace Enlisted.Features.Retinue.Core
     /// </summary>
     public sealed class ServiceRecordManager : CampaignBehaviorBase
     {
-        private const string LogCategory = "ServiceRecords";
+        private const string LogCategory = "SERVICERECORDS";
 
         public static ServiceRecordManager Instance { get; private set; }
 
@@ -168,7 +168,7 @@ namespace Enlisted.Features.Retinue.Core
                     // Reinitialize retinue manager with loaded state
                     _retinueManager = new RetinueManager(_retinueState);
                     ModLogger.Debug(LogCategory, $"Loaded {_factionRecords.Count} faction records, lifetime: {_lifetimeRecord}");
-                    ModLogger.Debug("Retinue", $"Loaded retinue state: {_retinueState}");
+                    ModLogger.Debug("RETINUE", $"Loaded retinue state: {_retinueState}");
                 }
             });
         }
@@ -735,7 +735,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-SRM-002", "Error handling promotion for retinue", ex);
+                ModLogger.Caught(LogCategory, "Error handling promotion for retinue", ex);
             }
         }
 

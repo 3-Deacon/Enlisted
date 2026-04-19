@@ -41,7 +41,7 @@ namespace Enlisted.Mod.Core.Logging
             sb.AppendLine($".NET Runtime: {Environment.Version}");
             sb.AppendLine("===================================");
 
-            ModLogger.Info("Session", sb.ToString());
+            ModLogger.Info("SESSION", sb.ToString());
         }
 
         /// <summary>
@@ -83,11 +83,11 @@ namespace Enlisted.Mod.Core.Logging
 
                 sb.AppendLine("----------------------------");
 
-                ModLogger.Info("Config", sb.ToString());
+                ModLogger.Info("CONFIG", sb.ToString());
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Config", "Failed to log configuration values", ex);
+                ModLogger.Error("CONFIG", "Failed to log configuration values", ex);
             }
         }
 
@@ -155,7 +155,7 @@ namespace Enlisted.Mod.Core.Logging
 
             var heroName = Hero.MainHero?.Name?.ToString() ?? "Unknown";
             var day = CampaignTime.Now.ToDays;
-            ModLogger.Info("SaveLoad", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Day: {day:F1})");
+            ModLogger.Info("SAVELOAD", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Day: {day:F1})");
         }
 
         public static void OnSaveEnd()
@@ -176,7 +176,7 @@ namespace Enlisted.Mod.Core.Logging
             }
 
             var elapsedMs = (int)Math.Max(0, (DateTime.UtcNow - startUtc).TotalMilliseconds);
-            ModLogger.Info("SaveLoad", $"Save finished. (#{seq}, {elapsedMs} ms)");
+            ModLogger.Info("SAVELOAD", $"Save finished. (#{seq}, {elapsedMs} ms)");
         }
 
         public static void OnLoadBegin()
@@ -193,7 +193,7 @@ namespace Enlisted.Mod.Core.Logging
                 _loadStartUtc = DateTime.UtcNow;
             }
 
-            ModLogger.Info("SaveLoad", $"Loading save... (#{_loadSequence})");
+            ModLogger.Info("SAVELOAD", $"Loading save... (#{_loadSequence})");
         }
 
         public static void OnLoadEnd()
@@ -214,7 +214,7 @@ namespace Enlisted.Mod.Core.Logging
             }
 
             var elapsedMs = (int)Math.Max(0, (DateTime.UtcNow - startUtc).TotalMilliseconds);
-            ModLogger.Info("SaveLoad", $"Load finished. (#{seq}, {elapsedMs} ms)");
+            ModLogger.Info("SAVELOAD", $"Load finished. (#{seq}, {elapsedMs} ms)");
         }
 
         /// <summary>
@@ -246,9 +246,8 @@ namespace Enlisted.Mod.Core.Logging
 
                 var behaviorName = behavior?.GetType().FullName ?? "UnknownBehavior";
 
-                ModLogger.ErrorCode(
-                    "SaveLoad",
-                    "E-SAVELOAD-001",
+                ModLogger.Caught(
+                    "SAVELOAD",
                     $"Save/load failed in {behaviorName} during {phase}. This can break saves. Try: load an older save, disable recently-added mods, then share logs from the Enlisted mod's Debugging folder (Session-A and Conflicts-A logs) and the save file if possible.",
                     ex);
 

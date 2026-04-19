@@ -48,11 +48,11 @@ namespace Enlisted.Features.Combat.Behaviors
                 
                 // Log battle start with mission mode
                 var missionMode = Mission?.Mode.ToString() ?? "Unknown";
-                ModLogger.Info("Battle", $"Battle started (Mode: {missionMode}) - kill tracking active");
+                ModLogger.Info("BATTLE", $"Battle started (Mode: {missionMode}) - kill tracking active");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("KillTracker", "E-KILLTRACK-001", "Error in AfterStart", ex);
+                ModLogger.Caught("KILLTRACKER", "Error in AfterStart", ex);
             }
         }
         
@@ -81,7 +81,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("KillTracker", "E-KILLTRACK-002", "Error in OnMissionTick", ex);
+                ModLogger.Caught("KILLTRACKER", "Error in OnMissionTick", ex);
             }
         }
         
@@ -132,11 +132,11 @@ namespace Enlisted.Features.Combat.Behaviors
                     Colors.Green));
                 
                 // Log kill with XP value
-                ModLogger.Debug("Combat", $"Kill #{KillCount}: {victimName} (+{xpPerKill} XP pending)");
+                ModLogger.Debug("COMBAT", $"Kill #{KillCount}: {victimName} (+{xpPerKill} XP pending)");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("KillTracker", "E-KILLTRACK-003", "Error in OnAgentRemoved", ex);
+                ModLogger.Caught("KILLTRACKER", "Error in OnAgentRemoved", ex);
             }
         }
         
@@ -151,18 +151,18 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     var xpPerKill = EnlistedConfig.GetXpPerKill();
                     var estimatedXp = KillCount * xpPerKill;
-                    ModLogger.Info("Battle", $"Battle ended - Kills: {KillCount}, Estimated bonus XP: {estimatedXp}");
+                    ModLogger.Info("BATTLE", $"Battle ended - Kills: {KillCount}, Estimated bonus XP: {estimatedXp}");
                 }
                 else
                 {
-                    ModLogger.Info("Battle", "Battle ended - Player did not participate");
+                    ModLogger.Info("BATTLE", "Battle ended - Player did not participate");
                 }
                 
                 // Note: Don't reset here - EnlistmentBehavior will read and then reset via GetAndResetKillCount()
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("KillTracker", "E-KILLTRACK-004", "Error in OnEndMission", ex);
+                ModLogger.Caught("KILLTRACKER", "Error in OnEndMission", ex);
             }
         }
         

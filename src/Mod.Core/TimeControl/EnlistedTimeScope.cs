@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TaleWorlds.CampaignSystem;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Mod.Core.Logging;
@@ -36,7 +36,7 @@ namespace Enlisted.Mod.Core.TimeControl
         {
             if (Campaign.Current == null)
             {
-                ModLogger.ErrorCode("TimeControl", "E-TIME-001",
+                ModLogger.Expected("TIMECONTROL", "timescope_campaign_null",
                     "EnlistedTimeScope.Capture called with no active Campaign.Current");
                 return default;
             }

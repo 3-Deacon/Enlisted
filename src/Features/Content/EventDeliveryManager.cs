@@ -34,7 +34,7 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class EventDeliveryManager : CampaignBehaviorBase
     {
-        private const string LogCategory = "EventDelivery";
+        private const string LogCategory = "EVENTDELIVERY";
 
         public static EventDeliveryManager Instance { get; private set; }
 
@@ -66,7 +66,7 @@ namespace Enlisted.Features.Content
         {
             if (evt == null)
             {
-                ModLogger.WarnCode(LogCategory, "W-EVT-001", "Attempted to queue null event - check event ID and catalog loading");
+                ModLogger.Caught(LogCategory, "Attempted to queue null event - check event ID and catalog loading", null);
                 return;
             }
 
@@ -125,7 +125,7 @@ namespace Enlisted.Features.Content
 
             if (options.Count == 0)
             {
-                ModLogger.WarnCode(LogCategory, "W-EVT-002", $"Event {evt.Id} has no valid options - check requirements in JSON");
+                ModLogger.Caught(LogCategory, $"Event {evt.Id} has no valid options - check requirements in JSON", null);
                 OnEventClosed();
                 return;
             }
@@ -334,7 +334,7 @@ namespace Enlisted.Features.Content
 
             if (option == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-EVT-001", "Selected option identifier is not an EventOption - internal error");
+                ModLogger.Caught(LogCategory, "Selected option identifier is not an EventOption - internal error", null);
                 OnEventClosed();
                 return;
             }

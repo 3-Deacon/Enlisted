@@ -18,7 +18,7 @@ namespace Enlisted.Features.Retinue.Core
     /// </summary>
     public sealed class RetinueLifecycleHandler : CampaignBehaviorBase
     {
-        private const string LogCategory = "RetinueLifecycle";
+        private const string LogCategory = "RETINUELIFECYCLE";
 
         // Track if we're in a grace period to know the discharge reason
         private bool _dischargeDuringGrace;
@@ -234,7 +234,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-LIFECYCLE-001", "Error in daily lifecycle tick", ex);
+                ModLogger.Caught(LogCategory, "Error in daily lifecycle tick", ex);
             }
         }
 
