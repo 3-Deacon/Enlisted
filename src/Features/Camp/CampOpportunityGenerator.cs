@@ -1587,6 +1587,9 @@ namespace Enlisted.Features.Camp
             var ncoTitle = RankHelper.GetNCOTitle(cultureId);
             message.SetTextVariable("NCO_TITLE", ncoTitle);
 
+            // Intentional bypass of StoryDirector — fires on detection check; self-paced by
+            // the underlying detection probability and scrutiny state. Observational-modal
+            // routing is a followup.
             InformationManager.ShowInquiry(
                 new InquiryData(
                     title.ToString(),
