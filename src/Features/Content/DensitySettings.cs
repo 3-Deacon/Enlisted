@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿﻿using System;
+using System.IO;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json.Linq;
@@ -12,6 +13,9 @@ namespace Enlisted.Features.Content
     /// Keys consumed (top-level):
     ///   event_density             : "sparse" | "normal" | "dense" -- maps to ModalFloorInGameDays (7/5/3).
     ///   speed_downshift_on_modal  : bool -- if true, FastForward drops to StoppablePlay before a modal fires.
+    ///
+    /// ModalFloorWallClockSeconds, QuietStretchDays, and CategoryCooldownDays are
+    /// defaults-only today — no JSON binding yet. Phase 2+ tasks may expose them.
     /// </summary>
     public static class DensitySettings
     {
@@ -46,7 +50,7 @@ namespace Enlisted.Features.Content
 
                 SpeedDownshiftOnModal = root["speed_downshift_on_modal"]?.ToObject<bool>() ?? true;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ModLogger.Caught(LogCategory, "DensitySettings.Load failed; using defaults", ex);
             }
