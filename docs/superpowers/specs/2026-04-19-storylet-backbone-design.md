@@ -446,7 +446,44 @@ Seed role list (surface specs extend):
 | `enemy_commander` | `MapEvent.OtherSide.LeaderParty.LeaderHero` (if in battle) |
 | `settlement_notable` | Nearest visited settlement's `Notables` |
 
-### 10.3 Text substitution
+### 10.3 Context is a first-class runtime dimension
+
+`scope.context` is not just authoring metadata — it is **derived every tick from game state** and used by the Director as a hard filter. Authored values and their derivation source:
+
+| Context | Active when | Precedence |
+| :--- | :--- | :--- |
+| `siege` | `MobileParty.MainParty.BesiegerCamp != null` OR `MobileParty.MainParty.CurrentSettlement?.SiegeEvent != null` | highest |
+| `settlement` | `MobileParty.MainParty.CurrentSettlement != null` (and no siege) | |
+| `sea` | `MobileParty.MainParty.IsCurrentlyAtSea == true` (and none of the above) | |
+| `land` | none of the above | lowest (default) |
+| `any` | matches any runtime context | — |
+
+API references (confirmed against `C:\Dev\Enlisted\Decompile\` for v1.3.13):
+
+- `MobileParty.IsCurrentlyAtSea` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:483` (read/write bool)
+- `MobileParty.CurrentSettlement` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:566`
+- `MobileParty.BesiegerCamp` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:679`
+- `MobileParty.SiegeEvent` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:1087` (returns `BesiegerCamp?.SiegeEvent` — null when not actively besieging)
+- `Settlement.SiegeEvent` — `TaleWorlds.CampaignSystem.Settlements/Settlement.cs:111` (non-null when the settlement is under siege, useful for the "player is in a besieged settlement" branch)
+- `MapEvent.IsNavalMapEvent` — `TaleWorlds.CampaignSystem.MapEvents/MapEvent.cs:334` (derived from `!Position.IsOnLand`)
+- `MobileParty.HasNavalNavigationCapability` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:313`
+
+Precedence matches the existing mod bugfix at `src/Features/Camp/CampOpportunityGenerator.cs:969`: a party in a settlement or besieging is **not** at sea for storylet-selection purposes, regardless of `IsCurrentlyAtSea`. Siege overrides settlement.
+
+**Director filtering.** Before severity classification, the Director drops any candidate whose source storylet's `scope.context` is neither `any` nor the current runtime context. Applies uniformly to interactive and observational storylets — land news is ineligible at sea, sea news is ineligible on land, siege storylets are ineligible outside a siege. Context segregation is therefore automatic; authors never write `"trigger": ["is_at_sea"]` defensively.
+
+**Context transition beats.** Two new entries in `StoryBeat`, monitored by `ActivityRuntime` on hourly tick (no direct TaleWorlds event exists for sea/land transitions — verified against the decompile; the engine exposes `CampaignEvents.OnSiegeEventStartedEvent` for siege but nothing analogous for naval transitions, so we detect state change by comparing against the previous tick's `IsCurrentlyAtSea` value):
+
+| Beat | Fires when |
+| :--- | :--- |
+| `BoardedShip` | player transitions from `!IsCurrentlyAtSea` to `IsCurrentlyAtSea` |
+| `DisembarkedShip` | player transitions from `IsCurrentlyAtSea` to `!IsCurrentlyAtSea` |
+
+Storylets that want to narrate boarding or landing author `trigger: ["beat:BoardedShip"]`. The existing pacing-spec beats (`SettlementEntered`, `SettlementLeft`, `SiegeBegin`, `SiegeEnd`) already cover the other two transitions and route through the native `CampaignEvents.OnSiegeEventStartedEvent` / `OnSettlementEnteredEvent` hooks.
+
+**Aggregation at transition.** When a context transition fires, the Director flushes any deferred observational storylets from the prior context as a "news from shore" digest (if transitioning to sea) or "news from the voyage" digest (if transitioning to land). Implementation reuses the existing `Pertinent`-tier digest mechanism from the pacing spec §10.3.
+
+### 10.5 Text substitution
 
 Authored syntax is `{slot.name}`, `{slot.occupation}`, `{slot.skill:melee}` in `Title`, `Setup`, `Option.Text`, `Option.Tooltip`. `SlotFiller` flattens these to TaleWorlds-compatible flat keys at fire time — `{veteran.name}` becomes `TextObject.SetTextVariable("VETERAN_NAME", hero.Name)`, `{lord.occupation}` becomes `SetTextVariable("LORD_OCCUPATION", ...)`. The nested authoring syntax is ours; the runtime string passed to `MBTextManager` is flat (TaleWorlds' `TextObject` does not parse dotted paths).
 
@@ -596,6 +633,7 @@ Spec 0 ships plumbing only — no deletions yet. The table below is the **author
 | 2 | `ModuleData/Enlisted/Orders/*.json`, `order_events/*.json` | Rewritten under new schema in `ModuleData/Enlisted/Activities/` + `ModuleData/Enlisted/Storylets/` |
 | 3 (Land/Sea) | `Content/MapIncidentManager.cs`, `IncidentEffectTranslator.cs` | `StoryletCatalog` + Director (incidents become storylets) |
 | 3 | `ModuleData/Enlisted/Events/incidents_*.json` | Rewritten as scoped storylets |
+| 3 | `CampOpportunity.AtSea` / `NotAtSea` bool gating fields (see `CampOpportunityGenerator.cs:975`, `:981`) | `scope.context: "sea" \| "land"` on the storylet itself |
 | 4 (Promotion) | Scattered promotion logic in `EnlistedBehavior` | Chain storylet family per rank transition (no activity wrapper) — storylets chain via `when: "next_muster.promotion_phase"` so they land in the muster ceremony instead of mid-duty |
 | 4 (Muster) | `Enlistment/Behaviors/MusterMenuHandler.cs` (3,751 lines) | `MusterActivity` subclass: 5 phases (Intro / Pay / Promotion / Retinue / Complete), per-phase storylet pools, `MusterOutcomeRecord` → `PhaseQuality` composite state, intent derived from state (normal / high-scrutiny / discharge-threshold / first-muster), `fire_at_next_muster` deferred-queue via `when:` chain targets |
 | 5 (Quartermaster) | `QuartermasterManager` dialog-event hybrid | `QuartermasterActivity` + QM storylets + optional `IssueBase` shim for side-jobs |
