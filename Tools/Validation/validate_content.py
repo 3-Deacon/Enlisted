@@ -21,6 +21,7 @@ Validation Phases:
     Phase 9: C# TextObject localization (string IDs in code → XML)
     Phase 9.5: Camp schedule descriptions (meaningful phase text)
     Phase 10: Error-code registry sync (generate_error_codes.py --check)
+    Phase 11: ModLogger.Error retirement gate (no Error calls in src/)
 """
 
 import argparse
@@ -1534,6 +1535,58 @@ def validate_camp_schedule_descriptions(ctx: ValidationContext):
                 str(schedule_path), phase_name)
 
 
+_MODLOGGER_ERROR_RE = re.compile(r"\bModLogger\.Error\s*\(")
+
+
+def _strip_csharp_comments(text: str) -> str:
+    """Strip C# // line comments and /* ... */ block comments from source
+    text, replacing them with whitespace so line numbers are preserved.
+    Mirrors generate_error_codes.py:strip_comments — kept inline here to
+    avoid a sys.path import dance."""
+    block = re.compile(r"/\*.*?\*/", re.DOTALL)
+    line = re.compile(r"//[^\n]*")
+    def blank(m):
+        return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+    text = block.sub(blank, text)
+    text = line.sub(blank, text)
+    return text
+
+
+def validate_no_modlogger_error_calls(ctx: ValidationContext):
+    """Phase 11: confirm no ModLogger.Error(...) calls remain in src/.
+
+    The Error API was retired on 2026-04-19. Every error-tier log must
+    use ModLogger.Surfaced / Caught / Expected. See
+    docs/superpowers/specs/2026-04-19-error-warn-cleanup-design.md."""
+    print("[Phase 11] Validating no ModLogger.Error(...) calls remain...")
+    src_root = Path(__file__).parent.parent.parent / "src"
+    if not src_root.is_dir():
+        ctx.add_issue(
+            "error", "logging-api",
+            f"src/ directory not found at {src_root}", str(src_root),
+        )
+        return
+
+    found = 0
+    for cs_file in src_root.rglob("*.cs"):
+        try:
+            text = cs_file.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = cs_file.read_text(encoding="utf-8-sig")
+        stripped = _strip_csharp_comments(text)
+        for lineno, line in enumerate(stripped.splitlines(), 1):
+            if _MODLOGGER_ERROR_RE.search(line):
+                ctx.add_issue(
+                    "error", "logging-api",
+                    "ModLogger.Error is retired. Use Surfaced / Caught / Expected. "
+                    "See docs/superpowers/specs/2026-04-19-error-warn-cleanup-design.md.",
+                    str(cs_file.relative_to(src_root.parent)), str(lineno),
+                )
+                found += 1
+    if found == 0:
+        print("  OK: zero ModLogger.Error(...) call sites in src/.")
+
+
 def validate_error_code_registry(ctx: ValidationContext):
     """Phase 10: Invoke generate_error_codes.py --check to confirm the
     on-disk docs/error-codes.md is in sync with ModLogger.Surfaced(...)
@@ -1691,6 +1744,9 @@ def main():
 
     # Phase 10: Error-code registry sync
     validate_error_code_registry(ctx)
+
+    # Phase 11: ModLogger.Error retirement gate
+    validate_no_modlogger_error_calls(ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:

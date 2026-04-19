@@ -240,11 +240,9 @@ namespace Enlisted.Mod.Core.Logging
 			}
 		}
 
-		/// <summary>
-		/// Log an error-level message with optional exception details.
-		/// Errors are never throttled.
-		/// </summary>
-		public static void Error(string category, string message, Exception ex = null)
+		// Internal error-level write used by Caught and Surfaced.
+		// The public Error(...) API was retired 2026-04-19 — do not re-expose.
+		private static void Error(string category, string message, Exception ex = null)
 		{
 			if (!IsEnabled(category, LogLevel.Error))
 			{
@@ -254,8 +252,6 @@ namespace Enlisted.Mod.Core.Logging
 			var text = ex == null ? message : $"{message} | Exception: {ex.GetType().Name}: {ex.Message}";
 			WriteInternal("ERROR", category, text);
 
-			// End-user diagnostics: include full exception details once per unique exception.
-			// (ex.ToString() includes stack trace and inner exceptions.)
 			if (ex != null)
 			{
 				var detail = ex.ToString();

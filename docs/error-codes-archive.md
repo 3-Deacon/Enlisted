@@ -444,3 +444,10 @@ pattern where practical.
 | E-PACE-001 | `StoryDirector.EmitCandidate` threw — candidate dropped silently | See exception log; relevance filter or classifier likely received unexpected state | Content |
 | E-PACE-002 | Quiet-stretch fallback tick threw — no fallback fired this day | See exception log; confirm `EventCatalog.GetEventsByCategory("quiet_stretch")` returns events | Content |
 | E-PACE-003 | `EnlistedNewsBehavior.AddPersonalDispatch` threw — dispatch item dropped | See exception log; likely DispatchItem construction or dedup logic regressed | Content |
+
+---
+
+**API change (2026-04-19):** `ModLogger.Error(...)` was retired. All call sites
+were reclassified into `ModLogger.Surfaced` / `Caught` / `Expected`. A
+`validate_content.py` Phase 11 gate prevents reintroduction. See
+[docs/superpowers/specs/2026-04-19-error-warn-cleanup-design.md](superpowers/specs/2026-04-19-error-warn-cleanup-design.md).

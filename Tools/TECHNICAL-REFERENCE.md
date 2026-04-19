@@ -53,7 +53,6 @@ When you start a new game session:
 ModLogger.Info("Category", "message");
 ModLogger.Debug("Category", "detailed info");
 ModLogger.Warn("Category", "warning");
-ModLogger.Error("Category", "error details");
 ModLogger.LogOnce("UniqueKey", "Category", "message"); // Only logs once per session
 
 // Surfaced: player/dev-visible failure. Toasts once per (category, code) per session.
@@ -84,7 +83,7 @@ ModLogger.Expected("CATEGORY", "stable_throttle_key", "guard summary");
 | `Info` | Key decisions affecting gameplay, user-visible actions, diagnostic info |
 | `Debug` | Internal validation, tick/update details, intermediate values |
 | `Warn` | Unexpected but recoverable situations, deprecated paths |
-| `Error` | Exceptions, failures, invalid state |
+| `Error` | (retired 2026-04-19) — use `Surfaced` / `Caught` / `Expected` instead |
 
 ### Configuration
 
