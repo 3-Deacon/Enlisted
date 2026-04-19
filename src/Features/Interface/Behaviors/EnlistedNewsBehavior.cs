@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -5168,7 +5168,10 @@ namespace Enlisted.Features.Interface.Behaviors
             Dictionary<string, string> placeholders,
             string storyKey = null,
             int minDisplayDays = 1,
-            int severity = 0)
+            int severity = 0,
+            Enlisted.Features.Content.StoryTier tier = Enlisted.Features.Content.StoryTier.Log,
+            HashSet<Enlisted.Features.Content.StoryBeat> beats = null,
+            string body = null)
         {
             if (!IsEnlisted())
             {
@@ -5194,6 +5197,9 @@ namespace Enlisted.Features.Interface.Behaviors
                     updated.MinDisplayDays = Math.Max(1, minDisplayDays);
                     updated.FirstShownDay = -1;
                     updated.Severity = severity;
+                    updated.Tier = tier;
+                    updated.Beats = beats;
+                    updated.Body = body;
 
                     _personalFeed[existingIndex] = updated;
                     ModLogger.Info(LogCategory, $"Personal news updated: {headlineKey} ({category})");
@@ -5212,7 +5218,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 Confidence = 100,
                 MinDisplayDays = Math.Max(1, minDisplayDays),
                 FirstShownDay = -1,
-                Severity = severity
+                Severity = severity,
+                Tier = tier,
+                Beats = beats,
+                Body = body,
             };
 
             _personalFeed.Add(item);
@@ -5232,6 +5241,30 @@ namespace Enlisted.Features.Interface.Behaviors
             int severity,
             int minDisplayDays)
         {
+            AddPersonalDispatch(category, headlineKey, placeholderValues, storyKey, severity, minDisplayDays,
+                tier: Enlisted.Features.Content.StoryTier.Log,
+                beats: null,
+                body: null);
+        }
+
+        /// <summary>
+        /// Tier/Beats/Body-aware entry point. Used by StoryDirector so downstream consumers
+        /// (muster, menu headline filter) can read typed fields instead of magic numbers or
+        /// substring matches. Forwards to AddPersonalNews and attaches the new fields to
+        /// the DispatchItem written to the feed.
+        /// See docs/superpowers/specs/2026-04-19-event-meaning-design.md §7.
+        /// </summary>
+        public void AddPersonalDispatch(
+            string category,
+            string headlineKey,
+            Dictionary<string, string> placeholderValues,
+            string storyKey,
+            int severity,
+            int minDisplayDays,
+            Enlisted.Features.Content.StoryTier tier,
+            HashSet<Enlisted.Features.Content.StoryBeat> beats,
+            string body)
+        {
             if (string.IsNullOrEmpty(headlineKey))
             {
                 return;
@@ -5239,11 +5272,11 @@ namespace Enlisted.Features.Interface.Behaviors
 
             try
             {
-                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity);
+                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("NEWS", "AddPersonalDispatch failed", ex);
+                ModLogger.Caught("NEWS", "AddPersonalDispatch (typed) failed", ex);
             }
         }
 
@@ -5862,6 +5895,36 @@ namespace Enlisted.Features.Interface.Behaviors
         /// </summary>
         public int Severity { get; set; }
 
+        /// <summary>
+        /// Authoritative tier for this dispatch. Replaces the magic-number read of Severity
+        /// for "is this a headline?" queries. Set by StoryDirector.WriteDispatchItem.
+        /// 0 (Log) is the default for dispatches created through legacy paths that don't
+        /// yet set this field; treat those as non-headline.
+        /// </summary>
+        public Enlisted.Features.Content.StoryTier Tier { get; set; }
+
+        /// <summary>
+        /// World-beat set the originating StoryCandidate carried. Downstream consumers
+        /// (muster summaries, news headline classifiers) read this instead of substring-
+        /// matching HeadlineKey or Category. Empty or null means "unknown beats," which
+        /// preserves backward-compatibility with dispatches created before PR-c.
+        /// </summary>
+        public HashSet<Enlisted.Features.Content.StoryBeat> Beats { get; set; }
+
+        /// <summary>
+        /// Rendered body text from the originating StoryCandidate.RenderedBody. Previously
+        /// dropped on route; PR-c carries it through so UI consumers can render full
+        /// observational content when a HeadlineKey lookup isn't sufficient.
+        /// </summary>
+        public string Body { get; set; }
+
+        /// <summary>
+        /// Semantic predicate replacing the Severity >= 2 magic number used by menu code
+        /// to filter for "headline" items. Source of truth for "is this a headline?" in
+        /// PR-c and beyond.
+        /// </summary>
+        public bool IsHeadline => Tier == Enlisted.Features.Content.StoryTier.Headline;
+
         public bool Equals(DispatchItem other)
         {
             return DayCreated == other.DayCreated &&
@@ -5872,7 +5935,17 @@ namespace Enlisted.Features.Interface.Behaviors
                    Confidence == other.Confidence &&
                    MinDisplayDays == other.MinDisplayDays &&
                    FirstShownDay == other.FirstShownDay &&
-                   Severity == other.Severity;
+                   Severity == other.Severity &&
+                   Tier == other.Tier &&
+                   Body == other.Body &&
+                   BeatsEqual(Beats, other.Beats);
+        }
+
+        private static bool BeatsEqual(HashSet<Enlisted.Features.Content.StoryBeat> a, HashSet<Enlisted.Features.Content.StoryBeat> b)
+        {
+            if (a == null && b == null) { return true; }
+            if (a == null || b == null) { return false; }
+            return a.SetEquals(b);
         }
 
         public override bool Equals(object obj)
@@ -5894,6 +5967,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 hash = hash * 31 + MinDisplayDays;
                 hash = hash * 31 + FirstShownDay;
                 hash = hash * 31 + Severity;
+                hash = hash * 31 + (int)Tier;
+                hash = hash * 31 + (Body?.GetHashCode() ?? 0);
+                // Beats intentionally excluded from hash — HashSet ordering is not stable and
+                // SetEquals already covers equality. Hash collisions for same non-Beats fields
+                // are acceptable.
                 return hash;
             }
         }

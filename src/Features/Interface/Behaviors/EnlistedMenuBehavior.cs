@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -1562,7 +1562,13 @@ namespace Enlisted.Features.Interface.Behaviors
             var result = new List<DispatchItem>();
             foreach (var it in items)
             {
-                if (it.Severity < 2) { continue; }
+                // Prefer the typed predicate when the dispatch carries a Tier (i.e. was written
+                // via the StoryDirector path post-PR-c). Fall back to the legacy Severity check
+                // for dispatches created through older code paths that don't set Tier.
+                bool isHeadline = it.Tier != Enlisted.Features.Content.StoryTier.Log
+                    ? it.IsHeadline
+                    : it.Severity >= 2;
+                if (!isHeadline) { continue; }
                 if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey)) { continue; }
                 result.Add(it);
             }
