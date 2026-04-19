@@ -731,21 +731,43 @@ namespace Enlisted.Features.Retinue.Core
 
             // Queue the threshold event
             var evt = Content.EventCatalog.GetEvent(eventId);
-            if (evt != null)
+            if (evt == null)
             {
-                ModLogger.Info(thresholdCategory,
-                    $"Loyalty threshold crossed: {lastThreshold} -> {currentThreshold} (loyalty={currentLoyalty}), queuing event {eventId}");
+                ModLogger.Error(thresholdCategory, $"Threshold event not found: {eventId}");
+                return;
+            }
 
-                Content.EventDeliveryManager.Instance?.QueueEvent(evt);
+            ModLogger.Info(thresholdCategory,
+                $"Loyalty threshold crossed: {lastThreshold} -> {currentThreshold} (loyalty={currentLoyalty}), queuing event {eventId}");
 
-                // Update threshold tracking
-                _state.LastLoyaltyThresholdCrossed = currentThreshold;
-                _state.LastThresholdEventTime = CampaignTime.Now;
+            string thresholdName = currentThreshold.ToString();
+
+            var director = Content.StoryDirector.Instance;
+            if (director != null)
+            {
+                director.EmitCandidate(new Content.StoryCandidate
+                {
+                    SourceId = "retinue.loyalty." + thresholdName,
+                    CategoryId = "retinue.loyalty." + thresholdName,
+                    ProposedTier = Content.StoryTier.Modal,
+                    SeverityHint = 0.70f,
+                    Beats = { Content.StoryBeat.EscalationThreshold },
+                    Relevance = new Content.RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = evt,
+                    RenderedTitle = evt.TitleFallback,
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = evt.Id
+                });
             }
             else
             {
-                ModLogger.Error(thresholdCategory, $"Threshold event not found: {eventId}");
+                Content.EventDeliveryManager.Instance?.QueueEvent(evt);
             }
+
+            // Update threshold tracking (fires on both director and fallback paths)
+            _state.LastLoyaltyThresholdCrossed = currentThreshold;
+            _state.LastThresholdEventTime = CampaignTime.Now;
         }
 
         /// <summary>
