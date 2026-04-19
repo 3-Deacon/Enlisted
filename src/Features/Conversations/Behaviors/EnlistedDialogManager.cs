@@ -1936,7 +1936,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     return !baggageManager.IsEmergencyAccessOnCooldown();
 
                 default:
-                    ModLogger.Caught("ENLISTEDDIALOGMANAGER", $"Unknown gate condition '{gateCondition}' — option will be treated as gated (hidden/redirected). Add a handler to CheckGateCondition or fix the JSON.", null);
+                    ModLogger.Expected("ENLISTEDDIALOGMANAGER", "dialog_unknown_gate", $"Unknown gate condition '{gateCondition}' — option will be treated as gated (hidden/redirected). Add a handler to CheckGateCondition or fix the JSON.");
                     return false;
             }
         }
@@ -2029,7 +2029,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                         break;
 
                     default:
-                        ModLogger.Caught("ENLISTEDDIALOGMANAGER", $"Unknown dialogue action: '{action}' — this option will not do anything. Dialogue JSON references an action with no handler.", null);
+                        ModLogger.Expected("ENLISTEDDIALOGMANAGER", "dialog_unknown_action", $"Unknown dialogue action: '{action}' — this option will not do anything. Dialogue JSON references an action with no handler.");
                         InformationManager.DisplayMessage(new InformationMessage(
                             new TextObject("{=dialog_unknown_action}That option is misconfigured and does nothing. Please report this bug.").ToString()));
                         break;
@@ -3833,8 +3833,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                         var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
                         if (party == null)
                         {
-                            ModLogger.Caught("CONVERSATIONS",
-                                "Both QM and enlisted lord have no party — cannot restart QM conversation with correct scene", null);
+                            ModLogger.Expected("CONVERSATIONS", "qm_conv_no_party",
+                                "Both QM and enlisted lord have no party — cannot restart QM conversation with correct scene");
                             InformationManager.DisplayMessage(new InformationMessage(
                                 new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
                             return;

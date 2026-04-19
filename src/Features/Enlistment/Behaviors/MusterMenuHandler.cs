@@ -282,8 +282,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // Validate restored state
                         if (string.IsNullOrEmpty(currentStage) || !IsValidMusterStage(currentStage))
                         {
-                            ModLogger.Caught(LogCategory,
-                                $"Corrupted muster state on load (stage={currentStage}), aborting muster", null);
+                            ModLogger.Expected(LogCategory, "muster_corrupt_state",
+                                $"Corrupted muster state on load (stage={currentStage}), aborting muster");
                             _currentMuster = null;
                             EnlistmentBehavior.Instance?.DeferPayMuster();
                         }

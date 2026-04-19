@@ -354,7 +354,7 @@ namespace Enlisted.Features.Content
                 var deliveryManager = EventDeliveryManager.Instance;
                 if (deliveryManager == null)
                 {
-                    ModLogger.Caught(LogCategory, "EventDeliveryManager not available - map incidents won't fire", null);
+                    ModLogger.Expected(LogCategory, "map_incident_no_delivery_manager", "EventDeliveryManager not available - map incidents won't fire");
                     return false;
                 }
 

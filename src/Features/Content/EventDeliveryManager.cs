@@ -66,7 +66,7 @@ namespace Enlisted.Features.Content
         {
             if (evt == null)
             {
-                ModLogger.Caught(LogCategory, "Attempted to queue null event - check event ID and catalog loading", null);
+                ModLogger.Expected(LogCategory, "event_queue_null", "Attempted to queue null event - check event ID and catalog loading");
                 return;
             }
 
@@ -125,7 +125,7 @@ namespace Enlisted.Features.Content
 
             if (options.Count == 0)
             {
-                ModLogger.Caught(LogCategory, $"Event {evt.Id} has no valid options - check requirements in JSON", null);
+                ModLogger.Expected(LogCategory, "event_no_valid_options", $"Event {evt.Id} has no valid options - check requirements in JSON");
                 OnEventClosed();
                 return;
             }
@@ -334,7 +334,7 @@ namespace Enlisted.Features.Content
 
             if (option == null)
             {
-                ModLogger.Caught(LogCategory, "Selected option identifier is not an EventOption - internal error", null);
+                ModLogger.Expected(LogCategory, "event_option_wrong_type", "Selected option identifier is not an EventOption - internal error");
                 OnEventClosed();
                 return;
             }

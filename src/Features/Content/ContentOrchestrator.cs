@@ -1057,7 +1057,7 @@ namespace Enlisted.Features.Content
             var generator = CampOpportunityGenerator.Instance;
             if (generator == null)
             {
-                ModLogger.Caught(LogCategory, $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear", null);
+                ModLogger.Expected(LogCategory, "orchestrator_no_generator", $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear");
                 return new List<ScheduledOpportunity>();
             }
 
@@ -1244,9 +1244,9 @@ namespace Enlisted.Features.Content
             if (_scheduledOpportunities == null ||
                 !_scheduledOpportunities.TryGetValue(currentPhase, out var opportunities))
             {
-                ModLogger.Caught(LogCategory,
+                ModLogger.Expected(LogCategory, "orchestrator_no_schedule",
                     $"GetCurrentPhaseOpportunities: No schedule exists for {currentPhase} " +
-                    $"(_scheduledOpportunities={_scheduledOpportunities != null}, _scheduledDay={_scheduledDay})", null);
+                    $"(_scheduledOpportunities={_scheduledOpportunities != null}, _scheduledDay={_scheduledDay})");
                 return new List<ScheduledOpportunity>();
             }
 
@@ -1291,7 +1291,7 @@ namespace Enlisted.Features.Content
         {
             if (string.IsNullOrEmpty(opportunityId))
             {
-                ModLogger.Caught(LogCategory, "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu", null);
+                ModLogger.Expected(LogCategory, "orchestrator_consume_null_id", "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu");
                 return;
             }
 
@@ -1348,8 +1348,8 @@ namespace Enlisted.Features.Content
 
             if (!found)
             {
-                ModLogger.Caught(LogCategory,
-                    $"ConsumeOpportunity({opportunityId}): Not found in schedule - decision may reappear after phase change", null);
+                ModLogger.Expected(LogCategory, "orchestrator_opportunity_not_in_schedule",
+                    $"ConsumeOpportunity({opportunityId}): Not found in schedule - decision may reappear after phase change");
             }
         }
 

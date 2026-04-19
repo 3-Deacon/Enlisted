@@ -971,7 +971,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var main = MobileParty.MainParty;
             if (main == null || lordParty == null)
             {
-                ModLogger.Debug("Battle",
+                ModLogger.Debug("BATTLE",
                     $"EnsurePlayerSharesArmy: Skipped - main={main != null}, lordParty={lordParty != null}");
                 return;
             }
@@ -981,16 +981,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var playerMapEvent = main.Party?.MapEvent;
             float distanceToLord = main.GetPosition2D.Distance(lordParty.GetPosition2D);
 
-            ModLogger.Info("Battle", "=== BATTLE PARTICIPATION CHECK ===");
-            ModLogger.Info("Battle",
+            ModLogger.Info("BATTLE", "=== BATTLE PARTICIPATION CHECK ===");
+            ModLogger.Info("BATTLE",
                 $"Lord: {lordParty.LeaderHero?.Name?.ToString() ?? "unknown"}, HasArmy: {lordParty.Army != null}, InMapEvent: {lordMapEvent != null}");
-            ModLogger.Info("Battle",
+            ModLogger.Info("BATTLE",
                 $"Player: InMapEvent: {playerMapEvent != null}, IsActive: {main.IsActive}, IsVisible: {main.IsVisible}");
-            ModLogger.Info("Battle",
+            ModLogger.Info("BATTLE",
                 $"Distance to lord: {distanceToLord:F2}, PlayerArmy: {main.Army?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "none"}");
             if (lordMapEvent != null)
             {
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Lord MapEvent Type: {lordMapEvent.EventType}, Attacker: {lordMapEvent.AttackerSide?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "unknown"}, Defender: {lordMapEvent.DefenderSide?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "unknown"}");
             }
 
@@ -998,7 +998,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // If already in army, the native encounter system handles battle participation
             if (lordParty.Army != null && main.Army == lordParty.Army)
             {
-                ModLogger.Debug("Battle", "Already in lord's army - native encounter system handles participation");
+                ModLogger.Debug("BATTLE", "Already in lord's army - native encounter system handles participation");
                 return;
             }
 
@@ -1006,9 +1006,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // The native game will show encounter menu when player is active and near battle
             if (lordMapEvent != null && playerMapEvent == null)
             {
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     "LORD IN INDIVIDUAL BATTLE (no army) - Attempting native encounter collection");
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Pre-activation state: IsActive={main.IsActive}, ShouldJoinPlayerBattles={main.ShouldJoinPlayerBattles}");
 
                 // Ensure player is active, visible enough to be collected, and near the lord
@@ -1016,19 +1016,19 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 main.IgnoreByOtherPartiesTill(CampaignTime.Now); // Clear ignore window so we can be collected
                 main.ShouldJoinPlayerBattles = true;
 
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Post-activation state: IsActive={main.IsActive}, ShouldJoinPlayerBattles={main.ShouldJoinPlayerBattles}");
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     "Player party ACTIVATED for individual lord battle - waiting for native encounter menu");
             }
             else if (lordMapEvent == null)
             {
-                ModLogger.Debug("Battle", "Lord not in MapEvent - no battle action needed");
+                ModLogger.Debug("BATTLE", "Lord not in MapEvent - no battle action needed");
             }
             else
             {
                 // Both lordMapEvent and playerMapEvent are non-null here
-                ModLogger.Debug("Battle", "Player already in MapEvent - no action needed");
+                ModLogger.Debug("BATTLE", "Player already in MapEvent - no action needed");
             }
         }
 
@@ -1077,7 +1077,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Respect reserve choice; don't force-join if the player opted to sit out
                 if (EnlistedEncounterBehavior.IsWaitingInReserve)
                 {
-                    ModLogger.Debug("Battle", "Skipping immediate join - player is waiting in reserve");
+                    ModLogger.Debug("BATTLE", "Skipping immediate join - player is waiting in reserve");
                     return;
                 }
 
@@ -1102,7 +1102,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         lordIsAttacker = attackerSide?.Parties?.Any(p => p?.Party == armyLeaderParty) == true;
                         if (lordIsAttacker)
                         {
-                            ModLogger.Debug("Battle",
+                            ModLogger.Debug("BATTLE",
                                 $"Lord's army leader ({lordParty.Army.LeaderParty?.LeaderHero?.Name}) is attacker - joining attacker side");
                         }
                     }
@@ -1120,7 +1120,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         lordIsAttacker = attackerSide?.Parties?.Any(p => p?.Party == playerArmyLeaderParty) == true;
                         if (lordIsAttacker)
                         {
-                            ModLogger.Info("Battle",
+                            ModLogger.Info("BATTLE",
                                 $"Player in army before lord - using player's army leader ({main.Army.LeaderParty?.LeaderHero?.Name}) to determine attacker side");
                         }
                     }
@@ -1130,7 +1130,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (targetSide == null)
                 {
-                    ModLogger.Warn("Battle", "MapEventStarted: could not resolve lord side for immediate join");
+                    ModLogger.Warn("BATTLE", "MapEventStarted: could not resolve lord side for immediate join");
                     return;
                 }
 
@@ -1148,7 +1148,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     main.IsCurrentlyAtSea = lordParty.IsCurrentlyAtSea;
                     main.Position = lordParty.Position;
-                    ModLogger.Debug("Battle",
+                    ModLogger.Debug("BATTLE",
                         $"Synced player sea state to {lordParty.IsCurrentlyAtSea} for naval battle join");
                 }
 
@@ -1158,7 +1158,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (main.Party != null)
                 {
                     main.Party.MapEventSide = targetSide;
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         $"Immediate battle join on {playerSideLabel} side (MapEventStarted guard, naval={mapEvent.IsNavalMapEvent})");
                     
                     // Log battle integration status for diagnostics
@@ -1170,7 +1170,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     _playerEncounterCreatedForBattle = true;
                     PlayerEncounter.Start();
                     PlayerEncounter.Init();
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         "PlayerEncounter initialized at battle start to prevent instant auto-resolve");
                     
                     // Log encounter status after initialization
@@ -1179,7 +1179,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Battle",
+                ModLogger.Error("BATTLE",
                     $"Failed immediate battle join on MapEventStarted: {ex.Message}", ex);
             }
         }
@@ -3357,7 +3357,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // This prevents player getting stuck invisible if lord's party disbands while in reserve
                 if (EnlistedEncounterBehavior.IsWaitingInReserve)
                 {
-                    ModLogger.Info("Battle", "Clearing reserve state during service end");
+                    ModLogger.Info("BATTLE", "Clearing reserve state during service end");
                     EnlistedEncounterBehavior.ClearReserveState();
                 }
 
@@ -4236,7 +4236,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var wasInReserve = EnlistedEncounterBehavior.IsWaitingInReserve;
                     if (wasInReserve)
                     {
-                        ModLogger.Info("Battle", "Player was in reserve when party disbanded - teleporting to safety");
+                        ModLogger.Info("BATTLE", "Player was in reserve when party disbanded - teleporting to safety");
                         EnlistedEncounterBehavior.ClearReserveState();
 
                         // Clear any lingering encounter state
@@ -4386,14 +4386,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Caught("Battle", "ShouldJoinPlayerBattles property not found via reflection", null);
+                        ModLogger.Expected("BATTLE", "reflect_should_join_battles_missing", "ShouldJoinPlayerBattles property not found via reflection");
                     }
                 }
                 catch (Exception ex2)
                 {
                     // Capture both failure stacks: direct set + reflection fallback.
                     var agg = new AggregateException(ex1, ex2);
-                    ModLogger.Caught("Battle", "Failed to set ShouldJoinPlayerBattles (direct + reflection)", agg);
+                    ModLogger.Caught("BATTLE", "Failed to set ShouldJoinPlayerBattles (direct + reflection)", agg);
                 }
             }
         }
@@ -6771,12 +6771,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     if (captorParty != null && captorParty.IsCurrentlyAtSea)
                     {
                         // Log only occasionally to avoid spam (check if we haven't logged recently)
-                        ModLogger.Debug("EventSafety",
+                        ModLogger.Debug("EVENTSAFETY",
                             $"Player held prisoner for {daysInCaptivity:F1} days but captor is at sea - waiting for land before forcing escape");
                         return;
                     }
 
-                    ModLogger.Info("EventSafety",
+                    ModLogger.Info("EVENTSAFETY",
                         $"Player held prisoner for {daysInCaptivity:F1} days during enlistment grace period - forcing release");
 
                     // Attempt to force release/escape
@@ -6798,12 +6798,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         else
                         {
                             // Fallback if method not found (unlikely)
-                            ModLogger.Caught("EventSafety", "Could not find EndCaptivityAction.ApplyByEscape", null);
+                            ModLogger.Expected("EVENTSAFETY", "reflect_end_captivity_missing", "Could not find EndCaptivityAction.ApplyByEscape");
                         }
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Caught("EventSafety", "Error forcing player escape", ex);
+                        ModLogger.Caught("EVENTSAFETY", "Error forcing player escape", ex);
                     }
                 }
             }
@@ -7123,7 +7123,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                         if (targetArmy == null || armyLeader == null)
                         {
-                            ModLogger.Debug("Battle",
+                            ModLogger.Debug("BATTLE",
                                 "Lord army reference invalid (null leader) - skipping automatic join this tick");
                         }
                         else
@@ -7154,18 +7154,18 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                                     if (urgentBattleNeed && !lordHasMerged)
                                     {
-                                        ModLogger.Info("Battle",
+                                        ModLogger.Info("BATTLE",
                                             $"URGENT: Joined army for active battle/siege (Army: {armyLeader?.LeaderHero?.Name})");
                                     }
                                     else
                                     {
-                                        ModLogger.Info("Battle",
+                                        ModLogger.Info("BATTLE",
                                             $"Lord merged with army - player joining (Army: {armyLeader?.LeaderHero?.Name})");
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    ModLogger.Caught("Battle", "Error joining lord's army", ex);
+                                    ModLogger.Caught("BATTLE", "Error joining lord's army", ex);
                                 }
                             }
                         }
@@ -7189,8 +7189,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // If they're already in the correct army, the native system should collect them automatically
                         if (mainParty.Army == null || mainParty.Army != lordParty.Army)
                         {
-                            ModLogger.Info("Battle", "Lord entered battle - ensuring player can participate");
-                            ModLogger.Info("Battle",
+                            ModLogger.Info("BATTLE", "Lord entered battle - ensuring player can participate");
+                            ModLogger.Info("BATTLE",
                                 $"Pre-state: Player Army={mainParty?.Army?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "null"}");
 
                             try
@@ -7199,14 +7199,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 // Clearing menus during these operations can cause assertion failures
                                 if (InBattleOrSiege(lordParty))
                                 {
-                                    ModLogger.Info("Battle",
+                                    ModLogger.Info("BATTLE",
                                         "Lord in battle/siege - skipping menu clearing to prevent assertion failures");
                                 }
                                 else
                                 {
                                     // Clear menus before army management to ensure clean state transitions
                                     // This prevents menu state conflicts during battle setup
-                                    ModLogger.Info("Battle", "Clearing menus before army management");
+                                    ModLogger.Info("BATTLE", "Clearing menus before army management");
                                     while (Campaign.Current.CurrentMenuContext != null)
                                     {
                                         GameMenu.ExitToLast();
@@ -7217,7 +7217,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 // If already in lord's army, just ensure battle participation flags are set
                                 if (lordParty.Army != null && mainParty.Army == lordParty.Army)
                                 {
-                                    ModLogger.Debug("Battle",
+                                    ModLogger.Debug("BATTLE",
                                         "Already in lord's army - setting battle participation flags");
                                     mainParty.IsActive = true;
                                     mainParty.IsVisible = false;
@@ -7229,7 +7229,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 {
                                     // Lord has no army but is in battle - create a PlayerEncounter to join directly
                                     // PlayerEncounter.Init() will automatically join the existing MapEvent
-                                    ModLogger.Info("Battle",
+                                    ModLogger.Info("BATTLE",
                                         "Lord has no army - attempting direct PlayerEncounter join");
 
                                     var lordMapEvent = lordParty.Party.MapEvent;
@@ -7260,7 +7260,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                                         if (canJoinNatively)
                                         {
-                                            ModLogger.Debug("Battle",
+                                            ModLogger.Debug("BATTLE",
                                                 $"Can join battle on lord's side ({lordSide}) - preparing for battle participation");
                                         }
                                         else if (shouldBypassFactionCheck)
@@ -7271,14 +7271,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                             // As an enlisted soldier, we logically belong to the lord's side regardless of
                                             // formal faction state. Skip MapEventSide (which crashes without faction compat)
                                             // but create PlayerEncounter so the hero can participate.
-                                            ModLogger.Debug("Battle",
+                                            ModLogger.Debug("BATTLE",
                                                 $"Non-Kingdom faction lord battle - bypassing native faction check for {lordSide} side");
                                         }
                                         else
                                         {
                                             // Kingdom lord but faction check failed - this is unexpected
                                             // Log warning but don't force bypass - let native system handle it
-                                            ModLogger.Warn("Battle",
+                                            ModLogger.Warn("BATTLE",
                                                 $"Faction check failed for Kingdom lord battle ({lordSide} side) - player may not be able to join. Please report this if battle participation fails.");
                                             // Don't return here - still try to set up PlayerEncounter as fallback
                                         }
@@ -7323,14 +7323,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                             // Land battle - join the MapEvent on lord's side
                                             mainParty.Party.MapEventSide = targetSide;
                                             int partyTroopCount = mainParty.Party.NumberOfRegularMembers;
-                                            ModLogger.Info("Battle",
+                                            ModLogger.Info("BATTLE",
                                                 $"Joined MapEvent on {lordSide} side (troops: {partyTroopCount}, bypass: {shouldBypassFactionCheck})");
                                         }
                                         else
                                         {
                                             // Kingdom lord but faction check failed - try anyway, but warn
                                             mainParty.Party.MapEventSide = targetSide;
-                                            ModLogger.Warn("Battle",
+                                            ModLogger.Warn("BATTLE",
                                                 $"Faction check failed but joining MapEvent anyway on {lordSide} side - report if battle doesn't work");
                                         }
 
@@ -7348,7 +7348,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                                             var attackerName = lordMapEvent.AttackerSide?.LeaderParty?.Name?.ToString() ?? "unknown";
                                             var defenderName = lordMapEvent.DefenderSide?.LeaderParty?.Name?.ToString() ?? "unknown";
-                                            ModLogger.Info("Battle",
+                                            ModLogger.Info("BATTLE",
                                                 $"Initialized PlayerEncounter (attacker: {attackerName}, defender: {defenderName})");
                                         }
                                         else if (_playerEncounterCreatedForBattle)
@@ -7358,21 +7358,21 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                     }
                                     else
                                     {
-                                        ModLogger.Info("Battle",
+                                        ModLogger.Info("BATTLE",
                                             "Lord has MapEvent flag but MapEvent is null - cannot join directly");
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.Caught("Battle", "Error in battle participation setup", ex);
+                                ModLogger.Caught("BATTLE", "Error in battle participation setup", ex);
                             }
                         }
                         else
                         {
                             // Player is already in the correct army - no action needed
                             // The native system should collect them into the battle automatically
-                            ModLogger.Debug("Battle", "Player already in lord's army - no action needed");
+                            ModLogger.Debug("BATTLE", "Player already in lord's army - no action needed");
                         }
                     }
 
@@ -7453,7 +7453,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             // Player already in battle - keep invisible (banner should be hidden during enlisted service)
                             // Visibility only needed for battle UI menus before joining, not during active battle
                             mainParty.IsVisible = false;
-                            ModLogger.Debug("Battle",
+                            ModLogger.Debug("BATTLE",
                                 "Player already in battle - keeping invisible (enlisted service)");
                         }
                         else
@@ -7473,7 +7473,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 {
                                     mainParty.IsActive = true;
                                     TrySetShouldJoinPlayerBattles(mainParty, true);
-                                    ModLogger.Debug("Battle", "Activated player party for army following");
+                                    ModLogger.Debug("BATTLE", "Activated player party for army following");
                                 }
 
                                 // Check if lord is at sea - use direct position sync instead of escort AI
@@ -7557,7 +7557,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             // Follow the LORD's party with camera to prevent pausing when lord enters battle
                             lordParty.Party.SetAsCameraFollowParty();
                             TrySetShouldJoinPlayerBattles(mainParty, true);
-                            ModLogger.Debug("Battle",
+                            ModLogger.Debug("BATTLE",
                                 $"Activated party for battle collection (lord in battle, player in army: {playerInArmy})");
                         }
 
@@ -7566,7 +7566,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         if (playerInBattle)
                         {
                             mainParty.IsVisible = false;
-                            ModLogger.Debug("Battle", "Reset visibility to false - player joined battle");
+                            ModLogger.Debug("BATTLE", "Reset visibility to false - player joined battle");
                         }
                     }
 
@@ -7632,7 +7632,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // No active siege - clear BesiegerCamp if set (prevents stale state)
                     if (mainParty.BesiegerCamp != null)
                     {
-                        ModLogger.Debug("Battle", "Clearing player besieger camp - no active siege event detected");
+                        ModLogger.Debug("BATTLE", "Clearing player besieger camp - no active siege event detected");
                         mainParty.BesiegerCamp = null;
                     }
                     return;
@@ -7641,7 +7641,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Sync BesiegerCamp with lord's siege
                 if (mainParty.BesiegerCamp == targetCamp)
                 {
-                    ModLogger.Debug("Battle",
+                    ModLogger.Debug("BATTLE",
                         $"Player besieger camp already synced ({targetCamp.SiegeEvent?.BesiegedSettlement?.Name?.ToString() ?? "unknown"})");
                     return;
                 }
@@ -7654,7 +7654,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Failed to sync besieger camp", ex);
+                ModLogger.Caught("BATTLE", "Failed to sync besieger camp", ex);
             }
         }
 
@@ -8128,7 +8128,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     mainParty.Position = safePosition;
                     mainParty.SetMoveModeHold();
 
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         $"Teleported player to safe distance from {threatName} (validated terrain)");
 
                     var message = new TextObject("{=Enlisted_Message_EscapedToSafety}You have escaped to a safe distance.");
@@ -8143,7 +8143,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         mainParty.Position = port.GatePosition;
                         mainParty.SetMoveModeHold();
 
-                        ModLogger.Info("Battle",
+                        ModLogger.Info("BATTLE",
                             $"Teleported player to {port.Name} after naval defeat (no nearby land found)");
 
                         var message = new TextObject("{=Enlisted_Message_EscapedToPort}You have washed ashore at {PORT}.");
@@ -8152,14 +8152,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Warn("Battle",
+                        ModLogger.Warn("BATTLE",
                             $"Could not find valid terrain or port for safety teleport near {threatName} - player stays in place");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Failed to teleport player to safety", ex);
+                ModLogger.Caught("BATTLE", "Failed to teleport player to safety", ex);
             }
         }
 
@@ -8959,7 +8959,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (IsEnlisted && victim == _enlistedLord)
             {
-                ModLogger.Info("EventSafety", $"Lord {victim.Name} killed - starting grace period");
+                ModLogger.Info("EVENTSAFETY", $"Lord {victim.Name} killed - starting grace period");
 
                 // Start grace period instead of immediate discharge
                 // Player has 14 days to re-enlist with another lord in the same faction
@@ -8998,7 +8998,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (IsEnlisted && defeatedHero == _enlistedLord)
             {
-                ModLogger.Info("EventSafety", $"Lord {defeatedHero.Name} defeated");
+                ModLogger.Info("EVENTSAFETY", $"Lord {defeatedHero.Name} defeated");
 
                 // Check lord status after defeat
                 if (!_enlistedLord.IsAlive)
@@ -9039,7 +9039,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (IsEnlisted && army?.LeaderParty?.LeaderHero == _enlistedLord)
             {
-                ModLogger.Info("EventSafety", $"Army dispersed - reason: {reason}");
+                ModLogger.Info("EVENTSAFETY", $"Army dispersed - reason: {reason}");
 
                 // Check if lord still exists after army defeat
                 if (_enlistedLord == null || !_enlistedLord.IsAlive || _enlistedLord.PartyBelongedTo == null)
@@ -9137,7 +9137,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 var captorName = capturingParty?.LeaderHero?.Name?.ToString() ?? capturingParty?.Name?.ToString() ?? "unknown";
                 ModLogger.Info("Captivity", $"Captured by {captorName} - service ended, grace period started");
-                ModLogger.Info("EventSafety", "Player captured - deferring enlistment teardown until encounter closes");
+                ModLogger.Info("EVENTSAFETY", "Player captured - deferring enlistment teardown until encounter closes");
 
                 var lordKingdom = _enlistedLord?.MapFaction as Kingdom;
                 if (lordKingdom != null)
@@ -9160,7 +9160,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Case 2: Lord captured
             if (prisoner == _enlistedLord)
             {
-                ModLogger.Info("EventSafety", $"Lord {prisoner.Name} captured - starting grace period");
+                ModLogger.Info("EVENTSAFETY", $"Lord {prisoner.Name} captured - starting grace period");
 
                 // Handle player state cleanup (reserve mode, encounters, etc.)
                 // This doesn't capture the player - if player was fighting, native surrender flow handles capture
@@ -9174,7 +9174,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     if (_playerCaptureCleanupScheduled)
                     {
-                        ModLogger.Info("EventSafety",
+                        ModLogger.Info("EVENTSAFETY",
                             "Deferring lord capture discharge because player capture cleanup is pending");
                         SchedulePlayerCaptureCleanup(lordKingdom);
                     }
@@ -12105,7 +12105,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // and forcing battle prep (teleport/army join) can crash when captors are attacked.
                 if (Hero.MainHero.IsPrisoner || _playerCaptureCleanupScheduled)
                 {
-                    ModLogger.Info("EventSafety",
+                    ModLogger.Info("EVENTSAFETY",
                         $"Skipping MapEventStarted - player prisoner or cleanup pending (IsPrisoner={Hero.MainHero.IsPrisoner}, CaptureCleanupScheduled={_playerCaptureCleanupScheduled})");
                     return;
                 }
@@ -12116,7 +12116,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // creating a loop where the encounter menu keeps appearing and awarding duplicate XP.
                 if (EnlistedEncounterBehavior.IsWaitingInReserve)
                 {
-                    ModLogger.Debug("Battle",
+                    ModLogger.Debug("BATTLE",
                         "Skipping MapEventStarted - player is waiting in reserve (already chose to sit out battles)");
                     return;
                 }
@@ -12155,14 +12155,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
 
                 // Only log detailed info for battles that actually involve our lord
-                ModLogger.Info("Battle", "=== MapEventStarted - LORD INVOLVED ===");
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE", "=== MapEventStarted - LORD INVOLVED ===");
+                ModLogger.Info("BATTLE",
                     $"Lord: {lordParty.LeaderHero?.Name?.ToString() ?? "unknown"}, LordParty ID: {lordParty.StringId}");
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Attacker: {attackerParty?.MobileParty?.LeaderHero?.Name?.ToString() ?? attackerParty?.Name?.ToString() ?? "unknown"}");
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Defender: {defenderParty?.MobileParty?.LeaderHero?.Name?.ToString() ?? defenderParty?.Name?.ToString() ?? "unknown"}");
-                ModLogger.Debug("Battle",
+                ModLogger.Debug("BATTLE",
                     $"lordIsAttacker={lordIsAttacker}, lordIsDefender={lordIsDefender}, inArmy={inArmy}, armyLeaderInvolved={armyLeaderInvolved}");
 
                 // Reset tracking flags for new battle
@@ -12171,7 +12171,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 var isSiegeBattle = mapEvent.IsSiegeAssault || mapEvent.EventType == MapEvent.BattleTypes.Siege;
 
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"Native battle detected (Siege: {isSiegeBattle}, InArmy: {inArmy}) - preparing player for vanilla flow");
 
                 // Log siege integration status for diagnostic purposes
@@ -12190,7 +12190,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     if (!string.IsNullOrEmpty(desiredMenu) && desiredMenu != currentMenu)
                     {
-                        ModLogger.Info("Battle",
+                        ModLogger.Info("BATTLE",
                             $"Switching from enlisted menu to native menu '{desiredMenu}' for battle");
                         NextFrameDispatcher.RunNextFrame(() =>
                         {
@@ -12200,14 +12200,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.Caught("Battle",
+                                ModLogger.Caught("BATTLE",
                                     $"Failed to switch to native menu '{desiredMenu}'", ex);
                             }
                         });
                     }
                     else
                     {
-                        ModLogger.Debug("Battle",
+                        ModLogger.Debug("BATTLE",
                             "Native battle menu not ready yet - keeping enlisted menu until engine pushes one");
                     }
                 }
@@ -12219,7 +12219,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     var oldPos = main.GetPosition2D;
                     main.Position = lordParty.Position;
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         $"Teleported player party to battle location (from {oldPos} to {lordParty.GetPosition2D})");
                 }
 
@@ -12235,7 +12235,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (Campaign.Current?.TimeControlMode == CampaignTimeControlMode.Stop)
                 {
                     Campaign.Current.TimeControlMode = CampaignTimeControlMode.StoppablePlay;
-                    ModLogger.Debug("Battle", "Auto-unpaused game for seamless battle entry");
+                    ModLogger.Debug("BATTLE", "Auto-unpaused game for seamless battle entry");
                 }
 
                 if (mapEvent != null)
@@ -12247,7 +12247,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Error in MapEventStarted battle handler", ex);
+                ModLogger.Caught("BATTLE", "Error in MapEventStarted battle handler", ex);
             }
         }
 
@@ -12261,7 +12261,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var main = MobileParty.MainParty;
 
                 // DEBUG: Log entry to confirm this handler is being called
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"OnMapEventEnded CALLED - mapEvent={(mapEvent != null ? "present" : "null")}, IsEnlisted={IsEnlisted}");
 
                 // Reset PlayerEncounter guard flag - battle is ending
@@ -12274,14 +12274,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (IsEnlisted && main != null && !Hero.MainHero.IsPrisoner)
                 {
                     main.IgnoreByOtherPartiesTill(CampaignTime.Now + CampaignTime.Hours(1f));
-                    ModLogger.Debug("Battle", "Restored ignore protection immediately after battle end");
+                    ModLogger.Debug("BATTLE", "Restored ignore protection immediately after battle end");
                 }
 
                 // SAFETY: If the player is still a prisoner or capture cleanup is queued, avoid any post-battle
                 // enlistment cleanup (army/visibility/menu) and let native captivity flow finalize first.
                 if (Hero.MainHero.IsPrisoner || _playerCaptureCleanupScheduled)
                 {
-                    ModLogger.Info("EventSafety",
+                    ModLogger.Info("EVENTSAFETY",
                         $"Skipping MapEventEnded - player prisoner or cleanup pending (IsPrisoner={Hero.MainHero.IsPrisoner}, CaptureCleanupScheduled={_playerCaptureCleanupScheduled})");
                     _cachedLordMapEvent = null;
                     return;
@@ -12309,7 +12309,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
 
                 // DEBUG: Log participation status for debugging battle cleanup issues
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     $"OnMapEventEnded participation check: player={playerParticipated}, lord={lordParticipated}, hasEncounter={PlayerEncounter.Current != null}");
 
                 // Early exit for unrelated battles - don't log to avoid spam from all map battles
@@ -12317,7 +12317,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     // Still clear stale siege/encounter state defensively (prevents native menu re-opening loops).
                     CleanupPostEncounterState("OnMapEventEnded-Unrelated");
-                    ModLogger.Debug("Battle", "Early exit - unrelated battle (no participation)");
+                    ModLogger.Debug("BATTLE", "Early exit - unrelated battle (no participation)");
                     _cachedLordMapEvent = null;
                     return;
                 }
@@ -12343,7 +12343,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         return;
                     }
 
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         $"OnMapEventEnded early exit: IsEnlisted={IsEnlisted}, OnLeave={_isOnLeave}, main.HasMapEvent={main?.Party.MapEvent != null}, lordHasMapEvent={lordParty?.Party.MapEvent != null}, MapEventHasWinner={mapEvent?.HasWinner}");
 
                     // Enlistment ended during battle - cleanup army reference only
@@ -12365,11 +12365,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
 
                             PlayerEncounter.Finish();
-                            ModLogger.Info("Battle", "Finished PlayerEncounter after enlistment ended");
+                            ModLogger.Info("BATTLE", "Finished PlayerEncounter after enlistment ended");
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Caught("Battle",
+                            ModLogger.Caught("BATTLE",
                                 "Error finishing PlayerEncounter after enlistment ended", ex);
                         }
                     }
@@ -12404,7 +12404,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                                                (p?.MobileParty?.Army != null &&
                                                                 p.MobileParty.Army == lordParty.Army)))
                 {
-                    ModLogger.Info("Battle", "Lord battle ended, returning to hidden state");
+                    ModLogger.Info("BATTLE", "Lord battle ended, returning to hidden state");
                     _cachedLordMapEvent = null;
 
                     // If the player chose to wait in reserve, make sure we clear the suspended state
@@ -12440,7 +12440,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 }
                             }
 
-                            ModLogger.Info("Battle",
+                            ModLogger.Info("BATTLE",
                                 "Cleared reserve state after battle end - restoring party activity for regen");
                         }
                     }
@@ -12464,7 +12464,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Debug("Battle", "Skipping battle XP - player waited in reserve");
+                        ModLogger.Debug("BATTLE", "Skipping battle XP - player waited in reserve");
                     }
 
                     // Determine if this was a siege battle - affects cleanup strategy
@@ -12490,7 +12490,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // For subordinate army members, native applies aftermath immediately without showing
                         // a menu - only siege leaders get the menu_settlement_taken choice screen.
                         // So we just need to clean up and return to enlisted_status.
-                        ModLogger.Info("Battle", "Siege battle ended - native handles aftermath, returning to enlisted state");
+                        ModLogger.Info("BATTLE", "Siege battle ended - native handles aftermath, returning to enlisted state");
 
                         // Log siege integration status to verify player was properly integrated
                         if (main?.BesiegerCamp != null)
@@ -12523,7 +12523,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                         PlayerEncounter.LeaveSettlement();
                                     }
                                     PlayerEncounter.Finish();
-                                    ModLogger.Info("Battle", "Finished PlayerEncounter after siege victory");
+                                    ModLogger.Info("BATTLE", "Finished PlayerEncounter after siege victory");
                                 }
 
                                 // Return player to hidden enlisted state
@@ -12537,12 +12537,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 if (IsEnlisted && !_isOnLeave)
                                 {
                                     EnlistedMenuBehavior.SafeActivateEnlistedMenu();
-                                    ModLogger.Info("Battle", "Activated enlisted menu after siege victory");
+                                    ModLogger.Info("BATTLE", "Activated enlisted menu after siege victory");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.Caught("Battle", "Error in post-siege transition", ex);
+                                ModLogger.Caught("BATTLE", "Error in post-siege transition", ex);
                             }
                         });
 
@@ -12551,7 +12551,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     // FIELD BATTLES ONLY: Handle cleanup ourselves
                     // Field battles don't have structured native post-victory flow for army members
-                    ModLogger.Info("Battle", "Field battle ended - handling cleanup for enlisted player");
+                    ModLogger.Info("BATTLE", "Field battle ended - handling cleanup for enlisted player");
                     
                     // Log battle integration status at end
                     if (effectiveMapEvent != null)
@@ -12573,7 +12573,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         {
                             main.IsActive = false;
                             main.IsVisible = false;
-                            ModLogger.Debug("Battle",
+                            ModLogger.Debug("BATTLE",
                                 "Player set to hidden immediately after field battle end");
                         }
 
@@ -12592,7 +12592,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                     }
 
                                     PlayerEncounter.Finish();
-                                    ModLogger.Info("Battle",
+                                    ModLogger.Info("BATTLE",
                                         "Finished PlayerEncounter after battle ended (deferred)");
                                 }
 
@@ -12608,7 +12608,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.Caught("Battle",
+                                ModLogger.Caught("BATTLE",
                                     "Error in deferred encounter cleanup", ex);
                             }
                         });
@@ -12618,7 +12618,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // No encounter to finish - return to hidden enlisted state immediately
                         main.IsActive = false;
                         main.IsVisible = false;
-                        ModLogger.Debug("Battle", "No encounter to finish - returning to hidden state");
+                        ModLogger.Debug("BATTLE", "No encounter to finish - returning to hidden state");
                         RestoreCampaignFlowAfterBattle();
                     }
 
@@ -12628,15 +12628,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         var army = lordParty.Army;
                         DisbandArmyAction.ApplyByUnknownReason(army);
                         _disbandArmyAfterBattle = false;
-                        ModLogger.Debug("Battle", "Disbanded temporary army");
+                        ModLogger.Debug("BATTLE", "Disbanded temporary army");
                     }
 
-                    ModLogger.Info("Battle", "Battle cleanup complete");
+                    ModLogger.Info("BATTLE", "Battle cleanup complete");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Error in MapEvent end handler", ex);
+                ModLogger.Caught("BATTLE", "Error in MapEvent end handler", ex);
             }
         }
 
@@ -12649,15 +12649,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
-                ModLogger.Info("Battle", "Player battle ended");
-                ModLogger.Info("Battle", $"Battle Type: {mapEvent?.EventType}, Was Siege: {mapEvent?.IsSiegeAssault}");
+                ModLogger.Info("BATTLE", "Player battle ended");
+                ModLogger.Info("BATTLE", $"Battle Type: {mapEvent?.EventType}, Was Siege: {mapEvent?.IsSiegeAssault}");
 
                 // CRITICAL: Don't award XP if battle hasn't actually finished (no winner yet)
                 // This prevents XP from being awarded when player clicks "Wait in Reserve"
                 // which calls PlayerEncounter.Finish() but the battle is still ongoing
                 if (mapEvent != null && !mapEvent.HasWinner)
                 {
-                    ModLogger.Debug("Battle", "Skipping battle rewards - battle still ongoing (no winner yet)");
+                    ModLogger.Debug("BATTLE", "Skipping battle rewards - battle still ongoing (no winner yet)");
                     return;
                 }
 
@@ -12665,7 +12665,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // PlayerEncounter.Finish() triggers this event, but we're just entering reserve, not ending battle
                 if (EnlistedEncounterBehavior.IsWaitingInReserve)
                 {
-                    ModLogger.Debug("Battle",
+                    ModLogger.Debug("BATTLE",
                         "Skipping battle rewards - player is entering reserve mode, not ending battle");
                     return;
                 }
@@ -12673,7 +12673,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Only process if enlisted
                 if (!IsEnlisted || _isOnLeave)
                 {
-                    ModLogger.Debug("Battle", "Skipping battle rewards - not enlisted or on leave");
+                    ModLogger.Debug("BATTLE", "Skipping battle rewards - not enlisted or on leave");
                     return;
                 }
 
@@ -12700,7 +12700,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     killsThisBattle = killTracker.GetAndResetKillCount();
                     participated = killTracker.GetAndResetParticipation();
-                    ModLogger.Info("Battle", $"Kill tracker: {killsThisBattle} kills, participated: {participated}");
+                    ModLogger.Info("BATTLE", $"Kill tracker: {killsThisBattle} kills, participated: {participated}");
                 }
                 else
                 {
@@ -12709,12 +12709,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     if (MobileParty.MainParty.Morale <= 1f)
                     {
                         participated = false;
-                        ModLogger.Debug("Battle", "Player morale too low for combat - participation denied");
+                        ModLogger.Debug("BATTLE", "Player morale too low for combat - participation denied");
                     }
                     else
                     {
                         participated = true;
-                        ModLogger.Debug("Battle", "Kill tracker not available - assuming participation");
+                        ModLogger.Debug("BATTLE", "Kill tracker not available - assuming participation");
                     }
                 }
 
@@ -12739,7 +12739,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (killsThisBattle > 0)
                 {
                     _currentTermKills += killsThisBattle;
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         $"Term kills updated: +{killsThisBattle} = {_currentTermKills} total this term");
 
                     // Update Service Records for Retinue display
@@ -12751,7 +12751,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Error in OnPlayerBattleEnd", ex);
+                ModLogger.Caught("BATTLE", "Error in OnPlayerBattleEnd", ex);
             }
         }
 
@@ -12880,7 +12880,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (mapEvent != null && (mapEvent.HasWinner || mapEvent.IsFinalized) && main.MapEventSide != null)
                 {
                     main.MapEventSide = null;
-                    ModLogger.Info("Battle", $"CleanupPostEncounterState({context}): Cleared MapEventSide (battle over)");
+                    ModLogger.Info("BATTLE", $"CleanupPostEncounterState({context}): Cleared MapEventSide (battle over)");
                 }
 
                 if (includeEncounterFinish)
@@ -13028,11 +13028,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         PlayerEncounter.LeaveEncounter = true;
                         // Force immediate cleanup - this clears PlayerEncounter.Current
                         PlayerEncounter.Finish();
-                        ModLogger.Info("Battle", "Force-finished PlayerEncounter to prevent stuck state");
+                        ModLogger.Info("BATTLE", "Force-finished PlayerEncounter to prevent stuck state");
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("Battle", $"Error finishing encounter: {ex.Message} - will rely on watchdog");
+                        ModLogger.Warn("BATTLE", $"Error finishing encounter: {ex.Message} - will rely on watchdog");
                     }
                 }
 
@@ -13053,20 +13053,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Exit the menu so player returns to campaign map
                 GameMenu.ExitToLast();
 
-                ModLogger.Info("Battle", "Player escaped during lord capture (was in reserve) - teleported to safety");
+                ModLogger.Info("BATTLE", "Player escaped during lord capture (was in reserve) - teleported to safety");
                 return;
             }
 
             if (PlayerEncounter.Current != null)
             {
                 // Player is already in an encounter (e.g., choosing Surrender). Native flow will capture them.
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     "Encounter active during lord capture - native surrender flow will handle player.");
                 return;
             }
 
             // Player wasn't in reserve and has no active encounter - edge case, just log
-            ModLogger.Info("Battle", "Lord captured but player not in reserve or encounter - no action needed");
+            ModLogger.Info("BATTLE", "Lord captured but player not in reserve or encounter - no action needed");
         }
 
         private void SchedulePostEncounterVisibilityRestore()
@@ -13207,12 +13207,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 return;
             }
 
-            ModLogger.Info("EventSafety", "Finalizing deferred capture cleanup for player");
+            ModLogger.Info("EVENTSAFETY", "Finalizing deferred capture cleanup for player");
 
             // If the lord party vanished (captor destroyed/captured), companion restore will skip safely.
             if (_enlistedLord?.PartyBelongedTo == null)
             {
-                ModLogger.Warn("EventSafety", "Capture cleanup: lord party missing, companion restore may be skipped");
+                ModLogger.Warn("EVENTSAFETY", "Capture cleanup: lord party missing, companion restore may be skipped");
             }
 
             if (kingdom != null)
@@ -13289,7 +13289,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var campaign = Campaign.Current;
                 if (campaign == null)
                 {
-                    ModLogger.Warn("Battle", "RestoreCampaignFlowAfterBattle: Campaign is null");
+                    ModLogger.Warn("BATTLE", "RestoreCampaignFlowAfterBattle: Campaign is null");
                     return;
                 }
 
@@ -13297,7 +13297,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var currentMenuId = menuContext?.GameMenu?.StringId ?? "none";
                 var mainParty = MobileParty.MainParty;
                 
-                ModLogger.Info("Battle", $"RestoreCampaignFlowAfterBattle START: currentMenu={currentMenuId}, timeControl={campaign.TimeControlMode}, encounter={PlayerEncounter.Current != null}, partyActive={mainParty?.IsActive}, partyVisible={mainParty?.IsVisible}");
+                ModLogger.Info("BATTLE", $"RestoreCampaignFlowAfterBattle START: currentMenu={currentMenuId}, timeControl={campaign.TimeControlMode}, encounter={PlayerEncounter.Current != null}, partyActive={mainParty?.IsActive}, partyVisible={mainParty?.IsVisible}");
                 
                 // Centralized safety net: clear stale siege/encounter state so native menus don't re-open.
                 CleanupPostEncounterState("RestoreCampaignFlowAfterBattle");
@@ -13305,7 +13305,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (campaign.TimeControlMode == CampaignTimeControlMode.Stop)
                 {
                     campaign.TimeControlMode = CampaignTimeControlMode.StoppablePlay;
-                    ModLogger.Info("Battle", "Restored campaign time control to StoppablePlay");
+                    ModLogger.Info("BATTLE", "Restored campaign time control to StoppablePlay");
                 }
 
                 if (!string.IsNullOrEmpty(currentMenuId) && currentMenuId != "none" &&
@@ -13313,22 +13313,22 @@ namespace Enlisted.Features.Enlistment.Behaviors
                      currentMenuId.Contains("siege") ||
                      currentMenuId.Contains("encounter")))
                 {
-                    ModLogger.Info("Battle", $"RestoreCampaignFlow: Attempting GameMenu.ExitToLast() for menu '{currentMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
+                    ModLogger.Info("BATTLE", $"RestoreCampaignFlow: Attempting GameMenu.ExitToLast() for menu '{currentMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
                     GameMenu.ExitToLast();
                     
                     // Check if it actually closed - need to let it process
                     System.Threading.Thread.Sleep(10); // Give it 10ms to process
                     var afterMenuId = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "none";
-                    ModLogger.Info("Battle", $"RestoreCampaignFlow: After ExitToLast menu is now '{afterMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
+                    ModLogger.Info("BATTLE", $"RestoreCampaignFlow: After ExitToLast menu is now '{afterMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
                     
                     if (afterMenuId != "none" && afterMenuId.Contains("siege"))
                     {
-                        ModLogger.Warn("Battle", "WARNING: Siege menu still present after ExitToLast! Menu system may be re-opening it.");
+                        ModLogger.Warn("BATTLE", "WARNING: Siege menu still present after ExitToLast! Menu system may be re-opening it.");
                     }
                 }
                 else
                 {
-                    ModLogger.Info("Battle", $"RestoreCampaignFlow: Not exiting menu (current: {currentMenuId})");
+                    ModLogger.Info("BATTLE", $"RestoreCampaignFlow: Not exiting menu (current: {currentMenuId})");
                 }
 
                 // Handle menu restoration after battle ends
@@ -13351,11 +13351,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (IsEnlisted && !_isOnLeave && !lordInSiege)
                 {
                     EnlistedMenuBehavior.SafeActivateEnlistedMenu();
-                    ModLogger.Info("Battle", "Activated enlisted_status menu after battle");
+                    ModLogger.Info("BATTLE", "Activated enlisted_status menu after battle");
                 }
                 else if (lordInSiege)
                 {
-                    ModLogger.Info("Battle", "Skipping menu activation - letting native siege menu show (lord/army at siege)");
+                    ModLogger.Info("BATTLE", "Skipping menu activation - letting native siege menu show (lord/army at siege)");
                 }
                 else
                 {
@@ -13366,13 +13366,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         playerParty.IsActive = true;
                         playerParty.IsVisible = true;
-                        ModLogger.Info("Battle", "Safety recovery: activated party after discharge-during-battle");
+                        ModLogger.Info("BATTLE", "Safety recovery: activated party after discharge-during-battle");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Error restoring campaign flow after battle", ex);
+                ModLogger.Caught("BATTLE", "Error restoring campaign flow after battle", ex);
             }
         }
 
@@ -13600,11 +13600,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Instead, we track participation via campaign events (OnMapEventEnded, OnPlayerBattleEnd).
                 // Kill XP is calculated based on the native kill counter when available.
 
-                ModLogger.Debug("Battle", "Mission started while enlisted - using campaign event tracking");
+                ModLogger.Debug("BATTLE", "Mission started while enlisted - using campaign event tracking");
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("Battle", "Error in OnAfterMissionStarted", ex);
+                ModLogger.Caught("BATTLE", "Error in OnAfterMissionStarted", ex);
             }
         }
 
