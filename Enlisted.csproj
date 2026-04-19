@@ -406,6 +406,7 @@
          FLAG SUBSYSTEM (FlagStore)
          ==================================================================== -->
     <Compile Include="src\Features\Flags\FlagStore.cs"/>
+    <Compile Include="src\Features\Flags\FlagBehavior.cs"/>
 
     <!-- ====================================================================
          QUALITIES SYSTEM (Quality Store + Models)

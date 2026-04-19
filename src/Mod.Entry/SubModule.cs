@@ -316,6 +316,11 @@ namespace Enlisted.Mod.Entry
                     // user-friendly "Saving..." / "Save finished" and "Loading..." / "Load finished" lines.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.Begin));
 
+                    // Flag store: global + hero-scoped named booleans with optional expiry; used by storylet
+                    // prereq checks and arc progress markers. Registers before all feature behaviors so flags
+                    // are available during their OnSessionLaunched / OnGameLoaded handlers.
+                    campaignStarter.AddBehavior(new Enlisted.Features.Flags.FlagBehavior());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
