@@ -77,7 +77,7 @@ namespace Enlisted.Features.Equipment.UI
                 if (IsUpgradeScreenOpen)
                 {
                     CloseUpgradeScreen(false);
-                    ModLogger.Info("QuartermasterUI", "Force-closed upgrade screen due to save load");
+                    ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to save load");
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace Enlisted.Features.Equipment.UI
             if (IsUpgradeScreenOpen)
             {
                 CloseUpgradeScreen(false);
-                ModLogger.Info("QuartermasterUI", "Force-closed upgrade screen due to battle end");
+                ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to battle end");
             }
         }
         
@@ -106,7 +106,7 @@ namespace Enlisted.Features.Equipment.UI
                 if (IsUpgradeScreenOpen)
                 {
                     CloseUpgradeScreen(false);
-                    ModLogger.Info("QuartermasterUI", "Force-closed upgrade screen due to settlement departure");
+                    ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to settlement departure");
                 }
             }
         }
@@ -122,7 +122,7 @@ namespace Enlisted.Features.Equipment.UI
                 if (IsUpgradeScreenOpen)
                 {
                     CloseUpgradeScreen(false);
-                    ModLogger.Info("QuartermasterUI", "Force-closed upgrade screen due to player capture");
+                    ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to player capture");
                 }
             }
         }
@@ -134,14 +134,14 @@ namespace Enlisted.Features.Equipment.UI
             var isPlayerInMapEvent = MobileParty.MainParty?.MapEvent != null;
             var isPlayerInConversation = Campaign.Current?.ConversationManager?.IsConversationInProgress ?? false;
             
-            ModLogger.Debug("QuartermasterUI", 
+            ModLogger.Debug("QUARTERMASTERUI", 
                 $"MapEventEnded: EventType={eventType}, IsOpen={IsOpen}, IsUpgradeScreenOpen={IsUpgradeScreenOpen}, " +
                 $"PlayerInMapEvent={isPlayerInMapEvent}, PlayerInConversation={isPlayerInConversation}");
             
             // Don't close UI when mapEvent is null (conversations don't have MapEvents)
             if (mapEvent == null)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded with null mapEvent - not closing UI (likely conversation end)");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded with null mapEvent - not closing UI (likely conversation end)");
                 return;
             }
             
@@ -149,7 +149,7 @@ namespace Enlisted.Features.Equipment.UI
             // This prevents old/unrelated MapEvents from closing the equipment selector
             if (isPlayerInConversation)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded during conversation - ignoring (QM dialogue in progress)");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded during conversation - ignoring (QM dialogue in progress)");
                 return;
             }
             
@@ -157,12 +157,12 @@ namespace Enlisted.Features.Equipment.UI
             // This prevents unrelated map events from closing our UI
             if (MobileParty.MainParty?.MapEvent != mapEvent)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded for non-player MapEvent - ignoring");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded for non-player MapEvent - ignoring");
                 return;
             }
             
             bool isCombatEvent = mapEvent.EventType != MapEvent.BattleTypes.None;
-            ModLogger.Debug("QuartermasterUI", $"isCombatEvent={isCombatEvent}");
+            ModLogger.Debug("QUARTERMASTERUI", $"isCombatEvent={isCombatEvent}");
             
             if (isCombatEvent && IsOpen)
             {
@@ -172,7 +172,7 @@ namespace Enlisted.Features.Equipment.UI
             if (isCombatEvent && IsUpgradeScreenOpen)
             {
                 CloseUpgradeScreen(false);
-                ModLogger.Info("QuartermasterUI", "Force-closed upgrade screen due to map event end");
+                ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to map event end");
             }
         }
         
@@ -181,8 +181,8 @@ namespace Enlisted.Features.Equipment.UI
         /// </summary>
         private static void ForceCloseOnInterruption(string reason)
         {
-            ModLogger.Info("QuartermasterUI", $"Force-closing equipment selector due to: {reason}");
-            ModLogger.Debug("QuartermasterUI", $"Stack trace: {Environment.StackTrace}");
+            ModLogger.Info("QUARTERMASTERUI", $"Force-closing equipment selector due to: {reason}");
+            ModLogger.Debug("QUARTERMASTERUI", $"Stack trace: {Environment.StackTrace}");
             CloseEquipmentSelector(false);
         }
         
@@ -194,20 +194,20 @@ namespace Enlisted.Features.Equipment.UI
         {
             try
             {
-                ModLogger.Info("QuartermasterUI", $"ShowEquipmentSelector called for {equipmentType}");
-                ModLogger.Debug("QuartermasterUI", $"ScreenManager.TopScreen = {ScreenManager.TopScreen?.GetType().Name ?? "null"}");
-                ModLogger.Debug("QuartermasterUI", $"IsOpen = {IsOpen}");
+                ModLogger.Info("QUARTERMASTERUI", $"ShowEquipmentSelector called for {equipmentType}");
+                ModLogger.Debug("QUARTERMASTERUI", $"ScreenManager.TopScreen = {ScreenManager.TopScreen?.GetType().Name ?? "null"}");
+                ModLogger.Debug("QUARTERMASTERUI", $"IsOpen = {IsOpen}");
                 
                 // Prevent double-open - close existing first without returning to conversation
                 if (IsOpen)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Closing existing selector before opening new one");
+                    ModLogger.Debug("QUARTERMASTERUI", "Closing existing selector before opening new one");
                     CloseEquipmentSelector(false);
                 }
                 
                 if (availableVariants == null || availableVariants.Count == 0)
                 {
-                    ModLogger.Warn("QuartermasterUI", $"No equipment variants available for {equipmentType} — grid not opened");
+                    ModLogger.Warn("QUARTERMASTERUI", $"No equipment variants available for {equipmentType} — grid not opened");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_no_variants_for_type}The quartermaster has no {EQUIPMENT_TYPE} available for your rank and formation.")
                             .SetTextVariable("EQUIPMENT_TYPE", equipmentType ?? "equipment")
@@ -215,30 +215,30 @@ namespace Enlisted.Features.Equipment.UI
                     return;
                 }
                 
-                ModLogger.Debug("QuartermasterUI", $"Available variants: {availableVariants.Count}");
+                ModLogger.Debug("QUARTERMASTERUI", $"Available variants: {availableVariants.Count}");
                 
                 // Capture via EnlistedTimeScope; disposed in CloseEquipmentSelector's finally.
                 _equipmentTimeScope = EnlistedTimeScope.Capture();
-                ModLogger.Debug("QuartermasterUI", "Time paused via EnlistedTimeScope for equipment selector");
+                ModLogger.Debug("QUARTERMASTERUI", "Time paused via EnlistedTimeScope for equipment selector");
                 
-                ModLogger.Debug("QuartermasterUI", "Creating Gauntlet layer...");
+                ModLogger.Debug("QUARTERMASTERUI", "Creating Gauntlet layer...");
                 
                 // Create Gauntlet layer for custom UI overlay
                 // 1.3.4 API: GauntletLayer constructor with name and localOrder (omit shouldClear as it defaults to false)
                 _gauntletLayer = new GauntletLayer("QuartermasterEquipmentGrid", 1001);
                 
-                ModLogger.Debug("QuartermasterUI", "Creating ViewModel...");
+                ModLogger.Debug("QUARTERMASTERUI", "Creating ViewModel...");
                 
                 // Create ViewModel with equipment variant collection
                 _selectorViewModel = new QuartermasterEquipmentSelectorVm(availableVariants, targetSlot, equipmentType);
                 _selectorViewModel.RefreshValues();
                 
-                ModLogger.Debug("QuartermasterUI", "Loading movie...");
+                ModLogger.Debug("QUARTERMASTERUI", "Loading movie...");
                 
                 // FIXED: Load template from official module structure GUI/Prefabs/Equipment/
                 _gauntletMovie = _gauntletLayer.LoadMovie("QuartermasterEquipmentGrid", _selectorViewModel);
                 
-                ModLogger.Debug("QuartermasterUI", "Setting up input...");
+                ModLogger.Debug("QUARTERMASTERUI", "Setting up input...");
                 
                 // Register hotkeys and set input restrictions for UI interaction
                 _gauntletLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
@@ -248,25 +248,25 @@ namespace Enlisted.Features.Equipment.UI
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
-                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-001", "ScreenManager.TopScreen is null - cannot add layer");
+                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen", "ScreenManager.TopScreen is null - cannot add layer");
                     CloseEquipmentSelector();
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
                     return;
                 }
                 
-                ModLogger.Debug("QuartermasterUI", $"Adding layer to screen: {topScreen.GetType().Name}");
+                ModLogger.Debug("QUARTERMASTERUI", $"Adding layer to screen: {topScreen.GetType().Name}");
                 
                 topScreen.AddLayer(_gauntletLayer);
                 _gauntletLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_gauntletLayer);
                 
-                ModLogger.Info("QuartermasterUI", $"Grid UI opened successfully with {availableVariants.Count} variants for {equipmentType}");
-                ModLogger.Debug("QuartermasterUI", $"IsOpen after opening = {IsOpen}");
+                ModLogger.Info("QUARTERMASTERUI", $"Grid UI opened successfully with {availableVariants.Count} variants for {equipmentType}");
+                ModLogger.Debug("QUARTERMASTERUI", $"IsOpen after opening = {IsOpen}");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-002", "Equipment selector failed to open", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Equipment selector failed to open", ex);
                 CloseEquipmentSelector();
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_ui_open_failed}Quartermaster screen failed to open. Check the log for details.").ToString()));
@@ -283,40 +283,40 @@ namespace Enlisted.Features.Equipment.UI
         {
             try
             {
-                ModLogger.Info("QuartermasterUI", $"CloseEquipmentSelector called (returnToConversation={returnToConversation})");
-                ModLogger.Debug("QuartermasterUI", $"_gauntletLayer = {(_gauntletLayer != null ? "not null" : "null")}");
+                ModLogger.Info("QUARTERMASTERUI", $"CloseEquipmentSelector called (returnToConversation={returnToConversation})");
+                ModLogger.Debug("QUARTERMASTERUI", $"_gauntletLayer = {(_gauntletLayer != null ? "not null" : "null")}");
                 
                 if (_gauntletLayer != null)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Resetting input restrictions...");
+                    ModLogger.Debug("QUARTERMASTERUI", "Resetting input restrictions...");
                     // Reset input restrictions and remove focus
                     _gauntletLayer.InputRestrictions.ResetInputRestrictions();
                     _gauntletLayer.IsFocusLayer = false;
                     
                     if (_gauntletMovie != null)
                     {
-                        ModLogger.Debug("QuartermasterUI", "Releasing movie...");
+                        ModLogger.Debug("QUARTERMASTERUI", "Releasing movie...");
                         _gauntletLayer.ReleaseMovie(_gauntletMovie);
                     }
                     
                     var topScreen = ScreenManager.TopScreen;
-                    ModLogger.Debug("QuartermasterUI", $"TopScreen = {topScreen?.GetType().Name ?? "null"}");
+                    ModLogger.Debug("QUARTERMASTERUI", $"TopScreen = {topScreen?.GetType().Name ?? "null"}");
                     if (topScreen != null)
                     {
-                        ModLogger.Debug("QuartermasterUI", "Removing layer from screen...");
+                        ModLogger.Debug("QUARTERMASTERUI", "Removing layer from screen...");
                         topScreen.RemoveLayer(_gauntletLayer);
                     }
                     
-                    ModLogger.Info("QuartermasterUI", "Equipment selector closed");
+                    ModLogger.Info("QUARTERMASTERUI", "Equipment selector closed");
                 }
                 else
                 {
-                    ModLogger.Debug("QuartermasterUI", "CloseEquipmentSelector called but layer was already null");
+                    ModLogger.Debug("QUARTERMASTERUI", "CloseEquipmentSelector called but layer was already null");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing equipment selector", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error closing equipment selector", ex);
             }
             finally
             {
@@ -328,7 +328,7 @@ namespace Enlisted.Features.Equipment.UI
                 // Dispose the scope to release lock and restore time mode.
                 _equipmentTimeScope?.Dispose();
                 _equipmentTimeScope = null;
-                ModLogger.Debug("QuartermasterUI", "Equipment selector time scope disposed");
+                ModLogger.Debug("QUARTERMASTERUI", "Equipment selector time scope disposed");
             }
             
             // Return to quartermaster conversation after closing (only if still enlisted with valid QM)
@@ -339,11 +339,11 @@ namespace Enlisted.Features.Equipment.UI
                 
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Not returning to conversation - player no longer enlisted");
+                    ModLogger.Debug("QUARTERMASTERUI", "Not returning to conversation - player no longer enlisted");
                 }
                 else if (qmHero == null || !qmHero.IsAlive)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Not returning to conversation - QM hero unavailable");
+                    ModLogger.Debug("QUARTERMASTERUI", "Not returning to conversation - QM hero unavailable");
                 }
                 else
                 {
@@ -385,34 +385,34 @@ namespace Enlisted.Features.Equipment.UI
         {
             try
             {
-                ModLogger.Info("QuartermasterUI", "ShowUpgradeScreen called");
+                ModLogger.Info("QUARTERMASTERUI", "ShowUpgradeScreen called");
                 
                 // Prevent double-open
                 if (IsUpgradeScreenOpen)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Closing existing upgrade screen before opening new one");
+                    ModLogger.Debug("QUARTERMASTERUI", "Closing existing upgrade screen before opening new one");
                     CloseUpgradeScreen(false);
                 }
                 
                 _upgradeTimeScope = EnlistedTimeScope.Capture();
-                ModLogger.Debug("QuartermasterUI", "Time paused via EnlistedTimeScope for upgrade screen");
+                ModLogger.Debug("QUARTERMASTERUI", "Time paused via EnlistedTimeScope for upgrade screen");
                 
-                ModLogger.Debug("QuartermasterUI", "Creating upgrade ViewModel");
+                ModLogger.Debug("QUARTERMASTERUI", "Creating upgrade ViewModel");
                 
                 // Create ViewModel
                 _upgradeViewModel = new QuartermasterUpgradeVm();
                 _upgradeViewModel.RefreshValues();
                 
-                ModLogger.Debug("QuartermasterUI", $"ViewModel created, UpgradeRows={_upgradeViewModel.UpgradeRows.Count}");
+                ModLogger.Debug("QUARTERMASTERUI", $"ViewModel created, UpgradeRows={_upgradeViewModel.UpgradeRows.Count}");
                 
                 // Create Gauntlet layer for upgrade screen overlay
                 _upgradeLayer = new GauntletLayer("QuartermasterUpgradeScreen", 4000);
-                ModLogger.Debug("QuartermasterUI", "Gauntlet layer created");
+                ModLogger.Debug("QUARTERMASTERUI", "Gauntlet layer created");
                 
                 // Load upgrade screen movie from GUI/Prefabs/Equipment/
-                ModLogger.Debug("QuartermasterUI", "Loading movie: QuartermasterUpgradeScreen");
+                ModLogger.Debug("QUARTERMASTERUI", "Loading movie: QuartermasterUpgradeScreen");
                 _upgradeMovie = _upgradeLayer.LoadMovie("QuartermasterUpgradeScreen", _upgradeViewModel);
-                ModLogger.Debug("QuartermasterUI", "Movie loaded successfully");
+                ModLogger.Debug("QUARTERMASTERUI", "Movie loaded successfully");
                 
                 // Apply input restrictions and add layer to screen
                 _upgradeLayer.InputRestrictions.SetInputRestrictions();
@@ -420,7 +420,7 @@ namespace Enlisted.Features.Equipment.UI
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
-                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-006", "ScreenManager.TopScreen is null — cannot add upgrade layer");
+                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen", "ScreenManager.TopScreen is null — cannot add upgrade layer");
                     CloseUpgradeScreen();
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
@@ -431,16 +431,16 @@ namespace Enlisted.Features.Equipment.UI
                 _upgradeLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_upgradeLayer);
                 
-                ModLogger.Debug("QuartermasterUI", "Layer added to screen and focused");
+                ModLogger.Debug("QUARTERMASTERUI", "Layer added to screen and focused");
                 
                 // Handle ESC key to close upgrade screen
                 _upgradeLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericCampaignPanelsGameKeyCategory"));
                 
-                ModLogger.Info("QuartermasterUI", "Upgrade screen opened successfully");
+                ModLogger.Info("QUARTERMASTERUI", "Upgrade screen opened successfully");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("QuartermasterUI", "E-QM-UI-003", "Failed to open upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Failed to open upgrade screen", ex);
                 CloseUpgradeScreen();
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_ui_upgrade_failed}Upgrade screen failed to open. Check the log for details.").ToString()));
@@ -472,7 +472,7 @@ namespace Enlisted.Features.Equipment.UI
                     ScreenManager.TopScreen?.RemoveLayer(_upgradeLayer);
                     _upgradeLayer = null;
                     
-                    ModLogger.Debug("QuartermasterUI", "Upgrade screen closed successfully");
+                    ModLogger.Debug("QUARTERMASTERUI", "Upgrade screen closed successfully");
                 }
                 
                 // Clean up ViewModel (OnFinalize should cascade to child ViewModels in MBBindingList)
@@ -488,13 +488,13 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing upgrade screen", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error closing upgrade screen", ex);
             }
             finally
             {
                 _upgradeTimeScope?.Dispose();
                 _upgradeTimeScope = null;
-                ModLogger.Debug("QuartermasterUI", "Upgrade screen time scope disposed");
+                ModLogger.Debug("QUARTERMASTERUI", "Upgrade screen time scope disposed");
             }
             
             // Return to quartermaster conversation if requested (outside try-finally to avoid interrupting time restore)

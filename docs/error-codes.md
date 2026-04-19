@@ -101,6 +101,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-QUARTERMASTER-4df4 | Both QM and enlisted lord have no party — cannot open conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4230 |
 | E-QUARTERMASTER-6852 | GetOrCreateQuartermaster returned null or dead hero while enlisted | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4260 |
+| E-QUARTERMASTER-8adc | Error processing equipment variant request | src/Features/Equipment/Behaviors/QuartermasterManager.cs:1442 |
 | E-QUARTERMASTER-e56e | Both QM and enlisted lord have no party — cannot open baggage-request conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4295 |
 
 ## RETIREMENT
@@ -111,3 +112,14 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-RETIREMENT-14b8 | Error applying subsequent re-enlistment bonuses | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:8940 |
 | E-RETIREMENT-973e | Error finalizing discharge | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:5416 |
 | E-RETIREMENT-da8e | Error applying relation bonuses | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:8866 |
+
+## TROOPSELECTION
+
+| Code | Summary | Source |
+|---|---|---|
+| E-TROOPSELECTION-10e0 | Failed to apply selected troop equipment | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:626 |
+| E-TROOPSELECTION-569b | Error in troop selection | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:769 |
+| E-TROOPSELECTION-5cf8 | Failed to open Master at Arms popup | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:287 |
+| E-TROOPSELECTION-9828 | Master at Arms popup failed | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:174 |
+| E-TROOPSELECTION-a67e | Master at Arms apply failed | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:160 |
+| E-TROOPSELECTION-b0fa | Failed to switch back to enlisted status | src/Features/Equipment/Behaviors/TroopSelectionManager.cs:312 |

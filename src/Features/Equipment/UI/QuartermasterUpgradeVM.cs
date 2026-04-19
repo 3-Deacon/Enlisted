@@ -47,7 +47,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error setting up character view model for upgrade screen", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error setting up character view model for upgrade screen", ex);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing upgrade screen values", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error refreshing upgrade screen values", ex);
                 SetEmptyValues();
             }
         }
@@ -165,11 +165,11 @@ namespace Enlisted.Features.Equipment.UI
                     UpgradeRows.Add(row);
                 }
 
-                ModLogger.Info("QuartermasterUI", $"Built upgrade grid with {allCards.Count} items in {UpgradeRows.Count} rows (sequential upgrades)");
+                ModLogger.Info("QUARTERMASTERUI", $"Built upgrade grid with {allCards.Count} items in {UpgradeRows.Count} rows (sequential upgrades)");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building upgrade grid", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error building upgrade grid", ex);
             }
         }
 
@@ -183,7 +183,7 @@ namespace Enlisted.Features.Equipment.UI
                 var qm = QuartermasterManager.Instance;
                 if (qm == null)
                 {
-                    ModLogger.ErrorCode("QuartermasterUI", "E-QM-020", "Upgrade failed: QuartermasterManager instance not found");
+                    ModLogger.Expected("QUARTERMASTERUI", "upgrade_no_qm_instance", "Upgrade failed: QuartermasterManager instance not found");
                     return;
                 }
 
@@ -211,7 +211,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error performing upgrade", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error performing upgrade", ex);
                 InformationManager.DisplayMessage(new InformationMessage("Error performing upgrade. Please try again.", Colors.Red));
             }
         }
@@ -224,7 +224,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing upgrade screen", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error closing upgrade screen", ex);
             }
         }
 

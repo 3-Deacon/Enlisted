@@ -276,7 +276,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing equipment item values", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error refreshing equipment item values", ex);
                 SetEmptyValues();
             }
         }
@@ -341,7 +341,7 @@ namespace Enlisted.Features.Equipment.UI
 
                 if (_variant.Item == null)
                 {
-                    ModLogger.ErrorCode("QuartermasterUI", "E-QMUI-004", "Cannot select item - variant item is null");
+                    ModLogger.Expected("QUARTERMASTERUI", "equip_item_null", "Cannot select item - variant item is null");
                     return;
                 }
 
@@ -357,11 +357,11 @@ namespace Enlisted.Features.Equipment.UI
                 // Apply selection through parent
                 _parentSelector?.OnEquipmentItemSelected(_variant);
 
-                ModLogger.Info("QuartermasterUI", $"Equipment purchased: {_variant.Item.Name} ({_variant.Cost} denars)");
+                ModLogger.Info("QUARTERMASTERUI", $"Equipment purchased: {_variant.Item.Name} ({_variant.Cost} denars)");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error selecting equipment item", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error selecting equipment item", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_error_selecting}Error selecting equipment. Please try again.").ToString()));
             }
@@ -391,7 +391,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error previewing equipment item", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error previewing equipment item", ex);
             }
         }
 
@@ -433,7 +433,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building equipment stats", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error building equipment stats", ex);
                 PrimaryStats = "";
                 SecondaryStats = "Stats unavailable";
             }
@@ -721,7 +721,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building tooltip text", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error building tooltip text", ex);
                 TooltipText = item?.Name?.ToString() ?? "";
             }
         }
@@ -831,7 +831,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error setting upgrade indicator", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error setting upgrade indicator", ex);
                 IsUpgradeable = false;
                 UpgradeIndicatorText = "";
             }

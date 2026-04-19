@@ -68,7 +68,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 TroopDiscoveryValidator.ValidateAllCulturesAndTiers();
             }
 
-            ModLogger.Info("TroopSelection", "Troop selection system initialized with modern UI styling");
+            ModLogger.Info("TROOPSELECTION", "Troop selection system initialized with modern UI styling");
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var cultureId = enlistment?.CurrentLord?.Culture?.StringId;
                 if (string.IsNullOrEmpty(cultureId))
                 {
-                    ModLogger.ErrorCode("Equipment", "E-TROOPSEL-001", "Master at Arms: Missing culture on current lord");
+                    ModLogger.Expected("TROOPSELECTION", "troop_no_culture", "Master at Arms: Missing culture on current lord");
                     return;
                 }
 
@@ -143,7 +143,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         {
                             if (selected?.FirstOrDefault()?.Identifier is CharacterObject chosen)
                             {
-                                ModLogger.Info("TroopSelection", $"Player selected troop: {chosen.Name} (ID: {chosen.StringId}, Tier: {SafeGetTier(chosen)}, Formation: {DetectTroopFormation(chosen)})");
+                                ModLogger.Info("TROOPSELECTION", $"Player selected troop: {chosen.Name} (ID: {chosen.StringId}, Tier: {SafeGetTier(chosen)}, Formation: {DetectTroopFormation(chosen)})");
                                 var autoIssue = SafeGetTier(chosen) <= 1; // Tier 1 keeps auto-issue; higher tiers unlock for purchase
                                 ApplySelectedTroopEquipment(Hero.MainHero, chosen, autoIssue);
                                 _lastSelectedTroopId = chosen.StringId;
@@ -157,7 +157,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Equipment", "E-TROOPSEL-002", "Master at Arms apply failed", ex);
+                            ModLogger.Surfaced("TROOPSELECTION", "Master at Arms apply failed", ex);
                         }
                     },
                     _ =>
@@ -171,7 +171,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Equipment", "E-TROOPSEL-003", "Master at Arms popup failed", ex);
+                ModLogger.Surfaced("TROOPSELECTION", "Master at Arms popup failed", ex);
             }
         }
 
@@ -218,7 +218,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Equipment", "E-TROOPSEL-004", "GetUnlockedTroops failed", ex);
+                ModLogger.Caught("TROOPSELECTION", "GetUnlockedTroops failed", ex);
                 return new List<CharacterObject>();
             }
         }
@@ -280,11 +280,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         try
                         {
                             ShowMasterAtArmsPopup();
-                            ModLogger.Info("TroopSelection", "Player chose to collect equipment now - opening Master at Arms");
+                            ModLogger.Info("TROOPSELECTION", "Player chose to collect equipment now - opening Master at Arms");
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-005", "Failed to open Master at Arms popup", ex);
+                            ModLogger.Surfaced("TROOPSELECTION", "Failed to open Master at Arms popup", ex);
                         }
                     });
                 },
@@ -305,11 +305,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         try
                         {
                             GameMenu.SwitchToMenu("enlisted_status");
-                            ModLogger.Info("TroopSelection", "Player declined equipment - returned to camp");
+                            ModLogger.Info("TROOPSELECTION", "Player declined equipment - returned to camp");
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-006", "Failed to switch back to enlisted status", ex);
+                            ModLogger.Surfaced("TROOPSELECTION", "Failed to switch back to enlisted status", ex);
                             // Fallback to safe activation if direct switch failed
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
@@ -328,14 +328,14 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-007", "Cannot show troop selection - player not enlisted");
+                    ModLogger.Expected("TROOPSELECTION", "troop_not_enlisted", "Cannot show troop selection - player not enlisted");
                     return;
                 }
 
                 var cultureId = enlistment.CurrentLord?.Culture?.StringId;
                 if (string.IsNullOrEmpty(cultureId))
                 {
-                    ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-008", "Cannot show troop selection - missing culture on current lord");
+                    ModLogger.Expected("TROOPSELECTION", "troop_select_no_culture", "Cannot show troop selection - missing culture on current lord");
                     return;
                 }
                 _availableTroops = GetTroopsForCultureAndTier(cultureId, newTier);
@@ -344,7 +344,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 if (_availableTroops.Count == 0)
                 {
-                    ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-009", $"No troops found for culture {cultureId} tier {newTier}");
+                    ModLogger.Expected("TROOPSELECTION", "troop_select_no_eligible", $"No troops found for culture {cultureId} tier {newTier}");
 
                     // Fallback - apply basic tier progression without equipment change
                     enlistment.ApplyBasicPromotion(newTier);
@@ -354,11 +354,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Activate troop selection menu
                 GameMenu.ActivateGameMenu("enlisted_troop_selection");
 
-                ModLogger.Info("TroopSelection", $"Troop selection menu opened - {_availableTroops.Count} troops available");
+                ModLogger.Info("TROOPSELECTION", $"Troop selection menu opened - {_availableTroops.Count} troops available");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopSelection", "Failed to show troop selection menu", ex);
+                ModLogger.Error("TROOPSELECTION", "Failed to show troop selection menu", ex);
             }
         }
 
@@ -411,7 +411,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopSelection", "Error initializing troop selection menu", ex);
+                ModLogger.Error("TROOPSELECTION", "Error initializing troop selection menu", ex);
                 MBTextManager.SetTextVariable("TROOP_SELECTION_TEXT", "Error loading troop selection. Please report this issue.");
             }
         }
@@ -426,11 +426,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Troop selection is handled through the popup dialog system
                 // Players choose from available troops displayed in a selection dialog
                 var troopCount = Math.Min(_availableTroops.Count, 8);
-                ModLogger.Info("TroopSelection", $"Created {troopCount} troop selection options");
+                ModLogger.Info("TROOPSELECTION", $"Created {troopCount} troop selection options");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopSelection", "Error creating troop selection options", ex);
+                ModLogger.Error("TROOPSELECTION", "Error creating troop selection options", ex);
             }
         }
 
@@ -453,7 +453,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Add culture fallback troops if no specific tier troops found
                 if (availableTroops.Count == 0 && culture != null)
                 {
-                    ModLogger.Info("TroopSelection", $"No troops found at tier {tier}, using culture fallbacks");
+                    ModLogger.Info("TROOPSELECTION", $"No troops found at tier {tier}, using culture fallbacks");
 
                     // Use guaranteed culture troop templates as fallbacks
                     var fallbackTroops = new List<CharacterObject>();
@@ -475,15 +475,15 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
 
                     availableTroops = fallbackTroops.Where(t => t.BattleEquipments.Any()).ToList();
-                    ModLogger.Info("TroopSelection", $"Using {availableTroops.Count} culture fallback troops");
+                    ModLogger.Info("TROOPSELECTION", $"Using {availableTroops.Count} culture fallback troops");
                 }
 
-                ModLogger.Info("TroopSelection", $"Found {availableTroops.Count} tree troops for {cultureId} tier {tier}");
+                ModLogger.Info("TROOPSELECTION", $"Found {availableTroops.Count} tree troops for {cultureId} tier {tier}");
                 return availableTroops;
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopSelection", "Failed to get troops for culture/tier", ex);
+                ModLogger.Error("TROOPSELECTION", "Failed to get troops for culture/tier", ex);
                 return new List<CharacterObject>();
             }
         }
@@ -555,7 +555,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-010", "BuildCultureTroopTree failed", ex);
+                ModLogger.Caught("TROOPSELECTION", "BuildCultureTroopTree failed", ex);
             }
             return results;
         }
@@ -582,7 +582,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     var troopEquipment = selectedTroop.BattleEquipments.FirstOrDefault();
                     if (troopEquipment == null)
                     {
-                        ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-011", $"No equipment found for {selectedTroop.Name}");
+                        ModLogger.Expected("TROOPSELECTION", "equip_variant_null", $"No equipment found for {selectedTroop.Name}");
                         return;
                     }
 
@@ -617,14 +617,13 @@ namespace Enlisted.Features.Equipment.Behaviors
                 _promotionPending = false;
                 _availableTroops.Clear();
 
-                ModLogger.Info("TroopSelection", autoIssueEquipment
+                ModLogger.Info("TROOPSELECTION", autoIssueEquipment
                     ? $"Equipment replaced with {selectedTroop.Name} gear (Formation: {formation}, quest items protected)"
                     : $"Troop selection recorded without auto-issue (Formation: {formation}); gear available at Quartermaster");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-012",
-                    $"Failed to apply selected troop equipment for {selectedTroop?.Name?.ToString() ?? "null"}", ex);
+                ModLogger.Surfaced("TROOPSELECTION", "Failed to apply selected troop equipment", ex);
             }
         }
 
@@ -665,7 +664,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     // Move to inventory
                     partyRoster.AddToCounts(element, 1);
                     stashedCount++;
-                    ModLogger.Debug("TroopSelection", $"Moved to inventory: {element.Item.Name}");
+                    ModLogger.Debug("TROOPSELECTION", $"Moved to inventory: {element.Item.Name}");
                 }
 
                 // Stash civilian equipment (if different from battle equipment)
@@ -697,18 +696,18 @@ namespace Enlisted.Features.Equipment.Behaviors
                         // Move to inventory
                         partyRoster.AddToCounts(element, 1);
                         stashedCount++;
-                        ModLogger.Debug("TroopSelection", $"Moved civilian item to inventory: {element.Item.Name}");
+                        ModLogger.Debug("TROOPSELECTION", $"Moved civilian item to inventory: {element.Item.Name}");
                     }
                 }
 
                 if (stashedCount > 0)
                 {
-                    ModLogger.Info("TroopSelection", $"Stashed {stashedCount} civilian items to inventory for bag check");
+                    ModLogger.Info("TROOPSELECTION", $"Stashed {stashedCount} civilian items to inventory for bag check");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("TroopSelection", $"Error stashing civilian equipment: {ex.Message}");
+                ModLogger.Warn("TROOPSELECTION", $"Error stashing civilian equipment: {ex.Message}");
             }
         }
 
@@ -762,12 +761,12 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
                 else
                 {
-                    ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-013", $"No {formationType} troop available");
+                    ModLogger.Expected("TROOPSELECTION", "troop_no_formation_match", $"No {formationType} troop available");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("TroopSelection", "E-TROOPSEL-014", "Error in troop selection", ex);
+                ModLogger.Surfaced("TROOPSELECTION", "Error in troop selection", ex);
             }
         }
 
