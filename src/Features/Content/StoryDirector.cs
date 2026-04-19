@@ -11,13 +11,17 @@ namespace Enlisted.Features.Content
     /// <summary>
     /// Central broker for player-facing story content. Sources emit StoryCandidates
     /// via EmitCandidate; the Director filters by relevance, classifies by severity,
-    /// and routes to Modal (via EventDeliveryManager) or Observational (via news feed).
-    /// Phase 1: registered but Route is a no-op. Phase 2 (Task 12) fills in real routing.
+    /// and routes accordingly: Modal candidates fire through EventDeliveryManager subject
+    /// to pacing floors; floor-blocked interactives are deferred; everything else is
+    /// written as a DispatchItem through EnlistedNewsBehavior.AddPersonalDispatch.
     /// </summary>
     public sealed class StoryDirector : CampaignBehaviorBase
     {
         /// <summary>Singleton instance set on RegisterEvents.</summary>
         public static StoryDirector Instance { get; private set; }
+
+        private const string NoCategorySentinel = "_none";
+        private const string DefaultDispatchCategory = "general";
 
         // Project convention: behavior fields use SyncData only, no [SaveableField].
         // See src/Features/Retinue/Core/CompanionAssignmentManager.cs for precedent.
@@ -46,8 +50,8 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Emit a story candidate. Filters by relevance, classifies by severity, routes
-        /// through Route. Exceptions are caught and logged as E-PACE-001 -- a failing
-        /// emit never crashes the game, candidates drop silently.
+        /// through Route. Exceptions are caught and logged via ModLogger.Caught -- a
+        /// failing emit never crashes the game, candidates drop silently.
         /// </summary>
         public void EmitCandidate(StoryCandidate candidate)
         {
@@ -99,26 +103,42 @@ namespace Enlisted.Features.Content
                     return;
                 }
 
+                var delivery = EventDeliveryManager.Instance;
+                if (delivery == null)
+                {
+                    ModLogger.Expected("CONTENT", "route_no_delivery_manager",
+                        "EventDeliveryManager.Instance null — candidate dropped");
+                    return;
+                }
+
                 DownshiftSpeedIfNeeded();
-                EventDeliveryManager.Instance?.QueueEvent(c.InteractiveEvent);
+                delivery.QueueEvent(c.InteractiveEvent);
                 _lastModalDay = today;
                 _lastModalUtcTicks = DateTime.UtcNow.Ticks;
-                _categoryCooldowns[c.CategoryId ?? "_none"] = today;
+                _categoryCooldowns[CategoryKey(c)] = today;
                 return;
             }
 
             WriteDispatchItem(c, tier);
         }
 
+        private static string CategoryKey(StoryCandidate c) => c.CategoryId ?? NoCategorySentinel;
+
         private bool ModalFloorsAllow(StoryCandidate c, int today)
         {
-            double wallSeconds = (_lastModalUtcTicks == 0)
-                ? double.MaxValue
-                : (DateTime.UtcNow.Ticks - _lastModalUtcTicks) / (double)TimeSpan.TicksPerSecond;
-
             bool inGameFloor = today - _lastModalDay >= DensitySettings.ModalFloorInGameDays;
-            bool wallClockFloor = _lastModalUtcTicks == 0 || wallSeconds >= DensitySettings.ModalFloorWallClockSeconds;
-            bool categoryOk = !_categoryCooldowns.TryGetValue(c.CategoryId ?? "_none", out int lastDay)
+            bool wallClockFloor;
+            if (_lastModalUtcTicks == 0)
+            {
+                wallClockFloor = true; // first-ever fire — no wall-clock constraint.
+            }
+            else
+            {
+                double wallSeconds = (DateTime.UtcNow.Ticks - _lastModalUtcTicks) / (double)TimeSpan.TicksPerSecond;
+                wallClockFloor = wallSeconds >= DensitySettings.ModalFloorWallClockSeconds;
+            }
+
+            bool categoryOk = !_categoryCooldowns.TryGetValue(CategoryKey(c), out int lastDay)
                 || (today - lastDay) >= DensitySettings.CategoryCooldownDays;
 
             return inGameFloor && wallClockFloor && categoryOk;
@@ -168,7 +188,7 @@ namespace Enlisted.Features.Content
             }
 
             news.AddPersonalDispatch(
-                category: c.DispatchCategory ?? "general",
+                category: c.DispatchCategory ?? DefaultDispatchCategory,
                 headlineKey: c.RenderedTitle,
                 placeholderValues: null,
                 storyKey: c.StoryKey,
