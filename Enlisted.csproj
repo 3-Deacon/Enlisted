@@ -438,6 +438,14 @@
     <Compile Include="src\Features\Content\StoryCandidatePersistent.cs"/>
     <Compile Include="src\Features\Content\RelevanceFilter.cs"/>
     <Compile Include="src\Features\Content\SeverityClassifier.cs"/>
+    <Compile Include="src\Features\Content\Choice.cs"/>
+    <Compile Include="src\Features\Content\ChainDecl.cs"/>
+    <Compile Include="src\Features\Content\EffectDecl.cs"/>
+    <Compile Include="src\Features\Content\ScopeDecl.cs"/>
+    <Compile Include="src\Features\Content\SlotDecl.cs"/>
+    <Compile Include="src\Features\Content\Storylet.cs"/>
+    <Compile Include="src\Features\Content\StoryletContext.cs"/>
+    <Compile Include="src\Features\Content\WeightDecl.cs"/>
     <Compile Include="src\Features\Content\StoryDirector.cs"/>
     <Compile Include="src\Features\Content\StoryAggregator.cs"/>
     <Compile Include="src\Features\Content\DensitySettings.cs"/>
