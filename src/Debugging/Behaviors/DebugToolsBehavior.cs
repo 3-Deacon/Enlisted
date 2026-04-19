@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.UI;
