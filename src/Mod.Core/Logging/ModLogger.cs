@@ -398,30 +398,6 @@ namespace Enlisted.Mod.Core.Logging
 		public static bool ShowCodedMessagesOnScreen { get; set; } = true;
 
 		/// <summary>
-		/// Log an error with a stable support code (searchable in user logs).
-		/// Also surfaces the code + message on-screen in red when
-		/// <see cref="ShowCodedMessagesOnScreen"/> is true.
-		/// </summary>
-		public static void ErrorCode(string category, string code, string message, Exception ex = null)
-		{
-			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
-			Error(category, $"{prefix}{message}", ex);
-			DisplayCodedMessageOnScreen(code, category, message, Colors.Red);
-		}
-
-		/// <summary>
-		/// Log a warning with a stable support code (searchable in user logs).
-		/// Also surfaces the code + message on-screen in yellow when
-		/// <see cref="ShowCodedMessagesOnScreen"/> is true.
-		/// </summary>
-		public static void WarnCode(string category, string code, string message)
-		{
-			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
-			Warn(category, $"{prefix}{message}");
-			DisplayCodedMessageOnScreen(code, category, message, Colors.Yellow);
-		}
-
-		/// <summary>
 		/// Push a coded log entry to the on-screen info panel. Swallows any display
 		/// failure so logging never breaks because of UI state.
 		/// </summary>
@@ -478,56 +454,6 @@ namespace Enlisted.Mod.Core.Logging
 
 			var levelStr = level.ToString().ToUpper();
 			WriteInternal(levelStr, category, message);
-		}
-
-		/// <summary>
-		/// Log a coded warning only once per session.
-		/// Useful for DLC missing / reflection guardrails where repetition would spam logs.
-		/// </summary>
-		public static void WarnCodeOnce(string key, string category, string code, string message)
-		{
-			if (!IsEnabled(category, LogLevel.Warn))
-			{
-				return;
-			}
-
-			bool shouldLog;
-			lock (Sync)
-			{
-				shouldLog = LoggedOnceKeys.Add(key);
-			}
-
-			if (!shouldLog)
-			{
-				return;
-			}
-
-			WarnCode(category, code, message);
-		}
-
-		/// <summary>
-		/// Log a coded error (with full exception details) only once per session.
-		/// Intended for high-signal failures that can recur frequently (e.g., UI fallback exceptions).
-		/// </summary>
-		public static void ErrorCodeOnce(string key, string category, string code, string message, Exception ex = null)
-		{
-			if (!IsEnabled(category, LogLevel.Error))
-			{
-				return;
-			}
-
-			bool shouldLog;
-			lock (Sync)
-			{
-				shouldLog = LoggedOnceKeys.Add(key);
-			}
-
-			if (!shouldLog)
-			{
-				return;
-			}
-
-			ErrorCode(category, code, message, ex);
 		}
 
 		/// <summary>
