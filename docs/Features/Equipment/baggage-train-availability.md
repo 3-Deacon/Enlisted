@@ -909,7 +909,7 @@ namespace Enlisted.Features.Logistics
             if (hero == null)
             {
                 failReason = "Invalid state";
-                ModLogger.Error(LogCategory, "TryRequestEmergencyAccess: Hero null");
+                ModLogger.Expected(LogCategory, "baggage-emergency-hero-null", "TryRequestEmergencyAccess: Hero null");
                 return false;
             }
             

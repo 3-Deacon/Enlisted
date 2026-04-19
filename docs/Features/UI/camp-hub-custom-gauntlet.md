@@ -1374,7 +1374,7 @@ public class EnlistedCampHubBehavior : CampaignBehaviorBase
         }
         catch (Exception ex)
         {
-            ModLogger.Error("CampHub", "Failed to open camp hub", ex);
+            ModLogger.Caught("CampHub", "Failed to open camp hub", ex);
             CleanupHub();
         }
     }
@@ -1393,7 +1393,7 @@ public class EnlistedCampHubBehavior : CampaignBehaviorBase
         }
         catch (Exception ex)
         {
-            ModLogger.Error("CampHub", "Error closing camp hub", ex);
+            ModLogger.Caught("CampHub", "Error closing camp hub", ex);
             CleanupHub();
         }
     }
