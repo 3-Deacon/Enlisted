@@ -788,7 +788,7 @@
           "rewards": {},
           "resultTextId": "dec_rest_short_nap_result",
           "resultText": "You drift off. When you stir, the shadows moved but you feel lighter.",
-          "tooltip": ""
+          "tooltip": "Brief rest in the shade. 1 day cooldown."
         },
         {
           "id": "cancel",
@@ -865,7 +865,7 @@
           "rewards": {},
           "resultTextId": "dec_prayer_attend_result",
           "resultText": "You kneel with the others. The words wash over you. The war seems far away.",
-          "tooltip": ""
+          "tooltip": "Attend the service. 2 day cooldown."
         },
         {
           "id": "cancel",

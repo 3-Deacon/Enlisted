@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Equipment.Managers;
@@ -105,6 +105,10 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Pacing subsystem containers (Dictionary<string,int> is already registered above)
             ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
+
+            // DispatchItem.Beats — typed beat set replacing substring matches on HeadlineKey.
+            // See docs/superpowers/specs/2026-04-19-event-meaning-design.md §5.3.
+            ConstructContainerDefinition(typeof(HashSet<Enlisted.Features.Content.StoryBeat>));
         }
     }
 }

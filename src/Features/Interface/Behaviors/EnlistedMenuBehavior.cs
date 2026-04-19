@@ -931,7 +931,7 @@ namespace Enlisted.Features.Interface.Behaviors
             // IMPORTANT: Options appear in the order they are added to the menu. Index is secondary.
             // Desired order: Orders → Decisions → Camp → Reports → Status → Debug
 
-            // 0. Headlines drilldown — visible only when there are unread Severity>=2 dispatches.
+            // 0. Headlines drilldown — visible only when there are unread Headline-tier (or legacy Severity>=2) dispatches.
             starter.AddGameMenuOption("enlisted_status", "enlisted_headlines_entry",
                 "{HEADLINES_HEADER_TEXT}",
                 args =>
@@ -1241,7 +1241,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
             // No "return to duties" option needed - player IS doing duties by being in this menu
 
-            // Headlines drilldown menu — listed dispatches with Severity>=2 from the last 7 days.
+            // Headlines drilldown menu — listed dispatches with Headline-tier (or legacy Severity>=2) from the last 7 days.
             starter.AddGameMenu(
                 "enlisted_headlines",
                 "{=enl_headlines_body}{HEADLINES_TEXT}",
@@ -1562,7 +1562,13 @@ namespace Enlisted.Features.Interface.Behaviors
             var result = new List<DispatchItem>();
             foreach (var it in items)
             {
-                if (it.Severity < 2) { continue; }
+                // Prefer the typed predicate when the dispatch carries a Tier (i.e. was written
+                // via the StoryDirector path post-PR-c). Fall back to the legacy Severity check
+                // for dispatches created through older code paths that don't set Tier.
+                bool isHeadline = it.Tier != Enlisted.Features.Content.StoryTier.Log
+                    ? it.IsHeadline
+                    : it.Severity >= 2;
+                if (!isHeadline) { continue; }
                 if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey)) { continue; }
                 result.Add(it);
             }

@@ -327,7 +327,10 @@ namespace Enlisted.Features.Content
                 placeholderValues: null,
                 storyKey: c.StoryKey,
                 severity: severity,
-                minDisplayDays: c.MinDisplayDays);
+                minDisplayDays: c.MinDisplayDays,
+                tier: tier,
+                beats: c.Beats != null ? new System.Collections.Generic.HashSet<StoryBeat>(c.Beats) : null,
+                body: c.RenderedBody);
         }
     }
 }

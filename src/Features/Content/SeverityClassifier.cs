@@ -6,7 +6,10 @@ namespace Enlisted.Features.Content
 	/// Scores a StoryCandidate and caps its tier. Score = SeverityHint + max beat weight
 	/// in the candidate's Beats set + player-stake bonuses (enlisted lord, kingdom, visited
 	/// settlement). Final tier is max(candidate.ProposedTier, score-derived-tier), bounded
-	/// by the strictest BeatMaxTier among the candidate's beats.
+	/// by the most permissive BeatMaxTier among the candidate's beats — so a Modal-eligible
+	/// beat (e.g. LordCaptured) is not demoted by an accompanying minor beat (e.g.
+	/// OrderPhaseTransition). All current emitters pass single-beat sets, so min == max in
+	/// practice.
 	/// </summary>
 	public static class SeverityClassifier
 	{

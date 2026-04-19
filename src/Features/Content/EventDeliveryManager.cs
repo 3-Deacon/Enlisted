@@ -1,4 +1,4 @@
-using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Camp;
@@ -42,6 +42,22 @@ namespace Enlisted.Features.Content
         private bool _isShowingEvent;
         private EventDefinition _currentEvent;
 
+        // Save-backed snapshot of _pendingEvents. We serialize event Ids only and resolve
+        // back to EventDefinition instances on load via EventCatalog. Full EventDefinition
+        // graphs are authored content — the catalog is authoritative. See spec §5.2 and
+        // docs/superpowers/specs/2026-04-19-event-meaning-design.md.
+        private List<string> _pendingEventIds = new List<string>();
+
+        // Bounded cap. Matches StoryDirector._deferredInteractive cap (see StoryDirector.cs
+        // DeferredInteractiveCap). Prevents a pathological pile-up from growing unbounded
+        // in save files.
+        private const int PendingQueueCap = 32;
+
+        // Debug-only accessors used by DebugToolsBehavior for save/reload verification.
+        // Do not consume these from gameplay code — use the normal event flow instead.
+        internal int PendingQueueCountForDebug => _pendingEvents.Count;
+        internal IEnumerable<string> PendingQueueIdsForDebug => _pendingEvents.Select(e => e?.Id ?? "(null)");
+
         public EventDeliveryManager()
         {
             Instance = this;
@@ -54,8 +70,20 @@ namespace Enlisted.Features.Content
 
         public override void SyncData(IDataStore dataStore)
         {
-            // Event queue is transient - doesn't persist across saves
-            // Events will be re-triggered by conditions when save is loaded
+            if (dataStore.IsSaving)
+            {
+                // Snapshot the current live queue into the serializable ID list.
+                _pendingEventIds = _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)).ToList();
+                if (_pendingEventIds.Count > PendingQueueCap)
+                {
+                    _pendingEventIds = _pendingEventIds.Take(PendingQueueCap).ToList();
+                }
+            }
+
+            dataStore.SyncData("evt_delivery_pendingIds", ref _pendingEventIds);
+
+            // Re-hydration happens lazily on the next tick via HydrateFromPendingIdsIfNeeded — not
+            // here, because EventCatalog load-order relative to SyncData is not guaranteed.
         }
 
         /// <summary>
@@ -64,12 +92,22 @@ namespace Enlisted.Features.Content
         /// </summary>
         public void QueueEvent(EventDefinition evt)
         {
+            HydrateFromPendingIdsIfNeeded();
+
             if (evt == null)
             {
                 ModLogger.Expected(LogCategory, "event_queue_null", "Attempted to queue null event - check event ID and catalog loading");
                 return;
             }
 
+            if (_pendingEvents.Count >= PendingQueueCap)
+            {
+                // Drop the oldest to keep the queue bounded. Preserves the "newest event is most
+                // relevant to current gameplay" heuristic while preventing runaway growth in save.
+                var dropped = _pendingEvents.Dequeue();
+                ModLogger.Expected(LogCategory, "queue_cap_exceeded",
+                    $"Queue at cap ({PendingQueueCap}); dropped oldest event {dropped?.Id ?? "unknown"} to make room for {evt.Id}");
+            }
             _pendingEvents.Enqueue(evt);
             ModLogger.Info(LogCategory, $"Queued event: {evt.Id} (queue size: {_pendingEvents.Count})");
 
@@ -86,6 +124,8 @@ namespace Enlisted.Features.Content
         /// </summary>
         private void TryDeliverNextEvent()
         {
+            HydrateFromPendingIdsIfNeeded();
+
             if (_isShowingEvent)
             {
                 ModLogger.Debug(LogCategory, $"Event delivery blocked: currently showing {_currentEvent?.Id ?? "unknown"}");
@@ -114,6 +154,53 @@ namespace Enlisted.Features.Content
             ModLogger.Info(LogCategory, $"Delivering {category}: {_currentEvent.Id} (queue remaining: {_pendingEvents.Count})");
 
             ShowEventPopup(_currentEvent);
+        }
+
+        // Hydration is a one-shot bootstrap, not a per-call operation. Initialized to true
+        // so the first access after load (or first access in a fresh save with no pending
+        // IDs) will run HydrateFromPendingIdsIfNeeded once. When _pendingEventIds is empty
+        // (fresh save), the method returns immediately after flipping this flag — the one
+        // wasted call per session is harmless.
+        private bool _needsHydration = true;
+
+        private void HydrateFromPendingIdsIfNeeded()
+        {
+            if (!_needsHydration)
+            {
+                return;
+            }
+            _needsHydration = false;
+
+            if (_pendingEventIds == null || _pendingEventIds.Count == 0)
+            {
+                return;
+            }
+
+            int resolved = 0;
+            int dropped = 0;
+            foreach (var id in _pendingEventIds)
+            {
+                // EventCatalog.GetEvent is static and self-initializing (see EventCatalog.cs:127).
+                var evt = EventCatalog.GetEvent(id);
+                if (evt != null)
+                {
+                    _pendingEvents.Enqueue(evt);
+                    resolved++;
+                }
+                else
+                {
+                    dropped++;
+                }
+            }
+
+            if (dropped > 0)
+            {
+                ModLogger.Expected(LogCategory, "queue_hydrate_dropped",
+                    $"Dropped {dropped} pending event id(s) on load — not found in catalog (removed/renamed in content?)");
+            }
+
+            ModLogger.Info(LogCategory, $"Hydrated {resolved} pending event(s) from save");
+            _pendingEventIds.Clear();  // Live queue is authoritative from here.
         }
 
         /// <summary>

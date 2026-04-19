@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Enlisted.Features.Content;
 using Enlisted.Features.Context;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
@@ -3688,12 +3689,22 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 return 0;
             }
 
-            // Count battle-related feed items
+            // Typed read: feed items created post-PR-c carry the originating StoryBeats. We
+            // count anything whose beats include a battle beat. For legacy items (Beats null)
+            // we fall back to the substring match so mixed-age save data still works.
             return feedItems.Count(item =>
-                item.Category?.Contains("battle") == true ||
-                item.HeadlineKey?.ToLowerInvariant().Contains("battle") == true ||
-                item.HeadlineKey?.ToLowerInvariant().Contains("victory") == true ||
-                item.HeadlineKey?.ToLowerInvariant().Contains("defeat") == true);
+            {
+                if (item.Beats != null && item.Beats.Count > 0)
+                {
+                    return item.Beats.Contains(StoryBeat.LordMajorBattleEnd)
+                        || item.Beats.Contains(StoryBeat.PlayerBattleEnd);
+                }
+
+                return item.Category?.Contains("battle") == true
+                    || item.HeadlineKey?.ToLowerInvariant().Contains("battle") == true
+                    || item.HeadlineKey?.ToLowerInvariant().Contains("victory") == true
+                    || item.HeadlineKey?.ToLowerInvariant().Contains("defeat") == true;
+            });
         }
 
         /// <summary>
