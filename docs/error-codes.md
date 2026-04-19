@@ -99,6 +99,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-INTERFACE-a6ab | Failed to toggle orders accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:6088 |
 | E-INTERFACE-bc27 | Error showing orders menu | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:6665 |
 | E-INTERFACE-c9df | Error opening debug tools | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:409 |
+| E-INTERFACE-e901 | Error initializing Headlines menu | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs |
 | E-INTERFACE-f0bd | Failed to toggle decisions accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:6130 |
 | E-INTERFACE-f8a1 | Failed to select decision slot | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:6544 |
 

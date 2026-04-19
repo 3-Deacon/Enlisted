@@ -104,6 +104,9 @@ namespace Enlisted.Features.Interface.Behaviors
         private bool _ordersCollapsed = true;
         private string _ordersLastSeenOrderId = string.Empty;
 
+        // Headlines drilldown state — session-scoped; not persisted (DispatchItem is a struct).
+        private readonly HashSet<string> _viewedHeadlineStoryKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         // Decisions accordion state for the main menu.
         // Auto-expands when new decisions are available, collapses when empty.
         private bool _decisionsMainMenuCollapsed = true;
@@ -928,6 +931,26 @@ namespace Enlisted.Features.Interface.Behaviors
             // IMPORTANT: Options appear in the order they are added to the menu. Index is secondary.
             // Desired order: Orders → Decisions → Camp → Reports → Status → Debug
 
+            // 0. Headlines drilldown — visible only when there are unread Severity>=2 dispatches.
+            starter.AddGameMenuOption("enlisted_status", "enlisted_headlines_entry",
+                "{HEADLINES_HEADER_TEXT}",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+                    int unread = CountUnreadHeadlines(news);
+                    if (unread == 0)
+                    {
+                        return false;
+                    }
+                    var headerText = "<span style=\"Link\">HEADLINES</span>";
+                    headerText += " <span style=\"Link\">[NEW]</span>";
+                    MBTextManager.SetTextVariable("HEADLINES_HEADER_TEXT", headerText);
+                    return true;
+                },
+                _ => GameMenu.SwitchToMenu("enlisted_headlines"),
+                false, 0);
+
             // 1. Orders accordion header (always visible).
             // When a new order arrives, it auto-expands and shows a [NEW] marker for the day.
             starter.AddGameMenuOption("enlisted_status", "enlisted_orders_header",
@@ -1217,6 +1240,35 @@ namespace Enlisted.Features.Interface.Behaviors
             // === LEAVE OPTIONS (grouped at bottom) ===
 
             // No "return to duties" option needed - player IS doing duties by being in this menu
+
+            // Headlines drilldown menu — listed dispatches with Severity>=2 from the last 7 days.
+            starter.AddGameMenu(
+                "enlisted_headlines",
+                "{=enl_headlines_body}{HEADLINES_TEXT}",
+                args =>
+                {
+                    try
+                    {
+                        var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+                        MBTextManager.SetTextVariable("HEADLINES_TEXT", FormatHeadlines(news));
+                    }
+                    catch (Exception ex)
+                    {
+                        ModLogger.Caught("INTERFACE", "E-INTERFACE-e901: Error initializing Headlines menu", ex);
+                        MBTextManager.SetTextVariable("HEADLINES_TEXT", string.Empty);
+                    }
+                });
+
+            starter.AddGameMenuOption(
+                "enlisted_headlines", "enlisted_headlines_back",
+                "{=enl_back}Back",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ => GameMenu.SwitchToMenu("enlisted_status"),
+                true, -1, false);
         }
 
         /// <summary>
@@ -1498,6 +1550,54 @@ namespace Enlisted.Features.Interface.Behaviors
             _ = args;
             _ = dt;
             // Intentionally empty - hub is refreshed on init and re-entry.
+        }
+
+        private int CountUnreadHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+        {
+            if (news == null)
+            {
+                return 0;
+            }
+            int today = (int)CampaignTime.Now.ToDays;
+            var items = news.GetPersonalFeedSince(today - 7);
+            int count = 0;
+            foreach (var it in items)
+            {
+                if (it.Severity < 2)
+                {
+                    continue;
+                }
+                if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey))
+                {
+                    continue;
+                }
+                count++;
+            }
+            return count;
+        }
+
+        private string FormatHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+        {
+            if (news == null)
+            {
+                return string.Empty;
+            }
+            int today = (int)CampaignTime.Now.ToDays;
+            var items = news.GetPersonalFeedSince(today - 7);
+            var sb = new System.Text.StringBuilder();
+            foreach (var it in items)
+            {
+                if (it.Severity < 2)
+                {
+                    continue;
+                }
+                sb.AppendLine("* " + (it.HeadlineKey ?? string.Empty));
+                if (!string.IsNullOrEmpty(it.StoryKey))
+                {
+                    _viewedHeadlineStoryKeys.Add(it.StoryKey);
+                }
+            }
+            return sb.ToString();
         }
 
         private static void NoopMenuTick(MenuCallbackArgs args, CampaignTime dt)
