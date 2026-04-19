@@ -282,19 +282,22 @@ public sealed class QualityDefinition
 
 Quality definitions live in `ModuleData/Enlisted/Qualities/quality_defs.json`. The seed set (derived from the existing scattered state):
 
-| Id | Range | Scope | Notes |
-| :--- | :--- | :--- | :--- |
-| `scrutiny` | 0–100 | Global | Inherited from `EscalationState.Scrutiny` |
-| `lord_reputation` | 0–100 | Global | Inherited; eventually migrates to `Hero.GetRelation` |
-| `medical_risk` | 0–5 | Global | Inherited |
-| `fatigue` | 0–24 | Global | Inherited from `PlayerFatigueBehavior` |
-| `discipline` | 0–100 | Global | Inherited |
-| `supply_days` | -7–30 | Global | Inherited from `CompanySimulationBehavior` |
-| `morale` | 0–100 | Global | Inherited |
-| `loyalty` | 0–100 | Global | New — previously implicit in rep + flags |
-| `rank` | 1–9 | Global | Inherited from `EnlistedBehavior` (display only — cannot be set via storylet) |
-| `days_enlisted` | 0–∞ | Global | Inherited (read-only from simulation tick) |
-| `hero_rep_<subject>` | -100–100 | PerHero | Optional — QM, NCO, named veteran |
+| Id | Range | Scope | Kind | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| `scrutiny` | 0–100 | Global | Stored | From deleted `EscalationState.Scrutiny`. Gates promotion (`max_scrutiny` per tier) |
+| `medical_risk` | 0–5 | Global | Stored | From deleted `EscalationState.MedicalRisk` |
+| `fatigue` | 0–24 | Global | Stored | From `PlayerFatigueBehavior` |
+| `discipline` | 0–100 | Global | Stored | From deleted `EscalationState.Discipline` |
+| `supply_days` | -7–30 | Global | Stored | From `CompanySimulationBehavior` |
+| `morale` | 0–100 | Global | Stored | From `CompanySimulationBehavior` |
+| `loyalty` | 0–100 | Global | Stored | New — previously implicit in rep + flags |
+| `rank_xp` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.EnlistmentXP`. Gates promotion (`xp_threshold` from `progression_config.json`) |
+| `days_in_rank` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.DaysInRank`. Gates promotion (14–112 per tier per `PromotionRequirements.GetForTier`) |
+| `battles_survived` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.BattlesSurvived`. Gates promotion (2–60 per tier) |
+| `rank` | 1–9 | Global | Read-through | Reads `EnlistmentBehavior.EnlistmentTier`. Display + trigger gate only — cannot be written via storylet (rank changes route through `EnlistmentBehavior.SetTier`) |
+| `days_enlisted` | 0–∞ | Global | Read-through | From `EnlistmentBehavior` |
+| `lord_relation` | -100–+100 | Global | Read-through | **Native proxy** — reads `EnlistedLord.GetRelationWithPlayer()` (TaleWorlds `Hero.cs`). Not a stored track. Gates promotion (`min_leader_relation` 0–30 per tier). Writes route through `ChangeRelationAction.ApplyPlayerRelation` |
+| `hero_rep_<subject>` | -100–+100 | PerHero | Read-through | Optional — for named QM, NCO, veteran. Same native proxy pattern |
 
 Surface specs extend this list. Spec 0 only ships the *mechanism*; the seed list is for reference.
 
@@ -312,6 +315,31 @@ Surface specs extend this list. Spec 0 only ships the *mechanism*; the seed list
 ### 7.4 Save surface
 
 `QualityStore` registers with `EnlistedSaveDefiner`. One new class (`QualityStore`), one new enum (`QualityScope`), one container (`Dictionary<string, QualityValue>`). Existing `EscalationState` fields (Scrutiny / LordReputation / MedicalRisk) are **deleted** — migration rule: surface specs that read them rewrite to `QualityStore.Get("scrutiny")`. Saves from before the refactor **do not migrate.** This is by designer decision (no migration).
+
+### 7.5 Read-through qualities (native TaleWorlds proxies)
+
+Not every quality stores its own data. A `Kind: Read-through` quality registers a reader delegate and optionally a writer delegate; `QualityStore.Get("rank_xp")` calls the reader, `QualityStore.Add("lord_relation", +5)` calls the writer. This is how the storylet layer reads from and writes to native TaleWorlds state without duplicating it.
+
+```csharp
+// During QualityStore.RegisterAll():
+Register(new QualityDefinition
+{
+    Id = "lord_relation",
+    Min = -100, Max = 100,
+    Kind = QualityKind.ReadThrough,
+    Reader = () => EnlistmentBehavior.Instance?.EnlistedLord?.GetRelationWithPlayer() ?? 0,
+    Writer = (delta, reason) =>
+    {
+        var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+        if (lord != null)
+            ChangeRelationAction.ApplyPlayerRelation(lord, delta, affectRelatives: false, showQuickNotification: false);
+    }
+});
+```
+
+Read-through qualities are not persisted (their source is). They still participate in triggers (`quality_gte:lord_relation:25`) and effects (`{ "apply": "quality_add", "quality": "lord_relation", "amount": 5 }`) identically. Authors see no difference.
+
+The promotion gate table (`PromotionRequirements.GetForTier`) becomes data: `ModuleData/Enlisted/Promotion/promotion_requirements.json` mapping `targetTier → { xp_threshold, days_in_rank, battles_survived, min_lord_relation, max_scrutiny }`. The `can_promote_to_tier:N` trigger is a composite that reads `rank_xp`, `days_in_rank`, `battles_survived`, `lord_relation`, and `scrutiny` against the target row.
 
 ## 8. Flags
 
@@ -634,7 +662,10 @@ Spec 0 ships plumbing only — no deletions yet. The table below is the **author
 | 3 (Land/Sea) | `Content/MapIncidentManager.cs`, `IncidentEffectTranslator.cs` | `StoryletCatalog` + Director (incidents become storylets) |
 | 3 | `ModuleData/Enlisted/Events/incidents_*.json` | Rewritten as scoped storylets |
 | 3 | `CampOpportunity.AtSea` / `NotAtSea` bool gating fields (see `CampOpportunityGenerator.cs:975`, `:981`) | `scope.context: "sea" \| "land"` on the storylet itself |
-| 4 (Promotion) | Scattered promotion logic in `EnlistedBehavior` | Chain storylet family per rank transition (no activity wrapper) — storylets chain via `when: "next_muster.promotion_phase"` so they land in the muster ceremony instead of mid-duty |
+| 4 (Promotion) | `src/Features/Ranks/Behaviors/PromotionBehavior.cs` (553 lines) — `CanPromote()` logic, hourly-tick eligibility check, pending-tier spam guard, `TriggerPromotionNotification` ceremony popup, intentional Director-bypass `InquiryData` at L460-466 | Chain storylet family per rank transition (T2–T9, 8 chains total, no activity wrapper). `CanPromote` → composite trigger `can_promote_to_tier:N`. Pending-tier spam guard → storylet `one_time: false` + cooldown + flag `pending_promotion_tN`. Ceremony popup → `chain: { id: "slt_promo_celebrated_tN", days: 0 }` from the interview-accept option (synchronous chain replaces the intentional bypass). Storylets chain via `when: "next_muster.promotion_phase"` for the interview step so promotions land in the muster ceremony |
+| 4 (Promotion) | `PromotionRequirements.GetForTier` hardcoded switch table in `PromotionBehavior.cs:30-56` | `ModuleData/Enlisted/Promotion/promotion_requirements.json` — data-driven; read by `can_promote_to_tier:N` trigger |
+| 4 (Promotion) | `ModuleData/Enlisted/Events/events_promotion.json` (existing storylet-like JSON for proving events `promotion_t2_t3_sergeants_test`, `promotion_t3_t4_crisis_of_command`, etc.) | Rewritten under new storylet schema with identical IDs — one proving-step storylet per transition plus its celebrated-step chain |
+| 4 (Promotion) | `EscalationManager.HasDeclinedPromotion`, `ClearAllDeclinedPromotions` methods + backing flag | `FlagStore.Has("promotion_declined_tN")` — per-tier flag, expires on new enlistment (handled by `OnEnlisted` clearing pattern) |
 | 4 (Muster) | `Enlistment/Behaviors/MusterMenuHandler.cs` (3,751 lines) | `MusterActivity` subclass: 5 phases (Intro / Pay / Promotion / Retinue / Complete), per-phase storylet pools, `MusterOutcomeRecord` → `PhaseQuality` composite state, intent derived from state (normal / high-scrutiny / discharge-threshold / first-muster), `fire_at_next_muster` deferred-queue via `when:` chain targets |
 | 5 (Quartermaster) | `QuartermasterManager` dialog-event hybrid | `QuartermasterActivity` + QM storylets + optional `IssueBase` shim for side-jobs |
 | All | `Content/EventDefinition.cs`, `EventOption.cs`, `EventCatalog.cs`, `EventSelector.cs`, `EventRequirementChecker.cs`, `DecisionCatalog.cs`, `DecisionManager.cs` | `Storylet` + `StoryletCatalog` + `TriggerRegistry` + `SlotFiller` |
