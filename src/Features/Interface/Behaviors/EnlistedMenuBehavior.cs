@@ -105,7 +105,7 @@ namespace Enlisted.Features.Interface.Behaviors
         private string _ordersLastSeenOrderId = string.Empty;
 
         // Headlines drilldown state — session-scoped; not persisted (DispatchItem is a struct).
-        private readonly HashSet<string> _viewedHeadlineStoryKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _viewedHeadlineStoryKeys = new HashSet<string>(StringComparer.Ordinal);
 
         // Decisions accordion state for the main menu.
         // Auto-expands when new decisions are available, collapses when empty.
@@ -937,7 +937,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+                    var news = Campaign.Current?.GetCampaignBehavior<EnlistedNewsBehavior>();
                     int unread = CountUnreadHeadlines(news);
                     if (unread == 0)
                     {
@@ -1249,8 +1249,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     try
                     {
-                        var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
-                        MBTextManager.SetTextVariable("HEADLINES_TEXT", FormatHeadlines(news));
+                        var news = Campaign.Current?.GetCampaignBehavior<EnlistedNewsBehavior>();
+                        var text = FormatHeadlines(news);
+                        MBTextManager.SetTextVariable("HEADLINES_TEXT", text);
+                        MarkHeadlinesViewed(news);
                     }
                     catch (Exception ex)
                     {
@@ -1552,52 +1554,51 @@ namespace Enlisted.Features.Interface.Behaviors
             // Intentionally empty - hub is refreshed on init and re-entry.
         }
 
-        private int CountUnreadHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+        private List<DispatchItem> GetUnreadHighSeverity(EnlistedNewsBehavior news)
         {
-            if (news == null)
-            {
-                return 0;
-            }
+            if (news == null) { return new List<DispatchItem>(); }
             int today = (int)CampaignTime.Now.ToDays;
             var items = news.GetPersonalFeedSince(today - 7);
-            int count = 0;
+            var result = new List<DispatchItem>();
             foreach (var it in items)
             {
-                if (it.Severity < 2)
-                {
-                    continue;
-                }
-                if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey))
-                {
-                    continue;
-                }
-                count++;
+                if (it.Severity < 2) { continue; }
+                if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey)) { continue; }
+                result.Add(it);
             }
-            return count;
+            return result;
         }
 
-        private string FormatHeadlines(Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior news)
+        private int CountUnreadHeadlines(EnlistedNewsBehavior news)
         {
-            if (news == null)
-            {
-                return string.Empty;
-            }
-            int today = (int)CampaignTime.Now.ToDays;
-            var items = news.GetPersonalFeedSince(today - 7);
+            return GetUnreadHighSeverity(news).Count;
+        }
+
+        private string FormatHeadlines(EnlistedNewsBehavior news)
+        {
+            var items = GetUnreadHighSeverity(news);
             var sb = new System.Text.StringBuilder();
             foreach (var it in items)
             {
-                if (it.Severity < 2)
+                var line = EnlistedNewsBehavior.FormatDispatchForDisplay(it, includeColor: false);
+                if (!string.IsNullOrWhiteSpace(line))
                 {
-                    continue;
+                    sb.AppendLine("• " + line);
                 }
-                sb.AppendLine("* " + (it.HeadlineKey ?? string.Empty));
+            }
+            return sb.ToString();
+        }
+
+        private void MarkHeadlinesViewed(EnlistedNewsBehavior news)
+        {
+            var items = GetUnreadHighSeverity(news);
+            foreach (var it in items)
+            {
                 if (!string.IsNullOrEmpty(it.StoryKey))
                 {
                     _viewedHeadlineStoryKeys.Add(it.StoryKey);
                 }
             }
-            return sb.ToString();
         }
 
         private static void NoopMenuTick(MenuCallbackArgs args, CampaignTime dt)
