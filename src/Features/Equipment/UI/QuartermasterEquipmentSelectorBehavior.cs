@@ -248,7 +248,7 @@ namespace Enlisted.Features.Equipment.UI
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
-                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen", "ScreenManager.TopScreen is null - cannot add layer");
+                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen_selector", "ScreenManager.TopScreen is null - cannot add layer");
                     CloseEquipmentSelector();
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
@@ -420,7 +420,7 @@ namespace Enlisted.Features.Equipment.UI
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
-                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen", "ScreenManager.TopScreen is null — cannot add upgrade layer");
+                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen_upgrade", "ScreenManager.TopScreen is null — cannot add upgrade layer");
                     CloseUpgradeScreen();
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));

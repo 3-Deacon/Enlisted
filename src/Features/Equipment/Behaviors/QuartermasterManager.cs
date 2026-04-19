@@ -224,7 +224,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                             var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
                             if (party == null)
                             {
-                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party",
+                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party_rations",
                                     "Both QM and enlisted lord have no party — cannot restart QM conversation from rations menu with correct scene");
                                 InformationManager.DisplayMessage(new InformationMessage(
                                     new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
@@ -1928,7 +1928,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                             var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
                             if (party == null)
                             {
-                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party",
+                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party_popup",
                                     "Both QM and enlisted lord have no party — cannot restart QM conversation from popup with correct scene");
                                 InformationManager.DisplayMessage(new InformationMessage(
                                     new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
