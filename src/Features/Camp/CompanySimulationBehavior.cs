@@ -666,14 +666,38 @@ namespace Enlisted.Features.Camp
             if (eventId != null)
             {
                 var evt = EventCatalog.GetEvent(eventId);
-                if (evt != null)
+                if (evt == null)
                 {
-                    EventDeliveryManager.Instance?.QueueEvent(evt);
-                    ModLogger.Info(LogCategory, $"Fired supply pressure event: {eventId}");
+                    ModLogger.Warn(LogCategory, $"Supply pressure event not found: {eventId}");
+                    return;
+                }
+
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "company.supply_pressure.days_" + daysLow,
+                        CategoryId = "company.supply_pressure",
+                        ProposedTier = StoryTier.Pertinent,
+                        SeverityHint = 0.25f,
+                        Beats = { StoryBeat.CompanyPressureThreshold },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        RenderedTitle = evt.TitleFallback,
+                        RenderedBody = evt.SetupFallback,
+                        StoryKey = eventId,
+                        DispatchCategory = "company",
+                        SeverityLevel = 1
+                    });
+                    ModLogger.Info(LogCategory, $"Routed supply pressure event to accordion: {eventId}");
                 }
                 else
                 {
-                    ModLogger.Warn(LogCategory, $"Supply pressure event not found: {eventId}");
+                    // Director unavailable — fall back to direct modal delivery so the arc
+                    // doesn't silently disappear during early boot.
+                    EventDeliveryManager.Instance?.QueueEvent(evt);
+                    ModLogger.Info(LogCategory, $"Fired supply pressure event (Director unavailable): {eventId}");
                 }
             }
         }
