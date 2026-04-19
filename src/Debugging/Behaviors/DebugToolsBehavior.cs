@@ -136,6 +136,8 @@ namespace Enlisted.Debugging.Behaviors
                 return;
             }
 
+            // Intentional bypass of StoryDirector — this debug path must fire arbitrary events
+            // immediately for testing, regardless of pacing guards.
             deliveryManager.QueueEvent(evt);
             var msg = new TextObject("Queued event '{ID}' for delivery.");
             msg.SetTextVariable("ID", eventId);
