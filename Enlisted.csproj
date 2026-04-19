@@ -403,6 +403,11 @@
     <Compile Include="src\Features\Escalation\EscalationManager.cs"/>
 
     <!-- ====================================================================
+         FLAG SUBSYSTEM (FlagStore)
+         ==================================================================== -->
+    <Compile Include="src\Features\Flags\FlagStore.cs"/>
+
+    <!-- ====================================================================
          QUALITIES SYSTEM (Quality Store + Models)
          ==================================================================== -->
     <Compile Include="src\Features\Qualities\QualityScope.cs"/>
