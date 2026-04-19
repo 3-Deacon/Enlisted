@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Camp;
@@ -156,7 +156,11 @@ namespace Enlisted.Features.Content
             ShowEventPopup(_currentEvent);
         }
 
-        // True until the first call after load has drained _pendingEventIds into _pendingEvents.
+        // Hydration is a one-shot bootstrap, not a per-call operation. Initialized to true
+        // so the first access after load (or first access in a fresh save with no pending
+        // IDs) will run HydrateFromPendingIdsIfNeeded once. When _pendingEventIds is empty
+        // (fresh save), the method returns immediately after flipping this flag — the one
+        // wasted call per session is harmless.
         private bool _needsHydration = true;
 
         private void HydrateFromPendingIdsIfNeeded()

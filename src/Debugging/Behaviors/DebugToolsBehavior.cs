@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.UI;
@@ -214,7 +214,7 @@ namespace Enlisted.Debugging.Behaviors
             var evt = EventCatalog.GetEvent(testId);
             if (evt == null)
             {
-                ModLogger.Info("DEBUG", $"Test event id '{testId}' not in catalog; confirm events_quiet_stretch.json is loaded and retry");
+                ModLogger.Info("Debug", $"Test event id '{testId}' not in catalog; confirm events_quiet_stretch.json is loaded and retry");
                 var warn = new TextObject("Test event not found in catalog. Check log for details.");
                 InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
                 return;
@@ -224,7 +224,7 @@ namespace Enlisted.Debugging.Behaviors
             var msg = new TextObject("Queued test event '{ID}'. Save now, reload, then run DebugPrintQueue.");
             msg.SetTextVariable("ID", testId);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
-            ModLogger.Info("DEBUG", $"Queued test event {testId}. Save now, reload, then run DebugPrintQueue.");
+            ModLogger.Info("Debug", $"Queued test event {testId}. Save now, reload, then run DebugPrintQueue.");
             SessionDiagnostics.LogEvent("Debug", "DebugQueueTestEvent", $"eventId={testId}");
         }
 
@@ -237,7 +237,7 @@ namespace Enlisted.Debugging.Behaviors
             var mgr = EventDeliveryManager.Instance;
             if (mgr == null)
             {
-                ModLogger.Info("DEBUG", "EventDeliveryManager.Instance is null");
+                ModLogger.Info("Debug", "EventDeliveryManager.Instance is null");
                 var warn = new TextObject("EventDeliveryManager not found. Check log.");
                 InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
                 return;
@@ -246,7 +246,7 @@ namespace Enlisted.Debugging.Behaviors
             var count = mgr.PendingQueueCountForDebug;
             var ids = mgr.PendingQueueIdsForDebug;
             var idList = string.Join(", ", ids);
-            ModLogger.Info("DEBUG", $"PendingQueue count={count}, ids=[{idList}]");
+            ModLogger.Info("Debug", $"PendingQueue count={count}, ids=[{idList}]");
             var msg = new TextObject("Queue: {C} event(s). Check log for IDs.");
             msg.SetTextVariable("C", count);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
