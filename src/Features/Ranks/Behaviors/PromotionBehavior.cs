@@ -360,16 +360,43 @@ namespace Enlisted.Features.Ranks.Behaviors
                 var eventId = GetProvingEventId(currentTier, targetTier);
                 var provingEvent = Content.EventCatalog.GetEventById(eventId);
 
-                if (provingEvent != null && Content.EventDeliveryManager.Instance != null)
+                if (provingEvent != null)
                 {
-                    // Queue the proving event popup
                     ModLogger.Info("Promotion", $"Queuing proving event: {eventId} (T{currentTier} to T{targetTier})");
-                    Content.EventDeliveryManager.Instance.QueueEvent(provingEvent);
+
+                    var director = Content.StoryDirector.Instance;
+                    if (director != null)
+                    {
+                        director.EmitCandidate(new Content.StoryCandidate
+                        {
+                            SourceId = "promotion.proving.t" + targetTier,
+                            CategoryId = "promotion.tier_" + targetTier,
+                            ProposedTier = Content.StoryTier.Modal,
+                            SeverityHint = 0.85f,
+                            Beats = { Content.StoryBeat.OrderComplete },
+                            Relevance = new Content.RelevanceKey { TouchesEnlistedLord = true },
+                            EmittedAt = CampaignTime.Now,
+                            InteractiveEvent = provingEvent,
+                            RenderedTitle = provingEvent.TitleFallback,
+                            RenderedBody = provingEvent.SetupFallback,
+                            StoryKey = provingEvent.Id,
+                            ChainContinuation = true
+                        });
+                    }
+                    else if (Content.EventDeliveryManager.Instance != null)
+                    {
+                        Content.EventDeliveryManager.Instance.QueueEvent(provingEvent);
+                    }
+                    else
+                    {
+                        ModLogger.Warn("Promotion", $"Proving event '{eventId}' found but neither StoryDirector nor EventDeliveryManager available - using direct promotion");
+                        FallbackDirectPromotion(targetTier, enlistment);
+                    }
                 }
                 else
                 {
-                    // Fallback to direct promotion if event system unavailable
-                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found or EventDeliveryManager unavailable - using direct promotion");
+                    // Fallback to direct promotion if event not in catalog
+                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found - using direct promotion");
                     FallbackDirectPromotion(targetTier, enlistment);
                 }
             }
