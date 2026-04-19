@@ -612,7 +612,7 @@ namespace Enlisted.Features.Content
                 "during_siege"         => (StoryTier.Headline,  StoryBeat.SiegeBegin,        0.5f),
                 "waiting_in_settlement"=> (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.25f),
                 // leaving_settlement: settlement-transition, treated as Pertinent settlement beat
-                "leaving_settlement"   => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "leaving_settlement"   => (StoryTier.Pertinent, StoryBeat.SettlementLeft, 0.3f),
                 _                      => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f)
             };
         }
