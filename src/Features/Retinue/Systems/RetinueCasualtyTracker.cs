@@ -662,12 +662,41 @@ namespace Enlisted.Features.Retinue.Systems
             // Record veteran death in news feed for Personal Feed display
             EnlistedNewsBehavior.Instance?.AddVeteranDeath(veteran.Name, veteran.BattlesSurvived, veteran.Kills);
 
-            // Try to queue memorial event for full player interaction
+            // Memorial as accordion entry — flavor, not crisis. Route through Director as
+            // Pertinent (no InteractiveEvent) so the Headlines drilldown picks it up.
             var evt = EventCatalog.GetEvent("evt_ret_veteran_memorial");
-            if (evt != null)
+            if (evt == null)
             {
+                return;
+            }
+
+            var director = StoryDirector.Instance;
+            if (director != null)
+            {
+                string storyKey = "memorial:" + (veteran.Id ?? veteran.Name ?? "unknown"); // Id is the stable per-veteran GUID; Name is fallback
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "retinue.memorial." + (veteran.Name ?? "unknown"),
+                    CategoryId = "retinue.memorial",
+                    ProposedTier = StoryTier.Pertinent,
+                    SeverityHint = 0.20f,
+                    Beats = { StoryBeat.PlayerBattleEnd },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    RenderedTitle = "Veteran fallen: " + veteran.Name,
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = storyKey,
+                    DispatchCategory = "retinue",
+                    SeverityLevel = 1
+                });
+                ModLogger.Info(veteranCategory, $"Routed memorial to accordion for {veteran.Name}");
+            }
+            else
+            {
+                // Director unavailable — fall back to the original modal queue so memorials
+                // don't silently disappear during early boot.
                 EventDeliveryManager.Instance?.QueueEvent(evt);
-                ModLogger.Info(veteranCategory, $"Queued memorial event for {veteran.Name}");
+                ModLogger.Info(veteranCategory, $"Queued memorial event (Director unavailable) for {veteran.Name}");
             }
         }
 
