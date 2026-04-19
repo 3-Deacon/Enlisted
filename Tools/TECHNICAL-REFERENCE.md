@@ -56,34 +56,19 @@ ModLogger.Warn("Category", "warning");
 ModLogger.Error("Category", "error details");
 ModLogger.LogOnce("UniqueKey", "Category", "message"); // Only logs once per session
 
-// Coded variants — registered in docs/error-codes.md. ErrorCode and WarnCode
-// additionally surface the code + message on-screen (red / yellow toast) so
-// developers and players notice failures without tailing the log. Toggle with
-// ModLogger.ShowCodedMessagesOnScreen (default true).
-ModLogger.ErrorCode("Category", "E-CATEGORY-NNN", "error details", ex);
-ModLogger.WarnCode("Category", "E-CATEGORY-NNN", "warning");
-ModLogger.ErrorCodeOnce("UniqueKey", "Category", "E-CATEGORY-NNN", "error", ex);
-```
+// Surfaced: player/dev-visible failure. Toasts once per (category, code) per session.
+//           Codes auto-hash from the summary string; never hand-pick.
+//           Toggle toast display with ModLogger.ShowCodedMessagesOnScreen (default true).
+ModLogger.Surfaced("CATEGORY", "error summary", ex, LogCtx.PlayerState());
 
-> **For new call sites, prefer the three-tier API** (added during the
-> error-code redesign; spec:
-> [`docs/superpowers/specs/2026-04-18-error-code-redesign-design.md`](../docs/superpowers/specs/2026-04-18-error-code-redesign-design.md)).
-> Codes auto-hash from the summary string — you never pick a number, and
-> `docs/error-codes.md` regenerates from source. The old `ErrorCode` /
-> `WarnCode` above remain as deprecated wrappers until Phase 4 migration
-> completes.
->
-> ```csharp
-> // Player/dev-facing failure — red toast once per session, full context in log
-> ModLogger.Surfaced("QM", "Error charging gold", ex, LogCtx.PlayerState());
->
-> // Defensive catch in a Harmony patch / cleanup — log only, throttled 60s per site
-> ModLogger.Caught("PATCH", "Error in ReturnToArmySuppressionPatch", ex);
->
-> // Known-branch early exit (no exception) — INFO level, throttled by key
-> ModLogger.Expected("RETIRE", "retire_first_term_ineligible",
->                    "Cannot process first-term retirement - not eligible");
-> ```
+// Caught: defensive catch (Harmony, cleanup). Logs only, no toast.
+//         Throttled per (category, file, line) on a 60s window.
+ModLogger.Caught("CATEGORY", "error summary", ex);
+
+// Expected: guard-rail early exit (no exception). INFO level, no stack trace.
+//           Throttled per key on a 60s window.
+ModLogger.Expected("CATEGORY", "stable_throttle_key", "guard summary");
+```
 
 ### Categories
 

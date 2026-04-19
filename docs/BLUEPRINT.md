@@ -11,7 +11,7 @@
 1. **Target Bannerlord v1.3.13** — Never assume APIs from later versions exist
 2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
 3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
-4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API (three-tier `Surfaced` / `Caught` / `Expected` for new code; the older `ErrorCode` / `WarnCode` remain for existing call sites until Phase 4 migration completes)
+4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the three-tier API (`Surfaced` / `Caught` / `Expected`). Error codes auto-generate into [docs/error-codes.md](error-codes.md); don't hand-edit.
 5. **Never suppress ReSharper warnings** without documented justification
 6. **Run validation** before committing: `python Tools/Validation/validate_content.py`
 7. **Check if features exist** by searching codebase first — never hallucinate

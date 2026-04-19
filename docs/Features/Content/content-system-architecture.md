@@ -1419,27 +1419,11 @@ The content system includes searchable error codes for user support and troubles
 
 ### Content System Error Codes
 
-| Code | System | Severity | Meaning | User Action |
-|------|--------|----------|---------|-------------|
-| **W-ORCH-001** | Orchestrator | Warning | CampOpportunityGenerator not available | Decisions won't appear in accordion - check if game loaded properly |
-| **W-ORCH-002** | Orchestrator | Warning | ConsumeOpportunity called with null ID | Decision may not disappear from menu - report if decisions stuck |
-| **W-ORCH-003** | Orchestrator | Warning | Opportunity not found in schedule | Decision may reappear after phase change - normal if already selected |
-| **W-CAMP-001** | CampLife | Warning | Definitions loaded via lazy init | Normal on first access after load - informational |
-| **W-CAMP-002** | CampLife | Warning | No definitions after loading | Check camp_opportunities.json exists and has content |
-| **W-CAMP-003** | CampLife | Warning | No candidates passed filtering | Check tier/context requirements in JSON match current state |
-| **E-CAMP-001** | CampLife | Error | camp_opportunities.json not found | Verify mod installation is complete |
-| **E-CAMP-002** | CampLife | Error | No 'opportunities' array in JSON | File corrupt or invalid - reinstall mod |
-| **E-CAMP-003** | CampLife | Error | Failed to parse JSON | Check JSON syntax - decisions won't appear |
-| **W-EVT-001** | EventDelivery | Warning | Attempted to queue null event | Event won't fire - check event ID and catalog loading |
-| **W-EVT-002** | EventDelivery | Warning | Event has no valid options | Event popup empty - check requirements in JSON |
-| **E-EVT-001** | EventDelivery | Error | Selected option not an EventOption | Internal error - report with log |
-| **W-MAP-001** | MapIncidents | Warning | EventDeliveryManager not available | Map incidents won't fire - check system initialization |
-| **E-MAP-001** | MapIncidents | Error | Error delivering map incident | Map incident failed - report with log |
-
-**Other System Error Codes:**
-- **E-DIAG-002/003/004**: Diagnostics system failures (see `ModConflictDiagnostics.cs`)
-- **E-UI-046/047**: Menu/accordion failures (see `EnlistedMenuBehavior.cs`)
-- **E-*-*****: 40+ additional codes across enlistment, combat, equipment, retinue systems
+Surfaced error codes auto-generate at build time from `ModLogger.Surfaced(...)`
+call sites. The complete live registry is in
+[docs/error-codes.md](../../error-codes.md). For historical codes found in
+pre-redesign session logs (format `E-<SUBSYSTEM>-NNN`), see the frozen
+snapshot at [docs/error-codes-archive.md](../../error-codes-archive.md).
 
 ### Diagnostic Features
 

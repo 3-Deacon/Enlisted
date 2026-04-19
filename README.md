@@ -544,7 +544,7 @@ This comprehensive diagnostic log helps quickly identify whether issues are due 
 
 when something breaks, enlisted will often log a **stable error code** like:
 
-- `[E-CAMPUI-031] Failed to display Camp Area screen`
+- `[E-CAMPUI-a3f2] Failed to display Camp Area screen`
 
 these codes are meant to be searchable and consistent across versions.
 when reporting an issue, please include:
@@ -554,12 +554,20 @@ when reporting an issue, please include:
 
 note: exceptions include **full stack traces**, but they’re **de-duplicated** (the first occurrence per unique exception in a session) to avoid log spam.
 
-also note: some issues are intentionally logged **once per session** (look for codes beginning with `E-` or `W-` in a single line), especially for:
+also note: some issues are intentionally logged **once per session** (look for codes beginning with `E-` in a single line), especially for:
 
-- **dlc missing / feature gating** (example: `W-DLC-001`, `W-DLC-002`)
-- **reflection / api drift** where a patch can’t apply (example: `W-REFLECT-001`)
-- **ui fallback paths** (example: `E-QM-014`)
-- **save/load wrappers + migrations** (example: `E-SAVELOAD-001`, `E-SAVELOAD-002`)
+- **dlc missing / feature gating** (previously emitted as `W-DLC-*` in pre-redesign logs; current builds emit DLC fallbacks as throttled INFO entries)
+- **reflection / api drift** where a patch can’t apply (previously emitted as `W-REFLECT-*` in pre-redesign logs; current builds use throttled INFO entries)
+- **ui fallback paths** (example: `E-QM-<4hex>`)
+- **save/load wrappers + migrations** (example: `E-SAVELOAD-<4hex>`)
+
+**Code format:** `E-<CATEGORY>-<4hex>`. The 4-hex suffix is a deterministic
+SHA-256 hash of the error summary string, so the same error produces the
+same code across runs and builds. Codes shown in the log and on-screen
+toast match the entries in [docs/error-codes.md](docs/error-codes.md),
+which is auto-generated from the source and may have been updated after
+your installed build — when in doubt, match on the summary text, not the
+exact suffix.
 
 ### common issues
 
