@@ -82,7 +82,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to determine primary role", ex);
+                ModLogger.Caught("Identity", "Failed to determine primary role", ex);
                 return "Soldier";
             }
         }
@@ -117,7 +117,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to generate role description", ex);
+                ModLogger.Caught("Identity", "Failed to generate role description", ex);
                 return "Enlisted Soldier";
             }
         }
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to get all specializations", ex);
+                ModLogger.Caught("Identity", "Failed to get all specializations", ex);
                 return "Specialization data unavailable.";
             }
         }

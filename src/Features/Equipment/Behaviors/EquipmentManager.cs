@@ -144,7 +144,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Equipment", "Error preserving equipped quest items", ex);
+                ModLogger.Caught("Equipment", "Error preserving equipped quest items", ex);
             }
             
             return questItems;
@@ -193,7 +193,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Equipment", "Error restoring equipped quest items", ex);
+                ModLogger.Caught("Equipment", "Error restoring equipped quest items", ex);
             }
         }
         
@@ -236,7 +236,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Equipment", "Error getting culture-appropriate equipment", ex);
+                ModLogger.Caught("Equipment", "Error getting culture-appropriate equipment", ex);
                 return new List<ItemObject>();
             }
         }
@@ -339,7 +339,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Equipment", "Error processing equipment request", ex);
+                ModLogger.Caught("Equipment", "Error processing equipment request", ex);
             }
         }
     }

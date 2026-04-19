@@ -98,7 +98,7 @@ namespace Enlisted.Mod.Entry
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error("NextFrameDispatcher", "Error processing next frame action", ex);
+                    ModLogger.Caught("NextFrameDispatcher", "Error processing next frame action", ex);
                 }
             }
         }
@@ -230,10 +230,10 @@ namespace Enlisted.Mod.Entry
                         }
                         catch (Exception patchEx)
                         {
-                            ModLogger.Error("Bootstrap", $"Failed to patch {type.Name}", patchEx);
+                            ModLogger.Caught("Bootstrap", $"Failed to patch {type.Name}", patchEx);
                             if (patchEx.InnerException != null)
                             {
-                                ModLogger.Error("Bootstrap", "Inner exception during patch", patchEx.InnerException);
+                                ModLogger.Caught("Bootstrap", "Inner exception during patch", patchEx.InnerException);
                             }
                         }
                     }
@@ -246,7 +246,7 @@ namespace Enlisted.Mod.Entry
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error("Bootstrap", "Harmony PatchAll failed", ex);
+                    ModLogger.Caught("Bootstrap", "Harmony PatchAll failed", ex);
                 }
 
                 // Log all patched methods for debugging
@@ -266,7 +266,7 @@ namespace Enlisted.Mod.Entry
             {
                 // If patching fails, log the error but don't crash the game
                 // The mod may still function partially without patches, and crashing would prevent the player from playing
-                ModLogger.Error("Bootstrap", "Exception during OnSubModuleLoad", ex);
+                ModLogger.Caught("Bootstrap", "Exception during OnSubModuleLoad", ex);
             }
         }
 
@@ -512,7 +512,7 @@ namespace Enlisted.Mod.Entry
             {
                 // If behavior registration fails, log the error but allow the game to continue
                 // Some behaviors may still be registered if the failure occurs partway through
-                ModLogger.Error("Bootstrap", "Exception during OnGameStart", ex);
+                ModLogger.Caught("Bootstrap", "Exception during OnGameStart", ex);
             }
         }
 
@@ -582,7 +582,7 @@ namespace Enlisted.Mod.Entry
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Bootstrap", "Error in OnMissionBehaviorInitialize", ex);
+                ModLogger.Caught("Bootstrap", "Error in OnMissionBehaviorInitialize", ex);
             }
         }
     }
@@ -653,7 +653,7 @@ namespace Enlisted.Mod.Entry
                 {
                     // Hard safety: never allow a failure during deferred patch application to crash the game.
                     // If something goes wrong here, we'll run without deferred patches.
-                    ModLogger.Error("Bootstrap", "Unexpected error applying deferred patches", ex);
+                    ModLogger.Caught("Bootstrap", "Unexpected error applying deferred patches", ex);
                 }
             }
 
@@ -673,10 +673,10 @@ namespace Enlisted.Mod.Entry
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
+                ModLogger.Caught("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
                 if (ex.InnerException != null)
                 {
-                    ModLogger.Error("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
+                    ModLogger.Caught("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
                 }
             }
         }

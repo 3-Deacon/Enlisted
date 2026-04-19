@@ -147,7 +147,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", $"Error refreshing upgrade card for {_item?.Name}", ex);
+                ModLogger.Caught("QuartermasterUI", $"Error refreshing upgrade card for {_item?.Name}", ex);
             }
         }
 
@@ -228,7 +228,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", $"Error calculating stat improvements for {_item?.Name}", ex);
+                ModLogger.Caught("QuartermasterUI", $"Error calculating stat improvements for {_item?.Name}", ex);
                 return "Improved stats";
             }
         }

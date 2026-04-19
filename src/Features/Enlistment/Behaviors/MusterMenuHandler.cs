@@ -1056,7 +1056,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, "Failed to close active menu before muster", ex);
+                    ModLogger.Caught("Muster", "Failed to close active menu before muster", ex);
                     // Continue anyway - the menu might not be closeable
                 }
 
@@ -1157,7 +1157,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to unlock time control during abort", ex);
+                ModLogger.Caught("Muster", "Failed to unlock time control during abort", ex);
             }
 
             // Try to exit any active menu
@@ -1181,7 +1181,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to defer muster during abort", ex);
+                ModLogger.Caught("Muster", "Failed to defer muster during abort", ex);
             }
         }
 
@@ -1319,7 +1319,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "BuildIntroText failed, using fallback", ex);
+                ModLogger.Caught("Muster", "BuildIntroText failed, using fallback", ex);
                 _currentMuster?.EncounteredErrors.Add("Intro text generation failed");
 
                 var sb = new StringBuilder();
@@ -1354,7 +1354,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "BuildPayText failed, using fallback", ex);
+                ModLogger.Caught("Muster", "BuildPayText failed, using fallback", ex);
                 _currentMuster?.EncounteredErrors.Add("Pay text generation failed");
 
                 var sb = new StringBuilder();
@@ -1472,7 +1472,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "BuildMusterCompleteText failed, using fallback", ex);
+                ModLogger.Caught("Muster", "BuildMusterCompleteText failed, using fallback", ex);
                 _currentMuster?.EncounteredErrors.Add("Complete text generation failed");
 
                 var sb = new StringBuilder();
@@ -2180,7 +2180,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to open QM conversation", ex);
+                ModLogger.Caught("Muster", "Failed to open QM conversation", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     "Quartermaster unavailable.", Colors.Yellow));
             }
@@ -2267,7 +2267,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to create muster outcome record", ex);
+                ModLogger.Caught("Muster", "Failed to create muster outcome record", ex);
             }
         }
 

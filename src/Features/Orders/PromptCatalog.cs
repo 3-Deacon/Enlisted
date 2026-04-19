@@ -51,7 +51,7 @@ namespace Enlisted.Features.Orders
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "E-PROMPT-002: Failed to load prompt catalog", ex);
+                ModLogger.Caught("PromptCatalog", "E-PROMPT-002: Failed to load prompt catalog", ex);
                 IsLoaded = false;
             }
         }

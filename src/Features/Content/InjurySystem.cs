@@ -87,7 +87,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load injuries.json", ex);
+                ModLogger.Caught("InjurySystem", "Failed to load injuries.json", ex);
                 _injuries = new List<InjuryDefinition>();
                 _loaded = true;
             }

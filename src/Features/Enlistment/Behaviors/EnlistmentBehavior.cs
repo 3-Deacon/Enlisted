@@ -1179,7 +1179,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("BATTLE",
+                ModLogger.Caught("BATTLE",
                     $"Failed immediate battle join on MapEventStarted: {ex.Message}", ex);
             }
         }
@@ -1500,7 +1500,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("SaveLoad", "Failed to serialize company needs", ex);
+                ModLogger.Caught("SaveLoad", "Failed to serialize company needs", ex);
                 _companyNeeds = new CompanyNeedsState();
             }
         }
@@ -3294,7 +3294,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT",
+                ModLogger.Caught("ENLISTMENT",
                     $"Failed to start enlistment with {lord?.Name?.ToString() ?? "null"} - {ex.Message}", ex);
 
                 // CRITICAL: Reset enlistment state to prevent partial enlistment
@@ -3710,7 +3710,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error ending service", ex);
+                ModLogger.Caught("ENLISTMENT", "Error ending service", ex);
                 // Ensure critical state is cleared even if restoration fails
                 _enlistedLord = null;
                 _disbandArmyAfterBattle = false;
@@ -3790,7 +3790,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Desertion", "Error starting grace period", ex);
+                ModLogger.Caught("Desertion", "Error starting grace period", ex);
             }
         }
 
@@ -3874,7 +3874,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Desertion", "Error applying desertion penalties", ex);
+                ModLogger.Caught("Desertion", "Error applying desertion penalties", ex);
                 ClearDesertionGracePeriod(); // Always clear state on error
             }
         }
@@ -4511,7 +4511,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Daily service processing failed", ex);
+                ModLogger.Caught("ENLISTMENT", "Daily service processing failed", ex);
             }
         }
 
@@ -5695,7 +5695,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Discharge", "Error handling baggage on discharge", ex);
+                ModLogger.Caught("Discharge", "Error handling baggage on discharge", ex);
             }
         }
 
@@ -9879,7 +9879,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Failed to create quartermaster Hero", ex);
+                ModLogger.Caught("QUARTERMASTER", "Failed to create quartermaster Hero", ex);
                 return null;
             }
         }
@@ -10837,7 +10837,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error applying basic promotion", ex);
+                ModLogger.Caught("Promotion", "Error applying basic promotion", ex);
             }
         }
 
@@ -11131,7 +11131,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Naval", "Error protecting player ships", ex);
+                ModLogger.Caught("Naval", "Error protecting player ships", ex);
             }
         }
 
@@ -11170,7 +11170,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Naval", "Error restoring ship vulnerability", ex);
+                ModLogger.Caught("Naval", "Error restoring ship vulnerability", ex);
             }
         }
 
@@ -11256,7 +11256,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EQUIPMENT", "Error stowing current equipment to inventory", ex);
+                ModLogger.Caught("EQUIPMENT", "Error stowing current equipment to inventory", ex);
             }
         }
 
@@ -11288,7 +11288,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EQUIPMENT", "Error assigning initial equipment", ex);
+                ModLogger.Caught("EQUIPMENT", "Error assigning initial equipment", ex);
             }
         }
 
@@ -11376,7 +11376,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error starting temporary leave", ex);
+                ModLogger.Caught("ENLISTMENT", "Error starting temporary leave", ex);
             }
         }
 
@@ -11442,7 +11442,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error returning from leave", ex);
+                ModLogger.Caught("ENLISTMENT", "Error returning from leave", ex);
             }
         }
 
@@ -11672,7 +11672,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error transferring troops to lord", ex);
+                ModLogger.Caught("ENLISTMENT", "Error transferring troops to lord", ex);
             }
         }
 
@@ -11764,7 +11764,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error restoring companions on retirement", ex);
+                ModLogger.Caught("ENLISTMENT", "Error restoring companions on retirement", ex);
             }
         }
 
@@ -11831,7 +11831,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error reclaiming companions from lord", ex);
+                ModLogger.Caught("ENLISTMENT", "Error reclaiming companions from lord", ex);
             }
         }
 
@@ -12883,7 +12883,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Supply", "Error processing battle supply changes", ex);
+                ModLogger.Caught("Supply", "Error processing battle supply changes", ex);
             }
         }
 

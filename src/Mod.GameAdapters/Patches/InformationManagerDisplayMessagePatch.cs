@@ -53,7 +53,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", $"Error in combat log patch: {ex.Message}", ex);
+                ModLogger.Caught("Interface", $"Error in combat log patch: {ex.Message}", ex);
                 return true; // Fallback to native on error
             }
         }

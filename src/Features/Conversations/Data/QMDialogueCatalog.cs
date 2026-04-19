@@ -69,7 +69,7 @@ namespace Enlisted.Features.Conversations.Data
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to load dialogue from {Path.GetFileName(filePath)}", ex);
+                    ModLogger.Caught("QMDialogueCatalog", $"Failed to load dialogue from {Path.GetFileName(filePath)}", ex);
                 }
             }
 
@@ -209,7 +209,7 @@ namespace Enlisted.Features.Conversations.Data
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to parse node in {fileName}", ex);
+                    ModLogger.Caught("QMDialogueCatalog", $"Failed to parse node in {fileName}", ex);
                 }
             }
 

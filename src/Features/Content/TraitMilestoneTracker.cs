@@ -58,7 +58,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Failed to check trait milestones: {ex.Message}", ex);
+                ModLogger.Caught("TraitMilestone", $"Failed to check trait milestones: {ex.Message}", ex);
             }
         }
 

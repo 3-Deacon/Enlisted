@@ -84,7 +84,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // On error, fail open to vanilla behavior
-                ModLogger.Error(LogCategory, "Error checking captain assignment", ex);
+                ModLogger.Caught("CompanionCommand", "Error checking captain assignment", ex);
                 return true;
             }
         }
@@ -154,7 +154,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // On error, fail open to vanilla behavior
-                ModLogger.Error(LogCategory, "Error checking general assignment", ex);
+                ModLogger.Caught("CompanionCommand", "Error checking general assignment", ex);
                 return true;
             }
         }

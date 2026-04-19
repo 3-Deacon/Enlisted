@@ -260,7 +260,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing provisions screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing provisions screen", ex);
             }
             finally
             {

@@ -94,7 +94,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling battle end", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling battle end", ex);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling settlement entry", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling settlement entry", ex);
             }
         }
 
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling settlement exit", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling settlement exit", ex);
             }
         }
 
@@ -220,7 +220,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in hourly tick check", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error in hourly tick check", ex);
             }
         }
 

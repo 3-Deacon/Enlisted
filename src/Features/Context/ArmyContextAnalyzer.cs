@@ -180,7 +180,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load strategic context config", ex);
+                ModLogger.Caught("Context", "Failed to load strategic context config", ex);
                 _strategicConfig = new JObject();
                 _configLoaded = true;
             }
@@ -228,7 +228,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error calculating war stance", ex);
+                ModLogger.Caught("Context", "Error calculating war stance", ex);
                 return "balanced";
             }
         }
@@ -270,7 +270,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error calculating faction strength", ex);
+                ModLogger.Caught("Context", "Error calculating faction strength", ex);
                 return 0.5f;
             }
         }
@@ -354,7 +354,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error detecting strategic context", ex);
+                ModLogger.Caught("Context", "Error detecting strategic context", ex);
                 return "patrol_peacetime";
             }
         }
@@ -414,7 +414,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error calculating settlement strategic value", ex);
+                ModLogger.Caught("Context", "Error calculating settlement strategic value", ex);
                 return 0.5f;
             }
         }
@@ -473,7 +473,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error detecting coordinated operation", ex);
+                ModLogger.Caught("Context", "Error detecting coordinated operation", ex);
                 return false;
             }
         }
@@ -498,7 +498,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error getting order tags for context {context}", ex);
+                ModLogger.Caught("Context", $"Error getting order tags for context {context}", ex);
                 return new List<string> { "routine" };
             }
         }
@@ -523,7 +523,7 @@ namespace Enlisted.Features.Context
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error getting inappropriate tags for context {context}", ex);
+                ModLogger.Caught("Context", $"Error getting inappropriate tags for context {context}", ex);
                 return new List<string>();
             }
         }

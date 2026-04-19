@@ -546,7 +546,7 @@ namespace Enlisted.Features.Orders.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to report order outcome", ex);
+                ModLogger.Caught("Orders", "Failed to report order outcome", ex);
             }
         }
 
@@ -1098,7 +1098,7 @@ namespace Enlisted.Features.Orders.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error getting strategic context, falling back to simple detection", ex);
+                ModLogger.Caught("Orders", "Error getting strategic context, falling back to simple detection", ex);
             }
 
             // Fallback to simple detection if strategic context fails

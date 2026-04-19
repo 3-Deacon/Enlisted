@@ -224,7 +224,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "CampLife daily tick failed", ex);
+                ModLogger.Caught("CampLife", "CampLife daily tick failed", ex);
             }
         }
 
@@ -241,7 +241,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "VillageLooted handler failed", ex);
+                ModLogger.Caught("CampLife", "VillageLooted handler failed", ex);
             }
         }
 
@@ -263,7 +263,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "MapEventEnded handler failed", ex);
+                ModLogger.Caught("CampLife", "MapEventEnded handler failed", ex);
             }
         }
 

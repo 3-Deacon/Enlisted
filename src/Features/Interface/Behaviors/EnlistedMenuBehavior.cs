@@ -5584,7 +5584,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("INTERFACE", $"Error handling decision selection: {decision.Id}", ex);
+                ModLogger.Caught("INTERFACE", $"Error handling decision selection: {decision.Id}", ex);
                 InformationManager.DisplayMessage(new InformationMessage($"Error: {ex.Message}"));
             }
         }
@@ -5765,7 +5765,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("INTERFACE", "Failed to build status detail text", ex);
+                ModLogger.Caught("INTERFACE", "Failed to build status detail text", ex);
                 return "Status details unavailable.";
             }
         }
@@ -5867,7 +5867,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("INTERFACE", "Failed to build duty log section", ex);
+                ModLogger.Caught("INTERFACE", "Failed to build duty log section", ex);
                 return string.Empty;
             }
         }
@@ -6379,7 +6379,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("INTERFACE", "Failed to get current decisions from Orchestrator", ex);
+                ModLogger.Caught("INTERFACE", "Failed to get current decisions from Orchestrator", ex);
             }
 
             return allDecisions;

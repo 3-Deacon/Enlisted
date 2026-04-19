@@ -100,7 +100,7 @@ namespace Enlisted.Features.Logistics
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error loading baggage configuration", ex);
+                ModLogger.Caught("Baggage", "Error loading baggage configuration", ex);
                 _config = new BaggageConfig();
             }
         }

@@ -254,7 +254,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error reading schedule config for {phase}", ex);
+                ModLogger.Caught("CampSchedule", $"Error reading schedule config for {phase}", ex);
                 return CreateDefaultSchedule(phase);
             }
         }
@@ -358,7 +358,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error applying activity modifiers for {level}", ex);
+                ModLogger.Caught("CampSchedule", $"Error applying activity modifiers for {level}", ex);
             }
         }
 
@@ -404,7 +404,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error applying lord situation modifiers for {situation}", ex);
+                ModLogger.Caught("CampSchedule", $"Error applying lord situation modifiers for {situation}", ex);
             }
         }
 
@@ -460,7 +460,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error applying pressure overrides", ex);
+                ModLogger.Caught("CampSchedule", "Error applying pressure overrides", ex);
             }
         }
 
@@ -622,7 +622,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load schedule config", ex);
+                ModLogger.Caught("CampSchedule", "Failed to load schedule config", ex);
                 _configLoaded = false;
             }
         }

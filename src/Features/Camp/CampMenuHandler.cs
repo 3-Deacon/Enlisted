@@ -2581,7 +2581,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error initializing Desperate Measures menu", ex);
+                ModLogger.Caught("CAMP", "Error initializing Desperate Measures menu", ex);
             }
         }
 
@@ -2752,7 +2752,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error initializing Help The Lord menu", ex);
+                ModLogger.Caught("CAMP", "Error initializing Help The Lord menu", ex);
             }
         }
 

@@ -173,7 +173,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing provision item", ex);
+                ModLogger.Caught("QuartermasterUI", "Error refreshing provision item", ex);
                 SetEmptyValues();
             }
         }
@@ -315,7 +315,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error executing Buy One", ex);
+                ModLogger.Caught("QuartermasterUI", "Error executing Buy One", ex);
             }
         }
 
@@ -372,7 +372,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error executing Buy All", ex);
+                ModLogger.Caught("QuartermasterUI", "Error executing Buy All", ex);
             }
         }
     }

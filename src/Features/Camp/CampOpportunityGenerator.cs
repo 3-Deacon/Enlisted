@@ -112,7 +112,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnHourlyTick checking commitments", ex);
+                ModLogger.Caught("CAMPLIFE", "Error in OnHourlyTick checking commitments", ex);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Enlisted.Features.Camp
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Error firing commitment {commitment.OpportunityId}", ex);
+                    ModLogger.Caught("CAMPLIFE", $"Error firing commitment {commitment.OpportunityId}", ex);
                 }
                 finally
                 {

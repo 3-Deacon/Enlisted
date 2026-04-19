@@ -29,7 +29,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 catch (System.Exception ex)
                 {
-                    ModLogger.Error("Interface", "Error in CombatLogConversationPatch.Start", ex);
+                    ModLogger.Caught("Interface", "Error in CombatLogConversationPatch.Start", ex);
                 }
             }
         }
@@ -87,7 +87,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 catch (System.Exception ex)
                 {
-                    ModLogger.Error("Interface", "Error in CombatLogConversationPatch.End", ex);
+                    ModLogger.Caught("Interface", "Error in CombatLogConversationPatch.End", ex);
                 }
             }
         }

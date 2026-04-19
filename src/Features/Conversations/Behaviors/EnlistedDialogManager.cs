@@ -79,7 +79,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTEDDIALOGMANAGER", "Failed to load QM dialogue catalog", ex);
+                ModLogger.Caught("ENLISTEDDIALOGMANAGER", "Failed to load QM dialogue catalog", ex);
             }
 
             AddEnlistedDialogs(starter);
@@ -109,7 +109,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Failed to register enlisted dialogs", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Failed to register enlisted dialogs", ex);
             }
         }
 
@@ -1266,7 +1266,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "Failed to register quartermaster dialogs", ex);
+                ModLogger.Caught("CONVERSATIONS", "Failed to register quartermaster dialogs", ex);
             }
         }
 
@@ -1635,7 +1635,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to register JSON node '{nodeId}'", ex);
+                ModLogger.Caught("ENLISTEDDIALOGMANAGER", $"Failed to register JSON node '{nodeId}'", ex);
             }
         }
 
@@ -1718,7 +1718,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to register QM lines for '{nodeId}'", ex);
+                ModLogger.Caught("ENLISTEDDIALOGMANAGER", $"Failed to register QM lines for '{nodeId}'", ex);
             }
         }
 
@@ -2037,7 +2037,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to execute dialogue action '{action}'", ex);
+                ModLogger.Caught("ENLISTEDDIALOGMANAGER", $"Failed to execute dialogue action '{action}'", ex);
             }
         }
 
@@ -2360,7 +2360,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "Failed to set supply status text", ex);
+                ModLogger.Caught("CONVERSATIONS", "Failed to set supply status text", ex);
                 MBTextManager.SetTextVariable("SUPPLY_STATUS", "Hard to say. Things are... complicated.");
                 return true;
             }
@@ -2614,7 +2614,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "Failed to set browse response text", ex);
+                ModLogger.Caught("CONVERSATIONS", "Failed to set browse response text", ex);
                 MBTextManager.SetTextVariable("BROWSE_RESPONSE", "Let me see what's in stock.");
                 return true;
             }
@@ -2674,7 +2674,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "Failed to set sell response text", ex);
+                ModLogger.Caught("CONVERSATIONS", "Failed to set sell response text", ex);
                 MBTextManager.SetTextVariable("SELL_RESPONSE", "Show me what you've got.");
                 return true;
             }
@@ -2707,7 +2707,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "Failed to set upgrade response text", ex);
+                ModLogger.Caught("CONVERSATIONS", "Failed to set upgrade response text", ex);
                 MBTextManager.SetTextVariable("UPGRADE_RESPONSE", "Aye, bring me what you've got. Good work costs good coin.");
                 return true;
             }
@@ -3490,7 +3490,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("CONVERSATIONS", $"QM: Failed to open Gauntlet for {category}", ex);
+                        ModLogger.Caught("CONVERSATIONS", $"QM: Failed to open Gauntlet for {category}", ex);
                         // Try to return to conversation on error
                         RestartQuartermasterConversation();
                     }
@@ -3498,7 +3498,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to process browse category", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to process browse category", ex);
             }
         }
 
@@ -3530,14 +3530,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("CONVERSATIONS", $"QM: Failed to open Gauntlet for armor slot {slot}", ex);
+                        ModLogger.Caught("CONVERSATIONS", $"QM: Failed to open Gauntlet for armor slot {slot}", ex);
                         RestartQuartermasterConversation();
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to process armor slot selection", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to process armor slot selection", ex);
             }
         }
 
@@ -3667,7 +3667,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to get weapon variants", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to get weapon variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3709,7 +3709,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to get accessory variants", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to get accessory variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3727,7 +3727,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to get mount variants", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to get mount variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3756,7 +3756,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", $"QM: Failed to get armor variants for slot {slot}", ex);
+                ModLogger.Caught("CONVERSATIONS", $"QM: Failed to get armor variants for slot {slot}", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3804,7 +3804,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Failed to get all armor variants", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Failed to get all armor variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3859,13 +3859,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("CONVERSATIONS", "QM: Failed to restart conversation", ex);
+                        ModLogger.Caught("CONVERSATIONS", "QM: Failed to restart conversation", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONVERSATIONS", "QM: Error in RestartQuartermasterConversation", ex);
+                ModLogger.Caught("CONVERSATIONS", "QM: Error in RestartQuartermasterConversation", ex);
             }
         }
 
@@ -3896,7 +3896,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Failed to open sell popup from dialog", ex);
+                ModLogger.Caught("QUARTERMASTER", "Failed to open sell popup from dialog", ex);
             }
         }
 
@@ -3941,7 +3941,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Failed to open provisions", ex);
+                ModLogger.Caught("QUARTERMASTER", "Failed to open provisions", ex);
             }
         }
 
@@ -3966,7 +3966,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Error opening upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error opening upgrade screen", ex);
             }
         }
 
@@ -3991,7 +3991,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Error enabling officers armory", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error enabling officers armory", ex);
             }
         }
 
@@ -4176,7 +4176,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Error checking for upgradeable equipment", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error checking for upgradeable equipment", ex);
                 return false;
             }
         }
@@ -4936,13 +4936,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("DIALOGMANAGER", "Error in deferred enlistment", ex);
+                        ModLogger.Caught("DIALOGMANAGER", "Error in deferred enlistment", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during enlistment acceptance", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during enlistment acceptance", ex);
             }
         }
 
@@ -4963,7 +4963,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during first-term retirement", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during first-term retirement", ex);
             }
         }
 
@@ -4998,7 +4998,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during retirement with troops", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during retirement with troops", ex);
             }
         }
 #endif
@@ -5103,7 +5103,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during first-term re-enlistment", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during first-term re-enlistment", ex);
             }
         }
 
@@ -5123,7 +5123,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during renewal discharge", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during renewal discharge", ex);
             }
         }
 
@@ -5148,7 +5148,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during renewal discharge with troops", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during renewal discharge with troops", ex);
             }
         }
 #endif
@@ -5167,7 +5167,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error continuing service", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error continuing service", ex);
             }
         }
 
@@ -5191,7 +5191,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during veteran re-enlistment", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during veteran re-enlistment", ex);
             }
         }
 
@@ -5222,7 +5222,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during early discharge", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during early discharge", ex);
             }
         }
 #endif
@@ -5251,7 +5251,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during return from leave", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during return from leave", ex);
             }
         }
 
@@ -5291,7 +5291,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error during service transfer", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error during service transfer", ex);
             }
         }
 
@@ -5342,13 +5342,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("DIALOGMANAGER", "Error during deferred commander promotion", ex);
+                        ModLogger.Caught("DIALOGMANAGER", "Error during deferred commander promotion", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DIALOGMANAGER", "Error accepting commander promotion", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error accepting commander promotion", ex);
             }
         }
 

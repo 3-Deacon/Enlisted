@@ -316,7 +316,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing equipment selector", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing equipment selector", ex);
             }
             finally
             {
@@ -488,7 +488,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing upgrade screen", ex);
             }
             finally
             {

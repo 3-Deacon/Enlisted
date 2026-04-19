@@ -59,7 +59,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load retirement config", ex);
+                ModLogger.Caught("Config", "Failed to load retirement config", ex);
                 return new RetirementConfig();
             }
         }
@@ -84,7 +84,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load escalation config", ex);
+                ModLogger.Caught("Config", "Failed to load escalation config", ex);
                 return new EscalationConfig { Enabled = true };
             }
         }
@@ -108,7 +108,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load gameplay config", ex);
+                ModLogger.Caught("Config", "Failed to load gameplay config", ex);
                 return new GameplayConfig();
             }
         }
@@ -138,7 +138,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load player conditions config", ex);
+                ModLogger.Caught("Config", "Failed to load player conditions config", ex);
                 return new PlayerConditionsConfig();
             }
         }
@@ -159,7 +159,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load quartermaster config", ex);
+                ModLogger.Caught("Config", "Failed to load quartermaster config", ex);
                 return new QuartermasterConfig();
             }
         }
@@ -180,7 +180,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load finance config", ex);
+                ModLogger.Caught("Config", "Failed to load finance config", ex);
                 return new FinanceConfig();
             }
         }
@@ -201,7 +201,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load camp life config", ex);
+                ModLogger.Caught("Config", "Failed to load camp life config", ex);
                 return new CampLifeConfig();
             }
         }
@@ -226,7 +226,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load event pacing config", ex);
+                ModLogger.Caught("Config", "Failed to load event pacing config", ex);
                 return new EventPacingConfig();
             }
         }
@@ -251,7 +251,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load orchestrator config", ex);
+                ModLogger.Caught("Config", "Failed to load orchestrator config", ex);
                 return new OrchestratorConfig();
             }
         }
@@ -276,7 +276,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load native trait mapping config", ex);
+                ModLogger.Caught("Config", "Failed to load native trait mapping config", ex);
                 return new NativeTraitMappingConfig();
             }
         }
@@ -361,7 +361,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load retinue config", ex);
+                ModLogger.Caught("Config", "Failed to load retinue config", ex);
                 return new RetinueConfig();
             }
         }
@@ -384,7 +384,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load equipment pricing config", ex);
+                ModLogger.Caught("Config", "Failed to load equipment pricing config", ex);
                 return new EquipmentPricingConfig();
             }
         }
@@ -419,7 +419,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load rank title", ex);
+                ModLogger.Caught("Config", "Failed to load rank title", ex);
                 return GetFallbackRankTitle(tier);
             }
         }
@@ -456,7 +456,7 @@ namespace Enlisted.Mod.Core.Config
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load progression config", ex);
+                ModLogger.Caught("Config", "Failed to load progression config", ex);
                 return null;
             }
         }

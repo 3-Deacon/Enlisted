@@ -511,7 +511,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Failed to apply skill XP for {skillName}", ex);
+                ModLogger.Caught("RoutineProcessor", $"Failed to apply skill XP for {skillName}", ex);
             }
         }
 
@@ -654,7 +654,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load routine outcomes config", ex);
+                ModLogger.Caught("RoutineProcessor", "Failed to load routine outcomes config", ex);
                 _configLoaded = true;
             }
         }

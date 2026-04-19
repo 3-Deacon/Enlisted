@@ -1379,7 +1379,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("FORMATIONASSIGNMENT", "Error detecting formation from equipment", ex);
+                ModLogger.Caught("FORMATIONASSIGNMENT", "Error detecting formation from equipment", ex);
                 return FormationClass.Infantry;
             }
         }

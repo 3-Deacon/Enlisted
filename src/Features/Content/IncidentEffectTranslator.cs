@@ -106,7 +106,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Translation failed: {ex.Message}", ex);
+                ModLogger.Caught("EffectTranslator", $"Translation failed: {ex.Message}", ex);
                 // Return partial results - don't lose effects that succeeded
             }
 

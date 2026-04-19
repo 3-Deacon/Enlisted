@@ -202,7 +202,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Daily simulation tick failed", ex);
+                ModLogger.Caught("Simulation", "Daily simulation tick failed", ex);
             }
         }
 
@@ -270,7 +270,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load simulation config", ex);
+                ModLogger.Caught("Simulation", "Failed to load simulation config", ex);
                 _config = SimulationConfig.Default;
                 _incidentDefinitions = new List<CampIncident>();
             }

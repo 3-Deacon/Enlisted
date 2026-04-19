@@ -196,7 +196,7 @@ namespace Enlisted.Debugging.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Debug", "Failed to open provisions shop for testing", ex);
+                ModLogger.Caught("Debug", "Failed to open provisions shop for testing", ex);
                 var error = new TextObject("Failed to open provisions shop. Check logs for details.");
                 InformationManager.DisplayMessage(new InformationMessage(error.ToString(), Colors.Red));
             }

@@ -87,7 +87,7 @@ namespace Enlisted.Mod.Core.Logging
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONFIG", "Failed to log configuration values", ex);
+                ModLogger.Caught("CONFIG", "Failed to log configuration values", ex);
             }
         }
 

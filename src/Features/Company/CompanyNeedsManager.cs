@@ -165,7 +165,7 @@ namespace Enlisted.Features.Company
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error predicting upcoming needs", ex);
+                ModLogger.Caught("CompanyNeeds", "Error predicting upcoming needs", ex);
                 
                 // Return default predictions on error
                 predictions[CompanyNeed.Readiness] = 60;
@@ -205,7 +205,7 @@ namespace Enlisted.Features.Company
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load strategic context config", ex);
+                ModLogger.Caught("CompanyNeeds", "Failed to load strategic context config", ex);
                 _strategicConfig = new JObject();
                 _configLoaded = true;
             }

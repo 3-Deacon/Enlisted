@@ -116,7 +116,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error checking event requirements", ex);
+                ModLogger.Caught("EventRequirements", "Error checking event requirements", ex);
                 return false;
             }
         }

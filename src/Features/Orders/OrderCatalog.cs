@@ -58,7 +58,7 @@ namespace Enlisted.Features.Orders
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to load orders from {Path.GetFileName(filePath)}", ex);
+                    ModLogger.Caught("OrderCatalog", $"Failed to load orders from {Path.GetFileName(filePath)}", ex);
                 }
             }
 
@@ -506,7 +506,7 @@ namespace Enlisted.Features.Orders
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to parse order in {Path.GetFileName(filePath)}", ex);
+                    ModLogger.Caught("OrderCatalog", $"Failed to parse order in {Path.GetFileName(filePath)}", ex);
                 }
             }
 

@@ -103,7 +103,7 @@ namespace Enlisted.Features.Equipment.Managers
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Inventory", "Error refreshing inventory", ex);
+                ModLogger.Caught("Inventory", "Error refreshing inventory", ex);
                 // Fail safe - ensure inventory is cleared on error
                 CurrentStock.Clear();
                 UpdateRefreshMetadata(supplyLevel);

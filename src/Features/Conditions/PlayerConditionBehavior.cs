@@ -169,7 +169,7 @@ namespace Enlisted.Features.Conditions
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Daily tick failed", ex);
+                ModLogger.Caught("PlayerConditions", "Daily tick failed", ex);
             }
         }
 
@@ -530,7 +530,7 @@ namespace Enlisted.Features.Conditions
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load condition definitions", ex);
+                ModLogger.Caught("PlayerConditions", "Failed to load condition definitions", ex);
                 return null;
             }
         }

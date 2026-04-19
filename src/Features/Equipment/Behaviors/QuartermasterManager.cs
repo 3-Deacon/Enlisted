@@ -248,7 +248,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("QUARTERMASTER","Failed to restart QM conversation from menu", ex);
+                            ModLogger.Caught("QUARTERMASTER", "Failed to restart QM conversation from menu", ex);
                             // Fallback: return to Camp Hub
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
@@ -262,7 +262,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error returning from rations menu", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error returning from rations menu", ex);
                 EnlistedMenuBehavior.SafeActivateEnlistedMenu();
             }
         }
@@ -459,7 +459,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error in GetAvailableEquipmentAllFormations", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error in GetAvailableEquipmentAllFormations", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -560,7 +560,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error in GetMountVariantsForBrowsing", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error in GetMountVariantsForBrowsing", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -660,7 +660,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error in GetHarnessVariantsForBrowsing", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error in GetHarnessVariantsForBrowsing", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -756,7 +756,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error getting formation equipment", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error getting formation equipment", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -823,7 +823,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error updating newly unlocked items", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error updating newly unlocked items", ex);
             }
         }
 
@@ -895,7 +895,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error identifying player troop", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error identifying player troop", ex);
                 return null;
             }
         }
@@ -969,7 +969,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error detecting player formation", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error detecting player formation", ex);
                 return FormationType.Infantry;
             }
         }
@@ -1028,7 +1028,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error checking cavalry unlock", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error checking cavalry unlock", ex);
                 return false;
             }
         }
@@ -1212,7 +1212,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error calculating final price", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error calculating final price", ex);
                 return basePrice; // Fallback to base price
             }
         }
@@ -1825,7 +1825,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error showing sell popup", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error showing sell popup", ex);
                 RestartQuartermasterConversationFromMenu();
             }
         }
@@ -1894,7 +1894,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error processing sell popup selection", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error processing sell popup selection", ex);
                 RestartQuartermasterConversationFromPopup();
             }
         }
@@ -1952,7 +1952,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("QUARTERMASTER","Failed to restart QM conversation from popup", ex);
+                            ModLogger.Caught("QUARTERMASTER", "Failed to restart QM conversation from popup", ex);
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
                     });
@@ -1965,7 +1965,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error returning from popup", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error returning from popup", ex);
                 EnlistedMenuBehavior.SafeActivateEnlistedMenu();
             }
         }
@@ -1998,7 +1998,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error applying equipment slot change", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error applying equipment slot change", ex);
             }
         }
 
@@ -2297,7 +2297,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error getting officer armory equipment", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error getting officer armory equipment", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -2498,7 +2498,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error building quartermaster display", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error building quartermaster display", ex);
                 var unavailableText = new TextObject("{=qm_equipment_unavailable}Equipment information unavailable").ToString();
                 MBTextManager.SetTextVariable("QUARTERMASTER_TEXT", $"{unavailableText}.");
             }
@@ -2620,7 +2620,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error initializing rations menu", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error initializing rations menu", ex);
                 MBTextManager.SetTextVariable("RATIONS_TEXT",
                     new TextObject("{=qm_rations_error}Provisions unavailable.").ToString());
             }
@@ -2818,7 +2818,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error purchasing rations", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error purchasing rations", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_rations_error}Failed to purchase provisions.").ToString(),
                     Colors.Red));
@@ -2938,7 +2938,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error purchasing retinue provisioning", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error purchasing retinue provisioning", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_retinue_error}Failed to provision retinue.").ToString(),
                     Colors.Red));
@@ -3714,7 +3714,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error initializing supply management menu", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error initializing supply management menu", ex);
                 MBTextManager.SetTextVariable("SUPPLY_TEXT", "Supply information unavailable.");
             }
         }
@@ -4030,7 +4030,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error getting officer tier equipment for stock roll", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error getting officer tier equipment for stock roll", ex);
             }
 
             return items.ToList();
@@ -4058,7 +4058,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error getting food items for provisions shop", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error getting food items for provisions shop", ex);
             }
             
             return foodItems;
@@ -4141,7 +4141,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER","Error refreshing inventory at muster", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error refreshing inventory at muster", ex);
             }
         }
 
@@ -4538,7 +4538,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             catch (Exception ex)
             {
                 errorMessage = "Error performing upgrade. Please try again.";
-                ModLogger.Error("EQUIPMENT", $"Upgrade failed with exception: {item.StringId} to {targetQuality}", ex);
+                ModLogger.Caught("EQUIPMENT", $"Upgrade failed with exception: {item.StringId} to {targetQuality}", ex);
                 return false;
             }
         }

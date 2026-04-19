@@ -49,7 +49,7 @@ namespace Enlisted.Features.Content
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build player status", ex);
+                ModLogger.Caught("ForecastGen", "Failed to build player status", ex);
                 return ("Status unavailable.", "Forecast unavailable.");
             }
         }

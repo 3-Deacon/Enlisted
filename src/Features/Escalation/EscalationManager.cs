@@ -78,7 +78,7 @@ namespace Enlisted.Features.Escalation
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Escalation daily tick failed", ex);
+                ModLogger.Caught("Escalation", "Escalation daily tick failed", ex);
             }
         }
 

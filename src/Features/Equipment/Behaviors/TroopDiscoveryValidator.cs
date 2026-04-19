@@ -49,7 +49,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", "Error during faction validation", ex);
+                ModLogger.Caught("TroopDiscovery", "Error during faction validation", ex);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error validating culture {cultureId}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error validating culture {cultureId}", ex);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error validating formations at tier {tier}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error validating formations at tier {tier}", ex);
             }
         }
 
@@ -236,7 +236,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error testing {cultureId} T{tier}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error testing {cultureId} T{tier}", ex);
             }
         }
     }

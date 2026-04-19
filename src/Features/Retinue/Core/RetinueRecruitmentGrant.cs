@@ -93,7 +93,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory,
+                ModLogger.Caught("RecruitGrant",
                     $"Failed to grant commander retinue: {ex.Message}", ex);
             }
         }

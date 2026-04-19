@@ -124,7 +124,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking battle outcome", ex);
+                ModLogger.Caught("TRICKLE", "Error tracking battle outcome", ex);
             }
         }
 

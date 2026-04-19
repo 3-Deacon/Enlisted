@@ -358,7 +358,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Failed to show troop selection menu", ex);
+                ModLogger.Caught("TROOPSELECTION", "Failed to show troop selection menu", ex);
             }
         }
 
@@ -411,7 +411,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Error initializing troop selection menu", ex);
+                ModLogger.Caught("TROOPSELECTION", "Error initializing troop selection menu", ex);
                 MBTextManager.SetTextVariable("TROOP_SELECTION_TEXT", "Error loading troop selection. Please report this issue.");
             }
         }
@@ -430,7 +430,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Error creating troop selection options", ex);
+                ModLogger.Caught("TROOPSELECTION", "Error creating troop selection options", ex);
             }
         }
 
@@ -483,7 +483,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Failed to get troops for culture/tier", ex);
+                ModLogger.Caught("TROOPSELECTION", "Failed to get troops for culture/tier", ex);
                 return new List<CharacterObject>();
             }
         }

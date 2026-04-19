@@ -77,7 +77,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error setting up character view model", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error setting up character view model", ex);
             }
             UnitCharacter = unitCharacter;
 
@@ -115,7 +115,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error refreshing equipment selector values", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error refreshing equipment selector values", ex);
             }
         }
 
@@ -212,7 +212,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error applying selected equipment", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error applying selected equipment", ex);
             }
         }
 
@@ -227,7 +227,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing equipment selector", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing equipment selector", ex);
             }
         }
 

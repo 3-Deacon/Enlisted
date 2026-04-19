@@ -1812,7 +1812,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to send decision outcome to combat log", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to send decision outcome to combat log", ex);
             }
         }
 
@@ -1859,7 +1859,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to notify news of event outcome", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of event outcome", ex);
             }
         }
 
@@ -2086,7 +2086,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to notify news of pending chain event", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of pending chain event", ex);
             }
         }
 
@@ -2493,7 +2493,7 @@ namespace Enlisted.Features.Content
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error(LogCategory, $"Error refreshing {currentMenuId} after decision", ex);
+                            ModLogger.Caught("EVENTDELIVERY", $"Error refreshing {currentMenuId} after decision", ex);
                         }
                     });
                 }
@@ -2504,7 +2504,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error requesting decisions menu refresh", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Error requesting decisions menu refresh", ex);
             }
         }
 

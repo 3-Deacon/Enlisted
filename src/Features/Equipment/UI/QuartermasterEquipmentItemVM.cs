@@ -276,7 +276,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error refreshing equipment item values", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error refreshing equipment item values", ex);
                 SetEmptyValues();
             }
         }
@@ -361,7 +361,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error selecting equipment item", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error selecting equipment item", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_error_selecting}Error selecting equipment. Please try again.").ToString()));
             }
@@ -391,7 +391,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error previewing equipment item", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error previewing equipment item", ex);
             }
         }
 
@@ -433,7 +433,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error building equipment stats", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error building equipment stats", ex);
                 PrimaryStats = "";
                 SecondaryStats = "Stats unavailable";
             }
@@ -721,7 +721,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error building tooltip text", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error building tooltip text", ex);
                 TooltipText = item?.Name?.ToString() ?? "";
             }
         }
@@ -831,7 +831,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error setting upgrade indicator", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error setting upgrade indicator", ex);
                 IsUpgradeable = false;
                 UpgradeIndicatorText = "";
             }

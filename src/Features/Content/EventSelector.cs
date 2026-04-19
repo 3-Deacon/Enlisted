@@ -77,7 +77,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error selecting event", ex);
+                ModLogger.Caught("EventSelector", "Error selecting event", ex);
                 return null;
             }
         }

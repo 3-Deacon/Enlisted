@@ -114,7 +114,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to load events from {directoryName}/{Path.GetFileName(filePath)}", ex);
+                    ModLogger.Caught("EventCatalog", $"Failed to load events from {directoryName}/{Path.GetFileName(filePath)}", ex);
                 }
             }
 
@@ -290,7 +290,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to parse event in {fileName}", ex);
+                    ModLogger.Caught("EventCatalog", $"Failed to parse event in {fileName}", ex);
                 }
             }
 

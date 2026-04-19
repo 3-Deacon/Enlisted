@@ -212,7 +212,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", $"Failed to initialize combat log: {ex.Message}", ex);
+                ModLogger.Caught("Interface", $"Failed to initialize combat log: {ex.Message}", ex);
             }
         }
         
@@ -313,7 +313,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", $"Failed to open encyclopedia link: {encyclopediaLink}", ex);
+                ModLogger.Caught("Interface", $"Failed to open encyclopedia link: {encyclopediaLink}", ex);
             }
         }
         
@@ -534,7 +534,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", $"Failed to check bar extended state: {ex.Message}", ex);
+                ModLogger.Caught("Interface", $"Failed to check bar extended state: {ex.Message}", ex);
                 return false;
             }
         }
@@ -579,7 +579,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", $"Failed to check army overlay state: {ex.Message}", ex);
+                ModLogger.Caught("Interface", $"Failed to check army overlay state: {ex.Message}", ex);
                 return false;
             }
         }

@@ -63,7 +63,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", "Error in QuartermasterConversationScenePatch", ex);
+                ModLogger.Caught("Interface", "Error in QuartermasterConversationScenePatch", ex);
             }
         }
     }

@@ -402,7 +402,7 @@ namespace Enlisted.Features.Ranks.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error checking for promotion", ex);
+                ModLogger.Caught("Promotion", "Error checking for promotion", ex);
             }
         }
 
@@ -479,7 +479,7 @@ namespace Enlisted.Features.Ranks.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error showing promotion notification", ex);
+                ModLogger.Caught("Promotion", "Error showing promotion notification", ex);
             }
         }
 

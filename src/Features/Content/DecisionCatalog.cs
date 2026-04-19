@@ -93,7 +93,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to convert event '{eventDef.Id}' to decision", ex);
+                    ModLogger.Caught("DecisionCatalog", $"Failed to convert event '{eventDef.Id}' to decision", ex);
                 }
             }
 

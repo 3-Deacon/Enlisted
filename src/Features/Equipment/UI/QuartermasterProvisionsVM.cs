@@ -176,7 +176,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building provisions grid", ex);
+                ModLogger.Caught("QuartermasterUI", "Error building provisions grid", ex);
             }
         }
 
@@ -222,7 +222,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error getting food items", ex);
+                ModLogger.Caught("QuartermasterUI", "Error getting food items", ex);
             }
 
             return foodItems;
@@ -257,7 +257,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error checking player food inventory", ex);
+                ModLogger.Caught("QuartermasterUI", "Error checking player food inventory", ex);
                 return false; // Fail safe - grant access on error
             }
         }
@@ -422,7 +422,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing provisions values", ex);
+                ModLogger.Caught("QuartermasterUI", "Error refreshing provisions values", ex);
                 HeaderText = "Provisions";
                 PlayerGoldText = "Gold unavailable";
             }
@@ -468,7 +468,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building ration info text", ex);
+                ModLogger.Caught("QuartermasterUI", "Error building ration info text", ex);
                 RationInfoText = "";
             }
         }
@@ -526,7 +526,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error processing provision purchase", ex);
+                ModLogger.Caught("QuartermasterUI", "Error processing provision purchase", ex);
             }
         }
 
@@ -541,7 +541,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing provisions UI", ex);
+                ModLogger.Caught("QuartermasterUI", "Error closing provisions UI", ex);
             }
         }
     }

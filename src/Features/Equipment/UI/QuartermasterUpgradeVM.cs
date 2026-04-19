@@ -47,7 +47,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error setting up character view model for upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error setting up character view model for upgrade screen", ex);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error refreshing upgrade screen values", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error refreshing upgrade screen values", ex);
                 SetEmptyValues();
             }
         }
@@ -169,7 +169,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error building upgrade grid", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error building upgrade grid", ex);
             }
         }
 
@@ -211,7 +211,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error performing upgrade", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error performing upgrade", ex);
                 InformationManager.DisplayMessage(new InformationMessage("Error performing upgrade. Please try again.", Colors.Red));
             }
         }
@@ -224,7 +224,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing upgrade screen", ex);
             }
         }
 

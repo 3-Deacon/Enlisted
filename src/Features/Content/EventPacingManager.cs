@@ -74,7 +74,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in event pacing daily tick", ex);
+                ModLogger.Caught("EventPacing", "Error in event pacing daily tick", ex);
             }
         }
 

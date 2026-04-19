@@ -646,7 +646,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error building Daily Brief section", ex);
+                ModLogger.Caught("News", "Error building Daily Brief section", ex);
                 return string.Empty;
             }
         }
@@ -1750,7 +1750,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error selecting visible kingdom feed items", ex);
+                ModLogger.Caught("News", "Error selecting visible kingdom feed items", ex);
                 return new List<DispatchItem>();
             }
         }
@@ -1799,7 +1799,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error selecting visible personal feed items", ex);
+                ModLogger.Caught("News", "Error selecting visible personal feed items", ex);
                 return new List<DispatchItem>();
             }
         }
@@ -1908,7 +1908,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error building kingdom news section", ex);
+                ModLogger.Caught("News", "Error building kingdom news section", ex);
                 return string.Empty;
             }
         }
@@ -1978,7 +1978,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error building personal news section", ex);
+                ModLogger.Caught("News", "Error building personal news section", ex);
                 return string.Empty;
             }
         }
@@ -2017,7 +2017,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnDailyTick", ex);
+                ModLogger.Caught("News", "Error in OnDailyTick", ex);
             }
         }
 
@@ -2161,7 +2161,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error processing event outcome queue", ex);
+                ModLogger.Caught("News", "Error processing event outcome queue", ex);
             }
         }
 
@@ -2218,7 +2218,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "EnsureDailyReportGenerated failed", ex);
+                ModLogger.Caught("News", "EnsureDailyReportGenerated failed", ex);
             }
         }
 
@@ -2317,7 +2317,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add order outcome", ex);
+                ModLogger.Caught("News", "Failed to add order outcome", ex);
             }
         }
 
@@ -2350,7 +2350,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add reputation change", ex);
+                ModLogger.Caught("News", "Failed to add reputation change", ex);
             }
         }
 
@@ -2384,7 +2384,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add company need change", ex);
+                ModLogger.Caught("News", "Failed to add company need change", ex);
             }
         }
 
@@ -2405,7 +2405,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get recent order outcomes", ex);
+                ModLogger.Caught("News", "Failed to get recent order outcomes", ex);
                 return new List<OrderOutcomeRecord>();
             }
         }
@@ -2427,7 +2427,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get recent reputation changes", ex);
+                ModLogger.Caught("News", "Failed to get recent reputation changes", ex);
                 return new List<ReputationChangeRecord>();
             }
         }
@@ -2449,7 +2449,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get recent company need changes", ex);
+                ModLogger.Caught("News", "Failed to get recent company need changes", ex);
                 return new List<CompanyNeedChangeRecord>();
             }
         }
@@ -2501,7 +2501,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build kingdom summary", ex);
+                ModLogger.Caught("News", "Failed to build kingdom summary", ex);
                 return string.Empty;
             }
         }
@@ -2558,7 +2558,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build camp summary", ex);
+                ModLogger.Caught("News", "Failed to build camp summary", ex);
                 return string.Empty;
             }
         }
@@ -2657,7 +2657,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build camp status section", ex);
+                ModLogger.Caught("News", "Failed to build camp status section", ex);
                 return string.Empty;
             }
         }
@@ -2696,7 +2696,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build orchestrator narrative", ex);
+                ModLogger.Caught("News", "Failed to build orchestrator narrative", ex);
                 return "Camp operations continue.";
             }
         }
@@ -2748,7 +2748,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build recent actions section", ex);
+                ModLogger.Caught("News", "Failed to build recent actions section", ex);
                 return string.Empty;
             }
         }
@@ -2857,7 +2857,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add event outcome", ex);
+                ModLogger.Caught("News", "Failed to add event outcome", ex);
             }
         }
 
@@ -2898,7 +2898,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add retinue casualty report", ex);
+                ModLogger.Caught("News", "Failed to add retinue casualty report", ex);
             }
         }
 
@@ -2930,7 +2930,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add veteran emergence news", ex);
+                ModLogger.Caught("News", "Failed to add veteran emergence news", ex);
             }
         }
 
@@ -2966,7 +2966,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add veteran death news", ex);
+                ModLogger.Caught("News", "Failed to add veteran death news", ex);
             }
         }
 
@@ -3012,7 +3012,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add promotion news", ex);
+                ModLogger.Caught("News", "Failed to add promotion news", ex);
             }
         }
 
@@ -3051,7 +3051,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add pay muster news", ex);
+                ModLogger.Caught("News", "Failed to add pay muster news", ex);
             }
         }
 
@@ -3102,7 +3102,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add pending event", ex);
+                ModLogger.Caught("News", "Failed to add pending event", ex);
             }
         }
 
@@ -3129,7 +3129,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to clear pending event", ex);
+                ModLogger.Caught("News", "Failed to clear pending event", ex);
             }
         }
 
@@ -3166,7 +3166,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add muster outcome", ex);
+                ModLogger.Caught("News", "Failed to add muster outcome", ex);
             }
         }
 
@@ -3182,7 +3182,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get last muster outcome", ex);
+                ModLogger.Caught("News", "Failed to get last muster outcome", ex);
                 return null;
             }
         }
@@ -3261,7 +3261,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get muster summary", ex);
+                ModLogger.Caught("News", "Failed to get muster summary", ex);
                 return "Muster records unavailable.";
             }
         }
@@ -3305,7 +3305,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build muster headline", ex);
+                ModLogger.Caught("News", "Failed to build muster headline", ex);
                 return "Muster completed.";
             }
         }
@@ -3384,7 +3384,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add to personal feed", ex);
+                ModLogger.Caught("News", "Failed to add to personal feed", ex);
             }
         }
 
@@ -3458,7 +3458,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add camp news", ex);
+                ModLogger.Caught("News", "Failed to add camp news", ex);
             }
         }
 
@@ -3525,7 +3525,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to add routine outcome", ex);
+                ModLogger.Caught("News", "Failed to add routine outcome", ex);
             }
         }
 
@@ -3552,7 +3552,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to update company status", ex);
+                ModLogger.Caught("News", "Failed to update company status", ex);
             }
         }
 
@@ -3573,7 +3573,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get recent event outcomes", ex);
+                ModLogger.Caught("News", "Failed to get recent event outcomes", ex);
                 return new List<EventOutcomeRecord>();
             }
         }
@@ -3595,7 +3595,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get personal feed since day", ex);
+                ModLogger.Caught("News", "Failed to get personal feed since day", ex);
                 return new List<DispatchItem>();
             }
         }
@@ -3617,7 +3617,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to get order outcomes since day", ex);
+                ModLogger.Caught("News", "Failed to get order outcomes since day", ex);
                 return new List<OrderOutcomeRecord>();
             }
         }
@@ -3723,7 +3723,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to post personal dispatch text", ex);
+                ModLogger.Caught("News", "Failed to post personal dispatch text", ex);
             }
         }
 
@@ -3765,7 +3765,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error(LogCategory, $"Daily report producer failed: {DailyReportFactProducers[i]?.GetType().Name}", ex);
+                        ModLogger.Caught("News", $"Daily report producer failed: {DailyReportFactProducers[i]?.GetType().Name}", ex);
                     }
                 }
 
@@ -3965,7 +3965,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error checking army formation", ex);
+                ModLogger.Caught("News", "Error checking army formation", ex);
             }
         }
 
@@ -4003,7 +4003,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error generating Daily Brief", ex);
+                ModLogger.Caught("News", "Error generating Daily Brief", ex);
             }
         }
 
@@ -4270,7 +4270,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error building daily unit line", ex);
+                ModLogger.Caught("News", "Error building daily unit line", ex);
                 return new TextObject("{=brief_fallback_default}You're ready for whatever comes.").ToString();
             }
         }
@@ -4452,7 +4452,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnMapEventStarted", ex);
+                ModLogger.Caught("News", "Error in OnMapEventStarted", ex);
             }
         }
 
@@ -4529,7 +4529,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnMapEventEnded", ex);
+                ModLogger.Caught("News", "Error in OnMapEventEnded", ex);
             }
         }
 
@@ -4602,7 +4602,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error checking player participation", ex);
+                ModLogger.Caught("News", "Error checking player participation", ex);
             }
         }
 
@@ -4643,7 +4643,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnSiegeStarted", ex);
+                ModLogger.Caught("News", "Error in OnSiegeStarted", ex);
             }
         }
 
@@ -4683,7 +4683,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnHeroPrisonerTaken", ex);
+                ModLogger.Caught("News", "Error in OnHeroPrisonerTaken", ex);
             }
         }
 
@@ -4726,7 +4726,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnHeroPrisonerReleased", ex);
+                ModLogger.Caught("News", "Error in OnHeroPrisonerReleased", ex);
             }
         }
 
@@ -4772,7 +4772,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnHeroKilled", ex);
+                ModLogger.Caught("News", "Error in OnHeroKilled", ex);
             }
         }
 
@@ -4821,7 +4821,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnSettlementOwnerChanged", ex);
+                ModLogger.Caught("News", "Error in OnSettlementOwnerChanged", ex);
             }
         }
 
@@ -4861,7 +4861,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnArmyDispersed", ex);
+                ModLogger.Caught("News", "Error in OnArmyDispersed", ex);
             }
         }
 
@@ -4895,7 +4895,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnVillageRaided", ex);
+                ModLogger.Caught("News", "Error in OnVillageRaided", ex);
             }
         }
 
@@ -4928,7 +4928,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnWarDeclared", ex);
+                ModLogger.Caught("News", "Error in OnWarDeclared", ex);
             }
         }
 
@@ -4962,7 +4962,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnPeaceMade", ex);
+                ModLogger.Caught("News", "Error in OnPeaceMade", ex);
             }
         }
 
@@ -5098,7 +5098,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error classifying battle", ex);
+                ModLogger.Caught("News", "Error classifying battle", ex);
                 return "News_Victory";
             }
         }
@@ -5149,7 +5149,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error adding battle news", ex);
+                ModLogger.Caught("News", "Error adding battle news", ex);
             }
         }
 
@@ -5302,7 +5302,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Error formatting dispatch item {item.HeadlineKey}", ex);
+                ModLogger.Caught("News", $"Error formatting dispatch item {item.HeadlineKey}", ex);
                 return string.Empty;
             }
         }

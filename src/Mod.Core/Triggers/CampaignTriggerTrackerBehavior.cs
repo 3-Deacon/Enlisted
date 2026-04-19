@@ -203,7 +203,7 @@ namespace Enlisted.Mod.Core.Triggers
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking SettlementEntered", ex);
+                ModLogger.Caught("Triggers", "Error tracking SettlementEntered", ex);
             }
         }
 
@@ -221,7 +221,7 @@ namespace Enlisted.Mod.Core.Triggers
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking SettlementLeft", ex);
+                ModLogger.Caught("Triggers", "Error tracking SettlementLeft", ex);
             }
         }
 
@@ -240,7 +240,7 @@ namespace Enlisted.Mod.Core.Triggers
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking MapEventStarted", ex);
+                ModLogger.Caught("Triggers", "Error tracking MapEventStarted", ex);
             }
         }
 
@@ -258,7 +258,7 @@ namespace Enlisted.Mod.Core.Triggers
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking MapEventEnded", ex);
+                ModLogger.Caught("Triggers", "Error tracking MapEventEnded", ex);
             }
         }
 

@@ -314,7 +314,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to fire opportunity {opp.OpportunityId}", ex);
+                    ModLogger.Caught("ORCHESTRATOR", $"Failed to fire opportunity {opp.OpportunityId}", ex);
                 }
             }
 
@@ -506,7 +506,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error refreshing baggage simulation", ex);
+                ModLogger.Caught("ORCHESTRATOR", "Error refreshing baggage simulation", ex);
             }
         }
 
@@ -1908,7 +1908,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error checking need-based overrides", ex);
+                ModLogger.Caught("ORCHESTRATOR", "Error checking need-based overrides", ex);
             }
 
             return highestPriorityOverride;
@@ -2074,7 +2074,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error selecting variety injection", ex);
+                ModLogger.Caught("ORCHESTRATOR", "Error selecting variety injection", ex);
             }
 
             return null;
@@ -2129,7 +2129,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load orchestrator override config", ex);
+                ModLogger.Caught("ORCHESTRATOR", "Failed to load orchestrator override config", ex);
                 _overrideConfigLoaded = true;
             }
         }
