@@ -1227,14 +1227,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // ========================================
                 if (!jsonLoaded)
                 {
-                    ModLogger.Error("ENLISTEDDIALOGMANAGER", 
-                        "========================================\n" +
-                        "QM JSON DIALOGUE FAILED TO LOAD\n" +
-                        "Using fallback dialogue system.\n" +
-                        "Quartermaster will work but with limited dialogue.\n" +
-                        "This indicates a corrupted/incomplete installation.\n" +
-                        "Check Debugging/Conflicts-A_*.log for missing files.\n" +
-                        "========================================");
+                    ModLogger.Surfaced("ENLISTEDDIALOGMANAGER",
+                        "QM JSON dialogue failed to load - install may be corrupt/incomplete", null);
                     RegisterFallbackQuartermasterDialogue(starter);
                 }
 
@@ -3889,7 +3883,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 }
                 else
                 {
-                    ModLogger.Error("QUARTERMASTER", "Cannot open sell popup: QuartermasterManager.Instance is null");
+                    ModLogger.Surfaced("QUARTERMASTER", "Cannot open sell popup: QuartermasterManager.Instance is null", null);
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_return_error}Return processing unavailable.").ToString()));
                 }
@@ -4006,7 +4000,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var baggageManager = BaggageTrainManager.Instance;
                 if (baggageManager == null)
                 {
-                    ModLogger.Error("BAGGAGE", "BaggageTrainManager not available for emergency access");
+                    ModLogger.Surfaced("BAGGAGE", "BaggageTrainManager not available for emergency access", null);
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=baggage_error}Unable to access baggage system.").ToString(),
                         Colors.Red));
@@ -4070,7 +4064,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var party = MobileParty.MainParty;
                 if (party == null)
                 {
-                    ModLogger.Error("BAGGAGE", "MainParty not available for column halt");
+                    ModLogger.Caught("BAGGAGE", "MainParty not available for column halt", null);
                     return;
                 }
 
@@ -5307,7 +5301,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (enlistment == null)
                 {
-                    ModLogger.Error("DIALOGMANAGER", "EnlistmentBehavior.Instance is null during commander promotion acceptance");
+                    ModLogger.Caught("DIALOGMANAGER", "EnlistmentBehavior.Instance is null during commander promotion acceptance", null);
                     return;
                 }
 

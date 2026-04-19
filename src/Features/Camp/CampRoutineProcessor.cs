@@ -421,7 +421,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Warn(LogCategory, $"Failed to check sea travel status: {ex.Message}");
+                ModLogger.Caught("RoutineProcessor", "Failed to check sea travel status", ex);
             }
             
             return false;

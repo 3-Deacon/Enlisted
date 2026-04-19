@@ -343,7 +343,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (starter == null)
             {
-                ModLogger.Error(LogCategory, "OnSessionLaunched called with null CampaignGameStarter");
+                ModLogger.Expected("Muster", "null-campaign-game-starter", "OnSessionLaunched called with null CampaignGameStarter");
                 _menusRegisteredSuccessfully = false;
                 return;
             }
@@ -3729,7 +3729,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             else
             {
-                ModLogger.Error(LogCategory, "Quartermaster hero unavailable");
+                ModLogger.Expected("Muster", "qm-hero-unavailable", "Quartermaster hero unavailable in muster-complete flow");
                 InformationManager.DisplayMessage(new InformationMessage("Quartermaster unavailable."));
             }
         }

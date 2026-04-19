@@ -1938,7 +1938,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Failed to parse opportunity: {ex.Message}");
+                ModLogger.Caught("CAMPLIFE", "Failed to parse opportunity", ex);
                 return null;
             }
         }

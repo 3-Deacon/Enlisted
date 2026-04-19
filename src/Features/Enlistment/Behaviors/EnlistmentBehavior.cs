@@ -600,7 +600,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("ENLISTMENT", $"NameGenerator failed for NCO, using fallback: {ex.Message}");
+                ModLogger.Caught("ENLISTMENT", "NameGenerator failed for NCO, using fallback", ex);
                 _ncoFirstName = "the Sergeant";
             }
 
@@ -1623,7 +1623,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("SaveLoad", $"Error serializing bag check abort cooldowns: {ex.Message}");
+                ModLogger.Caught("SaveLoad", "Error serializing bag check abort cooldowns", ex);
                 // Ensure dictionary exists even on error
                 if (_bagCheckAbortCooldowns == null)
                 {
@@ -1671,7 +1671,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Save", $"Failed to sync soldier names: {ex.Message}");
+                ModLogger.Caught("Save", "Failed to sync soldier names", ex);
                 if (dataStore.IsLoading)
                 {
                     _soldierNames = new List<string>();
@@ -1727,7 +1727,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Save", $"Failed to sync XP sources dictionary: {ex.Message}");
+                ModLogger.Caught("Save", "Failed to sync XP sources dictionary", ex);
                 if (dataStore.IsLoading)
                 {
                     _xpSourcesThisPeriod = new Dictionary<string, int>();
@@ -2521,7 +2521,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception newsEx)
                 {
-                    ModLogger.Warn("News", $"Failed to post courier arrival news: {newsEx.Message}");
+                    ModLogger.Caught("News", "Failed to post courier arrival news", newsEx);
                 }
 
                 ModLogger.Info("ENLISTMENT", $"Courier delivered {deliveredCount} items to player inventory");
@@ -3035,7 +3035,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("QUARTERMASTER", $"Failed to initialize inventory at enlistment start: {ex.Message}");
+                        ModLogger.Caught("QUARTERMASTER", "Failed to initialize inventory at enlistment start", ex);
                     }
                 }
 
@@ -3192,7 +3192,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("Rations", $"Failed to issue initial ration at enlistment: {ex.Message}");
+                        ModLogger.Caught("Rations", "Failed to issue initial ration at enlistment", ex);
                     }
                 }
 
@@ -3347,7 +3347,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("ServiceRecord", $"Failed to save reputation snapshot: {ex.Message}");
+                        ModLogger.Caught("ServiceRecord", "Failed to save reputation snapshot", ex);
                     }
                 }
 
@@ -3358,7 +3358,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("Rations", $"Failed to reclaim rations on service end: {ex.Message}");
+                    ModLogger.Caught("Rations", "Failed to reclaim rations on service end", ex);
                 }
 
                 // Persistent Lance Leaders: record discharge memory and clear cached leader reference.
@@ -3463,7 +3463,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception cameraEx)
                         {
-                            ModLogger.Warn("ENLISTMENT", $"Failed to reset camera to player party: {cameraEx.Message}");
+                            ModLogger.Caught("ENLISTMENT", "Failed to reset camera to player party", cameraEx);
                         }
 
                         ModLogger.Info("ENLISTMENT", "Party activated and made visible (no active battle state)");
@@ -3898,7 +3898,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("ENLISTMENT", $"Failed to remove grace lord from tracker: {ex.Message}");
+                    ModLogger.Caught("ENLISTMENT", "Failed to remove grace lord from tracker", ex);
                 }
             }
 
@@ -4594,7 +4594,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("QUARTERMASTER", $"Failed to roll stock availability at muster: {ex.Message}");
+                ModLogger.Caught("QUARTERMASTER", "Failed to roll stock availability at muster", ex);
             }
 
             try
@@ -4604,7 +4604,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Rations", $"Failed to process ration exchange at muster: {ex.Message}");
+                ModLogger.Caught("Rations", "Failed to process ration exchange at muster", ex);
             }
 
             // Report muster outcome to news system
@@ -4614,7 +4614,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Muster", $"Failed to report muster outcome: {ex.Message}");
+                ModLogger.Caught("Muster", "Failed to report muster outcome", ex);
             }
 
             try
@@ -4624,7 +4624,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("News", $"Failed to reset muster counters: {ex.Message}");
+                ModLogger.Caught("News", "Failed to reset muster counters", ex);
             }
         }
 
@@ -5163,7 +5163,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Corruption muster failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Corruption muster failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
             }
@@ -5273,7 +5273,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Quartermaster's Deal failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Quartermaster's Deal failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
                 return "error";
@@ -5309,7 +5309,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Promissory muster failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Promissory muster failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
             }
@@ -6490,7 +6490,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("SaveLoad", $"Failed to restore bag check event: {ex.Message}");
+                    ModLogger.Caught("SaveLoad", "Failed to restore bag check event", ex);
                     // Reset flags to allow retry via hourly tick
                     _bagCheckInProgress = false;
                 }
@@ -9318,8 +9318,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("ENLISTMENT",
-                                $"Failed to auto-join player as mercenary when lord's clan joined {newKingdom.Name}: {ex.Message}");
+                            ModLogger.Caught("ENLISTMENT",
+                                $"Failed to auto-join player as mercenary when lord's clan joined {newKingdom.Name}", ex);
                         }
                     }
                 }
@@ -9346,8 +9346,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("ENLISTMENT",
-                                $"Failed to remove player from kingdom when lord's clan left {oldKingdom.Name}: {ex.Message}");
+                            ModLogger.Caught("ENLISTMENT",
+                                $"Failed to remove player from kingdom when lord's clan left {oldKingdom.Name}", ex);
                         }
                         finally
                         {
@@ -9389,8 +9389,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("ENLISTMENT",
-                            $"Failed to switch player's kingdom from {oldKingdom.Name} to {newKingdom.Name}: {ex.Message}");
+                        ModLogger.Caught("ENLISTMENT",
+                            $"Failed to switch player's kingdom from {oldKingdom.Name} to {newKingdom.Name}", ex);
                     }
                     finally
                     {
@@ -9819,7 +9819,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var template = GetSergeantTierTroopTemplate(culture);
                 if (template == null)
                 {
-                    ModLogger.Error("QUARTERMASTER", $"Cannot find troop template for culture {culture.StringId}");
+                    ModLogger.Surfaced("QUARTERMASTER", "Cannot find troop template for culture - quartermaster hero creation will fail", null);
                     return null;
                 }
 
@@ -10865,7 +10865,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("ENLISTMENT", $"Failed to show experience track notification: {ex.Message}");
+                ModLogger.Caught("ENLISTMENT", "Failed to show experience track notification", ex);
             }
         }
 
@@ -13083,7 +13083,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("BATTLE", $"Error finishing encounter: {ex.Message} - will rely on watchdog");
+                        ModLogger.Caught("BATTLE", "Error finishing encounter - will rely on watchdog", ex);
                     }
                 }
 
@@ -13211,7 +13211,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception cameraEx)
             {
-                ModLogger.Warn("ENLISTMENT", $"Failed to reset camera to player party: {cameraEx.Message}");
+                ModLogger.Caught("ENLISTMENT", "Failed to reset camera to player party", cameraEx);
             }
 
             ModLogger.Info("ENLISTMENT", "Party visibility restored after encounter cleanup");
@@ -13512,8 +13512,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Diagnostics",
-                    $"Error evaluating siege state for {party.LeaderHero?.Name.ToString() ?? "unknown"}: {ex.Message}");
+                ModLogger.Caught("Diagnostics",
+                    $"Error evaluating siege state for {party.LeaderHero?.Name.ToString() ?? "unknown"}", ex);
             }
 
             return false;

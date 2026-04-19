@@ -163,7 +163,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Warn(LogCategory, $"Failed to generate tooltip hints: {ex.Message}");
+                ModLogger.Caught("EffectTranslator", "Failed to generate tooltip hints", ex);
             }
 
             return hints;
@@ -275,7 +275,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn(LogCategory, $"Native effect failed: {ex.Message}");
+                    ModLogger.Caught("EffectTranslator", "Native effect failed", ex);
                 }
             }
 

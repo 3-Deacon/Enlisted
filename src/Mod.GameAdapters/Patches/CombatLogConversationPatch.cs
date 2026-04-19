@@ -51,14 +51,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var mapScreenType = AccessTools.TypeByName("SandBox.View.Map.MapScreen");
                 if (mapScreenType == null)
                 {
-                    ModLogger.Error("Bootstrap", "Failed to find MapScreen type for MapConversationEndPatch");
+                    ModLogger.Caught("Bootstrap", "Failed to find MapScreen type for MapConversationEndPatch", null);
                     return null;
                 }
                 
                 var interfaceType = AccessTools.TypeByName("TaleWorlds.CampaignSystem.GameState.IMapStateHandler");
                 if (interfaceType == null)
                 {
-                    ModLogger.Error("Bootstrap", "Failed to find IMapStateHandler interface for MapConversationEndPatch");
+                    ModLogger.Caught("Bootstrap", "Failed to find IMapStateHandler interface for MapConversationEndPatch", null);
                     return null;
                 }
                 
@@ -73,7 +73,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     }
                 }
                 
-                ModLogger.Error("Bootstrap", "Failed to find OnMapConversationOver method in MapScreen interface map");
+                ModLogger.Caught("Bootstrap", "Failed to find OnMapConversationOver method in MapScreen interface map", null);
                 return null;
             }
             

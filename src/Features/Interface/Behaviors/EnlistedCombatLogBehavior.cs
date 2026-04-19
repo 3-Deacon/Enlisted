@@ -661,7 +661,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", $"Error during combat log cleanup: {ex.Message}");
+                ModLogger.Caught("Interface", "Error during combat log cleanup", ex);
             }
         }
     }

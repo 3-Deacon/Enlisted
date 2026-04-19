@@ -100,7 +100,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Error("TroopDiscovery", $"T{tier}: no troops found - troop selection may fail!");
+                        ModLogger.Caught("TroopDiscovery", $"T{tier}: no troops found - troop selection may fail", null);
                     }
                 }
             }
@@ -217,7 +217,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
                 else
                 {
-                    ModLogger.Error("TroopDiscovery", $"Failure: no troops found for {cultureId} T{tier}");
+                    ModLogger.Caught("TroopDiscovery", $"Failure: no troops found for {cultureId} T{tier}", null);
 
                     // Debug info - also show raw Tier vs calculated GetBattleTier difference
                     var totalCultureTroops = allTroops.Count(t => t.Culture == culture);

@@ -166,7 +166,7 @@ namespace Enlisted.Debugging.Behaviors
             {
                 var error = new TextObject("{=dbg_muster_handler_missing}Cannot trigger muster - MusterMenuHandler not found.");
                 InformationManager.DisplayMessage(new InformationMessage(error.ToString()));
-                ModLogger.Error("Debug", "TriggerMuster: MusterMenuHandler not registered as campaign behavior");
+                ModLogger.Caught("Debug", "TriggerMuster: MusterMenuHandler not registered as campaign behavior", null);
                 return;
             }
 

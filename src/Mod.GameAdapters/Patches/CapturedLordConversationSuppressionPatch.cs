@@ -83,7 +83,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 else
                 {
-                    ModLogger.Error("CaptureConversation", "Failed to find EncounterState property");
+                    ModLogger.Caught("CaptureConversation", "Failed to find EncounterState property", null);
                 }
 
                 // Set _stateHandled to true to indicate we handled this state
@@ -94,7 +94,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 else
                 {
-                    ModLogger.Error("CaptureConversation", "Failed to find _stateHandled field");
+                    ModLogger.Caught("CaptureConversation", "Failed to find _stateHandled field", null);
                 }
 
                 return false; // Skip original method

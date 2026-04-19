@@ -1623,7 +1623,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to train {character.Name}: {ex.Message}");
+                    ModLogger.Caught("EVENTDELIVERY", $"Failed to train {character.Name}", ex);
                 }
             }
 
@@ -2200,7 +2200,7 @@ namespace Enlisted.Features.Content
             var subOption = selected[0].Identifier as RewardChoiceOption;
             if (subOption == null)
             {
-                ModLogger.Error(LogCategory, "Selected sub-choice identifier is not a RewardChoiceOption");
+                ModLogger.Caught("EVENTDELIVERY", "Selected sub-choice identifier is not a RewardChoiceOption", null);
                 return;
             }
 

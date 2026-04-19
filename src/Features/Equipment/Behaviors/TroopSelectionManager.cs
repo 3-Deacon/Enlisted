@@ -707,7 +707,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("TROOPSELECTION", $"Error stashing civilian equipment: {ex.Message}");
+                ModLogger.Caught("TROOPSELECTION", "Error stashing civilian equipment", ex);
             }
         }
 

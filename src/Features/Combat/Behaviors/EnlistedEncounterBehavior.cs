@@ -402,7 +402,7 @@ namespace Enlisted.Features.Combat.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENCOUNTERGUARD", $"AUTO-CLEANUP failed: {ex.Message}\nStack trace: {ex.StackTrace}");
+                ModLogger.Caught("ENCOUNTERGUARD", "AUTO-CLEANUP failed", ex);
                 // Fallback - try to at least switch menu
                 try
                 {
@@ -741,7 +741,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         }
                         catch (Exception finishEx)
                         {
-                            ModLogger.Error("BATTLE", $"Error finishing encounter: {finishEx.Message}");
+                            ModLogger.Caught("BATTLE", "Error finishing encounter", finishEx);
                         }
                     }
                     

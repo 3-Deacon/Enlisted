@@ -121,7 +121,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn(LogCategory, $"Failed to push trait news: {ex.Message}");
+                    ModLogger.Caught("TraitMilestone", "Failed to push trait news", ex);
                 }
             }
 

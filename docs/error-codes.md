@@ -7,6 +7,12 @@ changes will be overwritten on the next run.
 For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 [error-codes-archive.md](error-codes-archive.md).
 
+## BAGGAGE
+
+| Code | Summary | Source |
+|---|---|---|
+| E-BAGGAGE-e516 | BaggageTrainManager not available for emergency access | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4003 |
+
 ## CAMP
 
 | Code | Summary | Source |
@@ -34,13 +40,31 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-CAMPLIFE-7b2d | No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu. | src/Features/Camp/CampOpportunityGenerator.cs:1797 |
 | E-CAMPLIFE-803c | camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete. | src/Features/Camp/CampOpportunityGenerator.cs:1784 |
 
+## COMPANYNEEDS
+
+| Code | Summary | Source |
+|---|---|---|
+| E-COMPANYNEEDS-a395 | Strategic context config not found - needs prediction unavailable | src/Features/Company/CompanyNeedsManager.cs:194 |
+
+## CONTEXT
+
+| Code | Summary | Source |
+|---|---|---|
+| E-CONTEXT-47ff | Strategic context config not found - army analysis unavailable | src/Features/Context/ArmyContextAnalyzer.cs:169 |
+
 ## DIALOGMANAGER
 
 | Code | Summary | Source |
 |---|---|---|
-| E-DIALOGMANAGER-1e6d | No conversation hero found during enlistment acceptance | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4893 |
-| E-DIALOGMANAGER-3528 | EnlistmentBehavior.Instance became null before deferred enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4919 |
-| E-DIALOGMANAGER-f44a | EnlistmentBehavior.Instance is null during enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4900 |
+| E-DIALOGMANAGER-1e6d | No conversation hero found during enlistment acceptance | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4887 |
+| E-DIALOGMANAGER-3528 | EnlistmentBehavior.Instance became null before deferred enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4913 |
+| E-DIALOGMANAGER-f44a | EnlistmentBehavior.Instance is null during enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4894 |
+
+## ENLISTEDDIALOGMANAGER
+
+| Code | Summary | Source |
+|---|---|---|
+| E-ENLISTEDDIALOGMANAGER-3a7e | QM JSON dialogue failed to load - install may be corrupt/incomplete | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:1230 |
 
 ## ENLISTMENT
 
@@ -126,6 +150,18 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-MUSTER-f83e | OnMusterIntroInit failed | src/Features/Enlistment/Behaviors/MusterMenuHandler.cs:1273 |
 | E-MUSTER-f9a8 | Effect application failed | src/Features/Enlistment/Behaviors/MusterMenuHandler.cs:1238 |
 
+## NAVAL
+
+| Code | Summary | Source |
+|---|---|---|
+| E-NAVAL-b9b9 | Lord has no ships for enlisted player - cannot join naval battle safely | src/Mod.GameAdapters/Patches/NavalBattleShipAssignmentPatch.cs:136 |
+
+## ORDERCATALOG
+
+| Code | Summary | Source |
+|---|---|---|
+| E-ORDERCATALOG-291a | Orders directory not found - no orders will be available | src/Features/Orders/OrderCatalog.cs:44 |
+
 ## PATCH
 
 | Code | Summary | Source |
@@ -145,7 +181,21 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-QUARTERMASTER-4df4 | Both QM and enlisted lord have no party — cannot open conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4331 |
 | E-QUARTERMASTER-6852 | GetOrCreateQuartermaster returned null or dead hero while enlisted | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4361 |
 | E-QUARTERMASTER-8adc | Error processing equipment variant request | src/Features/Equipment/Behaviors/QuartermasterManager.cs:1442 |
+| E-QUARTERMASTER-9cb7 | Cannot find troop template for culture - quartermaster hero creation will fail | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:9822 |
+| E-QUARTERMASTER-b40e | Cannot open sell popup: QuartermasterManager.Instance is null | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:3886 |
 | E-QUARTERMASTER-e56e | Both QM and enlisted lord have no party — cannot open baggage-request conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4396 |
+
+## QUARTERMASTERUI
+
+| Code | Summary | Source |
+|---|---|---|
+| E-QUARTERMASTERUI-5699 | No food items found - cannot build provisions grid | src/Features/Equipment/UI/QuartermasterProvisionsVM.cs:106 |
+
+## RECRUITGRANT
+
+| Code | Summary | Source |
+|---|---|---|
+| E-RECRUITGRANT-90ad | Could not find recruit troop for culture and formation | src/Features/Retinue/Core/RetinueRecruitmentGrant.cs:138 |
 
 ## RETIREMENT
 

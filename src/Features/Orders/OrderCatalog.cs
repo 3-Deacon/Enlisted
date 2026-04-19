@@ -41,7 +41,7 @@ namespace Enlisted.Features.Orders
             var ordersPath = GetOrdersBasePath();
             if (string.IsNullOrEmpty(ordersPath) || !Directory.Exists(ordersPath))
             {
-                ModLogger.Error(LogCategory, $"Orders directory not found: {ordersPath}");
+                ModLogger.Surfaced("ORDERCATALOG", "Orders directory not found - no orders will be available", null);
                 _initialized = true;
                 return;
             }

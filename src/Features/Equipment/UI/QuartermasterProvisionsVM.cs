@@ -103,7 +103,7 @@ namespace Enlisted.Features.Equipment.UI
 
                 if (foodItems.Count == 0)
                 {
-                    ModLogger.Error("QuartermasterUI", "No food items found! Cannot build provisions grid. This should never happen - check game data.");
+                    ModLogger.Surfaced("QUARTERMASTERUI", "No food items found - cannot build provisions grid", null);
                     HeaderText = "Error: No Food Items";
                     OnPropertyChanged(nameof(HeaderText));
                     return;

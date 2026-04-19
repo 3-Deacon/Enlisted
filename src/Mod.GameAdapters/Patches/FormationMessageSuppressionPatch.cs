@@ -103,8 +103,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // On any error, fail open to vanilla behavior to avoid breaking battles
-                ModLogger.Error("FormationPatch", 
-                    $"Error in FormationMessageSuppressionPatch: {ex.Message}");
+                ModLogger.Caught("FormationPatch", "Error in FormationMessageSuppressionPatch", ex);
                 return true;
             }
         }

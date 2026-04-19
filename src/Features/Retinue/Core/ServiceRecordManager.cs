@@ -488,7 +488,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.Warn(LogCategory, $"Failed to record reservist snapshot: {ex.Message}");
+                ModLogger.Caught("SERVICERECORDS", "Failed to record reservist snapshot", ex);
             }
         }
 
@@ -586,7 +586,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.Warn(LogCategory, $"Error consuming reservist record: {ex.Message}");
+                ModLogger.Caught("SERVICERECORDS", "Error consuming reservist record", ex);
                 return false;
             }
         }

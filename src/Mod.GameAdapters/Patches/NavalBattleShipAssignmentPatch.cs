@@ -133,8 +133,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (lordParty?.Ships == null || lordParty.Ships.Count == 0)
                 {
-                    ModLogger.Error(LogCategory, 
-                        $"CRITICAL: Lord {lordName} has no ships! Player cannot join naval battle safely.");
+                    ModLogger.Surfaced("NAVAL", "Lord has no ships for enlisted player - cannot join naval battle safely", null);
                     return true;
                 }
 
@@ -350,7 +349,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (shipsLogicField == null || agentsLogicField == null)
                 {
-                    ModLogger.Error(LogCategory, "Cannot find Naval DLC internal fields");
+                    ModLogger.Caught("Naval", "Cannot find Naval DLC internal fields", null);
                     return true;
                 }
 
@@ -396,7 +395,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (allShips == null || allShips.Count == 0)
                 {
-                    ModLogger.Error(LogCategory, "No ships available in mission");
+                    ModLogger.Caught("Naval", "No ships available in mission", null);
                     return false; // Skip original to prevent crash
                 }
 
@@ -474,7 +473,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 
                 if (playerParty == null || playerCharacter == null)
                 {
-                    ModLogger.Error(LogCategory, "Cannot create player origin - party or character is null");
+                    ModLogger.Caught("Naval", "Cannot create player origin - party or character is null", null);
                     return false;
                 }
 
@@ -495,7 +494,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 else
                 {
-                    ModLogger.Error(LogCategory, "Could not find AddReservedTroopToShip method");
+                    ModLogger.Caught("Naval", "Could not find AddReservedTroopToShip method", null);
                     return false;
                 }
 
@@ -553,11 +552,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, 
-                    $"AllocateTroops EXCEPTION: {ex.Message}\n" +
-                    $"State: UsingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip}, " +
-                    $"Lord={NavalBattleShipAssignmentPatch.CurrentLord?.Name}\n" +
-                    $"Stack: {ex.StackTrace}");
+                ModLogger.Caught("Naval",
+                    $"AllocateTroops EXCEPTION: UsingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip}, Lord={NavalBattleShipAssignmentPatch.CurrentLord?.Name}", ex);
                 return true; // Fall back to original on error
             }
         }
@@ -637,7 +633,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 
                 if (tryGetShipAgentsMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "Could not find TryGetShipAgents method");
+                    ModLogger.Caught("Naval", "Could not find TryGetShipAgents method", null);
                     return true;
                 }
 
@@ -986,13 +982,13 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 
                 if (navalShipsLogicType == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: NavalShipsLogic type not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: NavalShipsLogic type not found", null);
                     return true;
                 }
                 
                 if (missionShipType == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: MissionShip type not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: MissionShip type not found", null);
                     return true;
                 }
 
@@ -1001,14 +997,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 
                 if (getMissionBehaviorMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: GetMissionBehavior method not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: GetMissionBehavior method not found", null);
                     return true;
                 }
                 
                 var shipsLogic = getMissionBehaviorMethod.Invoke(Mission.Current, null);
                 if (shipsLogic == null)
                 {
-                    ModLogger.Error(LogCategory, "NavalShipsLogic instance is null - cannot check ship assignment");
+                    ModLogger.Caught("Naval", "NavalShipsLogic instance is null - cannot check ship assignment", null);
                     return true;
                 }
 
@@ -1017,7 +1013,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 
                 if (getShipMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: GetShip(Formation, out MissionShip) not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: GetShip(Formation, out MissionShip) not found", null);
                     return true;
                 }
 
@@ -1045,8 +1041,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, 
-                    $"NavalTeamAI EXCEPTION for Formation {formation?.FormationIndex}: {ex.Message}\nStack: {ex.StackTrace}");
+                ModLogger.Caught("Naval",
+                    $"NavalTeamAI EXCEPTION for Formation {formation?.FormationIndex}", ex);
                 return true;
             }
         }

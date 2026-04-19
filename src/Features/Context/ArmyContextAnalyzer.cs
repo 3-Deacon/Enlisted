@@ -166,7 +166,7 @@ namespace Enlisted.Features.Context
                 
                 if (!File.Exists(configPath))
                 {
-                    ModLogger.Error(LogCategory, $"Strategic context config not found at: {configPath}");
+                    ModLogger.Surfaced("CONTEXT", "Strategic context config not found - army analysis unavailable", null);
                     _strategicConfig = new JObject();
                     _configLoaded = true;
                     return;

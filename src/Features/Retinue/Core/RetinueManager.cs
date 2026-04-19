@@ -733,7 +733,7 @@ namespace Enlisted.Features.Retinue.Core
             var evt = Content.EventCatalog.GetEvent(eventId);
             if (evt == null)
             {
-                ModLogger.Error(thresholdCategory, $"Threshold event not found: {eventId}");
+                ModLogger.Caught("LoyaltyThreshold", $"Threshold event not found: {eventId}", null);
                 return;
             }
 

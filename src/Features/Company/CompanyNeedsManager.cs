@@ -29,7 +29,7 @@ namespace Enlisted.Features.Company
         {
             if (needs == null)
             {
-                ModLogger.Error(LogCategory, "Cannot process degradation: CompanyNeedsState is null");
+                ModLogger.Caught("CompanyNeeds", "Cannot process degradation: CompanyNeedsState is null", null);
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace Enlisted.Features.Company
 
             if (needs == null)
             {
-                ModLogger.Error(LogCategory, "Cannot check critical needs: CompanyNeedsState is null");
+                ModLogger.Caught("CompanyNeeds", "Cannot check critical needs: CompanyNeedsState is null", null);
                 return warnings;
             }
 
@@ -191,7 +191,7 @@ namespace Enlisted.Features.Company
                 
                 if (!File.Exists(configPath))
                 {
-                    ModLogger.Error(LogCategory, $"Strategic context config not found at: {configPath}");
+                    ModLogger.Surfaced("COMPANYNEEDS", "Strategic context config not found - needs prediction unavailable", null);
                     _strategicConfig = new JObject();
                     _configLoaded = true;
                     return;
