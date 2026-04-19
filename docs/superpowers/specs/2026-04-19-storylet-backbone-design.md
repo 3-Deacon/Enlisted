@@ -303,13 +303,11 @@ Quality definitions live in `ModuleData/Enlisted/Qualities/quality_defs.json`. T
 
 | Id | Range | Scope | Kind | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| `scrutiny` | 0–100 | Global | Stored | From deleted `EscalationState.Scrutiny`. Gates promotion (`max_scrutiny` per tier) |
+| `scrutiny` | 0–100 | Global | Stored | From deleted `EscalationState.Scrutiny`. Gates promotion (`max_scrutiny` per tier). Absorbed the former Discipline track in the 2026-01 merge — there is no separate `discipline` quality |
 | `medical_risk` | 0–5 | Global | Stored | From deleted `EscalationState.MedicalRisk` |
-| `fatigue` | 0–24 | Global | Stored | From `PlayerFatigueBehavior` |
-| `discipline` | 0–100 | Global | Stored | From deleted `EscalationState.Discipline` |
-| `supply_days` | -7–30 | Global | Stored | From `CompanySimulationBehavior` |
-| `morale` | 0–100 | Global | Stored | From `CompanySimulationBehavior` |
-| `loyalty` | 0–100 | Global | Stored | New — previously implicit in rep + flags |
+| `supplies` | 0–100 | Global | Stored | From `CompanyNeeds.Supplies` (read by `CampOpportunityGenerator.cs:1692`). Thresholds at 30 / 70 drive camp opportunity surfacing |
+| `readiness` | 0–100 | Global | Stored | From `CompanyNeeds.Readiness`. Thresholds at 30 / 70, same pattern |
+| `loyalty` | 0–100 | **PerHero** | Stored | **Retinue-soldier-scoped** (from `ServiceRecordManager.ret_loyalty`). Drives mutiny cascade via `RetinueManager` at L679–694 (`evt_ret_loyalty_mutiny` / `_critical` / `_low` / `_high`). Not a global player quality |
 | `rank_xp` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.EnlistmentXP`. Gates promotion (`xp_threshold` from `progression_config.json`) |
 | `days_in_rank` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.DaysInRank`. Gates promotion (14–112 per tier per `PromotionRequirements.GetForTier`) |
 | `battles_survived` | 0–∞ | Global | Read-through | Reads `EnlistmentBehavior.BattlesSurvived`. Gates promotion (2–60 per tier) |
@@ -317,6 +315,12 @@ Quality definitions live in `ModuleData/Enlisted/Qualities/quality_defs.json`. T
 | `days_enlisted` | 0–∞ | Global | Read-through | From `EnlistmentBehavior` |
 | `lord_relation` | -100–+100 | Global | Read-through | **Native proxy** — reads `EnlistedLord.GetRelationWithPlayer()` (TaleWorlds `Hero.cs`). Not a stored track. Gates promotion (`min_leader_relation` 0–30 per tier). Writes route through `ChangeRelationAction.ApplyPlayerRelation` |
 | `hero_rep_<subject>` | -100–+100 | PerHero | Read-through | Optional — for named QM, NCO, veteran. Same native proxy pattern |
+
+**Removed from the seed list** (were in earlier drafts, confirmed dead on code audit):
+
+- `fatigue` — no implementation exists; 20+ JSON files author `"fatigue"` effect values but nothing reads them. CLAUDE.md's "Player Fatigue remains functional" is stale. Surface specs strip these author-lines when rewriting the JSON.
+- `discipline` — merged into `scrutiny` in the 2026-01 refactor. `DailyReportModels.cs:77`: "Legacy name: now tracks Scrutiny." Authors who wrote `"discipline": +N` meant scrutiny.
+- `morale` — save-load-only per CLAUDE.md §"Deprecated Systems". `EnlistmentBehavior.cs:1462` loads the old value with the comment "but don't use it." Display-only status text in `EnlistedMenuBehavior` survives for cosmetic narration; the mechanic does not drive anything. Not promoted to quality.
 
 Surface specs extend this list. Spec 0 only ships the *mechanism*; the seed list is for reference.
 
@@ -516,7 +520,7 @@ Seed role list (surface specs extend):
 | :--- | :--- | :--- |
 | `enlisted_lord` | `EnlistmentBehavior.CurrentLord` | Persistent hero |
 | `squadmate` | `RetinueManager.ActiveRetinue` — any current squad member matching `tag` | Anonymous; may change enlistment-to-enlistment |
-| `named_veteran` | `ServiceRecordManager.GetNamedVeterans(tag?)` — a persistent, identified squad member whose service record survives re-enlistment | Named hero with persistent record |
+| `named_veteran` | Persistent identified squad member; persistence layer is `ServiceRecordManager`. Query API is **not** yet defined — the concrete `Resolve` method arrives with the surface spec that introduces named-veteran gameplay (not Spec 0). Until then, no storylet may author this role | Named hero with persistent record |
 | `chaplain` | Mod-spawned `Occupation.Soldier` hero tagged `chaplain` | Named hero |
 | `quartermaster` | `QuartermasterManager.QuartermasterHero` | Named hero |
 | `enemy_commander` | `MapEvent.OtherSide.LeaderParty.LeaderHero` (if in battle) | Native hero |
@@ -616,12 +620,12 @@ Spec 0 ships these in `scripted_effects.json` because every surface spec needs t
 | `scrutiny_down_moderate` | `quality_add scrutiny -7` | Public redemption — pulled a comrade from danger |
 | `medical_risk_up_small` | `quality_add medical_risk +1` | Light wound, shaken |
 | `medical_risk_up_major` | `quality_add medical_risk +3` + `set_flag wounded days:7` | Serious injury |
-| `fatigue_up_moderate` | `quality_add fatigue +4` | A long hard day |
-| `fatigue_down_major` | `quality_add fatigue -8` | Full night's rest + good food |
-| `supply_up_small` | `quality_add supply_days +1` | Forage success |
-| `supply_down_moderate` | `quality_add supply_days -3` | A wagon lost, a cask spoiled |
-| `morale_up_small` | `quality_add morale +2` | Squad shares a laugh |
-| `morale_down_moderate` | `quality_add morale -5` | A death the squad felt |
+| `supplies_up_small` | `quality_add supplies +5` | Forage success, a merchant's windfall |
+| `supplies_down_moderate` | `quality_add supplies -15` | A wagon lost, a cask spoiled, raiders hit the train |
+| `readiness_up_small` | `quality_add readiness +3` | Successful drill, kit inspection passed |
+| `readiness_down_moderate` | `quality_add readiness -10` | Long march in bad weather, gear neglected |
+| `loyalty_up_small_for_slot` | `set_flag_on_hero {slot} loyalty_boost_recent days:5` + `quality_add_for_hero loyalty +2` | Retinue member's loyalty nudged up (scoped via slot) |
+| `loyalty_down_major_for_slot` | `quality_add_for_hero loyalty -5` | Retinue mistreated, betrayal, unfair discipline |
 
 An authored storylet option demonstrating the pattern:
 
@@ -776,6 +780,8 @@ Spec 0 ships plumbing only — no deletions yet. The table below is the **author
 | 5 (Quartermaster) | `QuartermasterManager` dialog-event hybrid | `QuartermasterActivity` + QM storylets + optional `IssueBase` shim for side-jobs |
 | All | `Content/EventDefinition.cs`, `EventOption.cs`, `EventCatalog.cs`, `EventSelector.cs`, `EventRequirementChecker.cs`, `DecisionCatalog.cs`, `DecisionManager.cs` | `Storylet` + `StoryletCatalog` + `TriggerRegistry` + `SlotFiller` |
 | All | `Escalation/EscalationState.cs` fields (Scrutiny, LordReputation, MedicalRisk, ActiveFlags) | `QualityStore` + `FlagStore` |
+| All | Dead-quality author-lines across every JSON in `ModuleData/Enlisted/` — specifically `"fatigue": N`, `"morale": N`, `"discipline": N` effect entries (20+ files in `Orders/order_events/`, `Events/`, `Decisions/`, `Prompts/`) | Dropped; no replacement. Authors who meant discipline write `scrutiny` in the opposite direction (scrutiny ↓ = more disciplined) |
+| All | Comment in `Orders/Models/PromptOutcome.cs:10` ("May cost fatigue") | Removed during Spec 2 (Orders) rewrite |
 
 The deletion list is intentionally held in Spec 0 (not dispersed across surface specs) so that no surface spec misses its row and leaves a zombie subsystem running.
 
