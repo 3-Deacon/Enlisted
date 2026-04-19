@@ -2,7 +2,7 @@
 
 **Summary:** Master index of all documentation files organized by category. Use this to find documentation for specific topics or systems.
 
-**Last Updated:** 2026-04-18
+**Last Updated:** 2026-04-19
 **Total Documents:** 43
 
 > **Note:** Documents marked "⚠️ Mixed" have core features implemented but also contain planned/designed features not yet in code. Check their Implementation Checklist sections for details.
@@ -57,7 +57,7 @@
 | --- | --- | --- |
 | **Company Needs** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 2 transparent metrics (Readiness/Supply) - Rest removed 2026-01-11 |
 | **ContentOrchestrator (System)** | [content-system-architecture.md](Features/Content/content-system-architecture.md) | World-state-driven content coordination: opportunity pre-scheduling, activity levels, schedule overrides, illness triggers |
-| **StoryDirector (Pacing)** ⚠️ Phase 2 live, callers unmigrated | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) / [plan](superpowers/plans/2026-04-18-event-pacing.md) | Phases 1 & 2 complete. Director routes Modal candidates under a 5-day in-game floor + 60s wall-clock floor + per-category cooldown; observational items write to `_personalFeed` via the public `EnlistedNewsBehavior.AddPersonalDispatch` wrapper. `DailyTick` fires a quiet-stretch event after 14 silent days; `enlisted_status` now has a Headlines drilldown; muster intro digest filters by severity. **Phase 3 is NOT done** — 14 production `EventDeliveryManager.Instance.QueueEvent(...)` call sites still bypass the Director. Do not treat this as the single gate yet. |
+| **StoryDirector (Pacing)** ✅ Phase 3 migration complete | [design](superpowers/specs/2026-04-18-event-pacing-design.md) / [plan](superpowers/plans/2026-04-18-event-pacing.md) / [verification](superpowers/plans/2026-04-18-event-pacing-verification.md) | All 15 production `QueueEvent` sites route through `StoryDirector.EmitCandidate`. Modal firing is gated by a 5-day in-game floor + 60s wall-clock floor + per-category cooldown. `ChainContinuation` flag bypasses the in-game floor and category cooldown for promotions, chain events, and bag checks (still honors wall-clock). Deferred-interactive retry queue flushes one entry per DailyTick (cap 32). Playtest verification scenarios in the verification doc. |
 | **Injuries & Illnesses** | [injury-system.md](Features/Content/injury-system.md) | Unified condition tracking, maritime context awareness |
 | **Camp Hub Decisions** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 33 player-initiated decisions |
 | **Orchestrator Camp Simulation** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Background + Opportunities layers |

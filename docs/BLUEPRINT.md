@@ -506,6 +506,18 @@ The mod focuses on the **enlisted lord's party** (the Company). If the Company i
 - **Data-driven content** via JSON events/orders + XML localization
 - **Emergent identity** from player choices (not menu selections)
 
+**Event pacing:** `StoryDirector` (`src/Features/Content/StoryDirector.cs`) is
+the single gate for modal event delivery. Sources emit `StoryCandidate` via
+`EmitCandidate`; the Director routes Modal candidates subject to floor + wall-
+clock + category-cooldown guards, defers floor-blocked interactives to a FIFO
+retry queue, and writes observational items as `DispatchItem` entries via
+`EnlistedNewsBehavior.AddPersonalDispatch`. See the
+[pacing design spec](superpowers/specs/2026-04-18-event-pacing-design.md) and
+[implementation plan](superpowers/plans/2026-04-18-event-pacing.md).
+Direct `EventDeliveryManager.Instance.QueueEvent(...)` calls are reserved for
+Director fallback paths (when the singleton isn't yet registered) and the
+debug-tool test harness.
+
 ### Design Principles
 
 - Emergent identity from choices, not menus
