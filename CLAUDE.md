@@ -67,7 +67,7 @@ Match the task to the right skill:
 - `dotnet`, `git`, `python` aren't on PATH by default. Prepend: `export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"`. Python is at `/c/Python313/python.exe`
 - AGENTS.md's build form `/p:Platform=x64` trips bash's argument parser when the config has a space. From bash use: `dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64`
 - Multi-line commit messages: no `cat` heredoc here. Write the message to a temp file (e.g. `/c/Users/<you>/commit.txt`) and pass with `git commit -F <file>`
-- Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. After creating any of those, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>`
+- Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. For **newly created** files, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>`. **Known bug:** the script prepends a UTF-8 BOM unconditionally, so running it on files that already have a BOM creates a double-BOM defect (surfaced during the PR-c review, 2026-04-19). For **edits** to existing `.cs` files, rely on `.gitattributes` CRLF enforcement at commit time — don't re-run the script.
 
 ---
 
