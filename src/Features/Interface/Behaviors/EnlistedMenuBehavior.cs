@@ -1254,7 +1254,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Caught("INTERFACE", "E-INTERFACE-e901: Error initializing Headlines menu", ex);
+                        ModLogger.Caught("INTERFACE", "Error initializing Headlines menu", ex);
                         MBTextManager.SetTextVariable("HEADLINES_TEXT", string.Empty);
                     }
                 });
