@@ -200,9 +200,9 @@ Edit `ModuleData/Enlisted/settings.json`:
 {
   "LogLevels": {
     "Default": "Info",
-    "Battle": "Debug",
-    "Equipment": "Warn",
-    "Enlistment": "Info"
+    "BATTLE": "Debug",
+    "EQUIPMENT": "Warn",
+    "ENLISTMENT": "Info"
   }
 }
 ```

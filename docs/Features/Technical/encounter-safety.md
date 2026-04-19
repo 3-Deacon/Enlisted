@@ -1425,10 +1425,10 @@ void DeactivateAfterBattle()
 
 **Log Categories:**
 - `"EncounterGuard"` - State management operations
-- `"Enlistment"` - Service state changes that affect encounters
-- `"Battle"` - Battle join logic and vanilla encounter coordination
-- `"EventSafety"` - Capture/prisoner handling and map event skipping
-- `"Menu"` - Menu transitions and native menu system integration
+- `"ENLISTMENT"` - Service state changes that affect encounters
+- `"BATTLE"` - Battle join logic and vanilla encounter coordination
+- `"EVENTSAFETY"` - Capture/prisoner handling and map event skipping
+- `"MENU"` - Menu transitions and native menu system integration
 - `"SiegeIntegration"` - Siege-specific state sync and participation
 
 **Key Log Points:**
@@ -1438,8 +1438,8 @@ ModLogger.Info("EncounterGuard", $"Encounters disabled (IsActive = false)");
 ModLogger.Info("EncounterGuard", $"Encounters enabled (IsActive = true)");
 
 // Battle detection
-ModLogger.Info("Battle", $"Lord entered battle: {mapEvent}");
-ModLogger.Debug("Battle", $"Player party activated for battle participation");
+ModLogger.Info("BATTLE", $"Lord entered battle: {mapEvent}");
+ModLogger.Debug("BATTLE", $"Player party activated for battle participation");
 
 // State validation
 ModLogger.Warn("EncounterGuard", $"Unexpected IsActive state: {isActive}, expected: {expected}");
@@ -1453,17 +1453,17 @@ ModLogger.Info("EncounterGuard", $"AUTO-CLEANUP: Deactivated party");
 ModLogger.Info("EncounterGuard", $"AUTO-CLEANUP: Switched to enlisted_status/army_wait menu");
 
 // Capture/prisoner handling
-ModLogger.Info("EventSafety", $"Lord {name} captured - starting grace period");
-ModLogger.Info("EventSafety", $"Player captured - deferring enlistment teardown until encounter closes");
-ModLogger.Info("EventSafety", $"Skipping MapEventEnded - player prisoner or cleanup pending");
-ModLogger.Info("EventSafety", $"Finalizing deferred capture cleanup for player");
-ModLogger.Info("Battle", $"Encounter active during lord capture - letting native surrender capture handle the player.");
+ModLogger.Info("EVENTSAFETY", $"Lord {name} captured - starting grace period");
+ModLogger.Info("EVENTSAFETY", $"Player captured - deferring enlistment teardown until encounter closes");
+ModLogger.Info("EVENTSAFETY", $"Skipping MapEventEnded - player prisoner or cleanup pending");
+ModLogger.Info("EVENTSAFETY", $"Finalizing deferred capture cleanup for player");
+ModLogger.Info("BATTLE", $"Encounter active during lord capture - letting native surrender capture handle the player.");
 
 // Menu transitions and native integration
-ModLogger.Info("Menu", $"OnEnlistedStatusTick: Native wants '{desiredMenu}' - yielding to native menu system");
-ModLogger.Debug("Menu", $"GenericStateMenuPatch: Allowing native menu '{menuName}' during siege");
-ModLogger.Info("Menu", $"GenericStateMenuPatch: {originalMenu} -> {newMenu} (keeping enlisted menu)");
-ModLogger.Debug("Menu", $"GenericStateMenuPatch: Not overriding {menu} - player explicitly visited settlement");
+ModLogger.Info("MENU", $"OnEnlistedStatusTick: Native wants '{desiredMenu}' - yielding to native menu system");
+ModLogger.Debug("MENU", $"GenericStateMenuPatch: Allowing native menu '{menuName}' during siege");
+ModLogger.Info("MENU", $"GenericStateMenuPatch: {originalMenu} -> {newMenu} (keeping enlisted menu)");
+ModLogger.Debug("MENU", $"GenericStateMenuPatch: Not overriding {menu} - player explicitly visited settlement");
 
 // Siege integration
 ModLogger.Info("SiegeIntegration", $"Synced player besieger camp with lord's siege at {settlement}");

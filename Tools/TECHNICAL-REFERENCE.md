@@ -93,8 +93,8 @@ Configure levels in `settings.json`:
 {
   "LogLevels": {
     "Default": "Info",
-    "Battle": "Debug",
-    "Equipment": "Warn"
+    "BATTLE": "Debug",
+    "EQUIPMENT": "Warn"
   }
 }
 ```
