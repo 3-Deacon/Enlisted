@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.UI;
@@ -200,6 +200,57 @@ namespace Enlisted.Debugging.Behaviors
                 var error = new TextObject("Failed to open provisions shop. Check logs for details.");
                 InformationManager.DisplayMessage(new InformationMessage(error.ToString(), Colors.Red));
             }
+        }
+
+        /// <summary>
+        /// Queues a known-safe test event to verify queue persistence across save/load.
+        /// Usage: trigger this command, save, reload the save, then run DebugPrintQueue.
+        /// </summary>
+        public static void DebugQueueTestEvent()
+        {
+            // Use an event known to exist in the shipping catalog.
+            // evt_quiet_letter_from_home is from events_quiet_stretch.json, no preconditions.
+            const string testId = "evt_quiet_letter_from_home";
+            var evt = EventCatalog.GetEvent(testId);
+            if (evt == null)
+            {
+                ModLogger.Info("DEBUG", $"Test event id '{testId}' not in catalog; confirm events_quiet_stretch.json is loaded and retry");
+                var warn = new TextObject("Test event not found in catalog. Check log for details.");
+                InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
+                return;
+            }
+
+            EventDeliveryManager.Instance?.QueueEvent(evt);
+            var msg = new TextObject("Queued test event '{ID}'. Save now, reload, then run DebugPrintQueue.");
+            msg.SetTextVariable("ID", testId);
+            InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
+            ModLogger.Info("DEBUG", $"Queued test event {testId}. Save now, reload, then run DebugPrintQueue.");
+            SessionDiagnostics.LogEvent("Debug", "DebugQueueTestEvent", $"eventId={testId}");
+        }
+
+        /// <summary>
+        /// Dumps the current EventDeliveryManager pending queue to the session log
+        /// to verify persistence worked after reload.
+        /// </summary>
+        public static void DebugPrintQueue()
+        {
+            var mgr = EventDeliveryManager.Instance;
+            if (mgr == null)
+            {
+                ModLogger.Info("DEBUG", "EventDeliveryManager.Instance is null");
+                var warn = new TextObject("EventDeliveryManager not found. Check log.");
+                InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
+                return;
+            }
+
+            var count = mgr.PendingQueueCountForDebug;
+            var ids = mgr.PendingQueueIdsForDebug;
+            var idList = string.Join(", ", ids);
+            ModLogger.Info("DEBUG", $"PendingQueue count={count}, ids=[{idList}]");
+            var msg = new TextObject("Queue: {C} event(s). Check log for IDs.");
+            msg.SetTextVariable("C", count);
+            InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
+            SessionDiagnostics.LogEvent("Debug", "DebugPrintQueue", $"count={count}, ids=[{idList}]");
         }
     }
 }
