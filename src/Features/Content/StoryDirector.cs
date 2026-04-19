@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -14,6 +15,8 @@ namespace Enlisted.Features.Content
     /// and routes accordingly: Modal candidates fire through EventDeliveryManager subject
     /// to pacing floors; floor-blocked interactives are deferred; everything else is
     /// written as a DispatchItem through EnlistedNewsBehavior.AddPersonalDispatch.
+    /// The Director also subscribes to DailyTickEvent to surface a quiet-stretch fallback
+    /// event after DensitySettings.QuietStretchDays in-game days without a Modal firing.
     /// </summary>
     public sealed class StoryDirector : CampaignBehaviorBase
     {
@@ -33,10 +36,11 @@ namespace Enlisted.Features.Content
         /// <summary>Deferred interactive candidates blocked by the pacing floor, retried on DailyTick.</summary>
         public IReadOnlyList<StoryCandidatePersistent> DeferredInteractive => _deferredInteractive;
 
-        /// <summary>Registers the singleton instance. No campaign events subscribed in Phase 1.</summary>
+        /// <summary>Registers the singleton instance and subscribes to DailyTickEvent for quiet-stretch fallback.</summary>
         public override void RegisterEvents()
         {
             Instance = this;
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         }
 
         /// <summary>Persists pacing state across save/load cycles.</summary>
@@ -88,6 +92,47 @@ namespace Enlisted.Features.Content
             catch (Exception ex)
             {
                 ModLogger.Caught("CONTENT", "StoryDirector.EmitCandidate failed", ex);
+            }
+        }
+
+        private void OnDailyTick()
+        {
+            try
+            {
+                int today = (int)CampaignTime.Now.ToDays;
+                if (today - _lastModalDay < DensitySettings.QuietStretchDays)
+                {
+                    return;
+                }
+
+                // Retry queue flush is Task 30 — not this task. Only the quiet-stretch fallback.
+
+                var candidates = EventCatalog.GetEventsByCategory("quiet_stretch").ToList();
+                if (candidates.Count == 0)
+                {
+                    return;
+                }
+
+                var rng = new Random();
+                var evt = candidates[rng.Next(candidates.Count)];
+
+                EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "director.quiet_stretch",
+                    CategoryId = "quiet_stretch",
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.70f,
+                    Beats = { StoryBeat.QuietStretchTimeout },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = evt,
+                    RenderedTitle = evt.TitleFallback,
+                    RenderedBody = evt.SetupFallback
+                });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("CONTENT", "Quiet-stretch tick failed", ex);
             }
         }
 
