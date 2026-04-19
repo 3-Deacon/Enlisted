@@ -56,6 +56,9 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Pacing subsystem
             AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
+
+            // Storylet backbone (Spec 0)
+            AddClassDefinition(typeof(Enlisted.Features.Flags.FlagStore), 43);
         }
 
         /// <summary>
@@ -109,6 +112,10 @@ namespace Enlisted.Mod.Core.SaveSystem
             // DispatchItem.Beats — typed beat set replacing substring matches on HeadlineKey.
             // See docs/superpowers/specs/2026-04-19-event-meaning-design.md §5.3.
             ConstructContainerDefinition(typeof(HashSet<Enlisted.Features.Content.StoryBeat>));
+
+            // Storylet backbone containers (Spec 0)
+            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>));
+            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
         }
     }
 }
