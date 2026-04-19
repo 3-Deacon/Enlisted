@@ -350,7 +350,7 @@ namespace Enlisted.Features.Content
                     return false;
                 }
 
-                // Queue for delivery via EventDeliveryManager
+                // Queue for delivery via EventDeliveryManager (needed for fallback path)
                 var deliveryManager = EventDeliveryManager.Instance;
                 if (deliveryManager == null)
                 {
@@ -358,7 +358,33 @@ namespace Enlisted.Features.Content
                     return false;
                 }
 
-                deliveryManager.QueueEvent(selected);
+                // Route through StoryDirector so the candidate participates in pacing and
+                // severity classification. Fall back to direct delivery if the director is
+                // not yet registered (e.g. very early in campaign startup).
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    var (tier, beat, severity) = GetIncidentBinding(context);
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "map_incident." + context,
+                        CategoryId = "incident." + context,
+                        ProposedTier = tier,
+                        SeverityHint = severity,
+                        Beats = { beat },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        InteractiveEvent = selected,
+                        RenderedTitle = selected.TitleFallback,
+                        RenderedBody = selected.SetupFallback,
+                        StoryKey = selected.Id
+                    });
+                }
+                else
+                {
+                    // Fallback: director unavailable — deliver directly
+                    deliveryManager.QueueEvent(selected);
+                }
 
                 // Record in global pacer (tracks daily/weekly limits + category cooldown)
                 GlobalEventPacer.RecordAutoEvent(selected.Id, category);
@@ -570,6 +596,25 @@ namespace Enlisted.Features.Content
         {
             var enlistment = EnlistmentBehavior.Instance;
             return enlistment?.CurrentLord?.PartyBelongedTo;
+        }
+
+        /// <summary>
+        /// Maps a map-incident context string to the StoryDirector tier, beat, and severity hint
+        /// used when emitting a StoryCandidate. Unknown contexts fall back to Pertinent/SettlementEntered.
+        /// </summary>
+        private static (StoryTier Tier, StoryBeat Beat, float Severity) GetIncidentBinding(string context)
+        {
+            return context switch
+            {
+                "leaving_battle"       => (StoryTier.Modal,    StoryBeat.PlayerBattleEnd,   0.6f),
+                "entering_town"        => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "entering_village"     => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "during_siege"         => (StoryTier.Headline,  StoryBeat.SiegeBegin,        0.5f),
+                "waiting_in_settlement"=> (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.25f),
+                // leaving_settlement: settlement-transition, treated as Pertinent settlement beat
+                "leaving_settlement"   => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                _                      => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f)
+            };
         }
 
         /// <summary>
