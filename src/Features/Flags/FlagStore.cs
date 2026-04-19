@@ -25,28 +25,49 @@ namespace Enlisted.Features.Flags
 
         public bool Has(string flag)
         {
-            if (string.IsNullOrEmpty(flag)) return false;
-            if (!GlobalFlags.TryGetValue(flag, out var expiry)) return false;
+            if (string.IsNullOrEmpty(flag))
+            {
+                return false;
+            }
+            if (!GlobalFlags.TryGetValue(flag, out var expiry))
+            {
+                return false;
+            }
             return expiry == CampaignTime.Never || expiry.IsFuture;
         }
 
         public bool HasForHero(Hero hero, string flag)
         {
-            if (hero == null || string.IsNullOrEmpty(flag)) return false;
-            if (!HeroFlags.TryGetValue(hero.Id, out var map)) return false;
-            if (!map.TryGetValue(flag, out var expiry)) return false;
+            if (hero == null || string.IsNullOrEmpty(flag))
+            {
+                return false;
+            }
+            if (!HeroFlags.TryGetValue(hero.Id, out var map))
+            {
+                return false;
+            }
+            if (!map.TryGetValue(flag, out var expiry))
+            {
+                return false;
+            }
             return expiry == CampaignTime.Never || expiry.IsFuture;
         }
 
         public void Set(string flag, CampaignTime expiry)
         {
-            if (string.IsNullOrEmpty(flag)) return;
+            if (string.IsNullOrEmpty(flag))
+            {
+                return;
+            }
             GlobalFlags[flag] = expiry;
         }
 
         public void SetForHero(Hero hero, string flag, CampaignTime expiry)
         {
-            if (hero == null || string.IsNullOrEmpty(flag)) return;
+            if (hero == null || string.IsNullOrEmpty(flag))
+            {
+                return;
+            }
             if (!HeroFlags.TryGetValue(hero.Id, out var map))
             {
                 map = new Dictionary<string, CampaignTime>(StringComparer.OrdinalIgnoreCase);
@@ -57,19 +78,35 @@ namespace Enlisted.Features.Flags
 
         public void Clear(string flag)
         {
-            if (string.IsNullOrEmpty(flag)) return;
+            if (string.IsNullOrEmpty(flag))
+            {
+                return;
+            }
             GlobalFlags.Remove(flag);
         }
 
         public void ClearForHero(Hero hero, string flag)
         {
-            if (hero == null || string.IsNullOrEmpty(flag)) return;
-            if (HeroFlags.TryGetValue(hero.Id, out var map)) map.Remove(flag);
+            if (hero == null || string.IsNullOrEmpty(flag))
+            {
+                return;
+            }
+            if (HeroFlags.TryGetValue(hero.Id, out var map))
+            {
+                map.Remove(flag);
+            }
         }
 
         public int DaysSinceSet(string flag)
         {
-            if (!GlobalFlags.TryGetValue(flag, out _)) return int.MaxValue;
+            if (string.IsNullOrEmpty(flag))
+            {
+                return int.MaxValue;
+            }
+            if (!GlobalFlags.TryGetValue(flag, out _))
+            {
+                return int.MaxValue;
+            }
             // Expiry isn't the same as set-time. Callers that need days-since must set a
             // companion flag with a known expiry when the event happens; DaysSinceSet is a
             // convenience only for flags whose expiry == CampaignTime.Never (permanent; returns 0).
@@ -93,8 +130,14 @@ namespace Enlisted.Features.Flags
                     (toRemove ??= new List<string>()).Add(kv.Key);
                 }
             }
-            if (toRemove == null) return;
-            foreach (var k in toRemove) map.Remove(k);
+            if (toRemove == null)
+            {
+                return;
+            }
+            foreach (var k in toRemove)
+            {
+                map.Remove(k);
+            }
         }
 
         /// <summary>On load, drop hero-scoped flags whose hero is no longer known to the game.</summary>
@@ -108,8 +151,14 @@ namespace Enlisted.Features.Flags
                     (toRemove ??= new List<MBGUID>()).Add(id);
                 }
             }
-            if (toRemove == null) return;
-            foreach (var id in toRemove) HeroFlags.Remove(id);
+            if (toRemove == null)
+            {
+                return;
+            }
+            foreach (var id in toRemove)
+            {
+                HeroFlags.Remove(id);
+            }
         }
     }
 }
