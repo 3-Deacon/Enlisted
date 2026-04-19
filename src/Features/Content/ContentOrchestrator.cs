@@ -635,15 +635,29 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // Queue via EventDeliveryManager
-            var deliveryManager = EventDeliveryManager.Instance;
-            if (deliveryManager != null)
+            // Route via StoryDirector; fall back to direct queue if director not yet registered
+            var director = StoryDirector.Instance;
+            if (director != null)
             {
-                deliveryManager.QueueEvent(eventDef);
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "content.crisis." + eventId,
+                    CategoryId = "company.crisis." + eventId,
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.80f,
+                    Beats = { StoryBeat.CompanyCrisisThreshold },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
                 ModLogger.Info(LogCategory, $"Crisis event queued for delivery: {eventId}");
             }
             else
             {
+                EventDeliveryManager.Instance?.QueueEvent(eventDef);
                 ModLogger.Warn(LogCategory, "EventDeliveryManager not available for crisis event delivery");
             }
         }
