@@ -26,6 +26,7 @@ namespace Enlisted.Features.Content
         private const string NoCategorySentinel = "_none";
         private const string DefaultDispatchCategory = "general";
         private const int DeferredInteractiveCap = 32;
+        private const int MaxProbesPerTick = 4;
 
         // Project convention: behavior fields use SyncData only, no [SaveableField].
         // See src/Features/Retinue/Core/CompanionAssignmentManager.cs for precedent.
@@ -155,7 +156,6 @@ namespace Enlisted.Features.Content
         private bool TryFlushDeferredInteractive(int today)
         {
             // Guard against O(n) scans in pathological cases: give up after a small probe.
-            const int MaxProbesPerTick = 4;
             int probes = 0;
 
             while (_deferredInteractive.Count > 0 && probes < MaxProbesPerTick)
@@ -194,9 +194,9 @@ namespace Enlisted.Features.Content
                 {
                     ModLogger.Expected("CONTENT", "deferred_flush_no_delivery_manager",
                         "EventDeliveryManager.Instance null — deferred candidate dropped");
-                    // Keep probing: the list shouldn't stall just because delivery is missing
-                    // this tick; but we've already removed the head, so stop here to avoid
-                    // cascading drops across a transient outage.
+                    // The head was already removed above, so it's lost for this tick.
+                    // Stop probing: if the delivery manager is unavailable, further probes
+                    // on the same tick would compound the drop.
                     return false;
                 }
 
