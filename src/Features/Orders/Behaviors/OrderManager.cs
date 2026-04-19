@@ -1040,6 +1040,10 @@ namespace Enlisted.Features.Orders.Behaviors
             var warningText = new TextObject("{=orders_warning_insubordination_text}Your repeated refusal of orders has not gone unnoticed. Continued insubordination may result in discharge from service.").ToString();
             var understoodText = new TextObject("{=orders_understood}Understood").ToString();
             
+            // Intentional bypass of StoryDirector — this warning fires once per decline-count
+            // threshold and is self-paced by its trigger condition. Routing through Director
+            // would require observational-modal support (InteractiveEvent == null + tier == Modal),
+            // which is a followup. If the warning starts firing excessively, revisit.
             InformationManager.ShowInquiry(new InquiryData(
                 titleText: warningTitle,
                 text: warningText,
