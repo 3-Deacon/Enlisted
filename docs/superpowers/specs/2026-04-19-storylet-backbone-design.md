@@ -448,7 +448,9 @@ Seed role list (surface specs extend):
 
 ### 10.3 Text substitution
 
-`{slot.name}`, `{slot.occupation}`, `{slot.skill:melee}` in `Title`, `Setup`, `Option.Text`, `Option.Tooltip`. Rendered via `MBTextManager` at fire time using `TextObject.SetTextVariable`.
+Authored syntax is `{slot.name}`, `{slot.occupation}`, `{slot.skill:melee}` in `Title`, `Setup`, `Option.Text`, `Option.Tooltip`. `SlotFiller` flattens these to TaleWorlds-compatible flat keys at fire time — `{veteran.name}` becomes `TextObject.SetTextVariable("VETERAN_NAME", hero.Name)`, `{lord.occupation}` becomes `SetTextVariable("LORD_OCCUPATION", ...)`. The nested authoring syntax is ours; the runtime string passed to `MBTextManager` is flat (TaleWorlds' `TextObject` does not parse dotted paths).
+
+The authored `TextObject` template uses the flat form: `{=slt_id}The {VETERAN_NAME} stares at the horizon.` Authors don't write the flat form by hand — the storylet loader pre-rewrites dotted slot references during JSON → `Storylet` construction. One source of truth for the dotted syntax, one flat key for the engine.
 
 ## 11. Scripted effects
 
@@ -545,6 +547,8 @@ This is the single mechanism behind "muster is the legibility layer." Promotions
 
 The `StoryCandidate` schema is unchanged — Spec 0 adds no fields.
 
+**Pause contract.** `InformationManager.ShowInquiry(data, pauseGameActiveState, prioritize)` does **not** auto-pause the campaign. Modal-tier payloads must pass `pauseGameActiveState: true` explicitly. The existing pacing-spec doctrine (§4.4, "menu-open is the consumption surface") is enforced at the call site — not by the engine.
+
 ### 13.2 IssueBase (explicit non-adoption)
 
 Per the external mod survey (Banner Kings, AdditionalQuests), `IssueBase` is the correct vehicle for *walk-up notable-at-settlement side jobs*, not for storylets. Spec 5 (Quartermaster Activity) may adopt `IssueBase` for a specific category of QM side-jobs (errand board pattern). Spec 0 does not adopt it for the storylet backbone.
@@ -559,7 +563,7 @@ AddClassDefinition(typeof(QualityStore), 40);
 AddClassDefinition(typeof(QualityValue), 41);
 AddClassDefinition(typeof(QualityDefinition), 42);
 AddClassDefinition(typeof(FlagStore), 43);
-AddClassDefinition(typeof(Activity), 44);             // abstract; concrete subclasses get their own offsets in surface specs
+AddClassDefinition(typeof(Activity), 44);             // abstract base — see note below
 
 // Enums
 AddEnumDefinition(typeof(QualityScope), 82);
@@ -574,6 +578,8 @@ ConstructContainerDefinition(typeof(List<Activity>));
 ```
 
 `EscalationState`'s Scrutiny / LordReputation / MedicalRisk / ActiveFlags fields are **deleted**. Existing saves will lose this data on load. Non-negotiable per designer decision.
+
+**Abstract `Activity` + concrete subclasses.** `SaveableTypeDefiner.AddClassDefinition` works for abstract bases — Spec 0 registers `Activity` at offset 44 for the polymorphic container (`List<Activity>`). Each concrete subclass takes its own offset in its owning surface spec: `MusterActivity` in Spec 4, `CampActivity` in Spec 1, `OrderActivity` in Spec 2, `QuartermasterActivity` in Spec 5. Offsets 45–60 are reserved for these subclasses; surface specs claim from that range.
 
 ## 15. Deletion list
 
