@@ -401,6 +401,15 @@
     <Compile Include="src\Features\Escalation\EscalationState.cs"/>
     <Compile Include="src\Features\Escalation\EscalationThresholds.cs"/>
     <Compile Include="src\Features\Escalation\EscalationManager.cs"/>
+
+    <!-- ====================================================================
+         QUALITIES SYSTEM (Quality Store + Models)
+         ==================================================================== -->
+    <Compile Include="src\Features\Qualities\QualityScope.cs"/>
+    <Compile Include="src\Features\Qualities\QualityKind.cs"/>
+    <Compile Include="src\Features\Qualities\QualityValue.cs"/>
+    <Compile Include="src\Features\Qualities\QualityDefinition.cs"/>
+
     <!-- ====================================================================
          CONTENT DELIVERY SYSTEM (Events, Decisions, Orchestration)
          ==================================================================== -->
