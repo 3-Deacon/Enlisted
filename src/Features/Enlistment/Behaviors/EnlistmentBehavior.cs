@@ -2113,12 +2113,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var bagCheckEvent = EventCatalog.GetEvent("evt_baggage_stowage_first_enlistment");
             var eventDelivery = EventDeliveryManager.Instance;
 
-            if (bagCheckEvent != null && eventDelivery != null)
+            if (bagCheckEvent != null)
             {
                 _bagCheckInProgress = true;
                 ModLogger.Info("ENLISTMENT", $"Triggering bag check event (scheduled at {_bagCheckDueTime})");
-                eventDelivery.QueueEvent(bagCheckEvent);
-                return;
+
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "enlistment.bag_check",
+                        CategoryId = "enlistment.bag_check",
+                        ProposedTier = StoryTier.Modal,
+                        SeverityHint = 0.90f,
+                        Beats = { StoryBeat.OrderComplete },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        InteractiveEvent = bagCheckEvent,
+                        RenderedTitle = bagCheckEvent.TitleFallback,
+                        RenderedBody = bagCheckEvent.SetupFallback,
+                        StoryKey = bagCheckEvent.Id,
+                        ChainContinuation = true
+                    });
+                    return;
+                }
+
+                if (eventDelivery != null)
+                {
+                    eventDelivery.QueueEvent(bagCheckEvent);
+                    return;
+                }
             }
 
             // Fail open if event system unavailable
@@ -6430,11 +6455,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 try
                 {
                     var bagCheckEvent = EventCatalog.GetEvent("evt_baggage_stowage_first_enlistment");
-                    var eventDelivery = EventDeliveryManager.Instance;
-                    if (bagCheckEvent != null && eventDelivery != null)
+                    if (bagCheckEvent != null)
                     {
-                        ModLogger.Info("SaveLoad", "Restoring bag check event after load");
-                        eventDelivery.QueueEvent(bagCheckEvent);
+                        var director = StoryDirector.Instance;
+                        if (director != null)
+                        {
+                            ModLogger.Info("SaveLoad", "Restoring bag check event through StoryDirector after load");
+                            director.EmitCandidate(new StoryCandidate
+                            {
+                                SourceId = "enlistment.bag_check",
+                                CategoryId = "enlistment.bag_check",
+                                ProposedTier = StoryTier.Modal,
+                                SeverityHint = 0.90f,
+                                Beats = { StoryBeat.OrderComplete },
+                                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                                EmittedAt = CampaignTime.Now,
+                                InteractiveEvent = bagCheckEvent,
+                                RenderedTitle = bagCheckEvent.TitleFallback,
+                                RenderedBody = bagCheckEvent.SetupFallback,
+                                StoryKey = bagCheckEvent.Id,
+                                ChainContinuation = true
+                            });
+                        }
+                        else
+                        {
+                            var eventDelivery = EventDeliveryManager.Instance;
+                            if (eventDelivery != null)
+                            {
+                                ModLogger.Info("SaveLoad", "Restoring bag check event (director unavailable) after load");
+                                eventDelivery.QueueEvent(bagCheckEvent);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
