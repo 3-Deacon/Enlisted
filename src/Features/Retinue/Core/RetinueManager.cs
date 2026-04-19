@@ -1013,6 +1013,10 @@ namespace Enlisted.Features.Retinue.Core
                 "Twenty raw recruits have been assigned to your command. Train them well - their lives are in your hands.\n\n" +
                 "Visit Camp to manage your forces.");
 
+            // Intentional bypass of StoryDirector — fires exactly once when the player reaches
+            // T7, immediately after the promotion ceremony (PromotionBehavior.cs TriggerPromotionNotification).
+            // Same two-beat chain reasoning as the ceremony bypass: routing through the Director
+            // would trip the 60s wall-clock guard and swallow this commission modal.
             // pauseGameActiveState = false so notifications don't freeze game time
             InformationManager.ShowInquiry(
                 new InquiryData(
