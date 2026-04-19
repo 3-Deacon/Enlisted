@@ -63,6 +63,11 @@ Match the task to the right skill:
 - Parallelize independent Agent / tool calls; serialize only when one result feeds the next
 - If the user needs to run an interactive command, suggest the `!` prefix so output lands in-context
 - Another AI session may be editing files concurrently. Stage with `git add <path>`, never `git add -A` — in-flight edits belong to the other session and don't belong in your commit
+- The bash here is a thin shim — `cat`, `head`, `tail`, `grep`, `file`, `which` are not on PATH. Use the Grep / Read / Write tools instead of shell equivalents
+- `dotnet`, `git`, `python` aren't on PATH by default. Prepend: `export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"`. Python is at `/c/Python313/python.exe`
+- AGENTS.md's build form `/p:Platform=x64` trips bash's argument parser when the config has a space. From bash use: `dotnet build Enlisted.csproj -c 'Enlisted RETAIL' -p:Platform=x64`
+- Multi-line commit messages: no `cat` heredoc here. Write the message to a temp file (e.g. `/c/Users/<you>/commit.txt`) and pass with `git commit -F <file>`
+- Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. After creating any of those, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>`
 
 ---
 
