@@ -848,7 +848,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             catch (Exception ex)
             {
                 // End-user support: stable code + full exception detail (stack trace written once per unique exception).
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-001", "Error opening baggage train stash", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error opening baggage train stash", ex);
                 return false;
             }
         }
@@ -945,7 +945,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             catch (Exception ex)
             {
                 // This should never fail, but if it does we want the full stack trace for support.
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-002", "Reservist re-entry boost failed", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Reservist re-entry boost failed", ex);
             }
         }
 
@@ -1562,7 +1562,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SaveLoad", "E-SAVELOAD-002", "Error serializing minor faction desertion cooldowns", ex);
+                ModLogger.Caught("SaveLoad", "Error serializing minor faction desertion cooldowns", ex);
                 // Ensure dictionary exists even on error
                 if (_minorFactionDesertionCooldowns == null)
                 {
@@ -1796,7 +1796,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SaveLoad", "E-SAVELOAD-003", "Error serializing issued rations", ex);
+                ModLogger.Caught("SaveLoad", "Error serializing issued rations", ex);
                 // Ensure list exists even on error
                 if (_issuedRations == null)
                 {
@@ -2298,7 +2298,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-016", "Cross-faction baggage prompt failed", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Cross-faction baggage prompt failed", ex);
                 // Fail open: continue enlistment without transfer
                 ContinueEnlistmentAfterBaggageTransfer(lord);
             }
@@ -2400,7 +2400,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-017", "Error handling baggage transfer choice", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error handling baggage transfer choice", ex);
                 // Fail open: continue enlistment
                 ContinueEnlistmentAfterBaggageTransfer(lord);
             }
@@ -2503,7 +2503,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-018", "Error processing courier arrival", ex);
+                ModLogger.Caught("Enlistment", "Error processing courier arrival", ex);
             }
         }
 
@@ -2625,7 +2625,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-015", "Error returning baggage train stash to inventory", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error returning baggage train stash to inventory", ex);
             }
         }
 
@@ -2723,7 +2723,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-004", "Error stashing belongings", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error stashing belongings", ex);
             }
         }
 
@@ -2809,7 +2809,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-005", "Error liquidating belongings", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error liquidating belongings", ex);
             }
         }
 
@@ -2880,7 +2880,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-006", "Error smuggling item", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error smuggling item", ex);
             }
         }
 
@@ -3119,7 +3119,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Enlistment", "E-ENLIST-007", "Error joining lord's kingdom", ex);
+                            ModLogger.Surfaced("ENLISTMENT", "Error joining lord's kingdom", ex,
+                                ctx: LogCtx.Of("Lord", lord?.Name?.ToString(), "Kingdom", lordKingdom?.Name?.ToString()));
                         }
                     }
                     else
@@ -3201,8 +3202,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode("Enlistment", "E-ENLIST-008",
-                            "Error finishing PlayerEncounter before enlistment", ex);
+                        ModLogger.Surfaced("ENLISTMENT", "Error finishing PlayerEncounter before enlistment", ex);
                     }
                 }
 
@@ -3264,7 +3264,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode("Enlistment", "E-ENLIST-014", "Error triggering post-enlist bag check", ex);
+                    ModLogger.Surfaced("ENLISTMENT", "Error triggering post-enlist bag check", ex);
                 }
             }
             catch (Exception ex)
@@ -3381,7 +3381,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Enlistment", "E-ENLIST-011", "Error removing player from army", ex);
+                            ModLogger.Surfaced("ENLISTMENT", "Error removing player from army", ex);
                             // Force clear army reference even if removal fails
                             main.Army = null;
                         }
@@ -3587,7 +3587,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode("Enlistment", "E-ENLIST-012", "Error restoring kingdom during discharge", ex);
+                        ModLogger.Surfaced("ENLISTMENT", "Error restoring kingdom during discharge", ex);
                     }
                 }
 
@@ -3709,8 +3709,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 if (kingdom == null)
                 {
-                    ModLogger.ErrorCode("Desertion", "E-DESERT-004", "Cannot start grace period - kingdom is null",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Expected("Desertion", "desert_grace_kingdom_null",
+                        "Cannot start grace period - kingdom is null");
                     return;
                 }
 
@@ -3790,8 +3790,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var playerClan = Clan.PlayerClan;
                 if (playerClan == null)
                 {
-                    ModLogger.ErrorCode("Desertion", "E-DESERT-005", "Cannot apply penalties - player clan is null",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Expected("Desertion", "desert_penalties_clan_null",
+                        "Cannot apply penalties - player clan is null");
                     ClearDesertionGracePeriod();
                     return;
                 }
@@ -3959,7 +3959,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Desertion", "E-DESERT-001", "Error applying minor faction desertion penalties", ex);
+                ModLogger.Caught("Desertion", "Error applying minor faction desertion penalties", ex);
             }
         }
 
@@ -4064,7 +4064,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var manager = TroopSelectionManager.Instance;
             if (manager == null)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-009",
+                ModLogger.Expected("Enlistment", "enlist_grace_no_troop_manager",
                     "TroopSelectionManager unavailable - cannot restore saved equipment");
                 return false;
             }
@@ -4352,7 +4352,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Following", "E-FOLLOW-001", "Error releasing escort", ex);
+                ModLogger.Caught("Following", "Error releasing escort", ex);
             }
         }
 
@@ -4386,16 +4386,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        ModLogger.ErrorCode("Battle", "E-BATTLE-001",
-                            "ShouldJoinPlayerBattles property not found via reflection");
+                        ModLogger.Caught("Battle", "ShouldJoinPlayerBattles property not found via reflection", null);
                     }
                 }
                 catch (Exception ex2)
                 {
                     // Capture both failure stacks: direct set + reflection fallback.
                     var agg = new AggregateException(ex1, ex2);
-                    ModLogger.ErrorCode("Battle", "E-BATTLE-002",
-                        "Failed to set ShouldJoinPlayerBattles (direct + reflection)", agg);
+                    ModLogger.Caught("Battle", "Failed to set ShouldJoinPlayerBattles (direct + reflection)", agg);
                 }
             }
         }
@@ -5415,7 +5413,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-001", "Error finalizing discharge", ex);
+                ModLogger.Surfaced("RETIREMENT", "Error finalizing discharge", ex,
+                    ctx: LogCtx.PlayerState());
                 _isPendingDischarge = false;
                 _payMusterPending = false;
                 _pendingMusterPay = 0;
@@ -5472,7 +5471,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Pay", "E-PAY-001", "Error resolving smuggle discharge", ex);
+                ModLogger.Surfaced("PAY", "Error resolving smuggle discharge", ex);
                 _isPendingDischarge = false;
                 _payMusterPending = false;
                 _pendingMusterPay = 0;
@@ -5538,7 +5537,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // and prevent repeating a potentially bad/partial payout.
                 _isPensionPaused = true;
                 _lastPayOutcome = "pension_paused_error";
-                ModLogger.ErrorCode("Gold", "E-GOLD-001", "Pension processing failed; pension paused", ex);
+                ModLogger.Caught("Gold", "Pension processing failed; pension paused", ex);
             }
         }
 
@@ -5619,7 +5618,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Equipment", "E-EQUIP-004", "Gear handling on discharge failed", ex);
+                ModLogger.Surfaced("EQUIPMENT", "Gear handling on discharge failed", ex);
             }
         }
 
@@ -5727,7 +5726,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Equipment", "E-EQUIP-005", "Failed to clear equipment", ex);
+                ModLogger.Caught("Equipment", "Failed to clear equipment", ex);
             }
         }
 
@@ -5785,7 +5784,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-002", "Error applying pension on discharge", ex);
+                ModLogger.Surfaced("RETIREMENT", "Error applying pension on discharge", ex);
             }
         }
 
@@ -5981,7 +5980,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Pay", "E-QM-DEAL-001", "Failed to select equipment by skills", ex);
+                ModLogger.Caught("Pay", "Failed to select equipment by skills", ex);
                 return null;
             }
         }
@@ -6167,7 +6166,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Pay", "E-PAY-002", "Error awarding battle loot share", ex);
+                ModLogger.Caught("Pay", "Error awarding battle loot share", ex);
             }
         }
 
@@ -6320,7 +6319,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Pay", "E-PAY-004", "Error checking NPC desertion from pay tension", ex);
+                ModLogger.Caught("Pay", "Error checking NPC desertion from pay tension", ex);
             }
         }
 
@@ -6395,7 +6394,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (!_loggedWageBreakdownFailure)
                 {
                     _loggedWageBreakdownFailure = true;
-                    ModLogger.ErrorCode("Wage", "E-WAGE-001", "Failed to calculate wage breakdown (using fallback values)", ex);
+                    ModLogger.Caught("Wage", "Failed to calculate wage breakdown (using fallback values)", ex);
                 }
                 breakdown.BasePay = 24;
                 breakdown.Total = 24;
@@ -6518,7 +6517,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SaveLoad", "E-SAVELOAD-003", "Tracking migration failed", ex);
+                ModLogger.Caught("SaveLoad", "Tracking migration failed", ex);
             }
         }
 
@@ -6533,7 +6532,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-001", "Failed to pause time on settlement entry", ex);
+                ModLogger.Caught("Settlement", "Failed to pause time on settlement entry", ex);
             }
         }
 
@@ -6631,7 +6630,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SaveLoad", "E-SAVELOAD-003", "Error during roster deduplication", ex);
+                ModLogger.Caught("SaveLoad", "Error during roster deduplication", ex);
             }
         }
 
@@ -6737,7 +6736,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("SaveLoad", "E-SAVELOAD-004", "Error in RestorePartyStateAfterLoad", ex);
+                ModLogger.Caught("SaveLoad", "Error in RestorePartyStateAfterLoad", ex);
             }
         }
 
@@ -6799,13 +6798,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         else
                         {
                             // Fallback if method not found (unlikely)
-                            ModLogger.ErrorCode("EventSafety", "E-EVENTSAFE-001",
-                                "Could not find EndCaptivityAction.ApplyByEscape");
+                            ModLogger.Caught("EventSafety", "Could not find EndCaptivityAction.ApplyByEscape", null);
                         }
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode("EventSafety", "E-EVENTSAFE-002", "Error forcing player escape", ex);
+                        ModLogger.Caught("EventSafety", "Error forcing player escape", ex);
                     }
                 }
             }
@@ -7167,7 +7165,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 }
                                 catch (Exception ex)
                                 {
-                                    ModLogger.ErrorCode("Battle", "E-BATTLE-003", "Error joining lord's army", ex);
+                                    ModLogger.Caught("Battle", "Error joining lord's army", ex);
                                 }
                             }
                         }
@@ -7367,7 +7365,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.ErrorCode("Battle", "E-BATTLE-004", "Error in battle participation setup", ex);
+                                ModLogger.Caught("Battle", "Error in battle participation setup", ex);
                             }
                         }
                         else
@@ -7435,8 +7433,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 }
                                 catch (Exception ex)
                                 {
-                                    ModLogger.ErrorCode("Siege", "E-SIEGE-001",
-                                        "Error finishing PlayerEncounter when entering settlement", ex);
+                                    ModLogger.Caught("Siege", "Error finishing PlayerEncounter when entering settlement", ex);
                                 }
                             }
                         }
@@ -7657,7 +7654,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-005", "Failed to sync besieger camp", ex);
+                ModLogger.Caught("Battle", "Failed to sync besieger camp", ex);
             }
         }
 
@@ -7943,7 +7940,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("PositionSync", "E-POSSYNC-001", "Error in aggressive position sync", ex);
+                ModLogger.Caught("PositionSync", "Error in aggressive position sync", ex);
             }
         }
 
@@ -8069,7 +8066,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVAL-001", "Failed to sync naval position", ex);
+                ModLogger.Caught("Naval", "Failed to sync naval position", ex);
                 return false;
             }
         }
@@ -8162,7 +8159,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-006", "Failed to teleport player to safety", ex);
+                ModLogger.Caught("Battle", "Failed to teleport player to safety", ex);
             }
         }
 
@@ -8244,7 +8241,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVAL-002", "Failed to teleport stranded player to nearest port", ex);
+                ModLogger.Caught("Naval", "Failed to teleport stranded player to nearest port", ex);
 
                 // Emergency fallback - at least try to clear sea state
                 try
@@ -8561,8 +8558,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (!IsEnlisted || !IsEligibleForRetirement)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-005", "Cannot process first-term retirement - not eligible",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Retirement", "retire_first_term_ineligible",
+                    "Cannot process first-term retirement - not eligible");
                 return;
             }
 
@@ -8612,8 +8609,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (!IsEnlisted || !IsInRenewalTerm)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-006", "Cannot process renewal retirement - not in renewal term",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Retirement", "retire_renewal_not_in_term",
+                    "Cannot process renewal retirement - not in renewal term");
                 return;
             }
 
@@ -8661,8 +8658,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (!IsEnlisted)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-007", "Cannot start renewal term - not enlisted",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Retirement", "retire_renewal_not_enlisted",
+                    "Cannot start renewal term - not enlisted");
                 return;
             }
 
@@ -8727,8 +8724,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var faction = lord.MapFaction;
             if (faction == null || !CanReEnlistAfterCooldown(faction))
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-008", "Cannot re-enlist - not eligible or wrong faction",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Retirement", "retire_reenlist_ineligible",
+                    "Cannot re-enlist - not eligible or wrong faction");
                 return;
             }
 
@@ -8792,8 +8789,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var faction = _enlistedLord?.MapFaction;
                 if (faction == null)
                 {
-                    ModLogger.ErrorCode("Retirement", "E-RETIRE-009", "Cannot apply relation bonuses - no faction",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Expected("Retirement", "retire_bonuses_no_faction",
+                        "Cannot apply relation bonuses - no faction");
                     return;
                 }
 
@@ -8866,7 +8863,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-003", "Error applying relation bonuses", ex);
+                ModLogger.Surfaced("RETIREMENT", "Error applying relation bonuses", ex);
             }
         }
 
@@ -8883,8 +8880,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var faction = _enlistedLord?.MapFaction;
                 if (faction == null)
                 {
-                    ModLogger.ErrorCode("Retirement", "E-RETIRE-010", "Cannot apply subsequent bonuses - no faction",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Expected("Retirement", "retire_subsequent_bonuses_no_faction",
+                        "Cannot apply subsequent bonuses - no faction");
                     return;
                 }
 
@@ -8940,7 +8937,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Retirement", "E-RETIRE-004", "Error applying subsequent re-enlistment bonuses", ex);
+                ModLogger.Surfaced("RETIREMENT", "Error applying subsequent re-enlistment bonuses", ex);
             }
         }
 
@@ -9709,7 +9706,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode("Enlistment", "E-ENLIST-014", "Failed to grant commander retinue on tier change", ex);
+                    ModLogger.Caught("Enlistment", "Failed to grant commander retinue on tier change", ex);
                 }
             }
         }
@@ -9752,8 +9749,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (_enlistedLord == null)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-008", "Cannot create quartermaster: no enlisted lord",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Quartermaster", "qm_create_no_lord",
+                    "Cannot create quartermaster: no enlisted lord");
                 return null;
             }
 
@@ -9762,8 +9759,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var culture = _enlistedLord.Culture;
                 if (culture == null)
                 {
-                    ModLogger.ErrorCode("Quartermaster", "E-QM-009", "Cannot create quartermaster: lord has no culture",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Expected("Quartermaster", "qm_create_no_culture",
+                        "Cannot create quartermaster: lord has no culture");
                     return null;
                 }
 
@@ -9791,8 +9788,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (qm == null)
                 {
-                    ModLogger.ErrorCode("Quartermaster", "E-QM-010", "HeroCreator.CreateSpecialHero returned null",
-                        new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                    ModLogger.Caught("Quartermaster", "HeroCreator.CreateSpecialHero returned null", null);
                     return null;
                 }
 
@@ -9905,7 +9901,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-011", "Failed to apply wealthy quartermaster attire", ex);
+                ModLogger.Caught("Quartermaster", "Failed to apply wealthy quartermaster attire", ex);
             }
         }
 
@@ -10761,7 +10757,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Progression", "E-PROG-001", "Error checking promotion notification", ex);
+                ModLogger.Caught("Progression", "Error checking promotion notification", ex);
             }
         }
 
@@ -10905,7 +10901,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FactionRelations", "E-FACTIONREL-001", "Error mirroring war relations", ex);
+                ModLogger.Caught("FactionRelations", "Error mirroring war relations", ex);
             }
         }
 
@@ -10973,7 +10969,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FactionRelations", "E-FACTIONREL-002", "Error restoring war relations", ex);
+                ModLogger.Caught("FactionRelations", "Error restoring war relations", ex);
                 // Clear tracking even on error to prevent stale state
                 _minorFactionWarRelations?.Clear();
             }
@@ -11039,7 +11035,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("FactionRelations", "E-FACTIONREL-003", "Error refreshing faction visuals", ex);
+                ModLogger.Caught("FactionRelations", "Error refreshing faction visuals", ex);
             }
         }
 
@@ -11425,8 +11421,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             if (newLord == null)
             {
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-016", "TransferServiceToLord called with null lord",
-                    new InvalidOperationException("Generated diagnostic exception to capture stack trace."));
+                ModLogger.Expected("Enlistment", "transfer_lord_null",
+                    "TransferServiceToLord called with null lord");
                 return;
             }
 
@@ -11527,7 +11523,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             catch (Exception ex)
             {
                 var newLordName = newLord?.Name?.ToString() ?? "unknown";
-                ModLogger.ErrorCode("Enlistment", "E-ENLIST-015", $"Error transferring service to {newLordName}", ex);
+                ModLogger.Surfaced("ENLISTMENT", "Error transferring service to new lord", ex,
+                    ctx: LogCtx.Of("NewLord", newLordName));
             }
         }
 
@@ -11837,7 +11834,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-002",
+                            ModLogger.Caught("Settlement",
                                 "Error finishing PlayerEncounter before settlement entry (player)", ex);
                         }
                     }
@@ -11911,7 +11908,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-003",
+                            ModLogger.Caught("Settlement",
                                 "Error finishing PlayerEncounter before settlement entry (lord)", ex);
                         }
                     }
@@ -11973,7 +11970,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-004", "Error in settlement entry detection", ex);
+                ModLogger.Caught("Settlement", "Error in settlement entry detection", ex);
             }
         }
 
@@ -12077,7 +12074,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             {
                                 // Make sure to end force hidden even on error
                                 VisibilityEnforcementPatch.EndForceHidden();
-                                ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-005",
+                                ModLogger.Caught("Settlement",
                                     "Error pulling player from settlement to follow lord", ex);
                             }
                         });
@@ -12086,7 +12083,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Settlement", "E-SETTLEMENT-006", "Error in settlement exit detection", ex);
+                ModLogger.Caught("Settlement", "Error in settlement exit detection", ex);
             }
         }
 
@@ -12203,7 +12200,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.ErrorCode("Battle", "E-BATTLE-018",
+                                ModLogger.Caught("Battle",
                                     $"Failed to switch to native menu '{desiredMenu}'", ex);
                             }
                         });
@@ -12250,7 +12247,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-014", "Error in MapEventStarted battle handler", ex);
+                ModLogger.Caught("Battle", "Error in MapEventStarted battle handler", ex);
             }
         }
 
@@ -12372,7 +12369,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Battle", "E-BATTLE-019",
+                            ModLogger.Caught("Battle",
                                 "Error finishing PlayerEncounter after enlistment ended", ex);
                         }
                     }
@@ -12545,7 +12542,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.ErrorCode("Battle", "E-BATTLE-SIEGE", "Error in post-siege transition", ex);
+                                ModLogger.Caught("Battle", "Error in post-siege transition", ex);
                             }
                         });
 
@@ -12611,7 +12608,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.ErrorCode("Battle", "E-BATTLE-020",
+                                ModLogger.Caught("Battle",
                                     "Error in deferred encounter cleanup", ex);
                             }
                         });
@@ -12639,7 +12636,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-015", "Error in MapEvent end handler", ex);
+                ModLogger.Caught("Battle", "Error in MapEvent end handler", ex);
             }
         }
 
@@ -12754,7 +12751,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-016", "Error in OnPlayerBattleEnd", ex);
+                ModLogger.Caught("Battle", "Error in OnPlayerBattleEnd", ex);
             }
         }
 
@@ -12941,7 +12938,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("EncounterCleanup", "E-ENCOUNTER-POST-001",
+                ModLogger.Caught("EncounterCleanup",
                     $"CleanupPostEncounterState failed ({context})", ex);
             }
         }
@@ -13281,7 +13278,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("GraceProtection", "E-GRACE-001", "Failed to grant grace period interaction window", ex);
+                ModLogger.Caught("GraceProtection", "Failed to grant grace period interaction window", ex);
             }
         }
 
@@ -13375,7 +13372,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-012", "Error restoring campaign flow after battle", ex);
+                ModLogger.Caught("Battle", "Error restoring campaign flow after battle", ex);
             }
         }
 
@@ -13406,7 +13403,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("EncounterCleanup", "E-ENCOUNTER-002",
+                ModLogger.Caught("EncounterCleanup",
                     $"Failed to finish lingering PlayerEncounter after {context}", ex);
             }
         }
@@ -13539,7 +13536,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVAL-003", "Error validating army state", ex);
+                ModLogger.Caught("Naval", "Error validating army state", ex);
 
                 // On error, try to clean up anyway to prevent cascading crashes
                 try
@@ -13579,7 +13576,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Diagnostics", "E-DIAG-001", "Error logging party state", ex);
+                ModLogger.Caught("Diagnostics", "Error logging party state", ex);
             }
         }
 
@@ -13607,7 +13604,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLE-013", "Error in OnAfterMissionStarted", ex);
+                ModLogger.Caught("Battle", "Error in OnAfterMissionStarted", ex);
             }
         }
 
