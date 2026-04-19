@@ -5219,6 +5219,34 @@ namespace Enlisted.Features.Interface.Behaviors
             ModLogger.Info(LogCategory, $"Personal news: {headlineKey} ({category})");
         }
 
+        /// <summary>
+        /// Public entry point for the StoryDirector (and other external callers) to write an
+        /// observational item into the player's personal news feed.  Forwards to the canonical
+        /// private <see cref="AddPersonalNews"/> path so dedup/update logic stays in one place.
+        /// </summary>
+        public void AddPersonalDispatch(
+            string category,
+            string headlineKey,
+            Dictionary<string, string> placeholderValues,
+            string storyKey,
+            int severity,
+            int minDisplayDays)
+        {
+            if (string.IsNullOrEmpty(headlineKey))
+            {
+                return;
+            }
+
+            try
+            {
+                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("NEWS", "AddPersonalDispatch failed", ex);
+            }
+        }
+
         #endregion
 
         #region Internal Helpers
