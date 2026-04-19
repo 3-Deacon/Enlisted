@@ -25,6 +25,7 @@ namespace Enlisted.Features.Content
 
         private const string NoCategorySentinel = "_none";
         private const string DefaultDispatchCategory = "general";
+        private const int DeferredInteractiveCap = 32;
 
         // Project convention: behavior fields use SyncData only, no [SaveableField].
         // See src/Features/Retinue/Core/CompanionAssignmentManager.cs for precedent.
@@ -100,12 +101,21 @@ namespace Enlisted.Features.Content
             try
             {
                 int today = (int)CampaignTime.Now.ToDays;
+
+                // Goal 1: retry one deferred interactive candidate per day if floors now allow.
+                // If the head's InteractiveEventId is no longer in the catalog, drop it and
+                // continue to try the next one (up to one re-fire per tick).
+                if (TryFlushDeferredInteractive(today))
+                {
+                    // Re-firing a deferred interactive counts as the day's modal activity —
+                    // don't also fire a quiet-stretch fallback on the same tick.
+                    return;
+                }
+
                 if (today - _lastModalDay < DensitySettings.QuietStretchDays)
                 {
                     return;
                 }
-
-                // Retry queue flush is Task 30 — not this task. Only the quiet-stretch fallback.
 
                 var candidates = EventCatalog.GetEventsByCategory("quiet_stretch").ToList();
                 if (candidates.Count == 0)
@@ -136,6 +146,71 @@ namespace Enlisted.Features.Content
             }
         }
 
+        /// <summary>
+        /// Attempts to flush up to one deferred interactive candidate from _deferredInteractive.
+        /// Drops candidates whose event is no longer in the catalog (at most a few per tick
+        /// to avoid unbounded work) and tries subsequent candidates; only one successful fire
+        /// per tick. Returns true if a candidate was fired.
+        /// </summary>
+        private bool TryFlushDeferredInteractive(int today)
+        {
+            // Guard against O(n) scans in pathological cases: give up after a small probe.
+            const int MaxProbesPerTick = 4;
+            int probes = 0;
+
+            while (_deferredInteractive.Count > 0 && probes < MaxProbesPerTick)
+            {
+                probes++;
+                var next = _deferredInteractive[0];
+                EventDefinition evt = null;
+                if (!string.IsNullOrEmpty(next.InteractiveEventId))
+                {
+                    evt = EventCatalog.GetEventById(next.InteractiveEventId);
+                }
+
+                if (evt == null)
+                {
+                    // Event no longer in catalog — drop silently and probe next.
+                    _deferredInteractive.RemoveAt(0);
+                    continue;
+                }
+
+                var pseudo = new StoryCandidate
+                {
+                    SourceId = next.SourceId,
+                    CategoryId = next.CategoryId,
+                    InteractiveEvent = evt
+                };
+
+                if (!ModalFloorsAllow(pseudo, today))
+                {
+                    // Head still blocked — don't skip it (preserve FIFO semantics).
+                    return false;
+                }
+
+                _deferredInteractive.RemoveAt(0);
+                var delivery = EventDeliveryManager.Instance;
+                if (delivery == null)
+                {
+                    ModLogger.Expected("CONTENT", "deferred_flush_no_delivery_manager",
+                        "EventDeliveryManager.Instance null — deferred candidate dropped");
+                    // Keep probing: the list shouldn't stall just because delivery is missing
+                    // this tick; but we've already removed the head, so stop here to avoid
+                    // cascading drops across a transient outage.
+                    return false;
+                }
+
+                DownshiftSpeedIfNeeded();
+                delivery.QueueEvent(evt);
+                _lastModalDay = today;
+                _lastModalUtcTicks = DateTime.UtcNow.Ticks;
+                _categoryCooldowns[next.CategoryId ?? NoCategorySentinel] = today;
+                return true;
+            }
+
+            return false;
+        }
+
         private void Route(StoryCandidate c, StoryTier tier)
         {
             int today = (int)CampaignTime.Now.ToDays;
@@ -145,6 +220,10 @@ namespace Enlisted.Features.Content
                 if (!ModalFloorsAllow(c, today))
                 {
                     _deferredInteractive.Add(MakePersistent(c, tier, today));
+                    if (_deferredInteractive.Count > DeferredInteractiveCap)
+                    {
+                        _deferredInteractive.RemoveAt(0);
+                    }
                     return;
                 }
 
