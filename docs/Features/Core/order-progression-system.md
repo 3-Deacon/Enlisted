@@ -1057,7 +1057,7 @@ private void ProcessOrderPhase(ActiveOrder order, int phaseIndex)
             var orderEvent = SelectOrderEvent(order, worldState);
             if (orderEvent != null)
             {
-                EventDeliveryManager.QueueEvent(orderEvent);
+                StoryDirector.Instance.EmitCandidate(/* orderEvent wrapped in StoryCandidate */); // migrated in commit 2f297c6
                 entry.AwaitingDecision = true;
                 entry.Icon = "⚠️";
                 entry.Body += "\n→ Something's happening...";

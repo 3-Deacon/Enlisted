@@ -73,7 +73,7 @@ Fires when supplies remain low for consecutive days, escalating from warnings to
 - **NCO (T5-T6):** Squad leader perspective - managing squad tensions
 - **Commander (T7+):** Strategic perspective - discipline breakdown, desertions
 
-**Implementation:** `CompanySimulationBehavior.CheckPressureArcEvents()` fires events at exact day thresholds using `_companyPressure.DaysLowSupplies` counter.
+**Implementation:** `CompanySimulationBehavior.CheckPressureArcEvents()` emits candidates at exact day thresholds using `_companyPressure.DaysLowSupplies` counter. Supply pressure events are demoted to `Pertinent` tier (accordion-only — they surface in the `enlisted_status` Headlines drilldown, not as modal popups). Migrated in commit `23dae6b`.
 
 **See Also:** [Company Supply Simulation](../Equipment/company-supply-simulation.md#pressure-tracking)
 

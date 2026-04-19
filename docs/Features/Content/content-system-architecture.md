@@ -520,53 +520,51 @@ Integration with native Bannerlord map incidents:
 
 ```
 Content System
+├── StoryDirector        (Modal gating: floor + wall-clock + category cooldown; deferred FIFO queue)
 ├── EventCatalog         (JSON loader, content registry)
-├── EventDeliveryManager (Pipeline, effects, feedback)
+├── EventDeliveryManager (Downstream executor: UI popups, effects, feedback — called by Director)
 ├── EventRequirementChecker (Validation, gating)
 ├── EventSelector        (Weighted event selection, category filtering)
 │                        Filters out: "decision", "onboarding", specific muster events
-├── EventPacingManager   (3-5 day paced narrative events)
-├── MapIncidentManager   (Context-based incidents: battles, settlements)
-├── GlobalEventPacer     (Enforces max_per_day, min_hours_between limits)
+├── EventPacingManager   (3-5 day paced narrative events — emits via StoryDirector)
+├── MapIncidentManager   (Context-based incidents — emits via StoryDirector)
+├── GlobalEventPacer     (Legacy coordinator; superseded by StoryDirector for production sites)
 ├── DecisionCatalog      (Decision-specific loading)
 └── OrderCatalog         (Order-specific loading)
 ```
 
 ### Global Event Pacing (Current System)
 
-All automatic events are coordinated through `GlobalEventPacer` to prevent spam. **All timing is config-driven** from `enlisted_config.json` → `decision_events.pacing`.
+All automatic events are coordinated through `StoryDirector` (Phase 3 migration complete, 2026-04-18). Sources emit `StoryCandidate` objects; the Director applies Modal floor/wall-clock/category-cooldown guards, routes to accordion (`enlisted_status` Headlines), or defers. `EventDeliveryManager` is the downstream executor — called only by the Director, the debug-tool bypass, and Director-unavailable fallback paths. `GlobalEventPacer` pre-Phase-3 guards remain wired for the small number of decision and chain-event paths that still call `DeliverEvent` directly.
 
 ```
-                    ┌─────────────────────────────────────────────────┐
-                    │              GlobalEventPacer                   │
-                    │  Enforces (all config-driven):                  │
-                    │    • max_per_day / max_per_week                 │
-                    │    • min_hours_between                          │
-                    │    • evaluation_hours (narrative only)          │
-                    │    • per_category_cooldown_days                 │
-                    │    • quiet_day_chance (random skip)             │
-                    └──────────────────────┬──────────────────────────┘
-                                           │
-              ┌────────────────────────────┼────────────────────────────┐
-              │                            │                            │
-     EventPacingManager           MapIncidentManager            (Chain Events)
-    category: "narrative"       category: "map_incident"         (immediate)
-    (event_window_min/max)       (skips evaluation_hours)
-    (follows eval hours)
-              │                            │                            │
-              └────────────────────────────┼────────────────────────────┘
-                                           │
-                                           ▼
-                               EventDeliveryManager
-                                 (queues and shows)
+     Story sources (all production QueueEvent call sites migrated to EmitCandidate)
+     ┌──────────────────────────────────────────────────────────────────────────┐
+     │ EventPacingManager  MapIncidentManager  ContentOrchestrator              │
+     │ OrderProgressionBehavior  EscalationManager  PromotionBehavior  …        │
+     └──────────────────────────────┬───────────────────────────────────────────┘
+                                    │ EmitCandidate(StoryCandidate)
+                                    ▼
+                    ┌───────────────────────────────────┐
+                    │           StoryDirector           │
+                    │  floor + wall-clock + category    │
+                    │  cooldown guards (Modal tier)     │
+                    │  DailyTick deferred flush (FIFO)  │
+                    └────────┬──────────────┬───────────┘
+                             │              │
+                     Modal popup     enlisted_status accordion
+                             │              (Headlines / Pertinent)
+                             ▼
+                   EventDeliveryManager
+                    (queues and shows)
 ```
 
-**Config Location:** `enlisted_config.json` → `decision_events.pacing`
+**Config Location:** `enlisted_config.json` → `event_density` (Sparse / Normal / Dense)
 
-**What's NOT gated:**
-- Player-selected decisions (Camp Hub menu) - player chose to see it
-- Chain events from previous choices - immediate follow-up
-- Debug/test event triggers
+**What's NOT gated by the Director:**
+- Player-selected decisions (Camp Hub menu) — player chose to see it
+- Five annotated `ShowInquiry` bypass sites (ceremony, insubordination, dereliction, commission, debug tool)
+- `ChainContinuation`-flagged candidates bypass in-game floor + category cooldown (still honor 60s wall-clock)
 
 **Grace Period After Enlistment:**
 - **3-day grace period** after enlisting with a lord
@@ -574,7 +572,7 @@ All automatic events are coordinated through `GlobalEventPacer` to prevent spam.
 - Gives player time to learn systems and get oriented
 - Hardcoded in EventPacingManager and MapIncidentManager
 
-See [Event System Schemas - Global Event Pacing](event-system-schemas.md#global-event-pacing-enlisted_configjson) for full config reference.
+See the [Event Pacing design spec](../../superpowers/specs/2026-04-18-event-pacing-design.md) and [implementation plan](../../superpowers/plans/2026-04-18-event-pacing.md) for the full commit history.
 
 ---
 
@@ -598,8 +596,9 @@ var validEvents = candidates.Where(e =>
 var selectedEvent = SelectEvent(validEvents);
 // If multiple variants eligible, best-fit is selected
 
-// 5. Present to player
-EventDeliveryManager.DeliverEvent(selectedEvent);
+// 5. Emit to Director (all production call sites migrated from direct QueueEvent)
+StoryDirector.Instance.EmitCandidate(new StoryCandidate { InteractiveEvent = selectedEvent, ... });
+// Director applies Modal guards; EventDeliveryManager.QueueEvent is called by the Director internally.
 
 // 6. Player chooses option
 var chosenOption = await GetPlayerChoice(selectedEvent.Options);

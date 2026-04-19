@@ -2434,14 +2434,16 @@ public ProgressionModifiers GetProgressionModifiers(string trackName)
 
 ### Threshold Event Delivery
 
-When progression crosses a threshold, the event goes through standard delivery:
+When progression crosses a threshold, the event is emitted to `StoryDirector` (all production call sites migrated to `EmitCandidate` in Phase 3, 2026-04-18):
 
 ```csharp
 // In ProgressionBehavior.OnTick()
 if (crossedThreshold)
 {
     var eventId = config.ThresholdEvents[newValue.ToString()];
-    EventDeliveryManager.Instance.QueueEvent(eventId);
+    // Routes through StoryDirector.EmitCandidate — Director applies Modal guards
+    // and calls EventDeliveryManager internally.
+    StoryDirector.Instance.EmitCandidate(new StoryCandidate { InteractiveEvent = eventId, ... });
 }
 ```
 

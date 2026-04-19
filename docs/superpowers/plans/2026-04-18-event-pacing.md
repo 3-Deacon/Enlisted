@@ -4,7 +4,7 @@
 
 ---
 
-## Current status — Phase 2 complete, resuming at Task 17 (Phase 3)
+## Current status — Phase 3 complete (all call sites migrated)
 
 **Phase 1 (infrastructure, no-op at runtime):** ✅ 10 commits landed and smoke-tested in-game 2026-04-18. No `E-PACE-*` warnings, save/load clean in 5ms, no SaveableType errors.
 
@@ -32,7 +32,34 @@
 | 15 | Muster intro digest — severity filter + dispatch resolver on pre-existing `BuildPeriodSummary` flow | `e267e97` |
 | 16 | Quiet-stretch fallback on `DailyTickEvent` — picks random event from `quiet_stretch` category after `QuietStretchDays` of silence | `1773578` |
 
-**Phase 3 starts at Task 17** (`### Task 17: MapIncidentManager`). Tasks 17–30 migrate the 14 production `EventDeliveryManager.Instance.QueueEvent` call sites plus 4 non-QueueEvent ShowInquiry annotations, then add the deferred-interactive retry queue on DailyTick. Current QueueEvent call-site count is **16 production + 1 debug = 17 total** (slightly higher than the plan's "14+1" estimate — see ContentOrchestrator.cs lines 274/621/834 and CompanySimulationBehavior.cs:671 for the extra sites to reconcile). Phase 4 (Tasks 31–32) adds smoke-test scenarios and INDEX/BLUEPRINT docs.
+**Phase 3 (call-site migration):** ✅ 26 commits landed (f74d9dd through 35d1f67). All 15 production `EventDeliveryManager.Instance.QueueEvent(...)` call sites now route through `StoryDirector.EmitCandidate`. Five `ShowInquiry` sites annotated as intentional bypass (Tasks 21b/c/d, 28b, 29). `ChainContinuation` flag added to `StoryCandidate` — bypasses in-game floor + category cooldown (still honors 60s wall-clock) for promotions, chain events, bag checks. `StoryDirector.OnDailyTick` flushes one deferred interactive per tick (FIFO, cap 32, drops catalog-missing entries). Verification battery framework committed at `docs/superpowers/plans/2026-04-18-event-pacing-verification.md`. INDEX.md and BLUEPRINT.md updated in commit `f809de5`.
+
+| # | Task | Commit(s) |
+|---|---|---|
+| 20 step 1 | `ChainContinuation` flag added to `StoryCandidate` | `f74d9dd` |
+| 17 | `MapIncidentManager` routes through Director | `1e3768e` + `8a41375` (beat fix) |
+| 18 | `ContentOrchestrator` opportunity sites | `1f559f6` |
+| 18b | `ContentOrchestrator` crisis sites | `f084385` |
+| 18c | `ContentOrchestrator` illness sites | `76710c6` |
+| 19 | `EnlistedMenuBehavior` direct-queue site | `84a06ce` |
+| 20 step 2 | `EventPacingManager` chain sites | `0789b72` |
+| 21 | `PromotionBehavior` proving event | `caafd54` |
+| 21b | Ceremony `ShowInquiry` annotated as intentional bypass | `8fb8e3a` |
+| 21c | Insubordination `ShowInquiry` annotated as intentional bypass | `3380560` |
+| 21d | Dereliction `ShowInquiry` annotated as intentional bypass | `b977a39` |
+| 22 | `EscalationManager` threshold event | `754c39f` |
+| 23 | `EnlistmentBehavior` bag check sites (×2) | `094c5e4` |
+| 24 | `CompanySimulationBehavior` supply pressure — demoted to `Pertinent` (accordion) | `23dae6b` |
+| 25 | `CampOpportunityGenerator` scheduled commitment | `b4d40b1` |
+| 26 | `OrderProgressionBehavior` phase event | `2f297c6` |
+| 27 | `RetinueCasualtyTracker` veteran memorial — demoted to `Pertinent` (accordion) | `a8d42bf` |
+| 28 | `RetinueManager` loyalty threshold | `f6150c2` |
+| 28b | Commission `ShowInquiry` annotated as intentional bypass | `df37ff6` |
+| 29 | `DebugToolsBehavior` annotated as intentional bypass | `1762aca` |
+| 30 | Deferred retry queue on `DailyTick` (FIFO, cap 32) | `a678ada` + `b13227e` (polish) |
+| 31 | Verification battery doc | `93758dc` |
+| 32 | INDEX + BLUEPRINT cross-links | `f809de5` |
+| — | Error-code registry regen | `35d1f67` |
 
 **Execution pattern that worked in Phase 1 and Phase 2:** subagent-driven development (`superpowers:subagent-driven-development`) with haiku for mechanical tasks and sonnet for TaleWorlds API / multi-file integration work. Per-task flow = implementer → spec reviewer → code quality reviewer, with fixup cycles until APPROVED. MINOR issues from reviewers get fixed and re-reviewed before marking done. Plan edits also worth noting:
 
