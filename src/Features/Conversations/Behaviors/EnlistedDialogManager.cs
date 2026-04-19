@@ -4890,15 +4890,15 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var lord = Hero.OneToOneConversationHero;
                 if (lord == null)
                 {
-                    ModLogger.LogOnce("dialog_accept_enlistment_no_conversation_hero", "DIALOGMANAGER",
-                        "[E-DIALOG-001] No conversation hero found during enlistment acceptance", LogLevel.Error);
+                    ModLogger.Surfaced("DIALOGMANAGER",
+                        "No conversation hero found during enlistment acceptance");
                     return;
                 }
 
                 if (EnlistmentBehavior.Instance == null)
                 {
-                    ModLogger.LogOnce("dialog_accept_enlistment_enlistment_instance_null", "DIALOGMANAGER",
-                        "[E-DIALOG-002] EnlistmentBehavior.Instance is null during enlistment", LogLevel.Error);
+                    ModLogger.Surfaced("DIALOGMANAGER",
+                        "EnlistmentBehavior.Instance is null during enlistment");
                     return;
                 }
 
@@ -4916,8 +4916,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                     {
                         if (EnlistmentBehavior.Instance == null)
                         {
-                            ModLogger.LogOnce("dialog_deferred_enlistment_instance_null", "DIALOGMANAGER",
-                                "[E-DIALOG-004] EnlistmentBehavior.Instance became null before deferred enlistment", LogLevel.Error);
+                            ModLogger.Surfaced("DIALOGMANAGER",
+                                "EnlistmentBehavior.Instance became null before deferred enlistment");
                             return;
                         }
 
@@ -5268,8 +5268,8 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (newLord == null || enlistment == null)
                 {
-                    ModLogger.LogOnce("dialog_transfer_service_missing_inputs", "DIALOGMANAGER",
-                        "[E-DIALOG-003] Cannot transfer service - missing lord or enlistment instance", LogLevel.Error);
+                    ModLogger.Expected("DIALOGMANAGER", "dialog_transfer_service_missing_inputs",
+                        "Cannot transfer service - missing lord or enlistment instance");
                     return;
                 }
 

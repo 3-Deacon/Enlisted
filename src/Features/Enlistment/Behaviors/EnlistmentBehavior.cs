@@ -6512,7 +6512,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     // Non-spammy summary marker for support: confirms a migration occurred in this session.
                     ModLogger.LogOnce("enlistment_migrate_phase7_tracking", "SaveLoad",
-                        "[E-SAVELOAD-002] Applied tracking migration for an existing save.");
+                        "Applied tracking migration for an existing save.");
                 }
             }
             catch (Exception ex)

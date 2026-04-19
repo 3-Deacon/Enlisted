@@ -34,6 +34,14 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-CAMPLIFE-7b2d | No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu. | src/Features/Camp/CampOpportunityGenerator.cs:1767 |
 | E-CAMPLIFE-803c | camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete. | src/Features/Camp/CampOpportunityGenerator.cs:1754 |
 
+## DIALOGMANAGER
+
+| Code | Summary | Source |
+|---|---|---|
+| E-DIALOGMANAGER-1e6d | No conversation hero found during enlistment acceptance | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4893 |
+| E-DIALOGMANAGER-3528 | EnlistmentBehavior.Instance became null before deferred enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4919 |
+| E-DIALOGMANAGER-f44a | EnlistmentBehavior.Instance is null during enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4900 |
+
 ## ENLISTMENT
 
 | Code | Summary | Source |
