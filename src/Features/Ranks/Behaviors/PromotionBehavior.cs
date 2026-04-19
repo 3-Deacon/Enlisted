@@ -457,6 +457,11 @@ namespace Enlisted.Features.Ranks.Behaviors
                     null
                 );
 
+                // Intentional bypass of StoryDirector — this ceremony popup fires synchronously
+                // as the completion beat of a proving event that the Director already paced.
+                // Routing it through the Director would trip the 60s wall-clock guard and
+                // swallow the ceremony. If the promotion ceremony UX changes (e.g. demoted
+                // to accordion headline instead of a modal), revisit this bypass.
                 // pauseGameActiveState = false so notifications don't freeze game time
                 InformationManager.ShowInquiry(data);
 
