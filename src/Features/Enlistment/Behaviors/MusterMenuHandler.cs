@@ -2521,6 +2521,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     break;
                 }
 
+                if (item.Severity < 1)
+                {
+                    continue;
+                }
+
                 var headline = FormatFeedItemForMuster(item);
                 if (!string.IsNullOrEmpty(headline))
                 {
@@ -3592,21 +3597,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
         /// <summary>
         /// Formats a dispatch item for display in the muster period summary.
-        /// Simplifies headlines and removes redundant prefixes.
+        /// Resolves headline placeholders and removes redundant prefixes.
         /// </summary>
         private string FormatFeedItemForMuster(DispatchItem item)
         {
-            // DispatchItem is a struct, so check for default values instead
+            // Default-struct guard retained.
             if (item.DayCreated == 0 && string.IsNullOrEmpty(item.HeadlineKey))
             {
                 return string.Empty;
             }
 
-            // Use HeadlineKey directly as it contains the formatted text
-            var headline = item.HeadlineKey ?? string.Empty;
+            var headline = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: false) ?? string.Empty;
 
-            // Remove common prefixes to make it more concise
-            headline = headline.Replace("The company ", "");
+            // Preserve the legacy prefix cleanup (no-ops on modern templates but defensively kept).
+            headline = headline.Replace("The company ", string.Empty);
             headline = headline.Replace("Your lord's army ", "Army ");
 
             return headline.Trim();
