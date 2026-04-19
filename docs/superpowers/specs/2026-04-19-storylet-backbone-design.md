@@ -339,7 +339,27 @@ Register(new QualityDefinition
 
 Read-through qualities are not persisted (their source is). They still participate in triggers (`quality_gte:lord_relation:25`) and effects (`{ "apply": "quality_add", "quality": "lord_relation", "amount": 5 }`) identically. Authors see no difference.
 
+**Writable vs read-only.** Read-through qualities split into two kinds based on whether a storylet option can legitimately move them:
+
+| Quality | Writable? | Write path | Rationale |
+| :--- | :--- | :--- | :--- |
+| `rank_xp` | ✅ | `EnlistmentBehavior.AddEnlistmentXP(int)` | Storylets are where XP is earned — a successful patrol, a decisive battlefield moment, a charm of the lord |
+| `lord_relation` | ✅ | `ChangeRelationAction.ApplyPlayerRelation(lord, delta, affectRelatives: false, showQuickNotification: false)` | Native relation is social; events are social moments |
+| `battles_survived` | ✅ | `EnlistmentBehavior.IncrementBattlesSurvived()` | Battle-adjacent events (scouting ambush, escort skirmish, siege sortie) that cost real danger legitimately count as battle credit |
+| `hero_rep_<subject>` | ✅ | `ChangeRelationAction.ApplyPlayerRelation` with subject hero | Same as `lord_relation` |
+| `days_in_rank` | ❌ | — | Time-based; cannot be fast-forwarded by storylet. Decays naturally |
+| `days_enlisted` | ❌ | — | Same |
+| `rank` | ❌ | — | Rank advancement routes through `EnlistmentBehavior.SetTier` as the *outcome* of a promotion-ceremony chain, not a raw quality write |
+
+A storylet attempting to write a read-only quality fails validation at startup (`validate_content.py` Phase 12).
+
 The promotion gate table (`PromotionRequirements.GetForTier`) becomes data: `ModuleData/Enlisted/Promotion/promotion_requirements.json` mapping `targetTier → { xp_threshold, days_in_rank, battles_survived, min_lord_relation, max_scrutiny }`. The `can_promote_to_tier:N` trigger is a composite that reads `rank_xp`, `days_in_rank`, `battles_survived`, `lord_relation`, and `scrutiny` against the target row.
+
+### 7.6 Progression is earned through storylets
+
+The storylet layer is not a passive veneer over a separate XP counter — it is **the** place where career progression happens. Spec 0 requires that the seed set of scripted effects (§11.3) includes explicit named effects for progression increments (`rank_xp_minor`, `rank_xp_moderate`, `rank_xp_major`, `lord_relation_up_small/moderate/major`, `battles_survived_credit`, `scrutiny_down_small`). Surface specs author storylets whose options credibly move these — a charmed lord at a feast is worth a small relation bump; leading from the front in a bandit ambush is worth a moderate XP grant plus a battle credit.
+
+The authoring contract: **every storylet option that involves the lord, the squad, or the military duty should offer at least one progression-relevant effect, success or failure.** Pure-flavor options exist but are the exception. This is how the player feels the ladder under their feet.
 
 ## 8. Flags
 
@@ -527,8 +547,8 @@ Named effects live in one JSON file with corresponding C# entries:
 // ModuleData/Enlisted/Effects/scripted_effects.json
 {
   "effects": {
-    "lord_rep_up_small": [
-      { "apply": "quality_add", "quality": "lord_reputation", "amount": 2 },
+    "lord_relation_up_small": [
+      { "apply": "quality_add", "quality": "lord_relation", "amount": 2 },
       { "apply": "quality_add", "quality": "loyalty", "amount": 1 }
     ],
     "scrutiny_up_major": [
@@ -540,6 +560,59 @@ Named effects live in one JSON file with corresponding C# entries:
 ```
 
 `ScriptedEffectRegistry` resolves an effect ID to its body at load time and caches it. Storylets referencing an unknown ID fail validation at startup (`validate_content.py` Phase 12 — new).
+
+### 11.3 Seed catalog — career progression effects
+
+Spec 0 ships these in `scripted_effects.json` because every surface spec needs them and they must be named identically across the mod. Surface specs add their own effects (e.g., QM-banter effects, illness effects) but don't redefine these:
+
+| Effect id | Body | Authoring use |
+| :--- | :--- | :--- |
+| `rank_xp_minor` | `quality_add rank_xp +25` | Small win — a chore done well, a word in the right ear |
+| `rank_xp_moderate` | `quality_add rank_xp +75` | Notable moment — leading a patrol, besting a duel, a lord's public thanks |
+| `rank_xp_major` | `quality_add rank_xp +200` | Heroic — saving a noble, decisive battlefield action, a named arc climax |
+| `battles_survived_credit` | `quality_add battles_survived +1` | Battle-adjacent event that costs real danger (scouting ambush, escort skirmish, sortie) |
+| `lord_relation_up_small` | `quality_add lord_relation +2` + `quality_add loyalty +1` | Small courtesy, a shared joke, a capable report |
+| `lord_relation_up_moderate` | `quality_add lord_relation +5` + `quality_add loyalty +2` | Solid favour — saved him embarrassment, offered good counsel |
+| `lord_relation_up_major` | `quality_add lord_relation +10` + `quality_add loyalty +3` | Life-debt — pulled him from a rout, stood alone at the breach |
+| `lord_relation_down_small` | `quality_add lord_relation -2` | Minor offense — blunt reply, missed a flourish |
+| `lord_relation_down_major` | `quality_add lord_relation -10` + `quality_add scrutiny +5` | Public insubordination |
+| `scrutiny_up_small` | `quality_add scrutiny +3` | A raised eyebrow, a rumor |
+| `scrutiny_up_moderate` | `quality_add scrutiny +7` | A written report, an NCO remembers |
+| `scrutiny_up_major` | `quality_add scrutiny +15` + `set_flag under_investigation days:5` | Caught at something; the sergeant has a notebook now |
+| `scrutiny_down_small` | `quality_add scrutiny -3` | A good act rebuilds your name |
+| `scrutiny_down_moderate` | `quality_add scrutiny -7` | Public redemption — pulled a comrade from danger |
+| `medical_risk_up_small` | `quality_add medical_risk +1` | Light wound, shaken |
+| `medical_risk_up_major` | `quality_add medical_risk +3` + `set_flag wounded days:7` | Serious injury |
+| `fatigue_up_moderate` | `quality_add fatigue +4` | A long hard day |
+| `fatigue_down_major` | `quality_add fatigue -8` | Full night's rest + good food |
+| `supply_up_small` | `quality_add supply_days +1` | Forage success |
+| `supply_down_moderate` | `quality_add supply_days -3` | A wagon lost, a cask spoiled |
+| `morale_up_small` | `quality_add morale +2` | Squad shares a laugh |
+| `morale_down_moderate` | `quality_add morale -5` | A death the squad felt |
+
+An authored storylet option demonstrating the pattern:
+
+```json
+{
+  "id": "lead_from_front",
+  "text": "{=slt_ambush.o1}Spur forward. Meet them in the open.",
+  "tooltip": "{=slt_ambush.tt1}Risky (Riding {SKILL}). Success: +75 XP, +1 battle credit, +5 Lord. Failure: wound, +scrutiny.",
+  "effects": [
+    { "apply": "skill_check", "skill": "Riding", "base": 55 }
+  ],
+  "effectsSuccess": [
+    { "apply": "rank_xp_moderate" },
+    { "apply": "battles_survived_credit" },
+    { "apply": "lord_relation_up_moderate" }
+  ],
+  "effectsFailure": [
+    { "apply": "medical_risk_up_major" },
+    { "apply": "scrutiny_up_small" }
+  ]
+}
+```
+
+The ladder is the storylets. Without this seed set, a surface spec writer either invents overlapping names (authoring drift) or writes raw `quality_add` lines in every storylet (maintenance burden when tuning the economy). Spec 0 locks the vocabulary once.
 
 ### 11.2 Primitive effects
 
