@@ -304,7 +304,11 @@ namespace Enlisted.Mod.Entry
                 {
                     // Initialize event catalog before registering behaviors that might use it
                     EventCatalog.Initialize();
-                    
+
+                    // Read Director pacing knobs (event_density, speed_downshift_on_modal) from enlisted_config.json.
+                    // Safe to load here: ModulePaths is ready and the Director hasn't emitted anything yet.
+                    Enlisted.Features.Content.DensitySettings.Load();
+
                     // Initialize injury system with varied severity definitions for narrative-driven injuries
                     Enlisted.Features.Content.InjurySystem.Initialize();
 

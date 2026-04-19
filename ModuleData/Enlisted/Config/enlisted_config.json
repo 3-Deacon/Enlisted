@@ -1,6 +1,8 @@
 {
     "schemaVersion": 1,
     "enabled": true,
+    "event_density": "normal",
+    "speed_downshift_on_modal": true,
     "system_info": {
         "config_version": "2.0",
         "compatible_game_versions": [
