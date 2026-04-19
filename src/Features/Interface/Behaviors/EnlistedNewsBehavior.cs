@@ -5453,6 +5453,30 @@ namespace Enlisted.Features.Interface.Behaviors
                     dataStore.SyncData($"{prefix}_ph_{i}_v", ref phVal);
                 }
             }
+
+            // Tier/Body/Beats typed fields. Mirrored in LoadDispatchItem.
+            // Tier is serialized as int for backward-compat with pre-PR-c saves (missing
+            // key loads as 0 = StoryTier.Log, which is the correct legacy default).
+            var tier = (int)item.Tier;
+            dataStore.SyncData($"{prefix}_tier", ref tier);
+
+            // Body: empty string acts as "null" sentinel (SyncData doesn't round-trip null strings reliably).
+            var body = item.Body ?? string.Empty;
+            dataStore.SyncData($"{prefix}_body", ref body);
+
+            // Beats: serialize count + per-index enum values. Missing count key loads as 0,
+            // matching the "legacy dispatch with no typed beats" semantic.
+            var beatCount = item.Beats?.Count ?? 0;
+            dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
+            if (item.Beats != null)
+            {
+                var beatList = new List<Enlisted.Features.Content.StoryBeat>(item.Beats);
+                for (var i = 0; i < beatList.Count; i++)
+                {
+                    var beatInt = (int)beatList[i];
+                    dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
+                }
+            }
         }
 
         /// <summary>
@@ -5497,7 +5521,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
             }
 
-            return new DispatchItem
+            var item = new DispatchItem
             {
                 DayCreated = dayCreated,
                 Category = category,
@@ -5510,6 +5534,34 @@ namespace Enlisted.Features.Interface.Behaviors
                 FirstShownDay = firstShownDay,
                 Severity = severity
             };
+
+            // Tier/Body/Beats typed fields.
+            // Default values ensure pre-PR-c saves produce Tier=Log, Beats=null, Body=null.
+            var tier = 0;  // 0 = StoryTier.Log
+            dataStore.SyncData($"{prefix}_tier", ref tier);
+
+            var body = string.Empty;
+            dataStore.SyncData($"{prefix}_body", ref body);
+
+            var beatCount = 0;
+            dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
+            HashSet<Enlisted.Features.Content.StoryBeat> beats = null;
+            if (beatCount > 0)
+            {
+                beats = new HashSet<Enlisted.Features.Content.StoryBeat>();
+                for (var i = 0; i < beatCount; i++)
+                {
+                    var beatInt = 0;
+                    dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
+                    beats.Add((Enlisted.Features.Content.StoryBeat)beatInt);
+                }
+            }
+
+            item.Tier = (Enlisted.Features.Content.StoryTier)tier;
+            item.Beats = beats;
+            item.Body = string.IsNullOrEmpty(body) ? null : body;
+
+            return item;
         }
 
         /// <summary>
