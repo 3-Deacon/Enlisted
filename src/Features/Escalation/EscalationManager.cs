@@ -933,18 +933,48 @@ namespace Enlisted.Features.Escalation
             }
 
             var evt = Content.EventCatalog.GetEvent(eventId);
-            if (evt != null && Content.EventDeliveryManager.Instance != null)
+            if (evt == null)
+            {
+                ModLogger.Debug(LogCategory, $"Threshold event not found: {eventId}");
+                return;
+            }
+
+            string categoryKind = track switch
+            {
+                "Scrutiny" => "scrutiny",
+                "MedicalRisk" => "medical",
+                _ => track.ToLowerInvariant()
+            };
+
+            var director = Content.StoryDirector.Instance;
+            if (director != null)
+            {
+                director.EmitCandidate(new Content.StoryCandidate
+                {
+                    SourceId = $"escalation.{categoryKind}.{threshold}",
+                    CategoryId = $"escalation.{categoryKind}",
+                    ProposedTier = Content.StoryTier.Modal,
+                    SeverityHint = 0.80f,
+                    Beats = { Content.StoryBeat.EscalationThreshold },
+                    Relevance = new Content.RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = evt,
+                    RenderedTitle = evt.TitleFallback,
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = evt.Id
+                });
+                Content.GlobalEventPacer.RecordAutoEvent(eventId, "escalation");
+                ModLogger.Info(LogCategory, $"Routed threshold event through Director: {eventId}");
+            }
+            else if (Content.EventDeliveryManager.Instance != null)
             {
                 Content.EventDeliveryManager.Instance.QueueEvent(evt);
-
-                // Record in global pacer to track daily/weekly limits
                 Content.GlobalEventPacer.RecordAutoEvent(eventId, "escalation");
-
-                ModLogger.Info(LogCategory, $"Queued threshold event: {eventId}");
+                ModLogger.Info(LogCategory, $"Queued threshold event (Director unavailable): {eventId}");
             }
             else
             {
-                ModLogger.Debug(LogCategory, $"Threshold event not found: {eventId}");
+                ModLogger.Debug(LogCategory, $"Threshold event cannot deliver: {eventId}");
             }
         }
 
