@@ -177,11 +177,24 @@ namespace Enlisted.Features.Camp
                 Options = decision.Options
             };
 
-            var deliveryManager = EventDeliveryManager.Instance;
-            if (deliveryManager != null)
+            var director = StoryDirector.Instance;
+            if (director != null)
             {
-                deliveryManager.QueueEvent(eventDef);
-                ModLogger.Info(LogCategory, $"Fired scheduled commitment: {commitment.OpportunityId} -> {commitment.TargetDecisionId}");
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "camp.scheduled_commitment." + (commitment.TargetDecisionId ?? "unknown"),
+                    CategoryId = "commitment." + (decision.Id ?? "unknown"),
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.40f,
+                    Beats = { StoryBeat.OrderPhaseTransition },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
+                ModLogger.Info(LogCategory, $"Routed scheduled commitment through Director: {commitment.OpportunityId} -> {commitment.TargetDecisionId}");
 
                 // Show notification that scheduled activity is starting
                 var phaseText = commitment.ScheduledPhase.ToLower();
@@ -191,7 +204,21 @@ namespace Enlisted.Features.Camp
             }
             else
             {
-                ModLogger.Warn(LogCategory, "EventDeliveryManager not available for scheduled commitment");
+                var deliveryManager = EventDeliveryManager.Instance;
+                if (deliveryManager != null)
+                {
+                    deliveryManager.QueueEvent(eventDef);
+                    ModLogger.Info(LogCategory, $"Fired scheduled commitment (Director unavailable): {commitment.OpportunityId} -> {commitment.TargetDecisionId}");
+
+                    var phaseText = commitment.ScheduledPhase.ToLower();
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        $"It's {phaseText}. Time for {commitment.Title.ToLower()}.",
+                        Colors.Cyan));
+                }
+                else
+                {
+                    ModLogger.Warn(LogCategory, "EventDeliveryManager not available for scheduled commitment");
+                }
             }
         }
 
