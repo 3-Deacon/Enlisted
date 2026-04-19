@@ -34,5 +34,11 @@ namespace Enlisted.Features.Content
         public string DispatchCategory { get; set; }
         public int SeverityLevel { get; set; }
         public int MinDisplayDays { get; set; } = 1;
+
+        // Chain continuation: candidates the player already opted into (promotions,
+        // chain events, bag checks) bypass the 5-day in-game floor and per-category
+        // cooldown so their follow-up beats fire immediately. The 60s wall-clock
+        // guard still applies so rapid-fire chains can't stack into the same second.
+        public bool ChainContinuation { get; set; }
     }
 }

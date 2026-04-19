@@ -171,7 +171,6 @@ namespace Enlisted.Features.Content
 
         private bool ModalFloorsAllow(StoryCandidate c, int today)
         {
-            bool inGameFloor = today - _lastModalDay >= DensitySettings.ModalFloorInGameDays;
             bool wallClockFloor;
             if (_lastModalUtcTicks == 0)
             {
@@ -182,6 +181,17 @@ namespace Enlisted.Features.Content
                 double wallSeconds = (DateTime.UtcNow.Ticks - _lastModalUtcTicks) / (double)TimeSpan.TicksPerSecond;
                 wallClockFloor = wallSeconds >= DensitySettings.ModalFloorWallClockSeconds;
             }
+
+            // Chain continuations (promotions, bag checks, chain events) are follow-up
+            // beats the player already opted into. They bypass the in-game floor and
+            // the per-category cooldown but still honor the wall-clock guard so two
+            // modals never fire in the same second.
+            if (c != null && c.ChainContinuation)
+            {
+                return wallClockFloor;
+            }
+
+            bool inGameFloor = today - _lastModalDay >= DensitySettings.ModalFloorInGameDays;
 
             bool categoryOk = !_categoryCooldowns.TryGetValue(CategoryKey(c), out int lastDay)
                 || (today - lastDay) >= DensitySettings.CategoryCooldownDays;
