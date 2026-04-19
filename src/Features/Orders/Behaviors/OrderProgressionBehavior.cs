@@ -293,27 +293,48 @@ namespace Enlisted.Features.Orders.Behaviors
         }
 
         /// <summary>
-        /// Fires the selected order event via EventDeliveryManager.
+        /// Fires the selected order event, routing through StoryDirector when available.
+        /// Phase events are incidental (no ChainContinuation) so the director may defer
+        /// them behind the 5-day floor; the Task 30 retry queue will flush them later.
+        /// Cooldown bookkeeping fires on both paths so phase-selection stays honest.
         /// </summary>
         private void FireOrderEvent(EventDefinition eventDef)
         {
-            var deliveryManager = EventDeliveryManager.Instance;
-            if (deliveryManager == null)
+            var director = StoryDirector.Instance;
+            if (director != null)
             {
-                ModLogger.Warn(LogCategory, "EventDeliveryManager not available, cannot fire order event");
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "order_progression.phase_event." + (eventDef.Id ?? "unknown"),
+                    CategoryId = "order_phase." + (eventDef.Id ?? "unknown"),
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.45f,
+                    Beats = { StoryBeat.OrderPhaseTransition },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
+
+                _recentlyFiredEvents.Add(eventDef.Id);
+                GlobalEventPacer.RecordAutoEvent(eventDef.Id, eventDef.Category);
+                ModLogger.Info(LogCategory, $"Routed order event through Director: {eventDef.Id}");
                 return;
             }
 
-            // Queue the event for delivery
+            var deliveryManager = EventDeliveryManager.Instance;
+            if (deliveryManager == null)
+            {
+                ModLogger.Warn(LogCategory, "Neither StoryDirector nor EventDeliveryManager available, cannot fire order event");
+                return;
+            }
+
             deliveryManager.QueueEvent(eventDef);
-
-            // Record for cooldown
             _recentlyFiredEvents.Add(eventDef.Id);
-
-            // Record with GlobalEventPacer
             GlobalEventPacer.RecordAutoEvent(eventDef.Id, eventDef.Category);
-
-            ModLogger.Info(LogCategory, $"Fired order event: {eventDef.Id}");
+            ModLogger.Info(LogCategory, $"Fired order event (Director unavailable): {eventDef.Id}");
         }
 
         /// <summary>
