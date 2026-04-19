@@ -238,6 +238,25 @@ Observational storylets route through `Storylet.ToCandidate` like any other; the
 
 One schema, two modes. Authors write both the same way.
 
+### 6.4 Push vs pull delivery
+
+A storylet itself is delivery-agnostic. Whether the player sees it as a modal, an accordion entry, or a menu option is decided by its **enclosing context** — the Beat that emits it, the Activity phase that surfaces it, or the deferred-chain target.
+
+| Delivery mode | Where decided | Typical surface |
+| :--- | :--- | :--- |
+| **Push — automatic** | Beat fires → source emits `StoryCandidate` → Director tiers + renders | Land/sea incidents, promotion chains, escalation crossings, retinue news |
+| **Push — activity auto-phase** | `Phase.Delivery = Auto` → `ActivityRuntime` picks one weighted storylet from the phase's pool per tick | Camp's Arrive / Settle / Break-Camp phases (passive atmosphere) |
+| **Pull — activity player-choice phase** | `Phase.Delivery = PlayerChoice` → menu renders N eligible storylets from the phase's pool; player picks one | Camp's Evening phase ("Sit with the squad / Walk the perimeter / Visit the chaplain"); Quartermaster hub; current `DecisionCatalog` content |
+
+Authoring a storylet is identical across modes — same schema, same triggers, same effects. The surface spec decides which phases run which delivery. **Player-initiated "decisions"** (today's `DecisionCatalog` entries) are just storylets placed in a `PlayerChoice` phase of the Camp or Quartermaster activity. There is no separate `Decision` type — the schema unifies.
+
+`Phase` gains two fields (supplement §9.1):
+
+```csharp
+public PhaseDelivery Delivery { get; set; } = PhaseDelivery.Auto;   // Auto | PlayerChoice
+public int PlayerChoiceCount { get; set; } = 4;                     // how many eligible storylets to offer when PlayerChoice
+```
+
 ## 7. Qualities
 
 ### 7.1 Storage
@@ -354,6 +373,14 @@ Read-through qualities are not persisted (their source is). They still participa
 A storylet attempting to write a read-only quality fails validation at startup (`validate_content.py` Phase 12).
 
 The promotion gate table (`PromotionRequirements.GetForTier`) becomes data: `ModuleData/Enlisted/Promotion/promotion_requirements.json` mapping `targetTier → { xp_threshold, days_in_rank, battles_survived, min_lord_relation, max_scrutiny }`. The `can_promote_to_tier:N` trigger is a composite that reads `rank_xp`, `days_in_rank`, `battles_survived`, `lord_relation`, and `scrutiny` against the target row.
+
+**Threshold crossings are authored, not automatic.** A quality crossing a value does not auto-fire a storylet — the existing `EscalationManager.EvaluateThresholdsAndQueueIfNeeded` hardcoded behavior is replaced by the authoring pattern:
+
+- Storylet authored with `trigger: ["quality_gte:scrutiny:75", "not:flag:scrutiny_75_seen"]`
+- Storylet's option effects include `{ "apply": "set_flag", "name": "scrutiny_75_seen", "days": 30 }`
+- When the flag decays (or is cleared by a redemption storylet), the threshold storylet becomes re-eligible
+
+This is the bridge between continuous quality values and discrete narrative events. Every threshold crossing is an authored storylet; no hardcoded queue. `QualityStore` tracks `LastRaisedTime` internally for decay rules (§7.3) but does not expose it to triggers — decay and threshold-firing are decoupled.
 
 ### 7.6 Progression is earned through storylets
 
@@ -485,14 +512,18 @@ A storylet declares:
 
 Seed role list (surface specs extend):
 
-| Role | Source |
-| :--- | :--- |
-| `enlisted_lord` | `EnlistmentBehavior.CurrentLord` |
-| `squadmate` | `RetinueManager.ActiveRetinue` (any named veteran) |
-| `chaplain` | Mod-spawned `Occupation.Soldier` hero tagged `chaplain` |
-| `quartermaster` | `QuartermasterManager.QuartermasterHero` |
-| `enemy_commander` | `MapEvent.OtherSide.LeaderParty.LeaderHero` (if in battle) |
-| `settlement_notable` | Nearest visited settlement's `Notables` |
+| Role | Source | Identity |
+| :--- | :--- | :--- |
+| `enlisted_lord` | `EnlistmentBehavior.CurrentLord` | Persistent hero |
+| `squadmate` | `RetinueManager.ActiveRetinue` — any current squad member matching `tag` | Anonymous; may change enlistment-to-enlistment |
+| `named_veteran` | `ServiceRecordManager.GetNamedVeterans(tag?)` — a persistent, identified squad member whose service record survives re-enlistment | Named hero with persistent record |
+| `chaplain` | Mod-spawned `Occupation.Soldier` hero tagged `chaplain` | Named hero |
+| `quartermaster` | `QuartermasterManager.QuartermasterHero` | Named hero |
+| `enemy_commander` | `MapEvent.OtherSide.LeaderParty.LeaderHero` (if in battle) | Native hero |
+| `settlement_notable` | Nearest visited settlement's `Notables` | Native hero |
+| `kingdom` | `IFaction` (for news slots — attacker / defender) | Faction object, not a hero |
+
+**Anonymous vs named squadmates.** A `squadmate` slot accepts any squad member and is filled from the current roster at fire time; the storylet narrates around a generic character. A `named_veteran` slot requires a Wildermyth-shaped persistent identity — traits, service history, a name that sticks across enlistments. `ServiceRecordManager` owns the persistence; named-veteran creation, recruitment, and attrition are a surface-spec concern (not Spec 0). Until named-veteran lifecycle is designed, surface specs may author with `squadmate` exclusively; promoting a storylet's slot from `squadmate` to `named_veteran` later is a content-only change.
 
 ### 10.3 Context is a first-class runtime dimension
 
@@ -517,6 +548,8 @@ API references (confirmed against `C:\Dev\Enlisted\Decompile\` for v1.3.13):
 - `MobileParty.HasNavalNavigationCapability` — `TaleWorlds.CampaignSystem.Party/MobileParty.cs:313`
 
 Precedence matches the existing mod bugfix at `src/Features/Camp/CampOpportunityGenerator.cs:969`: a party in a settlement or besieging is **not** at sea for storylet-selection purposes, regardless of `IsCurrentlyAtSea`. Siege overrides settlement.
+
+**Encounters are not a context.** A `MapEvent` without an owning settlement or siege (battle during march, ambush on the road) is a transient state between contexts, not a context of its own. Storylets that fire during encounters author `scope: { context: "any" }` and use explicit beat triggers (`trigger: ["beat:PlayerBattleEnd"]` or a runtime predicate like `in_mapevent`). The context filter does not apply mid-encounter; the beat filter does.
 
 **Director filtering.** Before severity classification, the Director drops any candidate whose source storylet's `scope.context` is neither `any` nor the current runtime context. Applies uniformly to interactive and observational storylets — land news is ineligible at sea, sea news is ineligible on land, siege storylets are ineligible outside a siege. Context segregation is therefore automatic; authors never write `"trigger": ["is_at_sea"]` defensively.
 
@@ -831,7 +864,7 @@ ModuleData/Enlisted/Effects/scripted_effects.json // empty; surface specs popula
 - Any new Gauntlet UI. Renderers unchanged from 2026-04-18 pacing spec.
 - Any MCM settings. Developer-only for now.
 - Any IssueBase adoption. Deferred to Spec 5 (Quartermaster) if at all.
-- Any changes to conversation trees. Dialogue stays in its own system (`qm_dialogue.json` etc.).
+- Any changes to conversation trees. Dialogue stays in its own system (`qm_dialogue.json` etc.). Storylets may fire **before** dialogue (to set context) or **after** (as a response); effects can set flags consumed by dialogue conditions. Dialogue UI is never nested inside a storylet — if a storylet outcome requires a shop, gear-swap, or conversation tree, author it as a `set_flag` or a dedicated primitive effect (e.g., `{ "apply": "open_qm_shop" }`) and keep the dialogue flow in its own system.
 - Any changes to `Enlistment/EncounterGuard` or the escort-AI attachment trick. Load-bearing, untouched.
 - Any rename of existing class names that *don't* align — e.g., we don't rename `StoryDirector` to `NarrativeDirector`, we don't rename `StoryCandidate` to `Emission` (though the table in §5 lists the mapping for documentation). The class names that are *close enough* stay; only the ones that break vocabulary (`EventDefinition`, `EscalationState`, `CampOpportunity`) get replaced.
 
