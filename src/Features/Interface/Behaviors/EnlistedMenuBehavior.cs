@@ -5538,20 +5538,42 @@ namespace Enlisted.Features.Interface.Behaviors
                 // only when the player selects a non-cancel option to prevent cooldown abuse.
                 // The menu will be automatically refreshed when the event closes to show updated cooldowns.
 
-                // Convert to EventDefinition and deliver via EventDeliveryManager
+                // Convert to EventDefinition and deliver via StoryDirector
                 var eventDef = ConvertDecisionToEvent(decision);
                 if (eventDef != null)
                 {
-                    var deliveryManager = EventDeliveryManager.Instance;
-                    if (deliveryManager != null)
+                    var director = StoryDirector.Instance;
+                    if (director != null)
                     {
-                        ModLogger.Info("INTERFACE", $"Queuing decision event: {decision.Id} (immediate={opportunity?.Immediate ?? false})");
-                        deliveryManager.QueueEvent(eventDef);
+                        ModLogger.Info("INTERFACE", $"Routing decision event through StoryDirector: {decision.Id} (immediate={opportunity?.Immediate ?? false})");
+                        director.EmitCandidate(new StoryCandidate
+                        {
+                            SourceId = "menu.decision_click." + decision.Id,
+                            CategoryId = "opportunity." + (decision.Category ?? "unknown"),
+                            ProposedTier = StoryTier.Modal,
+                            SeverityHint = 0.5f,
+                            Beats = { StoryBeat.OrderPhaseTransition },
+                            Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                            EmittedAt = CampaignTime.Now,
+                            InteractiveEvent = eventDef,
+                            RenderedTitle = eventDef.TitleFallback,
+                            RenderedBody = eventDef.SetupFallback,
+                            StoryKey = eventDef.Id
+                        });
                     }
                     else
                     {
-                        ModLogger.Warn("INTERFACE", "EventDeliveryManager not available, showing simple popup");
-                        ShowSimpleDecisionPopup(decision);
+                        var deliveryManager = EventDeliveryManager.Instance;
+                        if (deliveryManager != null)
+                        {
+                            ModLogger.Info("INTERFACE", $"Queuing decision event directly (director unavailable): {decision.Id}");
+                            deliveryManager.QueueEvent(eventDef);
+                        }
+                        else
+                        {
+                            ModLogger.Warn("INTERFACE", "EventDeliveryManager not available, showing simple popup");
+                            ShowSimpleDecisionPopup(decision);
+                        }
                     }
                 }
                 else
