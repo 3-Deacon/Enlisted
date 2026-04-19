@@ -271,7 +271,28 @@ namespace Enlisted.Features.Content
                                 Timing = decision.Timing,
                                 Options = decision.Options
                             };
-                            EventDeliveryManager.Instance?.QueueEvent(eventDef);
+                            var director = StoryDirector.Instance;
+                            if (director != null)
+                            {
+                                director.EmitCandidate(new StoryCandidate
+                                {
+                                    SourceId = "content.committed_opportunity." + (opp.SourceOpportunity?.Type.ToString() ?? "unknown"),
+                                    CategoryId = "opportunity." + (opp.SourceOpportunity?.Type.ToString() ?? "unknown"),
+                                    ProposedTier = StoryTier.Modal,
+                                    SeverityHint = 0.5f,
+                                    Beats = { StoryBeat.OrderPhaseTransition },
+                                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                                    EmittedAt = CampaignTime.Now,
+                                    InteractiveEvent = eventDef,
+                                    RenderedTitle = eventDef.TitleFallback,
+                                    RenderedBody = eventDef.SetupFallback,
+                                    StoryKey = eventDef.Id
+                                });
+                            }
+                            else
+                            {
+                                EventDeliveryManager.Instance?.QueueEvent(eventDef);
+                            }
                             ModLogger.Info(LogCategory, $"  ✓ Queued decision event: {opp.TargetDecisionId}");
                         }
                         else
