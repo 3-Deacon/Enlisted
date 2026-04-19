@@ -81,3 +81,6 @@ Tools/Debugging/qodana_*.txt
 
 # Git worktrees (superpowers skill default)
 .worktrees/
+
+# Superpowers brainstorming visual companion session state
+.superpowers/
