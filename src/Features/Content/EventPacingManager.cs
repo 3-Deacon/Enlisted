@@ -108,7 +108,29 @@ namespace Enlisted.Features.Content
                 if (evt != null)
                 {
                     ModLogger.Info(LogCategory, $"Firing scheduled chain event: {eventId}");
-                    deliveryManager.QueueEvent(evt);
+                    var director = StoryDirector.Instance;
+                    if (director != null)
+                    {
+                        director.EmitCandidate(new StoryCandidate
+                        {
+                            SourceId = "pacing.chain_event." + eventId,
+                            CategoryId = "chain." + eventId,
+                            ProposedTier = StoryTier.Modal,
+                            SeverityHint = 0.55f,
+                            Beats = { StoryBeat.OrderComplete },
+                            Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                            EmittedAt = CampaignTime.Now,
+                            InteractiveEvent = evt,
+                            RenderedTitle = evt.TitleFallback,
+                            RenderedBody = evt.SetupFallback,
+                            StoryKey = evt.Id,
+                            ChainContinuation = true
+                        });
+                    }
+                    else
+                    {
+                        deliveryManager.QueueEvent(evt);
+                    }
                 }
                 else
                 {
