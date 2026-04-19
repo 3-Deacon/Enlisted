@@ -8,12 +8,9 @@ namespace Enlisted.Features.Escalation
     /// Persisted escalation tracks.
     ///
     /// Ranges (per docs/Features/Core/core-gameplay.md):
-    /// - Scrutiny: 0–10
-    /// - Discipline: 0–10
-    /// - Soldier reputation: -50..+50 (renamed from LanceReputation)
-    /// - Lord reputation: 0–100 (NEW)
-    /// - Officer reputation: 0–100 (NEW)
-    /// - Medical risk: 0–5
+    /// - Scrutiny: 0–100 (tracks rule-breaking, insubordination, crime suspicion)
+    /// - Lord reputation: 0–100 (pending migration to native Hero.GetRelation)
+    /// - Medical risk: 0–5 (illness/injury risk from conditions and poor care)
     ///
     /// This class is intentionally "dumb storage". All rules live in EscalationManager.
     /// </summary>
@@ -21,35 +18,21 @@ namespace Enlisted.Features.Escalation
     public sealed class EscalationState
     {
         public const int ScrutinyMin = 0;
-        public const int ScrutinyMax = 10;
-        public const int DisciplineMin = 0;
-        public const int DisciplineMax = 10;
-        public const int SoldierReputationMin = -50;
-        public const int SoldierReputationMax = 50;
+        public const int ScrutinyMax = 100;
         public const int LordReputationMin = 0;
         public const int LordReputationMax = 100;
-        public const int OfficerReputationMin = 0;
-        public const int OfficerReputationMax = 100;
         public const int MedicalRiskMin = 0;
         public const int MedicalRiskMax = 5;
 
         // Track values
         public int Scrutiny { get; set; }
-        public int Discipline { get; set; }
-        public int SoldierReputation { get; set; }
         public int LordReputation { get; set; }
-        public int OfficerReputation { get; set; }
         public int MedicalRisk { get; set; }
 
         // Timestamps used for passive decay rules.
         // We store "last raised time" for tracks where decay requires a quiet period.
         public CampaignTime LastScrutinyRaisedTime { get; set; } = CampaignTime.Zero;
         public CampaignTime LastScrutinyDecayTime { get; set; } = CampaignTime.Zero;
-
-        public CampaignTime LastDisciplineRaisedTime { get; set; } = CampaignTime.Zero;
-        public CampaignTime LastDisciplineDecayTime { get; set; } = CampaignTime.Zero;
-
-        public CampaignTime LastSoldierReputationDecayTime { get; set; } = CampaignTime.Zero;
 
         // Medical risk is special: it should reset when treated and decay only when resting.
         public CampaignTime LastMedicalRiskDecayTime { get; set; } = CampaignTime.Zero;
@@ -294,10 +277,7 @@ namespace Enlisted.Features.Escalation
         public void ClampAll()
         {
             Scrutiny = Clamp(Scrutiny, ScrutinyMin, ScrutinyMax);
-            Discipline = Clamp(Discipline, DisciplineMin, DisciplineMax);
-            SoldierReputation = Clamp(SoldierReputation, SoldierReputationMin, SoldierReputationMax);
             LordReputation = Clamp(LordReputation, LordReputationMin, LordReputationMax);
-            OfficerReputation = Clamp(OfficerReputation, OfficerReputationMin, OfficerReputationMax);
             MedicalRisk = Clamp(MedicalRisk, MedicalRiskMin, MedicalRiskMax);
 
             PendingThresholdStoryId ??= string.Empty;

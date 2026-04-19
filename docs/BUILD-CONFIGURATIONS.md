@@ -3,7 +3,7 @@
 **Summary:** Quick guide for building the Enlisted mod with optional Battle AI SubModule that users can toggle in the Bannerlord launcher.
 
 **Status:** ✅ Current  
-**Last Updated:** 2025-12-31  
+**Last Updated:** 2026-04-18  
 **Related Docs:** [BLUEPRINT.md](BLUEPRINT.md), [BATTLE-AI-IMPLEMENTATION-SPEC.md](Features/Combat/BATTLE-AI-IMPLEMENTATION-SPEC.md)
 
 ---
@@ -15,6 +15,8 @@ The project produces **one mod** from a single build configuration. Users can en
 | Configuration | Module ID | Output Path | Features |
 |--------------|-----------|-------------|----------|
 | `Enlisted RETAIL` | `Enlisted` | `Modules\Enlisted\` | Core mod + Optional Battle AI SubModule |
+
+A single build invocation produces the assembly in both `bin\Win64_Shipping_Client\` (the default game build — hard-crashes on errors) and `bin\Win64_Shipping_wEditor\` (the editor build — surfaces errors more gracefully). The csproj `AfterBuild` target mirrors the DLL + PDB from Shipping_Client into Shipping_wEditor so testing in either mode uses the same compiled code.
 
 **User Control:**
 - ☑️ **Enlisted Core** (required)
@@ -35,10 +37,13 @@ dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 2. Set platform: **x64**
 3. Build
 
-**Output Location:**
+**Output Locations** (one build, both populated):
 ```
 C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\bin\Win64_Shipping_Client\
+C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\bin\Win64_Shipping_wEditor\
 ```
+
+If the launcher (`BannerlordLauncher`, `Watchdog`) is running, it holds `Enlisted.dll` open and the copy step fails with `MSB3021`. Close the launcher before building.
 
 ---
 
@@ -185,8 +190,9 @@ type "C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\
 To verify your build:
 
 ```powershell
-# Check DLL last modified time
+# Check DLL last-modified time in BOTH platform folders (should match)
 Get-ChildItem "C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\bin\Win64_Shipping_Client\Enlisted.dll" | Select LastWriteTime
+Get-ChildItem "C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\bin\Win64_Shipping_wEditor\Enlisted.dll" | Select LastWriteTime
 
 # Verify SubModule.xml has both SubModules
 type "C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\SubModule.xml" | findstr /C:"SubModuleClassType"

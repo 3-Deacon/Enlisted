@@ -25,7 +25,7 @@ namespace Enlisted.Features.Interface.News.Generation.Producers
                 snapshot.StrategicContextTag = ArmyContextAnalyzer.GetLordStrategicContext(party);
             }
 
-            // Food / morale bands (best-effort) from the CampLife snapshot meters.
+            // Food bands (best-effort) from the CampLife snapshot meters.
             var camp = context.CampLife;
             if (camp != null && camp.IsActiveWhileEnlisted())
             {
@@ -37,16 +37,6 @@ namespace Enlisted.Features.Interface.News.Generation.Producers
                     < 55f => FoodBand.Thin,
                     < 80f => FoodBand.Low,
                     _ => FoodBand.Critical
-                };
-
-                // MoraleShock is inverse morale (higher shock == lower morale).
-                var moraleShock = camp.MoraleShock;
-                snapshot.Morale = moraleShock switch
-                {
-                    < 25f => MoraleBand.High,
-                    < 55f => MoraleBand.Steady,
-                    < 80f => MoraleBand.Low,
-                    _ => MoraleBand.Breaking
                 };
             }
 

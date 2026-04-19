@@ -89,7 +89,6 @@
     <string id="records_tier" text="Tier" />
     <string id="records_service_xp" text="Service XP" />
     <string id="records_days_served" text="Days Served" />
-    <string id="records_fatigue" text="Fatigue" />
     <string id="records_next_tier_req" text="Next Tier Requirement" />
     <string id="records_max_tier" text="(Max tier)" />
     <string id="records_discharge" text="Discharge" />
@@ -167,8 +166,6 @@
     <string id="status_wounded" text="wounded" />
     <string id="status_elite" text="elite" />
     <string id="status_veterans" text="veterans" />
-    <string id="status_men_exhausted" text="men exhausted" />
-    <string id="status_fatigue_showing" text="fatigue showing" />
     <string id="status_gear_failing" text="gear failing" />
     <string id="status_equipment_worn" text="equipment worn" />
     <string id="status_encamped_at" text="Encamped at {SETTLEMENT}" />
@@ -409,15 +406,11 @@
     <string id="Enlisted_Status_OfficerRole" text="Serving as party {ROLE} - your {SKILL} skill affects the party." />
     <string id="Enlisted_Status_RetirementEligible" text="Eligible for honorable retirement with veteran benefits." />
     <string id="Enlisted_Status_Condition" text="Condition : {CONDITION}" />
-    <string id="Enlisted_Status_SoldierRep" text="Camp Rep : {VALUE} ({STATUS})" />
-    <string id="Enlisted_Status_Scrutiny" text="Scrutiny : {BAR} {VALUE}/10{WARNING}" />
-    <string id="Enlisted_Status_Discipline" text="Discipline : {BAR} {VALUE}/10{WARNING}" />
+    <string id="Enlisted_Status_Scrutiny" text="Scrutiny : {BAR} {VALUE}/100{WARNING}" />
     <string id="Enlisted_Status_CampStatus" text="Time: {DAYPART} | Days from Town: {DAYS}" />
     
     
-    <string id="esc_rep_changed" text="Camp Reputation: {CHANGE} ({STATUS})" />
     <string id="esc_scrutiny_changed" text="Scrutiny increased (+{DELTA}) - Status: {STATUS}" />
-    <string id="esc_discipline_changed" text="Discipline issues (+{DELTA}) - Status: {STATUS}" />
     
     
     
@@ -472,8 +465,7 @@
     
     
     <string id="menu_ahead_morale_low" text="Grumbling in the ranks." />
-    <string id="menu_ahead_rest_low" text="The men are exhausted. They need rest." />
-    <string id="menu_ahead_discipline_low" text="Officers are losing patience." />
+    <string id="menu_ahead_scrutiny_high" text="Officers are watching closely." />
     
     
     <string id="menu_ahead_order_coming" text="{NCO_TITLE}'s been making lists." />
@@ -484,7 +476,7 @@
     <string id="menu_ahead_condition_untreated" text="You've been ignoring that {CONDITION}. It won't heal itself." />
     <string id="menu_ahead_condition_treated" text="Treatment is helping. Stay off your feet." />
     <string id="menu_ahead_medical_risk_high" text="You're pushing too hard. Rest before you collapse." />
-    <string id="menu_ahead_medical_risk_moderate" text="Fatigue is catching up with you." />
+    <string id="menu_ahead_medical_risk_moderate" text="You need rest soon." />
     
     
     <string id="condition_generic" text="ailment" />
@@ -878,7 +870,6 @@
     
     <string id="evt_baggage_stowage_opt_abort" text="&quot;I've changed my mind.&quot;" />
     <string id="evt_baggage_stowage_opt_abort_result" text="The clerk's quill stops. 'Changed your mind.' He's seen it before.&#10;&#10;He closes the ledger. 'Your lord won't be pleased. Go on, before anyone notices.'&#10;&#10;You gather your things. The other soldiers don't meet your eyes. The column marches on without you." />
-    <string id="qm_baggage_no_fatigue" text="You are too exhausted to rummage through the baggage train." />
     <string id="baggage_menu_option" text="Access Baggage Train" />
     <string id="baggage_tooltip_full_access" text="Access your stored belongings" />
     <string id="baggage_tooltip_no_access" text="Request baggage access (wagons behind the column)" />
@@ -1055,7 +1046,7 @@
     <string id="enl_camp_hub_unavailable" text="Service Status unavailable." />
     <string id="enl_camp_hub_title" text="Service Status" />
     <string id="enl_camp_hub_lord_line" text="Lord: {LORD_NAME}" />
-    <string id="enl_camp_hub_fatigue_line" text="Fatigue: {FAT_CUR}/{FAT_MAX} | {RANK} (T{TIER})" />
+    <string id="enl_camp_hub_rank_line" text="{RANK} (Tier {TIER})" />
     <string id="enl_camp_hub_objective_line" text="Lord's Work: {OBJECTIVE}" />
     <string id="enl_camp_hub_now_line" text="Now: {SITUATION} | Decisions: {COUNT}" />
 
@@ -1064,7 +1055,6 @@
     <string id="enl_act_fail_disabled" text="Activities system disabled" />
     <string id="enl_act_fail_not_enlisted" text="Not enlisted" />
     <string id="enl_act_fail_cooldown" text="On cooldown" />
-    <string id="enl_act_fail_too_fatigued" text="Too fatigued" />
     <string id="enl_act_fail_condition" text="Too injured or ill" />
 
     
@@ -1140,7 +1130,6 @@
     <string id="enl_sched_block_scouting_mission" text="Scouting Mission" />
     <string id="enl_sched_block_foraging_duty" text="Foraging Duty" />
     <string id="enl_sched_block_desc_fallback" text="Activity for {TIME_BLOCK}" />
-    <string id="enl_sched_effect_fatigue" text="Fatigue Cost: {COST}" />
     <string id="enl_sched_effect_xp" text="XP Reward: {XP}" />
     <string id="enl_sched_status_complete" text="Status: Complete" />
     <string id="enl_sched_status_completed" text="Status: Completed" />
@@ -1384,12 +1373,12 @@
     
     <string id="muster_recruit_title" text="===  GREEN RECRUIT  ===" />
     <string id="muster_recruit_train" text="[Leadership 25+] Take Him Aside and Train Him" />
-    <string id="muster_recruit_train_tt" text="Train the recruit. +15 Leadership XP, +5 Officer Rep, +6 Soldier Rep." />
+    <string id="muster_recruit_train_tt" text="Train the recruit. +15 Leadership XP, +5 Lord Relation." />
     <string id="muster_recruit_train_blocked" text="Requires Leadership 25." />
     <string id="muster_recruit_ignore" text="Let Him Figure It Out" />
-    <string id="muster_recruit_ignore_tt" text="Ignore the recruit. -2 Soldier Rep." />
+    <string id="muster_recruit_ignore_tt" text="Ignore the recruit. -5 Lord Relation." />
     <string id="muster_recruit_haze" text="Give Him the Traditional Welcome" />
-    <string id="muster_recruit_haze_tt" text="Haze the recruit. +4 Soldier Rep, -5 Officer Rep, +8 Discipline." />
+    <string id="muster_recruit_haze_tt" text="Haze the recruit. +3 Lord Relation, +20 Scrutiny." />
     <string id="muster_recruit_continue" text="Continue" />
     <string id="muster_recruit_continue_tt" text="Proceed to next stage." />
 
@@ -1453,8 +1442,6 @@
 
     
     <string id="enlisted_standing_scrutiny_line" text="Scrutiny : {STATUS} ({VALUE})" />
-    <string id="enlisted_standing_discipline_line" text="Discipline : {STATUS} ({VALUE})" />
-    <string id="enlisted_standing_rep_line" text="Soldier Rep : {STATUS} ({VALUE})" />
     <string id="enlisted_standing_medical_line" text="Medical Risk : {STATUS} ({VALUE})" />
 
     
@@ -1465,22 +1452,6 @@
     <string id="esc_scrutiny_burning" text="Burning" />
     <string id="esc_scrutiny_exposed" text="Exposed" />
 
-    
-    <string id="esc_disc_clean" text="Clean" />
-    <string id="esc_disc_minor" text="Minor marks" />
-    <string id="esc_disc_troubled" text="Troubled" />
-    <string id="esc_disc_serious" text="Serious" />
-    <string id="esc_disc_critical" text="Critical" />
-    <string id="esc_disc_breaking" text="Breaking" />
-
-    
-    <string id="esc_rep_bonded" text="Bonded" />
-    <string id="esc_rep_trusted" text="Trusted" />
-    <string id="esc_rep_accepted" text="Accepted" />
-    <string id="esc_rep_neutral" text="Neutral" />
-    <string id="esc_rep_disliked" text="Disliked" />
-    <string id="esc_rep_outcast" text="Outcast" />
-    <string id="esc_rep_hated" text="Hated" />
 
     
     <string id="esc_med_none" text="None" />
@@ -1555,7 +1526,7 @@
     <string id="cond_treat_basic" text="Basic treatment" />
     <string id="cond_treat_basic_hint" text="Free (enlisted). Improves recovery." />
     <string id="cond_treat_thorough" text="Thorough treatment" />
-    <string id="cond_treat_thorough_hint" text="Costs fatigue. Strong recovery boost." />
+    <string id="cond_treat_thorough_hint" text="Takes time. Strong recovery boost." />
     <string id="cond_treat_herbal" text="Herbal remedy" />
     <string id="cond_treat_herbal_hint" text="Costs coin. Solid recovery boost." />
 
@@ -1636,13 +1607,13 @@
     
     <string id="qm_menu_rations" text="Purchase provisions" />
     <string id="qm_rations_intro" text="Purchase better rations from the quartermaster." />
-    <string id="qm_rations_desc" text="Higher quality food provides morale bonuses and fatigue relief." />
+    <string id="qm_rations_desc" text="Higher quality food provides morale bonuses." />
     <string id="qm_rations_current" text="Current: {QUALITY} (+{MORALE} morale) - {DAYS} days remaining" />
     <string id="qm_rations_standard" text="Current: Standard army rations (no bonus)" />
     <string id="qm_rations_gold" text="Your gold: {GOLD_ICON} {GOLD}" />
     <string id="qm_rations_supplemental" text="Supplemental Rations (10 gold) - +2 morale for 1 day" />
-    <string id="qm_rations_officer" text="Officer's Fare (30 gold) - +4 morale, +2 fatigue for 2 days" />
-    <string id="qm_rations_commander" text="Commander's Feast (75 gold) - +8 morale, +5 fatigue for 3 days" />
+    <string id="qm_rations_officer" text="Officer's Fare (30 gold) - +4 morale for 2 days" />
+    <string id="qm_rations_commander" text="Commander's Feast (75 gold) - +8 morale for 3 days" />
     <string id="qm_rations_no_gold" text="Not enough gold." />
     <string id="qm_rations_rank" text="Reserved for Tier 4+ soldiers." />
     <string id="qm_rations_not_enlisted" text="You must be enlisted to purchase provisions." />
@@ -2059,7 +2030,7 @@
     <string id="enlist_player_captured" text="You have been taken prisoner. Your service has ended." />
     <string id="enlist_kingdom_fallen" text="The kingdom you served has fallen. Your grace period has been cancelled." />
     <string id="enlist_promotion_quartermaster" text="Promoted to {RANK} (Tier {TIER})! Visit the Quartermaster to purchase new equipment." />
-    <string id="enlist_promotion_blocked_discipline" text="Promotion blocked: your discipline is under review. Reduce discipline risk before advancing." />
+    <string id="enlist_promotion_blocked_scrutiny" text="Promotion blocked: you're under scrutiny. Reduce scrutiny before advancing." />
     <string id="enlist_following_battle" text="Following your lord into battle!" />
     <string id="enlist_companions_rejoined" text="Your {COMPANION_COUNT} companions have rejoined your party upon retirement." />
 
@@ -2764,6 +2735,7 @@
     <string id="qm_equipment_unavailable" text="Equipment information unavailable" />
     <string id="qm_no_variants_available" text="No {EQUIPMENT_TYPE} variants available" />
     <string id="qm_no_affordable_variants" text="No affordable {EQUIPMENT_TYPE} variants available. You need more gold." />
+    <string id="qm_party_unavailable" text="The quartermaster cannot be reached right now." />
     
     
     
@@ -5091,5 +5063,70 @@
     <string id="treat_supply_shortage_request_more_result" text="Fresh supplies arrive within the hour. Crisis averted." />
     <string id="treat_supply_shortage_setup" text="Bandages are running out. Two more wounded and you've got nothing left to bind their wounds." />
     <string id="treat_supply_shortage_title" text="Running Low" />
+
+    <!-- Supply Pressure Arc Events -->
+    <!-- supply_crisis_cmd -->
+    <string id="supply_crisis_cmd_opt1_text" text="Execute a captured deserter as example" />
+    <string id="supply_crisis_cmd_opt2_text" text="Address the company. Promise better days." />
+    <string id="supply_crisis_cmd_opt3_text" text="Petition the lord directly for emergency resupply" />
+    <string id="supply_crisis_cmd_opt4_text" text="Spend personal funds on emergency supplies" />
+    <string id="supply_crisis_cmd_setup" text="Your sergeant-major reports in low tones: &quot;We&apos;ve lost six already. Slipped away in the night. More will follow unless something changes. The men are watching you, Captain.&quot;" />
+    <string id="supply_crisis_cmd_title" text="Desertions Imminent" />
+
+    <!-- supply_crisis_grunt -->
+    <string id="supply_crisis_grunt_opt1_text" text="Report them to the sergeant" />
+    <string id="supply_crisis_grunt_opt2_text" text="Stay silent about what you heard" />
+    <string id="supply_crisis_grunt_opt3_text" text="Talk them out of it quietly" />
+    <string id="supply_crisis_grunt_setup" text="A week of hunger. In the dark before dawn, you overhear voices: &quot;Three more days of this and I&apos;m gone.&quot; &quot;There&apos;s a village two leagues south...&quot; They haven&apos;t seen you listening." />
+    <string id="supply_crisis_grunt_title" text="Whispers of Desertion" />
+
+    <!-- supply_crisis_nco -->
+    <string id="supply_crisis_nco_opt1_text" text="Arrest him for desertion" />
+    <string id="supply_crisis_nco_opt2_text" text="Let him go. Pretend you saw nothing." />
+    <string id="supply_crisis_nco_opt3_text" text="Give him your wages to send home" />
+    <string id="supply_crisis_nco_setup" text="Private Aldric—one of your best—is packing his kit in the dark. He freezes when he sees you. &quot;I&apos;m sorry, Sergeant. I have a family. I can&apos;t die here for nothing.&quot;" />
+    <string id="supply_crisis_nco_title" text="One of Yours Is Leaving" />
+
+    <!-- supply_pressure_stage_1_cmd -->
+    <string id="supply_pressure_stage_1_cmd_opt1_text" text="Implement rationing across the retinue" />
+    <string id="supply_pressure_stage_1_cmd_opt2_text" text="Send foraging parties immediately" />
+    <string id="supply_pressure_stage_1_cmd_opt3_text" text="Request resupply from the lord" />
+    <string id="supply_pressure_stage_1_cmd_setup" text="Your supply officer approaches with a grim expression. &quot;Three days at current consumption, Captain. Maybe four if we cut portions again. The men are already noticing.&quot;" />
+    <string id="supply_pressure_stage_1_cmd_title" text="Supply Officer&apos;s Report" />
+
+    <!-- supply_pressure_stage_1_grunt -->
+    <string id="supply_pressure_stage_1_grunt_opt1_text" text="Eat quietly and conserve energy" />
+    <string id="supply_pressure_stage_1_grunt_opt2_text" text="Share a portion with a weaker soldier" />
+    <string id="supply_pressure_stage_1_grunt_opt3_text" text="Try to get extra from the cook" />
+    <string id="supply_pressure_stage_1_grunt_setup" text="The cook&apos;s portions have shrunk. You notice men eyeing each other&apos;s bowls, calculating. Nobody says it aloud, but everyone knows: supplies are running low." />
+    <string id="supply_pressure_stage_1_grunt_title" text="Thin Rations" />
+
+    <!-- supply_pressure_stage_1_nco -->
+    <string id="supply_pressure_stage_1_nco_opt1_text" text="&quot;It&apos;s temporary. We&apos;ve been through worse.&quot;" />
+    <string id="supply_pressure_stage_1_nco_opt2_text" text="Share your own ration with the squad" />
+    <string id="supply_pressure_stage_1_nco_opt3_text" text="Assign extra foraging duty to the squad" />
+    <string id="supply_pressure_stage_1_nco_setup" text="Your squad clusters around the cook fire, muttering. The portions are visibly smaller than last week. They look to you—their NCO—for answers you don&apos;t have." />
+    <string id="supply_pressure_stage_1_nco_title" text="Your Squad Grumbles" />
+
+    <!-- supply_pressure_stage_2_cmd -->
+    <string id="supply_pressure_stage_2_cmd_opt1_text" text="Public punishment for the worst offenders" />
+    <string id="supply_pressure_stage_2_cmd_opt2_text" text="Open your personal stores to the men" />
+    <string id="supply_pressure_stage_2_cmd_opt3_text" text="Demand the lord provide resupply" />
+    <string id="supply_pressure_stage_2_cmd_setup" text="Multiple fights have broken out across your retinue. Your sergeants report men hoarding scraps, stealing from each other. The rot is spreading fast." />
+    <string id="supply_pressure_stage_2_cmd_title" text="Discipline Breaking Down" />
+
+    <!-- supply_pressure_stage_2_grunt -->
+    <string id="supply_pressure_stage_2_grunt_opt1_text" text="Step in and break it up" />
+    <string id="supply_pressure_stage_2_grunt_opt2_text" text="Watch and stay out of it" />
+    <string id="supply_pressure_stage_2_grunt_opt3_text" text="Get the sergeant" />
+    <string id="supply_pressure_stage_2_grunt_setup" text="A scuffle erupts near the cook&apos;s station. Two soldiers wrestle over a bread crust, snarling like dogs. Others gather to watch, eyes hollow with hunger." />
+    <string id="supply_pressure_stage_2_grunt_title" text="Fight at the Cook Fire" />
+
+    <!-- supply_pressure_stage_2_nco -->
+    <string id="supply_pressure_stage_2_nco_opt1_text" text="Punish both harshly" />
+    <string id="supply_pressure_stage_2_nco_opt2_text" text="Mediate and split the ration fairly" />
+    <string id="supply_pressure_stage_2_nco_opt3_text" text="Share your own ration to end the fight" />
+    <string id="supply_pressure_stage_2_nco_setup" text="Two of YOUR soldiers are grappling in the dirt, cursing over scraps. The rest of your squad forms a ring, watching. Waiting to see how their NCO handles this." />
+    <string id="supply_pressure_stage_2_nco_title" text="Your Men Are Fighting" />
 <!-- Strings auto-extracted from C# code --><string id="Enlisted_Debug_Body" text="Select a debug action:" /><string id="Enlisted_Debug_ClearCooldowns" text="Clear Event Cooldowns" /><string id="Enlisted_Debug_ForceEvent" text="Force Event Selection" /><string id="Enlisted_Debug_Gold" text="Give 1000 Gold" /><string id="Enlisted_Debug_ListEvents" text="List Eligible Events" /><string id="Enlisted_Debug_Title" text="Debug Tools" /><string id="Enlisted_Debug_XP" text="Give XP to Rank Up" /><string id="Enlisted_FreeDesert_Cancel" text="Stay" /><string id="Enlisted_FreeDesert_Confirm" text="Leave" /><string id="Enlisted_FreeDesert_Title" text="Leave Without Penalty" /><string id="Enlisted_Leave_Cooldown" text="Leave is on cooldown. {DAYS} days remain before you can request leave again." /><string id="Enlisted_Leave_Cooldown_Tooltip" text="Leave is on cooldown. {DAYS} days remain." /><string id="Enlisted_Message_EscapedToPort" text="You have washed ashore at {PORT}." /><string id="Enlisted_Message_EscapedToSafety" text="You have escaped to a safe distance." /><string id="Enlisted_Message_LordLeftKingdom" text="Your company has ended its contract with {KINGDOM}. You march on with your lord." /><string id="Enlisted_Message_LordSwitchedKingdom" text="Your company has signed a new contract with {KINGDOM}. The campaign continues." /><string id="Enlisted_Message_LordTracked" text="Your lord has been marked on the map." /><string id="Enlisted_Message_PartyDisbanded" text="Your commander" /><string id="Enlisted_Track_Start" text="Your experience marks you as a {TRACK}. You begin service at {RANK} (Tier {TIER})." /><string id="News_SectionHeader_Kingdom" text="--- Kingdom News ---" /><string id="News_SectionHeader_Personal" text="--- Army Orders ---" /><string id="baggage_abandon" text="\" /><string id="baggage_abandon_hint" text="Abandon your stored items. They" /><string id="baggage_abandoned" text="Your old belongings have been abandoned." /><string id="baggage_blocked_onboarding" text="The quartermaster needs you to sort out your storage arrangements first." /><string id="baggage_courier" text="\" /><string id="baggage_courier_arrived" text="A courier has arrived with your belongings ({COUNT} items)." /><string id="baggage_courier_hint" text="Pay a courier to retrieve your belongings. They" /><string id="baggage_courier_news" text="A courier delivered {COUNT} items from your old posting." /><string id="baggage_courier_sent" text="Courier dispatched. Your belongings will arrive in 3 days." /><string id="baggage_no_gold" text="Not enough gold for the courier." /><string id="baggage_now_locked" text="The baggage train is currently locked down (supply crisis)." /><string id="baggage_now_unavailable" text="The baggage train has fallen behind the column." /><string id="baggage_sell_hint" text="Have a merchant buy everything at a reduced rate. The gold will be sent to you." /><string id="baggage_sell_remote" text="\" /><string id="baggage_sold_remote" text="Your old belongings were sold for {GOLD} denars." /><string id="baggage_transfer_body" text="The quartermaster clears his throat. \" /><string id="baggage_transfer_cancelled" text="Enlistment cancelled." /><string id="baggage_transfer_title" text="Cross-Faction Baggage" /><string id="brief_baggage_arrived_today_sea" text="The ship" /><string id="brief_baggage_delayed_sea" text="Rough seas have shifted the cargo. Your belongings are buried under crates for now." /><string id="brief_baggage_locked_sea" text="The quartermaster has locked the ship" /><string id="brief_baggage_march_sea" text="Your belongings are stowed in the ship" /><string id="brief_baggage_raided_recent_sea" text="The pirate attack weighs on everyone" /><string id="brief_baggage_raided_sea" text="Pirates hit our convoy this morning. The crew is still counting what" /><string id="brief_baggage_temporary_plural_sea" text="The ship has anchored. {HOURS} hours to access your belongings in the hold before we sail." /><string id="brief_baggage_temporary_sea" text="The ship has anchored. A few hours to access your belongings in the hold before we sail." /><string id="brief_battle_enemy" text="The company is locked in battle against the forces of {ENEMY}. Steel clashes and war cries fill the air." /><string id="brief_battle_generic" text="The company is engaged in battle. The clash of steel and shouts of men echo across the field." /><string id="brief_casualties_few" text="{COUNT} soldiers have fallen since last muster." /><string id="brief_casualties_few_manywounded" text="The wounded fill the medical tents, groaning through the night. {COUNT} didn" /><string id="brief_casualties_few_somewounded" text="{DEAD} fallen, {WOUNDED} wounded — the cost of the march weighs on every man." /><string id="brief_casualties_heavy" text="The company has paid dearly — {COUNT} souls lost since last muster. The men speak in hushed tones and sleep comes hard." /><string id="brief_casualties_moderate" text="We" /><string id="brief_casualties_moderate_wounded" text="Hard fighting has cost us {DEAD} dead and left {WOUNDED} nursing wounds. The surgeons work through the night." /><string id="brief_casualties_one" text="One of ours didn" /><string id="brief_casualties_one_manywounded" text="One of ours didn" /><string id="brief_company_fallback" text="The company marches onward." /><string id="brief_company_none" text="No company details available." /><string id="brief_destination" text="destination" /><string id="brief_event_dice" text="The men still talk about your dice game — coin changed hands, and some are richer for it." /><string id="brief_event_hunt" text="Fresh game from the hunt sizzles over the cookfires. The men eat well tonight." /><string id="brief_event_loan" text="A comrade owes you coin. He catches your eye across the camp and nods, remembering his debt." /><string id="brief_event_loot" text="The spoils of battle weigh in your pack. Some men did well, others came away empty-handed." /><string id="brief_event_tavern" text="Last night" /><string id="brief_event_training" text="Yesterday" /><string id="brief_fallback_default" text="You" /><string id="brief_flag_drinker" text="You" /><string id="brief_flag_generous" text="The men appreciate your generosity. When you have coin, you share it, and that" /><string id="brief_flag_helpful" text="Word has spread that you look out for your comrades. Men nod when you pass." /><string id="brief_flag_hunter" text="Your hunting skills are well regarded. When the company needs fresh meat, they look to you." /><string id="brief_flag_lucky" text="Your luck at dice is remembered. Some men avoid gambling with you; others can" /><string id="brief_flag_noticed" text="Officers have taken notice of you lately. Whether that" /><string id="brief_flag_training" text="Your dedication to training has been noted. The drill sergeant speaks well of your discipline." /><string id="brief_march_army" text="{ARMY_DESC} marches under the banner of {LEADER}. {LORD}" /><string id="brief_march_default" text="{LORD}" /><string id="brief_march_target" text="The company marches toward {TARGET}. {TERRAIN}" /><string id="brief_pending_gratitude" text="Someone in the company remembers your kindness. A favor owed, perhaps." /><string id="brief_pending_grudge" text="You" /><string id="brief_pending_repay_due" text="A comrade promised to repay you today. You catch him avoiding your gaze across the camp." /><string id="brief_pending_repay_waiting" text="A comrade owes you coin. It" /><string id="brief_realm_fallback" text="The realm is quiet, for now." /><string id="brief_realm_manywars" text="{KINGDOM} is pressed on all sides. Lords ride hard between campaigns, and the levies are called up again and again." /><string id="brief_realm_multifront" text="{KINGDOM} fights on multiple fronts. Siege engines stand ready, and the roads are thick with soldiers marching to war." /><string id="brief_realm_peace" text="The realm is at peace, for now. Lords tend to their estates and the common folk go about their business, though every soldier knows it won" /><string id="brief_realm_quiet" text="The realm is quiet, for now." /><string id="brief_realm_war" text="The banners of {KINGDOM} march against {ENEMY}. Scouts bring word of enemy movements, and the lords sharpen their blades." /><string id="brief_realm_war_siege" text="The war with {ENEMY} grinds on. Castle walls are contested, and the outcome hangs in the balance." /><string id="brief_rest_castle" text="The company is garrisoned at {SETTLEMENT}. The castle walls provide welcome shelter, and the men take the chance to rest properly for once." /><string id="brief_rest_generic" text="The company is camped at {SETTLEMENT}." /><string id="brief_rest_town" text="The company rests at {SETTLEMENT}. The sounds of the town drift into camp — merchants hawking wares, the clatter of cart wheels, the murmur of townsfolk going about their business." /><string id="brief_rest_village" text="The company has made camp near {SETTLEMENT}. Smoke rises from village hearths, and the smell of cooking fires reminds you of simpler times." /><string id="brief_ret_critical" text="Your retinue" /><string id="brief_ret_empty" text="Your retinue stands empty. You must acquire soldiers to rebuild your personal command." /><string id="brief_ret_full" text="Your retinue has reached its full complement of {COUNT} soldiers." /><string id="brief_ret_high" text="Your retinue of {COUNT} soldiers stands ready and devoted. They trust your command." /><string id="brief_ret_high_vets" text="Your retinue of {COUNT} stands loyal and eager. Your {VET_COUNT} named veterans speak well of you around the campfire." /><string id="brief_ret_low" text="Your {COUNT} retinue soldiers serve grudgingly. Morale is poor, and complaints circulate openly." /><string id="brief_ret_vets" text="Among your {COUNT} retinue soldiers, {VET_COUNT} named veterans stand out as battle-hardened warriors." /><string id="brief_siege_attack" text="The siege of {SETTLEMENT} continues. Siege engines creak and groan as the engineers work through the night. The walls loom ahead, defiant." /><string id="brief_siege_defend" text="The company holds {SETTLEMENT} against the besiegers. The enemy camps spread across the horizon, their fires burning through the night." /><string id="brief_siege_generic" text="The company is committed to siege operations. The days blend together in a rhythm of labor and watchfulness." /><string id="brief_supply_critical" text="The supply wagons are nearly empty. Men eye what remains with worry, and the quartermaster has locked the stores. Equipment requisitions are on hold until the next resupply." /><string id="brief_supply_low" text="Supplies are running thin. Rations have been cut and the quartermaster counts every bolt and bandage with a furrowed brow." /><string id="brief_supply_moderate" text="Supplies are adequate but dwindling. The men grumble about the portions, though there" /><string id="brief_terrain_fallback" text="The road stretches ahead." /><string id="brief_the_enemy" text="the enemy" /><string id="brief_the_lord" text="the lord" /><string id="brief_the_marshal" text="the marshal" /><string id="brief_the_realm" text="the realm" /><string id="brief_the_settlement" text="the settlement" /><string id="brief_wounded_few" text="A handful of wounded among us — {COUNT} in all, patched up and carrying on." /><string id="brief_wounded_many" text="The surgeons are overwhelmed — {COUNT} wounded fill the medical tents, and the air reeks of blood and poultices." /><string id="brief_wounded_moderate" text="{COUNT} soldiers recovering from their wounds. The company marches slower for it." /><string id="camp_empty_duty" text="You" /><string id="camp_empty_march" text="The army is on the march. No time for leisure." /><string id="camp_empty_new" text="You" /><string id="camp_empty_quiet" text="A quiet moment in camp. Rest while you can." /><string id="camp_empty_siege" text="The siege consumes all attention." /><string id="ct_retinue_muster_hint" text="Select to refresh the menu and see updated retinue data." /><string id="ct_warn_formation_mismatch" text="As a {PLAYER_TYPE}, you can only command {PLAYER_TYPE} soldiers. You cannot lead {REQUESTED_TYPE}." /><string id="ct_warn_retinue_tier_locked" text="You must reach Commander rank (Tier 7) to command your own retinue." /><string id="dbg_gold_added" text="+{G} gold granted (debug)." /><string id="dbg_muster_handler_missing" text="Cannot trigger muster - MusterMenuHandler not found." /><string id="dbg_muster_not_enlisted" text="Cannot trigger muster while not enlisted." /><string id="dbg_muster_started" text="Muster sequence started (debug). Opening intro stage..." /><string id="dbg_xp_added" text="+{XP} enlistment XP granted (debug)." /><string id="dbg_xp_not_enlisted" text="Cannot grant XP while not enlisted." /><string id="dm_black_market_contact" text="You make contact with some... entrepreneurial traders. They" /><string id="dm_bribe_caught" text="The clerk takes your money... then reports you. Your reputation suffers." /><string id="dm_bribe_success" text="The clerk adjusts the records in your favor. You gain 20 gold net." /><string id="dm_sell_gear_success" text="You sell some of your issued equipment for {GOLD} gold. You" /><string id="dm_skim_success" text="You quietly divert some supplies for yourself. +30 gold worth of goods." /><string id="dm_skim_suspicious" text="The quartermaster seems suspicious..." /><string id="enl_rep_restored" text="Your {BAND} has restored your standing: Officer {OFFICER_REP}, Soldiers {SOLDIER_REP}" /><string id="enl_ret_keep_soldiers" text="Your {COUNT} retinue soldiers remain under your command." /><string id="enl_ret_lose_soldiers" text="Your {COUNT} retinue soldiers have been reassigned to your former lord" /><string id="enl_vet_emergence_msg" text="One of your soldiers has distinguished themselves in battle. {VETERAN_NAME} the {TRAIT} has earned a name among your retinue." /><string id="enl_vet_fallen_msg" text="{VETERAN_NAME} the {TRAIT} has fallen in battle. They survived {BATTLES} battles and claimed {KILLS} enemy lives." /><string id="enlisted_camp_companions_tooltip" text="Assign and manage your companions." /><string id="enlisted_camp_records_tooltip" text="Review your service records and history." /><string id="enlisted_camp_tooltip" text="Rest, train, manage equipment, and visit the medical tent." /><string id="enlisted_cohesion" text="Enlisted soldier (embedded)" /><string id="enlisted_debug_muster" text="🔧 Trigger Muster" /><string id="enlisted_debug_provisions" text="🍖 Test Provisions Shop" /><string id="enlisted_decisions_tooltip_none" text="No pending decisions at this time." /><string id="enlisted_decisions_tooltip_pending" text="You have pending decisions to make." /><string id="eq_purchasable_qm" text="Promotion recorded. Gear for {TROOP_NAME} is now available at the Quartermaster." /><string id="evt_baggage_access_granted" text="The baggage wagons have caught up. You have {HOURS} hours to access your belongings." /><string id="evt_baggage_delayed_msg" text="The baggage train is stuck. Access delayed by {DAYS} day(s)." /><string id="evt_baggage_loss_msg" text="{COUNT} item(s) were lost from your baggage." /><string id="hlm_debts_fail" text="The merchants refuse to pay. Perhaps they need more... persuasion." /><string id="hlm_debts_success" text="You successfully collect the debts. The lord is pleased. (-10 PayTension)" /><string id="hlm_escort_success" text="You escort the merchant safely. The lord" /><string id="hlm_loan_fail" text="The bankers aren" /><string id="hlm_loan_success" text="You secure a favorable loan for the lord. The treasury is replenished. (-20 PayTension)" /><string id="hlm_raid_success" text="The raid is a complete success! Valuable loot is captured. (-25 PayTension)" /><string id="hlm_raid_wounded" text="The raid succeeds but you" /><string id="hlm_tension_stabilized" text="The lord" /><string id="menu_camp_cards" text="Card game forming tonight by the fire." /><string id="menu_camp_drilling" text="Veterans drilling by the wagons." /><string id="menu_camp_evening" text="Evening calm. Good spirits in camp." /><string id="menu_camp_midday" text="Midday heat. Most resting in shade." /><string id="menu_camp_morning" text="Morning bustle. Camp coming alive." /><string id="menu_camp_night" text="Night watch. Camp quiet." /><string id="menu_camp_rest" text="A quiet moment in camp." /><string id="menu_camp_trading" text="Some trading happening in camp." /><string id="menu_kingdom_at_war" text="{KINGDOM} at war with {ENEMY}. Conflict continues." /><string id="menu_kingdom_peace" text="The realm is at peace." /><string id="menu_kingdom_siege" text="{KINGDOM} besieging {SETTLEMENT}." /><string id="menu_qm_supply_blocked" text="Quartermaster unavailable. The company" /><string id="menu_you_commitment_today" text="You" /><string id="muster_discharge_confirm_honorable" text="You will receive:\n\n" /><string id="muster_discharge_confirm_no" text="Cancel" /><string id="muster_discharge_confirm_title" text="Confirm Discharge" /><string id="muster_discharge_confirm_veteran" text="You will receive:\n\n" /><string id="muster_discharge_confirm_washout" text="Early discharge (washout):\n\n" /><string id="muster_discharge_confirm_yes" text="Confirm Discharge" /><string id="muster_final_pay_confirm_honorable" text="Collecting your final pay and pension.\n\n" /><string id="muster_final_pay_confirm_title" text="Take Your Final Pay" /><string id="muster_final_pay_confirm_veteran" text="Collecting your final pay and pension.\n\n" /><string id="muster_final_pay_confirm_washout" text="Processing discharge.\n\n" /><string id="muster_final_pay_no" text="Cancel" /><string id="muster_final_pay_yes" text="Take Final Pay" /><string id="news_ret_casualties_both" text="Your retinue suffered {KILLED} killed and {WOUNDED} wounded{CONTEXT}." /><string id="news_ret_casualties_killed" text="Your retinue lost {KILLED} soldier{KILLED_PLURAL}{CONTEXT}." /><string id="news_ret_casualties_wounded" text="Your retinue had {WOUNDED} soldier{WOUNDED_PLURAL} wounded{CONTEXT}." /><string id="news_vet_death" text="{NAME}, who served through {BATTLES} battles, has been slain." /><string id="news_vet_death_legend" text="{NAME}, a legend of {BATTLES} battles and {KILLS} kills, has fallen." /><string id="news_vet_emergence" text="{NAME} the {TRAIT} has distinguished themselves in your retinue." /><string id="opp_caught_notification" text="Your absence was noticed. The {NCO_TITLE} will hear of this." /><string id="opp_caught_title" text="Dereliction of Duty" /><string id="promo_qm_prompt" text="Report to the Quartermaster for your new kit." /><string id="promo_title_7" text="Appointed as {RANK}" /><string id="promo_title_8" text="Commissioned as {RANK}" /><string id="promo_title_9" text="Honored as {RANK}" /><string id="promotion_t7_notification" text="You have been promoted to Commander. Twenty recruits await your command." /><string id="qm_fee_paid" text="You pay {FEE} denars for the wagon fee." /><string id="qm_liquidate_gain" text="You receive {GOLD} denars from liquidating your possessions." /><string id="qm_out_of_stock" text="This item is out of stock. Check back after the next muster." /><string id="qm_smuggle_fail" text="Caught trying to dodge the fee. You pay anyway, and the clerk makes a note in his ledger." /><string id="qm_smuggle_success" text="You slip everything past the ledger without paying. The clerk never noticed." /><string id="qm_status_out_of_stock" text="(Out of Stock)" /><string id="ret_sel_archers" text="Archers" /><string id="ret_sel_archers_desc" text="Skilled bowmen for ranged support" /><string id="ret_sel_cavalry" text="Cavalry" /><string id="ret_sel_cavalry_desc" text="Mounted lancers, swift and deadly" /><string id="ret_sel_confirm" text="Confirm" /><string id="ret_sel_confirmed" text="You have chosen to command {FORMATION}. Your recruits will reflect this choice." /><string id="ret_sel_horse_archers" text="Horse Archers" /><string id="ret_sel_horse_archers_desc" text="Mounted bowmen of the steppe" /><string id="ret_sel_infantry" text="Infantry" /><string id="ret_sel_infantry_desc" text="Foot soldiers with sword and shield" /><string id="ret_sel_prompt" text="What type of soldiers will you command?" /><string id="ret_sel_title" text="Choose Your Retinue" /><string id="retinue_grant_failed" text="Failed to assign {COUNT} recruits. Please report this issue." /><string id="retinue_grant_success" text="{COUNT} {TROOP_NAME} have been assigned to your command." /><string id="retinue_party_full" text="Your party is full. Dismiss soldiers or increase party size to receive recruits." /><string id="status_equipment_combat" text="Battle wears hard on arms and armor." /><string id="status_equipment_critical" text="The company is barely armed. Some men wrap rags around their hands for lack of gloves." /><string id="status_equipment_excellent" text="Weapons are sharp, armor polished. The armorer has little to do." /><string id="status_equipment_fair" text="The armorer works constantly. Notched blades and dented helms are common." /><string id="status_equipment_good" text="Gear is serviceable. Minor repairs needed here and there." /><string id="status_equipment_poor" text="Gear is failing. Men fight with bent swords and cracked shields." /><string id="status_equipment_terrain" text="Rough terrain damages gear faster than usual." /><string id="status_morale_combat" text="Battle tests every man" /><string id="status_morale_critical" text="The company is on the edge. Desertion whispers spread through camp." /><string id="status_morale_excellent" text="Spirits are high. The men sing as they march and talk of glory." /><string id="status_morale_fair" text="The men are restless. Grumbling spreads around the cookfires." /><string id="status_morale_good" text="The company" /><string id="status_morale_pay_high" text="Pay is long overdue and the men are angry." /><string id="status_morale_pay_low" text="The men grumble about late wages." /><string id="status_morale_poor" text="The company is unhappy. Fights break out and discipline slips." /><string id="status_morale_siege" text="The tedium of siege weighs on everyone." /><string id="status_readiness_combat" text="Battle drains our reserves." /><string id="status_readiness_critical" text="The company is a shambles. Men mill about confused, barely fit for battle." /><string id="status_readiness_excellent" text="The company stands battle-ready, formations tight and weapons sharp." /><string id="status_readiness_fair" text="The company can fight, but coordination has slipped." /><string id="status_readiness_good" text="The company is prepared for action, though some drills have been skipped." /><string id="status_readiness_march" text="The march wears on the men." /><string id="status_readiness_march_morale" text="The long march and low spirits take their toll." /><string id="status_readiness_morale" text="Low morale saps the company" /><string id="status_readiness_poor" text="The company is disorganized. Officers bark orders to restore discipline." /><string id="status_rest_army_march" text="Forced marches with the army leave no time for rest." /><string id="status_rest_critical" text="The company is dead on their feet. Men collapse during marches." /><string id="status_rest_excellent" text="The company is well-rested. Men wake refreshed and ready." /><string id="status_rest_fair" text="Fatigue is setting in. Men doze on their feet during long halts." /><string id="status_rest_good" text="The company has had adequate rest. Some yawning, but nothing serious." /><string id="status_rest_march" text="Days on the road exhaust even the hardiest soldiers." /><string id="status_rest_poor" text="The company is exhausted. Tempers flare and mistakes multiply." /><string id="status_rest_settlement" text="The settlement offers a chance to recover." /><string id="status_supplies_critical" text="The company is starving. Men eye the pack horses with desperation." /><string id="status_supplies_excellent" text="The wagons are well-stocked. Food is plentiful and gear is available." /><string id="status_supplies_fair" text="Rations are tightening. The quartermaster counts every sack of grain." /><string id="status_supplies_good" text="Adequate provisions remain. The quartermaster is not worried." /><string id="status_supplies_march" text="The march consumes provisions quickly." /><string id="status_supplies_poor" text="Food is scarce. Men go hungry and equipment cannot be replaced." /><string id="status_supplies_siege" text="Siege rations are stretched thin." /><string id="str_cancel" text="Cancel" /><string id="str_continue" text="Continue" /><string id="str_ok" text="Confirm" /><string id="str_understood" text="Understood" /><string id="enl_culture_mismatch" text="Your previous retinue type ({TYPE}) is not available in {CULTURE}. You will select a new formation type upon reaching commander rank." /></strings>
 </base>

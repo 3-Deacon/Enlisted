@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered after battles (leaving_battle context). 11 total incidents.",
@@ -34,7 +34,7 @@
           "risk": "moderate",
           "effects": {
             "gold": 25,
-            "scrutiny": 2
+            "scrutiny": 2000000
           }
         },
         {
@@ -59,8 +59,8 @@
           "resultText": "An officer nods and pockets the purse himself. He slips you a few coins for your honesty. 'Good soldier,' he mutters.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
-            "gold": 5
+            "gold": 5,
+            "lordReputation": 5
           },
           "tooltip": "+5 Officer rep. 5 gold reward."
         }
@@ -133,8 +133,7 @@
             "traitXp": {
               "Mercy": 10
             },
-            "soldierRep": -3,
-            "officerRep": 2
+            "lordReputation": 1
           }
         }
       ]
@@ -201,10 +200,10 @@
           "resultText": "An older soldier sees the look on your face and nods. 'First one's the hardest,' he says quietly. 'Gets easier. Shouldn't, but it does.' You don't feel better, but you feel less alone.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 5,
             "companyNeeds": {
               "Morale": 3
-            }
+            },
+            "lordReputation": 2
           },
           "tooltip": "+5 Soldier rep. Boosts company morale."
         }
@@ -239,8 +238,7 @@
           "resultText": "'Just doing my duty, sir.' The captain nods approvingly. Some of the men exchange glances—respect, maybe, or jealousy.",
           "risk": "safe",
           "effects": {
-            "officerRep": 8,
-            "soldierRep": 3
+            "lordReputation": 9
           },
           "tooltip": "+8 Officer rep, +3 Soldier rep."
         },
@@ -252,8 +250,7 @@
           "resultText": "'Thank you, sir. I've trained hard for moments like this.' The captain smiles slightly. The other soldiers are less impressed with your ego.",
           "risk": "safe",
           "effects": {
-            "officerRep": 10,
-            "soldierRep": -5
+            "lordReputation": 8
           },
           "tooltip": "+10 Officer rep, -5 Soldier rep."
         },
@@ -271,11 +268,10 @@
           "tooltip": "Requires Charm 30. +5 Officer rep, +10 Soldier rep. Generosity trait XP.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
-            "soldierRep": 10,
             "traitXp": {
               "Generosity": 5
-            }
+            },
+            "lordReputation": 10
           }
         }
       ]
@@ -309,10 +305,10 @@
           "resultText": "You dig alongside the others in silence. The work is hard, but it feels right. These men deserve better than a shallow pit.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 8,
             "companyNeeds": {
               "Morale": 3
-            }
+            },
+            "lordReputation": 4
           },
           "tooltip": "Help with burial. +8 Soldier rep. Boosts company morale."
         },
@@ -324,10 +320,10 @@
           "resultText": "You stand at a distance, watching the detail work. You say nothing, but someone notices you there. It's enough.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 3,
             "traitXp": {
               "Honor": 3
-            }
+            },
+            "lordReputation": 1
           },
           "tooltip": "Pay respects. +3 Soldier rep. Honor trait XP."
         },
@@ -342,7 +338,7 @@
             "traitXp": {
               "Calculating": 5
             },
-            "soldierRep": -3
+            "lordReputation": -1
           },
           "tooltip": "-3 Soldier rep. Calculating trait XP."
         }
@@ -378,7 +374,7 @@
           "risk": "risky",
           "effects": {
             "gold": 80,
-            "scrutiny": 3
+            "scrutiny": 3000000
           },
           "tooltip": "Risky choice. Adds 3 scrutiny. 80 gold reward."
         },
@@ -391,8 +387,8 @@
           "risk": "safe",
           "effects": {
             "gold": 30,
-            "officerRep": 8,
-            "scrutiny": -2
+            "scrutiny": -2000000,
+            "lordReputation": 8
           },
           "tooltip": "+8 Officer rep, -2 Scrutiny. 30 gold reward."
         },
@@ -411,7 +407,7 @@
           "risk": "dangerous",
           "effects": {
             "gold": 120,
-            "scrutiny": 5
+            "scrutiny": 5000000
           }
         }
       ]
@@ -451,10 +447,10 @@
             "skillXp": {
               "Medicine": 25
             },
-            "soldierRep": 10,
             "traitXp": {
               "Mercy": 8
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "Train Medicine. +10 Soldier rep. Mercy trait XP."
         },
@@ -469,10 +465,10 @@
             "skillXp": {
               "Athletics": 15
             },
-            "soldierRep": 8,
             "traitXp": {
               "Mercy": 5
-            }
+            },
+            "lordReputation": 4
           },
           "tooltip": "Train Athletics. +8 Soldier rep. Mercy trait XP."
         },
@@ -484,10 +480,10 @@
           "resultText": "You pretend not to hear and keep walking. The surgeon's stare follows you. Some things are someone else's problem.",
           "risk": "safe",
           "effects": {
-            "soldierRep": -5,
             "traitXp": {
               "Mercy": -5
-            }
+            },
+            "lordReputation": -2
           },
           "tooltip": "-5 Soldier rep. -5 Mercy trait XP."
         }
@@ -528,8 +524,7 @@
             "skillXp": {
               "Scouting": 15
             },
-            "lordRep": 10,
-            "officerRep": 8
+            "lordReputation": 18
           },
           "tooltip": "Train Scouting. +10 Lord rep, +8 Officer rep."
         },
@@ -550,8 +545,8 @@
             "skillXp": {
               "Scouting": 25
             },
-            "lordRep": 8,
-            "scrutiny": 1
+            "scrutiny": 1000000,
+            "lordReputation": 8
           }
         },
         {
@@ -562,7 +557,7 @@
           "resultText": "You pocket the papers without a word. This information could be worth something to the right buyer. Or it could get you killed.",
           "risk": "dangerous",
           "effects": {
-            "scrutiny": 4
+            "scrutiny": 4000000
           },
           "tooltip": "Dangerous choice. Adds 4 scrutiny. Intelligence has value."
         }
@@ -597,10 +592,10 @@
           "resultText": "You claim the item and attach it to your gear. Other soldiers nod with approval—a warrior's right to spoils.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 5,
             "traitXp": {
               "Valor": 5
-            }
+            },
+            "lordReputation": 2
           },
           "tooltip": "Claim trophy. +5 Soldier rep. Valor trait XP."
         },
@@ -627,10 +622,10 @@
           "resultText": "You press the trophy into a fellow soldier's hands. 'You earned this more than me.' His surprised gratitude is worth more than any trinket.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 10,
             "traitXp": {
               "Generosity": 8
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "Give to comrade. +10 Soldier rep. Generosity trait XP."
         }
@@ -675,8 +670,7 @@
               "Mercy": 15,
               "Honor": 10
             },
-            "soldierRep": -5,
-            "officerRep": 8
+            "lordReputation": 6
           }
         },
         {
@@ -690,7 +684,7 @@
             "traitXp": {
               "Mercy": -10
             },
-            "discipline": 1
+            "scrutiny": 1000000
           },
           "tooltip": "Safe choice. Adds 1 discipline issues. -10 Mercy trait XP."
         },
@@ -706,8 +700,8 @@
               "Mercy": -20,
               "Valor": 5
             },
-            "soldierRep": 3,
-            "discipline": 2
+            "scrutiny": 2000000,
+            "lordReputation": 1
           },
           "tooltip": "Dangerous choice. Adds 2 discipline issues, +3 Soldier rep. -20 Mercy trait XP."
         }
@@ -750,11 +744,10 @@
               "Tactics": 30,
               "Leadership": 20
             },
-            "officerRep": 15,
-            "soldierRep": 10,
             "traitXp": {
               "Valor": 10
-            }
+            },
+            "lordReputation": 20
           },
           "effects_failure": {
             "hpChange": -25,
@@ -800,7 +793,7 @@
             "traitXp": {
               "Valor": 15
             },
-            "soldierRep": 8
+            "lordReputation": 4
           },
           "effects_failure": {
             "hpChange": -40,

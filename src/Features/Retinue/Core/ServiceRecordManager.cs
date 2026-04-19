@@ -17,7 +17,7 @@ namespace Enlisted.Features.Retinue.Core
     /// </summary>
     public sealed class ServiceRecordManager : CampaignBehaviorBase
     {
-        private const string LogCategory = "ServiceRecords";
+        private const string LogCategory = "SERVICERECORDS";
 
         public static ServiceRecordManager Instance { get; private set; }
 
@@ -168,7 +168,7 @@ namespace Enlisted.Features.Retinue.Core
                     // Reinitialize retinue manager with loaded state
                     _retinueManager = new RetinueManager(_retinueState);
                     ModLogger.Debug(LogCategory, $"Loaded {_factionRecords.Count} faction records, lifetime: {_lifetimeRecord}");
-                    ModLogger.Debug("Retinue", $"Loaded retinue state: {_retinueState}");
+                    ModLogger.Debug("RETINUE", $"Loaded retinue state: {_retinueState}");
                 }
             });
         }
@@ -351,8 +351,6 @@ namespace Enlisted.Features.Retinue.Core
                         // New fields for discharge/re-enlistment tracking
                         var reenlistBlockedUntil = CampaignTime.Zero;
                         var lastDischargeBand = string.Empty;
-                        var officerRepAtExit = 0;
-                        var soldierRepAtExit = 0;
 
                         // Term tracking fields (migrated from FactionVeteranRecord)
                         var firstTermCompleted = false;
@@ -376,8 +374,6 @@ namespace Enlisted.Features.Retinue.Core
                         // Sync new fields
                         dataStore.SyncData($"svc_rec_{i}_reblockUntil", ref reenlistBlockedUntil);
                         dataStore.SyncData($"svc_rec_{i}_dischargeBand", ref lastDischargeBand);
-                        dataStore.SyncData($"svc_rec_{i}_officerRep", ref officerRepAtExit);
-                        dataStore.SyncData($"svc_rec_{i}_soldierRep", ref soldierRepAtExit);
                         dataStore.SyncData($"svc_rec_{i}_firstTerm", ref firstTermCompleted);
                         dataStore.SyncData($"svc_rec_{i}_preservedTier", ref preservedTier);
                         dataStore.SyncData($"svc_rec_{i}_cooldownEnds", ref cooldownEnds);
@@ -398,8 +394,6 @@ namespace Enlisted.Features.Retinue.Core
                                 TotalKills = kills,
                                 ReenlistmentBlockedUntil = reenlistBlockedUntil,
                                 LastDischargeBand = lastDischargeBand ?? string.Empty,
-                                OfficerRepAtExit = officerRepAtExit,
-                                SoldierRepAtExit = soldierRepAtExit,
                                 FirstTermCompleted = firstTermCompleted,
                                 PreservedTier = preservedTier,
                                 CooldownEnds = cooldownEnds,
@@ -430,8 +424,6 @@ namespace Enlisted.Features.Retinue.Core
                         // New fields for discharge/re-enlistment tracking
                         var reenlistBlockedUntil = rec.ReenlistmentBlockedUntil;
                         var lastDischargeBand = rec.LastDischargeBand ?? string.Empty;
-                        var officerRepAtExit = rec.OfficerRepAtExit;
-                        var soldierRepAtExit = rec.SoldierRepAtExit;
 
                         // Term tracking fields
                         var firstTermCompleted = rec.FirstTermCompleted;
@@ -455,8 +447,6 @@ namespace Enlisted.Features.Retinue.Core
                         // Sync new fields
                         dataStore.SyncData($"svc_rec_{idx}_reblockUntil", ref reenlistBlockedUntil);
                         dataStore.SyncData($"svc_rec_{idx}_dischargeBand", ref lastDischargeBand);
-                        dataStore.SyncData($"svc_rec_{idx}_officerRep", ref officerRepAtExit);
-                        dataStore.SyncData($"svc_rec_{idx}_soldierRep", ref soldierRepAtExit);
                         dataStore.SyncData($"svc_rec_{idx}_firstTerm", ref firstTermCompleted);
                         dataStore.SyncData($"svc_rec_{idx}_preservedTier", ref preservedTier);
                         dataStore.SyncData($"svc_rec_{idx}_cooldownEnds", ref cooldownEnds);
@@ -530,15 +520,13 @@ namespace Enlisted.Features.Retinue.Core
             }
         }
 
-        public bool TryConsumeReservistForFaction(IFaction faction, out int targetTier, out int bonusXp, out int relationBonus, out string band, out bool probation, out int officerRepRestore, out int soldierRepRestore)
+        public bool TryConsumeReservistForFaction(IFaction faction, out int targetTier, out int bonusXp, out int relationBonus, out string band, out bool probation)
         {
             targetTier = 0;
             bonusXp = 0;
             relationBonus = 0;
             band = "none";
             probation = false;
-            officerRepRestore = 0;
-            soldierRepRestore = 0;
 
             try
             {
@@ -559,11 +547,6 @@ namespace Enlisted.Features.Retinue.Core
 
                 band = _reservistRecord.DischargeBand?.ToLowerInvariant() ?? "none";
 
-                // Get the faction record to retrieve saved reputation values
-                var record = GetOrCreateRecord(faction);
-                var savedOfficerRep = record?.OfficerRepAtExit ?? 0;
-                var savedSoldierRep = record?.SoldierRepAtExit ?? 0;
-
                 switch (band)
                 {
                     case "washout":
@@ -572,37 +555,24 @@ namespace Enlisted.Features.Retinue.Core
                         bonusXp = 0;
                         relationBonus = 0;
                         probation = true;
-                        // No reputation restoration for bad discharges
-                        officerRepRestore = 0;
-                        soldierRepRestore = 0;
                         break;
                     case "grace":
-                        // Grace discharge fully restores reputation (lord died/captured, not player's fault)
                         targetTier = Math.Max(1, _reservistRecord.TierAtExit);
                         bonusXp = _reservistRecord.XpAtExit / 2; // Half XP retained
                         relationBonus = 3;
                         probation = false;
-                        officerRepRestore = savedOfficerRep; // 100% restoration
-                        soldierRepRestore = savedSoldierRep; // 100% restoration
-                        ModLogger.Info(LogCategory,
-                            $"Grace re-entry: restoring tier {targetTier} with {bonusXp} bonus XP, Officer Rep={officerRepRestore}, Soldier Rep={soldierRepRestore}");
+                        ModLogger.Info(LogCategory, $"Grace re-entry: restoring tier {targetTier} with {bonusXp} bonus XP");
                         break;
                     case "honorable":
                         targetTier = 3;
                         bonusXp = 500;
                         relationBonus = 5;
-                        // Honorable discharge restores 50% of reputation
-                        officerRepRestore = savedOfficerRep / 2;
-                        soldierRepRestore = savedSoldierRep / 2;
                         break;
                     case "veteran":
                     case "heroic":
                         targetTier = 4;
                         bonusXp = 1000;
                         relationBonus = 10;
-                        // Veteran discharge restores 75% of reputation
-                        officerRepRestore = (savedOfficerRep * 3) / 4;
-                        soldierRepRestore = (savedSoldierRep * 3) / 4;
                         break;
                     default:
                         return false;
@@ -611,7 +581,7 @@ namespace Enlisted.Features.Retinue.Core
                 _reservistRecord.Consumed = true;
                 _reservistRecord.GrantedProbation = probation;
                 ModLogger.Info(LogCategory,
-                    $"Reservist offer consumed for faction {faction.Name} (band={band}, targetTier={targetTier}, bonusXp={bonusXp}, relBonus={relationBonus}, probation={probation}, officerRep={officerRepRestore}, soldierRep={soldierRepRestore})");
+                    $"Reservist offer consumed for faction {faction.Name} (band={band}, targetTier={targetTier}, bonusXp={bonusXp}, relBonus={relationBonus}, probation={probation})");
                 return true;
             }
             catch (Exception ex)
@@ -765,7 +735,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-SRM-002", "Error handling promotion for retinue", ex);
+                ModLogger.Caught(LogCategory, "Error handling promotion for retinue", ex);
             }
         }
 

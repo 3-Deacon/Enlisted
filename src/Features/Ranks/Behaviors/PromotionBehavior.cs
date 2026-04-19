@@ -19,9 +19,8 @@ namespace Enlisted.Features.Ranks.Behaviors
     {
         public int DaysInRank { get; set; }
         public int BattlesRequired { get; set; }
-        public int MinSoldierReputation { get; set; }
         public int MinLeaderRelation { get; set; }
-        public int MaxDiscipline { get; set; }
+        public int MaxScrutiny { get; set; }
 
         /// <summary>
         ///     Get promotion requirements for a specific tier transition.
@@ -31,28 +30,29 @@ namespace Enlisted.Features.Ranks.Behaviors
         public static PromotionRequirements GetForTier(int targetTier)
         {
             // Promotion requirements table (XP values shown for reference only - actual values from progression_config.json):
-            // | Promotion | XP | Days | Battles | Soldier Rep | Leader Rel | Max Disc |
-            // |-----------|-----|------|---------|-------------|------------|----------|
-            // | T1â†’T2 | 700 | 14 | 2 | â‰¥0 | â‰¥0 | <8 |
-            // | T2â†’T3 | 2,200 | 35 | 6 | â‰¥10 | â‰¥10 | <7 |
-            // | T3â†’T4 | 4,400 | 56 | 12 | â‰¥20 | â‰¥20 | <6 |
-            // | T4â†’T5 | 6,600 | 56 | 20 | â‰¥30 | â‰¥30 | <5 |
-            // | T5â†’T6 | 8,800 | 56 | 30 | â‰¥40 | â‰¥15 | <4 |
-            // | T6â†’T7 | 11,000 | 70 | 40 | â‰¥50 | â‰¥20 | <3 |
-            // | T7â†’T8 | 14,000 | 84 | 50 | â‰¥60 | â‰¥25 | <2 |
-            // | T8â†’T9 | 18,000 | 112 | 60 | â‰¥70 | â‰¥30 | <1 |
+            // NOTE: Scrutiny is now 0-100 scale (merged discipline into scrutiny). Thresholds scaled x10.
+            // | Promotion | XP | Days | Battles | Leader Rel | Max Scrutiny |
+            // |-----------|-----|------|---------|------------|-------------|
+            // | T1→T2 | 700 | 14 | 2 | ≥0 | <80 |
+            // | T2→T3 | 2,200 | 35 | 6 | ≥10 | <70 |
+            // | T3→T4 | 4,400 | 56 | 12 | ≥20 | <60 |
+            // | T4→T5 | 6,600 | 56 | 20 | ≥30 | <50 |
+            // | T5→T6 | 8,800 | 56 | 30 | ≥15 | <40 |
+            // | T6→T7 | 11,000 | 70 | 40 | ≥20 | <30 |
+            // | T7→T8 | 14,000 | 84 | 50 | ≥25 | <20 |
+            // | T8→T9 | 18,000 | 112 | 60 | ≥30 | <10 |
 
             return targetTier switch
             {
-                2 => new PromotionRequirements { DaysInRank = 14, BattlesRequired = 2, MinSoldierReputation = 0, MinLeaderRelation = 0, MaxDiscipline = 8 },
-                3 => new PromotionRequirements { DaysInRank = 35, BattlesRequired = 6, MinSoldierReputation = 10, MinLeaderRelation = 10, MaxDiscipline = 7 },
-                4 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 12, MinSoldierReputation = 20, MinLeaderRelation = 20, MaxDiscipline = 6 },
-                5 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 20, MinSoldierReputation = 30, MinLeaderRelation = 30, MaxDiscipline = 5 },
-                6 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 30, MinSoldierReputation = 40, MinLeaderRelation = 15, MaxDiscipline = 4 },
-                7 => new PromotionRequirements { DaysInRank = 70, BattlesRequired = 40, MinSoldierReputation = 50, MinLeaderRelation = 20, MaxDiscipline = 3 },
-                8 => new PromotionRequirements { DaysInRank = 84, BattlesRequired = 50, MinSoldierReputation = 60, MinLeaderRelation = 25, MaxDiscipline = 2 },
-                9 => new PromotionRequirements { DaysInRank = 112, BattlesRequired = 60, MinSoldierReputation = 70, MinLeaderRelation = 30, MaxDiscipline = 1 },
-                _ => new PromotionRequirements { DaysInRank = 999, BattlesRequired = 999, MinSoldierReputation = 999, MinLeaderRelation = 999, MaxDiscipline = 0 }
+                2 => new PromotionRequirements { DaysInRank = 14, BattlesRequired = 2, MinLeaderRelation = 0, MaxScrutiny = 80 },
+                3 => new PromotionRequirements { DaysInRank = 35, BattlesRequired = 6, MinLeaderRelation = 10, MaxScrutiny = 70 },
+                4 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 12, MinLeaderRelation = 20, MaxScrutiny = 60 },
+                5 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 20, MinLeaderRelation = 30, MaxScrutiny = 50 },
+                6 => new PromotionRequirements { DaysInRank = 56, BattlesRequired = 30, MinLeaderRelation = 15, MaxScrutiny = 40 },
+                7 => new PromotionRequirements { DaysInRank = 70, BattlesRequired = 40, MinLeaderRelation = 20, MaxScrutiny = 30 },
+                8 => new PromotionRequirements { DaysInRank = 84, BattlesRequired = 50, MinLeaderRelation = 25, MaxScrutiny = 20 },
+                9 => new PromotionRequirements { DaysInRank = 112, BattlesRequired = 60, MinLeaderRelation = 30, MaxScrutiny = 10 },
+                _ => new PromotionRequirements { DaysInRank = 999, BattlesRequired = 999, MinLeaderRelation = 999, MaxScrutiny = 0 }
             };
         }
     }
@@ -229,19 +229,13 @@ namespace Enlisted.Features.Ranks.Behaviors
                 reasons.Add($"Battles: {enlistment.BattlesSurvived}/{req.BattlesRequired}");
             }
 
-            // Check soldier reputation (escalation system)
+            // Check scrutiny (escalation system - merged discipline into this 0-100 track)
             if (escalation?.IsEnabled() == true)
             {
-                var soldierRep = escalation.State?.SoldierReputation ?? 0;
-                if (soldierRep < req.MinSoldierReputation)
+                var scrutiny = escalation.State?.Scrutiny ?? 0;
+                if (scrutiny >= req.MaxScrutiny)
                 {
-                    reasons.Add($"Soldier reputation: {soldierRep}/{req.MinSoldierReputation}");
-                }
-
-                var discipline = escalation.State?.Discipline ?? 0;
-                if (discipline >= req.MaxDiscipline)
-                {
-                    reasons.Add($"Discipline too high: {discipline} (max: {req.MaxDiscipline - 1})");
+                    reasons.Add($"Scrutiny too high: {scrutiny} (max: {req.MaxScrutiny - 1})");
                 }
             }
 

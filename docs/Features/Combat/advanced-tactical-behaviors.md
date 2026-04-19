@@ -653,5 +653,4 @@ public static bool HasBattleBeenJoined(
 **Related Documents:**
 - `BATTLE-AI-IMPLEMENTATION-SPEC.md` - Main implementation plan
 - `tactical-formation-behavior-enhancement.md` - Detailed formation behaviors
-- `tactical-enhancements-integration-map.md` - Phase integration mapping
 - `battle-ai-plan.md` - Design foundation

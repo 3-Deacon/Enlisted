@@ -55,7 +55,7 @@ Add a **baseline schedule layer** that:
 - Dusk: Social time, relaxation, personal activities
 - Night: Rest, sleep, quiet activities
 
-**Context disrupts the rhythm.** Combat readiness shifts training up. Low morale cancels formations. Siege conditions collapse into survival mode.
+**Context disrupts the rhythm.** Low supplies trigger foraging duty. Exhaustion cancels training. Siege conditions collapse into survival mode.
 
 **Players observe and exploit the rhythm.** Knowing that training happens at dawn helps plan the day. Seeing the schedule deviate signals something is wrong.
 
@@ -74,7 +74,7 @@ Add a **baseline schedule layer** that:
         "category": "formation",
         "weight": 0.7,
         "description": "Morning formation and inspection",
-        "skippedWhen": ["low_morale", "siege", "marching"]
+        "skippedWhen": ["exhausted", "siege", "marching"]
       },
       "slot2": {
         "category": "training",
@@ -162,11 +162,6 @@ Add a **baseline schedule layer** that:
     }
   },
   "pressureOverrides": {
-    "low_morale": {
-      "threshold": 30,
-      "effect": "skip_formations",
-      "description": "Morale too low for formations"
-    },
     "low_supplies": {
       "threshold": 30,
       "effect": "boost_foraging",
@@ -259,14 +254,8 @@ public void ApplyActivityModifiers(ScheduledPhase schedule, ActivityLevel level)
 ```csharp
 public void ApplyPressureOverrides(ScheduledPhase schedule, CompanyNeeds needs)
 {
-    // Check each pressure condition
-    if (needs.Morale < _scheduleConfig.PressureOverrides["low_morale"].Threshold)
-    {
-        schedule.SkipFormations = true;
-        schedule.DeviationReason = "Morale too low for formations";
-    }
-    
-    if (needs.Supplies < _scheduleConfig.PressureOverrides["low_supplies"].Threshold)
+    // Check low supplies
+    if (needs.Supply < _scheduleConfig.PressureOverrides["low_supplies"].Threshold)
     {
         schedule.BoostForaging = true;
         schedule.DeviationReason = "Foraging prioritized due to supply shortage";
@@ -568,7 +557,7 @@ public class ScheduleForecast
 
 | Condition | Threshold | Effect |
 |-----------|-----------|--------|
-| Low Morale | <30% | Skip formations, boost recovery |
+|| Exhausted (Rest <30%) | <30% | Skip training, boost recovery |
 | Low Supplies | <30% | Boost foraging opportunities |
 | High Scrutiny | >70% | Restrict leisure/gambling |
 | Exhausted (Rest <30%) | <30% | Skip training, boost rest |
@@ -601,9 +590,7 @@ private void CheckBaselineReversion()
     {
         bool shouldRevert = deviation.Type switch
         {
-            "low_morale" => needs.Morale >= 40, // Above threshold + buffer
-            "low_supplies" => needs.Supplies >= 40,
-            "high_scrutiny" => needs.Scrutiny <= 60,
+            "low_supplies" => needs.Supply >= 40, // Above threshold + buffer
             "exhausted" => needs.Rest >= 40,
             _ => false
         };
@@ -855,7 +842,7 @@ Outcomes are rolled using weighted probabilities:
 - `default` - Normal conditions
 - `highSkill` - Player skilled in activity (more excellent/good)
 - `fatigued` - Player exhausted (more poor/mishap)
-- `lowMorale` - Company morale low (more poor outcomes)
+- `lowSupply` - Company supply low (more poor outcomes)
 
 #### 3. Outcome Effects
 
@@ -885,8 +872,7 @@ Each activity has configurable effect ranges per outcome type:
 - **XP** → Hero.AddSkillXp() for appropriate skill
 - **Fatigue** → CompanyNeeds.Rest modified (inverted)
 - **Gold** → Hero.ChangeHeroGold() for found items
-- **Supplies** → CompanyNeeds.Supplies for foraging
-- **Morale** → CompanyNeeds.Morale for social activities
+- **Supply** → CompanyNeeds.Supply for foraging
 - **Conditions** → Applied via condition system (injuries, illness)
 
 #### 4. Player Feedback
@@ -951,7 +937,7 @@ See [Event System Schemas](../Content/event-system-schemas.md#camp-routine-confi
 ### How should world state modifiers work?
 **Two layers:**
 1. ActivityLevel-based category weight modifiers (garrison = more social)
-2. Pressure threshold triggers (low morale = skip formations)
+2. Pressure threshold triggers (exhausted = skip training)
 
 ### Should schedule show in UI forecast?
 **Yes.** Helps player plan their day, adds immersion.

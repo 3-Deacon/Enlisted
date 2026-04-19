@@ -11,7 +11,7 @@ namespace Enlisted.Features.Camp.Models
     {
         // Identification
         public string Id;
-        public string Category;     // "problems", "camp_life", "discipline", "discovery", "social"
+        public string Category;     // "problems", "camp_life", "scrutiny", "discovery", "social"
         public string Severity;     // "flavor", "minor", "notable", "serious", "critical"
 
         // News text

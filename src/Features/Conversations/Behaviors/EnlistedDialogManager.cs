@@ -6,6 +6,7 @@ using Enlisted.Features.Context;
 using Enlisted.Features.Conversations.Data;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
@@ -47,7 +48,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         public void SetBaggageRequestContext(string requestType)
         {
             _baggageRequestType = requestType ?? "none";
-            ModLogger.Debug("EnlistedDialogManager", $"Baggage request context set to: {_baggageRequestType}");
+            ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"Baggage request context set to: {_baggageRequestType}");
         }
 
         /// <summary>
@@ -74,11 +75,11 @@ namespace Enlisted.Features.Conversations.Behaviors
             try
             {
                 QMDialogueCatalog.Instance.LoadFromJson();
-                ModLogger.Info("EnlistedDialogManager", $"QM Dialogue: Loaded {QMDialogueCatalog.Instance.NodeCount} nodes from JSON");
+                ModLogger.Info("ENLISTEDDIALOGMANAGER", $"QM Dialogue: Loaded {QMDialogueCatalog.Instance.NodeCount} nodes from JSON");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EnlistedDialogManager", "Failed to load QM dialogue catalog", ex);
+                ModLogger.Error("ENLISTEDDIALOGMANAGER", "Failed to load QM dialogue catalog", ex);
             }
 
             AddEnlistedDialogs(starter);
@@ -103,12 +104,12 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Retirement conversation flow
                 AddRetirementDialogs(starter);
 
-                ModLogger.Info("DialogManager",
+                ModLogger.Info("DIALOGMANAGER",
                     "All enlisted dialog flows registered successfully - enlistment dialogs should appear in lord conversations");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Failed to register enlisted dialogs", ex);
+                ModLogger.Error("DIALOGMANAGER", "Failed to register enlisted dialogs", ex);
             }
         }
 
@@ -1149,7 +1150,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     var hubNode = QMDialogueCatalog.Instance.GetNode("qm_hub", testContext);
                     if (hubNode != null)
                     {
-                        ModLogger.Info("EnlistedDialogManager", $"QM Dialogue: Successfully loaded test node 'qm_hub' with {hubNode.Options.Count} options");
+                        ModLogger.Info("ENLISTEDDIALOGMANAGER", $"QM Dialogue: Successfully loaded test node 'qm_hub' with {hubNode.Options.Count} options");
 
                         // Register JSON-based dialogue dynamically
                         // Register QM greeting and hub (for returning visits when already introduced)
@@ -1215,7 +1216,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     else
                     {
-                        ModLogger.Warn("EnlistedDialogManager", "QM Dialogue: Test node 'qm_hub' not found in catalog");
+                        ModLogger.Warn("ENLISTEDDIALOGMANAGER", "QM Dialogue: Test node 'qm_hub' not found in catalog");
                         jsonLoaded = false;
                     }
                 }
@@ -1226,7 +1227,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // ========================================
                 if (!jsonLoaded)
                 {
-                    ModLogger.Error("EnlistedDialogManager", 
+                    ModLogger.Error("ENLISTEDDIALOGMANAGER", 
                         "========================================\n" +
                         "QM JSON DIALOGUE FAILED TO LOAD\n" +
                         "Using fallback dialogue system.\n" +
@@ -1261,11 +1262,11 @@ namespace Enlisted.Features.Conversations.Behaviors
                     null,
                     100);
 
-                ModLogger.Info("Conversations", "Quartermaster dialog tree registered");
+                ModLogger.Info("CONVERSATIONS", "Quartermaster dialog tree registered");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "Failed to register quartermaster dialogs", ex);
+                ModLogger.Error("CONVERSATIONS", "Failed to register quartermaster dialogs", ex);
             }
         }
 
@@ -1352,7 +1353,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 null,
                 null);
 
-            ModLogger.Info("EnlistedDialogManager", "Fallback quartermaster dialogue registered");
+            ModLogger.Info("ENLISTEDDIALOGMANAGER", "Fallback quartermaster dialogue registered");
         }
 
         #region Quartermaster Dialog Conditions
@@ -1391,7 +1392,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             MBTextManager.SetTextVariable("PLAYER_RANK", rankTitle);
 
             // QM name
-            var qmName = enlistment?.QuartermasterHero?.Name?.ToString() ?? "Quartermaster";
+            var qmName = enlistment?.QuartermasterHero?.Name?.ToString() ?? "QUARTERMASTER";
             MBTextManager.SetTextVariable("QM_NAME", qmName);
 
             // Lord name
@@ -1439,25 +1440,25 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (allNodes == null || allNodes.Count == 0)
                 {
-                    ModLogger.Debug("EnlistedDialogManager", $"No JSON node found for '{nodeId}'");
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"No JSON node found for '{nodeId}'");
                     return;
                 }
 
-                ModLogger.Debug("EnlistedDialogManager", $"Found {allNodes.Count} node variants for '{nodeId}'");
+                ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"Found {allNodes.Count} node variants for '{nodeId}'");
 
                 // Filter to nodes that have player options (QM nodes with options = player's turn to respond)
                 var nodesWithOptions = allNodes.Where(n => n.Options != null && n.Options.Count > 0).ToList();
 
-                ModLogger.Debug("EnlistedDialogManager", $"After filtering, {nodesWithOptions.Count} nodes have options for '{nodeId}'");
+                ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"After filtering, {nodesWithOptions.Count} nodes have options for '{nodeId}'");
                 foreach (var node in allNodes)
                 {
                     var optCount = node.Options?.Count ?? 0;
-                    ModLogger.Debug("EnlistedDialogManager", $"  Node speaker='{node.Speaker}' context_specificity={node.Context?.GetSpecificity() ?? 0} options={optCount}");
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"  Node speaker='{node.Speaker}' context_specificity={node.Context?.GetSpecificity() ?? 0} options={optCount}");
                 }
 
                 if (nodesWithOptions.Count == 0)
                 {
-                    ModLogger.Debug("EnlistedDialogManager", $"No nodes with player options found for '{nodeId}'");
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"No nodes with player options found for '{nodeId}'");
                     return;
                 }
 
@@ -1474,7 +1475,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     var nodeContext = node.Context; // Capture for closure
                     var specificity = nodeContext?.GetSpecificity() ?? 0;
 
-                    ModLogger.Debug("EnlistedDialogManager",
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER",
                         $"Registering player options for '{nodeId}' variant (specificity={specificity}) with {node.Options.Count} options");
 
                     // Register each player option as a dialogue line
@@ -1484,7 +1485,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                         // Skip if this option ID has already been registered (prevents duplicates across node variants)
                         if (registeredOptionIds.Contains(option.Id))
                         {
-                            ModLogger.Debug("EnlistedDialogManager", $"Skipping duplicate option '{option.Id}' for node '{nodeId}'");
+                            ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"Skipping duplicate option '{option.Id}' for node '{nodeId}'");
                             continue;
                         }
 
@@ -1629,12 +1630,12 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                 }
 
-                ModLogger.Info("EnlistedDialogManager",
+                ModLogger.Info("ENLISTEDDIALOGMANAGER",
                     $"Registered {totalOptionsRegistered} player option variants for '{nodeId}' across {sortedNodes.Count} node variants");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EnlistedDialogManager", $"Failed to register JSON node '{nodeId}'", ex);
+                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to register JSON node '{nodeId}'", ex);
             }
         }
 
@@ -1652,7 +1653,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (allNodes == null || allNodes.Count == 0)
                 {
-                    ModLogger.Debug("EnlistedDialogManager", $"No QM nodes found for '{nodeId}'");
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"No QM nodes found for '{nodeId}'");
                     return;
                 }
 
@@ -1708,16 +1709,16 @@ namespace Enlisted.Features.Conversations.Behaviors
                         null, // No consequence needed
                         priority--);
 
-                    ModLogger.Debug("EnlistedDialogManager",
+                    ModLogger.Debug("ENLISTEDDIALOGMANAGER",
                         $"Registered QM line: {nodeId} (specificity={specificity}, priority={priority + 1})");
                 }
 
-                ModLogger.Info("EnlistedDialogManager",
+                ModLogger.Info("ENLISTEDDIALOGMANAGER",
                     $"Registered {sortedNodes.Count(n => n.Speaker == "quartermaster")} QM line variants for '{nodeId}'");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EnlistedDialogManager", $"Failed to register QM lines for '{nodeId}'", ex);
+                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to register QM lines for '{nodeId}'", ex);
             }
         }
 
@@ -1935,8 +1936,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                     return !baggageManager.IsEmergencyAccessOnCooldown();
 
                 default:
-                    ModLogger.Warn("EnlistedDialogManager", $"Unknown gate condition: {gateCondition}");
-                    return true; // Unknown conditions pass to avoid blocking
+                    ModLogger.Expected("ENLISTEDDIALOGMANAGER", "dialog_unknown_gate", $"Unknown gate condition '{gateCondition}' — option will be treated as gated (hidden/redirected). Add a handler to CheckGateCondition or fix the JSON.");
+                    return false;
             }
         }
 
@@ -1947,7 +1948,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             try
             {
-                ModLogger.Debug("EnlistedDialogManager", $"Executing dialogue action: {action}");
+                ModLogger.Debug("ENLISTEDDIALOGMANAGER", $"Executing dialogue action: {action}");
 
                 switch (action)
                 {
@@ -2007,10 +2008,6 @@ namespace Enlisted.Features.Conversations.Behaviors
                         OnQuartermasterProvisionsRequest();
                         break;
 
-                    case "supply_report":
-                        // Show supply report (existing system)
-                        break;
-
                     case "close":
                         // Conversation closes naturally
                         break;
@@ -2032,13 +2029,15 @@ namespace Enlisted.Features.Conversations.Behaviors
                         break;
 
                     default:
-                        ModLogger.Warn("EnlistedDialogManager", $"Unknown dialogue action: {action}");
+                        ModLogger.Expected("ENLISTEDDIALOGMANAGER", "dialog_unknown_action", $"Unknown dialogue action: '{action}' — this option will not do anything. Dialogue JSON references an action with no handler.");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=dialog_unknown_action}That option is misconfigured and does nothing. Please report this bug.").ToString()));
                         break;
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EnlistedDialogManager", $"Failed to execute dialogue action '{action}'", ex);
+                ModLogger.Error("ENLISTEDDIALOGMANAGER", $"Failed to execute dialogue action '{action}'", ex);
             }
         }
 
@@ -2331,7 +2330,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 }
 
                 var supplies = companyNeeds.Supplies;
-                var morale = companyNeeds.Morale;
+            var morale = companyNeeds.Readiness; // Morale removed, using readiness
                 var archetype = enlistment.QuartermasterArchetype;
                 var reputation = enlistment.QuartermasterRelationship;
 
@@ -2361,7 +2360,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "Failed to set supply status text", ex);
+                ModLogger.Error("CONVERSATIONS", "Failed to set supply status text", ex);
                 MBTextManager.SetTextVariable("SUPPLY_STATUS", "Hard to say. Things are... complicated.");
                 return true;
             }
@@ -2615,7 +2614,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "Failed to set browse response text", ex);
+                ModLogger.Error("CONVERSATIONS", "Failed to set browse response text", ex);
                 MBTextManager.SetTextVariable("BROWSE_RESPONSE", "Let me see what's in stock.");
                 return true;
             }
@@ -2675,7 +2674,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "Failed to set sell response text", ex);
+                ModLogger.Error("CONVERSATIONS", "Failed to set sell response text", ex);
                 MBTextManager.SetTextVariable("SELL_RESPONSE", "Show me what you've got.");
                 return true;
             }
@@ -2708,7 +2707,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "Failed to set upgrade response text", ex);
+                ModLogger.Error("CONVERSATIONS", "Failed to set upgrade response text", ex);
                 MBTextManager.SetTextVariable("UPGRADE_RESPONSE", "Aye, bring me what you've got. Good work costs good coin.");
                 return true;
             }
@@ -2890,7 +2889,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             var archetype = enlistment.QuartermasterArchetype;
             var isFirstMeeting = !enlistment.HasMetQuartermaster;
             var mood = GetQuartermasterMood();
-            var qmName = enlistment.QuartermasterHero?.Name?.ToString() ?? "Quartermaster";
+            var qmName = enlistment.QuartermasterHero?.Name?.ToString() ?? "QUARTERMASTER";
 
             if (isFirstMeeting)
             {
@@ -3418,7 +3417,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         private void OnQuartermasterFirstMeeting()
         {
             EnlistmentBehavior.Instance?.MarkQuartermasterMet();
-            ModLogger.Info("Conversations", "QM: First meeting with quartermaster completed");
+            ModLogger.Info("CONVERSATIONS", "QM: First meeting with quartermaster completed");
         }
 
         /// <summary>
@@ -3430,7 +3429,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             if (actionData == null)
             {
-                ModLogger.Warn("EnlistedDialogManager", "set_player_style action called without action_data");
+                ModLogger.Warn("ENLISTEDDIALOGMANAGER", "set_player_style action called without action_data");
                 return;
             }
 
@@ -3459,7 +3458,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
 
             EnlistmentBehavior.Instance?.SetQMPlayerStyle(style, repChange);
-            ModLogger.Info("EnlistedDialogManager", $"Player chose tone '{style}' with rep change {repChange}");
+            ModLogger.Info("ENLISTEDDIALOGMANAGER", $"Player chose tone '{style}' with rep change {repChange}");
         }
 
         /// <summary>
@@ -3476,11 +3475,11 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Guard against empty category (shouldn't happen, but defensive)
                 if (string.IsNullOrEmpty(category))
                 {
-                    ModLogger.Warn("Conversations", "QM: Browse category called with empty category, defaulting to weapons");
+                    ModLogger.Warn("CONVERSATIONS", "QM: Browse category called with empty category, defaulting to weapons");
                     category = "weapons";
                 }
 
-                ModLogger.Info("Conversations", $"QM: Player selected {category} category");
+                ModLogger.Info("CONVERSATIONS", $"QM: Player selected {category} category");
 
                 // Use NextFrameDispatcher so the conversation fully closes before Gauntlet opens
                 NextFrameDispatcher.RunNextFrame(() =>
@@ -3491,7 +3490,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("Conversations", $"QM: Failed to open Gauntlet for {category}", ex);
+                        ModLogger.Error("CONVERSATIONS", $"QM: Failed to open Gauntlet for {category}", ex);
                         // Try to return to conversation on error
                         RestartQuartermasterConversation();
                     }
@@ -3499,7 +3498,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to process browse category", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to process browse category", ex);
             }
         }
 
@@ -3517,11 +3516,11 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Guard against unset slot (shouldn't happen, but defensive)
                 if (slot == EquipmentIndex.None)
                 {
-                    ModLogger.Warn("Conversations", "QM: Armor slot selection called with None, defaulting to Body");
+                    ModLogger.Warn("CONVERSATIONS", "QM: Armor slot selection called with None, defaulting to Body");
                     slot = EquipmentIndex.Body;
                 }
 
-                ModLogger.Info("Conversations", $"QM: Player selected armor slot {slot}");
+                ModLogger.Info("CONVERSATIONS", $"QM: Player selected armor slot {slot}");
 
                 NextFrameDispatcher.RunNextFrame(() =>
                 {
@@ -3531,14 +3530,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("Conversations", $"QM: Failed to open Gauntlet for armor slot {slot}", ex);
+                        ModLogger.Error("CONVERSATIONS", $"QM: Failed to open Gauntlet for armor slot {slot}", ex);
                         RestartQuartermasterConversation();
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to process armor slot selection", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to process armor slot selection", ex);
             }
         }
 
@@ -3550,7 +3549,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             var qm = QuartermasterManager.Instance;
             if (qm == null)
             {
-                ModLogger.Warn("Conversations", "QM: QuartermasterManager instance not available");
+                ModLogger.Warn("CONVERSATIONS", "QM: QuartermasterManager instance not available");
                 return;
             }
 
@@ -3580,7 +3579,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     break;
 
                 default:
-                    ModLogger.Warn("Conversations", $"QM: Unknown equipment category: {category}");
+                    ModLogger.Warn("CONVERSATIONS", $"QM: Unknown equipment category: {category}");
                     return;
             }
 
@@ -3593,7 +3592,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 return;
             }
 
-            ModLogger.Debug("Conversations", $"QM: Opening Gauntlet for {category} with {variants.Count} variants");
+            ModLogger.Debug("CONVERSATIONS", $"QM: Opening Gauntlet for {category} with {variants.Count} variants");
             QuartermasterEquipmentSelectorBehavior.ShowEquipmentSelector(variants, targetSlot, category);
         }
 
@@ -3605,7 +3604,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             var qm = QuartermasterManager.Instance;
             if (qm == null)
             {
-                ModLogger.Warn("Conversations", "QM: QuartermasterManager instance not available");
+                ModLogger.Warn("CONVERSATIONS", "QM: QuartermasterManager instance not available");
                 return;
             }
 
@@ -3620,7 +3619,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
 
             var slotDisplayName = GetArmorSlotDisplayName(slot);
-            ModLogger.Debug("Conversations", $"QM: Opening Gauntlet for armor slot {slotDisplayName} with {variants.Count} variants");
+            ModLogger.Debug("CONVERSATIONS", $"QM: Opening Gauntlet for armor slot {slotDisplayName} with {variants.Count} variants");
             QuartermasterEquipmentSelectorBehavior.ShowEquipmentSelector(variants, slot, slotDisplayName);
         }
 
@@ -3668,7 +3667,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to get weapon variants", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to get weapon variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3710,7 +3709,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to get accessory variants", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to get accessory variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3728,7 +3727,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to get mount variants", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to get mount variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3757,7 +3756,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", $"QM: Failed to get armor variants for slot {slot}", ex);
+                ModLogger.Error("CONVERSATIONS", $"QM: Failed to get armor variants for slot {slot}", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3805,7 +3804,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Failed to get all armor variants", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Failed to get all armor variants", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -3823,7 +3822,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (qmHero == null || !qmHero.IsAlive)
                 {
-                    ModLogger.Warn("Conversations", "QM: Cannot restart conversation - QM hero not available");
+                    ModLogger.Warn("CONVERSATIONS", "QM: Cannot restart conversation - QM hero not available");
                     return;
                 }
 
@@ -3831,32 +3830,42 @@ namespace Enlisted.Features.Conversations.Behaviors
                 {
                     try
                     {
+                        var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                        if (party == null)
+                        {
+                            ModLogger.Expected("CONVERSATIONS", "qm_conv_no_party",
+                                "Both QM and enlisted lord have no party — cannot restart QM conversation with correct scene");
+                            InformationManager.DisplayMessage(new InformationMessage(
+                                new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                            return;
+                        }
+
                         var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                        var qmData = new ConversationCharacterData(qmHero.CharacterObject, qmHero.PartyBelongedTo?.Party);
-                        
+                        var qmData = new ConversationCharacterData(qmHero.CharacterObject, party);
+
                         // Use sea conversation scene if at sea, otherwise use map conversation
                         // Mirrors lord conversation behavior for proper scene selection
                         if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                         {
                             const string seaConversationScene = "conversation_scene_sea_multi_agent";
-                            ModLogger.Debug("Conversations", $"QM: Opening sea conversation using scene: {seaConversationScene}");
+                            ModLogger.Debug("CONVERSATIONS", $"QM: Opening sea conversation using scene: {seaConversationScene}");
                             CampaignMission.OpenConversationMission(playerData, qmData, seaConversationScene);
                         }
                         else
                         {
                             CampaignMapConversation.OpenConversation(playerData, qmData);
-                            ModLogger.Debug("Conversations", "QM: Opened land conversation");
+                            ModLogger.Debug("CONVERSATIONS", "QM: Opened land conversation");
                         }
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("Conversations", "QM: Failed to restart conversation", ex);
+                        ModLogger.Error("CONVERSATIONS", "QM: Failed to restart conversation", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Conversations", "QM: Error in RestartQuartermasterConversation", ex);
+                ModLogger.Error("CONVERSATIONS", "QM: Error in RestartQuartermasterConversation", ex);
             }
         }
 
@@ -3876,18 +3885,18 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (qm != null)
                 {
                     qm.ShowSellPopup();
-                    ModLogger.Info("Quartermaster", "Opened sell popup from dialog");
+                    ModLogger.Info("QUARTERMASTER", "Opened sell popup from dialog");
                 }
                 else
                 {
-                    ModLogger.Error("Quartermaster", "Cannot open sell popup: QuartermasterManager.Instance is null");
+                    ModLogger.Error("QUARTERMASTER", "Cannot open sell popup: QuartermasterManager.Instance is null");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_return_error}Return processing unavailable.").ToString()));
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Failed to open sell popup from dialog", ex);
+                ModLogger.Error("QUARTERMASTER", "Failed to open sell popup from dialog", ex);
             }
         }
 
@@ -3899,7 +3908,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             // Increase relationship for chatting
             EnlistmentBehavior.Instance?.ModifyQuartermasterRelationship(5);
-            ModLogger.Info("Quartermaster", "Chat completed, relationship increased");
+            ModLogger.Info("QUARTERMASTER", "Chat completed, relationship increased");
         }
 
         /// <summary>
@@ -3915,7 +3924,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var playerTier = enlistment?.EnlistmentTier ?? 1;
                 
                 // All ranks can view provisions, but only T7+ can purchase (enforced in UI)
-                ModLogger.Info("Quartermaster", $"Opening provisions UI for T{playerTier} player");
+                ModLogger.Info("QUARTERMASTER", $"Opening provisions UI for T{playerTier} player");
                 
                 // Defer to next frame so the conversation fully closes before the UI activates.
                 NextFrameDispatcher.RunNextFrame(() =>
@@ -3926,13 +3935,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode("Quartermaster", "E-QM-026", "Failed to open provisions UI", ex);
+                        ModLogger.Caught("QUARTERMASTER", "Failed to open provisions UI", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Failed to open provisions", ex);
+                ModLogger.Error("QUARTERMASTER", "Failed to open provisions", ex);
             }
         }
 
@@ -3953,11 +3962,11 @@ namespace Enlisted.Features.Conversations.Behaviors
                     QuartermasterEquipmentSelectorBehavior.ShowUpgradeScreen();
                 });
 
-                ModLogger.Info("Quartermaster", "Player requested equipment upgrades");
+                ModLogger.Info("QUARTERMASTER", "Player requested equipment upgrades");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error opening upgrade screen", ex);
+                ModLogger.Error("QUARTERMASTER", "Error opening upgrade screen", ex);
             }
         }
 
@@ -3975,14 +3984,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Set filter to officer equipment - this will be applied when the next category is browsed
                 QuartermasterManager.Instance?.SetFilterToOfficerEquipment();
 
-                ModLogger.Info("Quartermaster", "Player accessed Officers' Armory - officer filter enabled");
+                ModLogger.Info("QUARTERMASTER", "Player accessed Officers' Armory - officer filter enabled");
 
                 // Note: The dialogue should transition to qm_browse_response where player picks a category
                 // The officer filter will be applied to whatever category they select
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error enabling officers armory", ex);
+                ModLogger.Error("QUARTERMASTER", "Error enabling officers armory", ex);
             }
         }
 
@@ -3997,7 +4006,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var baggageManager = BaggageTrainManager.Instance;
                 if (baggageManager == null)
                 {
-                    ModLogger.Error("Baggage", "BaggageTrainManager not available for emergency access");
+                    ModLogger.Error("BAGGAGE", "BaggageTrainManager not available for emergency access");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=baggage_error}Unable to access baggage system.").ToString(),
                         Colors.Red));
@@ -4008,7 +4017,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (baggageManager.TryRequestEmergencyAccess(out var failReason))
                 {
                     // Success - access granted
-                    ModLogger.Info("Baggage", "Emergency baggage access granted");
+                    ModLogger.Info("BAGGAGE", "Emergency baggage access granted");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=baggage_granted}The quartermaster sends a runner. The baggage train will be brought forward shortly.").ToString(),
                         Colors.Green));
@@ -4022,7 +4031,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 else
                 {
                     // Request denied - show appropriate message
-                    ModLogger.Info("Baggage", $"Emergency baggage access denied: {failReason}");
+                    ModLogger.Info("BAGGAGE", $"Emergency baggage access denied: {failReason}");
 
                     TextObject message;
                     switch (failReason)
@@ -4043,7 +4052,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Baggage", "E-BAG-001", "Error processing emergency baggage access", ex);
+                ModLogger.Caught("BAGGAGE", "Error processing emergency baggage access", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=baggage_error}Unable to process baggage request.").ToString(),
                     Colors.Red));
@@ -4061,7 +4070,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var party = MobileParty.MainParty;
                 if (party == null)
                 {
-                    ModLogger.Error("Baggage", "MainParty not available for column halt");
+                    ModLogger.Error("BAGGAGE", "MainParty not available for column halt");
                     return;
                 }
 
@@ -4070,18 +4079,18 @@ namespace Enlisted.Features.Conversations.Behaviors
                 {
                     party.Ai.SetDoNotMakeNewDecisions(true);
                     party.SetMoveModeHold();
-                    ModLogger.Info("Baggage", "Column halted for baggage access");
+                    ModLogger.Info("BAGGAGE", "Column halted for baggage access");
                 }
 
-                // Apply officer reputation cost (inconvenience to the column)
+                // Apply lord reputation cost (inconvenience to the column)
                 var repCost = 3;
                 var escalation = EscalationManager.Instance;
                 if (escalation != null)
                 {
-                    escalation.ModifyOfficerReputation(-repCost, "Column halt for baggage access");
+                    escalation.ModifyLordReputation(-repCost); // Officer reputation removed, using lord relation
                 }
 
-                ModLogger.Info("Baggage", $"Column halt granted: Full baggage access until movement resumes (cost: -{repCost} Officer Rep)");
+                ModLogger.Info("BAGGAGE", $"Column halt granted: Full baggage access until movement resumes (cost: -{repCost} Officer Rep)");
 
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=baggage_column_halt}The column halts. Wagons are brought forward and the baggage train is made accessible.").ToString(),
@@ -4092,7 +4101,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Baggage", "E-BAG-002", "Error processing column halt request", ex);
+                ModLogger.Caught("BAGGAGE", "Error processing column halt request", ex);
             }
         }
 
@@ -4167,7 +4176,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error checking for upgradeable equipment", ex);
+                ModLogger.Error("QUARTERMASTER", "Error checking for upgradeable equipment", ex);
                 return false;
             }
         }
@@ -4197,7 +4206,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 "The quartermaster shares some... alternative supply channels.",
                 Colors.Magenta));
 
-            ModLogger.Info("Quartermaster", $"Black market dialog triggered (tension={tension})");
+            ModLogger.Info("QUARTERMASTER", $"Black market dialog triggered (tension={tension})");
         }
 
         /// <summary>
@@ -4215,17 +4224,11 @@ namespace Enlisted.Features.Conversations.Behaviors
             // Increase relationship for seeking guidance
             enlistment.ModifyQuartermasterRelationship(5);
 
-            // Small fatigue relief from spiritual comfort
-            if (enlistment.FatigueCurrent < 24)
-            {
-                enlistment.RestoreFatigue(2, "moral_guidance");
-            }
-
             InformationManager.DisplayMessage(new InformationMessage(
-                "The quartermaster's words bring some comfort. (+2 fatigue recovery)",
+                "The quartermaster's words bring some comfort.",
                 Colors.Green));
 
-            ModLogger.Info("Quartermaster", "Moral guidance dialog triggered");
+            ModLogger.Info("QUARTERMASTER", "Moral guidance dialog triggered");
         }
 
         /// <summary>
@@ -4247,7 +4250,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 "The veteran shares tips for surviving hard times. 'Keep your head down. Watch for opportunities.'",
                 Colors.Yellow));
 
-            ModLogger.Info("Quartermaster", "Survival advice dialog triggered");
+            ModLogger.Info("QUARTERMASTER", "Survival advice dialog triggered");
         }
 
         /// <summary>
@@ -4281,7 +4284,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 $"Quartermaster advice: \"{suggestion}\"",
                 Colors.Cyan));
 
-            ModLogger.Info("Quartermaster", "Help lord suggestion dialog triggered");
+            ModLogger.Info("QUARTERMASTER", "Help lord suggestion dialog triggered");
         }
 
         #endregion
@@ -4309,13 +4312,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Only exit if we're still on the enlisted menu and not enlisted
                 if (EnlistmentBehavior.Instance?.IsEnlisted != true)
                 {
-                    ModLogger.Info("DialogManager", "Cleaning up enlisted menu after discharge");
+                    ModLogger.Info("DIALOGMANAGER", "Cleaning up enlisted menu after discharge");
                     GameMenu.ExitToLast();
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("DialogManager", "E-DIALOG-003", "Error cleaning up menu after discharge", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Error cleaning up menu after discharge", ex);
             }
         }
 #endif
@@ -4351,7 +4354,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             // Different faction (or one has no kingdom) = rejection
             if (currentLordKingdom == null || targetLordKingdom != currentLordKingdom)
             {
-                ModLogger.Debug("DialogManager",
+                ModLogger.Debug("DIALOGMANAGER",
                     $"Triggering faction rejection - on leave from {enlistment.CurrentLord?.Name}, talking to {lord.Name} (different faction)");
                 return true;
             }
@@ -4381,13 +4384,13 @@ namespace Enlisted.Features.Conversations.Behaviors
             {
                 if (enlistment?.CurrentLord != lord)
                 {
-                    ModLogger.Debug("DialogManager",
+                    ModLogger.Debug("DIALOGMANAGER",
                         $"Dialog hidden - player is actively enlisted with {enlistment?.CurrentLord?.Name}");
                     return false;
                 }
 
                 // Allow - player talking to their own lord (retirement, early discharge, etc.)
-                ModLogger.Debug("DialogManager", $"Dialog shown - player talking to their enlisted lord {lord.Name}");
+                ModLogger.Debug("DIALOGMANAGER", $"Dialog shown - player talking to their enlisted lord {lord.Name}");
                 return true;
             }
 
@@ -4398,14 +4401,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (enlistment.CurrentLord == lord)
                 {
                     // Allow - player can return from leave with this lord
-                    ModLogger.Debug("DialogManager",
+                    ModLogger.Debug("DIALOGMANAGER",
                         $"Dialog shown - player on leave, talking to their lord {lord.Name}");
                     return true;
                 }
 
                 // Allow dialog with ALL lords when on leave - rejection handled in dialog flow
                 // This prevents "Missing dialog state" and gives roleplay rejection for different factions
-                ModLogger.Debug("DialogManager",
+                ModLogger.Debug("DIALOGMANAGER",
                     $"Dialog shown - player on leave, talking to {lord.Name} (will check faction in dialog)");
                 return true;
             }
@@ -4417,7 +4420,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var lordKingdom = lord.MapFaction as Kingdom;
                 if (lordKingdom != enlistment.PendingDesertionKingdom)
                 {
-                    ModLogger.Debug("DialogManager",
+                    ModLogger.Debug("DIALOGMANAGER",
                         $"Dialog hidden - player in grace period, can only rejoin {enlistment.PendingDesertionKingdom?.Name}");
                     return false;
                 }
@@ -4887,19 +4890,19 @@ namespace Enlisted.Features.Conversations.Behaviors
                 var lord = Hero.OneToOneConversationHero;
                 if (lord == null)
                 {
-                    ModLogger.LogOnce("dialog_accept_enlistment_no_conversation_hero", "DialogManager",
-                        "[E-DIALOG-001] No conversation hero found during enlistment acceptance", LogLevel.Error);
+                    ModLogger.Surfaced("DIALOGMANAGER",
+                        "No conversation hero found during enlistment acceptance");
                     return;
                 }
 
                 if (EnlistmentBehavior.Instance == null)
                 {
-                    ModLogger.LogOnce("dialog_accept_enlistment_enlistment_instance_null", "DialogManager",
-                        "[E-DIALOG-002] EnlistmentBehavior.Instance is null during enlistment", LogLevel.Error);
+                    ModLogger.Surfaced("DIALOGMANAGER",
+                        "EnlistmentBehavior.Instance is null during enlistment");
                     return;
                 }
 
-                ModLogger.Info("DialogManager", $"Player accepting enlistment with lord: {lord.Name}");
+                ModLogger.Info("DIALOGMANAGER", $"Player accepting enlistment with lord: {lord.Name}");
 
                 // Capture lord reference before conversation ends (Hero.OneToOneConversationHero will be null next frame)
                 var capturedLord = lord;
@@ -4913,8 +4916,8 @@ namespace Enlisted.Features.Conversations.Behaviors
                     {
                         if (EnlistmentBehavior.Instance == null)
                         {
-                            ModLogger.LogOnce("dialog_deferred_enlistment_instance_null", "DialogManager",
-                                "[E-DIALOG-004] EnlistmentBehavior.Instance became null before deferred enlistment", LogLevel.Error);
+                            ModLogger.Surfaced("DIALOGMANAGER",
+                                "EnlistmentBehavior.Instance became null before deferred enlistment");
                             return;
                         }
 
@@ -4922,7 +4925,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                         // Activate the enlisted status menu after enlistment completes
                         NextFrameDispatcher.RunNextFrame(EnlistedMenuBehavior.SafeActivateEnlistedMenu);
-                        ModLogger.Debug("DialogManager",
+                        ModLogger.Debug("DIALOGMANAGER",
                             "Scheduled enlisted_status menu activation - preventing encounter gap");
 
                         // Professional notification
@@ -4933,13 +4936,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("DialogManager", "Error in deferred enlistment", ex);
+                        ModLogger.Error("DIALOGMANAGER", "Error in deferred enlistment", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during enlistment acceptance", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during enlistment acceptance", ex);
             }
         }
 
@@ -4953,14 +4956,14 @@ namespace Enlisted.Features.Conversations.Behaviors
             try
             {
                 EnlistmentBehavior.Instance?.ProcessFirstTermRetirement();
-                ModLogger.Info("DialogManager", "First-term retirement processed");
+                ModLogger.Info("DIALOGMANAGER", "First-term retirement processed");
 
                 // Defer menu cleanup until after dialog closes - prevents stuck menu with no options
                 NextFrameDispatcher.RunNextFrame(CleanupEnlistedMenuAfterDischarge);
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during first-term retirement", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during first-term retirement", ex);
             }
         }
 
@@ -4971,7 +4974,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         private void OnKeepTroopsRetirement()
         {
             EnlistmentBehavior.RetainTroopsOnRetirement = true;
-            ModLogger.Info("DialogManager", "Player chose to keep retinue troops on retirement");
+            ModLogger.Info("DIALOGMANAGER", "Player chose to keep retinue troops on retirement");
         }
 
         /// <summary>
@@ -4988,14 +4991,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Add starter supplies so they don't starve immediately
                 AddRetirementSupplies();
 
-                ModLogger.Info("DialogManager", "First-term retirement with troops processed");
+                ModLogger.Info("DIALOGMANAGER", "First-term retirement with troops processed");
 
                 // Defer menu cleanup until after dialog closes
                 NextFrameDispatcher.RunNextFrame(CleanupEnlistedMenuAfterDischarge);
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during retirement with troops", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during retirement with troops", ex);
             }
         }
 #endif
@@ -5019,12 +5022,12 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (grain != null)
                 {
                     party.ItemRoster.AddToCounts(grain, 10);
-                    ModLogger.Info("DialogManager", "Added 10 grain as retirement supplies");
+                    ModLogger.Info("DIALOGMANAGER", "Added 10 grain as retirement supplies");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("DialogManager", "E-DIALOG-004", "Failed to add retirement supplies", ex);
+                ModLogger.Caught("DIALOGMANAGER", "Failed to add retirement supplies", ex);
             }
         }
 #endif
@@ -5095,12 +5098,12 @@ namespace Enlisted.Features.Conversations.Behaviors
             {
                 var config = AssignmentsConfig.LoadRetirementConfig();
                 EnlistmentBehavior.Instance?.StartRenewalTerm(config.FirstTermReenlistBonus);
-                ModLogger.Info("DialogManager",
+                ModLogger.Info("DIALOGMANAGER",
                     $"First-term re-enlistment with {config.FirstTermReenlistBonus}g bonus");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during first-term re-enlistment", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during first-term re-enlistment", ex);
             }
         }
 
@@ -5113,14 +5116,14 @@ namespace Enlisted.Features.Conversations.Behaviors
             try
             {
                 EnlistmentBehavior.Instance?.ProcessRenewalRetirement();
-                ModLogger.Info("DialogManager", "Renewal discharge processed");
+                ModLogger.Info("DIALOGMANAGER", "Renewal discharge processed");
 
                 // Defer menu cleanup until after dialog closes - prevents stuck menu with no options
                 NextFrameDispatcher.RunNextFrame(CleanupEnlistedMenuAfterDischarge);
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during renewal discharge", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during renewal discharge", ex);
             }
         }
 
@@ -5138,14 +5141,14 @@ namespace Enlisted.Features.Conversations.Behaviors
                 // Add starter supplies so they don't starve immediately
                 AddRetirementSupplies();
 
-                ModLogger.Info("DialogManager", "Renewal discharge with troops processed");
+                ModLogger.Info("DIALOGMANAGER", "Renewal discharge with troops processed");
 
                 // Defer menu cleanup until after dialog closes
                 NextFrameDispatcher.RunNextFrame(CleanupEnlistedMenuAfterDischarge);
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during renewal discharge with troops", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during renewal discharge with troops", ex);
             }
         }
 #endif
@@ -5160,11 +5163,11 @@ namespace Enlisted.Features.Conversations.Behaviors
             {
                 var config = AssignmentsConfig.LoadRetirementConfig();
                 EnlistmentBehavior.Instance?.StartRenewalTerm(config.RenewalContinueBonus);
-                ModLogger.Info("DialogManager", $"Service continued with {config.RenewalContinueBonus}g bonus");
+                ModLogger.Info("DIALOGMANAGER", $"Service continued with {config.RenewalContinueBonus}g bonus");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error continuing service", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error continuing service", ex);
             }
         }
 
@@ -5184,11 +5187,11 @@ namespace Enlisted.Features.Conversations.Behaviors
                     NextFrameDispatcher.RunNextFrame(EnlistedMenuBehavior.SafeActivateEnlistedMenu);
                 }
 
-                ModLogger.Info("DialogManager", "Veteran re-enlistment processed");
+                ModLogger.Info("DIALOGMANAGER", "Veteran re-enlistment processed");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during veteran re-enlistment", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during veteran re-enlistment", ex);
             }
         }
 
@@ -5203,7 +5206,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (EnlistmentBehavior.Instance?.IsEnlisted == true)
                 {
                     var lordName = EnlistmentBehavior.Instance.CurrentLord?.Name?.ToString() ?? "Unknown Lord";
-                    ModLogger.Info("DialogManager", $"Player early discharge from service with: {lordName}");
+                    ModLogger.Info("DIALOGMANAGER", $"Player early discharge from service with: {lordName}");
 
                     // Early discharge is not honorable (default false)
                     EnlistmentBehavior.Instance.StopEnlist("Early discharge through dialog");
@@ -5219,7 +5222,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during early discharge", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during early discharge", ex);
             }
         }
 #endif
@@ -5235,7 +5238,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 if (enlistment?.IsOnLeave == true)
                 {
                     var lordName = enlistment.CurrentLord?.Name?.ToString() ?? "Unknown Lord";
-                    ModLogger.Info("DialogManager", $"Player returning from leave to service with: {lordName}");
+                    ModLogger.Info("DIALOGMANAGER", $"Player returning from leave to service with: {lordName}");
 
                     enlistment.ReturnFromLeave();
 
@@ -5248,7 +5251,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during return from leave", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during return from leave", ex);
             }
         }
 
@@ -5265,15 +5268,15 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (newLord == null || enlistment == null)
                 {
-                    ModLogger.LogOnce("dialog_transfer_service_missing_inputs", "DialogManager",
-                        "[E-DIALOG-003] Cannot transfer service - missing lord or enlistment instance", LogLevel.Error);
+                    ModLogger.Expected("DIALOGMANAGER", "dialog_transfer_service_missing_inputs",
+                        "Cannot transfer service - missing lord or enlistment instance");
                     return;
                 }
 
                 var previousLordName = enlistment.CurrentLord?.Name?.ToString() ?? "your previous commander";
                 var newLordName = newLord.Name?.ToString() ?? "Unknown Lord";
 
-                ModLogger.Info("DialogManager",
+                ModLogger.Info("DIALOGMANAGER",
                     $"Player transferring service from {previousLordName} to {newLordName}");
 
                 // Perform the transfer
@@ -5288,7 +5291,7 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error during service transfer", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error during service transfer", ex);
             }
         }
 
@@ -5304,17 +5307,17 @@ namespace Enlisted.Features.Conversations.Behaviors
 
                 if (enlistment == null)
                 {
-                    ModLogger.Error("DialogManager", "EnlistmentBehavior.Instance is null during commander promotion acceptance");
+                    ModLogger.Error("DIALOGMANAGER", "EnlistmentBehavior.Instance is null during commander promotion acceptance");
                     return;
                 }
 
                 if (enlistment.EnlistmentTier != 6)
                 {
-                    ModLogger.Warn("DialogManager", $"Player not T6 when accepting commander promotion (tier={enlistment.EnlistmentTier})");
+                    ModLogger.Warn("DIALOGMANAGER", $"Player not T6 when accepting commander promotion (tier={enlistment.EnlistmentTier})");
                     return;
                 }
 
-                ModLogger.Info("DialogManager", "Player accepting T7 Commander promotion via dialog");
+                ModLogger.Info("DIALOGMANAGER", "Player accepting T7 Commander promotion via dialog");
 
                 // Clear declined promotion flag (player previously said "not ready" but now requesting promotion)
                 EscalationManager.Instance?.ClearDeclinedPromotion(7);
@@ -5325,7 +5328,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                     try
                     {
                         // High-ranking commissions are processed directly through the promotion system.
-                        ModLogger.Info("DialogManager", "Processing commander promotion");
+                        ModLogger.Info("DIALOGMANAGER", "Processing commander promotion");
 
                         var enlistmentCheck = EnlistmentBehavior.Instance;
                         if (enlistmentCheck != null && enlistmentCheck.EnlistmentTier == 6)
@@ -5339,13 +5342,13 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("DialogManager", "Error during deferred commander promotion", ex);
+                        ModLogger.Error("DIALOGMANAGER", "Error during deferred commander promotion", ex);
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.Error("DialogManager", "Error accepting commander promotion", ex);
+                ModLogger.Error("DIALOGMANAGER", "Error accepting commander promotion", ex);
             }
         }
 

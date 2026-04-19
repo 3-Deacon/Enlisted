@@ -27,25 +27,31 @@
 ## Build
 
 **Visual Studio:**
+
 - Configuration: "Enlisted RETAIL"
 - Platform: x64
 - Click Build
 
 **Command Line:**
+
 ```bash
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 ```
 
-**Output Location:**
-```
+**Output Locations** (one build populates both; see [BUILD-CONFIGURATIONS.md](BUILD-CONFIGURATIONS.md) for why):
+
+```text
 <BannerlordInstall>/Modules/Enlisted/bin/Win64_Shipping_Client/Enlisted.dll
+<BannerlordInstall>/Modules/Enlisted/bin/Win64_Shipping_wEditor/Enlisted.dll
 ```
+
+Close the Bannerlord launcher before building — `BannerlordLauncher` / `Watchdog` processes hold `Enlisted.dll` open and will fail the post-build copy.
 
 ---
 
 ## Project Structure
 
-```
+```text
 src/
 ├── Mod.Entry/              # SubModule.cs - Harmony initialization
 ├── Mod.Core/               # Logging, config, helpers
@@ -69,6 +75,7 @@ src/
 ```
 
 **Data and Localization:**
+
 - `ModuleData/Enlisted/` - JSON config + content
 - `ModuleData/Languages/` - XML localization (enlisted_strings.xml)
 
@@ -78,13 +85,15 @@ src/
 
 **CRITICAL**: This project uses an old-style `.csproj` with explicit file includes. New `.cs` files are NOT automatically compiled.
 
-### Steps:
+### Steps
+
 1. Create the `.cs` file in the appropriate location
 2. **Manually add it to `Enlisted.csproj`** in the `<ItemGroup>` with `<Compile Include="..."/>` entries
 3. Build and verify the file is included
 4. Run validation to confirm: `python Tools/Validation/validate_content.py`
 
-### Example:
+### Example
+
 Adding a new patch at `src\Mod.GameAdapters\Patches\YourNewPatch.cs`:
 
 ```xml
@@ -92,6 +101,7 @@ Adding a new patch at `src\Mod.GameAdapters\Patches\YourNewPatch.cs`:
 ```
 
 **If you forget this step:**
+
 - The file will exist but won't be compiled, and your code won't run
 - The validator will catch this in Phase 7 and report it as a [CRITICAL] error
 
@@ -104,7 +114,7 @@ Adding a new patch at `src\Mod.GameAdapters\Patches\YourNewPatch.cs`:
 All gameplay configuration files are in `ModuleData/Enlisted/`:
 
 | File | Purpose |
-|------|---------|
+| :--- | :--- |
 | `settings.json` | Logging levels, encounter settings |
 | `enlisted_config.json` | Tiers, wages, retirement, feature flags |
 | `progression_config.json` | XP thresholds, culture-specific rank titles |
@@ -119,12 +129,13 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 **Read these before modifying code:**
 
 | File | Purpose | Key Rules |
-|------|---------|-----------|
+| :--- | :--- | :--- |
 | [.editorconfig](../.editorconfig) | Formatting and style | 4-space C# indent, warns on unused `using`, warns on redundant qualifiers |
 | [qodana.yaml](../qodana.yaml) | Static analysis (CI) | Enforces: unused code detection, redundant qualifier removal, documented suppressions only |
 | [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings) | ReSharper settings | Excludes markdown from inspections |
 
 **What these enforce (from Blueprint):**
+
 - ✅ No unused `using` directives (warns in IDE)
 - ✅ No redundant namespace qualifiers like `System.String.Empty` (warns in IDE)
 - ✅ No unused methods, variables, or parameters (Qodana CI check)
@@ -141,18 +152,20 @@ See [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md#code-quality-
 
 **ALL ENLISTED MOD LOGS OUTPUT TO:**
 
-```
+```text
 <BannerlordInstall>\Modules\Enlisted\Debugging\
 ```
 
 **Example full path:**
-```
+
+```text
 C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging\
 ```
 
 **CRITICAL:** The mod writes all logs directly to the `Debugging` subfolder inside the Enlisted module directory. This is NOT the game's ProgramData crash folder and NOT your Documents folder.
 
 **Files created in the Debugging folder:**
+
 - `Session-A_{yyyy-MM-dd_HH-mm-ss}.log` - Current session (newest)
 - `Session-B_{yyyy-MM-dd_HH-mm-ss}.log` - Previous session
 - `Session-C_{yyyy-MM-dd_HH-mm-ss}.log` - Oldest kept session
@@ -162,10 +175,12 @@ C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Module
 - `Current_Session_README.txt` - Active log summary and sharing instructions
 
 **Session logs contain:**
+
 - Main activity log with category-based verbosity
 - Categories: Enlistment, Equipment, Orders, Combat, Events, etc.
 
 **Conflicts logs contain:**
+
 - Comprehensive mod conflict diagnostics
 - Harmony patch conflicts (other mods patching the same methods)
 - Patch execution order and priorities
@@ -180,13 +195,14 @@ C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Module
 **Configure Log Levels:**
 
 Edit `ModuleData/Enlisted/settings.json`:
+
 ```json
 {
   "LogLevels": {
     "Default": "Info",
-    "Battle": "Debug",
-    "Equipment": "Warn",
-    "Enlistment": "Info"
+    "BATTLE": "Debug",
+    "EQUIPMENT": "Warn",
+    "ENLISTMENT": "Info"
   }
 }
 ```
@@ -196,6 +212,7 @@ Edit `ModuleData/Enlisted/settings.json`:
 **Separate location:** `C:\ProgramData\Mount and Blade II Bannerlord\crashes\`
 
 Each crash creates a timestamped folder (e.g., `2025-12-08_03.41.58\`) containing:
+
 - `crash_tags.txt` - Module versions and system info
 - `rgl_log_*.txt` - Engine logs (large, check near end for crash context)
 - `rgl_log_errors_*.txt` - Engine error summary
@@ -207,20 +224,22 @@ Each crash creates a timestamped folder (e.g., `2025-12-08_03.41.58\`) containin
 ## API Reference
 
 When working with Bannerlord APIs, verify usage against:
+
 - **The local native decompile** (authoritative) - `C:\Dev\Enlisted\Decompile\`
 - The official API docs for v1.3.13 when needed for quick lookups
 
 ### Native Decompile Location
 
 The decompiled Bannerlord source is located at:
-```
+
+```text
 C:\Dev\Enlisted\Decompile\
 ```
 
 **Key decompiled assemblies:**
 
 | Assembly | Location | Contents |
-|----------|----------|----------|
+| :--- | :--- | :--- |
 | TaleWorlds.CampaignSystem | `TaleWorlds.CampaignSystem\TaleWorlds\` | Party, Settlement, Campaign behaviors |
 | TaleWorlds.Core | `TaleWorlds.Core\` | Basic types, CharacterObject, ItemObject |
 | TaleWorlds.Library | `TaleWorlds.Library\` | Vec2, MBList, utility classes |
@@ -228,11 +247,13 @@ C:\Dev\Enlisted\Decompile\
 | SandBox.View | `SandBox.View\` | Menu views, map handlers |
 
 **Example:** To find the correct property for party position:
-```
+
+```text
 C:\Dev\Enlisted\Decompile\TaleWorlds.CampaignSystem\TaleWorlds\CampaignSystem\Party\MobileParty.cs
 ```
 
 Key APIs:
+
 - `MobileParty.GetPosition2D` → `Vec2` (not `Position2D`)
 - `Settlement.GetPosition2D` → `Vec2`
 - `MobileParty.Position` → `CampaignVec2`
@@ -241,12 +262,14 @@ Key APIs:
 
 ## Adding a Harmony Patch
 
-### Steps:
+### Patch Steps
+
 1. Create patch file in `src/Mod.GameAdapters/Patches/`
 2. Add to `Enlisted.csproj` (see [Adding New Files](#adding-new-files))
 3. Document purpose in header comment
 
-### Example:
+### Patch Example
+
 ```csharp
 /// <summary>
 /// Prevents party following from breaking when lord dies.
@@ -264,14 +287,18 @@ public class PartyFollowingPatch
 ```
 
 ### Harmony Priority
+
 All Enlisted patches use default priority (400). If your mod patches the same methods:
+
 - Use Priority.Low (200) to run after Enlisted
 - Use Priority.High (600) to run before Enlisted
 
 ### Menu Override System
+
 The mod uses a two-layer approach to prevent native menus from appearing while enlisted:
 
 **Primary Layer - GenericStateMenuPatch:**
+
 - Patches `DefaultEncounterGameMenuModel.GetGenericStateMenu()`
 - Intercepts menu selection before native system activates it
 - Overrides: `"castle"`, `"castle_outside"`, `"town"`, `"town_outside"`, `"village"`, `"army_wait"`, `"army_wait_at_settlement"`
@@ -279,6 +306,7 @@ The mod uses a two-layer approach to prevent native menus from appearing while e
 - Respects `HasExplicitlyVisitedSettlement` flag (player clicked "Visit Settlement")
 
 **Fallback Layer - OnMenuOpened:**
+
 - Event handler in `EnlistedMenuBehavior.cs`
 - Catches menus that bypass the Harmony patch
 - Same menu IDs as primary layer
@@ -291,24 +319,30 @@ The mod uses a two-layer approach to prevent native menus from appearing while e
 ## Critical Patterns
 
 ### Deferred Operations
+
 Use for encounter transitions:
+
 ```csharp
 NextFrameDispatcher.RunNextFrame(() => GameMenu.ActivateGameMenu("menu_id"));
 ```
 
 ### Safe Hero Access
+
 Null-safe during character creation:
+
 ```csharp
 var hero = CampaignSafetyGuard.SafeMainHero;
 ```
 
 ### Party Following
+
 ```csharp
 party.SetMoveEscortParty(lordParty, NavigationType.Default, false);
 party.IsVisible = false;  // Hide on map
 ```
 
 ### Gold Transactions
+
 Always use `GiveGoldAction` (NOT `ChangeHeroGold`):
 
 ```csharp
@@ -321,6 +355,7 @@ GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, amount);  // Grant
 ```
 
 ### Equipment Slot Iteration
+
 Use numeric loop (NOT `Enum.GetValues`):
 
 ```csharp
@@ -335,6 +370,7 @@ for (int i = 0; i < (int)EquipmentIndex.NumEquipmentSetSlots; i++)
 ```
 
 ### Item Comparison and Confiscation
+
 Use `StringId` comparison (NOT reference equality):
 
 ```csharp
@@ -346,6 +382,7 @@ if (element.Item != null && element.Item.StringId == itemToRemove.StringId) { ..
 ```
 
 When removing items from inventory, especially equipped items:
+
 ```csharp
 // 1. Check if equipped using StringId comparison
 bool isEquipped = false;
@@ -372,7 +409,9 @@ party.ItemRoster.AddToCounts(itemToRemove, -1);
 ```
 
 ### Reputation & Needs
+
 Always use centralized managers (they handle clamping and logging):
+
 ```csharp
 EscalationManager.Instance.ModifyReputation(ReputationType.Officer, 5, "reason");
 CompanyNeedsManager.Instance.ModifyNeed(NeedType.Morale, -10, "reason");
@@ -444,22 +483,26 @@ if (eb?.IsEnlisted == true)
 ## Key Systems Overview
 
 ### EnlistmentBehavior
+
 - Tracks `_enlistedLord`, tier, XP, kills, grace periods
 - Real-time ticks for following, daily ticks for wages
 - +25 XP per battle, +1 XP per kill
 - 252-day first term, 84-day renewals
 
 ### Orders System
+
 - JSON-defined in `ModuleData/Enlisted/Orders/*.json`
 - Tier-gated missions from lord
 - Completion affects reputation
 
 ### Equipment System
+
 - Culture-specific loadouts via `equipment_kits.json`
 - Quartermaster manages distribution
 - Equipment replaced on promotion, restored on discharge
 
 ### Events & Decisions
+
 - **Events:** Role-specific narrative delivered via popup (MultiSelectionInquiryData)
 - **Decisions:** Player-initiated choices in Camp Hub
 - Both use JSON definitions with localization support
@@ -469,6 +512,7 @@ if (eb?.IsEnlisted == true)
 ## Guidelines
 
 ### Code Quality
+
 - **Read the configuration files first**: [.editorconfig](../.editorconfig), [qodana.yaml](../qodana.yaml), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
 - **ReSharper/Rider is the linter**: Follow warnings and recommendations
 - **Fix issues, don't suppress**: Only suppress with documented justification (see `qodana.yaml` for examples)
@@ -476,12 +520,14 @@ if (eb?.IsEnlisted == true)
 - **Blueprint Constraint #6**: "Follow ReSharper recommendations (never suppress without documented reason)"
 
 ### Comments
+
 - Comments explain *why*, not *what*
 - Describe current behavior factually
 - Avoid changelog-style framing ("Phase X added...", "Changed from...")
 - Write professionally and naturally
 
 ### Data Files
+
 - **XML for UI + localization**:
   - **Gauntlet UI layout** lives in XML prefabs under `GUI/Prefabs/**.xml`
   - **Localized strings** live in `ModuleData/Languages/enlisted_strings.xml`
@@ -495,12 +541,14 @@ if (eb?.IsEnlisted == true)
 - **Gameplay/config data** remains JSON (`ModuleData/Enlisted/*.json`) unless there's a specific reason to use XML
 
 ### Development Practices
+
 - Use Harmony only when needed
 - Keep changes small and focused
 - Verify APIs against local decompile first
 - Reuse existing patterns (copy OrderCatalog structure for new catalogs)
 
 ### Common Mistakes to Avoid
+
 1. Not adding new files to .csproj ✅ **Validator catches this automatically**
 2. Using `ChangeHeroGold` instead of `GiveGoldAction`
 3. Iterating equipment with `Enum.GetValues`
@@ -517,7 +565,7 @@ if (eb?.IsEnlisted == true)
 ## Documentation
 
 | Doc | Purpose |
-|-----|---------|
+| :--- | :--- |
 | [BLUEPRINT.md](BLUEPRINT.md) | Architecture, patterns, standards |
 | [Features/Core/index.md](Features/Core/index.md) | Feature specs and gameplay systems |
 | [Reference/campaignsystem-apis.md](Reference/campaignsystem-apis.md) | API notes and research |
@@ -526,4 +574,3 @@ if (eb?.IsEnlisted == true)
 ---
 
 **Questions?** Check the [Blueprint](BLUEPRINT.md) for architecture details or explore the feature documentation in `docs/Features/`.
-

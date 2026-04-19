@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered when leaving settlements (leaving_settlement context). 6 total incidents.",
@@ -32,12 +32,9 @@
           "resultText": "You force yourself forward, step by agonizing step. The day is miserable, but you don't fall behind. The sergeant notices your suffering but says nothing.",
           "risk": "moderate",
           "effects": {
-            "companyNeeds": {
-              "Rest": -5
-            },
-            "officerRep": 3
+            "lordReputation": 3
           },
-          "tooltip": "Moderate risk. +3 Officer rep. Harms company rest."
+          "tooltip": "Moderate risk. +3 Officer rep."
         },
         {
           "id": "seek_remedy",
@@ -50,13 +47,10 @@
           },
           "resultTextId": "mi_leave_hangover_remedy_result",
           "resultText": "The surgeon gives you a bitter tonic and a knowing look. 'This will help,' he says, 'but next time, drink less.' The relief is immediate.",
-          "tooltip": "Requires Medicine 25. Safe choice. -5 gold. Boosts company rest.",
+          "tooltip": "Requires Medicine 25. Safe choice. -5 gold.",
           "risk": "safe",
           "effects": {
-            "gold": -5,
-            "companyNeeds": {
-              "Rest": 5
-            }
+            "gold": -5
           }
         },
         {
@@ -67,9 +61,8 @@
           "resultText": "The sergeant is not amused. 'March now or face discipline,' he growls. You join the column, shame burning worse than the headache.",
           "risk": "risky",
           "effects": {
-            "officerRep": -8,
-            "soldierRep": 3,
-            "discipline": 1
+            "scrutiny": 1000000,
+            "lordReputation": -7
           },
           "tooltip": "Risky choice. +3 Soldier rep, -8 Officer rep. Adds 1 discipline issues."
         }
@@ -140,8 +133,8 @@
           "risk": "risky",
           "effects": {
             "gold": -25,
-            "soldierRep": -10,
-            "discipline": 2
+            "scrutiny": 2000000,
+            "lordReputation": -5
           },
           "tooltip": "Risky choice. -10 Soldier rep. Adds 2 discipline issues. -25 gold."
         }
@@ -179,7 +172,7 @@
             "companyNeeds": {
               "Morale": 5
             },
-            "officerRep": -3
+            "lordReputation": -3
           },
           "tooltip": "Proper goodbye. +5 Morale. -3 Officer rep."
         },
@@ -243,7 +236,7 @@
           "risk": "safe",
           "effects": {
             "gold": -15,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "tooltip": "Pay for intel. +5 Officer rep. -15 gold."
         },
@@ -262,11 +255,11 @@
             "skillXp": {
               "Scouting": 20
             },
-            "officerRep": 8
+            "lordReputation": 8
           },
           "effects_failure": {
             "hpChange": -15,
-            "scrutiny": 1
+            "scrutiny": 100
           },
           "failure_resultText": "Your scouting draws attention from enemy pickets. You escape, but barely, and with fresh wounds."
         },
@@ -278,10 +271,10 @@
           "resultText": "You wave the merchant off. The road will reveal its secrets soon enough. As the column marches, you notice the merchant approaching an officer instead. Someone else will get credit for that intelligence. Your coin stays in your purse, but so does your opportunity.",
           "risk": "safe",
           "effects": {
-            "officerRep": -2,
             "traitXp": {
               "Calculating": 2
-            }
+            },
+            "lordReputation": -2
           },
           "tooltip": "Safe choice. -2 Officer rep. Calculating trait XP."
         }
@@ -316,10 +309,10 @@
           "resultText": "You drag the stowaway out and call for the sergeant. The wagon is searched, the intruder ejected. Proper procedure, by the book.",
           "risk": "safe",
           "effects": {
-            "officerRep": 8,
             "traitXp": {
               "Honor": 3
-            }
+            },
+            "lordReputation": 8
           },
           "tooltip": "Report stowaway. +8 Officer rep. Honor trait XP."
         },
@@ -331,7 +324,7 @@
           "resultText": "You shift some crates to provide better cover and say nothing. Everyone deserves a second chance. Or maybe you just remember what desperation feels like.",
           "risk": "risky",
           "effects": {
-            "scrutiny": 3,
+            "scrutiny": 3000000,
             "traitXp": {
               "Mercy": 8
             }

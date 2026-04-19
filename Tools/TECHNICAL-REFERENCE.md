@@ -55,6 +55,19 @@ ModLogger.Debug("Category", "detailed info");
 ModLogger.Warn("Category", "warning");
 ModLogger.Error("Category", "error details");
 ModLogger.LogOnce("UniqueKey", "Category", "message"); // Only logs once per session
+
+// Surfaced: player/dev-visible failure. Toasts once per (category, code) per session.
+//           Codes auto-hash from the summary string; never hand-pick.
+//           Toggle toast display with ModLogger.ShowCodedMessagesOnScreen (default true).
+ModLogger.Surfaced("CATEGORY", "error summary", ex, LogCtx.PlayerState());
+
+// Caught: defensive catch (Harmony, cleanup). Logs only, no toast.
+//         Throttled per (category, file, line) on a 60s window.
+ModLogger.Caught("CATEGORY", "error summary", ex);
+
+// Expected: guard-rail early exit (no exception). INFO level, no stack trace.
+//           Throttled per key on a 60s window.
+ModLogger.Expected("CATEGORY", "stable_throttle_key", "guard summary");
 ```
 
 ### Categories
@@ -80,8 +93,8 @@ Configure levels in `settings.json`:
 {
   "LogLevels": {
     "Default": "Info",
-    "Battle": "Debug",
-    "Equipment": "Warn"
+    "BATTLE": "Debug",
+    "EQUIPMENT": "Warn"
   }
 }
 ```

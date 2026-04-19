@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_escort_duty",
   "events": [
@@ -100,17 +100,17 @@
           },
           "effects": {
             "fatigue": 8,
-            "officerRep": 2,
             "skillXp": {
               "Athletics": 24
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "fatigue": 10,
-            "officerRep": 1,
             "skillXp": {
               "Athletics": 12
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "escort_wheel_stuck_push_through_result",
           "resultText": "Shoulders to the wheel. It lurches free with a sucking sound.",
@@ -139,10 +139,10 @@
           "text": "Find a way around.",
           "effects": {
             "fatigue": 5,
-            "officerRep": 3,
             "skillXp": {
               "Scouting": 20
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "escort_wheel_stuck_find_route_result",
           "resultText": "You scout ahead and find firmer ground. The convoy detours safely."
@@ -176,19 +176,19 @@
           },
           "effects": {
             "troopLoss": -1,
-            "officerRep": 3,
             "hpChange": -15,
             "skillXp": {
               "Tactics": 30
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "troopLoss": -2,
-            "officerRep": 2,
             "hpChange": -18,
             "skillXp": {
               "Tactics": 16
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "escort_ambush_circle_defense_result",
           "resultText": "You rally the men. The wagons form a wall. You hold until they withdraw.",
@@ -201,11 +201,11 @@
           "text": "Charge through! Don't stop!",
           "effects": {
             "troopLoss": -1,
-            "officerRep": 4,
             "hpChange": -18,
             "skillXp": {
               "Leadership": 28
-            }
+            },
+            "lordReputation": 4
           },
           "resultTextId": "escort_ambush_charge_through_result",
           "resultText": "You whip the horses forward. Speed saves more than it costs."
@@ -216,11 +216,11 @@
           "text": "Sacrifice the rear wagon. Save the rest.",
           "effects": {
             "troopLoss": -2,
-            "officerRep": 2,
             "hpChange": -8,
             "skillXp": {
               "Tactics": 20
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "escort_ambush_sacrifice_rear_result",
           "resultText": "The rear guard buys time with their lives. The convoy escapes."
@@ -249,10 +249,10 @@
           "textId": "escort_prisoner_deal_refuse",
           "text": "Refuse. You have your orders.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Tactics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "escort_prisoner_deal_refuse_result",
           "resultText": "'Your loss,' he mutters. You deliver him as ordered."
@@ -262,14 +262,14 @@
           "textId": "escort_prisoner_deal_accept",
           "text": "Accept the deal.",
           "effects": {
-            "officerRep": -5,
             "gold": 30,
             "escalation": {
-              "discipline": 15
+              "scrutiny": 150
             },
             "skillXp": {
               "Roguery": 22
-            }
+            },
+            "lordReputation": -5
           },
           "resultTextId": "escort_prisoner_deal_accept_result",
           "resultText": "He tells you where to dig. The gold is real. So is your guilt."
@@ -279,10 +279,10 @@
           "textId": "escort_prisoner_deal_report",
           "text": "Report his bribe attempt.",
           "effects": {
-            "officerRep": 3,
             "skillXp": {
               "Tactics": 14
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "escort_prisoner_deal_report_result",
           "resultText": "{SERGEANT} nods. 'Good man. We'll find that gold ourselves.'"
@@ -311,11 +311,10 @@
           "textId": "escort_vip_demands_comply",
           "text": "Comply with his wishes.",
           "effects": {
-            "lordRep": 1,
-            "officerRep": -1,
             "skillXp": {
               "Charm": 10
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "escort_vip_demands_comply_result",
           "resultText": "You take his route. It's not faster, but he's satisfied."
@@ -329,18 +328,16 @@
             "difficulty": 50
           },
           "effects": {
-            "lordRep": -2,
-            "officerRep": 2,
             "skillXp": {
               "Charm": 26
-            }
+            },
+            "lordReputation": 0
           },
           "failEffects": {
-            "lordRep": -3,
-            "officerRep": 1,
             "skillXp": {
               "Charm": 14
-            }
+            },
+            "lordReputation": -2
           },
           "resultTextId": "escort_vip_demands_explain_result",
           "resultText": "He listens to reason. Grudgingly, he accepts your judgment.",
@@ -352,11 +349,10 @@
           "textId": "escort_vip_demands_refuse",
           "text": "Refuse flatly. You have orders.",
           "effects": {
-            "lordRep": 2,
-            "officerRep": 3,
             "skillXp": {
               "Leadership": 18
-            }
+            },
+            "lordReputation": 5
           },
           "resultTextId": "escort_vip_demands_refuse_result",
           "resultText": "'I answer to {LORD_NAME}, not you.' He's furious, but you're right."
@@ -389,17 +385,17 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 3,
             "skillXp": {
               "Tactics": 28
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "hpChange": -15,
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 14
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "escort_shortcut_option_take_it_result",
           "resultText": "You scout ahead, move fast. The pass is clear. Time saved.",
@@ -411,10 +407,10 @@
           "textId": "escort_shortcut_option_stay_safe",
           "text": "Take the long way. Safety first.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Athletics": 14
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "escort_shortcut_option_stay_safe_result",
           "resultText": "The extra miles are worth the peace of mind. You arrive intact."

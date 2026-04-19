@@ -8,8 +8,8 @@ namespace Enlisted.Features.Camp.Models
     {
         // Days of consecutive low values (0-100 scale, "low" typically means below 40)
         public int DaysLowSupplies { get; set; }
-        public int DaysLowMorale { get; set; }
-        public int DaysLowRest { get; set; }
+        // Note: DaysLowMorale removed (morale system no longer exists)
+        // Note: DaysLowRest removed 2026-01-11 (Rest system removed)
         public int DaysLowDiscipline { get; set; }
 
         // Count of desertions in recent days (decays over time)
@@ -24,8 +24,8 @@ namespace Enlisted.Features.Camp.Models
         public void Reset()
         {
             DaysLowSupplies = 0;
-            DaysLowMorale = 0;
-            DaysLowRest = 0;
+            // Note: DaysLowMorale removed (morale system no longer exists)
+            // Note: DaysLowRest removed 2026-01-11 (Rest system removed)
             DaysLowDiscipline = 0;
             RecentDesertions = 0;
             DaysHighSickness = 0;
@@ -38,8 +38,8 @@ namespace Enlisted.Features.Camp.Models
         {
             int score = 0;
             score += DaysLowSupplies * 8;
-            score += DaysLowMorale * 8;
-            score += DaysLowRest * 5;
+            // Note: DaysLowMorale removed (morale system no longer exists)
+            // Note: DaysLowRest removed 2026-01-11 (Rest system removed)
             score += DaysLowDiscipline * 6;
             score += RecentDesertions * 4;
             score += DaysHighSickness * 7;
@@ -53,8 +53,8 @@ namespace Enlisted.Features.Camp.Models
         public bool IsCrisisImminent()
         {
             return DaysLowSupplies >= 2 ||
-                   DaysLowMorale >= 2 ||
-                   DaysLowRest >= 2 ||
+                   // Note: DaysLowMorale removed (morale system no longer exists)
+                   // Note: DaysLowRest removed 2026-01-11 (Rest system removed)
                    RecentDesertions >= 4 ||
                    DaysHighSickness >= 2;
         }

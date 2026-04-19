@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "packId": "pay_tension",
   "category": "pay",
@@ -74,10 +74,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "flags_set": [],
           "flags_clear": [],
@@ -105,10 +104,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -140,10 +138,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -5,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -2
           },
           "flags_set": [],
           "flags_clear": [],
@@ -173,10 +170,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 10,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 5
           },
           "flags_set": [
             "pay_rabble_rouser"
@@ -260,11 +256,10 @@
             "items": []
           },
           "effects": {
-            "scrutiny": 2,
-            "discipline": 0,
-            "soldierRep": 0,
+            "scrutiny": 2000000,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -294,11 +289,10 @@
             "items": []
           },
           "effects": {
-            "scrutiny": 4,
-            "discipline": 0,
-            "soldierRep": 0,
+            "scrutiny": 4000000,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -330,11 +324,10 @@
             ]
           },
           "effects": {
-            "scrutiny": 1,
-            "discipline": 0,
-            "soldierRep": 0,
+            "scrutiny": 1000000,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -362,10 +355,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -397,10 +389,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -10,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -5
           },
           "flags_set": [],
           "flags_clear": [],
@@ -483,10 +474,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 15,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 7
           },
           "flags_set": [
             "pay_delegation_joined"
@@ -520,10 +510,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 25,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 12
           },
           "flags_set": [
             "pay_delegation_led"
@@ -557,10 +546,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -10,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -5
           },
           "flags_set": [],
           "flags_clear": [],
@@ -588,10 +576,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -623,10 +610,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -30,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -15
           },
           "flags_set": [
             "pay_informant"
@@ -709,10 +695,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 30,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 15
           },
           "flags_set": [
             "mutiny_joined"
@@ -747,10 +732,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -40,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -20
           },
           "flags_set": [],
           "flags_clear": [],
@@ -781,10 +765,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [
             "clean_desertion"
@@ -820,10 +803,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -50,
             "medical_risk": 0.2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -25
           },
           "flags_set": [
             "loyalist_mutiny"
@@ -908,11 +890,10 @@
             "items": []
           },
           "effects": {
-            "scrutiny": 3,
-            "discipline": 0,
-            "soldierRep": 0,
+            "scrutiny": 3000000,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [
             "theft_partner"
@@ -944,11 +925,10 @@
             "items": []
           },
           "effects": {
-            "scrutiny": 2,
-            "discipline": 0,
-            "soldierRep": 0,
+            "scrutiny": 2000000,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -977,10 +957,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -1012,10 +991,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -25,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": -12
           },
           "flags_set": [
             "informant"

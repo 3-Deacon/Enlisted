@@ -45,36 +45,15 @@ namespace Enlisted.Features.Content
                     sources.Add("Low Supplies");
                 }
 
-                // Low rest/exhaustion adds pressure
-                var rest = needs.GetNeedValue(CompanyNeed.Rest);
-                if (rest < 30)
-                {
-                    pressure += 15;
-                    sources.Add("Exhausted Company");
-                }
-
-                // Low morale adds pressure
-                var morale = needs.GetNeedValue(CompanyNeed.Morale);
-                if (morale < 30)
-                {
-                    pressure += 15;
-                    sources.Add("Low Morale");
-                }
+                // Morale removed - readiness is primary stress indicator now
             }
 
             // Check escalation state
             var escalation = EscalationManager.Instance?.State;
             if (escalation != null)
             {
-                // High discipline (strict enforcement) adds pressure
-                if (escalation.Discipline > 7)
-                {
-                    pressure += 25;
-                    sources.Add("High Discipline");
-                }
-
-                // High scrutiny (being watched) adds pressure
-                if (escalation.Scrutiny > 7)
+                // High scrutiny (merged with discipline) adds pressure
+                if (escalation.Scrutiny > 70) // 0-100 scale
                 {
                     pressure += 20;
                     sources.Add("Under Scrutiny");
@@ -178,37 +157,37 @@ namespace Enlisted.Features.Content
                 return (false, 0); // Already can promote or not enlisted
             }
 
-            // Check if soldier reputation is a blocking factor
-            bool soldierRepBlocking = false;
+            // Check if scrutiny is blocking factor (low reputation cases now use scrutiny)
+            bool scrutinyBlocking = false;
             foreach (var reason in failureReasons)
             {
-                if (reason.StartsWith("Soldier reputation:"))
+                if (reason.StartsWith("Scrutiny too high:"))
                 {
-                    soldierRepBlocking = true;
+                    scrutinyBlocking = true;
                     break;
                 }
             }
 
-            if (!soldierRepBlocking)
+            if (!scrutinyBlocking)
             {
-                return (false, 0); // Not blocked by reputation
+                return (false, 0); // Not blocked by scrutiny
             }
 
-            // Calculate how much reputation is needed
+            // Calculate how much scrutiny reduction is needed
             var currentTier = enlistment.EnlistmentTier;
             var targetTier = currentTier + 1;
             var requirements = Features.Ranks.Behaviors.PromotionRequirements.GetForTier(targetTier);
             
             var escalation = EscalationManager.Instance?.State;
-            var currentRep = escalation?.SoldierReputation ?? 0;
-            var requiredRep = requirements.MinSoldierReputation;
-            var repGap = requiredRep - currentRep;
+            var currentScrutiny = escalation?.Scrutiny ?? 0;
+            var maxScrutiny = requirements.MaxScrutiny;
+            var scrutinyGap = currentScrutiny - maxScrutiny; // How much over limit
 
-            if (repGap > 0)
+            if (scrutinyGap > 0)
             {
                 ModLogger.Debug(LogCategory, 
-                    $"Promotion reputation need detected: T{currentTier}→T{targetTier} requires {requiredRep} rep, player has {currentRep} (gap: {repGap})");
-                return (true, repGap);
+                    $"Promotion scrutiny need detected: T{currentTier}→T{targetTier} max scrutiny {maxScrutiny}, player has {currentScrutiny} (gap: {scrutinyGap})");
+                return (true, scrutinyGap);
             }
 
             return (false, 0);

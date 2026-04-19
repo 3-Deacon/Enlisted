@@ -166,12 +166,14 @@ namespace Enlisted.Features.Interface.News.Templates
                 "Sparring ran long. Bruises earned, lessons learned.")
         };
 
+        // Scrutiny templates (formerly UnitDiscipline)
+        // Scrutiny tracks rule-breaking and insubordination on a 0-100 scale
         public static IReadOnlyList<NewsTemplate> UnitDiscipline { get; } = new List<NewsTemplate>
         {
             new NewsTemplate("unit_discipline_serious", NewsTemplateCategory.Unit,
-                "Discipline is tightening. The NCOs are watching for the next mistake."),
+                "You're under watch. The NCOs are looking for any excuse."),
             new NewsTemplate("unit_discipline_critical", NewsTemplateCategory.Unit,
-                "Discipline is at a breaking point. One more incident could bring a hearing.")
+                "One more incident and you'll face a court-martial. The officers aren't joking.")
         };
 
         public static IReadOnlyList<NewsTemplate> CompanyMovement { get; } = new List<NewsTemplate>

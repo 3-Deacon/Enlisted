@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ using Enlisted.Features.Content.Models;
 using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.News.Models;
@@ -210,25 +211,25 @@ namespace Enlisted.Features.Interface.Behaviors
                                         // siege AI can continue without us manually pushing this menu via hourly ticks.
                                         if (desiredMenu == "menu_siege_strategies" || desiredMenu == "encounter_interrupted_siege_preparations")
                                         {
-                                            ModLogger.Info("Interface",
+                                            ModLogger.Info("INTERFACE",
                                                 $"Battle detected - NOT switching to '{desiredMenu}' (enlisted: siege strategy menu is native-only)");
                                             return;
                                         }
 
-                                ModLogger.Info("Interface",
+                                ModLogger.Info("INTERFACE",
                                     $"Battle detected - switching to native menu '{desiredMenu}'");
                                 GameMenu.SwitchToMenu(desiredMenu);
                             }
                             else
                             {
                                 // No specific menu - just return and let native system push its menu
-                                ModLogger.Info("Interface",
+                                ModLogger.Info("INTERFACE",
                                     "Battle detected - letting native system handle menu (no specific menu)");
                             }
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Interface", "E-UI-001", "Error handling battle menu transition", ex);
+                            ModLogger.Caught("INTERFACE", "Error handling battle menu transition", ex);
                         }
                     }
                 }
@@ -267,7 +268,7 @@ namespace Enlisted.Features.Interface.Behaviors
             // If it's a settlement encounter (not a battle), allow menu activation
             if (isSettlementEncounter && !lordSiegeEvent && !siegeRelatedBattle)
             {
-                ModLogger.Debug("Interface", "Allowing menu activation - settlement encounter (not battle)");
+                ModLogger.Debug("INTERFACE", "Allowing menu activation - settlement encounter (not battle)");
                 return true;
             }
 
@@ -277,7 +278,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
             if (conflict)
             {
-                ModLogger.Debug("Interface",
+                ModLogger.Debug("INTERFACE",
                     $"Menu activation blocked - battle: {playerBattle}, encounter: {playerEncounter}, siege: {lordSiegeEvent}");
                 return false;
             }
@@ -306,7 +307,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     if (isSiegeType)
                     {
-                        ModLogger.Info("Interface",
+                        ModLogger.Info("INTERFACE",
                             $"SIEGE BATTLE DETECTED: Type='{battleType}', Event='{mapEventString}'");
                         return true;
                     }
@@ -316,7 +317,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-002", "Error in siege battle detection", ex);
+                ModLogger.Caught("INTERFACE", "Error in siege battle detection", ex);
                 return false;
             }
         }
@@ -405,7 +406,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-003", "Error opening debug tools", ex);
+                ModLogger.Surfaced("INTERFACE", "Error opening debug tools", ex);
             }
         }
 
@@ -443,7 +444,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 
                 if (lordInSiege)
                 {
-                    ModLogger.Debug("Menu", "Skipping enlisted menu activation - lord/army at siege, letting native menu show");
+                    ModLogger.Debug("MENU", "Skipping enlisted menu activation - lord/army at siege, letting native menu show");
                     return;
                 }
             }
@@ -465,7 +466,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (isBattleMenu)
                 {
                     // Native system wants a battle/encounter menu - respect it
-                    ModLogger.Debug("Menu", $"Respecting battle menu '{genericStateMenu}'");
+                    ModLogger.Debug("MENU", $"Respecting battle menu '{genericStateMenu}'");
                     return;
                 }
 
@@ -473,14 +474,14 @@ namespace Enlisted.Features.Interface.Behaviors
                 // This ensures enlisted players always see their status menu when not in combat
                 if (!string.IsNullOrEmpty(genericStateMenu) && genericStateMenu != "enlisted_status")
                 {
-                    ModLogger.Debug("Menu", $"Overriding '{genericStateMenu}' with enlisted_status");
+                    ModLogger.Debug("MENU", $"Overriding '{genericStateMenu}' with enlisted_status");
                 }
 
                 var now = CampaignTime.Now;
                 if (now - _lastEnlistedMenuActivationLogTime >
                     CampaignTime.Seconds((long)EnlistedMenuActivationLogCooldownSeconds))
                 {
-                    ModLogger.Info("Menu", "Activating enlisted status menu");
+                    ModLogger.Info("MENU", "Activating enlisted status menu");
                     _lastEnlistedMenuActivationLogTime = now;
                 }
 
@@ -492,7 +493,7 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 // Fallback to original behavior if GetGenericStateMenu() fails
                 // This ensures the menu can still be activated even if the check fails
-                ModLogger.Debug("Interface", $"Error checking GetGenericStateMenu, using fallback: {ex.Message}");
+                ModLogger.Debug("INTERFACE", $"Error checking GetGenericStateMenu, using fallback: {ex.Message}");
                 QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                 GameMenu.ActivateGameMenu("enlisted_status");
             }
@@ -523,7 +524,7 @@ namespace Enlisted.Features.Interface.Behaviors
             MBTextManager.SetTextVariable("GOLD_ICON", "{=!}<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">");
 
             AddEnlistedMenus(starter);
-            ModLogger.Info("Interface", "Enlisted menu system initialized with modern UI styling");
+            ModLogger.Info("INTERFACE", "Enlisted menu system initialized with modern UI styling");
         }
 
         /// <summary>
@@ -635,14 +636,14 @@ namespace Enlisted.Features.Interface.Behaviors
 
                         if (!hasEncounter && !inSettlement && !inBattle)
                         {
-                            ModLogger.Info("Interface",
+                            ModLogger.Info("INTERFACE",
                                 "Deferred menu activation: conditions met, activating enlisted menu");
                             SafeActivateEnlistedMenu();
                         }
                     }
                     else if (!string.IsNullOrEmpty(genericStateMenu))
                     {
-                        ModLogger.Debug("Interface",
+                        ModLogger.Debug("INTERFACE",
                             $"Deferred menu activation skipped: native system wants '{genericStateMenu}'");
                     }
 
@@ -650,7 +651,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode("Interface", "E-UI-004", "Deferred enlisted menu activation error", ex);
+                    ModLogger.Caught("INTERFACE", "Deferred enlisted menu activation error", ex);
                     _pendingReturnToEnlistedMenu = false; // Clear flag to prevent endless retries
                 }
             }
@@ -669,7 +670,7 @@ namespace Enlisted.Features.Interface.Behaviors
             if (wasEnlistedMenu && !isEnlistedMenu)
             {
                 QuartermasterManager.CapturedTimeMode = null;
-                ModLogger.Debug("Interface", "Cleared captured time state - exited enlisted menu system");
+                ModLogger.Debug("INTERFACE", "Cleared captured time state - exited enlisted menu system");
             }
 
             // Log menu state transition when enlisted for debugging menu transitions
@@ -677,7 +678,7 @@ namespace Enlisted.Features.Interface.Behaviors
             if (enlistment?.IsEnlisted == true)
             {
                 // Log state transition with previous menu info
-                ModLogger.StateChange("Menu",
+                ModLogger.StateChange("MENU",
                     string.IsNullOrEmpty(previousMenu) ? "None" : previousMenu,
                     _currentMenuId);
 
@@ -692,17 +693,17 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Check for siege-related battles like sally-outs
                 var siegeRelatedBattle = IsSiegeRelatedBattle(main, lord?.PartyBelongedTo);
 
-                ModLogger.Trace("Menu",
+                ModLogger.Trace("MENU",
                     $"Context: battle={playerBattle}, encounter={playerEncounter}, siege={lordSiegeEvent}");
 
                 if (lordSiegeEvent || siegeRelatedBattle)
                 {
                     var battleInfo = siegeRelatedBattle ? " (sally-out)" : "";
-                    ModLogger.Debug("Siege", $"Menu '{_currentMenuId}' opened during siege{battleInfo}");
+                    ModLogger.Debug("SIEGE", $"Menu '{_currentMenuId}' opened during siege{battleInfo}");
 
                     if (_currentMenuId == "enlisted_status")
                     {
-                        ModLogger.Warn("Menu", "Enlisted menu opened during siege - should have been blocked");
+                        ModLogger.Warn("MENU", "Enlisted menu opened during siege - should have been blocked");
                     }
                 }
 
@@ -716,7 +717,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     _currentMenuId == "castle" || _currentMenuId == "castle_outside" ||
                     _currentMenuId == "town" || _currentMenuId == "town_outside")
                 {
-                    ModLogger.Info("Menu", $"OnMenuOpened detected {_currentMenuId} while enlisted - checking for override");
+                    ModLogger.Info("MENU", $"OnMenuOpened detected {_currentMenuId} while enlisted - checking for override");
 
                     // Only override if not in siege or siege-related battle
                     if (!lordSiegeEvent && !siegeRelatedBattle)
@@ -724,7 +725,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         // For army_wait, also check that player isn't in a battle/encounter
                         if (_currentMenuId == "army_wait" && (playerBattle || playerEncounter))
                         {
-                            ModLogger.Debug("Menu", "Not overriding army_wait - player in battle/encounter");
+                            ModLogger.Debug("MENU", "Not overriding army_wait - player in battle/encounter");
                             return;
                         }
 
@@ -732,11 +733,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         if ((_currentMenuId == "castle" || _currentMenuId == "castle_outside" ||
                              _currentMenuId == "town" || _currentMenuId == "town_outside") && HasExplicitlyVisitedSettlement)
                         {
-                            ModLogger.Info("Menu", $"Not overriding {_currentMenuId} - player explicitly visited settlement");
+                            ModLogger.Info("MENU", $"Not overriding {_currentMenuId} - player explicitly visited settlement");
                             return;
                         }
 
-                        ModLogger.Warn("Menu", $"FALLBACK: Overriding {_currentMenuId} to enlisted menu (patch may have been bypassed)");
+                        ModLogger.Warn("MENU", $"FALLBACK: Overriding {_currentMenuId} to enlisted menu (patch may have been bypassed)");
                         // Defer the override to next frame to avoid conflicts with the native menu system
                         NextFrameDispatcher.RunNextFrame(() =>
                         {
@@ -748,7 +749,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                     else
                     {
-                        ModLogger.Debug("Menu", $"Not overriding {_currentMenuId} - siege/battle active");
+                        ModLogger.Debug("MENU", $"Not overriding {_currentMenuId} - siege/battle active");
                     }
                 }
             }
@@ -841,12 +842,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     OnReturnToCampSelected,
                     true, 100);
 
-                ModLogger.Info("Interface",
+                ModLogger.Info("INTERFACE",
                     "Added 'Return to camp' options to town/castle menus (including guard and bribe menus)");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-006", "Failed to add Return to camp options", ex);
+                ModLogger.Caught("INTERFACE", "Failed to add Return to camp options", ex);
             }
         }
 
@@ -888,12 +889,13 @@ namespace Enlisted.Features.Interface.Behaviors
                 NextFrameDispatcher.RunNextFrame(() =>
                 {
                     SafeActivateEnlistedMenu();
-                    ModLogger.Info("Interface", "Returned to camp from settlement");
+                    ModLogger.Info("INTERFACE", "Returned to camp from settlement");
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-007", "Error returning to camp", ex);
+                ModLogger.Surfaced("INTERFACE", "Error returning to camp", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -1262,12 +1264,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 var lordPartyCheck = enlistment.CurrentLord?.PartyBelongedTo;
                 if (lordPartyCheck?.CurrentSettlement == settlement)
                 {
-                    ModLogger.Debug("Interface",
+                    ModLogger.Debug("INTERFACE",
                         "Lord still in settlement - skipping enlisted menu return, using native town menu");
                     return;
                 }
 
-                ModLogger.Info("Interface", $"Left {settlement.Name} - scheduling return to enlisted menu");
+                ModLogger.Info("INTERFACE", $"Left {settlement.Name} - scheduling return to enlisted menu");
 
                 // Only finish non-battle encounters when leaving settlements
                 // Battle encounters should be preserved to allow battle participation
@@ -1280,11 +1282,11 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (!lordInBattle && !InBattleOrSiege(lordParty))
                     {
                         PlayerEncounter.Finish();
-                        ModLogger.Debug("Interface", "Finished non-battle encounter on settlement exit");
+                        ModLogger.Debug("INTERFACE", "Finished non-battle encounter on settlement exit");
                     }
                     else
                     {
-                        ModLogger.Debug("Interface",
+                        ModLogger.Debug("INTERFACE",
                             "Skipped finishing encounter - lord in battle, preserving vanilla battle menu");
                     }
                 }
@@ -1312,11 +1314,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 _pendingReturnToEnlistedMenu = true;
                 _settlementExitTime = CampaignTime.Now;
 
-                ModLogger.Debug("Interface", "Deferred enlisted menu return scheduled (0.5s delay)");
+                ModLogger.Debug("INTERFACE", "Deferred enlisted menu return scheduled (0.5s delay)");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-009", "OnSettlementLeftReturnToCamp error", ex);
+                ModLogger.Caught("INTERFACE", "OnSettlementLeftReturnToCamp error", ex);
                 // Ensure we don't get stuck in pending state
                 _pendingReturnToEnlistedMenu = false;
             }
@@ -1415,7 +1417,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         args.IsEnabled = false;
                         args.Tooltip = new TextObject("{=menu_qm_supply_blocked}Quartermaster unavailable. The company's supplies are critically low. Equipment requisitions are suspended until supply levels recover.");
-                        ModLogger.Debug("Interface", $"Quartermaster blocked: Supplies at {companyNeeds.Supplies}% (threshold: {criticalSupplyThreshold}%)");
+                        ModLogger.Debug("INTERFACE", $"Quartermaster blocked: Supplies at {companyNeeds.Supplies}% (threshold: {criticalSupplyThreshold}%)");
                         return true;
                     }
 
@@ -1486,7 +1488,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-010", "Error initializing Camp hub", ex);
+                ModLogger.Caught("INTERFACE", "Error initializing Camp hub", ex);
                 MBTextManager.SetTextVariable("CAMP_HUB_TEXT", "Camp hub unavailable.");
             }
         }
@@ -1556,7 +1558,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     sb.AppendLine();
                 }
 
-                // === STATUS (Player's personal condition - injuries, hunger, fatigue, morale) ===
+                // === STATUS (Player's personal condition - injuries, illness, duty status) ===
                 var playerStatus = BuildPlayerPersonalStatus(enlistment);
                 if (!string.IsNullOrWhiteSpace(playerStatus))
                 {
@@ -1569,7 +1571,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Debug("Interface", $"Error building camp hub text: {ex.Message}");
+                ModLogger.Debug("INTERFACE", $"Error building camp hub text: {ex.Message}");
                 return new TextObject("{=enl_camp_hub_unavailable}Service Status unavailable.").ToString();
             }
         }
@@ -1651,25 +1653,24 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Company needs woven into narrative
                 if (companyNeeds != null)
                 {
-                    var needsParts = new List<string>();
-                    
-                    var supplyPhrase = GetSupplyPhrase(companyNeeds.Supplies);
-                    var moralePhrase = GetMoralePhrase(companyNeeds.Morale);
-                    
+                var needsParts = new List<string>();
+                
+                var supplyPhrase = GetSupplyPhrase(companyNeeds.Supplies);
+                var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
+                
+                if (!string.IsNullOrEmpty(supplyPhrase))
+                {
                     needsParts.Add(supplyPhrase);
-                    needsParts.Add(moralePhrase);
+                }
+                if (!string.IsNullOrEmpty(readinessPhrase))
+                {
+                    needsParts.Add(readinessPhrase);
+                }
 
-                    if (companyNeeds.Rest < 40)
-                    {
-                        var exhaustedText = new TextObject("{=status_men_exhausted}men exhausted").ToString();
-                        var fatigueText = new TextObject("{=status_fatigue_showing}fatigue showing").ToString();
-                        var restPhrase = companyNeeds.Rest < 20 
-                            ? $"<span style=\"Alert\">{exhaustedText}</span>" 
-                            : $"<span style=\"Warning\">{fatigueText}</span>";
-                        needsParts.Add(restPhrase);
-                    }
-
+                if (needsParts.Count > 0)
+                {
                     parts.Add(string.Join(", ", needsParts) + ".");
+                }
                 }
 
                 // Location context
@@ -1770,11 +1771,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         // Add pressure context to siege rumors
                         var logisticsLow = campLife?.LogisticsStrain > 60;
-                        var moraleShaky = campLife?.MoraleShock > 50;
+                        // MoraleShock removed - ReadinessStrain doesn't exist either, just use logistics
+                        var readinessLow = logisticsLow;
 
                         if (lordSituation == Content.Models.LordSituation.SiegeAttacking)
                         {
-                            if (logisticsLow && moraleShaky)
+                            if (logisticsLow && readinessLow)
                             {
                                 rumors.Add($"<span style=\"Alert\">Siege of {siegeTarget.Name} grinds on. Whispers of withdrawal if supplies don't improve.</span>");
                             }
@@ -1904,13 +1906,14 @@ namespace Enlisted.Features.Interface.Behaviors
                     
                     // Check for recent pay tension
                     var payProblems = campLife?.PayTension > 50;
-                    var moraleIssues = campLife?.MoraleShock > 40;
+                    // MoraleShock removed - ReadinessStrain doesn't exist, use payProblems as proxy
+                    var readinessIssues = payProblems;
                     
-                    if (payProblems && moraleIssues)
+                    if (payProblems && readinessIssues)
                     {
                         rumors.Add($"<span style=\"Warning\">Men grumble about pay and boredom. {lord.Name} better have work for us soon.</span>");
                     }
-                    else if (moraleIssues)
+                    else if (readinessIssues)
                     {
                         var dayNumber = (int)CampaignTime.Now.ToDays;
                         var phrases = new[]
@@ -2013,7 +2016,7 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Builds player's personal status - flavor text about injuries, hunger, fatigue, scrutiny.
+        /// Builds player's personal status - flavor text about injuries, illness, duty status.
         /// </summary>
         private static string BuildPlayerPersonalStatus(EnlistmentBehavior enlistment)
         {
@@ -2112,19 +2115,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     else if (mainHero.IsWounded)
                     {
                         parts.Add("<span style=\"Alert\">Your wounds slow you.</span> Rest and heal before the next call.");
-                    }
-                    // Fatigue scale is 0-24: 0=exhausted, 8=tired threshold, 16=moderate, 24=fresh
-                    else if (enlistment?.FatigueCurrent <= 8)
-                    {
-                        parts.Add("<span style=\"Alert\">Bone-deep exhaustion.</span> Find rest soon or you'll collapse.");
-                    }
-                    else if (enlistment?.FatigueCurrent <= 16)
-                    {
-                        parts.Add("<span style=\"Warning\">Weariness creeps in.</span> Some rest would help.");
-                    }
-                    else if (enlistment?.FatigueCurrent >= 20)
-                    {
-                        parts.Add("<span style=\"Success\">Rested and sharp.</span> Ready for whatever comes.");
                     }
                 }
 
@@ -2490,32 +2480,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                     }
 
-                    // Morale with morale shock context
-                    // Skip shock warnings for fresh enlistment (< 1 day) - the lord's prior battles shouldn't alarm new recructs
-                    var freshlyEnlisted = enlistment?.DaysServed < 1f;
-                    var moraleShock = !freshlyEnlisted && campLife?.MoraleShock > 50;
-                    var payProblems = !freshlyEnlisted && campLife?.PayTension > 50;
-                    if (moraleShock || payProblems)
-                    {
-                        var issues = new List<string>();
-                        if (moraleShock)
-                        {
-                            issues.Add("recent setbacks");
-                        }
-                        if (payProblems)
-                        {
-                            issues.Add("pay disputes");
-                        }
-                        statusParts.Add($"<span style=\"Warning\">morale shaky</span> from {string.Join(" and ", issues)}");
-                    }
-                    else
-                    {
-                        var moralePhrase = GetMoralePhrase(companyNeeds.Morale);
-                        if (!string.IsNullOrEmpty(moralePhrase))
-                        {
-                            statusParts.Add(moralePhrase);
-                        }
-                    }
+                // Readiness check
+                var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
+                if (!string.IsNullOrEmpty(readinessPhrase))
+                {
+                    statusParts.Add(readinessPhrase);
+                }
 
                     if (statusParts.Count > 0)
                     {
@@ -2523,7 +2493,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 }
 
-                // Sentence 4: Specific concerns (wounds, fatigue, equipment) with territory pressure
+                // Sentence 4: Specific concerns (wounds, rest, equipment) with territory pressure
                 var detailParts = new List<string>();
                 var wounded = lordParty?.MemberRoster?.TotalWounded ?? 0;
                 var inHostileTerritory = campLife?.TerritoryPressure > 60;
@@ -2537,21 +2507,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     detailParts.Add($"<span style=\"Warning\">{wounded} recovering</span> from injuries");
                 }
 
-                if (companyNeeds != null)
-                {
-                    if (companyNeeds.Rest < 20)
-                    {
-                        detailParts.Add("<span style=\"Alert\">exhaustion</span> weighs on everyone");
-                    }
-                    else if (companyNeeds.Rest < 40 && activityLevel == Content.Models.ActivityLevel.Intense)
-                    {
-                        detailParts.Add("<span style=\"Warning\">men push through fatigue</span>");
-                    }
-                    else if (companyNeeds.Rest < 40)
-                    {
-                        detailParts.Add("<span style=\"Warning\">fatigue</span> visible in the ranks");
-                    }
-                }
 
                 // Add territory pressure warning if high
                 if (inHostileTerritory && detailParts.Count < 2)
@@ -2677,33 +2632,33 @@ namespace Enlisted.Features.Interface.Behaviors
             return "<span style=\"Alert\">Starvation threatens the company</span>";
         }
 
-        /// <summary>
-        /// Returns a color-coded, descriptive phrase about morale status.
-        /// </summary>
-        private static string GetMoralePhrase(int morale)
+    /// <summary>
+    /// Returns a color-coded, descriptive phrase about readiness status.
+    /// </summary>
+    private static string GetReadinessPhrase(int readiness)
+    {
+        if (readiness >= 80)
         {
-            if (morale >= 80)
-            {
-                return "<span style=\"Success\">spirits are high, men confident</span>";
-            }
-            if (morale >= 60)
-            {
-                return "<span style=\"Success\">morale strong</span>";
-            }
-            if (morale >= 40)
-            {
-                return "morale steady, men focused";
-            }
-            if (morale >= 25)
-            {
-                return "<span style=\"Warning\">grumbling in the ranks</span>";
-            }
-            if (morale >= 15)
-            {
-                return "<span style=\"Alert\">men on edge, discipline fraying</span>";
-            }
-            return "<span style=\"Alert\">morale broken, desertion likely</span>";
+            return "<span style=\"Success\">combat readiness high</span>";
         }
+        if (readiness >= 60)
+        {
+            return "<span style=\"Success\">readiness solid</span>";
+        }
+        if (readiness >= 40)
+        {
+            return "readiness adequate";
+        }
+        if (readiness >= 25)
+        {
+            return "<span style=\"Warning\">training deficiencies noted</span>";
+        }
+        if (readiness >= 15)
+        {
+            return "<span style=\"Alert\">readiness poor</span>";
+        }
+        return "<span style=\"Alert\">unit combat ineffective</span>";
+    }
 
         /// <summary>
         /// Returns a phrase describing current camp activity.
@@ -3247,19 +3202,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var snapshot = news?.GetTodayDailyReportSnapshot();
                 if (snapshot != null)
                 {
-                    // Morale status (only show if not steady/normal)
-                    switch (snapshot.Morale)
-                    {
-                        case MoraleBand.Breaking:
-                            newsItems.Add("Morale is dangerously low");
-                            break;
-                        case MoraleBand.Low:
-                            newsItems.Add("Spirits are flagging among the troops");
-                            break;
-                        case MoraleBand.High:
-                            newsItems.Add("The company's spirits are high");
-                            break;
-                    }
+                    // Morale removed - readiness is primary indicator now
 
                     // Food status (only show if problematic)
                     switch (snapshot.Food)
@@ -3343,7 +3286,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Debug("Interface", $"Error building camp news: {ex.Message}");
+                ModLogger.Debug("INTERFACE", $"Error building camp news: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -3570,7 +3513,7 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             try
             {
-                ModLogger.Debug("Interface", "OnEnlistedStatusInit: Menu opened");
+                ModLogger.Debug("INTERFACE", "OnEnlistedStatusInit: Menu opened");
                 
                 // No cache to clear - Orchestrator owns the schedule, we query it directly
                 
@@ -3611,7 +3554,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     // First enlistment - default to normal speed (x1) instead of fast forward
                     Campaign.Current.TimeControlMode = CampaignTimeControlMode.StoppablePlay;
-                    ModLogger.Debug("Interface", "First enlistment - set time to x1 (StoppablePlay)");
+                    ModLogger.Debug("INTERFACE", "First enlistment - set time to x1 (StoppablePlay)");
                 }
 
                 RefreshEnlistedStatusDisplay(args);
@@ -3619,7 +3562,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-011", "Error initializing enlisted status menu", ex);
+                ModLogger.Caught("INTERFACE", "Error initializing enlisted status menu", ex);
             }
         }
 
@@ -3682,7 +3625,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-036", "Error refreshing enlisted status", ex);
+                ModLogger.Caught("INTERFACE", "Error refreshing enlisted status", ex);
 
                 // Error fallback
                 var menuContext = args?.MenuContext ?? Campaign.Current.CurrentMenuContext;
@@ -4004,15 +3947,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         sentences.Add("<span style=\"Alert\">Your wounds slow you.</span> Rest now, heal, and ride again when ready.");
                     }
-                    // Fatigue scale is 0-24: 0=exhausted, 8=tired threshold, 16=moderate, 24=fresh
-                    else if (enlistment?.FatigueCurrent <= 8)
-                    {
-                        sentences.Add("<span style=\"Alert\">Bone-deep exhaustion.</span> Push through or find rest soon, or you'll collapse.");
-                    }
-                    else if (enlistment?.FatigueCurrent <= 16)
-                    {
-                        sentences.Add("<span style=\"Warning\">Weariness creeps in.</span> A few hours rest would sharpen your edge.");
-                    }
                 }
 
                 // Critical player-relevant warnings from company state (supplies impact player directly)
@@ -4069,7 +4003,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         sentences.Add("The defeat stings, but the company rebuilds. There will be another chance.");
                     }
-                    else if (activityLevel == Content.Models.ActivityLevel.Intense && (companyNeeds?.Supplies < 30 || companyNeeds?.Morale < 30))
+                    else if (activityLevel == Content.Models.ActivityLevel.Intense && (companyNeeds?.Supplies < 30 || companyNeeds?.Readiness < 30))
                     {
                         sentences.Add("Hard campaigning tests every soldier. Hold the line.");
                     }
@@ -4081,9 +4015,9 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         sentences.Add("Garrison duty suits a measured leader. The men trust your judgment.");
                     }
-                    else if (mainHero?.IsWounded != true && enlistment?.FatigueCurrent > 70)
+                    else if (mainHero?.IsWounded != true)
                     {
-                        sentences.Add("<span style=\"Success\">You're rested and ready.</span> Whatever comes, you'll face it.");
+                        sentences.Add("<span style=\"Success\">Ready for action.</span> Whatever comes, you'll face it.");
                     }
                 }
 
@@ -4221,7 +4155,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-012", "Error refreshing menu", ex);
+                ModLogger.Caught("INTERFACE", "Error refreshing menu", ex);
             }
         }
 
@@ -4266,7 +4200,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-013", "Error opening Master at Arms", ex);
+                ModLogger.Surfaced("INTERFACE", "Error opening Master at Arms", ex);
             }
         }
 
@@ -4281,7 +4215,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=menu_must_be_enlisted_qm}You must be enlisted to access quartermaster services.").ToString()));
-                    ModLogger.Warn("Quartermaster", "Quartermaster open blocked: player not enlisted");
+                    ModLogger.Warn("QUARTERMASTER", "Quartermaster open blocked: player not enlisted");
                     return;
                 }
 
@@ -4290,20 +4224,29 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 if (qm != null && qm.IsAlive)
                 {
-                    ModLogger.Info("Quartermaster",
+                    var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                    if (party == null)
+                    {
+                        ModLogger.Surfaced("QUARTERMASTER", "Both QM and enlisted lord have no party — cannot open conversation with correct scene");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                        return;
+                    }
+
+                    ModLogger.Info("QUARTERMASTER",
                         $"Opening conversation with quartermaster '{qm.Name}' ({enlistment.QuartermasterArchetype})");
 
                     // Open conversation with quartermaster Hero
                     // The dialog tree is registered in EnlistedDialogManager
                     var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                    var qmData = new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party);
-                    
+                    var qmData = new ConversationCharacterData(qm.CharacterObject, party);
+
                     // Use sea conversation scene if at sea, otherwise use map conversation
                     // Mirrors lord conversation behavior for proper scene selection
                     if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                     {
                         const string seaConversationScene = "conversation_scene_sea_multi_agent";
-                        ModLogger.Info("Interface", $"Opening sea conversation with QM using scene: {seaConversationScene}");
+                        ModLogger.Info("INTERFACE", $"Opening sea conversation with QM using scene: {seaConversationScene}");
                         CampaignMission.OpenConversationMission(playerData, qmData, seaConversationScene);
                     }
                     else
@@ -4313,16 +4256,18 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
                 else
                 {
-                    // Fallback: Direct to menu if hero creation/conversation fails
-                    ModLogger.Warn("Quartermaster", "Quartermaster Hero unavailable, falling back to direct menu");
-                    OpenQuartermasterMenuDirectly();
+                    // QM hero creation must succeed when enlisted. If we get here, hero spawn failed upstream.
+                    ModLogger.Surfaced("QUARTERMASTER", "GetOrCreateQuartermaster returned null or dead hero while enlisted");
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=menu_qm_hero_unavailable}The quartermaster could not be reached. This is a bug — please report it.").ToString()));
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-038", "Error opening quartermaster conversation", ex);
-                // Fallback to direct menu access
-                OpenQuartermasterMenuDirectly();
+                ModLogger.Surfaced("INTERFACE", "Error opening quartermaster conversation", ex,
+                    ctx: LogCtx.PlayerState());
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=menu_qm_open_failed}Failed to open the quartermaster conversation. Check the log for details.").ToString()));
             }
         }
 
@@ -4337,13 +4282,22 @@ namespace Enlisted.Features.Interface.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Warn("Baggage", "Cannot open baggage request conversation: not enlisted");
+                    ModLogger.Warn("BAGGAGE", "Cannot open baggage request conversation: not enlisted");
                     return;
                 }
 
                 var qm = enlistment.GetOrCreateQuartermaster();
                 if (qm != null && qm.IsAlive)
                 {
+                    var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                    if (party == null)
+                    {
+                        ModLogger.Surfaced("QUARTERMASTER", "Both QM and enlisted lord have no party — cannot open baggage-request conversation with correct scene");
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                        return;
+                    }
+
                     // Set baggage request context before opening conversation
                     var dialogManager = EnlistedDialogManager.Instance;
                     if (dialogManager != null)
@@ -4351,12 +4305,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         dialogManager.SetBaggageRequestContext(requestType);
                     }
 
-                    ModLogger.Info("Baggage", $"Opening QM conversation for baggage request: {requestType}");
+                    ModLogger.Info("BAGGAGE", $"Opening QM conversation for baggage request: {requestType}");
 
                     // Open conversation with quartermaster
                     var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                    var qmData = new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party);
-                    
+                    var qmData = new ConversationCharacterData(qm.CharacterObject, party);
+
                     // Use sea conversation scene if at sea, otherwise use map conversation
                     if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                     {
@@ -4370,30 +4324,16 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
                 else
                 {
-                    ModLogger.Warn("Baggage", "Quartermaster Hero unavailable for baggage request conversation");
+                    ModLogger.Warn("BAGGAGE", "Quartermaster Hero unavailable for baggage request conversation");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=menu_qm_unavailable}Quartermaster services temporarily unavailable.").ToString()));
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-041", "Error opening baggage request conversation", ex);
+                ModLogger.Surfaced("INTERFACE", "Error opening baggage request conversation", ex,
+                    ctx: LogCtx.PlayerState());
             }
-        }
-
-        /// <summary>
-        ///     Fallback handler when quartermaster conversation cannot be opened.
-        ///     The GameMenu equipment system was removed in favor of conversation-driven Gauntlet UI.
-        /// </summary>
-        private void OpenQuartermasterMenuDirectly()
-        {
-            // The old GameMenu-based quartermaster system has been removed.
-            // Equipment access is now conversation-driven with Gauntlet UI.
-            // This fallback should not be reached in normal operation.
-            ModLogger.ErrorCode("Quartermaster", "E-QM-025",
-                "Cannot open QM: conversation failed and no fallback available");
-            InformationManager.DisplayMessage(new InformationMessage(
-                new TextObject("{=menu_qm_unavailable}Quartermaster services temporarily unavailable.").ToString()));
         }
 
         /// <summary>
@@ -4471,7 +4411,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (enlistment?.IsEnlisted != true)
                 {
                     // Not enlisted - direct access to personal stash
-                    ModLogger.Debug("Baggage", "Baggage access: Not enlisted, opening stash directly");
+                    ModLogger.Debug("BAGGAGE", "Baggage access: Not enlisted, opening stash directly");
                     enlistment?.TryOpenBaggageTrain();
                     return;
                 }
@@ -4479,13 +4419,13 @@ namespace Enlisted.Features.Interface.Behaviors
                 var baggageManager = BaggageTrainManager.Instance;
                 if (baggageManager == null)
                 {
-                    ModLogger.Warn("Baggage", "BaggageTrainManager not available, opening stash directly");
+                    ModLogger.Warn("BAGGAGE", "BaggageTrainManager not available, opening stash directly");
                     enlistment.TryOpenBaggageTrain();
                     return;
                 }
 
                 var accessState = baggageManager.GetCurrentAccess();
-                ModLogger.Info("Baggage", $"Baggage access requested, state: {accessState}");
+                ModLogger.Info("BAGGAGE", $"Baggage access requested, state: {accessState}");
 
                 switch (accessState)
                 {
@@ -4497,7 +4437,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     case BaggageAccessState.Locked:
                         // State changed since button was shown - inform player
-                        ModLogger.Info("Baggage", "Baggage state changed to Locked since button was cached");
+                        ModLogger.Info("BAGGAGE", "Baggage state changed to Locked since button was cached");
                         InformationManager.DisplayMessage(new InformationMessage(
                             new TextObject("{=baggage_now_locked}The baggage train is currently locked down (supply crisis).").ToString(),
                             Colors.Red));
@@ -4506,7 +4446,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     case BaggageAccessState.NoAccess:
                     default:
                         // State changed since button was shown - inform player
-                        ModLogger.Info("Baggage", "Baggage state changed to NoAccess since button was cached");
+                        ModLogger.Info("BAGGAGE", "Baggage state changed to NoAccess since button was cached");
                         InformationManager.DisplayMessage(new InformationMessage(
                             new TextObject("{=baggage_now_unavailable}The baggage train has fallen behind the column.").ToString(),
                             Colors.Red));
@@ -4515,7 +4455,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-040", "Error handling baggage train access", ex);
+                ModLogger.Surfaced("INTERFACE", "Error handling baggage train access", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -4548,7 +4489,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-014", "Error in Talk to My Lord", ex);
+                ModLogger.Surfaced("INTERFACE", "Error in Talk to My Lord", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -4598,7 +4540,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-015", "Error finding nearby lords", ex);
+                ModLogger.Caught("INTERFACE", "Error finding nearby lords", ex);
             }
 
             return nearbyLords;
@@ -4645,7 +4587,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Interface", "E-UI-016", "Error starting lord conversation", ex);
+                            ModLogger.Surfaced("INTERFACE", "Error starting lord conversation", ex);
                         }
                     },
                     negativeAction: _ =>
@@ -4659,7 +4601,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-017", "Error showing lord selection", ex);
+                ModLogger.Surfaced("INTERFACE", "Error showing lord selection", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -4688,7 +4631,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     // Use Naval DLC's sea conversation scene for proper ship deck visuals
                     const string seaConversationScene = "conversation_scene_sea_multi_agent";
-                    ModLogger.Info("Interface", $"Opening sea conversation with {lord.Name} using scene: {seaConversationScene}");
+                    ModLogger.Info("INTERFACE", $"Opening sea conversation with {lord.Name} using scene: {seaConversationScene}");
                     CampaignMission.OpenConversationMission(playerData, lordData, seaConversationScene);
                 }
                 else
@@ -4699,7 +4642,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-018", $"Error opening conversation with {lord?.Name}", ex);
+                ModLogger.Surfaced("INTERFACE", "Error opening conversation with lord", ex,
+                    ctx: LogCtx.Of("Lord", lord?.Name?.ToString()));
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=menu_conversation_error}Unable to start conversation. Please try again.").ToString()));
             }
@@ -4718,12 +4662,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     party == enlistment.CurrentLord?.PartyBelongedTo &&
                     (settlement.IsTown || settlement.IsCastle))
                 {
-                    ModLogger.Debug("Interface", $"Lord entered {settlement.Name} - Visit option available");
+                    ModLogger.Debug("INTERFACE", $"Lord entered {settlement.Name} - Visit option available");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-019", "Error in settlement entered tracking", ex);
+                ModLogger.Caught("INTERFACE", "Error in settlement entered tracking", ex);
             }
         }
 
@@ -4771,7 +4715,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     NextFrameDispatcher.RunNextFrame(() =>
                         GameMenu.SwitchToMenu(settlement.IsTown ? "town_outside" : "castle_outside"));
-                    ModLogger.Info("Interface", $"Visit Settlement: Using existing encounter for {settlement.Name}");
+                    ModLogger.Info("INTERFACE", $"Visit Settlement: Using existing encounter for {settlement.Name}");
                     return;
                 }
 
@@ -4789,7 +4733,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     if (lordInBattle3)
                     {
-                        ModLogger.Debug("Interface",
+                        ModLogger.Debug("INTERFACE",
                             "Skipped finishing encounter - lord in battle, preserving vanilla battle menu");
                         return; // Don't create settlement encounter during battles!
                     }
@@ -4801,11 +4745,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         if (!InBattleOrSiege(lordParty3))
                         {
                             PlayerEncounter.Finish();
-                            ModLogger.Debug("Interface", "Finished non-battle encounter before settlement access");
+                            ModLogger.Debug("INTERFACE", "Finished non-battle encounter before settlement access");
                         }
                         else
                         {
-                            ModLogger.Debug("Interface",
+                            ModLogger.Debug("INTERFACE",
                                 "SKIPPED finishing encounter - lord in battle/siege, preserving vanilla battle menu");
                         }
                     });
@@ -4834,12 +4778,13 @@ namespace Enlisted.Features.Interface.Behaviors
                 NextFrameDispatcher.RunNextFrame(() =>
                 {
                     GameMenu.SwitchToMenu(settlement.IsTown ? "town_outside" : "castle_outside");
-                    ModLogger.Info("Interface", $"Started synthetic outside encounter for {settlement.Name}");
+                    ModLogger.Info("INTERFACE", $"Started synthetic outside encounter for {settlement.Name}");
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-020", "VisitTown failed", ex);
+                ModLogger.Surfaced("INTERFACE", "VisitTown failed", ex,
+                    ctx: LogCtx.PlayerState());
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=menu_town_interface_error}Couldn't open the town interface.").ToString()));
             }
@@ -4897,7 +4842,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode("Interface", "E-UI-021", "Error requesting leave", ex);
+                            ModLogger.Surfaced("INTERFACE", "Error requesting leave", ex);
                         }
                     },
                     negativeAction: () =>
@@ -4910,7 +4855,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-022", "Error in Ask for Leave", ex);
+                ModLogger.Surfaced("INTERFACE", "Error in Ask for Leave", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -4942,11 +4888,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 });
 
-                ModLogger.Info("Interface", "Temporary leave granted using proper StopEnlist method");
+                ModLogger.Info("INTERFACE", "Temporary leave granted using proper StopEnlist method");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-023", "Error granting temporary leave", ex);
+                ModLogger.Surfaced("INTERFACE", "Error granting temporary leave", ex,
+                    ctx: LogCtx.PlayerState());
             }
         }
 
@@ -4976,7 +4923,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-024", "Error opening desertion menu", ex);
+                ModLogger.Surfaced("INTERFACE", "Error opening desertion menu", ex);
             }
         }
 
@@ -4991,7 +4938,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true || enlistment.PayTension < 60)
                 {
-                    ModLogger.Warn("Interface", "Free desertion attempted but conditions not met");
+                    ModLogger.Warn("INTERFACE", "Free desertion attempted but conditions not met");
                     return;
                 }
 
@@ -5015,17 +4962,17 @@ namespace Enlisted.Features.Interface.Behaviors
                     () =>
                     {
                         // DEPRECATED: Free desertion removed - desertion now only happens at muster
-                        ModLogger.Warn("Interface", "Free desertion is deprecated - use muster discharge instead");
+                        ModLogger.Warn("INTERFACE", "Free desertion is deprecated - use muster discharge instead");
                     },
                     () =>
                     {
                         // Player chose to stay
-                        ModLogger.Debug("Interface", "Player cancelled free desertion");
+                        ModLogger.Debug("INTERFACE", "Player cancelled free desertion");
                     }));
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-025", "Error in free desertion", ex);
+                ModLogger.Surfaced("INTERFACE", "Error in free desertion", ex);
             }
         }
 
@@ -5097,7 +5044,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-026", "Error initializing desertion menu", ex);
+                ModLogger.Caught("INTERFACE", "Error initializing desertion menu", ex);
                 MBTextManager.SetTextVariable("DESERT_WARNING_TEXT",
                     "Are you sure you want to desert? This will have serious consequences.");
             }
@@ -5116,7 +5063,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-027", "Error returning from desertion menu", ex);
+                ModLogger.Surfaced("INTERFACE", "Error returning from desertion menu", ex);
             }
         }
 
@@ -5131,18 +5078,18 @@ namespace Enlisted.Features.Interface.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment == null)
                 {
-                    ModLogger.ErrorCode("Interface", "E-UI-040", "Cannot desert - EnlistmentBehavior not available");
+                    ModLogger.Expected("INTERFACE", "menu_desert_no_enlistment", "Cannot desert - EnlistmentBehavior not available");
                     return;
                 }
 
                 // Execute the desertion - DEPRECATED: Player-triggered desertion removed
                 // Desertion now only happens as muster discharge outcome
-                ModLogger.Warn("Interface", "Desert Army action is deprecated - use muster discharge instead");
+                ModLogger.Warn("INTERFACE", "Desert Army action is deprecated - use muster discharge instead");
                 return;
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-029", "Error confirming desertion", ex);
+                ModLogger.Surfaced("INTERFACE", "Error confirming desertion", ex);
             }
         }
 
@@ -5201,7 +5148,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         desiredMenu != "enlisted_status" && 
                         desiredMenu != "enlisted_battle_wait")
                     {
-                        ModLogger.Info("Menu", 
+                        ModLogger.Info("MENU", 
                             $"OnEnlistedStatusTick: Native wants '{desiredMenu}' - yielding to native menu system");
                         
                         // Switch to the native menu (e.g., menu_siege_strategies, army_wait during siege)
@@ -5237,7 +5184,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-030", "Error during enlisted status tick", ex);
+                ModLogger.Caught("INTERFACE", "Error during enlisted status tick", ex);
             }
         }
 
@@ -5388,7 +5335,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
             try
             {
-                ModLogger.Info("Interface", $"Decision selected: {decision.Id}");
+                ModLogger.Info("INTERFACE", $"Decision selected: {decision.Id}");
                 
                 // Mark this decision as currently showing to prevent spam-clicking
                 DecisionManager.Instance?.MarkDecisionAsShowing(decision.Id);
@@ -5396,13 +5343,13 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Special handling: Route baggage access directly to stash (bypass popup)
                 if (decision.Id.Equals("dec_baggage_access", StringComparison.OrdinalIgnoreCase))
                 {
-                    ModLogger.Info("Interface", "Decision selected: baggage access (routing to stash)");
+                    ModLogger.Info("INTERFACE", "Decision selected: baggage access (routing to stash)");
                     OnBaggageTrainSelected(null);
                     
                     // Clear the "currently showing" mark since we bypassed the event popup
                     // (normally this is done when the popup closes in EventDeliveryManager)
                     DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                    ModLogger.Debug("Interface", "Baggage access completed, showing mark cleared");
+                    ModLogger.Debug("INTERFACE", "Baggage access completed, showing mark cleared");
                     return;
                 }
 
@@ -5426,12 +5373,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         // Schedule the activity instead of firing immediately
                         if (generator != null)
                         {
-                            ModLogger.Info("Interface", $"Scheduling opportunity '{opportunity.Id}' (phase: {opportunity.GetEffectiveScheduledPhase()}, decision: {decision.Id}, cooldown: {opportunity.CooldownHours}h)");
+                            ModLogger.Info("INTERFACE", $"Scheduling opportunity '{opportunity.Id}' (phase: {opportunity.GetEffectiveScheduledPhase()}, decision: {decision.Id}, cooldown: {opportunity.CooldownHours}h)");
                             generator.CommitToOpportunity(opportunity);
 
                             // Clear the "currently showing" mark since we're scheduling, not showing a popup
                             DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                            ModLogger.Debug("Interface", $"Opportunity scheduled, showing mark cleared for {decision.Id}");
+                            ModLogger.Debug("INTERFACE", $"Opportunity scheduled, showing mark cleared for {decision.Id}");
                             
                             // Refresh the main status menu to show the scheduled state
                             var menuContext = Campaign.Current?.CurrentMenuContext;
@@ -5445,7 +5392,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     else
                     {
                         // Immediate opportunity - will show popup immediately
-                        ModLogger.Debug("Interface", $"Processing immediate opportunity: {opportunity.Id} (decision: {decision.Id})");
+                        ModLogger.Debug("INTERFACE", $"Processing immediate opportunity: {opportunity.Id} (decision: {decision.Id})");
                     }
 
                     // Check if risky while on duty
@@ -5462,7 +5409,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                 if (!success)
                                 {
                                     // Player was caught - don't show the event, already showed notification
-                                    ModLogger.Info("Interface", $"Player caught attempting risky opportunity: {opportunity.Id}");
+                                    ModLogger.Info("INTERFACE", $"Player caught attempting risky opportunity: {opportunity.Id}");
                                     
                                     // Clear the "currently showing" mark since we're not showing a popup
                                     DecisionManager.Instance?.ClearCurrentlyShowingDecision();
@@ -5477,13 +5424,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (opportunity.Immediate)
                     {
                         generator?.RecordEngagement(opportunity.Id, opportunity.Type);
-                        ModLogger.Debug("Interface", $"Recorded engagement for immediate opportunity: {opportunity.Id} (cooldown: {opportunity.CooldownHours}h)");
+                        ModLogger.Debug("INTERFACE", $"Recorded engagement for immediate opportunity: {opportunity.Id} (cooldown: {opportunity.CooldownHours}h)");
                     }
                 }
                 else
                 {
                     // Not an opportunity - likely a standalone decision (e.g., baggage access, quest decision)
-                    ModLogger.Debug("Interface", $"Processing non-opportunity decision: {decision.Id}");
+                    ModLogger.Debug("INTERFACE", $"Processing non-opportunity decision: {decision.Id}");
                 }
 
                 // NOTE: Cooldown is NOT recorded here. It will be recorded in EventDeliveryManager
@@ -5497,24 +5444,24 @@ namespace Enlisted.Features.Interface.Behaviors
                     var deliveryManager = EventDeliveryManager.Instance;
                     if (deliveryManager != null)
                     {
-                        ModLogger.Info("Interface", $"Queuing decision event: {decision.Id} (immediate={opportunity?.Immediate ?? false})");
+                        ModLogger.Info("INTERFACE", $"Queuing decision event: {decision.Id} (immediate={opportunity?.Immediate ?? false})");
                         deliveryManager.QueueEvent(eventDef);
                     }
                     else
                     {
-                        ModLogger.Warn("Interface", "EventDeliveryManager not available, showing simple popup");
+                        ModLogger.Warn("INTERFACE", "EventDeliveryManager not available, showing simple popup");
                         ShowSimpleDecisionPopup(decision);
                     }
                 }
                 else
                 {
-                    ModLogger.Warn("Interface", $"Failed to convert decision to event: {decision.Id}, showing simple popup");
+                    ModLogger.Warn("INTERFACE", $"Failed to convert decision to event: {decision.Id}, showing simple popup");
                     ShowSimpleDecisionPopup(decision);
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", $"Error handling decision selection: {decision.Id}", ex);
+                ModLogger.Error("INTERFACE", $"Error handling decision selection: {decision.Id}", ex);
                 InformationManager.DisplayMessage(new InformationMessage($"Error: {ex.Message}"));
             }
         }
@@ -5616,7 +5563,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-021", "Error initializing status detail menu", ex);
+                ModLogger.Caught("INTERFACE", "Error initializing status detail menu", ex);
                 MBTextManager.SetTextVariable("STATUS_DETAIL_TEXT", "Status details unavailable.");
             }
         }
@@ -5660,13 +5607,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 sb.AppendLine("<span style=\"Header\">=== REPUTATION ===</span>");
                 if (escalation?.State != null)
                 {
+                    // Officer/Soldier reputation removed - now using native lord relation
                     var lordColor = escalation.State.LordReputation >= 60 ? "Success" : escalation.State.LordReputation >= 40 ? "Warning" : "Alert";
-                    var officerColor = escalation.State.OfficerReputation >= 60 ? "Success" : escalation.State.OfficerReputation >= 40 ? "Warning" : "Alert";
-                    var soldierColor = escalation.State.SoldierReputation >= 60 ? "Success" : escalation.State.SoldierReputation >= 40 ? "Warning" : "Alert";
-
                     sb.AppendLine($"<span style=\"Label\">Lord:</span>     <span style=\"{lordColor}\">{escalation.State.LordReputation}/100 ({GetReputationLevel(escalation.State.LordReputation)})</span>");
-                    sb.AppendLine($"<span style=\"Label\">Officers:</span> <span style=\"{officerColor}\">{escalation.State.OfficerReputation}/100 ({GetReputationLevel(escalation.State.OfficerReputation)})</span>");
-                    sb.AppendLine($"<span style=\"Label\">Soldiers:</span> <span style=\"{soldierColor}\">{escalation.State.SoldierReputation}/100 ({GetSoldierReputationLevel(escalation.State.SoldierReputation)})</span>");
                 }
                 else
                 {
@@ -5699,7 +5642,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", "Failed to build status detail text", ex);
+                ModLogger.Error("INTERFACE", "Failed to build status detail text", ex);
                 return "Status details unavailable.";
             }
         }
@@ -5801,7 +5744,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", "Failed to build duty log section", ex);
+                ModLogger.Error("INTERFACE", "Failed to build duty log section", ex);
                 return string.Empty;
             }
         }
@@ -6051,7 +5994,7 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 >= 80 => new TextObject("{=status_rest_excellent}The company is well-rested. Men wake refreshed and ready.").ToString(),
                 >= 60 => new TextObject("{=status_rest_good}The company has had adequate rest. Some yawning, but nothing serious.").ToString(),
-                >= 40 => new TextObject("{=status_rest_fair}Fatigue is setting in. Men doze on their feet during long halts.").ToString(),
+                >= 40 => new TextObject("{=status_rest_fair}Exhaustion is setting in. Men doze on their feet during long halts.").ToString(),
                 >= 20 => new TextObject("{=status_rest_poor}The company is exhausted. Tempers flare and mistakes multiply.").ToString(),
                 _ => new TextObject("{=status_rest_critical}The company is dead on their feet. Men collapse during marches.").ToString()
             };
@@ -6142,7 +6085,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-046", "Failed to toggle orders accordion", ex);
+                ModLogger.Surfaced("INTERFACE", "Failed to toggle orders accordion", ex);
             }
         }
 
@@ -6184,7 +6127,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-047", "Failed to toggle decisions accordion", ex);
+                ModLogger.Surfaced("INTERFACE", "Failed to toggle decisions accordion", ex);
             }
         }
 
@@ -6204,11 +6147,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 _cachedDecisionsForCurrentMenu = decisions;
                 _cachedDecisionsTime = CampaignTime.Now;
                 
-                ModLogger.Debug("Interface", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions FETCHED and cached");
+                ModLogger.Debug("INTERFACE", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions FETCHED and cached");
             }
             else
             {
-                ModLogger.Debug("Interface", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions from cache");
+                ModLogger.Debug("INTERFACE", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions from cache");
             }
 
             for (var i = 0; i < 5; i++)
@@ -6226,7 +6169,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             availability.UnavailableReason.Contains("SCHEDULED"))
                         {
                             slotText = $"    <span style=\"LightGray\">{displayName}</span> {availability.UnavailableReason}";
-                            ModLogger.Info("Interface", $"Slot {i}: GREYED OUT - {displayName} ({availability.UnavailableReason})");
+                            ModLogger.Info("INTERFACE", $"Slot {i}: GREYED OUT - {displayName} ({availability.UnavailableReason})");
                         }
                         else
                         {
@@ -6258,7 +6201,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var currentPhase = WorldStateAnalyzer.GetCurrentDayPhase();
 
                     // INFO level logging to diagnose decision display issues
-                    ModLogger.Info("Interface",
+                    ModLogger.Info("INTERFACE",
                         $"GetCurrentDecisions: Orchestrator returned {allTodaysOpps.Count} opportunities for today " +
                         $"(committed={allTodaysOpps.Count(o => o.PlayerCommitted)}, available={allTodaysOpps.Count(o => o.IsAvailableToCommit)})");
 
@@ -6269,18 +6212,18 @@ namespace Enlisted.Features.Interface.Behaviors
                         if (availability != null)
                         {
                             allDecisions.Add(availability);
-                            ModLogger.Debug("Interface",
+                            ModLogger.Debug("INTERFACE",
                                 $"  {scheduled.OpportunityId}: phase={scheduled.Phase}, committed={scheduled.PlayerCommitted}, available={availability.IsAvailable}");
                         }
                         else
                         {
-                            ModLogger.Warn("Interface", $"  Failed to convert opportunity: {scheduled.OpportunityId} (SourceOpportunity={scheduled.SourceOpportunity != null})");
+                            ModLogger.Warn("INTERFACE", $"  Failed to convert opportunity: {scheduled.OpportunityId} (SourceOpportunity={scheduled.SourceOpportunity != null})");
                         }
                     }
                 }
                 else
                 {
-                    ModLogger.Warn("Interface", "GetCurrentDecisions: ContentOrchestrator.Instance is null!");
+                    ModLogger.Warn("INTERFACE", "GetCurrentDecisions: ContentOrchestrator.Instance is null!");
                 }
 
                 // Add logistics decisions (baggage access, etc.) - these don't count against the opportunity limit
@@ -6293,7 +6236,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     if (logistics.Count > 0)
                     {
-                        ModLogger.Debug("Interface", $"Menu: {logistics.Count} logistics decisions available");
+                        ModLogger.Debug("INTERFACE", $"Menu: {logistics.Count} logistics decisions available");
                     }
 
                     allDecisions.AddRange(logistics);
@@ -6302,18 +6245,18 @@ namespace Enlisted.Features.Interface.Behaviors
                 // INFO level so we can diagnose issues
                 if (allDecisions.Count == 0)
                 {
-                    ModLogger.WarnCode("Interface", "W-UI-001",
+                    ModLogger.Expected("INTERFACE", "menu_decisions_empty",
                         "GetCurrentDecisions: 0 decisions available - check Orchestrator schedule and phase");
                 }
                 else
                 {
-                    ModLogger.Info("Interface",
+                    ModLogger.Info("INTERFACE",
                         $"GetCurrentDecisions: {allDecisions.Count} total decisions ready for menu");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Interface", "Failed to get current decisions from Orchestrator", ex);
+                ModLogger.Error("INTERFACE", "Failed to get current decisions from Orchestrator", ex);
             }
 
             return allDecisions;
@@ -6392,7 +6335,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // But if it does, still make it clickable so player can fire it (better UX than doing nothing)
                 // Mark with phase suffix to indicate it was from earlier
                 decision.TitleFallback = $"{decision.TitleFallback ?? decision.TitleId} ({scheduled.Phase})";
-                ModLogger.Debug("Interface",
+                ModLogger.Debug("INTERFACE",
                     $"Past-phase opportunity displayed: {scheduled.OpportunityId} (was for {scheduled.Phase}, now {currentPhase})");
             }
             else if (!isCurrentPhase && isFuturePhase)
@@ -6481,13 +6424,13 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Log what was clicked and what we have cached for debugging
                 var cachedIds = decisions.Select(d => d.Decision?.Id ?? "null").ToList();
-                ModLogger.Info("Interface", 
+                ModLogger.Info("INTERFACE", 
                     $"Decision slot {slotIndex} clicked - cached: [{string.Join(", ", cachedIds)}] " +
                     $"(count={decisions.Count}, age={_cachedDecisionsTime.ElapsedHoursUntilNow:F2}h)");
 
                 if (slotIndex >= decisions.Count)
                 {
-                    ModLogger.Warn("Interface", 
+                    ModLogger.Warn("INTERFACE", 
                         $"Decision slot {slotIndex} out of range! Have {decisions.Count} cached decisions. " +
                         $"Cache may be stale - will refresh on next menu render.");
                     return;
@@ -6496,11 +6439,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 var availability = decisions[slotIndex];
                 if (availability.Decision == null)
                 {
-                    ModLogger.Warn("Interface", $"Decision slot {slotIndex} has null Decision object");
+                    ModLogger.Warn("INTERFACE", $"Decision slot {slotIndex} has null Decision object");
                     return;
                 }
                 
-                ModLogger.Info("Interface", $"Processing decision from slot {slotIndex}: {availability.Decision.Id}");
+                ModLogger.Info("INTERFACE", $"Processing decision from slot {slotIndex}: {availability.Decision.Id}");
 
                 // Mark all current decisions as "seen" since user is now interacting with them
                 var currentIds = new HashSet<string>(decisions.Select(d => d.Decision?.Id ?? string.Empty), StringComparer.OrdinalIgnoreCase);
@@ -6515,7 +6458,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     // Already committed - shouldn't be clickable, but handle gracefully
                     if (scheduled.PlayerCommitted)
                     {
-                        ModLogger.Debug("Interface", $"Opportunity {scheduled.OpportunityId} already committed, ignoring click");
+                        ModLogger.Debug("INTERFACE", $"Opportunity {scheduled.OpportunityId} already committed, ignoring click");
                         return;
                     }
 
@@ -6531,7 +6474,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                         if (committed)
                         {
-                            ModLogger.Info("Interface",
+                            ModLogger.Info("INTERFACE",
                                 $"✓ Player committed to {scheduled.OpportunityId} (will fire at {scheduled.Phase})");
 
                             // Show confirmation to player
@@ -6543,21 +6486,21 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                         else
                         {
-                            ModLogger.Warn("Interface", $"Failed to commit to {scheduled.OpportunityId}");
+                            ModLogger.Warn("INTERFACE", $"Failed to commit to {scheduled.OpportunityId}");
                         }
 
                         // Refresh menu to show greyed-out state
-                        ModLogger.Info("Interface", $"Refreshing menu after commitment...");
+                        ModLogger.Info("INTERFACE", $"Refreshing menu after commitment...");
                         RefreshMainMenuDecisionSlots();
                         var menuContext = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
                         if (Campaign.Current != null && menuContext?.GameMenu != null)
                         {
                             Campaign.Current.GameMenuManager.RefreshMenuOptions(menuContext);
-                            ModLogger.Info("Interface", $"Menu refresh completed - committed options should now be greyed out");
+                            ModLogger.Info("INTERFACE", $"Menu refresh completed - committed options should now be greyed out");
                         }
                         else
                         {
-                            ModLogger.Warn("Interface", $"Could not refresh menu (context={menuContext != null}, gameMenu={menuContext?.GameMenu != null})");
+                            ModLogger.Warn("INTERFACE", $"Could not refresh menu (context={menuContext != null}, gameMenu={menuContext?.GameMenu != null})");
                         }
                         return;
                     }
@@ -6566,7 +6509,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     // This can happen if the menu wasn't refreshed after a phase transition
                     if (isPastPhase)
                     {
-                        ModLogger.Info("Interface",
+                        ModLogger.Info("INTERFACE",
                             $"Past-phase opportunity clicked: {scheduled.OpportunityId} (was for {scheduled.Phase}, now {currentPhase}) - firing immediately");
                     }
 
@@ -6598,7 +6541,8 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-048", $"Failed to select decision slot {slotIndex}", ex);
+                ModLogger.Surfaced("INTERFACE", "Failed to select decision slot", ex,
+                    ctx: LogCtx.Of("SlotIndex", slotIndex));
             }
         }
 
@@ -6718,7 +6662,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-UI-040", "Error showing orders menu", ex);
+                ModLogger.Surfaced("INTERFACE", "Error showing orders menu", ex);
             }
         }
 

@@ -6,18 +6,20 @@ using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.Escalation
 {
     /// <summary>
-    /// Phase 4 escalation manager.
+    /// Escalation manager - tracks player trouble with command and medical risk.
     ///
     /// Responsibilities:
     /// - Owns the persisted EscalationState (save/load via CampaignBehavior SyncData)
-    /// - Provides track modification APIs (Scrutiny/Discipline/SoldierRep/MedicalRisk)
+    /// - Provides track modification APIs (Scrutiny 0-100, MedicalRisk 0-5)
+    /// - Manages lord reputation (0-100 scale, pending migration to native Hero.GetRelation)
     /// - Provides readable "state" descriptions for UI ("Watched", "Hot", "Trusted", etc.)
-    /// - Provides passive decay logic (integration into daily tick is a later step)
+    /// - Handles passive decay via daily tick
     ///
     /// Important constraints:
     /// - No instant hard fails: this manager never forces game-over; it only tracks and exposes state.
@@ -86,62 +88,21 @@ namespace Enlisted.Features.Escalation
             {
                 // Track values
                 var scrutiny = _state.Scrutiny;
-                var discipline = _state.Discipline;
-                var soldierRep = _state.SoldierReputation;
                 var lordRep = _state.LordReputation;
-                var officerRep = _state.OfficerReputation;
                 var medical = _state.MedicalRisk;
 
                 dataStore.SyncData("esc_scrutiny", ref scrutiny);
-                dataStore.SyncData("esc_discipline", ref discipline);
-
-                // Save/load reputation fields
-                dataStore.SyncData("esc_soldierRep", ref soldierRep);
                 dataStore.SyncData("esc_lordRep", ref lordRep);
-                dataStore.SyncData("esc_officerRep", ref officerRep);
-
-                // Migration: If loading an old save that only has esc_rep (pre-rename), use that value
-                if (dataStore.IsLoading)
-                {
-                    // Check if soldierRep is still default (0) - might be an old save with esc_rep instead
-                    if (soldierRep == 0)
-                    {
-                        int oldLanceRep = 0;
-                        dataStore.SyncData("esc_rep", ref oldLanceRep);
-                        if (oldLanceRep != 0)
-                        {
-                            soldierRep = oldLanceRep;
-                            ModLogger.Info(LogCategory, $"Migrated old esc_rep ({oldLanceRep}) to esc_soldierRep");
-                        }
-                    }
-
-                    // Initialize lord/officer rep to neutral if they weren't saved (very old saves)
-                    if (lordRep == 0)
-                    {
-                        lordRep = 50;
-                    }
-                    if (officerRep == 0)
-                    {
-                        officerRep = 50;
-                    }
-                }
-
                 dataStore.SyncData("esc_medical", ref medical);
 
-                // Timestamps
+                // Timestamps for decay logic
                 var lastScrutinyRaised = _state.LastScrutinyRaisedTime;
                 var lastScrutinyDecay = _state.LastScrutinyDecayTime;
-                var lastDiscRaised = _state.LastDisciplineRaisedTime;
-                var lastDiscDecay = _state.LastDisciplineDecayTime;
-                var lastSoldierRepDecay = _state.LastSoldierReputationDecayTime;
                 var lastMedicalDecay = _state.LastMedicalRiskDecayTime;
                 var lastThresholdEvent = _state.LastThresholdEventTime;
 
                 dataStore.SyncData("esc_lastScrutinyRaised", ref lastScrutinyRaised);
                 dataStore.SyncData("esc_lastScrutinyDecay", ref lastScrutinyDecay);
-                dataStore.SyncData("esc_lastDiscRaised", ref lastDiscRaised);
-                dataStore.SyncData("esc_lastDiscDecay", ref lastDiscDecay);
-                dataStore.SyncData("esc_lastRepDecay", ref lastSoldierRepDecay);
                 dataStore.SyncData("esc_lastMedicalDecay", ref lastMedicalDecay);
                 dataStore.SyncData("esc_lastThresholdEvent", ref lastThresholdEvent);
 
@@ -171,17 +132,11 @@ namespace Enlisted.Features.Escalation
                 if (dataStore.IsLoading)
                 {
                     _state.Scrutiny = scrutiny;
-                    _state.Discipline = discipline;
-                    _state.SoldierReputation = soldierRep;
                     _state.LordReputation = lordRep;
-                    _state.OfficerReputation = officerRep;
                     _state.MedicalRisk = medical;
 
                     _state.LastScrutinyRaisedTime = lastScrutinyRaised;
                     _state.LastScrutinyDecayTime = lastScrutinyDecay;
-                    _state.LastDisciplineRaisedTime = lastDiscRaised;
-                    _state.LastDisciplineDecayTime = lastDiscDecay;
-                    _state.LastSoldierReputationDecayTime = lastSoldierRepDecay;
                     _state.LastMedicalRiskDecayTime = lastMedicalDecay;
                     _state.LastThresholdEventTime = lastThresholdEvent;
 
@@ -433,7 +388,7 @@ namespace Enlisted.Features.Escalation
         private string PickBestThresholdCandidateId(int cooldownDays)
         {
             // Priority is deterministic and "highest threshold wins" per track.
-            // Order across tracks: Scrutiny, Discipline, Medical, Soldier Reputation.
+            // Order across tracks: Scrutiny, Medical.
             var scrutinyCandidates = new[]
             {
                 (_state.Scrutiny >= EscalationThresholds.ScrutinyExposed, "scrutiny_exposed"),
@@ -441,25 +396,11 @@ namespace Enlisted.Features.Escalation
                 (_state.Scrutiny >= EscalationThresholds.ScrutinyShakedown, "scrutiny_shakedown"),
                 (_state.Scrutiny >= EscalationThresholds.ScrutinyWarning, "scrutiny_warning")
             };
-            var disciplineCandidates = new[]
-            {
-                (_state.Discipline >= EscalationThresholds.DisciplineDischarge, "discipline_discharge"),
-                (_state.Discipline >= EscalationThresholds.DisciplineBlocked, "discipline_blocked"),
-                (_state.Discipline >= EscalationThresholds.DisciplineHearing, "discipline_hearing"),
-                (_state.Discipline >= EscalationThresholds.DisciplineExtraDuty, "discipline_extra_duty")
-            };
             var medicalCandidates = new[]
             {
                 (_state.MedicalRisk >= EscalationThresholds.MedicalEmergency, "medical_emergency"),
                 (_state.MedicalRisk >= EscalationThresholds.MedicalComplication, "medical_complication"),
                 (_state.MedicalRisk >= EscalationThresholds.MedicalWorsening, "medical_worsening")
-            };
-            var repCandidates = new[]
-            {
-                (_state.SoldierReputation <= EscalationThresholds.SoldierSabotage, "soldier_sabotage"),
-                (_state.SoldierReputation <= EscalationThresholds.SoldierIsolated, "soldier_isolated"),
-                (_state.SoldierReputation >= EscalationThresholds.SoldierBonded, "soldier_bonded"),
-                (_state.SoldierReputation >= EscalationThresholds.SoldierTrusted, "soldier_trusted")
             };
 
             foreach (var (ok, id) in scrutinyCandidates)
@@ -469,21 +410,7 @@ namespace Enlisted.Features.Escalation
                     return id;
                 }
             }
-            foreach (var (ok, id) in disciplineCandidates)
-            {
-                if (ok && !IsThresholdStoryOnCooldown(id, cooldownDays))
-                {
-                    return id;
-                }
-            }
             foreach (var (ok, id) in medicalCandidates)
-            {
-                if (ok && !IsThresholdStoryOnCooldown(id, cooldownDays))
-                {
-                    return id;
-                }
-            }
-            foreach (var (ok, id) in repCandidates)
             {
                 if (ok && !IsThresholdStoryOnCooldown(id, cooldownDays))
                 {
@@ -514,7 +441,13 @@ namespace Enlisted.Features.Escalation
             }
 
             LogTrackChange("Scrutiny", oldValue, _state.Scrutiny, reason);
-            CheckThresholdCrossing("Scrutiny", oldValue, _state.Scrutiny, new[] { 2, 4, 6, 8, 10 });
+            CheckThresholdCrossing("Scrutiny", oldValue, _state.Scrutiny, new[] { 
+                EscalationThresholds.ScrutinyWarning, 
+                EscalationThresholds.ScrutinyShakedown, 
+                EscalationThresholds.ScrutinyAudit, 
+                EscalationThresholds.ScrutinyExposed,
+                EscalationThresholds.ScrutinyCritical 
+            });
 
             // Show UI notification for scrutiny changes (only when increasing - "attention" from authorities)
             if (_state.Scrutiny != oldValue && delta > 0)
@@ -533,84 +466,10 @@ namespace Enlisted.Features.Escalation
             EvaluateThresholdsAndQueueIfNeeded();
         }
 
-        public void ModifyDiscipline(int delta, string reason = null)
-        {
-            if (!IsEnabled())
-            {
-                return;
-            }
-
-            var oldValue = _state.Discipline;
-            var next = oldValue + delta;
-            _state.Discipline = Clamp(next, EscalationState.DisciplineMin, EscalationState.DisciplineMax);
-
-            if (delta > 0)
-            {
-                _state.LastDisciplineRaisedTime = CampaignTime.Now;
-            }
-
-            LogTrackChange("Discipline", oldValue, _state.Discipline, reason);
-            CheckThresholdCrossing("Discipline", oldValue, _state.Discipline, new[] { 2, 4, 6, 8, 10 });
-
-            // Show UI notification for discipline changes (only when increasing - problems brewing)
-            if (_state.Discipline != oldValue && delta > 0)
-            {
-                var statusText = GetDisciplineStatus();
-                var color = _state.Discipline >= EscalationThresholds.DisciplineHearing
-                    ? TaleWorlds.Library.Colors.Red
-                    : TaleWorlds.Library.Colors.Yellow;
-                var msg = new TextObject("{=esc_discipline_changed}Discipline issues (+{DELTA}) - Status: {STATUS}");
-                msg.SetTextVariable("DELTA", delta);
-                msg.SetTextVariable("STATUS", statusText);
-                TaleWorlds.Library.InformationManager.DisplayMessage(
-                    new TaleWorlds.Library.InformationMessage(msg.ToString(), color));
-            }
-
-            EvaluateThresholdsAndQueueIfNeeded();
-        }
-
-        public void ModifySoldierReputation(int delta, string reason = null)
-        {
-            if (!IsEnabled())
-            {
-                return;
-            }
-
-            var oldValue = _state.SoldierReputation;
-            var next = oldValue + delta;
-            _state.SoldierReputation = Clamp(next, EscalationState.SoldierReputationMin, EscalationState.SoldierReputationMax);
-            LogTrackChange("SoldierReputation", oldValue, _state.SoldierReputation, reason);
-
-            // Show UI notification for soldier reputation changes
-            if (_state.SoldierReputation != oldValue)
-            {
-                var change = _state.SoldierReputation - oldValue;
-                var sign = change > 0 ? "+" : "";
-                var statusText = GetSoldierReputationStatus();
-                var color = change > 0 ? TaleWorlds.Library.Colors.Cyan : TaleWorlds.Library.Colors.Yellow;
-                var msg = new TextObject("{=esc_rep_changed}Soldier Reputation: {CHANGE} ({STATUS})");
-                msg.SetTextVariable("CHANGE", $"{sign}{change}");
-                msg.SetTextVariable("STATUS", statusText);
-                TaleWorlds.Library.InformationManager.DisplayMessage(
-                    new TaleWorlds.Library.InformationMessage(msg.ToString(), color));
-            }
-
-            // Report significant changes to news system
-            if (Math.Abs(delta) >= 10 && EnlistedNewsBehavior.Instance != null)
-            {
-                string message = GetReputationChangeMessage("Soldier", delta, _state.SoldierReputation);
-                EnlistedNewsBehavior.Instance.AddReputationChange(
-                    target: "Soldier",
-                    delta: delta,
-                    newValue: _state.SoldierReputation,
-                    message: message,
-                    dayNumber: (int)CampaignTime.Now.ToDays
-                );
-            }
-
-            EvaluateThresholdsAndQueueIfNeeded();
-        }
-
+        /// <summary>
+        /// Modifies the player's relation with their enlisted lord using native Bannerlord reputation system.
+        /// This now directly modifies Hero.GetRelation() rather than a custom LordReputation track.
+        /// </summary>
         public void ModifyLordReputation(int delta, string reason = null)
         {
             if (!IsEnabled())
@@ -618,45 +477,27 @@ namespace Enlisted.Features.Escalation
                 return;
             }
 
-            var oldValue = _state.LordReputation;
-            var next = oldValue + delta;
-            _state.LordReputation = Clamp(next, EscalationState.LordReputationMin, EscalationState.LordReputationMax);
-            LogTrackChange("LordReputation", oldValue, _state.LordReputation, reason);
-
-            // Report significant changes to news system
-            if (Math.Abs(delta) >= 10 && EnlistedNewsBehavior.Instance != null)
-            {
-                string message = GetReputationChangeMessage("Lord", delta, _state.LordReputation);
-                EnlistedNewsBehavior.Instance.AddReputationChange(
-                    target: "Lord",
-                    delta: delta,
-                    newValue: _state.LordReputation,
-                    message: message,
-                    dayNumber: (int)CampaignTime.Now.ToDays
-                );
-            }
-        }
-
-        public void ModifyOfficerReputation(int delta, string reason = null)
-        {
-            if (!IsEnabled())
+            var enlistment = EnlistmentBehavior.Instance;
+            if (enlistment?.IsEnlisted != true || enlistment.EnlistedLord == null)
             {
                 return;
             }
 
-            var oldValue = _state.OfficerReputation;
-            var next = oldValue + delta;
-            _state.OfficerReputation = Clamp(next, EscalationState.OfficerReputationMin, EscalationState.OfficerReputationMax);
-            LogTrackChange("OfficerReputation", oldValue, _state.OfficerReputation, reason);
+            var lord = enlistment.EnlistedLord;
+            var oldValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, lord);
+            ChangeRelationAction.ApplyPlayerRelation(lord, delta);
+            var newValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, lord);
+
+            LogTrackChange("LordReputation", oldValue, newValue, reason);
 
             // Report significant changes to news system
             if (Math.Abs(delta) >= 10 && EnlistedNewsBehavior.Instance != null)
             {
-                string message = GetReputationChangeMessage("Officer", delta, _state.OfficerReputation);
+                string message = GetReputationChangeMessage("Lord", delta, newValue);
                 EnlistedNewsBehavior.Instance.AddReputationChange(
-                    target: "Officer",
+                    target: "Lord",
                     delta: delta,
-                    newValue: _state.OfficerReputation,
+                    newValue: newValue,
                     message: message,
                     dayNumber: (int)CampaignTime.Now.ToDays
                 );
@@ -704,7 +545,8 @@ namespace Enlisted.Features.Escalation
             var cfg = ConfigurationManager.LoadEscalationConfig() ?? new EscalationConfig();
             var now = CampaignTime.Now;
 
-            // Scrutiny: -1 per 7 days with no corrupt choices.
+            // Scrutiny: -1 per 7 days with no corrupt choices (0-100 scale).
+            // Note: Using 1 point decay to match config settings. Scale is 10x larger but keeps same decay rate.
             {
                 var old = _state.Scrutiny;
                 if (TryDecayDown(old, _state.LastScrutinyDecayTime, _state.LastScrutinyRaisedTime, cfg.ScrutinyDecayIntervalDays, 1,
@@ -713,30 +555,6 @@ namespace Enlisted.Features.Escalation
                     _state.Scrutiny = updated;
                     _state.LastScrutinyDecayTime = updatedTime;
                     ModLogger.Debug(LogCategory, $"Scrutiny decayed: {old} -> {updated}");
-                }
-            }
-
-            // Discipline: -1 per 14 days with no infractions.
-            {
-                var old = _state.Discipline;
-                if (TryDecayDown(old, _state.LastDisciplineDecayTime, _state.LastDisciplineRaisedTime, cfg.DisciplineDecayIntervalDays, 1,
-                        EscalationState.DisciplineMin, EscalationState.DisciplineMax, now, out var updated, out var updatedTime))
-                {
-                    _state.Discipline = updated;
-                    _state.LastDisciplineDecayTime = updatedTime;
-                    ModLogger.Debug(LogCategory, $"Discipline decayed: {old} -> {updated}");
-                }
-            }
-
-            // Soldier reputation: trends toward 0 by 1 per 14 days.
-            {
-                var old = _state.SoldierReputation;
-                if (TryDecayTowardZero(old, _state.LastSoldierReputationDecayTime, cfg.SoldierReputationDecayIntervalDays, 1,
-                        EscalationState.SoldierReputationMin, EscalationState.SoldierReputationMax, now, out var updated, out var updatedTime))
-                {
-                    _state.SoldierReputation = updated;
-                    _state.LastSoldierReputationDecayTime = updatedTime;
-                    ModLogger.Debug(LogCategory, $"Soldier reputation decayed: {old} -> {updated}");
                 }
             }
         }
@@ -902,65 +720,54 @@ namespace Enlisted.Features.Escalation
             {
                 return "Clean";
             }
-            if (scrutiny <= 2)
+            if (scrutiny <= 15)
             {
                 return "Watched";
             }
-            if (scrutiny <= 4)
+            if (scrutiny <= 35)
             {
                 return "Noticed";
             }
-            if (scrutiny <= 6)
+            if (scrutiny <= 55)
             {
                 return "Hot";
             }
-            if (scrutiny <= 9)
+            if (scrutiny <= 75)
             {
                 return "Burning";
             }
             return "Exposed";
         }
 
-        public string GetDisciplineStatus()
+        /// <summary>
+        /// Gets a readable status label for the player's relation with their enlisted lord.
+        /// Now uses native Bannerlord reputation system (typically -100 to +100).
+        /// </summary>
+        public string GetLordReputationStatus()
         {
-            var d = _state.Discipline;
-            if (d <= 0)
+            var enlistment = EnlistmentBehavior.Instance;
+            if (enlistment?.IsEnlisted != true || enlistment.EnlistedLord == null)
             {
-                return "Clean";
+                return "Unknown";
             }
-            if (d <= 2)
-            {
-                return "Minor marks";
-            }
-            if (d <= 4)
-            {
-                return "Troubled";
-            }
-            if (d <= 6)
-            {
-                return "Serious";
-            }
-            if (d <= 9)
-            {
-                return "Critical";
-            }
-            return "Breaking";
-        }
 
-        public string GetSoldierReputationStatus()
-        {
-            var rep = _state.SoldierReputation;
-            if (rep >= 40)
+            var rep = CharacterRelationManager.GetHeroRelation(Hero.MainHero, enlistment.EnlistedLord);
+            
+            if (rep >= 80)
             {
-                return "Bonded";
+                return "Celebrated";
             }
-            if (rep >= 20)
+            if (rep >= 50)
             {
                 return "Trusted";
             }
+            if (rep >= 20)
+            {
+                return "Respected";
+            }
             if (rep >= 5)
             {
-                return "Accepted";
+                return "Promising";
             }
             if (rep >= -4)
             {
@@ -968,65 +775,13 @@ namespace Enlisted.Features.Escalation
             }
             if (rep >= -19)
             {
+                return "Questionable";
+            }
+            if (rep >= -49)
+            {
                 return "Disliked";
             }
-            if (rep >= -39)
-            {
-                return "Outcast";
-            }
-            return "Hated";
-        }
-
-        public string GetLordReputationStatus()
-        {
-            var rep = _state.LordReputation;
-            if (rep >= 80)
-            {
-                return "Celebrated";
-            }
-            if (rep >= 60)
-            {
-                return "Trusted";
-            }
-            if (rep >= 40)
-            {
-                return "Respected";
-            }
-            if (rep >= 20)
-            {
-                return "Promising";
-            }
-            if (rep >= 10)
-            {
-                return "Neutral";
-            }
-            return "Questionable";
-        }
-
-        public string GetOfficerReputationStatus()
-        {
-            var rep = _state.OfficerReputation;
-            if (rep >= 80)
-            {
-                return "Celebrated";
-            }
-            if (rep >= 60)
-            {
-                return "Trusted";
-            }
-            if (rep >= 40)
-            {
-                return "Respected";
-            }
-            if (rep >= 20)
-            {
-                return "Promising";
-            }
-            if (rep >= 10)
-            {
-                return "Neutral";
-            }
-            return "Questionable";
+            return "Despised";
         }
 
         public string GetMedicalRiskStatus()
@@ -1160,7 +915,6 @@ namespace Enlisted.Features.Escalation
             string eventId = track switch
             {
                 "Scrutiny" => $"evt_scrutiny_{threshold}",
-                "Discipline" => $"evt_discipline_{threshold}",
                 "MedicalRisk" => $"evt_medical_{threshold}",
                 _ => null
             };
@@ -1195,49 +949,25 @@ namespace Enlisted.Features.Escalation
         }
 
         /// <summary>
-        /// Generates a contextual message for a reputation change based on target and magnitude.
+        /// Generates a contextual message for lord reputation changes based on magnitude.
         /// </summary>
         private static string GetReputationChangeMessage(string target, int delta, int _)
         {
             if (delta >= 20)
             {
-                return target switch
-                {
-                    "Lord" => "Your lord took special notice of your recent performance",
-                    "Officer" => "The captain publicly commended your work",
-                    "Soldier" => "The men respect you greatly after your recent actions",
-                    _ => $"{target} reputation significantly improved"
-                };
+                return "Your lord took special notice of your recent performance";
             }
             else if (delta >= 10)
             {
-                return target switch
-                {
-                    "Lord" => "Your lord's confidence in you is growing",
-                    "Officer" => "You've impressed the officers with your recent work",
-                    "Soldier" => "Your standing with the men has improved",
-                    _ => $"{target} reputation improved"
-                };
+                return "Your lord's confidence in you is growing";
             }
             else if (delta <= -20)
             {
-                return target switch
-                {
-                    "Lord" => "You've seriously disappointed your lord",
-                    "Officer" => "The officers question your competence",
-                    "Soldier" => "The men have lost respect for you",
-                    _ => $"{target} reputation significantly damaged"
-                };
+                return "You've seriously disappointed your lord";
             }
             else // delta <= -10
             {
-                return target switch
-                {
-                    "Lord" => "Your lord's confidence in you has declined",
-                    "Officer" => "The officers are disappointed in your recent performance",
-                    "Soldier" => "Your standing with the men has suffered",
-                    _ => $"{target} reputation declined"
-                };
+                return "Your lord's confidence in you has declined";
             }
         }
     }

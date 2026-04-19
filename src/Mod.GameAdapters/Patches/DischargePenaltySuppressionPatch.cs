@@ -72,7 +72,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 			}
 			catch (Exception ex)
 			{
-				ModLogger.ErrorCode("Discharge", "E-DISCHARGE-001", "Error in relation penalty suppression", ex);
+				ModLogger.Caught("Discharge", "Error in relation penalty suppression", ex);
 				return true; // Fail open - allow normal behavior
 			}
 		}
@@ -137,7 +137,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 			}
 			catch (Exception ex)
 			{
-				ModLogger.ErrorCode("Discharge", "E-DISCHARGE-002", "Error restoring kingdom without penalties", ex);
+				ModLogger.Caught("Discharge", "Error restoring kingdom without penalties", ex);
 				DischargeState.IsDischarging = false; // Ensure flag is cleared
 				throw; // Re-throw to allow error handling in caller
 			}

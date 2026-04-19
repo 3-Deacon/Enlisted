@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_guard_post",
   "events": [
@@ -23,12 +23,11 @@
           "textId": "guard_drunk_soldier_let_pass",
           "text": "Let him through. Not worth the trouble.",
           "effects": {
-            "officerRep": -1,
-            "soldierRep": 1,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "guard_drunk_soldier_let_pass_result",
           "resultText": "He staggers past. You hope {SERGEANT} doesn't find out."
@@ -38,11 +37,10 @@
           "textId": "guard_drunk_soldier_turn_away",
           "text": "Turn him away. Orders are orders.",
           "effects": {
-            "officerRep": 1,
-            "soldierRep": -1,
             "skillXp": {
               "Athletics": 12
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_drunk_soldier_turn_away_result",
           "resultText": "He curses you but stumbles off. You held your post."
@@ -52,11 +50,10 @@
           "textId": "guard_drunk_soldier_report",
           "text": "Report him to {SERGEANT}.",
           "effects": {
-            "officerRep": 2,
-            "soldierRep": -2,
             "skillXp": {
               "Tactics": 10
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_drunk_soldier_report_result",
           "resultText": "{SERGEANT} hauls him away. The other soldiers give you cold looks."
@@ -89,17 +86,17 @@
             "difficulty": 35
           },
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 20
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "hpChange": -5,
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 8
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_strange_noise_investigate_result",
           "resultText": "You find a stray dog. Better safe than sorry.",
@@ -111,10 +108,10 @@
           "textId": "guard_strange_noise_hold_post",
           "text": "Hold your post and watch.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 12
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_strange_noise_hold_post_result",
           "resultText": "The noise fades. You stay alert."
@@ -124,11 +121,11 @@
           "textId": "guard_strange_noise_raise_alarm",
           "text": "Raise the alarm.",
           "effects": {
-            "officerRep": -1,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "guard_strange_noise_raise_alarm_result",
           "resultText": "The camp wakes. Nothing found. {SERGEANT} is not pleased."
@@ -157,10 +154,10 @@
           "textId": "guard_officer_inspection_challenge",
           "text": "Challenge him properly.",
           "effects": {
-            "officerRep": 4,
             "skillXp": {
               "Tactics": 18
-            }
+            },
+            "lordReputation": 4
           },
           "resultTextId": "guard_officer_inspection_challenge_result",
           "resultText": "He smiles. 'Good work, {PLAYER_RANK}. You know your duty.'"
@@ -170,11 +167,11 @@
           "textId": "guard_officer_inspection_let_pass",
           "text": "Let him pass without challenge.",
           "effects": {
-            "officerRep": -3,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -3
           },
           "resultTextId": "guard_officer_inspection_let_pass_result",
           "resultText": "He stops. 'You failed the test, soldier. Challenge everyone.'"
@@ -184,11 +181,11 @@
           "textId": "guard_officer_inspection_hesitate",
           "text": "Hesitate, unsure what to do.",
           "effects": {
-            "officerRep": -1,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "guard_officer_inspection_hesitate_result",
           "resultText": "Your hesitation shows. He walks past shaking his head."
@@ -216,11 +213,11 @@
           "textId": "guard_noble_demands_obey",
           "text": "Let him through. He's a noble.",
           "effects": {
-            "officerRep": -1,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "guard_noble_demands_obey_result",
           "resultText": "He passes. {SERGEANT} later asks why you broke protocol."
@@ -234,19 +231,19 @@
             "difficulty": 30
           },
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Charm": 20
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "officerRep": 1,
             "escalation": {
-              "scrutiny": 5
+              "scrutiny": 50
             },
             "skillXp": {
               "Charm": 8
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_noble_demands_challenge_result",
           "resultText": "He's annoyed but respects your duty. {SERGEANT} approves.",
@@ -258,10 +255,10 @@
           "textId": "guard_noble_demands_fetch_officer",
           "text": "Fetch {OFFICER_NAME} to handle this.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 10
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_noble_demands_fetch_officer_result",
           "resultText": "{OFFICER_NAME} handles it. You followed procedure."
@@ -308,10 +305,10 @@
           "text": "Offer to stay and finish your shift.",
           "effects": {
             "fatigue": 3,
-            "soldierRep": 2,
             "skillXp": {
               "Athletics": 15
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "guard_relieved_early_offer_stay_result",
           "resultText": "{COMRADE_NAME} appreciates it. You finish your full shift."
@@ -344,10 +341,10 @@
           "text": "Stay at your post until relief arrives.",
           "effects": {
             "fatigue": 8,
-            "officerRep": 2,
             "skillXp": {
               "Athletics": 20
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "guard_double_shift_stay_result",
           "resultText": "Two more hours pass before {COMRADE_NAME} arrives. {SERGEANT} notes your dedication."
@@ -371,11 +368,11 @@
           "text": "Leave your post. You've done your time.",
           "effects": {
             "fatigue": -2,
-            "officerRep": -10,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 10
-            }
+            },
+            "lordReputation": -10
           },
           "resultTextId": "guard_double_shift_leave_post_result",
           "resultText": "{SERGEANT} finds the post unmanned. You're in serious trouble."

@@ -2,7 +2,7 @@
 
 **Summary:** Complete documentation for the mod's unified content system including technical architecture, JSON schemas, and a full catalog of all 275 narrative content pieces (orders, order events, decisions, camp opportunities, context events, and map incidents).
 
-**Total Content:** 275 pieces including 17 orders, 84 order events, 37 decisions, 29 camp opportunities, 57 context events, 51 map incidents, and 23 retinue events (subset).
+**Total Content:** 282 pieces including 17 orders, 84 order events, 37 decisions, 36 camp opportunities, 57 context events, 51 map incidents, and 23 retinue events (subset).
 
 ---
 
@@ -57,7 +57,7 @@
 | **Orders** | 17 | Military directives from chain of command |
 | **Order Events** | 84 | Events that fire during order execution (defined in `ModuleData/Enlisted/Orders/order_events/*.json`) |
 | **Decisions** | 37 | Player-initiated Camp Hub actions (3 core + 26 camp + 8 medical with sea variants) |
-| **Camp Opportunities** | 29 | Orchestrated activities pre-scheduled 24hrs ahead by ContentOrchestrator |
+| **Camp Opportunities** | 36 | Orchestrated activities pre-scheduled 24hrs ahead by ContentOrchestrator |
 | **Context Events** | 57 | Context-triggered situations (escalation, medical, pay, promotion, baggage, retinue, universal) |
 | **Map Incidents** | 51 | Battle, siege, and settlement-triggered encounters (45 general + 6 retinue) |
 | **Retinue Content** | 23 | T7+ commander content (17 events + 6 incidents, subset of above) |

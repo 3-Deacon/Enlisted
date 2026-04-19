@@ -23,15 +23,6 @@ namespace Enlisted.Features.Interface.News.Models
         Critical = 4
     }
 
-    public enum MoraleBand
-    {
-        Unknown = 0,
-        High = 1,
-        Steady = 2,
-        Low = 3,
-        Breaking = 4
-    }
-
     public enum HealthDeltaBand
     {
         Unknown = 0,
@@ -76,15 +67,14 @@ namespace Enlisted.Features.Interface.News.Models
         // Company bands (best-effort; populated by producers in Phase 4)
         public ThreatBand Threat { get; set; } = ThreatBand.Unknown;
         public FoodBand Food { get; set; } = FoodBand.Unknown;
-        public MoraleBand Morale { get; set; } = MoraleBand.Unknown;
 
         // Optional tags (kept as strings for authoring flexibility; keep them stable + low-cardinality).
         public string ObjectiveTag { get; set; } = string.Empty; // e.g. "Traveling", "Besieging"
         public string LastStopTag { get; set; } = string.Empty;  // e.g. "resupply", "recruit"
         public string BattleTag { get; set; } = string.Empty;    // e.g. "imminent", "aftermath"
         public string AttachedArmyTag { get; set; } = string.Empty; // e.g. "attached_to_army"
-        public string DisciplineTag { get; set; } = string.Empty; // e.g. "clean", "troubled", "critical"
-        public int DisciplineIssues { get; set; } = -1; // Escalation discipline track (0-10). -1 when unknown.
+        public string DisciplineTag { get; set; } = string.Empty; // Legacy name: now tracks Scrutiny (0-100). Values: "clean", "minor", "troubled", "serious", "breaking"
+        public int DisciplineIssues { get; set; } = -1; // Legacy name: now tracks Scrutiny (0-100). -1 when unknown.
 
         public string StrategicContextTag { get; set; } = string.Empty; // e.g. "coordinated_offensive", "winter_camp"
 

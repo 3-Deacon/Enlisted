@@ -101,8 +101,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("CaptureConversation", "E-PATCH-022", 
-                    "Error in captured lord conversation suppression patch", ex);
+                ModLogger.Caught("CaptureConversation", "Error in captured lord conversation suppression patch", ex);
                 return true; // Fail open - allow normal behavior
             }
         }

@@ -61,15 +61,8 @@ namespace Enlisted.Features.Content
                     }
                 }
 
-                // Party morale change (mapped from Discipline for party-wide morale)
-                // Note: Native MoraleChange affects party RecentEventsMorale
-                if (effects.Discipline.HasValue && effects.Discipline.Value != 0)
-                {
-                    // Scale discipline to morale (discipline is 0-10, morale expects larger values)
-                    var moraleAmount = effects.Discipline.Value * 2f;
-                    result.Add(IncidentEffect.MoraleChange(moraleAmount));
-                    ModLogger.Debug(LogCategory, $"Translated discipline to morale: {moraleAmount}");
-                }
+                // Discipline effects no longer mapped to morale (morale system removed)
+                // Native party morale (RecentEventsMorale) was previously used but is now skipped
 
                 // Health/HP changes
                 if (effects.HpChange.HasValue && effects.HpChange.Value != 0)
@@ -122,35 +115,13 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Maps custom Soldier/Officer/Lord reputation to native personality traits.
+        /// Maps custom Lord reputation to native personality traits.
         /// This provides free UI integration on the character sheet and affects
         /// native game reactions from lords and companions.
         /// </summary>
         private static List<IncidentEffect> TranslateReputationToTraits(EventEffects effects, NativeTraitMappingConfig config)
         {
             var result = new List<IncidentEffect>();
-
-            // Soldier rep → Valor (bravery, fighting spirit)
-            if (effects.SoldierRep.HasValue && effects.SoldierRep.Value != 0)
-            {
-                var valorAmount = effects.SoldierRep.Value / config.ScaleDivisor;
-                if (Math.Abs(valorAmount) >= config.MinimumChange)
-                {
-                    result.Add(IncidentEffect.TraitChange(DefaultTraits.Valor, valorAmount));
-                    ModLogger.Debug(LogCategory, $"Soldier rep {effects.SoldierRep.Value} → Valor {valorAmount}");
-                }
-            }
-
-            // Officer rep → Calculating (tactical, organized)
-            if (effects.OfficerRep.HasValue && effects.OfficerRep.Value != 0)
-            {
-                var calcAmount = effects.OfficerRep.Value / config.ScaleDivisor;
-                if (Math.Abs(calcAmount) >= config.MinimumChange)
-                {
-                    result.Add(IncidentEffect.TraitChange(DefaultTraits.Calculating, calcAmount));
-                    ModLogger.Debug(LogCategory, $"Officer rep {effects.OfficerRep.Value} → Calculating {calcAmount}");
-                }
-            }
 
             // Lord rep → Honor (duty, keeping word)
             if (effects.LordRep.HasValue && effects.LordRep.Value != 0)
@@ -215,12 +186,6 @@ namespace Enlisted.Features.Content
             hints.AddRange(nativeHints.Select(h => h.ToString()));
 
             // Add Enlisted-specific effect hints (not in native system)
-            if (effects.Fatigue.HasValue && effects.Fatigue.Value != 0)
-            {
-                var sign = effects.Fatigue.Value > 0 ? "+" : "";
-                hints.Add($"{sign}{effects.Fatigue.Value} Fatigue");
-            }
-
             if (effects.RetinueGain.HasValue && effects.RetinueGain.Value > 0)
             {
                 hints.Add($"+{effects.RetinueGain.Value} Retinue Soldiers");

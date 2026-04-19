@@ -48,29 +48,6 @@
       "recoveryThreshold": 30,
       "cooldownDays": 0
     },
-    "exhausted": {
-      "trigger": {
-        "need": "rest",
-        "threshold": 20,
-        "comparison": "lessThan"
-      },
-      "override": {
-        "category": "extended_rest",
-        "name": "Extended Rest",
-        "description": "Sergeant grants half-day rest",
-        "reason": "Men exhausted",
-        "priority": 90,
-        "addressesNeed": "rest",
-        "replaceBothSlots": true,
-        "affectedPhases": ["Dawn", "Midday"],
-        "skill": "Medicine",
-        "baseXpMin": 1,
-        "baseXpMax": 3
-      },
-      "activationText": "No drills today. The sergeant grants rest.",
-      "recoveryThreshold": 50,
-      "cooldownDays": 1
-    },
     "low_readiness": {
       "trigger": {
         "need": "readiness",
@@ -93,29 +70,6 @@
       "activationText": "Extra drills ordered. The sergeants are pushing hard.",
       "recoveryThreshold": 60,
       "cooldownDays": 1
-    },
-    "low_morale": {
-      "trigger": {
-        "need": "morale",
-        "threshold": 25,
-        "comparison": "lessThan"
-      },
-      "override": {
-        "category": "light_duty",
-        "name": "Light Duty",
-        "description": "Easy day to lift spirits",
-        "reason": "Morale dangerously low",
-        "priority": 80,
-        "addressesNeed": "morale",
-        "replaceBothSlots": false,
-        "affectedPhases": ["Midday", "Dusk"],
-        "skill": "Steward",
-        "baseXpMin": 2,
-        "baseXpMax": 5
-      },
-      "activationText": "Light duty today. The officers are trying to lift spirits.",
-      "recoveryThreshold": 45,
-      "cooldownDays": 2
     }
   },
   "varietyInjections": {

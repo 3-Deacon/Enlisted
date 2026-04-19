@@ -48,9 +48,6 @@ namespace Enlisted.Features.Camp.Models
         /// <summary>Current supply level (0-100) for filtering.</summary>
         public int SupplyLevel { get; set; }
 
-        /// <summary>Player's current fatigue level.</summary>
-        public int PlayerFatigue { get; set; }
-
         /// <summary>Whether the player is injured.</summary>
         public bool PlayerInjured { get; set; }
 

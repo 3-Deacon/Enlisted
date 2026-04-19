@@ -72,7 +72,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     }
                     catch (Exception cleanupEx)
                     {
-                        ModLogger.ErrorCode("Naval", "E-NAVALPATCH-016", "Failed to clean up army reference", cleanupEx);
+                        ModLogger.Caught("Naval", "Failed to clean up army reference", cleanupEx);
                     }
 
                     SafeExitArmyWaitMenu(args);
@@ -84,7 +84,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVALPATCH-017", "Error in ArmyWaitMenuTick_Prefix", ex);
+                ModLogger.Caught("Naval", "Error in ArmyWaitMenuTick_Prefix", ex);
                 // Fail safe - try to exit the menu to prevent crash loop
                 SafeExitArmyWaitMenu(args);
                 return false;
@@ -124,7 +124,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVALPATCH-018", "Error in ArmyWaitOnInit_Prefix", ex);
+                ModLogger.Caught("Naval", "Error in ArmyWaitOnInit_Prefix", ex);
                 return false;
             }
         }
@@ -160,7 +160,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVALPATCH-019", "Error in WaitMenuArmyWaitOnInit_Prefix", ex);
+                ModLogger.Caught("Naval", "Error in WaitMenuArmyWaitOnInit_Prefix", ex);
                 return false;
             }
         }
@@ -193,7 +193,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Naval", "E-NAVALPATCH-020", "Error in SafeExitArmyWaitMenu", ex);
+                ModLogger.Caught("Naval", "Error in SafeExitArmyWaitMenu", ex);
 
                 // Last resort - try to exit to campaign map
                 try

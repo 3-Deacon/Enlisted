@@ -18,10 +18,7 @@
       "inappropriate_tags": ["leisure", "social", "camp_routine"],
       "needs_prediction": {
         "Readiness": 80,
-        "Supplies": 75,
-        "Equipment": 70,
-        "Morale": 65,
-        "Rest": 40
+        "Supplies": 75
       }
     },
     "desperate_defense": {
@@ -31,10 +28,7 @@
       "inappropriate_tags": ["leisure", "social", "training", "camp_routine"],
       "needs_prediction": {
         "Readiness": 85,
-        "Supplies": 60,
-        "Equipment": 65,
-        "Morale": 50,
-        "Rest": 30
+        "Supplies": 60
       }
     },
     "raid_operation": {
@@ -44,10 +38,7 @@
       "inappropriate_tags": ["defense", "siege", "leisure"],
       "needs_prediction": {
         "Readiness": 70,
-        "Supplies": 65,
-        "Equipment": 60,
-        "Morale": 60,
-        "Rest": 50
+        "Supplies": 65
       }
     },
     "siege_operation": {
@@ -57,10 +48,7 @@
       "inappropriate_tags": ["raid", "patrol", "leisure"],
       "needs_prediction": {
         "Readiness": 65,
-        "Supplies": 80,
-        "Equipment": 70,
-        "Morale": 55,
-        "Rest": 45
+        "Supplies": 80
       }
     },
     "patrol_peacetime": {
@@ -70,10 +58,7 @@
       "inappropriate_tags": ["assault", "siege", "urgent"],
       "needs_prediction": {
         "Readiness": 60,
-        "Supplies": 60,
-        "Equipment": 60,
-        "Morale": 65,
-        "Rest": 60
+        "Supplies": 60
       }
     },
     "garrison_duty": {
@@ -83,10 +68,7 @@
       "inappropriate_tags": ["assault", "raid", "urgent"],
       "needs_prediction": {
         "Readiness": 55,
-        "Supplies": 70,
-        "Equipment": 60,
-        "Morale": 60,
-        "Rest": 65
+        "Supplies": 70
       }
     },
     "recruitment_drive": {
@@ -96,23 +78,17 @@
       "inappropriate_tags": ["urgent", "combat"],
       "needs_prediction": {
         "Readiness": 70,
-        "Supplies": 75,
-        "Equipment": 75,
-        "Morale": 65,
-        "Rest": 60
+        "Supplies": 75
       }
     },
     "winter_camp": {
       "display_name": "Winter Camp",
       "description": "The campaign season ends. The company rests, trains, and tends to daily duties while snow blankets the land.",
-      "order_tags": ["camp_routine", "training", "social", "rest"],
+      "order_tags": ["camp_routine", "training", "social"],
       "inappropriate_tags": ["assault", "raid", "urgent", "combat"],
       "needs_prediction": {
         "Readiness": 50,
-        "Supplies": 65,
-        "Equipment": 60,
-        "Morale": 70,
-        "Rest": 75
+        "Supplies": 65
       }
     }
   },

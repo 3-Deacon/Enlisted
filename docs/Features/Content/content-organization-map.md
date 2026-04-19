@@ -103,7 +103,7 @@ ENLISTED MOD CONTENT (275 pieces)
 │           ├── dec_medical_grog_sea (sailor's remedy)
 │           └── dec_medical_emergency_sea
 │
-├── 📁 CAMP OPPORTUNITIES (29 orchestrated activities)
+├── 📁 CAMP OPPORTUNITIES (36 orchestrated activities)
 │   │   File: ModuleData/Enlisted/Decisions/camp_opportunities.json
 │   │   Pre-scheduled by ContentOrchestrator 24hrs ahead
 │   │
@@ -370,11 +370,11 @@ ModuleData/Enlisted/
 │       ├── defenses_events.json            ← order_inspect_defenses events
 │       └── ... (6 more event files)
 │
-├── Decisions/                      (37 decisions + 29 opportunities, 4 files)
+├── Decisions/                      (37 decisions + 36 opportunities, 4 files)
 │   ├── decisions.json              ← 3 core decisions
 │   ├── camp_decisions.json         ← 26 camp life decisions
 │   ├── medical_decisions.json      ← 8 medical decisions (4 land + 4 sea)
-│   └── camp_opportunities.json     ← 29 orchestrated camp opportunities
+│   └── camp_opportunities.json     ← 36 orchestrated camp opportunities
 │
 └── Events/                         (57 events, 16 files)
     ├── events_escalation_thresholds.json   ← Scrutiny/Discipline events (10)
@@ -638,23 +638,23 @@ COMPLETE CONTENT CATALOG:
 - Orders:           17
 - Order Events:     84
 - Decisions:        37 (core:3 + camp:26 + medical:8)
-- Opportunities:    29 (orchestrated)
+- Opportunities:    36 (orchestrated)
 - Context Events:   57 (escalation, medical, pay, promotion, baggage, retinue, universal)
 - Map Incidents:    51
                    ---
 TOTAL:             275 pieces
 
 BY TIER:
-T1-T3:  6 orders + 27 order events + 37 decisions + 29 opportunities + 45 map incidents = 144 pieces
-T4-T6:  6 orders + 37 order events + 37 decisions + 29 opportunities + 45 map incidents = 154 pieces
-T7-T9:  5 orders + 20 order events + 37 decisions + 29 opportunities + 51 map incidents = 142 pieces
+T1-T3:  6 orders + 27 order events + 37 decisions + 36 opportunities + 45 map incidents = 151 pieces
+T4-T6:  6 orders + 37 order events + 37 decisions + 36 opportunities + 45 map incidents = 161 pieces
+T7-T9:  5 orders + 20 order events + 37 decisions + 36 opportunities + 51 map incidents = 149 pieces
 All:    57 context events (escalation, medical, pay, promotion, baggage, retinue, universal)
 
 BY TRIGGER TYPE:
 - System-assigned:  17 orders
 - Duty-based:       84 order events
 - Player-initiated: 37 decisions (direct choice)
-- Orchestrated:     29 opportunities (pre-scheduled 24hrs ahead)
+- Orchestrated:     36 opportunities (pre-scheduled 24hrs ahead)
 - State-triggered:  57 context events
 - Map-triggered:    51 map incidents
 
@@ -662,7 +662,7 @@ BY DELIVERY METHOD:
 - Orders (popup Accept/Decline):       17
 - Order Events (during duty):          84
 - Decisions (Camp Hub inline menu):    37
-- Opportunities (DECISIONS accordion): 29
+- Opportunities (DECISIONS accordion): 36
 - Events (automatic popups):           57
 - Map Incidents (native UI):           51
 
@@ -672,7 +672,7 @@ BY CONTENT FILE:
 - decisions.json:                              3 core decisions
 - camp_decisions.json:                        26 camp decisions
 - medical_decisions.json:                      8 medical decisions (4+4 sea)
-- camp_opportunities.json:                    29 opportunities
+- camp_opportunities.json:                    36 opportunities
 - events_*.json (8 files):                    57 context events
 - incidents_*.json (6 files):                 51 map incidents
 ```
@@ -690,7 +690,7 @@ forage_*         = Forage order events
 (etc...)
 
 dec_*            = Camp Hub decision (37)
-opp_*            = Camp opportunity (29)
+opp_*            = Camp opportunity (36)
 evt_*            = Context event (57)
 mi_*             = Map incident (51)
 

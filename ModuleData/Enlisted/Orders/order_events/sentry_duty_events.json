@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_sentry_duty",
   "events": [
@@ -24,11 +24,11 @@
           "textId": "sentry_movement_spotted_raise_alarm",
           "text": "Raise the alarm immediately.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 14
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_movement_spotted_raise_alarm_result",
           "resultText": "The camp responds. It was just a deer, but better safe than sorry."
@@ -38,10 +38,10 @@
           "textId": "sentry_movement_spotted_watch",
           "text": "Watch carefully before deciding.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 15
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "sentry_movement_spotted_watch_result",
           "resultText": "You identify it as an animal. No need to wake the camp."
@@ -55,17 +55,17 @@
             "difficulty": 40
           },
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 22
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "hpChange": -8,
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 10
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_movement_spotted_challenge_result",
           "resultText": "Your challenge reveals nothing. You stay alert.",
@@ -112,10 +112,10 @@
           "textId": "sentry_fell_asleep_report_self",
           "text": "Report yourself to {SERGEANT}.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 10
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_fell_asleep_report_self_result",
           "resultText": "{SERGEANT} replaces you. He respects your honesty."
@@ -125,11 +125,11 @@
           "textId": "sentry_fell_asleep_hope",
           "text": "Hope no one notices.",
           "effects": {
-            "officerRep": -5,
             "skillXp": {
               "Athletics": 14,
               "Tactics": 14
-            }
+            },
+            "lordReputation": -5
           },
           "resultTextId": "sentry_fell_asleep_hope_result",
           "resultText": "{SERGEANT} finds you asleep. You're in serious trouble."
@@ -157,10 +157,10 @@
           "textId": "sentry_challenged_approach_challenge",
           "text": "Challenge them properly.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 14
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_challenged_approach_challenge_result",
           "resultText": "It's {COMRADE_NAME} returning from patrol. Good protocol."
@@ -170,10 +170,10 @@
           "textId": "sentry_challenged_approach_wait",
           "text": "Wait to see who it is.",
           "effects": {
-            "officerRep": 0,
             "skillXp": {
               "Scouting": 8
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "sentry_challenged_approach_wait_result",
           "resultText": "It's one of ours. You should have challenged them."
@@ -187,17 +187,16 @@
             "difficulty": 40
           },
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Bow": 25
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "officerRep": -5,
-            "soldierRep": -5,
             "skillXp": {
               "Bow": 8
-            }
+            },
+            "lordReputation": -7
           },
           "resultTextId": "sentry_challenged_approach_shoot_result",
           "resultText": "You drop an enemy scout. {SERGEANT} commends your vigilance.",
@@ -227,10 +226,10 @@
           "textId": "sentry_infiltrator_raise_alarm",
           "text": "Raise the alarm immediately.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Tactics": 16
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_infiltrator_raise_alarm_result",
           "resultText": "The camp responds. The infiltrator escapes but the breach is sealed."
@@ -244,17 +243,17 @@
             "difficulty": 35
           },
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "OneHanded": 24
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "hpChange": -8,
-            "officerRep": 1,
             "skillXp": {
               "OneHanded": 12
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "sentry_infiltrator_challenge_result",
           "resultText": "You confront them. They flee. You prevented a breach.",
@@ -266,10 +265,10 @@
           "textId": "sentry_infiltrator_shoot",
           "text": "Shoot them down.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Bow": 22
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "sentry_infiltrator_shoot_result",
           "resultText": "Your arrow finds its mark. The infiltrator falls."
@@ -302,10 +301,10 @@
           "text": "Stay at your post until they arrive.",
           "effects": {
             "fatigue": 5,
-            "officerRep": 2,
             "skillXp": {
               "Athletics": 20
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "sentry_relief_late_stay_result",
           "resultText": "{COMRADE_NAME} finally arrives, apologizing. You held your post."
@@ -316,14 +315,14 @@
           "text": "Complain to {SERGEANT} about it.",
           "effects": {
             "fatigue": 3,
-            "officerRep": -1,
             "escalation": {
-              "discipline": 5
+              "scrutiny": 50
             },
             "skillXp": {
               "Athletics": 14,
               "Tactics": 14
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "sentry_relief_late_complain_result",
           "resultText": "{SERGEANT} is annoyed by your complaint. 'Just do your duty, soldier.'"
@@ -334,14 +333,14 @@
           "text": "Leave your post. You've done your time.",
           "effects": {
             "fatigue": 0,
-            "officerRep": -8,
             "escalation": {
-              "discipline": 15
+              "scrutiny": 150
             },
             "skillXp": {
               "Athletics": 14,
               "Tactics": 14
-            }
+            },
+            "lordReputation": -8
           },
           "resultTextId": "sentry_relief_late_leave_result",
           "resultText": "You abandon your post. {SERGEANT} finds it unmanned. Serious consequences follow."

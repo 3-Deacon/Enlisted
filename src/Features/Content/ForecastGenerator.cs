@@ -19,7 +19,7 @@ namespace Enlisted.Features.Content
     /// <summary>
     /// Generates player-specific forecasts for the YOU section of the Main Menu.
     /// Produces NOW (current status) and AHEAD (upcoming predictions) text incorporating
-    /// duty status, health, fatigue, and culture-aware rank names.
+    /// duty status, health, conditions, and culture-aware rank names.
     /// </summary>
     public class ForecastGenerator
     {
@@ -153,18 +153,12 @@ namespace Enlisted.Features.Content
                         Priority.High));
                 }
 
-                // Morale warnings - escalating urgency based on consecutive days of low morale
-                if (sim.Pressure.DaysLowMorale >= 2)
+                // Readiness warnings (morale removed - using readiness as mood indicator)
+                if (needs != null && needs.Readiness < 30)
                 {
                     forecasts.Add((
-                        new TextObject("{=menu_ahead_morale_critical}The mood is dark. Something may break.").ToString(),
-                        Priority.Critical));
-                }
-                else if (needs != null && needs.Morale < 40)
-                {
-                    forecasts.Add((
-                        new TextObject("{=menu_ahead_morale_low}Grumbling in the ranks.").ToString(),
-                        Priority.Medium));
+                        new TextObject("{=menu_ahead_readiness_low}The men are exhausted.").ToString(),
+                        Priority.High));
                 }
 
                 // Health warnings - many sick soldiers spreading illness
@@ -191,21 +185,13 @@ namespace Enlisted.Features.Content
                         new TextObject("{=menu_ahead_desertion}Men have been slipping away.").ToString(),
                         Priority.High));
                 }
-
-                // Rest/exhaustion warnings
-                if (sim.Pressure.DaysLowRest >= 2)
-                {
-                    forecasts.Add((
-                        new TextObject("{=menu_ahead_rest_low}The men are exhausted. They need rest.").ToString(),
-                        Priority.High));
-                }
             }
 
-            // Discipline warnings from escalation tracks (0-10 scale)
-            if (_escalation?.State != null && _escalation.State.Discipline < 3)
+            // Scrutiny warnings from escalation tracks (0-100 scale)
+            if (_escalation?.State != null && _escalation.State.Scrutiny > 70)
             {
                 forecasts.Add((
-                    new TextObject("{=menu_ahead_discipline_low}Officers are losing patience.").ToString(),
+                    new TextObject("{=menu_ahead_scrutiny_high}Officers are watching closely.").ToString(),
                     Priority.Medium));
             }
 
@@ -312,7 +298,7 @@ namespace Enlisted.Features.Content
             if (pressureLevel == MedicalPressureLevel.Moderate && !medicalAnalysis.HasCondition)
             {
                 forecasts.Add((
-                    new TextObject("{=menu_ahead_medical_risk_moderate}Fatigue is catching up with you.").ToString(),
+                    new TextObject("{=menu_ahead_medical_risk_moderate}You need rest soon.").ToString(),
                     Priority.Medium));
             }
         }

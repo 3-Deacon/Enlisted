@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered while waiting in settlements (waiting_in_settlement context). 4 total incidents.",
@@ -34,7 +34,7 @@
           "risk": "moderate",
           "effects": {
             "gold": 35,
-            "scrutiny": 2
+            "scrutiny": 2000000
           }
         },
         {
@@ -69,7 +69,7 @@
               "Scouting": 10
             },
             "gold": 40,
-            "scrutiny": 1
+            "scrutiny": 1000000
           }
         }
       ]
@@ -186,9 +186,8 @@
             "skillXp": {
               "Leadership": 15
             },
-            "officerRep": 8,
-            "soldierRep": -3,
-            "discipline": -2
+            "scrutiny": -2000000,
+            "lordReputation": 7
           }
         },
         {
@@ -213,7 +212,7 @@
           "resultText": "You look away and let events unfold. Whatever happens, it's not your responsibility. The garrison watch will sort it out.",
           "risk": "safe",
           "effects": {
-            "discipline": 1
+            "scrutiny": 1000000
           },
           "tooltip": "Safe choice. Adds 1 discipline issues."
         }
@@ -248,11 +247,11 @@
           "resultText": "You organize equipment maintenance, run impromptu drills, or find work that needs doing. It's not exciting, but it keeps hands busy and minds occupied.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
             "companyNeeds": {
               "Equipment": 3,
               "Morale": 3
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "Help with maintenance. +5 Officer rep. Boosts company equipment and morale."
         },
@@ -264,9 +263,8 @@
           "resultText": "You single out the worst offenders and make examples of them. The grumbling stops, replaced by sullen obedience. Order is maintained.",
           "risk": "safe",
           "effects": {
-            "officerRep": 8,
-            "soldierRep": -8,
-            "discipline": -3
+            "scrutiny": -3000000,
+            "lordReputation": 4
           },
           "tooltip": "Crack down. +8 Officer rep, -8 Soldier rep. Reduces discipline issues."
         },
@@ -278,7 +276,7 @@
           "resultText": "You stay out of it. Soldiers will be soldiers. A few black eyes and bureaucratic egos won't hurt the company. Probably.",
           "risk": "safe",
           "effects": {
-            "discipline": 2,
+            "scrutiny": 2000000,
             "companyNeeds": {
               "Morale": -5
             }

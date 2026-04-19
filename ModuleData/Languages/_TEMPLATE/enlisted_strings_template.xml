@@ -1015,7 +1015,7 @@
     <string id="cond_treat_basic" text="Basic treatment" />
     <string id="cond_treat_basic_hint" text="Free (enlisted). Improves recovery." />
     <string id="cond_treat_thorough" text="Thorough treatment" />
-    <string id="cond_treat_thorough_hint" text="Costs fatigue. Strong recovery boost." />
+    <string id="cond_treat_thorough_hint" text="Takes time. Strong recovery boost." />
     <string id="cond_treat_herbal" text="Herbal remedy" />
     <string id="cond_treat_herbal_hint" text="Costs coin. Solid recovery boost." />
 
@@ -1101,13 +1101,13 @@
     <!-- Rations/Provisions System (Phase 5) -->
     <string id="qm_menu_rations" text="Purchase provisions" />
     <string id="qm_rations_intro" text="Purchase better rations from the quartermaster." />
-    <string id="qm_rations_desc" text="Higher quality food provides morale bonuses and fatigue relief." />
+    <string id="qm_rations_desc" text="Higher quality food provides morale bonuses ." />
     <string id="qm_rations_current" text="Current: {QUALITY} (+{MORALE} morale) - {DAYS} days remaining" />
     <string id="qm_rations_standard" text="Current: Standard army rations (no bonus)" />
     <string id="qm_rations_gold" text="Your gold: {GOLD_ICON} {GOLD}" />
     <string id="qm_rations_supplemental" text="Supplemental Rations (10 gold) - +2 morale for 1 day" />
-    <string id="qm_rations_officer" text="Officer's Fare (30 gold) - +4 morale, +2 fatigue for 2 days" />
-    <string id="qm_rations_commander" text="Commander's Feast (75 gold) - +8 morale, +5 fatigue for 3 days" />
+    <string id="qm_rations_officer" text="Officer's Fare (30 gold) - +4 morale for 2 days" />
+    <string id="qm_rations_commander" text="Commander's Feast (75 gold) - +8 morale for 3 days" />
     <string id="qm_rations_no_gold" text="Not enough gold." />
     <string id="qm_rations_rank" text="Reserved for Tier 4+ soldiers." />
     <string id="qm_rations_not_enlisted" text="You must be enlisted to purchase provisions." />
@@ -1360,7 +1360,7 @@
     <string id="ll_thr_med_complication_title" text="Complication" />
     <string id="ll_thr_med_complication_body" text="A cough turns wet. A wound looks angry. This is becoming a problem." />
     <string id="ll_thr_med_complication_opt_seek_text" text="Seek treatment." />
-    <string id="ll_thr_med_complication_opt_seek_hint" text="Time, fatigue, and a little coinâ€”worth it." />
+    <string id="ll_thr_med_complication_opt_seek_hint" text="Time and a little coinâ€”worth it." />
     <string id="ll_thr_med_complication_opt_seek_result" text="Clean bandages and bitter herbs. It starts to turn." />
     <string id="ll_thr_med_complication_opt_push_text" text="Push on." />
     <string id="ll_thr_med_complication_opt_push_hint" text="You can't afford to look weak." />
@@ -1951,7 +1951,7 @@
     <!-- Phase 9: Help the Lord Outcome Messages -->
     <string id="hlm_debts_success" text="You successfully collect the debts. The lord is pleased. (-10 PayTension)" />
     <string id="hlm_debts_fail" text="The merchants refuse to pay. Perhaps they need more... persuasion." />
-    <string id="hlm_escort_success" text="You escort the merchant safely. The lord's coffers grow. (-15 PayTension, -4 fatigue)" />
+    <string id="hlm_escort_success" text="You escort the merchant safely. The lord's coffers grow. (-15 PayTension)" />
     <string id="hlm_loan_success" text="You secure a favorable loan for the lord. The treasury is replenished. (-20 PayTension)" />
     <string id="hlm_loan_fail" text="The bankers aren't interested. Perhaps another approach..." />
     <string id="hlm_raid_success" text="The raid is a complete success! Valuable loot is captured. (-25 PayTension)" />
@@ -2047,10 +2047,6 @@
     <!-- Condition: Injury -->
     
     <!-- Condition: Illness -->
-    
-    <!-- Fatigue: Exhausted -->
-    
-    <!-- Fatigue: Tired -->
     
     <!-- Battle Aftermath: Bandit Won -->
     
@@ -2733,6 +2729,7 @@
 
   </strings>
 </base>
+
 
 
 

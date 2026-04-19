@@ -34,9 +34,20 @@ $RECYCLE.BIN/
 # Tooling
 .qodo/
 
+# Codex CLI — keep .codex/config.toml tracked, ignore personal overrides and local state
+AGENTS.override.md
+.codex/cache/
+.codex/logs/
+
 # Environment files (API keys)
 .env
-Tools/CrewAI/.env
+
+# Python virtual environments
+venv/
+Tools/venv/
+__pycache__/
+*.pyc
+*.pyo
 
 # Archives
 *.zip

@@ -242,7 +242,7 @@ Daily Tick (6am)
 **Deserters:**
 - Leave at dawn if they decided to desert
 - Roster updated, loss reported to news feed
-- Impacts company morale (-2 per desertion)
+- Impacts company atmosphere
 
 ### 3. Condition Checks (New Issues)
 
@@ -265,7 +265,7 @@ Daily Tick (6am)
 **Desertion Attempts:**
 - Base chance: 0.5% per soldier per day
 - Modifiers:
-  - Low morale (<30): +5%
+  - Low supply (<30): +4%
   - Unpaid (backpay owed): +3%
   - High discipline (>70): -2%
   - Recent defeat: +4%
@@ -349,15 +349,10 @@ public class TrackedSoldier
 
 When company needs cross critical thresholds, pulse events fire:
 
-**Supply Crisis (Supplies < 20%):**
+**Supply Crisis (Supply < 20%):**
 - News: "Supplies critically low. Men are hungry."
-- Effect: Morale -10, desertion risk +5%
+- Effect: Readiness penalty, desertion risk +5%
 - Opportunity: "Forage for supplies" becomes highly weighted
-
-**Morale Crisis (Morale < 25%):**
-- News: "Morale is dangerously low. Mutiny possible."
-- Effect: Discipline harder to maintain, desertion risk +8%
-- Opportunity: "Talk with men" or "Request leave" prioritized
 
 **Exhaustion Crisis (Rest < 15%):**
 - News: "Men are exhausted. Performance suffering."
@@ -369,13 +364,13 @@ When company needs cross critical thresholds, pulse events fire:
 Pressure cascades from one system to another:
 
 ```
-Low Supplies → Men hungry → Morale drops → Desertions increase
+Low Supplies → Men hungry → Discipline issues → Desertions increase
     ↓              ↓              ↓              ↓
-Foraging      Brawls start   Discipline    Roster shrinks
-needed        over food      problems      
+Foraging      Brawls start   Scrutiny      Roster shrinks
+needed        over food      rises      
     ↓              ↓              ↓              ↓
-More          Injuries      Scrutiny      Combat
-incidents     occur         rises         weakness
+More          Injuries      More          Combat
+incidents     occur         pressure      weakness
 ```
 
 **Pressure Tracking:**
@@ -385,7 +380,7 @@ public class CompanyPressure
 {
     // Pressure Sources
     public int DaysLowSupplies { get; set; }  // Consecutive days <30%
-    public int DaysLowMorale { get; set; }    // Consecutive days <40%
+    public int DaysLowRest { get; set; }      // Consecutive days <40%
     public int DaysHighScrutiny { get; set; } // Consecutive days >70%
     public int RecentDeaths { get; set; }     // Deaths in last 7 days
     public int RecentDesertions { get; set; } // Desertions in last 7 days
@@ -397,7 +392,7 @@ public class CompanyPressure
     {
         int pressure = 0;
         pressure += DaysLowSupplies * 5;      // +5 per day
-        pressure += DaysLowMorale * 4;        // +4 per day
+        pressure += DaysLowRest * 4;          // +4 per day
         pressure += DaysHighScrutiny * 3;     // +3 per day
         pressure += RecentDeaths * 8;         // +8 per death
         pressure += RecentDesertions * 6;     // +6 per desertion
@@ -499,7 +494,7 @@ public IReadOnlyList<ScheduledOpportunity> GetCurrentPhaseOpportunities()
 
 ## Opportunity Types
 
-### The 29 Opportunities (Complete List)
+### The 36 Opportunities (Complete List)
 
 **Training (5):**
 - `opp_weapon_drill` - Weapon training session → dec_training_drill
@@ -747,7 +742,7 @@ The ContentOrchestrator now **owns** the opportunity lifecycle, using CampOpport
 
 **SimulationPressureCalculator:**
 - TotalPressure (0-100)
-- PressureSources (supplies/morale/scrutiny/casualties)
+- PressureSources (supplies/rest/scrutiny/casualties)
 - PressureReleases (pay/victory/rest)
 
 **PlayerBehaviorTracker:**
@@ -786,10 +781,9 @@ var candidates = GenerateCandidates(worldState, pressure);
 
 **Schedule Overrides:**
 The ContentOrchestrator can override the baseline camp schedule when company needs are critical:
-- Supplies < 30 → Foraging Duty (replaces training)
+- Supply < 30 → Foraging Duty (replaces training)
 - Rest < 20 → Extended Rest (skips formations)
 - Readiness < 40 → Emergency Drill (extra training)
-- Morale < 25 → Light Duty (morale recovery)
 
 **Variety Injections:**
 Periodically (every 3-5 days), the orchestrator injects special assignments to break monotony:
@@ -846,7 +840,7 @@ public enum NewsCategory
     Supplies,          // Consumption, shortages
     Incidents,         // Random camp events
     PlayerActivity,    // What player did
-    CampMood,          // Morale shifts, atmosphere
+    CampMood,          // Camp mood, atmosphere
     Orders            // Order-related news
 }
 ```
@@ -858,7 +852,7 @@ public enum NewsCategory
 [SUPPLIES] Supplies running low. 4 days remaining. (3 hours ago)
 [INCIDENT] Equipment found missing from baggage. (4 hours ago)
 [PLAYER] You trained with the veterans this morning. (+15 One Handed XP) (6 hours ago)
-[MOOD] Men are in good spirits after the victory. (+5 Morale) (8 hours ago)
+[MOOD] Men are in good spirits after the victory. (8 hours ago)
 [ORDERS] Guard duty assignment completed successfully. (10 hours ago)
 ```
 
@@ -1098,7 +1092,7 @@ Shows: Empty (no time for camp activities during siege)
 - `src/Features/Camp/Models/PlayerPreferences.cs` - Preference tracking
 
 **Data Files:**
-- `ModuleData/Enlisted/Opportunities/camp_opportunities.json` - 29 opportunity definitions
+- `ModuleData/Enlisted/Decisions/camp_opportunities.json` - 36 opportunity definitions
 - `ModuleData/Enlisted/Decisions/decisions.json` - Target decisions (26 need creation)
 - `ModuleData/Enlisted/Config/camp_simulation_config.json` - Configuration
 

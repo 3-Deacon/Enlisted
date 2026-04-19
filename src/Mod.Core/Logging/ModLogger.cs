@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using TaleWorlds.Core;
+using TaleWorlds.Library;
 
 namespace Enlisted.Mod.Core.Logging
 {
@@ -60,6 +63,25 @@ namespace Enlisted.Mod.Core.Logging
 		// This gives end-user logs real stack traces without requiring Debug log level, but avoids spam.
 		private static readonly HashSet<string> LoggedExceptionDetails = new HashSet<string>();
 
+		// Throttle state for Caught(): fingerprint -> (firstTickUtc, count).
+		// The dictionary is bounded by the static set of Caught(...) call sites: the
+		// fingerprint is category|file|line, where file and line come from compile-time
+		// CallerFilePath/CallerLineNumber attributes and therefore cannot vary at runtime.
+		// Implicit guard-rail: if a caller ever passes a dynamic category string the
+		// dictionary could grow unbounded, but all known callers use string literals.
+		private static readonly Dictionary<string, (DateTime window, int count)> CaughtThrottle
+			= new Dictionary<string, (DateTime, int)>();
+		private static readonly TimeSpan CaughtWindow = TimeSpan.FromSeconds(60);
+
+		// Throttle state for Expected(): key -> (firstTickUtc, count)
+		private static readonly Dictionary<string, (DateTime window, int count)> ExpectedThrottle
+			= new Dictionary<string, (DateTime, int)>();
+		private static readonly TimeSpan ExpectedWindow = TimeSpan.FromSeconds(60);
+
+		// Surfaced(): codes that have already shown a toast this session. Subsequent
+		// hits only bump the footer counter; no new on-screen message.
+		private static readonly HashSet<string> SurfacedToastedCodes = new HashSet<string>();
+
 		/// <summary>
 		/// Tracks repeated messages for throttling.
 		/// </summary>
@@ -97,8 +119,13 @@ namespace Enlisted.Mod.Core.Logging
 
 					// Clear session-specific tracking
 					LoggedOnceKeys.Clear();
+					LoggedExceptionDetails.Clear();
 					ThrottleCache.Clear();
 					SummaryData.Clear();
+					CaughtThrottle.Clear();
+					ExpectedThrottle.Clear();
+					SurfacedToastedCodes.Clear();
+					SessionSummaryFooter.Reset();
 
 					// Write initialization message - this will test if logging works
 					WriteInternal("INFO", "Init", $"Logger initialized (session: {_sessionId}, path: {_logFilePath})");
@@ -247,21 +274,156 @@ namespace Enlisted.Mod.Core.Logging
 		}
 
 		/// <summary>
-		/// Log an error with a stable support code (searchable in user logs).
+		/// Log a caught exception at a defensive boundary. Writes to the session log
+		/// with file:line and stack. NEVER toasts on-screen. Throttled by
+		/// (category, callerFile, callerLine) on a 60s window — after the first
+		/// occurrence, further hits in the window are counted and flushed as a
+		/// single "(suppressed Nx)" line when the window rolls over.
 		/// </summary>
-		public static void ErrorCode(string category, string code, string message, Exception ex = null)
+		public static void Caught(
+			string category,
+			string summary,
+			Exception ex,
+			IDictionary<string, object> ctx = null,
+			[CallerFilePath] string callerFile = "",
+			[CallerLineNumber] int callerLine = 0)
 		{
-			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
-			Error(category, $"{prefix}{message}", ex);
+			if (!IsEnabled(category, LogLevel.Error)) return;
+
+			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+			// Record before throttle gate so suppressed hits are still counted in the footer.
+			SessionSummaryFooter.RecordCaught(category, shortFile, callerLine);
+
+			var fingerprint = $"{category}|{shortFile}|{callerLine}";
+			var now = DateTime.UtcNow;
+
+			lock (Sync)
+			{
+				if (CaughtThrottle.TryGetValue(fingerprint, out var state))
+				{
+					if (now - state.window < CaughtWindow)
+					{
+						CaughtThrottle[fingerprint] = (state.window, state.count + 1);
+						return; // suppressed within the window; first-hit line already logged
+					}
+					// window expired — emit the tail count for the previous window
+					if (state.count > 1)
+					{
+						WriteInternal("ERROR", category,
+							$"[{shortFile}:{callerLine}] (previous window suppressed {state.count - 1}x)");
+					}
+				}
+				CaughtThrottle[fingerprint] = (now, 1);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			var header = $"{summary} [at {shortFile}:{callerLine}]";
+			Error(category, string.IsNullOrEmpty(ctxLine) ? header : header + " | " + ctxLine, ex);
 		}
 
 		/// <summary>
-		/// Log a warning with a stable support code (searchable in user logs).
+		/// Log a known-branch early exit (e.g., "cannot apply bonuses — no faction").
+		/// INFO level, no stack trace, no toast. Throttled by <paramref name="key"/>
+		/// on a 60s window.
 		/// </summary>
-		public static void WarnCode(string category, string code, string message)
+		public static void Expected(
+			string category,
+			string key,
+			string summary,
+			IDictionary<string, object> ctx = null)
 		{
-			var prefix = string.IsNullOrWhiteSpace(code) ? string.Empty : $"[{code}] ";
-			Warn(category, $"{prefix}{message}");
+			if (!IsEnabled(category, LogLevel.Info)) return;
+
+			// Record before throttle gate so suppressed hits are still counted in the footer.
+			SessionSummaryFooter.RecordExpected(category, key);
+
+			var now = DateTime.UtcNow;
+			lock (Sync)
+			{
+				if (ExpectedThrottle.TryGetValue(key, out var state)
+					&& now - state.window < ExpectedWindow)
+				{
+					ExpectedThrottle[key] = (state.window, state.count + 1);
+					return;
+				}
+				ExpectedThrottle[key] = (now, 1);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			Info(category, string.IsNullOrEmpty(ctxLine) ? summary : summary + " | " + ctxLine);
+		}
+
+		/// <summary>
+		/// Log a player/dev-facing failure. Writes full context + stack to the session
+		/// log AND shows a red on-screen toast ONCE per (category, code) per session.
+		/// Subsequent occurrences bump the session footer counter only.
+		/// </summary>
+		public static void Surfaced(
+			string category,
+			string summary,
+			Exception ex = null,
+			IDictionary<string, object> ctx = null,
+			[CallerFilePath] string callerFile = "",
+			[CallerLineNumber] int callerLine = 0)
+		{
+			var suffix = ComputeCodeSuffix(summary);
+			var code = $"E-{(category ?? "?").ToUpperInvariant()}-{suffix}";
+			var shortFile = Path.GetFileName(callerFile ?? string.Empty);
+
+			bool firstThisSession;
+			lock (Sync)
+			{
+				firstThisSession = SurfacedToastedCodes.Add(code);
+			}
+
+			var ctxLine = FormatCtx(ctx);
+			var logMsg = $"[{code}] {summary} [at {shortFile}:{callerLine}]";
+			if (!string.IsNullOrEmpty(ctxLine)) logMsg += " | " + ctxLine;
+
+			Error(category, logMsg, ex);
+
+			if (firstThisSession && ShowCodedMessagesOnScreen)
+			{
+				DisplayCodedMessageOnScreen(code, category, summary, Colors.Red);
+			}
+
+			SessionSummaryFooter.RecordSurfaced(code, category, summary, shortFile, callerLine);
+		}
+
+		/// <summary>
+		/// When true, coded errors and warnings also display an on-screen message so
+		/// developers and players see the failure without tailing the log file.
+		/// Toggle off for silent release builds via ModLogger.ShowCodedMessagesOnScreen.
+		/// </summary>
+		public static bool ShowCodedMessagesOnScreen { get; set; } = true;
+
+		/// <summary>
+		/// Push a coded log entry to the on-screen info panel. Swallows any display
+		/// failure so logging never breaks because of UI state.
+		/// </summary>
+		private static void DisplayCodedMessageOnScreen(string code, string category, string message, Color color)
+		{
+			if (!ShowCodedMessagesOnScreen)
+			{
+				return;
+			}
+			try
+			{
+				const int MaxMessageChars = 140;
+				var body = message ?? string.Empty;
+				if (body.Length > MaxMessageChars)
+				{
+					body = body.Substring(0, MaxMessageChars - 3) + "...";
+				}
+				var line = string.IsNullOrWhiteSpace(code)
+					? $"[{category}] {body}"
+					: $"[{code}] {body}";
+				InformationManager.DisplayMessage(new InformationMessage(line, color));
+			}
+			catch
+			{
+				// Never let a display failure break error logging — file log already captured it.
+			}
 		}
 
 		#endregion
@@ -292,56 +454,6 @@ namespace Enlisted.Mod.Core.Logging
 
 			var levelStr = level.ToString().ToUpper();
 			WriteInternal(levelStr, category, message);
-		}
-
-		/// <summary>
-		/// Log a coded warning only once per session.
-		/// Useful for DLC missing / reflection guardrails where repetition would spam logs.
-		/// </summary>
-		public static void WarnCodeOnce(string key, string category, string code, string message)
-		{
-			if (!IsEnabled(category, LogLevel.Warn))
-			{
-				return;
-			}
-
-			bool shouldLog;
-			lock (Sync)
-			{
-				shouldLog = LoggedOnceKeys.Add(key);
-			}
-
-			if (!shouldLog)
-			{
-				return;
-			}
-
-			WarnCode(category, code, message);
-		}
-
-		/// <summary>
-		/// Log a coded error (with full exception details) only once per session.
-		/// Intended for high-signal failures that can recur frequently (e.g., UI fallback exceptions).
-		/// </summary>
-		public static void ErrorCodeOnce(string key, string category, string code, string message, Exception ex = null)
-		{
-			if (!IsEnabled(category, LogLevel.Error))
-			{
-				return;
-			}
-
-			bool shouldLog;
-			lock (Sync)
-			{
-				shouldLog = LoggedOnceKeys.Add(key);
-			}
-
-			if (!shouldLog)
-			{
-				return;
-			}
-
-			ErrorCode(category, code, message, ex);
 		}
 
 		/// <summary>
@@ -622,6 +734,39 @@ namespace Enlisted.Mod.Core.Logging
 			}
 		}
 
+		private static string FormatCtx(IDictionary<string, object> ctx)
+		{
+			if (ctx == null || ctx.Count == 0) return string.Empty;
+			try
+			{
+				var parts = new List<string>(ctx.Count);
+				foreach (var kvp in ctx)
+				{
+					var v = kvp.Value == null ? "null" : kvp.Value.ToString();
+					parts.Add($"{kvp.Key}={v}");
+				}
+				return "ctx: " + string.Join(" ", parts);
+			}
+			catch
+			{
+				return string.Empty; // never let ctx formatting break logging
+			}
+		}
+
+		/// <summary>
+		/// Deterministic 4-hex-char suffix of SHA-256(summary). Stable across runs
+		/// as long as the summary string is unchanged.
+		/// </summary>
+		internal static string ComputeCodeSuffix(string summary)
+		{
+			if (string.IsNullOrEmpty(summary)) return "0000";
+			using (var sha = System.Security.Cryptography.SHA256.Create())
+			{
+				var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(summary));
+				return bytes[0].ToString("x2") + bytes[1].ToString("x2");
+			}
+		}
+
 		private static void WriteInternal(string level, string category, string message)
 		{
 			// Ensure path is set (in case Initialize wasn't called)
@@ -795,7 +940,13 @@ namespace Enlisted.Mod.Core.Logging
 				// Create the new session log as Session-A
 				var newLogName = $"{SessionSlots[0]}_{utcNow:yyyy-MM-dd_HH-mm-ss}.log";
 				var newLogPath = Path.Combine(logDir, newLogName);
-				WriteSessionHeader(newLogPath, utcNow);
+				// Emit the one-and-only header block (mod version, game version,
+				// player snapshot). File.AppendAllText creates the file if missing,
+				// so no separate WriteSessionHeader pass is needed.
+				WriteRawToSession(newLogPath, SessionHeaderWriter.Build());
+				// Publish the session log path to SessionSummaryFooter so it
+				// knows where to rewrite the rolling summary tail block.
+				SessionSummaryFooter.SessionLogPath = newLogPath;
 				WriteCombinedPointer(logDir, newLogName, null);
 				return newLogPath;
 			}
@@ -836,23 +987,28 @@ namespace Enlisted.Mod.Core.Logging
 			return null;
 		}
 
-		private static void WriteSessionHeader(string path, DateTime utcNow)
+		/// <summary>
+		/// Append a raw, unprefixed block to the given session log file. Bypasses
+		/// the normal "[time] [LEVEL] [Category]" prefix so header content appears
+		/// verbatim. Swallows any IO failure — header emission must never break
+		/// the mod.
+		/// </summary>
+		private static void WriteRawToSession(string path, string text)
 		{
+			if (string.IsNullOrEmpty(text))
+			{
+				return;
+			}
 			try
 			{
-				var local = utcNow.ToLocalTime();
-				var header = new StringBuilder();
-				header.AppendLine("=== ENLISTED LOG SESSION START ===");
-				header.AppendLine($"Session File: {Path.GetFileName(path)}");
-				header.AppendLine($"Started (UTC): {utcNow:yyyy-MM-dd HH:mm:ss}");
-				header.AppendLine($"Started (Local): {local:yyyy-MM-dd HH:mm:ss}");
-				header.AppendLine("Build: Enlisted RETAIL");
-				header.AppendLine(new string('-', 60));
-				File.WriteAllText(path, header.ToString(), Encoding.UTF8);
+				lock (Sync)
+				{
+					File.AppendAllText(path, text, Encoding.UTF8);
+				}
 			}
 			catch
 			{
-				// best-effort header
+				// swallow — never break the mod for header emission
 			}
 		}
 

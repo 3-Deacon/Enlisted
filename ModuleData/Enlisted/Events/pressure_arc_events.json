@@ -1,0 +1,462 @@
+﻿{
+  "schemaVersion": 2,
+  "category": "crisis",
+  "events": [
+    {
+      "id": "supply_pressure_stage_1_grunt",
+      "category": "crisis",
+      "severity": "normal",
+      "titleId": "supply_pressure_stage_1_grunt_title",
+      "title": "Thin Rations",
+      "setupId": "supply_pressure_stage_1_grunt_setup",
+      "setup": "The cook's portions have shrunk. You notice men eyeing each other's bowls, calculating. Nobody says it aloud, but everyone knows: supplies are running low.",
+      "requirements": {
+        "tier": {
+          "max": 4
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_1_grunt_opt1",
+          "textId": "supply_pressure_stage_1_grunt_opt1_text",
+          "text": "Eat quietly and conserve energy",
+          "tooltipId": "supply_pressure_stage_1_grunt_opt1_tooltip",
+          "tooltip": "Accept the situation. No effect.",
+          "effects": {}
+        },
+        {
+          "id": "supply_pressure_stage_1_grunt_opt2",
+          "textId": "supply_pressure_stage_1_grunt_opt2_text",
+          "text": "Share a portion with a weaker soldier",
+          "tooltipId": "supply_pressure_stage_1_grunt_opt2_tooltip",
+          "tooltip": "+3 Soldier Rep. -5 HP (hunger).",
+          "effects": {
+            "hpChange": -5,
+            "lordReputation": 1
+          }
+        },
+        {
+          "id": "supply_pressure_stage_1_grunt_opt3",
+          "textId": "supply_pressure_stage_1_grunt_opt3_text",
+          "text": "Try to get extra from the cook",
+          "tooltipId": "supply_pressure_stage_1_grunt_opt3_tooltip",
+          "tooltip": "-2 Soldier Rep. Others notice greed.",
+          "effects": {
+            "lordReputation": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_pressure_stage_1_nco",
+      "category": "crisis",
+      "severity": "normal",
+      "titleId": "supply_pressure_stage_1_nco_title",
+      "title": "Your Squad Grumbles",
+      "setupId": "supply_pressure_stage_1_nco_setup",
+      "setup": "Your squad clusters around the cook fire, muttering. The portions are visibly smaller than last week. They look to you—their NCO—for answers you don't have.",
+      "requirements": {
+        "tier": {
+          "min": 5,
+          "max": 6
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_1_nco_opt1",
+          "textId": "supply_pressure_stage_1_nco_opt1_text",
+          "text": "\"It's temporary. We've been through worse.\"",
+          "tooltipId": "supply_pressure_stage_1_nco_opt1_tooltip",
+          "tooltip": "+2 Officer Rep. Steady leadership.",
+          "effects": {
+            "lordReputation": 2
+          }
+        },
+        {
+          "id": "supply_pressure_stage_1_nco_opt2",
+          "textId": "supply_pressure_stage_1_nco_opt2_text",
+          "text": "Share your own ration with the squad",
+          "tooltipId": "supply_pressure_stage_1_nco_opt2_tooltip",
+          "tooltip": "+5 Soldier Rep. -10 HP (hunger).",
+          "effects": {
+            "hpChange": -10,
+            "lordReputation": 2
+          }
+        },
+        {
+          "id": "supply_pressure_stage_1_nco_opt3",
+          "textId": "supply_pressure_stage_1_nco_opt3_text",
+          "text": "Assign extra foraging duty to the squad",
+          "tooltipId": "supply_pressure_stage_1_nco_opt3_tooltip",
+          "tooltip": "-1 Soldier Rep. +1 Fatigue. May help supplies.",
+          "effects": {
+            "fatigueChange": 1,
+            "lordReputation": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_pressure_stage_1_cmd",
+      "category": "crisis",
+      "severity": "normal",
+      "titleId": "supply_pressure_stage_1_cmd_title",
+      "title": "Supply Officer's Report",
+      "setupId": "supply_pressure_stage_1_cmd_setup",
+      "setup": "Your supply officer approaches with a grim expression. \"Three days at current consumption, Captain. Maybe four if we cut portions again. The men are already noticing.\"",
+      "requirements": {
+        "tier": {
+          "min": 7
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_1_cmd_opt1",
+          "textId": "supply_pressure_stage_1_cmd_opt1_text",
+          "text": "Implement rationing across the retinue",
+          "tooltipId": "supply_pressure_stage_1_cmd_opt1_tooltip",
+          "tooltip": "-3 Morale. Extends supply duration.",
+          "effects": {
+            "companyNeeds": {
+              "Morale": -3
+            }
+          }
+        },
+        {
+          "id": "supply_pressure_stage_1_cmd_opt2",
+          "textId": "supply_pressure_stage_1_cmd_opt2_text",
+          "text": "Send foraging parties immediately",
+          "tooltipId": "supply_pressure_stage_1_cmd_opt2_tooltip",
+          "tooltip": "-2 Readiness. Chance of supply improvement.",
+          "effects": {
+            "companyNeeds": {
+              "Readiness": -2
+            }
+          }
+        },
+        {
+          "id": "supply_pressure_stage_1_cmd_opt3",
+          "textId": "supply_pressure_stage_1_cmd_opt3_text",
+          "text": "Request resupply from the lord",
+          "tooltipId": "supply_pressure_stage_1_cmd_opt3_tooltip",
+          "tooltip": "+1 Scrutiny. Lord may provide supplies.",
+          "effects": {
+            "scrutiny": 1000000
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_pressure_stage_2_grunt",
+      "category": "crisis",
+      "severity": "attention",
+      "titleId": "supply_pressure_stage_2_grunt_title",
+      "title": "Fight at the Cook Fire",
+      "setupId": "supply_pressure_stage_2_grunt_setup",
+      "setup": "A scuffle erupts near the cook's station. Two soldiers wrestle over a bread crust, snarling like dogs. Others gather to watch, eyes hollow with hunger.",
+      "requirements": {
+        "tier": {
+          "max": 4
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_2_grunt_opt1",
+          "textId": "supply_pressure_stage_2_grunt_opt1_text",
+          "text": "Step in and break it up",
+          "tooltipId": "supply_pressure_stage_2_grunt_opt1_tooltip",
+          "tooltip": "+2 Soldier Rep. Risk of injury.",
+          "effects": {
+            "hpChange": -5,
+            "lordReputation": 1
+          }
+        },
+        {
+          "id": "supply_pressure_stage_2_grunt_opt2",
+          "textId": "supply_pressure_stage_2_grunt_opt2_text",
+          "text": "Watch and stay out of it",
+          "tooltipId": "supply_pressure_stage_2_grunt_opt2_tooltip",
+          "tooltip": "No effect. Smart survival.",
+          "effects": {}
+        },
+        {
+          "id": "supply_pressure_stage_2_grunt_opt3",
+          "textId": "supply_pressure_stage_2_grunt_opt3_text",
+          "text": "Get the sergeant",
+          "tooltipId": "supply_pressure_stage_2_grunt_opt3_tooltip",
+          "tooltip": "+1 Officer Rep. Proper chain of command.",
+          "effects": {
+            "lordReputation": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_pressure_stage_2_nco",
+      "category": "crisis",
+      "severity": "attention",
+      "titleId": "supply_pressure_stage_2_nco_title",
+      "title": "Your Men Are Fighting",
+      "setupId": "supply_pressure_stage_2_nco_setup",
+      "setup": "Two of YOUR soldiers are grappling in the dirt, cursing over scraps. The rest of your squad forms a ring, watching. Waiting to see how their NCO handles this.",
+      "requirements": {
+        "tier": {
+          "min": 5,
+          "max": 6
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_2_nco_opt1",
+          "textId": "supply_pressure_stage_2_nco_opt1_text",
+          "text": "Punish both harshly",
+          "tooltipId": "supply_pressure_stage_2_nco_opt1_tooltip",
+          "tooltip": "+2 Discipline. -3 Soldier Rep. Order restored.",
+          "effects": {
+            "scrutiny": 2000000,
+            "lordReputation": -1
+          }
+        },
+        {
+          "id": "supply_pressure_stage_2_nco_opt2",
+          "textId": "supply_pressure_stage_2_nco_opt2_text",
+          "text": "Mediate and split the ration fairly",
+          "tooltipId": "supply_pressure_stage_2_nco_opt2_tooltip",
+          "tooltip": "+3 Soldier Rep. +1 Officer Rep. Fair leader.",
+          "effects": {
+            "lordReputation": 2
+          }
+        },
+        {
+          "id": "supply_pressure_stage_2_nco_opt3",
+          "textId": "supply_pressure_stage_2_nco_opt3_text",
+          "text": "Share your own ration to end the fight",
+          "tooltipId": "supply_pressure_stage_2_nco_opt3_tooltip",
+          "tooltip": "+5 Soldier Rep. -15 HP. Sacrifice noted.",
+          "effects": {
+            "hpChange": -15,
+            "lordReputation": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_pressure_stage_2_cmd",
+      "category": "crisis",
+      "severity": "attention",
+      "titleId": "supply_pressure_stage_2_cmd_title",
+      "title": "Discipline Breaking Down",
+      "setupId": "supply_pressure_stage_2_cmd_setup",
+      "setup": "Multiple fights have broken out across your retinue. Your sergeants report men hoarding scraps, stealing from each other. The rot is spreading fast.",
+      "requirements": {
+        "tier": {
+          "min": 7
+        }
+      },
+      "options": [
+        {
+          "id": "supply_pressure_stage_2_cmd_opt1",
+          "textId": "supply_pressure_stage_2_cmd_opt1_text",
+          "text": "Public punishment for the worst offenders",
+          "tooltipId": "supply_pressure_stage_2_cmd_opt1_tooltip",
+          "tooltip": "+3 Discipline. -5 Morale. Example made.",
+          "effects": {
+            "scrutiny": 3000000,
+            "companyNeeds": {
+              "Morale": -5
+            }
+          }
+        },
+        {
+          "id": "supply_pressure_stage_2_cmd_opt2",
+          "textId": "supply_pressure_stage_2_cmd_opt2_text",
+          "text": "Open your personal stores to the men",
+          "tooltipId": "supply_pressure_stage_2_cmd_opt2_tooltip",
+          "tooltip": "-50 Gold. +5 Morale. +3 Lord Rep.",
+          "effects": {
+            "gold": -50,
+            "companyNeeds": {
+              "Morale": 5
+            },
+            "lordReputation": 3
+          }
+        },
+        {
+          "id": "supply_pressure_stage_2_cmd_opt3",
+          "textId": "supply_pressure_stage_2_cmd_opt3_text",
+          "text": "Demand the lord provide resupply",
+          "tooltipId": "supply_pressure_stage_2_cmd_opt3_tooltip",
+          "tooltip": "+2 Scrutiny. -2 Lord Rep. Forceful request.",
+          "effects": {
+            "scrutiny": 2000000,
+            "lordReputation": -2
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_crisis_grunt",
+      "category": "crisis",
+      "severity": "critical",
+      "titleId": "supply_crisis_grunt_title",
+      "title": "Whispers of Desertion",
+      "setupId": "supply_crisis_grunt_setup",
+      "setup": "A week of hunger. In the dark before dawn, you overhear voices: \"Three more days of this and I'm gone.\" \"There's a village two leagues south...\" They haven't seen you listening.",
+      "requirements": {
+        "tier": {
+          "max": 4
+        }
+      },
+      "options": [
+        {
+          "id": "supply_crisis_grunt_opt1",
+          "textId": "supply_crisis_grunt_opt1_text",
+          "text": "Report them to the sergeant",
+          "tooltipId": "supply_crisis_grunt_opt1_tooltip",
+          "tooltip": "+3 Officer Rep. +2 Discipline. They'll hate you.",
+          "effects": {
+            "scrutiny": 2000000,
+            "lordReputation": 1
+          }
+        },
+        {
+          "id": "supply_crisis_grunt_opt2",
+          "textId": "supply_crisis_grunt_opt2_text",
+          "text": "Stay silent about what you heard",
+          "tooltipId": "supply_crisis_grunt_opt2_tooltip",
+          "tooltip": "No effect. You said nothing.",
+          "effects": {}
+        },
+        {
+          "id": "supply_crisis_grunt_opt3",
+          "textId": "supply_crisis_grunt_opt3_text",
+          "text": "Talk them out of it quietly",
+          "tooltipId": "supply_crisis_grunt_opt3_tooltip",
+          "tooltip": "+5 Soldier Rep. Loyalty to comrades.",
+          "effects": {
+            "lordReputation": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_crisis_nco",
+      "category": "crisis",
+      "severity": "critical",
+      "titleId": "supply_crisis_nco_title",
+      "title": "One of Yours Is Leaving",
+      "setupId": "supply_crisis_nco_setup",
+      "setup": "Private Aldric—one of your best—is packing his kit in the dark. He freezes when he sees you. \"I'm sorry, Sergeant. I have a family. I can't die here for nothing.\"",
+      "requirements": {
+        "tier": {
+          "min": 5,
+          "max": 6
+        }
+      },
+      "options": [
+        {
+          "id": "supply_crisis_nco_opt1",
+          "textId": "supply_crisis_nco_opt1_text",
+          "text": "Arrest him for desertion",
+          "tooltipId": "supply_crisis_nco_opt1_tooltip",
+          "tooltip": "+3 Discipline. +2 Officer Rep. -5 Soldier Rep.",
+          "effects": {
+            "scrutiny": 3000000,
+            "lordReputation": 0
+          }
+        },
+        {
+          "id": "supply_crisis_nco_opt2",
+          "textId": "supply_crisis_nco_opt2_text",
+          "text": "Let him go. Pretend you saw nothing.",
+          "tooltipId": "supply_crisis_nco_opt2_tooltip",
+          "tooltip": "+3 Soldier Rep. -3 Officer Rep. Mercy shown.",
+          "effects": {
+            "lordReputation": -2
+          }
+        },
+        {
+          "id": "supply_crisis_nco_opt3",
+          "textId": "supply_crisis_nco_opt3_text",
+          "text": "Give him your wages to send home",
+          "tooltipId": "supply_crisis_nco_opt3_tooltip",
+          "tooltip": "-30 Gold. +5 Soldier Rep. He stays.",
+          "effects": {
+            "gold": -30,
+            "lordReputation": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "supply_crisis_cmd",
+      "category": "crisis",
+      "severity": "critical",
+      "titleId": "supply_crisis_cmd_title",
+      "title": "Desertions Imminent",
+      "setupId": "supply_crisis_cmd_setup",
+      "setup": "Your sergeant-major reports in low tones: \"We've lost six already. Slipped away in the night. More will follow unless something changes. The men are watching you, Captain.\"",
+      "requirements": {
+        "tier": {
+          "min": 7
+        }
+      },
+      "options": [
+        {
+          "id": "supply_crisis_cmd_opt1",
+          "textId": "supply_crisis_cmd_opt1_text",
+          "text": "Execute a captured deserter as example",
+          "tooltipId": "supply_crisis_cmd_opt1_tooltip",
+          "tooltip": "+5 Discipline. -10 Morale. -5 Soldier Rep.",
+          "effects": {
+            "scrutiny": 5000000,
+            "companyNeeds": {
+              "Morale": -10
+            },
+            "lordReputation": -2
+          }
+        },
+        {
+          "id": "supply_crisis_cmd_opt2",
+          "textId": "supply_crisis_cmd_opt2_text",
+          "text": "Address the company. Promise better days.",
+          "tooltipId": "supply_crisis_cmd_opt2_tooltip",
+          "tooltip": "+3 Morale. Leadership skill check.",
+          "effects": {
+            "companyNeeds": {
+              "Morale": 3
+            },
+            "skillXp": {
+              "Leadership": 50
+            }
+          }
+        },
+        {
+          "id": "supply_crisis_cmd_opt3",
+          "textId": "supply_crisis_cmd_opt3_text",
+          "text": "Petition the lord directly for emergency resupply",
+          "tooltipId": "supply_crisis_cmd_opt3_tooltip",
+          "tooltip": "+3 Scrutiny. -3 Lord Rep. May solve the crisis.",
+          "effects": {
+            "scrutiny": 3000000,
+            "lordReputation": -3
+          }
+        },
+        {
+          "id": "supply_crisis_cmd_opt4",
+          "textId": "supply_crisis_cmd_opt4_text",
+          "text": "Spend personal funds on emergency supplies",
+          "tooltipId": "supply_crisis_cmd_opt4_tooltip",
+          "tooltip": "-100 Gold. +10 Supplies. +5 Lord Rep.",
+          "effects": {
+            "gold": -100,
+            "companyNeeds": {
+              "Supplies": 10
+            },
+            "lordReputation": 5
+          }
+        }
+      ]
+    }
+  ]
+}

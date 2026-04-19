@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_latrine_duty",
   "events": [
@@ -26,7 +26,7 @@
               "Scouting": 5
             },
             "escalation": {
-              "scrutiny": 5
+              "scrutiny": 50
             }
           },
           "resultTextId": "latrine_overheard_rumor_listen_result",
@@ -79,12 +79,12 @@
           "textId": "latrine_officer_complains_redo",
           "text": "Yes sir. Redo the work.",
           "effects": {
-            "officerRep": 2,
             "fatigue": 5,
             "skillXp": {
               "Stewardship": 11,
               "Athletics": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "latrine_officer_complains_redo_result",
           "resultText": "You scrub until it meets his standards. He nods curtly and leaves."
@@ -94,11 +94,11 @@
           "textId": "latrine_officer_complains_argue",
           "text": "It's a latrine, sir. How clean can it be?",
           "effects": {
-            "officerRep": -5,
             "skillXp": {
               "Stewardship": 11,
               "Athletics": 6
-            }
+            },
+            "lordReputation": -5
           },
           "resultTextId": "latrine_officer_complains_argue_result",
           "resultText": "His eyes narrow. 'You just earned another day of this duty, soldier.'"
@@ -143,11 +143,11 @@
           "textId": "latrine_soldier_gratitude_accept",
           "text": "Accept the thanks graciously.",
           "effects": {
-            "soldierRep": 2,
             "skillXp": {
               "Stewardship": 11,
               "Athletics": 6
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "latrine_soldier_gratitude_accept_result",
           "resultText": "He claps you on the shoulder and moves on. Small kindnesses matter."

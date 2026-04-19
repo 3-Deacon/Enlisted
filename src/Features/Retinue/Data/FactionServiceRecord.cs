@@ -47,12 +47,6 @@ namespace Enlisted.Features.Retinue.Data
         /// <summary>Band of the most recent discharge: "veteran", "honorable", "washout", "dishonorable", "deserter", "grace".</summary>
         public string LastDischargeBand { get; set; } = string.Empty;
 
-        /// <summary>Officer reputation at time of last discharge. Used for partial restoration on re-enlistment.</summary>
-        public int OfficerRepAtExit { get; set; }
-
-        /// <summary>Soldier reputation at time of last discharge. Used for partial restoration on re-enlistment.</summary>
-        public int SoldierRepAtExit { get; set; }
-
         // Term tracking fields (migrated from FactionVeteranRecord)
 
         /// <summary>Whether the player has completed the initial full term with this faction.</summary>

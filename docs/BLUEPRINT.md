@@ -4,10 +4,24 @@
 
 ---
 
+## 🧠 REQUIRED: Technical Standards
+
+**Before making ANY code changes, you MUST:**
+
+1. **Target Bannerlord v1.3.13** — Never assume APIs from later versions exist
+2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
+3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
+4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the three-tier API (`Surfaced` / `Caught` / `Expected`). Error codes auto-generate into [docs/error-codes.md](error-codes.md); don't hand-edit.
+5. **Never suppress ReSharper warnings** without documented justification
+6. **Run validation** before committing: `python Tools/Validation/validate_content.py`
+7. **Check if features exist** by searching codebase first — never hallucinate
+
+---
+
 ## 📋 TASK LOOKUP - Read the right doc for your task
 
 | Task | READ THIS FILE | Key Info |
-|------|----------------|----------|
+| --- | --- | --- |
 | **Runtime debug logs** | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | ModLogger output, error codes, save diagnostics |
 | **Steam Workshop upload** | `Tools/Steam/WORKSHOP_UPLOAD.md` | VDF char limits, run `.\Tools\Steam\upload.ps1` in interactive PS |
 | **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, JSON schema |
@@ -29,16 +43,16 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 ## 🚨 CRITICAL RULES
 
 1. **Target Version:** Bannerlord v1.3.13 (not latest)
-2. **API Verification:** Use `C:\Dev\Enlisted\Decompile\` (never online docs)
+2. **API Verification:** Use `Decompile/` in workspace root (never online docs)
 3. **New C# Files:** Manually add to `Enlisted.csproj` → run validator
-4. **Logging:** Use `ModLogger` with error codes (`E-SYS-001`)
+4. **Logging:** Use `ModLogger` — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API
 5. **Opportunity Model:** Each opportunity once/day, commitment = click future to schedule, click current to fire
 6. **Code Quality:** Follow ReSharper, don't suppress without reason
 
 ## 📁 KEY PATHS
 
 | Path | Purpose |
-|------|---------|
+| --- | --- |
 | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | **Runtime mod logs** (ModLogger output, error codes) |
 | `src/Features/` | All gameplay code (Enlistment, Orders, Content, Combat, Equipment, etc.) |
 | `ModuleData/Enlisted/` | JSON config, events, orders, decisions |
@@ -52,7 +66,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 ## 📚 DOCUMENTATION INDEX
 
 | Topic | File |
-|-------|------|
+| --- | --- |
 | Full doc catalog | [docs/INDEX.md](INDEX.md) |
 | Core gameplay | [docs/Features/Core/core-gameplay.md](Features/Core/core-gameplay.md) |
 | Enlistment system | [docs/Features/Core/enlistment.md](Features/Core/enlistment.md) |
@@ -68,7 +82,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 
 ## Directory Structure
 
-```
+```text
 Enlisted/
 ├── src/                    C# source code
 │   ├── Mod.Entry/          SubModule + Harmony init
@@ -76,12 +90,12 @@ Enlisted/
 │   ├── Mod.GameAdapters/   Harmony patches
 │   └── Features/           All gameplay features
 │       ├── Enlistment/     Core service state, retirement
+│       ├── MyNewFeature/   (example placeholder)
 │       ├── Orders/         Mission-driven directives
 │       ├── Content/        Events, Decisions, narrative delivery
 │       ├── Combat/         Battle participation, formation, Battle AI
 │       ├── Equipment/      Quartermaster and gear management
 │       └── ...             (see full list below)
-│
 ├── ModuleData/             Game data files
 │   ├── Enlisted/           JSON config, events, orders, decisions
 │   └── Languages/          XML localization (enlisted_strings.xml)
@@ -97,19 +111,21 @@ Enlisted/
 │   ├── Reference/          API research and analysis
 │   └── INDEX.md            Master documentation catalog
 │
-└── GUI/                    Gauntlet UI prefabs
+├── GUI/                    Gauntlet UI prefabs
+│
+└── Decompile/              Bannerlord v1.3.13 decompiled source (API reference)
 ```
 
 ### Feature Folders (src/Features/)
 
 | Folder | Purpose |
-|--------|---------|
+| --- | --- |
 | Enlistment | Core service state, retirement |
 | Orders | Mission-driven directives (Chain of Command) |
 | Content | Events, Decisions, narrative delivery |
 | Identity | Role detection (Traits), Reputation helpers |
 | Escalation | Lord/Officer/Soldier reputation, Scrutiny/Discipline |
-| Company | Company-wide Needs (Readiness, Morale, Supply) |
+| Company | Company-wide Needs (Readiness, Supply) - Note: Rest removed 2026-01-11 |
 | Context | Army context and objective analysis |
 | Interface | Camp Hub menu, News/Reports |
 | Equipment | Quartermaster and gear management |
@@ -150,9 +166,13 @@ python Tools/Validation/sync_event_strings.py
 
 1. Create file in appropriate `src/Features/` subfolder
 2. **Manually add to `Enlisted.csproj`:**
+
    ```xml
+
    <Compile Include="src\Features\MyFeature\MyNewClass.cs"/>
+
    ```
+
 3. Run validation to verify: `python Tools/Validation/validate_content.py`
 4. Build to confirm compilation
 
@@ -165,9 +185,9 @@ python Tools/Validation/sync_event_strings.py
    - Escape: `&` → `&amp;`, `'` → `&apos;`, `"` → `&quot;`
 4. Use placeholder variables (e.g., `{PLAYER_NAME}`, `{SERGEANT}`, `{LORD_NAME}`)
 5. **For opportunities:** Add `hintId`/`hint` fields for Daily Brief foreshadowing (see [Opportunity Hints](Features/Content/writing-style-guide.md#opportunity-hints))
-5. Run validation: `python Tools/Validation/validate_content.py`
-6. Sync strings: `python Tools/Validation/sync_event_strings.py --check`
-7. Update [content-index.md](Features/Content/content-index.md) if adding new content type
+6. Run validation: `python Tools/Validation/validate_content.py`
+7. Sync strings: `python Tools/Validation/sync_event_strings.py --check`
+8. Update [content-index.md](Features/Content/content-index.md) if adding new content type
 
 ### Check If Feature Exists
 
@@ -271,14 +291,10 @@ private bool CanReenlistWithFaction(Kingdom faction)
 
 ## API Verification
 
-**Always verify against the local native decompile FIRST**
+### API Key Assemblies
 
-- **Location:** `C:\Dev\Enlisted\Decompile\`
-- **Target Version:** v1.3.13
-
-**Key Assemblies:**
 | Assembly | Contains |
-|----------|----------|
+| --- | --- |
 | `TaleWorlds.CampaignSystem` | Party, Settlement, Campaign behaviors |
 | `TaleWorlds.Core` | CharacterObject, ItemObject |
 | `TaleWorlds.Library` | Vec2, MBList, utility classes |
@@ -286,6 +302,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 | `SandBox.View` | Menu views, map handlers |
 
 **Process:**
+
 1. Check decompile for actual API (authoritative)
 2. Use official docs only for quick lookups (secondary)
 3. Don't rely on external docs or assumptions
@@ -296,6 +313,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 ## Code Review Checklist
 
 ### Code Quality
+
 - [ ] Read [.editorconfig](../.editorconfig), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings), [qodana.yaml](../qodana.yaml)
 - [ ] All ReSharper/Rider warnings addressed
 - [ ] No unused imports, variables, or methods
@@ -303,17 +321,20 @@ private bool CanReenlistWithFaction(Kingdom faction)
 - [ ] No redundant namespace qualifiers
 
 ### Functionality
+
 - [ ] Code builds without errors
 - [ ] Logging added for significant actions/errors
 - [ ] Null checks where needed
 
 ### Documentation
+
 - [ ] Comments describe current behavior
 - [ ] XML localization strings added for new events
 - [ ] Tooltips provided for all event options
 - [ ] New files added to `Enlisted.csproj`
 
 ### Data Files & Project Structure
+
 - [ ] JSON fallback fields immediately follow ID fields
 - [ ] Order events include skillXp in effects
 - [ ] New C# files added to .csproj (validator will catch this)
@@ -327,89 +348,130 @@ private bool CanReenlistWithFaction(Kingdom faction)
 These mistakes cause real problems. Avoid them.
 
 ### 1. Using `ChangeHeroGold` Instead of `GiveGoldAction`
+
 **Problem:** `ChangeHeroGold` modifies internal gold not visible in party UI
+
 **Solution:** Use `GiveGoldAction.ApplyBetweenCharacters()`
 
 ### 2. Iterating Equipment with `Enum.GetValues`
+
 **Problem:** Includes invalid count enum values, causes crashes
+
 **Solution:** Use numeric loop to `NumEquipmentSetSlots`
 
 ### 3. Modifying Reputation/Needs Directly
+
 **Problem:** Bypasses clamping and logging
+
 **Solution:** Always use managers (EscalationManager, CompanyNeedsManager)
 
 ### 4. Not Adding New Files to .csproj
+
 **Problem:** New .cs files exist but won't compile
+
 **Solution:** Manually add `<Compile Include="..."/>` entries (validator will detect missing files)
 
 ### 5. Relying on External API Documentation
+
 **Problem:** Outdated or incorrect API references
+
 **Solution:** Always verify against local decompile first
 
 ### 6. Ignoring ReSharper Warnings
+
 **Problem:** Code quality degrades over time
+
 **Solution:** Fix warnings, don't suppress unless absolutely necessary
 
 ### 7. Forgetting Tooltips in Events
+
 **Problem:** Tooltips null or missing, players don't understand consequences
+
 **Solution:** Tooltips cannot be null. Every option must have a factual tooltip
 
 ### 8. Mixing JSON Field Order
+
 **Problem:** Localization breaks when ID/fallback fields are separated
+
 **Solution:** Always put fallback field immediately after ID field
 
 ### 9. Missing XML Localization Strings
+
 **Problem:** Events show raw string IDs instead of text
+
 **Solution:**
+
 1. Run `python Tools/Validation/sync_event_strings.py`
 2. Run `python Tools/Validation/validate_content.py` before committing
 
 ### 10. Missing SaveableTypeDefiner Registration
+
 **Problem:** "Cannot Create Save" error when serializing custom types
+
 **Solution:** Register new classes/enums in `EnlistedSaveDefiner`
 
 ### 11. Single-Line Statements Without Braces
+
 **Problem:** Reduces readability, risk of logic errors
+
 **Solution:** Always use braces for control statements
 
 ### 12. Redundant Namespace Qualifiers
+
 **Problem:** Verbose, hard to read
+
 **Solution:** Add proper `using` statements, remove full namespace paths
 
 ### 13. Unused Code
+
 **Problem:** Clutters codebase, confuses developers
+
 **Solution:** Remove unused imports, variables, methods
 
 ### 14. Redundant Default Parameters
+
 **Problem:** Passing default values explicitly is redundant
+
 **Solution:** Omit parameters that match method defaults
 
 ### 15. Missing XP Rewards in Order Events
+
 **Problem:** Order events only grant reputation without skill XP
+
 **Solution:**
+
 1. All order event options must include `effects.skillXp`
 2. Match XP to activity type (see [event-system-schemas.md](Features/Content/event-system-schemas.md))
 3. Failed skill checks should grant reduced XP (50% of success)
 
 ### 16. Not Persisting In-Progress State Flags
+
 **Problem:** UI state flags (like `_bagCheckInProgress`) are reset on load, causing duplicate events or lost progress
+
 **Solution:**
+
 1. Persist all workflow state flags in `SyncData()`, not just completed/scheduled flags
 2. When transient data (like event queues) needs restoration after load, check in-progress flags in `ValidateLoadedState()` and re-queue
 3. Example: The bag check event can be saved mid-popup; on load, `_bagCheckInProgress` must be persisted to prevent duplicate queueing
 
 ### 17. Finishing PlayerEncounter During Settlement Activity
+
 **Problem:** Clicking "Wait here for some time" or other settlement menus causes the town menu to disappear when unrelated battles end elsewhere on the map
+
 **Root Cause:** `CleanupPostEncounterState()` was finishing `PlayerEncounter` even when the player was still inside a settlement
 **Solution:**
+
 1. Always check if player is inside settlement before finishing encounters: `PlayerEncounter.InsideSettlement || HasExplicitlyVisitedSettlement`
 2. Settlement encounters should only be finished when the player actually leaves the settlement, not during internal menu navigation
 3. See `encounter-safety.md` for full details on the fix (2026-01-04)
 
 ### 18. Registering Dead Heroes with VisualTrackerManager
+
 **Problem:** Attempting to register or unregister dead heroes with `VisualTrackerManager` causes crashes
+
 **Root Cause:** When a lord dies, the grace period system tried to register the dead hero for map tracking, causing crashes when the player later tried to re-enlist
 **Solution:**
+
 1. Always check `Hero.IsAlive` before calling `VisualTrackerManager.RegisterObject()` or `RemoveTrackedObject()`
 2. Wrap tracker operations in try-catch for defensive programming
 3. Example from grace period system: Only register lord for tracking if `_enlistedLord.IsAlive` is true
@@ -456,10 +518,106 @@ The mod focuses on the **enlisted lord's party** (the Company). If the Company i
 
 ## Steam Workshop
 
-**Workshop ID:** `3621116083`  
-**URL:** https://steamcommunity.com/sharedfiles/filedetails/?id=3621116083
+**Workshop ID:** `3621116083`
+**URL:** <https://steamcommunity.com/sharedfiles/filedetails/?id=3621116083>
 
 For deployment instructions, see [Tools/Steam/WORKSHOP_UPLOAD.md](../Tools/Steam/WORKSHOP_UPLOAD.md).
+
+---
+
+## Deprecated Systems
+
+**Systems marked for future removal but kept for backwards compatibility.**
+
+These systems have been logically removed from the mod but retain minimal code to:
+
+1. **Load old save files** without errors
+2. **Maintain serialization compatibility** during the deprecation period
+3. **Prevent save corruption** from missing data keys
+
+### Morale System (Deprecated: 2026-01-11)
+
+**Status:** Functionally removed, backwards-compatible save loading only  
+**Reason:** Redundant with existing systems (discipline, rest, supply provide sufficient depth)  
+**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
+
+**Remaining Code (for compatibility):**
+
+- `CompanyNeed.Morale` enum value (never set, always 0)
+- Serialization keys in save/load methods (load old values, discard them)
+- Old config fields loaded but ignored (e.g., `sim_daysLowMorale`)
+
+**What Was Removed:**
+
+- All morale tracking, calculation, and display logic
+- Morale effects from events, orders, and incidents
+- Morale-based decision logic (desertions, crisis triggers)
+- UI display of morale status and changes
+- Database schema references
+
+**Full Removal Checklist** (after safe removal date):
+
+- [ ] Remove `Morale` from `CompanyNeed` enum
+- [ ] Remove morale serialization keys from all `SyncData()` methods
+- [ ] Remove morale load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampLifeBehavior`
+- [ ] Remove backwards-compatibility comments
+- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
+- [ ] Test with old save files (should still load, morale just ignored)
+
+**Files with Deprecation Code:**
+
+- `src/Features/Company/CompanyNeed.cs` (enum value)
+- `src/Features/Company/CompanyNeedsState.cs` (serialization)
+- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
+- `src/Features/Camp/CampLifeBehavior.cs` (morale shock load)
+- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
+
+### Company Rest System (Deprecated: 2026-01-11)
+
+**Status:** Functionally removed, backwards-compatible save loading only  
+**Reason:** Redundant with Player Fatigue system (0-24 budget). Company Rest was a 0-100 metric that degraded but provided no gameplay function.  
+**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
+
+**IMPORTANT:** Player Fatigue remains fully functional - this deprecation only affects the unused Company-wide Rest metric.
+
+**Remaining Code (for compatibility):**
+
+- `CompanyNeed.Rest` enum value (never set, always 0)
+- Serialization keys in save/load methods (load old values, discard them)
+- Old config fields loaded but ignored (e.g., `lowRestDays`, "exhausted" schedule override)
+
+**What Was Removed:**
+
+- All Company Rest tracking, degradation, and calculation logic
+- Company Rest effects from events, incidents, and routine outcomes
+- "Exhausted" schedule override and orchestrator override
+- Rest pressure tracking (`DaysLowRest`, `exhausted` conditions)
+- Strategic context Rest predictions
+- UI display of Company Rest status
+
+**Full Removal Checklist** (after safe removal date):
+
+- [ ] Remove `Rest` from `CompanyNeed` enum
+- [ ] Remove rest serialization keys from all `SyncData()` methods
+- [ ] Remove rest load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampScheduleManager`
+- [ ] Remove "exhausted" override from `orchestrator_overrides.json`
+- [ ] Remove `lowRestDays` from `simulation_config.json`
+- [ ] Remove Rest predictions from `strategic_context_config.json`
+- [ ] Remove backwards-compatibility comments
+- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
+- [ ] Test with old save files (should still load, rest just ignored)
+
+**Files with Deprecation Code:**
+
+- `src/Features/Company/CompanyNeed.cs` (enum value)
+- `src/Features/Company/CompanyNeedsState.cs` (serialization)
+- `src/Features/Camp/CampScheduleManager.cs` (exhausted override load)
+- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
+- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
+- `ModuleData/Enlisted/Config/camp_schedule.json` ("exhausted" skippedWhen/boostedWhen)
+- `ModuleData/Enlisted/Config/orchestrator_overrides.json` ("exhausted" need-based override)
+- `ModuleData/Enlisted/Config/simulation_config.json` (lowRestDays, Rest incident effects)
+- `ModuleData/Enlisted/Config/strategic_context_config.json` (Rest predictions)
 
 ---
 
@@ -508,7 +666,7 @@ Use kebab-case: `my-new-feature.md`
 ### Location Guide
 
 | Content Type | Location |
-|--------------|----------|
+| --- | --- |
 | Core systems | `Features/Core/` |
 | Equipment/logistics | `Features/Equipment/` |
 | Combat mechanics | `Features/Combat/` |

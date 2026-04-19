@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Enlisted.Features.Context;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Ranks.Behaviors;
@@ -98,10 +99,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Strategic context (for intro flavor text)
             /// <summary>Strategic context from ArmyContextAnalyzer.</summary>
             public string StrategicContext { get; set; }
-
-            // Fatigue (reset at muster start)
-            /// <summary>Fatigue level before muster for "restored" message.</summary>
-            public int FatigueBeforeMuster { get; set; }
 
             // Pay stage outcomes
             /// <summary>Amount of pay received.</summary>
@@ -285,7 +282,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // Validate restored state
                         if (string.IsNullOrEmpty(currentStage) || !IsValidMusterStage(currentStage))
                         {
-                            ModLogger.ErrorCode(LogCategory, "E-MUSTER-003",
+                            ModLogger.Expected(LogCategory, "muster_corrupt_state",
                                 $"Corrupted muster state on load (stage={currentStage}), aborting muster");
                             _currentMuster = null;
                             EnlistmentBehavior.Instance?.DeferPayMuster();
@@ -316,7 +313,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode(LogCategory, "E-MUSTER-003", "Failed to restore muster state", ex);
+                        ModLogger.Caught(LogCategory, "Failed to restore muster state", ex);
                         _currentMuster = null;
                         EnlistmentBehavior.Instance?.DeferPayMuster();
                     }
@@ -359,7 +356,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-001", "Failed to register muster menus, will use legacy fallback", ex);
+                ModLogger.Caught(LogCategory, "Failed to register muster menus, will use legacy fallback", ex);
                 _menusRegisteredSuccessfully = false;
             }
         }
@@ -418,7 +415,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Bribe;
-                    args.Tooltip = new TextObject("{=muster_pay_recount_tt}Roguery/Charm check. 120% pay on success. 10 fatigue cost.");
+                    args.Tooltip = new TextObject("{=muster_pay_recount_tt}Roguery/Charm check. 120% pay on success.");
                     return true;
                 },
                 _ => ResolveCorruptionMuster(),
@@ -430,7 +427,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Trade;
-                    args.Tooltip = new TextObject("{=muster_pay_side_deal_tt}Take 40% pay for surplus equipment. 70% chance (your tier). 6 fatigue.");
+                    args.Tooltip = new TextObject("{=muster_pay_side_deal_tt}Take 40% pay for surplus equipment. 70% chance (your tier).");
                     return true;
                 },
                 _ => ResolveSideDealMuster(),
@@ -891,7 +888,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // If menu registration failed, defer muster to next cycle
             if (!_menusRegisteredSuccessfully)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-010", "Muster menus not registered, deferring to next cycle");
+                ModLogger.Expected(LogCategory, "muster_menus_not_registered", "Muster menus not registered, deferring to next cycle");
                 enlistment.DeferPayMuster();
                 InformationManager.DisplayMessage(new InformationMessage("Muster system unavailable. Will retry next cycle.", Colors.Yellow));
                 return;
@@ -970,13 +967,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null || !enlistment.IsEnlisted)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-005", "BeginMusterSequenceInternal called but player not enlisted");
+                ModLogger.Expected(LogCategory, "muster_begin_not_enlisted", "BeginMusterSequenceInternal called but player not enlisted");
                 return;
             }
 
             if (Campaign.Current == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-006", "Cannot start muster: Campaign.Current is null");
+                ModLogger.Expected(LogCategory, "muster_campaign_null", "Cannot start muster: Campaign.Current is null");
                 InformationManager.DisplayMessage(new InformationMessage("Cannot trigger muster: campaign not active.", Colors.Red));
                 return;
             }
@@ -1000,12 +997,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     ? ArmyContextAnalyzer.GetLordStrategicContext(lordParty)
                     : "patrol_peacetime";
 
-                // Capture fatigue state before reset
-                _currentMuster.FatigueBeforeMuster = enlistment.FatigueCurrent;
-
                 // Check for high scrutiny warning
                 var scrutiny = EscalationManager.Instance?.State?.Scrutiny ?? 0;
-                if (scrutiny >= 5)
+                if (scrutiny >= Escalation.EscalationThresholds.ScrutinyShakedown)
                 {
                     _currentMuster.HighScrutinyWarning = true;
                     ModLogger.Debug(LogCategory, $"High scrutiny warning enabled (scrutiny={scrutiny})");
@@ -1044,7 +1038,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Validate menu system is ready
                 if (menuManager == null)
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-MUSTER-007", "Cannot start muster: GameMenuManager is null");
+                    ModLogger.Expected(LogCategory, "muster_menu_manager_null", "Cannot start muster: GameMenuManager is null");
                     AbortMusterWithFallback("Menu system not available");
                     return;
                 }
@@ -1080,7 +1074,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-MUSTER-009", "Failed to pre-initialize text variables", ex);
+                    ModLogger.Surfaced("MUSTER", "Failed to pre-initialize text variables", ex);
                     AbortMusterWithFallback("Failed to initialize menu text");
                     return;
                 }
@@ -1117,21 +1111,21 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             }
                             catch (Exception ex)
                             {
-                                ModLogger.ErrorCode(LogCategory, "E-MUSTER-008", "Deferred menu activation failed", ex);
+                                ModLogger.Surfaced("MUSTER", "Deferred menu activation failed", ex);
                                 AbortMusterWithFallback("Failed to activate muster menu");
                             }
                         });
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode(LogCategory, "E-MUSTER-008", "Pre-activation validation failed", ex);
+                        ModLogger.Surfaced("MUSTER", "Pre-activation validation failed", ex);
                         AbortMusterWithFallback("Failed to validate game state");
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-005", "Unhandled exception in BeginMusterSequence", ex);
+                ModLogger.Surfaced("MUSTER", "Unhandled exception in BeginMusterSequence", ex);
                 // Ensure player isn't stuck - try fallback
                 AbortMusterWithFallback("Failed to start muster menu sequence");
             }
@@ -1206,7 +1200,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-002", $"Stage transition failed to {menuId}", ex);
+                ModLogger.Surfaced("MUSTER", "Stage transition failed", ex,
+                    ctx: LogCtx.Of("TargetMenu", menuId));
                 _currentMuster?.EncounteredErrors.Add($"Stage transition failed: {menuId}");
 
                 // Try to jump to complete stage if not already there
@@ -1240,7 +1235,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", $"Effect application failed: {effectName}", ex);
+                ModLogger.Surfaced("MUSTER", "Effect application failed", ex,
+                    ctx: LogCtx.Of("Effect", effectName));
                 if (_currentMuster != null)
                 {
                     _currentMuster.EffectsPartiallyFailed = true;
@@ -1262,18 +1258,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 _currentMuster.CurrentStage = MusterIntroMenuId;
 
-                // Reset fatigue to maximum (muster day = rest day)
                 var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment != null)
-                {
-                    SafeApplyEffect("FatigueReset", () =>
-                    {
-                        var fatigueBeforeReset = enlistment.FatigueCurrent;
-                        enlistment.RestoreFatigue(0, "Muster rest day");
-                        _currentMuster.FatigueBeforeMuster = fatigueBeforeReset;
-                        ModLogger.Debug(LogCategory, $"Fatigue restored from {fatigueBeforeReset} to {enlistment.FatigueCurrent}");
-                    });
-                }
 
                 // Build intro text with null safety
                 var introText = BuildIntroTextSafe();
@@ -1285,7 +1270,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-002", "OnMusterIntroInit failed", ex);
+                ModLogger.Surfaced("MUSTER", "OnMusterIntroInit failed", ex);
                 AbortMusterWithFallback("Intro stage initialization failed");
             }
         }
@@ -1316,7 +1301,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-002", "OnMusterPayInit failed", ex);
+                ModLogger.Surfaced("MUSTER", "OnMusterPayInit failed", ex);
                 var payContactPaymaster = new TextObject("{=muster_pay_contact_paymaster}Pay records unavailable. Contact paymaster.").ToString();
                 MBTextManager.SetTextVariable("MUSTER_PAY_TEXT", payContactPaymaster);
                 MBTextManager.SetTextVariable("PAY_AMOUNT", "0");
@@ -1436,7 +1421,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-002", "OnMusterCompleteInit failed", ex);
+                ModLogger.Surfaced("MUSTER", "OnMusterCompleteInit failed", ex);
                 MBTextManager.SetTextVariable("MUSTER_DAY", "?");
                 MBTextManager.SetTextVariable("MUSTER_COMPLETE_TEXT", "Muster summary unavailable. You may dismiss.");
             }
@@ -1536,7 +1521,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Cannot resolve standard pay: EnlistmentBehavior null");
+                ModLogger.Expected(LogCategory, "muster_standard_pay_no_enlistment", "Cannot resolve standard pay: EnlistmentBehavior null");
                 if (_currentMuster != null)
                 {
                     _currentMuster.EffectsPartiallyFailed = true;
@@ -1613,7 +1598,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Failed to resolve corruption pay", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to resolve corruption pay", ex);
             }
 
             ProceedToNextStageFromPay();
@@ -1654,7 +1639,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Failed to resolve Quartermaster's Deal", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to resolve Quartermaster's Deal", ex);
             }
 
             ProceedToNextStageFromPay();
@@ -1690,7 +1675,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Failed to resolve promissory note", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to resolve promissory note", ex);
             }
 
             ProceedToNextStageFromPay();
@@ -1744,7 +1729,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Failed to finalize discharge", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to finalize discharge", ex);
                 RestoreTimeControlOnExit();
                 _currentMuster = null;
                 GameMenu.ExitToLast();
@@ -1787,7 +1772,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-004", "Failed to resolve smuggle discharge", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to resolve smuggle discharge", ex);
                 RestoreTimeControlOnExit();
                 _currentMuster = null;
                 GameMenu.ExitToLast();
@@ -1891,7 +1876,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode(LogCategory, "E-MUSTER-005", "Error processing discharge confirmation", ex);
+                            ModLogger.Surfaced("MUSTER", "Error processing discharge confirmation", ex);
                         }
                     },
                     negativeAction: () =>
@@ -1903,7 +1888,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-006", "Error showing discharge confirmation", ex);
+                ModLogger.Surfaced("MUSTER", "Error showing discharge confirmation", ex);
             }
         }
 
@@ -1981,7 +1966,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.ErrorCode(LogCategory, "E-MUSTER-007", "Error processing final pay discharge", ex);
+                            ModLogger.Surfaced("MUSTER", "Error processing final pay discharge", ex);
                         }
                     },
                     negativeAction: () =>
@@ -1993,7 +1978,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-008", "Error showing final pay confirmation", ex);
+                ModLogger.Surfaced("MUSTER", "Error showing final pay confirmation", ex);
             }
         }
 
@@ -2167,7 +2152,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-MUSTER-002", "Failed to complete muster sequence", ex);
+                ModLogger.Surfaced("MUSTER", "Failed to complete muster sequence", ex);
                 _currentMuster = null;
                 RestoreTimeControlOnExit();
                 try { GameMenu.ExitToLast(); } catch { /* Ensure we don't get stuck */ }
@@ -2477,16 +2462,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 sb.AppendLine($"<span style=\"Label\">THIS PERIOD:</span> <span style=\"Success\">+{periodXP} XP</span> (battles, training, orders completed)");
             }
 
-            // Fatigue restoration
-            var fatigueRestored = enlistment.FatigueCurrent - _currentMuster.FatigueBeforeMuster;
-            if (fatigueRestored > 0)
-            {
-                sb.AppendLine($"<span style=\"Label\">FATIGUE:</span> <span style=\"Success\">Restored to full</span> (muster rest day)");
-            }
-            else if (_currentMuster.FatigueBeforeMuster >= enlistment.FatigueMax)
-            {
-                sb.AppendLine("<span style=\"Label\">FATIGUE:</span> <span style=\"Success\">Already well-rested</span>");
-            }
 
             return sb.ToString();
         }
@@ -3337,19 +3312,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var currentXp = enlistment.EnlistmentXP;
             var daysInRank = enlistment.DaysInRank;
             var battles = enlistment.BattlesSurvived;
-            var soldierRep = escalation?.State?.SoldierReputation ?? 0;
-            var discipline = escalation?.State?.Discipline ?? 0;
+            var scrutiny = escalation?.State?.Scrutiny ?? 0;  // Discipline/Soldier rep removed, using scrutiny
             var leaderRelation = enlistment.EnlistedLord?.GetRelationWithPlayer() ?? 0;
 
             // Check each requirement
             var xpReady = currentXp >= requiredXp;
             var daysReady = daysInRank >= req.DaysInRank;
             var battlesReady = battles >= req.BattlesRequired;
-            var soldierRepReady = soldierRep >= req.MinSoldierReputation;
             var leaderRelReady = leaderRelation >= req.MinLeaderRelation;
-            var disciplineReady = discipline < req.MaxDiscipline;
+            var scrutinyReady = scrutiny < req.MaxScrutiny;  // Discipline merged into Scrutiny (0-100 scale)
 
-            var allReady = xpReady && daysReady && battlesReady && soldierRepReady && leaderRelReady && disciplineReady;
+            var allReady = xpReady && daysReady && battlesReady && leaderRelReady && scrutinyReady;
 
             // Build the section
             sb.AppendLine();
@@ -3387,23 +3360,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var battlesStatus = battlesReady ? "(Ready)" : $"(Need +{req.BattlesRequired - battles})";
             sb.AppendLine($"  <span style=\"{battlesColor}\">{battlesIcon}</span> Battles Fought:  {battles}/{req.BattlesRequired} battles {battlesStatus}");
 
-            // Soldier Reputation
-            var soldierIcon = soldierRepReady ? "✓" : "✗";
-            var soldierColor = soldierRepReady ? "Success" : "Alert";
-            var soldierStatus = soldierRepReady ? "(Ready)" : $"(Need +{req.MinSoldierReputation - soldierRep})";
-            sb.AppendLine($"  <span style=\"{soldierColor}\">{soldierIcon}</span> Soldier Rep:     {soldierRep}/{req.MinSoldierReputation} {soldierStatus}");
-
             // Leader Relation
             var leaderIcon = leaderRelReady ? "✓" : "✗";
             var leaderColor = leaderRelReady ? "Success" : "Alert";
             var leaderStatus = leaderRelReady ? "(Ready)" : $"(Need +{req.MinLeaderRelation - leaderRelation})";
             sb.AppendLine($"  <span style=\"{leaderColor}\">{leaderIcon}</span> Leader Relation: {leaderRelation}/{req.MinLeaderRelation} {leaderStatus}");
 
-            // Discipline (lower is better)
-            var discIcon = disciplineReady ? "✓" : "✗";
-            var discColor = disciplineReady ? "Success" : "Alert";
-            var discStatus = disciplineReady ? "(Safe)" : "(Too high!)";
-            sb.AppendLine($"  <span style=\"{discColor}\">{discIcon}</span> Discipline:      {discipline}/{req.MaxDiscipline} max {discStatus}");
+            // Scrutiny (lower is better, 0-100 scale)
+            var scrutIcon = scrutinyReady ? "✓" : "✗";
+            var scrutColor = scrutinyReady ? "Success" : "Alert";
+            var scrutStatus = scrutinyReady ? "(Safe)" : "(Too high!)";
+            sb.AppendLine($"  <span style=\"{scrutColor}\">{scrutIcon}</span> Scrutiny:       {scrutiny}/{req.MaxScrutiny} max {scrutStatus}");
 
             // Show blocker advice if not ready
             if (!allReady)
@@ -3423,17 +3390,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     blockers.Add("Participate in more battles (not reserve duty)");
                 }
-                if (!soldierRepReady)
-                {
-                    blockers.Add("Improve soldier reputation via orders and events");
-                }
                 if (!leaderRelReady)
                 {
                     blockers.Add("Build relation with your lord via successful orders");
                 }
-                if (!disciplineReady)
+                if (!scrutinyReady)
                 {
-                    blockers.Add("Reduce discipline through good behavior");
+                    blockers.Add("Reduce scrutiny through good behavior and loyalty");
                 }
 
                 sb.AppendLine($"<span style=\"Warning\">BLOCKERS:</span> {string.Join("; ", blockers)}.");
@@ -3744,11 +3707,21 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var qm = enlistment.GetOrCreateQuartermaster();
             if (qm != null && qm.IsAlive)
             {
+                var party = QuartermasterPartyResolver.GetConversationParty(qm);
+                if (party == null)
+                {
+                    ModLogger.Expected(LogCategory, "qm_party_unavailable",
+                        "Both QM and enlisted lord have no party — cannot open muster-complete QM conversation with correct scene");
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                    return;
+                }
+
                 ModLogger.Info(LogCategory, "Opening quartermaster conversation from muster complete menu");
                 _qmOpenedFromMuster = true;
                 CampaignMapConversation.OpenConversation(
                     new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty),
-                    new ConversationCharacterData(qm.CharacterObject, qm.PartyBelongedTo?.Party));
+                    new ConversationCharacterData(qm.CharacterObject, party));
             }
             else
             {

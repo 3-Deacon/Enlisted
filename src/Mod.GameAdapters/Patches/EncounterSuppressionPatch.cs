@@ -243,7 +243,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("EncounterSuppression", "E-PATCH-002", "Error in encounter suppression patch", ex);
+                ModLogger.Caught("EncounterSuppression", "Error in encounter suppression patch", ex);
                 return true; // Fail open - allow encounter if we can't determine state
             }
         }

@@ -64,11 +64,11 @@ namespace Enlisted.Mod.Core.Logging
                 WriteNoteAboutDeferredPatches();
                 WriteFooter(isPartial: true);
 
-                ModLogger.Info("Diagnostics", $"Initial conflict diagnostics written to: {_conflictLogPath}");
+                ModLogger.Info("DIAGNOSTICS", $"Initial conflict diagnostics written to: {_conflictLogPath}");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Diagnostics", "E-DIAG-002", "Failed to run startup diagnostics", ex);
+                ModLogger.Caught("DIAGNOSTICS", "Failed to run startup diagnostics", ex);
             }
         }
 
@@ -105,11 +105,11 @@ namespace Enlisted.Mod.Core.Logging
                 WriteCombinedConflictSummary();
                 WriteFooter(isPartial: false);
 
-                ModLogger.Info("Diagnostics", "Deferred patch diagnostics appended to conflict log");
+                ModLogger.Info("DIAGNOSTICS", "Deferred patch diagnostics appended to conflict log");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Diagnostics", "E-DIAG-003", "Failed to refresh deferred patch diagnostics", ex);
+                ModLogger.Caught("DIAGNOSTICS", "Failed to refresh deferred patch diagnostics", ex);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Enlisted.Mod.Core.Logging
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Diagnostics", "E-DIAG-004", "Failed to log behaviors", ex);
+                ModLogger.Caught("DIAGNOSTICS", "Failed to log behaviors", ex);
             }
         }
 

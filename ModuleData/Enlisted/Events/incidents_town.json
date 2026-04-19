@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered when entering towns (entering_town context). 8 total incidents.",
@@ -33,12 +33,9 @@
           "risk": "safe",
           "effects": {
             "gold": -10,
-            "soldierRep": 5,
-            "companyNeeds": {
-              "Rest": 5
-            }
+            "lordReputation": 2
           },
-          "tooltip": "Moderate drinking. +5 Soldier rep. Boosts company rest."
+          "tooltip": "Moderate drinking. +5 Soldier rep."
         },
         {
           "id": "drink_heavy",
@@ -50,21 +47,16 @@
           "risk_chance": 80,
           "effects": {
             "gold": -35,
-            "soldierRep": 12,
-            "scrutiny": 2,
-            "companyNeeds": {
-              "Rest": -10,
-              "Morale": 8
-            }
+            "scrutiny": 2000000,
+            "lordReputation": 6
           },
           "effects_failure": {
             "gold": -50,
             "hpChange": -10,
-            "scrutiny": 4,
-            "discipline": 2
+            "scrutiny": 600
           },
           "failure_resultText": "The night goes too far. You wake in an alley, beaten and robbed, with no memory of how you got there. The sergeant finds you before muster, and his expression promises consequences.",
-          "tooltip": "80% chance. +12 Soldier rep, +8 Morale. Fail: -50 gold, -10 HP, +4 scrutiny, +2 discipline."
+          "tooltip": "80% chance. +12 Soldier rep. Fail: -50 gold, -10 HP, +4 scrutiny, +2 discipline."
         },
         {
           "id": "stay_sober",
@@ -75,8 +67,7 @@
           "risk": "safe",
           "effects": {
             "gold": -5,
-            "officerRep": 5,
-            "soldierRep": -2
+            "lordReputation": 4
           },
           "tooltip": "Stay sober. +5 Officer rep, -2 Soldier rep."
         }
@@ -264,12 +255,8 @@
           "resultTextId": "mi_town_message_later_result",
           "resultText": "You slip the letter into your pack, unopened. Some things are better saved for when you need them most.",
           "risk": "safe",
-          "effects": {
-            "companyNeeds": {
-              "Rest": 3
-            }
-          },
-          "tooltip": "Safe choice. Boosts company rest."
+          "effects": {},
+          "tooltip": "Safe choice."
         },
         {
           "id": "burn",
@@ -323,7 +310,7 @@
               "Roguery": 10
             },
             "gold": 60,
-            "scrutiny": 4
+            "scrutiny": 4000000
           },
           "tooltip": "Moderate risk. Train Roguery. +60 gold. Adds 4 scrutiny."
         },
@@ -349,11 +336,11 @@
           "resultText": "You point out the criminal to a passing patrol. They chase him into the alleys. Whether they catch him, you don't know—but you did your duty.",
           "risk": "safe",
           "effects": {
-            "officerRep": 3,
             "traitXp": {
               "Honor": 8
             },
-            "scrutiny": -1
+            "scrutiny": -1000000,
+            "lordReputation": 3
           },
           "tooltip": "Report criminal. +3 Officer rep. Honor trait XP. -1 Scrutiny."
         }
@@ -388,8 +375,8 @@
           "resultText": "You listen to the pitch. It's tempting—better conditions, honest pay. But changing masters isn't simple. You take his name, just in case.",
           "risk": "risky",
           "effects": {
-            "lordRep": -5,
-            "scrutiny": 2
+            "scrutiny": 2000000,
+            "lordReputation": -5
           },
           "tooltip": "Risky choice. -5 Lord rep. Adds 2 scrutiny."
         },
@@ -401,10 +388,10 @@
           "resultText": "'I have a lord. Find someone else.' The recruiter nods and moves on. Loyalty has its price, but also its value.",
           "risk": "safe",
           "effects": {
-            "lordRep": 5,
             "traitXp": {
               "Honor": 5
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "+5 Lord rep. Honor trait XP."
         },
@@ -459,15 +446,15 @@
           "risk": "risky",
           "risk_chance": 65,
           "effects": {
-            "soldierRep": 8,
             "hpChange": -10,
             "traitXp": {
               "Valor": 5
-            }
+            },
+            "lordReputation": 4
           },
           "effects_failure": {
             "hpChange": -25,
-            "scrutiny": 2,
+            "scrutiny": 200,
             "gold": -15
           },
           "failure_resultText": "The locals are tougher than they looked. You're beaten badly and robbed of your coin before the watch arrives.",
@@ -490,8 +477,7 @@
             "skillXp": {
               "Charm": 15
             },
-            "officerRep": 5,
-            "soldierRep": 3
+            "lordReputation": 6
           }
         },
         {
@@ -502,10 +488,10 @@
           "resultText": "You're not drunk enough to fight for nothing. You slip out the back door and let the fools sort themselves out.",
           "risk": "safe",
           "effects": {
-            "soldierRep": -5,
             "traitXp": {
               "Calculating": 3
-            }
+            },
+            "lordReputation": -2
           },
           "tooltip": "-5 Soldier rep. Calculating trait XP."
         }
@@ -567,7 +553,7 @@
               "Charm": 10,
               "Scouting": 15
             },
-            "soldierRep": 3
+            "lordReputation": 1
           }
         },
         {
@@ -587,8 +573,8 @@
             "skillXp": {
               "Roguery": 20
             },
-            "lordRep": 5,
-            "scrutiny": 2
+            "scrutiny": 2000000,
+            "lordReputation": 5
           }
         }
       ]

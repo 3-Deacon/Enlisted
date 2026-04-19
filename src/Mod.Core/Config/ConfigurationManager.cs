@@ -515,7 +515,6 @@ namespace Enlisted.Mod.Core.Config
         public int FirstTermDays { get; set; } = 252;
         public int RenewalTermDays { get; set; } = 126;
         public int ProbationDays { get; set; } = 12;
-        public int ProbationFatigueCap { get; set; } = 18;
         public int CommanderReentryFineGold { get; set; } = 5000;
         public int FirstTermReenlistBonus { get; set; } = 500;
         public int RenewalContinueBonus { get; set; } = 250;

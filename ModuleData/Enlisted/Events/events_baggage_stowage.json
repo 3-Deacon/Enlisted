@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "packId": "events_baggage_stowage",
   "category": "onboarding",
@@ -96,7 +96,7 @@
           "effectsFailure": {
             "bagCheckChoice": "stash",
             "gold": -250,
-            "scrutiny": 2,
+            "scrutiny": 20,
             "qmRep": -3
           }
         },
@@ -122,7 +122,7 @@
           "risk": "safe",
           "abortsEnlistment": true,
           "effects": {
-            "lordRep": -10
+            "lordReputation": -10
           }
         }
       ]

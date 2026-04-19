@@ -148,13 +148,11 @@ namespace Enlisted.Features.Camp
             // Calculate XP
             int xpGained = CalculateXp(activityConfig, outcomeType, overrideInfo);
 
-            // Calculate other effects
-            int fatigueChange = GetFatigueChange(activityConfig, outcomeType);
-            int goldChange = CalculateGoldChange(activityConfig, outcomeType);
-            int supplyChange = CalculateSupplyChange(activityConfig, outcomeType);
-            int moraleChange = CalculateMoraleChange(activityConfig, outcomeType);
+        // Calculate other effects
+        int goldChange = CalculateGoldChange(activityConfig, outcomeType);
+        int supplyChange = CalculateSupplyChange(activityConfig, outcomeType);
 
-            // Check for mishap condition
+        // Check for mishap condition
             string conditionApplied = null;
             if (outcomeType == OutcomeType.Mishap)
             {
@@ -172,19 +170,17 @@ namespace Enlisted.Features.Camp
                 ActivityName = description ?? activityConfig["name"]?.Value<string>() ?? category,
                 Outcome = outcomeType,
                 XpGained = xpGained,
-                SkillAffected = skillName,
-                FatigueChange = fatigueChange,
-                GoldChange = goldChange,
-                SupplyChange = supplyChange,
-                MoraleChange = moraleChange,
-                ConditionApplied = conditionApplied,
+            SkillAffected = skillName,
+            GoldChange = goldChange,
+            SupplyChange = supplyChange,
+            ConditionApplied = conditionApplied,
                 FlavorText = flavorText,
                 WasOverride = isOverride,
                 OverrideReason = overrideInfo?.Reason
             };
 
             ModLogger.Debug(LogCategory, 
-                $"Activity '{category}' outcome: {outcomeType} (+{xpGained} XP, fatigue {fatigueChange:+#;-#;0})");
+                $"Activity '{category}' outcome: {outcomeType} (+{xpGained} XP)");
 
             return outcome;
         }
@@ -230,18 +226,11 @@ namespace Enlisted.Features.Camp
                 return "default";
             }
 
-            // Check for negative conditions
-            if (needs.Rest < 30)
-            {
-                return "fatigued";
-            }
+        // Check for negative conditions
+        // Note: Morale removed (system no longer exists)
+        // For now, always use default weights
 
-            if (needs.Morale < 30)
-            {
-                return "lowMorale";
-            }
-
-            // TODO: Check player skill level for highSkill set
+        // TODO: Check player skill level for highSkill set
             // For now, default to normal weights
             return "default";
         }
@@ -308,21 +297,6 @@ namespace Enlisted.Features.Camp
             return (int)(baseXp * modifier);
         }
 
-        /// <summary>
-        /// Gets fatigue change from activity config.
-        /// </summary>
-        private static int GetFatigueChange(JToken activityConfig, OutcomeType outcome)
-        {
-            int baseFatigue = activityConfig["fatigueChange"]?.Value<int>() ?? 10;
-
-            // Mishaps cause more fatigue
-            if (outcome == OutcomeType.Mishap)
-            {
-                baseFatigue = (int)(baseFatigue * 1.5f);
-            }
-
-            return baseFatigue;
-        }
 
         /// <summary>
         /// Calculates gold change based on activity type and outcome.
@@ -379,13 +353,6 @@ namespace Enlisted.Features.Camp
             return _random.Next(min, max + 1);
         }
 
-        /// <summary>
-        /// Calculates morale change from activity.
-        /// </summary>
-        private static int CalculateMoraleChange(JToken activityConfig, OutcomeType outcome)
-        {
-            return activityConfig["moraleChange"]?[outcome.ToString().ToLowerInvariant()]?.Value<int>() ?? 0;
-        }
 
         /// <summary>
         /// Checks if a mishap should apply a condition.
@@ -503,22 +470,14 @@ namespace Enlisted.Features.Camp
             var needs = enlistment.CompanyNeeds;
             if (needs != null)
             {
-                if (outcome.SupplyChange != 0)
-                {
-                    needs.ModifyNeed(CompanyNeed.Supplies, outcome.SupplyChange);
-                }
-                if (outcome.MoraleChange != 0)
-                {
-                    needs.ModifyNeed(CompanyNeed.Morale, outcome.MoraleChange);
-                }
-                // Fatigue affects Rest need (inverted: more fatigue = less rest)
-                if (outcome.FatigueChange != 0)
-                {
-                    needs.ModifyNeed(CompanyNeed.Rest, -outcome.FatigueChange / 5);
-                }
+            if (outcome.SupplyChange != 0)
+            {
+                needs.ModifyNeed(CompanyNeed.Supplies, outcome.SupplyChange);
             }
+            // Note: Morale removed (system no longer exists)
+        }
 
-            // Apply condition if mishap caused one
+        // Apply condition if mishap caused one
             if (!string.IsNullOrEmpty(outcome.ConditionApplied))
             {
                 ApplyCondition(outcome.ConditionApplied);
@@ -661,8 +620,7 @@ namespace Enlisted.Features.Camp
                     ["normal"] = new JObject { ["min"] = 3, ["max"] = 6 },
                     ["poor"] = new JObject { ["min"] = 1, ["max"] = 3 },
                     ["mishap"] = new JObject { ["min"] = 0, ["max"] = 1 }
-                },
-                ["fatigueChange"] = 10
+                }
             };
 
             return defaultConfig;

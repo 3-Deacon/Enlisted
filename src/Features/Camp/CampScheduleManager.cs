@@ -424,16 +424,7 @@ namespace Enlisted.Features.Camp
                     return;
                 }
 
-                // Check low morale
-                var lowMorale = pressureOverrides["low_morale"];
-                if (lowMorale != null)
-                {
-                    var threshold = lowMorale["threshold"]?.Value<int>() ?? 30;
-                    if (needs.Morale < threshold)
-                    {
-                        ApplyPressureEffect(schedule, lowMorale);
-                    }
-                }
+                // Morale removed - readiness is primary stress indicator now
 
                 // Check low supplies
                 var lowSupplies = pressureOverrides["low_supplies"];
@@ -443,17 +434,6 @@ namespace Enlisted.Features.Camp
                     if (needs.Supplies < threshold)
                     {
                         ApplyPressureEffect(schedule, lowSupplies);
-                    }
-                }
-
-                // Check exhausted (low rest)
-                var exhausted = pressureOverrides["exhausted"];
-                if (exhausted != null)
-                {
-                    var threshold = exhausted["threshold"]?.Value<int>() ?? 30;
-                    if (needs.Rest < threshold)
-                    {
-                        ApplyPressureEffect(schedule, exhausted);
                     }
                 }
 

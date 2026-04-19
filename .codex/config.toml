@@ -1,0 +1,22 @@
+# Codex CLI — project configuration for Enlisted.
+#
+# Precedence (highest wins):
+#   CLI flags > profile > this file > %USERPROFILE%\.codex\config.toml > defaults
+#
+# Codex will prompt to "trust" this project the first time it reads this file.
+# Personal overrides belong in AGENTS.override.md (gitignored), not here.
+
+# Use the default high-reasoning coding profile for this project.
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+model_verbosity = "medium"
+
+# Never prompt in this project.
+approval_policy = "never"
+
+# Allow unrestricted local access in this project.
+sandbox_mode = "danger-full-access"
+
+# Keep the Windows sandbox setting aligned with the unrestricted project mode.
+[windows]
+sandbox = "elevated"

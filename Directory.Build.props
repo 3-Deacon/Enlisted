@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <!-- Default Bannerlord Path (Windows/Steam) -->
+    <BannerlordPath Condition="'$(BannerlordPath)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
+    
+    <!-- WSL Override - Detection and mapping -->
+    <IsWsl Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))">true</IsWsl>
+    <BannerlordPath Condition="'$(IsWsl)' == 'true'">/mnt/c/Program Files (x86)/Steam/steamapps/common/Mount &amp; Blade II Bannerlord</BannerlordPath>
+    
+    <!-- Decompile Path -->
+    <DecompilePath Condition="'$(DecompilePath)' == ''">C:\Dev\Enlisted\Decompile</DecompilePath>
+    <DecompilePath Condition="'$(IsWsl)' == 'true'">/mnt/c/Dev/Enlisted/Decompile</DecompilePath>
+  </PropertyGroup>
+</Project>

@@ -75,12 +75,12 @@ namespace Enlisted.Features.Combat.Behaviors
                 _lastCleanupScheduledTime = CampaignTime.Never;
 
                 AddEnlistedEncounterOptions(campaignStarter);
-                ModLogger.LogOnce("encounter_behavior_init", "Combat",
+                ModLogger.LogOnce("encounter_behavior_init", "COMBAT",
                     "Encounter behavior initialized with modern UI styling - battle wait menu and reserve options ready");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Combat", "E-COMBAT-001", "Failed to initialize encounter behavior", ex);
+                ModLogger.Caught("COMBAT", "Failed to initialize encounter behavior", ex);
             }
         }
         
@@ -211,7 +211,7 @@ namespace Enlisted.Features.Combat.Behaviors
             var hasMapEvent = mapEvent != null;
             var hasSiegeEvent = siegeEvent != null;
             
-            ModLogger.Info("EncounterGuard", 
+            ModLogger.Info("ENCOUNTERGUARD", 
                 $"WAIT_IN_RESERVE CHECK: Menu={currentMenu}, Lord={lordName}, MapEvent={hasMapEvent}, SiegeEvent={hasSiegeEvent}");
 
             // Two valid contexts for "Wait in Reserve":
@@ -224,7 +224,7 @@ namespace Enlisted.Features.Combat.Behaviors
             if (mapEvent != null && (mapEvent.HasWinner || mapEvent.IsFinalized))
             {
                 var winnerSide = mapEvent.WinningSide;
-                ModLogger.Info("EncounterGuard", 
+                ModLogger.Info("ENCOUNTERGUARD", 
                     $"WAIT_IN_RESERVE: Battle already ended (HasWinner={mapEvent.HasWinner}, IsFinalized={mapEvent.IsFinalized}, WinningSide={winnerSide}) - triggering auto-cleanup");
                 
                 // Trigger deferred cleanup of the stale encounter
@@ -240,11 +240,11 @@ namespace Enlisted.Features.Combat.Behaviors
                     // Active siege assault - not allowed
                     args.IsEnabled = false;
                     args.Tooltip = new TextObject("{=combat_reserve_siege_disabled}Wait in reserve is not available during active siege assault battles");
-                    ModLogger.Info("EncounterGuard", "WAIT_IN_RESERVE: Disabled - active siege assault");
+                    ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Disabled - active siege assault");
                 }
                 else
                 {
-                    ModLogger.Info("EncounterGuard", "WAIT_IN_RESERVE: Not available - no valid battle or siege context");
+                    ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Not available - no valid battle or siege context");
                 }
                 return false;
             }
@@ -254,11 +254,11 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 args.optionLeaveType = GameMenuOption.LeaveType.Wait;
                 args.Tooltip = new TextObject("{=combat_too_demoralized}You are too demoralized to fight.");
-                ModLogger.Info("EncounterGuard", "WAIT_IN_RESERVE: Available (demoralized)");
+                ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Available (demoralized)");
                 return true;
             }
 
-            ModLogger.Info("EncounterGuard", "WAIT_IN_RESERVE: Available (standard)");
+            ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Available (standard)");
             args.optionLeaveType = GameMenuOption.LeaveType.Wait;
             return true;
         }
@@ -300,7 +300,7 @@ namespace Enlisted.Features.Combat.Behaviors
             if (_postBattleCleanupScheduled)
             {
                 var timeSinceLastSchedule = CampaignTime.Now - _lastCleanupScheduledTime;
-                ModLogger.Debug("EncounterGuard", 
+                ModLogger.Debug("ENCOUNTERGUARD", 
                     $"AUTO-CLEANUP: Already scheduled {timeSinceLastSchedule.ToSeconds:F2}s ago, skipping duplicate (menu={currentMenu}, mapEvent={mapEventId})");
                 return;
             }
@@ -309,7 +309,7 @@ namespace Enlisted.Features.Combat.Behaviors
             _lastCleanupScheduledTime = CampaignTime.Now;
             
             // DIAGNOSTIC: Log that we're deferring cleanup during menu rendering to prevent crash
-            ModLogger.Info("EncounterGuard", 
+            ModLogger.Info("ENCOUNTERGUARD", 
                 $"AUTO-CLEANUP: Scheduling deferred cleanup for next frame (currentMenu={currentMenu}, hasEncounter={hasEncounter}, mapEventId={mapEventId})");
             
             // CRITICAL: Defer to next frame to avoid modifying state during menu condition evaluation
@@ -340,13 +340,13 @@ namespace Enlisted.Features.Combat.Behaviors
                 var hasEncounter = PlayerEncounter.Current != null;
                 var timeSinceScheduled = CampaignTime.Now - _lastCleanupScheduledTime;
                 
-                ModLogger.Info("EncounterGuard", 
+                ModLogger.Info("ENCOUNTERGUARD", 
                     $"AUTO-CLEANUP: Executing deferred cleanup (delay={timeSinceScheduled.ToSeconds:F3}s, originalMenu={originalMenu}, currentMenu={currentMenu}, hasEncounter={hasEncounter})");
                 
                 // DIAGNOSTIC: Detect if map event changed during defer (indicates OnMapEventEnded already ran)
                 if (originalMapEventId != "none" && currentMapEventId != originalMapEventId)
                 {
-                    ModLogger.Info("EncounterGuard", 
+                    ModLogger.Info("ENCOUNTERGUARD", 
                         $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - OnMapEventEnded likely already handled cleanup");
                 }
                 
@@ -354,14 +354,14 @@ namespace Enlisted.Features.Combat.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Debug("EncounterGuard", "AUTO-CLEANUP: No longer enlisted, skipping (OnMapEventEnded likely handled it)");
+                    ModLogger.Debug("ENCOUNTERGUARD", "AUTO-CLEANUP: No longer enlisted, skipping (OnMapEventEnded likely handled it)");
                     return;
                 }
                 
                 // DIAGNOSTIC: Warn if encounter already cleaned up
                 if (!hasEncounter)
                 {
-                    ModLogger.Debug("EncounterGuard", "AUTO-CLEANUP: No PlayerEncounter exists (OnMapEventEnded likely already cleaned it up)");
+                    ModLogger.Debug("ENCOUNTERGUARD", "AUTO-CLEANUP: No PlayerEncounter exists (OnMapEventEnded likely already cleaned it up)");
                 }
                 
                 // Clean up the encounter state
@@ -373,7 +373,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         PlayerEncounter.LeaveSettlement();
                     }
                     PlayerEncounter.Finish();
-                    ModLogger.Info("EncounterGuard", "AUTO-CLEANUP: PlayerEncounter finished");
+                    ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: PlayerEncounter finished");
                 }
                 
                 // Deactivate player party to prevent further stale encounters
@@ -382,7 +382,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     mainParty.IsActive = false;
                     mainParty.IsVisible = false;
-                    ModLogger.Info("EncounterGuard", "AUTO-CLEANUP: Deactivated party");
+                    ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: Deactivated party");
                 }
                 
                 // Clear the reserve state flag if set
@@ -392,17 +392,17 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (mainParty?.Army != null && mainParty.Army.LeaderParty != mainParty)
                 {
                     GameMenu.SwitchToMenu("army_wait");
-                    ModLogger.Info("EncounterGuard", "AUTO-CLEANUP: Switched to army_wait menu");
+                    ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: Switched to army_wait menu");
                 }
                 else
                 {
                     GameMenu.SwitchToMenu("enlisted_status");
-                    ModLogger.Info("EncounterGuard", "AUTO-CLEANUP: Switched to enlisted_status menu");
+                    ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: Switched to enlisted_status menu");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EncounterGuard", $"AUTO-CLEANUP failed: {ex.Message}\nStack trace: {ex.StackTrace}");
+                ModLogger.Error("ENCOUNTERGUARD", $"AUTO-CLEANUP failed: {ex.Message}\nStack trace: {ex.StackTrace}");
                 // Fallback - try to at least switch menu
                 try
                 {
@@ -439,7 +439,7 @@ namespace Enlisted.Features.Combat.Behaviors
 
                 if (inActiveSiegeAssault)
                 {
-                    ModLogger.Info("Battle",
+                    ModLogger.Info("BATTLE",
                         "Prevented wait in reserve during active siege assault - would cause menu loops");
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=combat_reserve_siege_disabled_full}Wait in reserve is not available during active siege assault battles.").ToString()));
@@ -456,7 +456,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (MobileParty.MainParty?.MapEventSide != null)
                 {
                     MobileParty.MainParty.MapEventSide = null;
-                    ModLogger.Debug("Battle", "Removed player from MapEvent for reserve mode");
+                    ModLogger.Debug("BATTLE", "Removed player from MapEvent for reserve mode");
                 }
 
                 // Tell the game the player is waiting (like native army_wait does)
@@ -471,19 +471,19 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (mainParty != null)
                 {
                     mainParty.IsActive = false;
-                    ModLogger.Debug("Battle", "Set player party inactive for reserve mode");
+                    ModLogger.Debug("BATTLE", "Set player party inactive for reserve mode");
                 }
 
                 // Switch to the battle wait menu where the player can monitor the battle
                 // NOTE: GenericStateMenuPatch will now return "enlisted_battle_wait" when GetGenericStateMenu()
                 // is called, preventing native systems from switching away from our menu.
                 GameMenu.ActivateGameMenu("enlisted_battle_wait");
-                ModLogger.StateChange("Battle", "Fighting", "Reserve",
+                ModLogger.StateChange("BATTLE", "Fighting", "Reserve",
                     "Player chose to wait in reserve during large battle");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-001", "Error entering reserve mode", ex);
+                ModLogger.Caught("BATTLE", "Error entering reserve mode", ex);
             }
         }
 
@@ -514,12 +514,12 @@ namespace Enlisted.Features.Combat.Behaviors
                 // Time will continue at normal speed, and player can pause/unpause with spacebar
                 args.MenuContext.GameMenu.StartWait();
 
-                ModLogger.Info("Battle",
+                ModLogger.Info("BATTLE",
                     "Started wait in reserve - time will continue at normal speed (can pause with spacebar)");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-002", "Error initializing battle wait menu", ex);
+                ModLogger.Caught("BATTLE", "Error initializing battle wait menu", ex);
             }
         }
 
@@ -615,7 +615,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     }
                     
                     args.MenuContext.GameMenu.EndWait();
-                    ModLogger.Info("Battle", "Siege assault started - cleared reserve state, exiting for native encounter");
+                    ModLogger.Info("BATTLE", "Siege assault started - cleared reserve state, exiting for native encounter");
                     NextFrameDispatcher.RunNextFrame(() =>
                     {
                         if (Campaign.Current?.CurrentMenuContext != null)
@@ -632,7 +632,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (hasSiegeEvent && mapEvent == null)
                 {
                     // Siege preparation with no active battle - stay in reserve menu
-                    ModLogger.Debug("Battle", "Siege preparation detected - staying in reserve menu");
+                    ModLogger.Debug("BATTLE", "Siege preparation detected - staying in reserve menu");
                     return;
                 }
 
@@ -675,7 +675,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (armyStillInBattle)
                 {
                     // Army is still fighting (different party in battle) - stay in reserve
-                    ModLogger.Debug("Battle", "Staying in reserve - army still fighting (other party in battle)");
+                    ModLogger.Debug("BATTLE", "Staying in reserve - army still fighting (other party in battle)");
                     return;
                 }
 
@@ -686,7 +686,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     // Native system wants army_wait - this means the army battle series is ongoing
                     // Stay in our reserve menu to avoid triggering encounter loops
-                    ModLogger.Debug("Battle", "Native wants army_wait - staying in reserve to avoid encounter loop");
+                    ModLogger.Debug("BATTLE", "Native wants army_wait - staying in reserve to avoid encounter loop");
                     return;
                 }
 
@@ -699,7 +699,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     // Clear the waiting in reserve flag - battle series has ended
                     IsWaitingInReserve = false;
                     args.MenuContext.GameMenu.EndWait();
-                    ModLogger.Info("Battle", $"Battle series ended - switching to native menu '{genericStateMenu}'");
+                    ModLogger.Info("BATTLE", $"Battle series ended - switching to native menu '{genericStateMenu}'");
                     GameMenu.SwitchToMenu(genericStateMenu);
                     return;
                 }
@@ -737,11 +737,11 @@ namespace Enlisted.Features.Combat.Behaviors
                             }
                             
                             PlayerEncounter.Finish(); // Immediately clear PlayerEncounter.Current
-                            ModLogger.Info("Battle", "Finished PlayerEncounter after battle end");
+                            ModLogger.Info("BATTLE", "Finished PlayerEncounter after battle end");
                         }
                         catch (Exception finishEx)
                         {
-                            ModLogger.Error("Battle", $"Error finishing encounter: {finishEx.Message}");
+                            ModLogger.Error("BATTLE", $"Error finishing encounter: {finishEx.Message}");
                         }
                     }
                     
@@ -752,7 +752,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         mainParty.IsActive = true;
                         mainParty.IsVisible = true;
                         mainParty.SetMoveModeHold(); // Stop any phantom movement from battle
-                        ModLogger.Info("Battle", "Restored player party to map after battle/reserve end");
+                        ModLogger.Info("BATTLE", "Restored player party to map after battle/reserve end");
                     }
                     
                     // Return to normal enlisted state or campaign map
@@ -762,18 +762,18 @@ namespace Enlisted.Features.Combat.Behaviors
                     {
                         // Use SafeActivateEnlistedMenu to respect siege detection
                         EnlistedMenuBehavior.SafeActivateEnlistedMenu();
-                        ModLogger.Info("Battle", "Battle ended - returning to enlisted status menu (via SafeActivate)");
+                        ModLogger.Info("BATTLE", "Battle ended - returning to enlisted status menu (via SafeActivate)");
                     }
                     else
                     {
                         GameMenu.ExitToLast();
-                        ModLogger.Info("Battle", "Battle ended or lord party gone - exiting to campaign map");
+                        ModLogger.Info("BATTLE", "Battle ended or lord party gone - exiting to campaign map");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-003", "Error in battle wait tick", ex);
+                ModLogger.Caught("BATTLE", "Error in battle wait tick", ex);
             }
         }
 
@@ -808,7 +808,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     {
                         if (Campaign.Current == null)
                         {
-                            ModLogger.Warn("Battle", "Rejoin aborted - campaign not available");
+                            ModLogger.Warn("BATTLE", "Rejoin aborted - campaign not available");
                             return;
                         }
                         // Re-evaluate battle state next frame to avoid using stale data
@@ -828,7 +828,7 @@ namespace Enlisted.Features.Combat.Behaviors
                             }
                             
                             GameMenu.ActivateGameMenu("encounter");
-                            ModLogger.Info("Battle", "Player rejoining battle from reserve");
+                            ModLogger.Info("BATTLE", "Player rejoining battle from reserve");
                             return;
                         }
                         
@@ -838,36 +838,36 @@ namespace Enlisted.Features.Combat.Behaviors
                         if (!string.IsNullOrEmpty(desiredMenu) && desiredMenu != "enlisted_battle_wait")
                         {
                             GameMenu.ActivateGameMenu(desiredMenu);
-                            ModLogger.Info("Battle", $"Exited reserve - battle ended, showing '{desiredMenu}'");
+                            ModLogger.Info("BATTLE", $"Exited reserve - battle ended, showing '{desiredMenu}'");
                         }
                         else if (PlayerEncounter.Current != null)
                         {
                             GameMenu.ActivateGameMenu("encounter");
-                            ModLogger.Info("Battle", "Exited reserve to encounter menu");
+                            ModLogger.Info("BATTLE", "Exited reserve to encounter menu");
                         }
                         else
                         {
                             GameMenu.ExitToLast();
-                            ModLogger.Info("Battle", "Exited reserve - no active battle");
+                            ModLogger.Info("BATTLE", "Exited reserve - no active battle");
                         }
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-004", "Error in rejoin menu switch", ex);
+                        ModLogger.Caught("BATTLE", "Error in rejoin menu switch", ex);
                         try
                         {
                             GameMenu.ExitToLast();
                         }
                         catch (Exception fallbackEx)
                         {
-                            ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-006", "Error during fallback exit", fallbackEx);
+                            ModLogger.Caught("BATTLE", "Error during fallback exit", fallbackEx);
                         }
                     }
                 });
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Battle", "E-BATTLEWAIT-005", "Error rejoining battle", ex);
+                ModLogger.Caught("BATTLE", "Error rejoining battle", ex);
             }
         }
 

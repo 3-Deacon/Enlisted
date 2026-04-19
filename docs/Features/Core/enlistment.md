@@ -47,7 +47,7 @@ Provide the foundation for military service: enlist with a lord, follow their mo
 - XP progression and Rank advancement (T1-T9).
 - Participation in lord's battles and army activities.
 - Reputation tracking (Lord, Officer, Soldier).
-- Company Needs management (Readiness, Morale, Supplies, Equipment, Rest).
+- Company Needs management (Readiness, Supply) - Note: Rest removed 2026-01-11.
 - Managed discharge or desertion.
 
 Related systems (shipping):
@@ -86,7 +86,7 @@ Related systems (shipping):
 - Follow enlisted lord's party movements automatically (invisible escort AI).
 - **Strategic Context Awareness**: Experience changes based on faction position (Desperate to Offensive) and 8 distinct strategic contexts (e.g., Grand Campaign, Winter Camp).
 - Receive **Orders** every 3-5 days from the chain of command (configurable: `event_window_min_days: 3`, `event_window_max_days: 5`), filtered by strategic tags.
-- Manage **Company Needs** (Readiness, Morale, Supplies, Equipment, Rest) through choices and activities.
+- Manage **Company Needs** (Readiness, Supply) through choices and activities - Note: Rest removed 2026-01-11.
 - Participate in battles when lord fights; battles increment the promotion requirement counter.
 - Wages accrue daily into muster ledger; paid every ~12 days.
 - **XP Sources**: Earned exclusively through gameplay - order completion, order events (duty execution, battle phases), and combat performance (skill XP converted to enlistment XP via SkillSuppressionPatch). No automatic daily/battle XP grants.
@@ -137,10 +137,10 @@ Rank names are determined by the enlisted lord's culture (all 9 tiers):
 (Source: `progression_config.json` → `culture_ranks` section)
 
 **Reputation System:**
-Identity is tracked via three reputation scales (-50 to +100):
-- **Lord Reputation**: Impacted by strategic success and loyalty.
-- **Officer Reputation**: Impacted by order completion and competence.
-- **Soldier Reputation**: Impacted by camp activities and shared hardship.
+Identity is tracked via three reputation scales:
+- **Lord Reputation (0-100)**: Impacted by strategic success and loyalty.
+- **Officer Reputation (0-100)**: Impacted by order completion and competence.
+- **Soldier Reputation (-50 to +50)**: Impacted by camp activities and shared hardship.
 
 **Orders System:**
 Instead of passive assignments, players receive explicit orders from the chain of command:
@@ -279,7 +279,7 @@ Level 10 Player, Returning (Deserter):
 - `src/Features/Orders/Behaviors/OrderManager.cs`: Chain of command orders, pacing, rewards
 - `src/Features/Escalation/EscalationManager.cs`: Triple reputation system (Lord, Officer, Soldier), discipline, scrutiny
 - `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`: Native game menu implementation (Camp Hub, Reports)
-- `src/Features/Company/CompanyNeedsManager.cs`: Company needs simulation (Readiness, Morale, Supplies, Equipment, Rest)
+- `src/Features/Company/CompanyNeedsManager.cs`: Company needs simulation (Readiness, Supply) - Note: Rest removed 2026-01-11
 - `src/Features/Retinue/Core/ServiceRecordManager.cs`: Per-faction service records, discharge bands, reservist bonuses
 - `src/Features/Content/ExperienceTrackHelper.cs`: Experience track calculation, starting tier logic (T1-T3 base)
 

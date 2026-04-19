@@ -12,19 +12,29 @@
       "setupId": "dec_training_drill_setup",
       "setup": "The sergeant calls for formation. Men line up with their weapons, ready to drill.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "maxIllness": "Mild"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "drill_focused",
           "textId": "dec_training_drill_focused",
           "text": "Train hard. Focus on your form.",
-          "effects": { "fatigue": 2, "dynamicSkillXp": { "equipped_weapon": 8 } },
+          "effects": {
+            "dynamicSkillXp": {
+              "equipped_weapon": 8
+            }
+          },
           "resultTextId": "dec_training_drill_focused_result",
           "resultText": "Sweat runs down your back. Your arms ache. But your blade feels more natural now.",
-          "tooltip": "+8 XP to equipped weapon skill. Costs 2 fatigue."
+          "tooltip": "+8 XP to equipped weapon skill."
         },
         {
           "id": "cancel",
@@ -44,23 +54,39 @@
       "setupId": "dec_training_spar_setup",
       "setup": "A soldier tosses you a practice sword. The crowd forms a rough circle.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "maxIllness": "Mild"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "spar_aggressive",
           "textId": "dec_training_spar_aggressive",
           "text": "Fight aggressively.",
-          "effects": { "fatigue": 3 },
+          "effects": {},
           "riskChance": 55,
-          "effects_success": { "soldierRep": 3, "skillXp": { "Athletics": 6 } },
-          "effects_failure": { "hpChange": -5, "skillXp": { "Athletics": 3 } },
+          "effects_success": {
+            "skillXp": {
+              "Athletics": 6
+            },
+            "lordReputation": 1
+          },
+          "effects_failure": {
+            "hpChange": -5,
+            "skillXp": {
+              "Athletics": 3
+            }
+          },
           "resultTextId": "dec_training_spar_aggressive_win",
           "resultText": "You drive him back with a flurry. He yields with a grudging nod.",
           "resultTextFailure": "He reads your aggression and counters. You eat dirt.",
-          "tooltip": "55% win. Success: +3 rep, +6 Athletics XP. Failure: -5 HP, +3 XP. Costs 3 fatigue."
+          "tooltip": "55% win. Success: +3 rep, +6 Athletics XP. Failure: -5 HP, +3 XP."
         },
         {
           "id": "cancel",
@@ -80,20 +106,31 @@
       "setupId": "dec_training_formation_setup",
       "setup": "Sergeants putting men through shield walls and maneuvers. The basics of staying alive.",
       "requirements": {
-        "tier": { "min": 2, "max": 999 },
+        "tier": {
+          "min": 2,
+          "max": 999
+        },
         "notAtSea": true,
         "maxIllness": "Mild"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "formation_drill",
           "textId": "dec_training_formation_drill",
           "text": "Join the line.",
-          "effects": { "fatigue": 2, "skillXp": { "Tactics": 4, "Polearm": 3 } },
+          "effects": {
+            "skillXp": {
+              "Tactics": 4,
+              "Polearm": 3
+            }
+          },
           "resultTextId": "dec_training_formation_drill_result",
           "resultText": "Shoulder to shoulder. Shield up, spear out. The rhythm becomes instinct.",
-          "tooltip": "+4 Tactics XP. +3 Polearm XP. Costs 2 fatigue."
+          "tooltip": "+4 Tactics XP. +3 Polearm XP."
         },
         {
           "id": "cancel",
@@ -113,19 +150,30 @@
       "setupId": "dec_training_veteran_setup",
       "setup": "The grizzled veteran eyes you. He's fought more battles than you've seen winters.",
       "requirements": {
-        "tier": { "min": 3, "max": 999 },
+        "tier": {
+          "min": 3,
+          "max": 999
+        },
         "maxIllness": "None"
       },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "veteran_learn",
           "textId": "dec_training_veteran_learn",
           "text": "Ask him to teach you.",
-          "effects": { "fatigue": 3, "hpChange": -5, "dynamicSkillXp": { "equipped_weapon": 12 } },
+          "effects": {
+            "hpChange": -5,
+            "dynamicSkillXp": {
+              "equipped_weapon": 12
+            }
+          },
           "resultTextId": "dec_training_veteran_learn_result",
           "resultText": "He doesn't pull his blows. By the end you're bruised, but you understand things you didn't before.",
-          "tooltip": "+12 weapon XP. -5 HP. Costs 3 fatigue. Worth it."
+          "tooltip": "+12 weapon XP. -5 HP. Worth it."
         },
         {
           "id": "cancel",
@@ -145,20 +193,30 @@
       "setupId": "dec_training_archery_setup",
       "setup": "Straw targets behind the wagons. Archers loose arrows, correcting each other's form.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "notAtSea": true,
         "maxIllness": "Mild"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "archery_practice",
           "textId": "dec_training_archery_practice",
           "text": "Take some shots.",
-          "effects": { "fatigue": 2, "skillXp": { "Bow": 6 } },
+          "effects": {
+            "skillXp": {
+              "Bow": 6
+            }
+          },
           "resultTextId": "dec_training_archery_practice_result",
           "resultText": "Nock, draw, release. Your groupings tighten with each round.",
-          "tooltip": "+6 Bow XP. Costs 2 fatigue."
+          "tooltip": "+6 Bow XP."
         },
         {
           "id": "cancel",
@@ -177,18 +235,31 @@
       "title": "War Stories",
       "setupId": "dec_social_stories_setup",
       "setup": "Veterans around a fire, sharing tales. Younger soldiers listen with wide eyes.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "stories_listen",
           "textId": "dec_social_stories_listen",
           "text": "Find a seat and listen.",
-          "effects": { "soldierRep": 2, "skillXp": { "Charm": 3 } },
-          "rewards": { "fatigueRelief": 1 },
+          "effects": {
+            "skillXp": {
+              "Charm": 3
+            },
+            "lordReputation": 1
+          },
+          "rewards": {},
           "resultTextId": "dec_social_stories_listen_result",
           "resultText": "Tales of sieges and charges. You learn names, faces, the weight of shared history.",
-          "tooltip": "+2 Soldier rep. +3 Charm XP. -1 fatigue."
+          "tooltip": "+2 Soldier rep. +3 Charm XP."
         },
         {
           "id": "cancel",
@@ -207,18 +278,28 @@
       "title": "Storytelling Circle",
       "setupId": "dec_social_storytelling_setup",
       "setup": "A circle around the fire. An older soldier tells a tale with practiced ease.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "storytelling_join",
           "textId": "dec_social_storytelling_join",
           "text": "Join the circle.",
-          "effects": { "soldierRep": 1 },
-          "rewards": { "fatigueRelief": 2 },
+          "effects": {
+            "lordReputation": 0
+          },
+          "rewards": {},
           "resultTextId": "dec_social_storytelling_join_result",
           "resultText": "The tale carries you away from camp, from war, from everything but the firelight.",
-          "tooltip": "+1 Soldier rep. -2 fatigue."
+          "tooltip": "+1 Soldier rep."
         },
         {
           "id": "cancel",
@@ -237,18 +318,28 @@
       "title": "Campfire Songs",
       "setupId": "dec_social_singing_setup",
       "setup": "Someone found a lute. The singing is terrible but enthusiastic.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "singing_join",
           "textId": "dec_social_singing_join",
           "text": "Join the singing.",
-          "effects": { "soldierRep": 2 },
-          "rewards": { "fatigueRelief": 2 },
+          "effects": {
+            "lordReputation": 1
+          },
+          "rewards": {},
           "resultTextId": "dec_social_singing_join_result",
           "resultText": "Your voice joins the chorus. Off-key but heartfelt. For a moment, you're not soldiers.",
-          "tooltip": "+2 Soldier rep. -2 fatigue."
+          "tooltip": "+2 Soldier rep."
         },
         {
           "id": "cancel",
@@ -267,22 +358,38 @@
       "title": "Drinking Contest",
       "setupId": "dec_drinking_contest_setup",
       "setup": "Two men grip mugs. Loud cheering. Someone's about to lose their supper and their wages.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 3, "priority": "low" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 3,
+        "priority": "low"
+      },
       "options": [
         {
           "id": "contest_enter",
           "textId": "dec_drinking_contest_enter",
           "text": "Enter the contest.",
-          "costs": { "gold": 20 },
-          "effects": { "scrutiny": 1, "fatigue": 2 },
+          "costs": {
+            "gold": 20
+          },
+          "effects": {
+            "scrutiny": 1000000
+          },
           "riskChance": 35,
-          "effects_success": { "soldierRep": 4 },
-          "rewards": { "gold": 80 },
+          "effects_success": {
+            "lordReputation": 2
+          },
+          "rewards": {
+            "gold": 80
+          },
           "resultTextId": "dec_drinking_contest_win",
           "resultText": "The crowd roars. Your opponent slumps. You barely remember the last round.",
           "resultTextFailure": "The world spins. You lose spectacularly. At least they had a good laugh.",
-          "tooltip": "35% to win 80 gold and +4 rep. Costs 20 gold, 2 fatigue, +1 Scrutiny."
+          "tooltip": "35% to win 80 gold and +4 rep. Costs 20 gold, +1 Scrutiny."
         },
         {
           "id": "cancel",
@@ -301,19 +408,31 @@
       "title": "Sutler's Tent",
       "setupId": "dec_tavern_drink_setup",
       "setup": "Cheap wine and cheaper conversation. The sutler's tent does good business tonight.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "drink_moderate",
           "textId": "dec_tavern_drink_moderate",
           "text": "Have a drink or two.",
-          "costs": { "gold": 10 },
-          "effects": { "soldierRep": 1 },
-          "rewards": { "fatigueRelief": 3 },
+          "costs": {
+            "gold": 10
+          },
+          "effects": {
+            "lordReputation": 0
+          },
+          "rewards": {},
           "resultTextId": "dec_tavern_drink_moderate_result",
           "resultText": "The wine is sour but the company's good. You relax, share a laugh.",
-          "tooltip": "+1 Soldier rep. -3 fatigue. Costs 10 gold."
+          "tooltip": "+1 Soldier rep. Costs 10 gold."
         },
         {
           "id": "cancel",
@@ -332,22 +451,36 @@
       "title": "Arm Wrestling",
       "setupId": "dec_arm_wrestling_setup",
       "setup": "Two soldiers lock hands across a barrel. Coins are wagered.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "arm_challenge",
           "textId": "dec_arm_wrestling_challenge",
           "text": "Challenge the winner.",
-          "costs": { "gold": 15 },
-          "effects": { "fatigue": 1 },
+          "costs": {
+            "gold": 15
+          },
+          "effects": {},
           "riskChance": 45,
-          "rewards": { "gold": 40 },
-          "effects_success": { "soldierRep": 2 },
+          "rewards": {
+            "gold": 40
+          },
+          "effects_success": {
+            "lordReputation": 1
+          },
           "resultTextId": "dec_arm_wrestling_win",
           "resultText": "His hand slams down. The crowd erupts. You've won respect.",
           "resultTextFailure": "Your arm buckles. He grins. Next time.",
-          "tooltip": "45% to win 40 gold and +2 rep. Costs 15 gold, 1 fatigue."
+          "tooltip": "45% to win 40 gold and +2 rep. Costs 15 gold."
         },
         {
           "id": "cancel",
@@ -366,17 +499,31 @@
       "title": "Card Game",
       "setupId": "dec_gamble_cards_setup",
       "setup": "A modest game near the cook fires. Low stakes, good company.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "cards_play",
           "textId": "dec_gamble_cards_play",
           "text": "Sit in for a few hands.",
-          "costs": { "gold": 10 },
-          "effects": { "soldierRep": 1 },
+          "costs": {
+            "gold": 10
+          },
+          "effects": {
+            "lordReputation": 0
+          },
           "riskChance": 50,
-          "rewards": { "gold": 25 },
+          "rewards": {
+            "gold": 25
+          },
           "resultTextId": "dec_gamble_cards_win",
           "resultText": "Fortune smiles. You collect a modest pot and good company.",
           "resultTextFailure": "The cards aren't with you. You lose your stake but enjoy the company.",
@@ -400,19 +547,31 @@
       "setupId": "dec_gamble_dice_setup",
       "setup": "Behind the supply wagons, men crouch in the dust. Higher stakes than cards.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "notAtSea": true
       },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "dice_play",
           "textId": "dec_gamble_dice_play",
           "text": "Try your luck.",
-          "costs": { "gold": 25 },
-          "effects": { "scrutiny": 1 },
+          "costs": {
+            "gold": 25
+          },
+          "effects": {
+            "scrutiny": 1000000
+          },
           "riskChance": 40,
-          "rewards": { "gold": 75 },
+          "rewards": {
+            "gold": 75
+          },
           "resultTextId": "dec_gamble_dice_win",
           "resultText": "The dice favor you. Coins pile before you as the others curse their luck.",
           "resultTextFailure": "The dice are cold. You walk away lighter.",
@@ -436,20 +595,31 @@
       "setupId": "dec_forage_setup",
       "setup": "A small party heads out to supplement rations. Something extra for volunteers.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "notAtSea": true,
         "maxIllness": "Mild"
       },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "forage_join",
           "textId": "dec_forage_join",
           "text": "Volunteer for the party.",
-          "effects": { "fatigue": 3, "skillXp": { "Scouting": 5 }, "officerRep": 1 },
+          "effects": {
+            "skillXp": {
+              "Scouting": 5
+            },
+            "lordReputation": 1
+          },
           "resultTextId": "dec_forage_join_result",
           "resultText": "Hours of tramping through woods. You return tired but carrying something for the cookpots.",
-          "tooltip": "+5 Scouting XP. +1 Officer rep. Costs 3 fatigue."
+          "tooltip": "+5 Scouting XP. +1 Officer rep."
         },
         {
           "id": "cancel",
@@ -469,20 +639,32 @@
       "setupId": "dec_work_repairs_setup",
       "setup": "The quartermaster needs hands. Wagon wheels, tent patches, harness mending. Paid work.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "maxIllness": "Moderate"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "repairs_work",
           "textId": "dec_work_repairs_work",
           "text": "Put in some work.",
-          "effects": { "fatigue": 2, "skillXp": { "Crafting": 4 } },
-          "rewards": { "gold": 20 },
+          "effects": {
+            "skillXp": {
+              "Crafting": 4
+            }
+          },
+          "rewards": {
+            "gold": 20
+          },
           "resultTextId": "dec_work_repairs_work_result",
           "resultText": "Honest work. Rough hands by the end, but coin in your pouch.",
-          "tooltip": "+4 Crafting XP. +20 gold. Costs 2 fatigue."
+          "tooltip": "+4 Crafting XP. +20 gold."
         },
         {
           "id": "cancel",
@@ -502,21 +684,33 @@
       "setupId": "dec_trade_browse_setup",
       "setup": "A merchant caravan arrived with goods from distant lands. Soldiers are haggling.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "notAtSea": true
       },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "trade_buy",
           "textId": "dec_trade_browse_buy",
           "text": "Buy something nice.",
-          "costs": { "gold": 30 },
-          "effects": { "skillXp": { "Trade": 3 } },
-          "rewards": { "fatigueRelief": 3 },
+          "costs": {
+            "gold": 30
+          },
+          "effects": {
+            "skillXp": {
+              "Trade": 3
+            }
+          },
+          "rewards": {},
           "resultTextId": "dec_trade_browse_buy_result",
           "resultText": "A small luxury. Something to remind you life isn't just marching and fighting.",
-          "tooltip": "+3 Trade XP. -3 fatigue. Costs 30 gold."
+          "tooltip": "+3 Trade XP. Costs 30 gold."
         },
         {
           "id": "cancel",
@@ -535,18 +729,28 @@
       "title": "Rest",
       "setupId": "dec_rest_sleep_setup",
       "setup": "Your bedroll looks inviting. A few hours of proper rest would do you good.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "rest_full",
           "textId": "dec_rest_sleep_full",
           "text": "Get proper sleep.",
-          "rewards": { "fatigueRelief": 5 },
-          "effects": { "hpChange": 8 },
+          "rewards": {},
+          "effects": {
+            "hpChange": 8
+          },
           "resultTextId": "dec_rest_sleep_full_result",
           "resultText": "You sleep deeply. When you wake, the world feels slightly less crushing.",
-          "tooltip": "-5 fatigue. +8 HP."
+          "tooltip": "+8 HP."
         },
         {
           "id": "cancel",
@@ -566,19 +770,25 @@
       "setupId": "dec_rest_short_setup",
       "setup": "An old oak provides rare shade. A few soldiers doze against its trunk.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "notAtSea": true
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "rest_nap",
           "textId": "dec_rest_short_nap",
           "text": "Close your eyes for a bit.",
-          "rewards": { "fatigueRelief": 2 },
+          "rewards": {},
           "resultTextId": "dec_rest_short_nap_result",
           "resultText": "You drift off. When you stir, the shadows moved but you feel lighter.",
-          "tooltip": "-2 fatigue."
+          "tooltip": ""
         },
         {
           "id": "cancel",
@@ -597,18 +807,28 @@
       "title": "Quiet Reflection",
       "setupId": "dec_meditate_setup",
       "setup": "A quiet spot behind the camp. The chaos fades to a distant murmur.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "meditate_do",
           "textId": "dec_meditate_do",
           "text": "Find peace.",
-          "rewards": { "fatigueRelief": 3 },
-          "effects": { "discipline": -1 },
+          "rewards": {},
+          "effects": {
+            "scrutiny": -1000000
+          },
           "resultTextId": "dec_meditate_do_result",
           "resultText": "You breathe. The noise fades. For a time, there is only stillness.",
-          "tooltip": "-3 fatigue. -1 Discipline."
+          "tooltip": "-1 Discipline."
         },
         {
           "id": "cancel",
@@ -627,17 +847,25 @@
       "title": "Prayer Service",
       "setupId": "dec_prayer_setup",
       "setup": "The camp priest holds a small service. Soldiers kneel in quiet contemplation.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "prayer_attend",
           "textId": "dec_prayer_attend",
           "text": "Attend the service.",
-          "rewards": { "fatigueRelief": 2 },
+          "rewards": {},
           "resultTextId": "dec_prayer_attend_result",
           "resultText": "You kneel with the others. The words wash over you. The war seems far away.",
-          "tooltip": "-2 fatigue."
+          "tooltip": ""
         },
         {
           "id": "cancel",
@@ -657,19 +885,30 @@
       "setupId": "dec_help_wounded_setup",
       "setup": "The camp surgeon could use hands. The wounded need water and bandages changed.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "maxIllness": "Moderate"
       },
-      "timing": { "cooldown_days": 1, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 1,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "help_assist",
           "textId": "dec_help_wounded_assist",
           "text": "Lend a hand.",
-          "effects": { "fatigue": 2, "skillXp": { "Medicine": 6 }, "soldierRep": 2 },
+          "effects": {
+            "skillXp": {
+              "Medicine": 6
+            },
+            "lordReputation": 1
+          },
           "resultTextId": "dec_help_wounded_assist_result",
           "resultText": "Blood and bandages. Grim work but the men look at you with gratitude.",
-          "tooltip": "+6 Medicine XP. +2 Soldier rep. Costs 2 fatigue."
+          "tooltip": "+6 Medicine XP. +2 Soldier rep."
         },
         {
           "id": "cancel",
@@ -688,14 +927,24 @@
       "title": "Officer's Audience",
       "setupId": "dec_officer_audience_setup",
       "setup": "The captain receives soldiers with complaints or requests. A rare chance to be heard.",
-      "requirements": { "tier": { "min": 2, "max": 999 } },
-      "timing": { "cooldown_days": 7, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 2,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 7,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "audience_volunteer",
           "textId": "dec_officer_audience_volunteer",
           "text": "Volunteer for a task.",
-          "effects": { "officerRep": 3 },
+          "effects": {
+            "lordReputation": 3
+          },
           "resultTextId": "dec_officer_audience_volunteer_result",
           "resultText": "The captain nods approval. Volunteers are remembered. You're on his list now.",
           "tooltip": "+3 Officer rep."
@@ -717,17 +966,30 @@
       "title": "Mentor a Recruit",
       "setupId": "dec_mentor_recruit_setup",
       "setup": "A young recruit struggles with basic drills. His sergeant looks frustrated.",
-      "requirements": { "tier": { "min": 3, "max": 999 } },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 3,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "mentor_help",
           "textId": "dec_mentor_recruit_help",
           "text": "Show him how it's done.",
-          "effects": { "fatigue": 1, "soldierRep": 2, "officerRep": 1, "skillXp": { "Leadership": 5 } },
+          "effects": {
+            "skillXp": {
+              "Leadership": 5
+            },
+            "lordReputation": 2
+          },
           "resultTextId": "dec_mentor_recruit_help_result",
           "resultText": "You walk him through the movements. By the end, he's not perfect, but he's better.",
-          "tooltip": "+2 Soldier rep. +1 Officer rep. +5 Leadership XP. Costs 1 fatigue."
+          "tooltip": "+2 Soldier rep. +1 Officer rep. +5 Leadership XP."
         },
         {
           "id": "cancel",
@@ -746,17 +1008,28 @@
       "title": "Extra Duty",
       "setupId": "dec_volunteer_extra_setup",
       "setup": "The sergeant looks for volunteers for an extra watch. Thankless work, but officers notice.",
-      "requirements": { "tier": { "min": 1, "max": 999 } },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "requirements": {
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
+      },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "volunteer_accept",
           "textId": "dec_volunteer_extra_accept",
           "text": "Volunteer.",
-          "effects": { "fatigue": 4, "officerRep": 3, "discipline": -2 },
+          "effects": {
+            "scrutiny": -2000000,
+            "lordReputation": 3
+          },
           "resultTextId": "dec_volunteer_extra_accept_result",
           "resultText": "Long hours watching nothing happen. But the sergeant remembers who showed up.",
-          "tooltip": "+3 Officer rep. -2 Discipline. Costs 4 fatigue."
+          "tooltip": "+3 Officer rep. -2 Discipline."
         },
         {
           "id": "cancel",
@@ -776,22 +1049,35 @@
       "setupId": "dec_night_patrol_setup",
       "setup": "A few soldiers head out to check the perimeter. Not official, just men who can't sleep.",
       "requirements": {
-        "tier": { "min": 2, "max": 999 },
+        "tier": {
+          "min": 2,
+          "max": 999
+        },
         "notAtSea": true
       },
-      "timing": { "cooldown_days": 2, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 2,
+        "priority": "normal"
+      },
       "options": [
         {
           "id": "patrol_join",
           "textId": "dec_night_patrol_join",
           "text": "Join them.",
-          "effects": { "fatigue": 2, "skillXp": { "Scouting": 5 }, "soldierRep": 1 },
+          "effects": {
+            "skillXp": {
+              "Scouting": 5
+            },
+            "lordReputation": 0
+          },
           "riskChance": 30,
-          "rewards": { "gold": 25 },
+          "rewards": {
+            "gold": 25
+          },
           "resultTextId": "dec_night_patrol_find",
           "resultText": "You find something - a lost coin pouch. Finders keepers.",
           "resultTextFailure": "Nothing but stars and silence. But the walk clears your head.",
-          "tooltip": "30% to find 25 gold. +5 Scouting XP. +1 rep. Costs 2 fatigue."
+          "tooltip": "30% to find 25 gold. +5 Scouting XP. +1 rep."
         },
         {
           "id": "cancel",
@@ -811,9 +1097,15 @@
       "setupId": "dec_baggage_access_setup",
       "setup": "Your personal belongings are stowed with the baggage train.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 }
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
       },
-      "timing": { "cooldown_days": 0, "priority": "normal" },
+      "timing": {
+        "cooldown_days": 0,
+        "priority": "normal"
+      },
       "options": []
     }
   ]

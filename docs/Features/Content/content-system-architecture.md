@@ -37,7 +37,7 @@ The content system uses **world-state driven orchestration** instead of schedule
 - Activity levels drive order event frequency (quiet/routine/active/intense)
 - 84 order events fire contextually during 17 different order types
 - Player behavior learning improves content selection
-- Native Bannerlord effects integrated (traits, skills, morale, health)
+- Native Bannerlord effects integrated (traits, skills, health)
 - Camp opportunities dynamically generated based on context
 - Baggage train simulation responds to campaign conditions
 
@@ -209,7 +209,7 @@ The orchestrator coordinates three content tracks:
 - Pre-scheduled 24 hours ahead at daily tick (6am)
 - Locked once generated - persist regardless of context changes
 - Narrative hints woven into Company Reports ("A card game is forming this evening")
-- 29 camp opportunities with fitness scoring (defined in `ModuleData/Enlisted/Decisions/camp_opportunities.json`)
+- 36 camp opportunities with fitness scoring (defined in `ModuleData/Enlisted/Decisions/camp_opportunities.json`)
 - Displayed in DECISIONS accordion on main menu
 - Player interacts when ready; opportunities remain until consumed or phase ends
 
@@ -226,7 +226,7 @@ Daily Tick (6am) → ContentOrchestrator.OnDailyTick()
 WorldStateAnalyzer.AnalyzeSituation()
   ├─ Detect lord's situation (garrison/campaign/siege)
   ├─ Analyze war status (peace/active/desperate)
-  ├─ Check company condition (supplies/morale/fatigue)
+- Check company condition (supplies/rest/fatigue)
   └─ Return: WorldSituation
   ↓
 CalculateActivityLevel(WorldSituation)
@@ -411,7 +411,7 @@ ApplyEffects()
 **Outcome Modifiers:**
 - Player skills → Better training outcomes
 - Fatigue → More mishaps when exhausted
-- Morale → Poor outcomes when morale low
+- Rest → Poor outcomes when exhausted
 - Equipment → Training penalties with poor gear
 - Weather/context → Siege = harsh conditions
 
@@ -1303,7 +1303,7 @@ JSON files include fallback text for development:
 | `ModuleData/Enlisted/Decisions/decisions.json` | Core camp decisions (training, social, economic) |
 | `ModuleData/Enlisted/Decisions/camp_decisions.json` | Additional camp activities |
 | `ModuleData/Enlisted/Decisions/medical_decisions.json` | Medical system decisions (surgeon, rest, with sea variants) |
-| `ModuleData/Enlisted/Decisions/camp_opportunities.json` | 29 orchestrated opportunities (pre-scheduled by ContentOrchestrator) |
+| `ModuleData/Enlisted/Decisions/camp_opportunities.json` | 36 orchestrated opportunities (pre-scheduled by ContentOrchestrator) |
 
 **Order Event Files:**
 
@@ -1419,27 +1419,11 @@ The content system includes searchable error codes for user support and troubles
 
 ### Content System Error Codes
 
-| Code | System | Severity | Meaning | User Action |
-|------|--------|----------|---------|-------------|
-| **W-ORCH-001** | Orchestrator | Warning | CampOpportunityGenerator not available | Decisions won't appear in accordion - check if game loaded properly |
-| **W-ORCH-002** | Orchestrator | Warning | ConsumeOpportunity called with null ID | Decision may not disappear from menu - report if decisions stuck |
-| **W-ORCH-003** | Orchestrator | Warning | Opportunity not found in schedule | Decision may reappear after phase change - normal if already selected |
-| **W-CAMP-001** | CampLife | Warning | Definitions loaded via lazy init | Normal on first access after load - informational |
-| **W-CAMP-002** | CampLife | Warning | No definitions after loading | Check camp_opportunities.json exists and has content |
-| **W-CAMP-003** | CampLife | Warning | No candidates passed filtering | Check tier/context requirements in JSON match current state |
-| **E-CAMP-001** | CampLife | Error | camp_opportunities.json not found | Verify mod installation is complete |
-| **E-CAMP-002** | CampLife | Error | No 'opportunities' array in JSON | File corrupt or invalid - reinstall mod |
-| **E-CAMP-003** | CampLife | Error | Failed to parse JSON | Check JSON syntax - decisions won't appear |
-| **W-EVT-001** | EventDelivery | Warning | Attempted to queue null event | Event won't fire - check event ID and catalog loading |
-| **W-EVT-002** | EventDelivery | Warning | Event has no valid options | Event popup empty - check requirements in JSON |
-| **E-EVT-001** | EventDelivery | Error | Selected option not an EventOption | Internal error - report with log |
-| **W-MAP-001** | MapIncidents | Warning | EventDeliveryManager not available | Map incidents won't fire - check system initialization |
-| **E-MAP-001** | MapIncidents | Error | Error delivering map incident | Map incident failed - report with log |
-
-**Other System Error Codes:**
-- **E-DIAG-002/003/004**: Diagnostics system failures (see `ModConflictDiagnostics.cs`)
-- **E-UI-046/047**: Menu/accordion failures (see `EnlistedMenuBehavior.cs`)
-- **E-*-*****: 40+ additional codes across enlistment, combat, equipment, retinue systems
+Surfaced error codes auto-generate at build time from `ModLogger.Surfaced(...)`
+call sites. The complete live registry is in
+[docs/error-codes.md](../../error-codes.md). For historical codes found in
+pre-redesign session logs (format `E-<SUBSYSTEM>-NNN`), see the frozen
+snapshot at [docs/error-codes-archive.md](../../error-codes-archive.md).
 
 ### Diagnostic Features
 

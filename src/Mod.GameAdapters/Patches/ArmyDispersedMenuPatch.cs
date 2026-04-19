@@ -60,7 +60,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Interface", "E-PATCH-030", "Error in ArmyDispersedMenuPatch", ex);
+                ModLogger.Caught("Interface", "Error in ArmyDispersedMenuPatch", ex);
                 // Fail open - allow native behavior on error
                 return true;
             }

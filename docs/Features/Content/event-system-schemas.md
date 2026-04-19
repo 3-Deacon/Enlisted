@@ -88,12 +88,61 @@
 | Field | JSON Name | Type | Required | Notes |
 |-------|-----------|------|----------|-------|
 | ID | `id` | string | ✅ | Must be unique. Prefix determines delivery. |
-| Category | `category` | string | ✅ | Must be `"decision"` for Camp Hub decisions |
-| Severity | `severity` | string | ❌ | News priority/color: `"normal"`, `"positive"`, `"attention"`, `"urgent"`, `"critical"` (defaults to `"normal"`) |
+| Category | `category` | string | ✅ | See valid categories below. `"decision"` for Camp Hub. |
+| Severity | `severity` | string | ❌ | News priority: `"normal"`, `"positive"`, `"attention"`, `"urgent"`, `"critical"` |
 | Title ID | `titleId` | string | ✅* | XML localization key. *Either titleId OR title required (both recommended) |
 | Title Fallback | `title` | string | ✅* | Fallback text if localization missing. *Either titleId OR title required |
 | Setup ID | `setupId` | string | ✅* | XML localization key for description. *Either setupId OR setup required (both recommended) |
 | Setup Fallback | `setup` | string | ✅* | Fallback text if localization missing. *Either setupId OR setup required |
+
+### Valid Categories (enforced by validator)
+
+**Verified from actual JSON files (26 total):**
+
+| Category | Used In | Description |
+|----------|---------|-------------|
+| `camp_life` | Events | Daily camp activities and routines |
+| `crisis` | Events | Urgent problems requiring immediate attention |
+| `decision` | Decisions | Player choices with consequences |
+| `discipline` | Orders | Behavioral issues and corrections |
+| `discovery` | Events | Learning and skill development |
+| `economic` | Events | Financial and resource management |
+| `emergency_drill` | Orders | Combat readiness training |
+| `extended_rest` | Orders | Recovery and recuperation |
+| `foraging` | Orders | Resource gathering activities |
+| `formation` | Orders | Formation selection and tactics |
+| `light_duty` | Orders | Reduced work assignments |
+| `map_incident` | Events | Random encounters during travel |
+| `medical` | Events | Illness, injury, and treatment |
+| `onboarding` | Events | New player introduction and tutorials |
+| `order_event` | Events | Order-triggered events |
+| `patrol` | Orders | Patrol and reconnaissance missions |
+| `pay` | Events | Wage, payment, and compensation |
+| `problems` | Events | General problems and complications |
+| `promotion` | Events | Tier advancement and recognition |
+| `recovery` | Orders | Healing and rehabilitation |
+| `retinue` | Events | Companion and follower events |
+| `social` | Events | Social interactions and relationships |
+| `special` | Events | Special circumstances and unique events |
+| `threshold` | Events | Escalation threshold triggers |
+| `training` | Orders | Skill training and practice |
+| `work` | Orders | Work assignments and labor |
+
+**Invalid category = validation ERROR (blocks commit).**
+
+### Valid Severities
+
+**Verified from actual JSON files (5 total):**
+
+| Severity | Used For |
+|----------|----------|
+| `normal` | Standard priority event |
+| `attention` | Requires player attention |
+| `critical` | High priority, serious consequences |
+| `serious` | Major problem or situation |
+| `moderate` | Medium severity |
+
+**Invalid severity = validation ERROR (blocks commit).**
 
 ---
 
@@ -1337,8 +1386,6 @@ Used in proving events (`events_promotion.json`) to grant rank promotions:
 **⚠️ COMMON MISTAKES:**
 - Use `hpChange`, not `hp`
 - Use `skillXp` in `effects` for main options, NOT in `rewards`
-- Use `fatigueRelief` in `rewards` (sub-choices only)
-- Use `soldierRep` (camelCase), parser also accepts `soldier_rep`
 - Don't forget `"promotes": true` in all proving event options (or promotion won't happen!)
 
 **✅ PLAYER FEEDBACK:**
@@ -1381,14 +1428,14 @@ Options with success/failure outcomes:
   "risk": "risky",
   "risk_chance": 50,
   "effects": {
-    "soldierRep": 1
+    "lordRep": 1
   },
   "effects_success": {
     "gold": 100
   },
   "effects_failure": {
     "gold": -100,
-    "soldierRep": -2
+    "lordRep": -2
   },
   "resultText": "You win!",
   "failure_resultText": "You lose everything."
@@ -1421,16 +1468,10 @@ Options with success/failure outcomes:
 
 For `requirements.minEscalation`, `triggers.escalation_requirements`, and `effects`:
 
-**Primary Tracks:**
-- `scrutiny` - Crime suspicion (0-10)
-- `discipline` - Rule-breaking record (0-10)
+**Active Tracks:**
+- `scrutiny` - Trouble/suspicion level (0-100 scale, replaces old Discipline track)
 - `medical_risk` / `medicalrisk` / `MedicalRisk` - Health status (0-5)
-- `pay_tension` / `pay_tension_min` / `paytension` - Pay tension (0-100)
-
-**Reputation Tracks:**
-- `soldierreputation` / `soldier_reputation` / `SoldierReputation` - Soldier rep (-50 to +50)
-- `officerreputation` / `officer_reputation` / `OfficerReputation` - Officer rep (0-100)
-- `lordreputation` / `lord_reputation` / `LordReputation` - Lord rep (0-100)
+- `lordreputation` / `lord_reputation` / `LordReputation` - Lord rep (0-100, uses native Hero.GetRelation())
 
 **Note:** Parser accepts multiple naming variants (camelCase, snake_case, PascalCase) for compatibility.
 
@@ -1494,10 +1535,10 @@ All variables use fallback values if data is unavailable (e.g., "the Sergeant" i
           "costs": {
             "fatigue": 2
           },
-          "effects": {
-            "skillXp": { "OneHanded": 25, "Athletics": 10 },
-            "soldierRep": 2
-          },
+  "effects": {
+    "skillXp": { "OneHanded": 25, "Athletics": 10 },
+    "lordRep": 2
+  },
           "resultTextId": "dec_spar_friendly_result",
           "resultText": "A good practice session. You both learn something."
         },
@@ -1508,11 +1549,11 @@ All variables use fallback values if data is unavailable (e.g., "the Sergeant" i
           "costs": {
             "fatigue": 4
           },
-          "effects": {
-            "skillXp": { "OneHanded": 40, "Athletics": 20 },
-            "soldierRep": 3,
-            "hpChange": -8
-          },
+  "effects": {
+    "skillXp": { "OneHanded": 40, "Athletics": 20 },
+    "lordRep": 3,
+    "hpChange": -8
+  },
           "resultTextId": "dec_spar_hard_result",
           "resultText": "Blood is drawn. Word spreads about this bout."
         }

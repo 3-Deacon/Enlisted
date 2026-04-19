@@ -114,11 +114,8 @@ Your role in the company emerges from your native Bannerlord traits, which devel
 - Your choices in orders and events grant trait XP, gradually developing your specialization
 - Multiple specializations can develop simultaneously (e.g., Scout + NCO)
 
-### Expanded Reputation
-We track three distinct reputation values (-50 to +100):
-1.  **Lord Reputation**: Your standing with the lord you serve.
-2.  **Officer Reputation**: How the NCOs and officers perceive your competence.
-3.  **Soldier Reputation**: Your popularity and respect among the rank-and-file.
+### Reputation
+Reputation with your lord is tracked using native Bannerlord's relation system (`Hero.GetRelation()`). This integrates with vanilla mechanics and affects all interactions with your commanding officer. Positive relations improve opportunities, while negative relations can block progression.
 
 ---
 
@@ -146,21 +143,20 @@ All reports use immersive narrative style with world-state-aware generation (act
 
 ## Company Needs
 
-The company's effectiveness is tracked via five core needs:
+The company's effectiveness is tracked via two core needs:
 -   **Readiness**: Combat effectiveness and preparation.
--   **Morale**: The unit's will to fight.
--   **Supplies**: Food and basic consumables.
--   **Equipment**: Maintenance and quality of gear.
--   **Rest**: Recovery from fatigue.
+-   **Supply**: Food and basic consumables.
+
+**Note:** Company Rest was removed (2026-01-11) as redundant with the Player Fatigue system (0-24 budget). Player fatigue still gates camp decisions and has health penalties - only the company-wide Rest metric was removed.
 
 ### Status Reporting
 Company Needs are displayed in the **Reports → Company Status** menu with immersive, context-aware descriptions that explain what's affecting each stat:
 - **Descriptive states** instead of raw percentages (e.g., "The company is battle-ready, formations tight and weapons sharp" vs "85%")
-- **Contextual factors** explaining why stats are changing (late pay affecting morale, long marches draining rest, combat degrading equipment)
+- **Contextual factors** explaining why stats are changing (long marches draining rest, supply shortages affecting readiness)
 - **5 severity levels** per need: Excellent → Good → Fair → Poor → Critical
 
 ### Needs Prediction
-The mod forecasts upcoming needs based on the current **Strategic Context**. For example, a "Grand Campaign" (coordinated offensive) predicts high Readiness and Supply requirements, while a "Winter Camp" prioritizes Rest and Morale. This allows players to prepare for upcoming operations.
+The mod forecasts upcoming needs based on the current **Strategic Context**. For example, a "Grand Campaign" (coordinated offensive) predicts high Readiness and Supply requirements, while a "Winter Camp" prioritizes Rest. This allows players to prepare for upcoming operations.
 
 ---
 

@@ -76,12 +76,6 @@ namespace Enlisted.Features.Content
                     return false;
                 }
                 
-                // Check soldier reputation maximum (for theft events targeting unpopular soldiers)
-                if (!MeetsSoldierRepRequirement(requirements))
-                {
-                    return false;
-                }
-                
                 // Check baggage has items (for theft events)
                 if (!MeetsBaggageItemsRequirement(requirements))
                 {
@@ -283,10 +277,7 @@ namespace Enlisted.Features.Content
             return trackName.ToLowerInvariant() switch
             {
                 "scrutiny" => state.Scrutiny,
-                "discipline" => state.Discipline,
-                "soldierreputation" or "soldier_reputation" or "soldierrep" => state.SoldierReputation,
                 "lordreputation" or "lord_reputation" or "lordrep" => state.LordReputation,
-                "officerreputation" or "officer_reputation" or "officerrep" => state.OfficerReputation,
                 "medicalrisk" or "medical_risk" => state.MedicalRisk,
                 "pay_tension" or "paytension" or "pay_tension_min" => 0, // TODO: Add PayTension property to EscalationState if needed
                 _ => 0
@@ -319,26 +310,6 @@ namespace Enlisted.Features.Content
 
             var hpPercent = (hero.HitPoints * 100) / maxHp;
             return hpPercent < requirements.HpBelow.Value;
-        }
-        
-        /// <summary>
-        /// Checks if the player's soldier reputation is at or below the maximum required.
-        /// Used for events like theft that only target unpopular soldiers.
-        /// </summary>
-        private static bool MeetsSoldierRepRequirement(EventRequirements requirements)
-        {
-            if (!requirements.MaxSoldierRep.HasValue)
-            {
-                return true; // No soldier rep requirement
-            }
-            
-            var escalation = EscalationManager.Instance?.State;
-            if (escalation == null)
-            {
-                return false;
-            }
-            
-            return escalation.SoldierReputation <= requirements.MaxSoldierRep.Value;
         }
         
         /// <summary>
@@ -801,15 +772,8 @@ namespace Enlisted.Features.Content
                 }
             }
             
-            // Check discipline thresholds (discipline_2, discipline_3, discipline_5, discipline_7, discipline_10)
-            if (condition.StartsWith("discipline_"))
-            {
-                if (int.TryParse(condition.Substring(11), out var threshold))
-                {
-                    result = escalation.Discipline >= threshold;
-                    return true;
-                }
-            }
+            // Discipline merged into Scrutiny - no longer supported as separate condition
+            // JSON files should use scrutiny_ conditions instead
             
             // Check medical risk thresholds (medical_3, medical_4, medical_5)
             if (condition.StartsWith("medical_"))
@@ -821,25 +785,8 @@ namespace Enlisted.Features.Content
                 }
             }
             
-            // Check soldier reputation thresholds (soldier_rep_20, soldier_rep_40, soldier_rep_-20, soldier_rep_-40)
-            // Also support camp_rep_ for legacy compatibility
-            if (condition.StartsWith("soldier_rep_") || condition.StartsWith("camp_rep_"))
-            {
-                var prefix = condition.StartsWith("soldier_rep_") ? "soldier_rep_" : "camp_rep_";
-                var thresholdStr = condition.Substring(prefix.Length);
-                if (int.TryParse(thresholdStr, out var threshold))
-                {
-                    if (threshold >= 0)
-                    {
-                        result = escalation.SoldierReputation >= threshold;
-                    }
-                    else
-                    {
-                        result = escalation.SoldierReputation <= threshold;
-                    }
-                    return true;
-                }
-            }
+            // Soldier reputation thresholds removed in Phase 3
+            // JSON files should use lord relation conditions instead
             
             return false;
         }

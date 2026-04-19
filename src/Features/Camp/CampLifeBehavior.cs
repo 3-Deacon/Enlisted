@@ -30,7 +30,6 @@ namespace Enlisted.Features.Camp
         // These internal values drive Quartermaster mood and other systems.
         // Player-visible crime suspicion uses Scrutiny in EscalationState instead.
         private float _logisticsStrain;
-        private float _moraleShock;
         private float _territoryPressure;
         private float _payTension;
 
@@ -51,7 +50,6 @@ namespace Enlisted.Features.Camp
         }
 
         public float LogisticsStrain => _logisticsStrain;
-        public float MoraleShock => _moraleShock;
         public float TerritoryPressure => _territoryPressure;
         public float PayTension => _payTension;
         public QuartermasterMoodTier QuartermasterMoodTier => _quartermasterMoodTier;
@@ -68,9 +66,11 @@ namespace Enlisted.Features.Camp
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
                 dataStore.SyncData("cl_logisticsStrain", ref _logisticsStrain);
-                dataStore.SyncData("cl_moraleShock", ref _moraleShock);
                 dataStore.SyncData("cl_territoryPressure", ref _territoryPressure);
                 dataStore.SyncData("cl_payTension", ref _payTension);
+                // Backwards compatibility: Load old morale shock value but don't use it
+                float moraleShock = 0f;
+                dataStore.SyncData("cl_moraleShock", ref moraleShock);
 
                 var mood = (int)_quartermasterMoodTier;
                 dataStore.SyncData("cl_qmMoodTier", ref mood);
@@ -99,12 +99,7 @@ namespace Enlisted.Features.Camp
             return IsActiveWhileEnlisted() && _logisticsStrain >= (cfg?.LogisticsHighThreshold ?? 70f);
         }
 
-        public bool IsMoraleLow()
-        {
-            var cfg = ConfigurationManager.LoadCampLifeConfig();
-            // MoraleShock is an inverse-morale meter (higher shock == lower morale).
-            return IsActiveWhileEnlisted() && _moraleShock >= (cfg?.MoraleLowThreshold ?? 70f);
-        }
+        // Morale tracking removed (morale system no longer exists)
 
         public bool IsPayTensionHigh()
         {
@@ -213,10 +208,7 @@ namespace Enlisted.Features.Camp
                 var logistics = (daysSinceResupply * 12f) + (_villagesLootedThisWeek * 10f) + (_battlesThisWeek * 4f);
                 _logisticsStrain = Clamp01Hundred(logistics);
 
-                // Morale shock: spikes after recent battles, then decays slowly each day.
-                var battleEndedRecently = tracker != null && tracker.IsWithinDays(tracker.LastMapEventEndedTime, 1f);
-                _moraleShock = battleEndedRecently ? Math.Max(_moraleShock, 70f) : Math.Max(0f, _moraleShock - 8f);
-                _moraleShock = Clamp01Hundred(_moraleShock + (_battlesThisWeek > 2 ? 5f : 0f));
+                // Morale shock tracking removed (morale system no longer exists)
 
                 // Territory pressure: light placeholder for now.
                 _territoryPressure = Clamp01Hundred(_villagesLootedThisWeek * 12f);
@@ -225,10 +217,10 @@ namespace Enlisted.Features.Camp
                 // This is the authoritative source - tracks actual pay delays, backpay, and tension escalation
                 _payTension = enlistment.PayTension;
 
-                _quartermasterMoodTier = ComputeQuartermasterMoodTier(_logisticsStrain, _moraleShock, _payTension);
+                _quartermasterMoodTier = ComputeQuartermasterMoodTier(_logisticsStrain, _payTension);
 
                 ModLogger.Info(LogCategory,
-                    $"Snapshot updated (logistics={_logisticsStrain:0}, moraleShock={_moraleShock:0}, payTension={_payTension:0}, mood={_quartermasterMoodTier})");
+                    $"Snapshot updated (logistics={_logisticsStrain:0}, payTension={_payTension:0}, mood={_quartermasterMoodTier})");
             }
             catch (Exception ex)
             {
@@ -298,11 +290,11 @@ namespace Enlisted.Features.Camp
             }
         }
 
-        private static QuartermasterMoodTier ComputeQuartermasterMoodTier(float logisticsStrain, float moraleShock, float payTension)
+        private static QuartermasterMoodTier ComputeQuartermasterMoodTier(float logisticsStrain, float payTension)
         {
-            // A small stable blend (0–100). Logistics strain and pay tension drive the score the most, and morale
-            // shock adds lighter pressure toward a sour mood.
-            var score = (logisticsStrain * 0.55f) + (payTension * 0.35f) + (moraleShock * 0.15f);
+            // A small stable blend (0–100). Logistics strain and pay tension drive the score.
+            // Morale shock was removed when morale system was eliminated.
+            var score = (logisticsStrain * 0.65f) + (payTension * 0.35f);
             score = Clamp01Hundred(score);
 
             if (score < 25f)

@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered after battles for T7+ commanders with retinue (leaving_battle context). 6 total incidents.",
@@ -13,8 +13,13 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 9 },
-        "custom": ["has_retinue"]
+        "tier": {
+          "min": 7,
+          "max": 9
+        },
+        "custom": [
+          "has_retinue"
+        ]
       },
       "timing": {
         "cooldown_days": 10,
@@ -35,7 +40,7 @@
           },
           "effects": {
             "retinueLoyalty": 15,
-            "soldierRep": 10
+            "lordReputation": 5
           }
         },
         {
@@ -57,11 +62,11 @@
           },
           "effectsSuccess": {
             "retinueWounded": -1,
-            "officerRep": -5
+            "lordReputation": -5
           },
           "effectsFailure": {
             "retinueLoss": 1,
-            "officerRep": -10
+            "lordReputation": -10
           }
         },
         {
@@ -74,10 +79,10 @@
           "risk": "safe",
           "effects": {
             "retinueLoyalty": -10,
-            "soldierRep": -5,
             "traitXp": {
               "Calculating": 5
-            }
+            },
+            "lordReputation": -2
           }
         }
       ]
@@ -92,8 +97,13 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 7 },
-        "custom": ["has_retinue"]
+        "tier": {
+          "min": 7,
+          "max": 7
+        },
+        "custom": [
+          "has_retinue"
+        ]
       },
       "timing": {
         "cooldown_days": 999,
@@ -128,10 +138,10 @@
           "risk": "safe",
           "effects": {
             "retinueLoyalty": 10,
-            "soldierRep": 8,
             "skillXp": {
               "Leadership": 15
-            }
+            },
+            "lordReputation": 4
           }
         },
         {
@@ -161,8 +171,13 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 9 },
-        "custom": ["has_retinue"]
+        "tier": {
+          "min": 7,
+          "max": 9
+        },
+        "custom": [
+          "has_retinue"
+        ]
       },
       "timing": {
         "cooldown_days": 15,
@@ -174,15 +189,13 @@
           "id": "discipline",
           "textId": "mi_ret_cowardice_discipline",
           "text": "Public flogging. Make an example.",
-          "tooltip": "-8 Loyalty, -10 Soldier rep. +5 Officer rep, +10 Discipline.",
+          "tooltip": "-8 Loyalty, -10 Scrutiny.",
           "resultTextId": "mi_ret_cowardice_discipline_result",
           "resultText": "He takes the lashes without a sound. The men watch in silence. They won't run. But they won't love you for this.",
           "risk": "safe",
           "effects": {
             "retinueLoyalty": -8,
-            "discipline": 10,
-            "officerRep": 5,
-            "soldierRep": -10
+            "scrutiny": -10
           }
         },
         {
@@ -204,15 +217,15 @@
           "effects": {},
           "effectsSuccess": {
             "retinueLoyalty": 10,
-            "soldierRep": 8,
             "skillXp": {
               "Leadership": 20
-            }
+            },
+            "lordReputation": 4
           },
           "effectsFailure": {
             "retinueLoyalty": -5,
-            "soldierRep": -5,
-            "discipline": -5
+            "scrutiny": -50,
+            "lordReputation": -2
           }
         },
         {
@@ -226,21 +239,21 @@
           "effects": {
             "retinueLoss": 1,
             "retinueLoyalty": 3,
-            "soldierRep": 5
+            "lordReputation": 2
           }
         },
         {
           "id": "ignore",
           "textId": "mi_ret_cowardice_ignore",
           "text": "Let it go. Everyone has a bad day.",
-          "tooltip": "-3 Loyalty, -10 Discipline, -8 Soldier rep.",
+          "tooltip": "-3 Loyalty, +10 Scrutiny, -4 Lord reputation.",
           "resultTextId": "mi_ret_cowardice_ignore_result",
           "resultText": "You say nothing. The men exchange glances. If running is acceptable, what else is? Your authority weakens.",
           "risk": "safe",
           "effects": {
             "retinueLoyalty": -3,
-            "discipline": -10,
-            "soldierRep": -8
+            "scrutiny": 10,
+            "lordReputation": -4
           }
         }
       ]
@@ -255,8 +268,13 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 9 },
-        "custom": ["has_retinue"]
+        "tier": {
+          "min": 7,
+          "max": 9
+        },
+        "custom": [
+          "has_retinue"
+        ]
       },
       "timing": {
         "cooldown_days": 12,
@@ -275,14 +293,14 @@
           "riskChance": 70,
           "effects": {
             "retinueLoyalty": 8,
-            "soldierRep": 10
+            "lordReputation": 5
           },
           "effectsSuccess": {
             "gold": 30
           },
           "effectsFailure": {
-            "scrutiny": 5,
-            "officerRep": -8
+            "scrutiny": 50,
+            "lordReputation": -8
           }
         },
         {
@@ -295,9 +313,8 @@
           "risk": "safe",
           "effects": {
             "retinueLoyalty": -5,
-            "soldierRep": -5,
-            "officerRep": 8,
-            "discipline": 5
+            "scrutiny": 5000000,
+            "lordReputation": 6
           }
         },
         {
@@ -311,14 +328,13 @@
           "riskChance": 50,
           "effects": {
             "retinueLoyalty": 15,
-            "soldierRep": 15,
-            "gold": 50
+            "gold": 50,
+            "lordReputation": 7
           },
           "effectsSuccess": {},
           "effectsFailure": {
-            "scrutiny": 10,
-            "officerRep": -15,
-            "discipline": -10
+            "scrutiny": 0,
+            "lordReputation": -15
           }
         }
       ]
@@ -333,8 +349,13 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 9 },
-        "custom": ["has_retinue"]
+        "tier": {
+          "min": 7,
+          "max": 9
+        },
+        "custom": [
+          "has_retinue"
+        ]
       },
       "timing": {
         "cooldown_days": 20,
@@ -352,11 +373,11 @@
           "risk": "safe",
           "effects": {
             "retinueLoyalty": 8,
-            "soldierRep": 10,
             "traitXp": {
               "Honor": -10,
               "Mercy": -10
-            }
+            },
+            "lordReputation": 5
           }
         },
         {
@@ -370,11 +391,11 @@
           "effects": {
             "gold": 100,
             "retinueLoyalty": -5,
-            "soldierRep": -5,
             "traitXp": {
               "Honor": 5,
               "Mercy": 10
-            }
+            },
+            "lordReputation": -2
           }
         },
         {
@@ -398,10 +419,10 @@
             }
           },
           "effectsFailure": {
-            "soldierRep": 8,
             "traitXp": {
               "Mercy": -5
-            }
+            },
+            "lordReputation": 4
           }
         }
       ]
@@ -416,8 +437,14 @@
       "requirements": {
         "context": "leaving_battle",
         "role": "Any",
-        "tier": { "min": 7, "max": 9 },
-        "custom": ["has_retinue", "last_battle_won"]
+        "tier": {
+          "min": 7,
+          "max": 9
+        },
+        "custom": [
+          "has_retinue",
+          "last_battle_won"
+        ]
       },
       "timing": {
         "cooldown_days": 15,
@@ -434,11 +461,11 @@
           "resultText": "Your lord nods, satisfied. Your men appreciate the humility. You're a commander, but you're not arrogant about it.",
           "risk": "safe",
           "effects": {
-            "lordRep": 8,
             "retinueLoyalty": 5,
             "traitXp": {
               "Honor": 5
-            }
+            },
+            "lordReputation": 8
           }
         },
         {
@@ -450,12 +477,11 @@
           "resultText": "Your men exchange glances. You just gave them the glory. They'll remember this. Your lord smiles slightly—good leadership.",
           "risk": "safe",
           "effects": {
-            "lordRep": 5,
             "retinueLoyalty": 15,
-            "soldierRep": 12,
             "skillXp": {
               "Leadership": 15
-            }
+            },
+            "lordReputation": 11
           }
         },
         {
@@ -467,16 +493,14 @@
           "resultText": "Your lord's smile fades. Your men shift uncomfortably. You just took all the credit. That's not how you build loyalty.",
           "risk": "safe",
           "effects": {
-            "lordRep": -5,
             "retinueLoyalty": -10,
-            "soldierRep": -8,
             "traitXp": {
               "Calculating": -5
-            }
+            },
+            "lordReputation": -9
           }
         }
       ]
     }
   ]
 }
-

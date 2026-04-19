@@ -222,11 +222,11 @@ namespace Enlisted.Features.Interface.News.Generation
                     confidence: 0.75f));
             }
 
-            // ===== Unit: discipline pressure =====
-            if (snapshot.DisciplineIssues >= 0)
+            // ===== Unit: scrutiny pressure (0-100 scale) =====
+            if (snapshot.DisciplineIssues >= 0) // Legacy field name, now contains scrutiny value
             {
-                if (snapshot.DisciplineIssues >= 7 || string.Equals(snapshot.DisciplineTag, "critical", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(snapshot.DisciplineTag, "breaking", StringComparison.OrdinalIgnoreCase))
+                // Critical: 81-100 (Court-martial pending)
+                if (snapshot.DisciplineIssues >= 81 || string.Equals(snapshot.DisciplineTag, "breaking", StringComparison.OrdinalIgnoreCase))
                 {
                     candidates.Add(Candidate.Template(
                         templateId: "unit_discipline_critical",
@@ -234,7 +234,8 @@ namespace Enlisted.Features.Interface.News.Generation
                         severity: 60,
                         confidence: 0.85f));
                 }
-                else if (snapshot.DisciplineIssues >= 5 || string.Equals(snapshot.DisciplineTag, "serious", StringComparison.OrdinalIgnoreCase))
+                // Serious: 61-80 (Serious trouble)
+                else if (snapshot.DisciplineIssues >= 61 || string.Equals(snapshot.DisciplineTag, "serious", StringComparison.OrdinalIgnoreCase))
                 {
                     candidates.Add(Candidate.Template(
                         templateId: "unit_discipline_serious",

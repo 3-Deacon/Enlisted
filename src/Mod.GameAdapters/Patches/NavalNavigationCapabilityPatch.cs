@@ -165,8 +165,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // Fail-safe: log error but don't break the game
-                ModLogger.ErrorCode(LogCategory, "E-NAVALPATCH-022",
-                    "Error in naval navigation capability patch", ex);
+                ModLogger.Caught(LogCategory, "Error in naval navigation capability patch", ex);
                 // Leave __result unchanged on error
             }
         }

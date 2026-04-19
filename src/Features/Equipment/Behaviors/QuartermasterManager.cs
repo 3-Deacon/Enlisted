@@ -145,11 +145,11 @@ namespace Enlisted.Features.Equipment.Behaviors
 
             if (previousCaptured.HasValue && previousCaptured != CapturedTimeMode)
             {
-                ModLogger.Debug("Quartermaster", $"Time state changed: {previousCaptured} -> {CapturedTimeMode}");
+                ModLogger.Debug("QUARTERMASTER",$"Time state changed: {previousCaptured} -> {CapturedTimeMode}");
             }
             else
             {
-                ModLogger.Debug("Quartermaster", $"Captured time state: {CapturedTimeMode}");
+                ModLogger.Debug("QUARTERMASTER",$"Captured time state: {CapturedTimeMode}");
             }
         }
 
@@ -221,9 +221,19 @@ namespace Enlisted.Features.Equipment.Behaviors
                     {
                         try
                         {
+                            var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                            if (party == null)
+                            {
+                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party_rations",
+                                    "Both QM and enlisted lord have no party — cannot restart QM conversation from rations menu with correct scene");
+                                InformationManager.DisplayMessage(new InformationMessage(
+                                    new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                                return;
+                            }
+
                             var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, qmHero.PartyBelongedTo?.Party);
-                            
+                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, party);
+
                             // Use sea conversation scene if at sea, otherwise use map conversation
                             if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                             {
@@ -234,11 +244,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                             {
                                 CampaignMapConversation.OpenConversation(playerData, qmData);
                             }
-                            ModLogger.Debug("Quartermaster", "Restarted QM conversation from rations menu");
+                            ModLogger.Debug("QUARTERMASTER","Restarted QM conversation from rations menu");
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("Quartermaster", "Failed to restart QM conversation from menu", ex);
+                            ModLogger.Error("QUARTERMASTER","Failed to restart QM conversation from menu", ex);
                             // Fallback: return to Camp Hub
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
@@ -246,13 +256,13 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
                 else
                 {
-                    ModLogger.Warn("Quartermaster", "QM hero unavailable, returning to Camp Hub");
+                    ModLogger.Warn("QUARTERMASTER","QM hero unavailable, returning to Camp Hub");
                     EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error returning from rations menu", ex);
+                ModLogger.Error("QUARTERMASTER","Error returning from rations menu", ex);
                 EnlistedMenuBehavior.SafeActivateEnlistedMenu();
             }
         }
@@ -302,7 +312,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                 }
 
-                ModLogger.Debug("Quartermaster", $"Loaded inventory state: {stockCount} items, last refresh day {lastRefreshDay}");
+                ModLogger.Debug("QUARTERMASTER",$"Loaded inventory state: {stockCount} items, last refresh day {lastRefreshDay}");
             }
             else
             {
@@ -328,7 +338,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             MBTextManager.SetTextVariable("GOLD_ICON", "{=!}<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">");
 
             AddQuartermasterMenus(starter);
-            ModLogger.Info("Quartermaster", "Quartermaster system initialized with modern UI styling");
+            ModLogger.Info("QUARTERMASTER","Quartermaster system initialized with modern UI styling");
         }
 
 
@@ -449,7 +459,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error in GetAvailableEquipmentAllFormations", ex);
+                ModLogger.Error("QUARTERMASTER","Error in GetAvailableEquipmentAllFormations", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -550,7 +560,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error in GetMountVariantsForBrowsing", ex);
+                ModLogger.Error("QUARTERMASTER","Error in GetMountVariantsForBrowsing", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -650,7 +660,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error in GetHarnessVariantsForBrowsing", ex);
+                ModLogger.Error("QUARTERMASTER","Error in GetHarnessVariantsForBrowsing", ex);
                 return new List<EquipmentVariantOption>();
             }
         }
@@ -746,7 +756,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error getting formation equipment", ex);
+                ModLogger.Error("QUARTERMASTER","Error getting formation equipment", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -808,12 +818,12 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 if (_newlyUnlockedItems.Count > 0)
                 {
-                    ModLogger.Info("Quartermaster", $"Promotion to T{tier}: {_newlyUnlockedItems.Count} new items unlocked");
+                    ModLogger.Info("QUARTERMASTER",$"Promotion to T{tier}: {_newlyUnlockedItems.Count} new items unlocked");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error updating newly unlocked items", ex);
+                ModLogger.Error("QUARTERMASTER","Error updating newly unlocked items", ex);
             }
         }
 
@@ -878,14 +888,14 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var selectedTroop = matchingTroops.FirstOrDefault();
                 if (selectedTroop != null)
                 {
-                    ModLogger.Debug("Quartermaster", $"Representative troop for {formation} T{tier}: {selectedTroop.Name}");
+                    ModLogger.Debug("QUARTERMASTER",$"Representative troop for {formation} T{tier}: {selectedTroop.Name}");
                 }
 
                 return selectedTroop;
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error identifying player troop", ex);
+                ModLogger.Error("QUARTERMASTER","Error identifying player troop", ex);
                 return null;
             }
         }
@@ -959,7 +969,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error detecting player formation", ex);
+                ModLogger.Error("QUARTERMASTER","Error detecting player formation", ex);
                 return FormationType.Infantry;
             }
         }
@@ -1018,7 +1028,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error checking cavalry unlock", ex);
+                ModLogger.Error("QUARTERMASTER","Error checking cavalry unlock", ex);
                 return false;
             }
         }
@@ -1202,7 +1212,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error calculating final price", ex);
+                ModLogger.Error("QUARTERMASTER","Error calculating final price", ex);
                 return basePrice; // Fallback to base price
             }
         }
@@ -1257,11 +1267,11 @@ namespace Enlisted.Features.Equipment.Behaviors
             {
                 var before = hero.Gold;
                 GiveGoldAction.ApplyBetweenCharacters(hero, null, amount);
-                ModLogger.Info("Quartermaster", $"Charged {amount} denars for {item?.Name?.ToString() ?? "item"} (was {before}, now {hero.Gold})");
+                ModLogger.Info("QUARTERMASTER",$"Charged {amount} denars for {item?.Name?.ToString() ?? "item"} (was {before}, now {hero.Gold})");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-005", "Error charging gold", ex);
+                ModLogger.Caught("QUARTERMASTER", "Error charging gold", ex);
             }
         }
 
@@ -1283,15 +1293,15 @@ namespace Enlisted.Features.Equipment.Behaviors
                 {
                     // This is a genuine bad state but can be hit repeatedly via UI retry flows.
                     // Keep it high-signal: log once per session with a stable code.
-                    ModLogger.LogOnce("qm_variant_null", "Quartermaster",
-                        "[E-QM-012] Equipment request failed - variant or item is null", LogLevel.Error);
+                    ModLogger.Expected("QUARTERMASTER", "qm_variant_null",
+                        "Equipment request failed - variant or item is null");
                     return;
                 }
 
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Warn("Quartermaster", "Equipment request blocked: player not enlisted");
+                    ModLogger.Warn("QUARTERMASTER","Equipment request blocked: player not enlisted");
                     return;
                 }
 
@@ -1302,7 +1312,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 {
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_supply_blocked}We can't issue equipment right now. Supplies are critically low.").ToString(), Colors.Red));
-                    ModLogger.Info("Quartermaster", $"Purchase blocked: Supply at {supplyLevel}% (threshold: {criticalSupplyThreshold}%)");
+                    ModLogger.Info("QUARTERMASTER",$"Purchase blocked: Supply at {supplyLevel}% (threshold: {criticalSupplyThreshold}%)");
                     return;
                 }
 
@@ -1324,7 +1334,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 {
                     InformationManager.DisplayMessage(new InformationMessage(
                         new TextObject("{=qm_out_of_stock}This item is out of stock. Check back after the next muster.").ToString(), Colors.Red));
-                    ModLogger.Debug("Quartermaster", $"Purchase blocked: {requestedItem.Name} is out of stock");
+                    ModLogger.Debug("QUARTERMASTER",$"Purchase blocked: {requestedItem.Name} is out of stock");
                     return;
                 }
 
@@ -1365,14 +1375,14 @@ namespace Enlisted.Features.Equipment.Behaviors
                             var inventoryMsg = new TextObject("{=qm_added_to_inventory}{ITEM_NAME} stowed in your pack. Hands full.");
                             inventoryMsg.SetTextVariable("ITEM_NAME", inventoryDisplayName);
                             InformationManager.DisplayMessage(new InformationMessage(inventoryMsg.ToString(), Colors.Yellow));
-                            ModLogger.Info("Quartermaster", $"Weapon slots full - {requestedItem.Name} (quality: {variant.Quality}) added to inventory");
+                            ModLogger.Info("QUARTERMASTER",$"Weapon slots full - {requestedItem.Name} (quality: {variant.Quality}) added to inventory");
                         }
                         else
                         {
                             // Fallback if inventory unavailable (shouldn't happen)
                             var noSlotsMsg = new TextObject("{=qm_no_weapon_slots}Your hands are full, soldier. Sell something back to the quartermaster first.");
                             InformationManager.DisplayMessage(new InformationMessage(noSlotsMsg.ToString(), Colors.Yellow));
-                            ModLogger.Info("Quartermaster", $"No available weapon slot for {requestedItem.Name}");
+                            ModLogger.Info("QUARTERMASTER",$"No available weapon slot for {requestedItem.Name}");
                             return;
                         }
                     }
@@ -1425,12 +1435,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Phase 7: Decrement inventory stock
                 _inventoryState?.TryPurchase(requestedItem.StringId);
 
-                ModLogger.Info("Quartermaster", $"Purchased {requestedItem.Name} for {cost} denars to slot {targetSlot} (replaced {previousItemName})");
+                ModLogger.Info("QUARTERMASTER",$"Purchased {requestedItem.Name} for {cost} denars to slot {targetSlot} (replaced {previousItemName})");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-006",
-                    $"Error processing equipment variant request for {variant?.Item?.Name?.ToString() ?? "null"} in slot {variant?.Slot}", ex);
+                ModLogger.Surfaced("QUARTERMASTER", "Error processing equipment variant request", ex);
             }
         }
 
@@ -1816,7 +1825,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error showing sell popup", ex);
+                ModLogger.Error("QUARTERMASTER","Error showing sell popup", ex);
                 RestartQuartermasterConversationFromMenu();
             }
         }
@@ -1865,7 +1874,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         message.SetTextVariable("AMOUNT", buyback);
                         InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Yellow));
 
-                        ModLogger.Info("Quartermaster", $"Sold {displayName} for {buyback} denars via popup");
+                        ModLogger.Info("QUARTERMASTER",$"Sold {displayName} for {buyback} denars via popup");
                         ModLogger.IncrementSummary("quartermaster_buyback");
                     }
                     else
@@ -1885,7 +1894,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error processing sell popup selection", ex);
+                ModLogger.Error("QUARTERMASTER","Error processing sell popup selection", ex);
                 RestartQuartermasterConversationFromPopup();
             }
         }
@@ -1916,9 +1925,19 @@ namespace Enlisted.Features.Equipment.Behaviors
                     {
                         try
                         {
+                            var party = QuartermasterPartyResolver.GetConversationParty(qmHero);
+                            if (party == null)
+                            {
+                                ModLogger.Expected("QUARTERMASTER", "qm_party_no_party_popup",
+                                    "Both QM and enlisted lord have no party — cannot restart QM conversation from popup with correct scene");
+                                InformationManager.DisplayMessage(new InformationMessage(
+                                    new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
+                                return;
+                            }
+
                             var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, qmHero.PartyBelongedTo?.Party);
-                            
+                            var qmData = new ConversationCharacterData(qmHero.CharacterObject, party);
+
                             // Use sea conversation scene if at sea, otherwise use map conversation
                             if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
                             {
@@ -1929,24 +1948,24 @@ namespace Enlisted.Features.Equipment.Behaviors
                             {
                                 CampaignMapConversation.OpenConversation(playerData, qmData);
                             }
-                            ModLogger.Debug("Quartermaster", "Restarted QM conversation from popup");
+                            ModLogger.Debug("QUARTERMASTER","Restarted QM conversation from popup");
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("Quartermaster", "Failed to restart QM conversation from popup", ex);
+                            ModLogger.Error("QUARTERMASTER","Failed to restart QM conversation from popup", ex);
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
                     });
                 }
                 else
                 {
-                    ModLogger.Warn("Quartermaster", "QM hero unavailable after popup, returning to Camp Hub");
+                    ModLogger.Warn("QUARTERMASTER","QM hero unavailable after popup, returning to Camp Hub");
                     EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error returning from popup", ex);
+                ModLogger.Error("QUARTERMASTER","Error returning from popup", ex);
                 EnlistedMenuBehavior.SafeActivateEnlistedMenu();
             }
         }
@@ -1975,11 +1994,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // The hero's equipment is updated immediately and visible in the game world
 
                 var modifierInfo = modifier != null ? $" with modifier '{modifier.Name}'" : "";
-                ModLogger.Info("Quartermaster", $"Equipment slot {slot} updated with {newItem.Name}{modifierInfo}");
+                ModLogger.Info("QUARTERMASTER",$"Equipment slot {slot} updated with {newItem.Name}{modifierInfo}");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error applying equipment slot change", ex);
+                ModLogger.Error("QUARTERMASTER","Error applying equipment slot change", ex);
             }
         }
 
@@ -2031,7 +2050,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
             if (isOfficerEquipmentAccess)
             {
-                ModLogger.Info("Quartermaster", "Officers' Armory: Expanding equipment access to higher tier items");
+                ModLogger.Info("QUARTERMASTER","Officers' Armory: Expanding equipment access to higher tier items");
 
                 // Get elite equipment from higher tiers (above player's normal access)
                 var officerVariants = GetCultureEquipmentVariants(enlistment?.CurrentLord?.Culture, enlistment?.EnlistmentTier ?? 1);
@@ -2057,7 +2076,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                 }
 
-                ModLogger.Info("Quartermaster", $"Officers' Armory: Added {officerExclusiveItems.Count} exclusive higher-tier items");
+                ModLogger.Info("QUARTERMASTER",$"Officers' Armory: Added {officerExclusiveItems.Count} exclusive higher-tier items");
             }
 
             // Ensure horse and harness options are available for cavalry/horse archer archetypes
@@ -2278,7 +2297,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error getting officer armory equipment", ex);
+                ModLogger.Error("QUARTERMASTER","Error getting officer armory equipment", ex);
                 return new Dictionary<EquipmentIndex, List<ItemObject>>();
             }
         }
@@ -2397,7 +2416,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-007", "GetCultureHorseGear failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "GetCultureHorseGear failed", ex);
                 return result;
             }
         }
@@ -2479,7 +2498,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error building quartermaster display", ex);
+                ModLogger.Error("QUARTERMASTER","Error building quartermaster display", ex);
                 var unavailableText = new TextObject("{=qm_equipment_unavailable}Equipment information unavailable").ToString();
                 MBTextManager.SetTextVariable("QUARTERMASTER_TEXT", $"{unavailableText}.");
             }
@@ -2506,7 +2525,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 if (hasAffordableVariants)
                 {
-                    ModLogger.Info("Quartermaster", "Added weapon variant request option to menu");
+                    ModLogger.Info("QUARTERMASTER","Added weapon variant request option to menu");
                 }
             }
         }
@@ -2549,20 +2568,19 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 var sb = new StringBuilder();
                 sb.AppendLine(new TextObject("{=qm_rations_intro}Purchase better rations from the quartermaster.").ToString());
-                sb.AppendLine(new TextObject("{=qm_rations_desc}Higher quality food provides morale bonuses and fatigue relief.").ToString());
+                sb.AppendLine(new TextObject("{=qm_rations_desc}Higher quality food provides morale bonuses.").ToString());
                 sb.AppendLine();
 
                 // Show current status
                 if (enlistment != null)
                 {
-                    var (qualityName, moraleBonus, _, daysRemaining) = enlistment.GetFoodQualityInfo();
+                    var (qualityName, daysRemaining) = enlistment.GetFoodQualityInfo();  // Morale bonus removed
 
                     if (daysRemaining > 0)
                     {
-                        var statusText = new TextObject("{=qm_rations_current}Current: {QUALITY} (+{MORALE} morale) - {DAYS} days remaining");
+                        var statusText = new TextObject("{=qm_rations_current}Current: {QUALITY} - {DAYS} days remaining");
                         statusText.SetTextVariable("QUALITY", qualityName);
-                        statusText.SetTextVariable("MORALE", moraleBonus);
-                        statusText.SetTextVariable("DAYS", daysRemaining.ToString("F1"));
+                        statusText.SetTextVariable("DAYS", ((int)Math.Ceiling(daysRemaining)).ToString());
                         sb.AppendLine(statusText.ToString());
                     }
                     else
@@ -2602,7 +2620,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error initializing rations menu", ex);
+                ModLogger.Error("QUARTERMASTER","Error initializing rations menu", ex);
                 MBTextManager.SetTextVariable("RATIONS_TEXT",
                     new TextObject("{=qm_rations_error}Provisions unavailable.").ToString());
             }
@@ -2634,15 +2652,15 @@ namespace Enlisted.Features.Equipment.Behaviors
                 _ => OnPurchaseRations(EnlistmentBehavior.FoodQualityTier.Supplemental, 10, 1),
                 false, 1);
 
-            // Officer's Fare - 30g, +4 morale, +2 fatigue relief, 2 days
+            // Officer's Fare - 30g, +4 morale, 2 days
             starter.AddGameMenuOption("quartermaster_rations", "rations_officer",
-                new TextObject("{=qm_rations_officer}Officer's Fare (30{GOLD_ICON}) - +4 morale, +2 fatigue for 2 days").ToString(),
+                new TextObject("{=qm_rations_officer}Officer's Fare (30{GOLD_ICON}) - +4 morale for 2 days").ToString(),
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Trade;
                     var enlistment = EnlistmentBehavior.Instance;
                     var cost = enlistment?.IsEnlisted == true ? enlistment.ApplyQuartermasterDiscount(30) : 30;
-                    args.Text = new TextObject($"Officer's Fare ({cost}{{GOLD_ICON}}) - +4 morale, +2 fatigue for 2 days");
+                    args.Text = new TextObject($"Officer's Fare ({cost}{{GOLD_ICON}}) - +4 morale for 2 days");
 
                     var canAfford = Hero.MainHero.Gold >= cost;
                     if (!canAfford)
@@ -2655,15 +2673,15 @@ namespace Enlisted.Features.Equipment.Behaviors
                 _ => OnPurchaseRations(EnlistmentBehavior.FoodQualityTier.Officer, 30, 2),
                 false, 2);
 
-            // Commander's Feast - 75g, +8 morale, +5 fatigue relief, 3 days
+            // Commander's Feast - 75g, +8 morale, 3 days
             starter.AddGameMenuOption("quartermaster_rations", "rations_commander",
-                new TextObject("{=qm_rations_commander}Commander's Feast (75{GOLD_ICON}) - +8 morale, +5 fatigue for 3 days").ToString(),
+                new TextObject("{=qm_rations_commander}Commander's Feast (75{GOLD_ICON}) - +8 morale for 3 days").ToString(),
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Trade;
                     var enlistment = EnlistmentBehavior.Instance;
                     var cost = enlistment?.IsEnlisted == true ? enlistment.ApplyQuartermasterDiscount(75) : 75;
-                    args.Text = new TextObject($"Commander's Feast ({cost}{{GOLD_ICON}}) - +8 morale, +5 fatigue for 3 days");
+                    args.Text = new TextObject($"Commander's Feast ({cost}{{GOLD_ICON}}) - +8 morale for 3 days");
 
                     var canAfford = Hero.MainHero.Gold >= cost;
                     var highEnoughTier = enlistment?.EnlistmentTier >= 4;
@@ -2800,7 +2818,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error purchasing rations", ex);
+                ModLogger.Error("QUARTERMASTER","Error purchasing rations", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_rations_error}Failed to purchase provisions.").ToString(),
                     Colors.Red));
@@ -2920,7 +2938,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error purchasing retinue provisioning", ex);
+                ModLogger.Error("QUARTERMASTER","Error purchasing retinue provisioning", ex);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_retinue_error}Failed to provision retinue.").ToString(),
                     Colors.Red));
@@ -2977,231 +2995,6 @@ namespace Enlisted.Features.Equipment.Behaviors
         #region Menu Option Implementations
 
         /// <summary>
-        /// Show equipment variant selection with individual clickable items using custom Gauntlet UI.
-        /// Uses custom Gauntlet UI for professional equipment selection.
-        /// </summary>
-        private void ShowEquipmentVariantSelectionDialog(List<EquipmentVariantOption> variants, string equipmentType)
-        {
-            try
-            {
-                if (variants == null || variants.Count <= 1)
-                {
-                    var noVariantsText = new TextObject("{=qm_no_variants_available}No {EQUIPMENT_TYPE} variants available")
-                        .SetTextVariable("EQUIPMENT_TYPE", equipmentType ?? "equipment")
-                        .ToString();
-                    InformationManager.DisplayMessage(new InformationMessage(noVariantsText + "."));
-                    return;
-                }
-
-                // Attempt to use custom Gauntlet UI for individual item clicking
-                if (TryShowGauntletEquipmentSelector(variants, equipmentType))
-                {
-                    ModLogger.Info("Quartermaster", $"Opened Gauntlet equipment selector for {equipmentType} with {variants.Count} variants");
-                }
-                else
-                {
-                    // Fallback to automatic selection if custom UI is unavailable
-                    ShowSimplifiedVariantSelection(variants, equipmentType);
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("Quartermaster", "Error showing equipment variant selection", ex);
-
-                // Ultimate fallback
-                ShowSimplifiedVariantSelection(variants, equipmentType);
-            }
-        }
-
-        /// <summary>
-        /// Try to show custom Gauntlet equipment selector UI.
-        /// Returns true if successful, false if fallback needed.
-        /// </summary>
-        private bool TryShowGauntletEquipmentSelector(List<EquipmentVariantOption> variants, string equipmentType)
-        {
-            try
-            {
-                // Attempt to use custom Gauntlet UI for variant selection
-                var targetSlot = variants.FirstOrDefault()?.Slot ?? EquipmentIndex.Weapon0;
-                UI.QuartermasterEquipmentSelectorBehavior.ShowEquipmentSelector(variants, targetSlot, equipmentType);
-
-                return true; // Success
-            }
-            catch (Exception ex)
-            {
-                // The Gauntlet VM can fail due to mod UI conflicts; we still provide a safe fallback.
-                // Non-spammy: log once per session with full exception detail.
-                ModLogger.ErrorCodeOnce("qm_gauntlet_ui_failed", "Quartermaster", "E-QM-014",
-                    "Gauntlet UI failed; using conversation-based selection. This can indicate a UI mod conflict.", ex);
-
-                // Fallback to conversation-based individual selection
-                ShowConversationBasedEquipmentSelection(variants, equipmentType);
-                return true; // Still success with fallback
-            }
-        }
-
-        /// <summary>
-        /// Show equipment selection using conversation system for individual item clicking.
-        /// Automatic variant selection when custom Gauntlet UI is unavailable.
-        /// Automatically selects the first affordable variant from the available options.
-        /// </summary>
-        private void ShowConversationBasedEquipmentSelection(List<EquipmentVariantOption> variants, string equipmentType)
-        {
-            try
-            {
-                // Filter to purchasable variants - only exclude items at the 2-item limit
-                var availableVariants = variants
-                    .Where(v => !v.IsAtLimit && !v.IsCurrent)
-                    .Take(5).ToList(); // Limit to 5 for conversation
-
-                if (availableVariants.Count > 1)
-                {
-                    // Create inquiry for equipment selection
-                    var inquiryElements = new List<InquiryElement>();
-
-                    var unknown = new TextObject("{=enl_ui_unknown}Unknown").ToString();
-                    var newTag = new TextObject("{=enl_ui_tag_new}[NEW]").ToString();
-
-                    foreach (var variant in availableVariants)
-                    {
-                        var title = variant.Item.Name?.ToString() ?? unknown;
-
-                        // Add "NEW" indicator for recently unlocked items.
-                        if (variant.IsNewlyUnlocked)
-                        {
-                            title = $"{newTag} {title}";
-                        }
-
-                        var costOk = new TextObject("{=enl_qm_cost_line}Cost: {COST} denars");
-                        costOk.SetTextVariable("COST", variant.Cost);
-
-                        var costCant = new TextObject("{=enl_qm_cost_line_cant_afford}Cost: {COST} denars (Can't afford)");
-                        costCant.SetTextVariable("COST", variant.Cost);
-
-                        var description = variant.CanAfford
-                            ? costOk.ToString()
-                            : costCant.ToString();
-
-                        inquiryElements.Add(new InquiryElement(
-                            variant,
-                            title,
-                            null, // No image for simplicity
-                            variant.CanAfford,
-                            description));
-                    }
-
-                    // Show selection inquiry
-                    var titleText = new TextObject("{=enl_qm_select_equipment_title}Select {EQUIPMENT_TYPE}");
-                    titleText.SetTextVariable("EQUIPMENT_TYPE", equipmentType ?? string.Empty);
-
-                    var descText = new TextObject("{=enl_qm_select_equipment_desc}Choose equipment variant to request:");
-
-                    MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-                        titleText.ToString(),
-                        descText.ToString(),
-                        inquiryElements,
-                        true, 1, 1, // Single selection
-                        new TextObject("{=enl_qm_request_equipment}Request Equipment").ToString(),
-                        new TextObject("{=enl_ui_cancel}Cancel").ToString(),
-                        OnEquipmentVariantSelected,
-                        null)); // Default parameters are sufficient
-
-                    ModLogger.Info("Quartermaster", $"Opened equipment selection inquiry for {equipmentType}");
-                }
-                else
-                {
-                    // Use automatic selection when only one variant is available
-                    ShowSimplifiedVariantSelection(variants, equipmentType);
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("Quartermaster", "Error showing conversation-based equipment selection", ex);
-                ShowSimplifiedVariantSelection(variants, equipmentType);
-            }
-        }
-
-        /// <summary>
-        /// Handle equipment variant selection from inquiry.
-        /// </summary>
-        private void OnEquipmentVariantSelected(List<InquiryElement> selectedElements)
-        {
-            try
-            {
-                if (selectedElements is { Count: > 0 })
-                {
-                    if (selectedElements.First().Identifier is EquipmentVariantOption selectedVariant)
-                    {
-                        // Apply the selected equipment variant
-                        RequestEquipmentVariant(selectedVariant);
-
-                        // Return to quartermaster conversation
-                        RestartQuartermasterConversationFromMenu();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("Quartermaster", "Error processing equipment variant selection", ex);
-            }
-        }
-
-        /// <summary>
-        /// Automatic variant selection when custom UI is unavailable.
-        /// Automatically selects the first affordable variant from the available options.
-        /// </summary>
-        private void ShowSimplifiedVariantSelection(List<EquipmentVariantOption> variants, string equipmentType)
-        {
-            try
-            {
-                // Find available variants that player hasn't hit the 2-item limit on
-                var availableVariants = variants.Where(v => !v.IsAtLimit && !v.IsCurrent && v.CanAfford).ToList();
-
-                if (availableVariants.Count > 0)
-                {
-                    var selectedVariant = availableVariants.OrderBy(v => v.Cost).First();
-
-                    // Apply the equipment variant (priced purchase)
-                    RequestEquipmentVariant(selectedVariant);
-
-                    // Return to quartermaster conversation
-                    RestartQuartermasterConversationFromMenu();
-                }
-                else
-                {
-                    var noAffordableText = new TextObject("{=qm_no_affordable_variants}No affordable {EQUIPMENT_TYPE} variants available. You need more gold.")
-                        .SetTextVariable("EQUIPMENT_TYPE", equipmentType ?? "equipment")
-                        .ToString();
-                    InformationManager.DisplayMessage(new InformationMessage(noAffordableText));
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("Quartermaster", "Error in simplified variant selection", ex);
-            }
-        }
-
-        /// <summary>
-        /// Check if helmet variants are available.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "May be used for future helmet variant selection")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Required by menu callback signature")]
-        private bool IsHelmetVariantsAvailable(MenuCallbackArgs args)
-        {
-            try
-            {
-                // Helmets are part of armor collection - available if not at limit
-                var armorOptions = BuildArmorOptionsFromCurrentTroop();
-                return armorOptions.ContainsKey(EquipmentIndex.Head) &&
-                       armorOptions[EquipmentIndex.Head].Any(opt => !opt.IsAtLimit);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Build armor options at runtime from the troop's upgrade branch (all troops leading to selected troop).
         /// This expands armor choices beyond just the current troop's single BattleEquipment loadout.
         /// At higher tiers (4+), we include armor from ALL tiers in the branch for more options.
@@ -3214,21 +3007,21 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildArmorOptions: Not enlisted");
+                    ModLogger.Debug("QUARTERMASTER","BuildArmorOptions: Not enlisted");
                     return result;
                 }
 
                 var selectedTroop = GetPlayerSelectedTroop();
                 if (selectedTroop == null)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildArmorOptions: No selected troop");
+                    ModLogger.Debug("QUARTERMASTER","BuildArmorOptions: No selected troop");
                     return result;
                 }
 
                 var culture = selectedTroop.Culture;
                 var tier = enlistment.EnlistmentTier;
 
-                ModLogger.Debug("Quartermaster", $"BuildArmorOptions: Tier={tier}, Culture={culture?.Name}, SelectedTroop={selectedTroop.Name}");
+                ModLogger.Debug("QUARTERMASTER",$"BuildArmorOptions: Tier={tier}, Culture={culture?.Name}, SelectedTroop={selectedTroop.Name}");
 
                 // Build the troop branch (all troops leading to the selected troop)
                 var branchNodes = BuildTroopBranchNodes(culture, selectedTroop, tier);
@@ -3236,15 +3029,15 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // If no branch found, fall back to just the selected troop
                 if (branchNodes.Count == 0)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildArmorOptions: No branch nodes, using selected troop");
+                    ModLogger.Debug("QUARTERMASTER","BuildArmorOptions: No branch nodes, using selected troop");
                     branchNodes.Add(selectedTroop);
                 }
 
-                ModLogger.Debug("Quartermaster", $"BuildArmorOptions: Branch has {branchNodes.Count} troops");
+                ModLogger.Debug("QUARTERMASTER",$"BuildArmorOptions: Branch has {branchNodes.Count} troops");
                 foreach (var node in branchNodes)
                 {
                     var loadoutCount = node.BattleEquipments?.Count() ?? 0;
-                    ModLogger.Debug("Quartermaster", $"  Branch node: {node.Name} (Tier {SafeGetTier(node)}, Loadouts: {loadoutCount})");
+                    ModLogger.Debug("QUARTERMASTER",$"  Branch node: {node.Name} (Tier {SafeGetTier(node)}, Loadouts: {loadoutCount})");
                 }
 
                 // Collect armor variants - for tier 4+, use all tiers immediately for better selection
@@ -3252,7 +3045,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 if (tier >= 4)
                 {
                     // Higher tiers should have access to more equipment variety
-                    ModLogger.Debug("Quartermaster", $"BuildArmorOptions: Tier {tier} - using all branch tiers for variety");
+                    ModLogger.Debug("QUARTERMASTER",$"BuildArmorOptions: Tier {tier} - using all branch tiers for variety");
                     armorVariants = CollectArmorVariantsFromAllTiers(branchNodes, culture);
                 }
                 else
@@ -3261,12 +3054,12 @@ namespace Enlisted.Features.Equipment.Behaviors
                     armorVariants = CollectArmorVariantsFromNodes(branchNodes, tier, culture);
                     if (armorVariants.Count == 0 || armorVariants.All(kvp => kvp.Value.Count == 0))
                     {
-                        ModLogger.Debug("Quartermaster", $"BuildArmorOptions: No armor at exact tier {tier}, expanding to all branch tiers");
+                        ModLogger.Debug("QUARTERMASTER",$"BuildArmorOptions: No armor at exact tier {tier}, expanding to all branch tiers");
                         armorVariants = CollectArmorVariantsFromAllTiers(branchNodes, culture);
                     }
                 }
 
-                ModLogger.Info("Quartermaster", $"Collected armor variants from {branchNodes.Count} branch troops: " +
+                ModLogger.Info("QUARTERMASTER",$"Collected armor variants from {branchNodes.Count} branch troops: " +
                     $"Body={GetSlotCount(armorVariants, EquipmentIndex.Body)}, " +
                     $"Head={GetSlotCount(armorVariants, EquipmentIndex.Head)}, " +
                     $"Gloves={GetSlotCount(armorVariants, EquipmentIndex.Gloves)}, " +
@@ -3280,11 +3073,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 result = result.Where(kvp => kvp.Value is { Count: > 0 })
                                .ToDictionary(k => k.Key, v => v.Value);
 
-                ModLogger.Debug("Quartermaster", $"BuildArmorOptions: Final result has {result.Count} slots with options");
+                ModLogger.Debug("QUARTERMASTER",$"BuildArmorOptions: Final result has {result.Count} slots with options");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-100", "BuildArmorOptionsFromCurrentTroop failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildArmorOptionsFromCurrentTroop failed", ex);
             }
             return result;
         }
@@ -3303,21 +3096,21 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildWeaponOptions: Not enlisted");
+                    ModLogger.Debug("QUARTERMASTER","BuildWeaponOptions: Not enlisted");
                     return result;
                 }
 
                 var selectedTroop = GetPlayerSelectedTroop();
                 if (selectedTroop == null)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildWeaponOptions: No selected troop");
+                    ModLogger.Debug("QUARTERMASTER","BuildWeaponOptions: No selected troop");
                     return result;
                 }
 
                 var culture = selectedTroop.Culture;
                 var tier = enlistment.EnlistmentTier;
 
-                ModLogger.Debug("Quartermaster", $"BuildWeaponOptions: Tier={tier}, Culture={culture?.Name}, SelectedTroop={selectedTroop.Name}");
+                ModLogger.Debug("QUARTERMASTER",$"BuildWeaponOptions: Tier={tier}, Culture={culture?.Name}, SelectedTroop={selectedTroop.Name}");
 
                 // Build the troop branch (all troops leading to the selected troop)
                 var branchNodes = BuildTroopBranchNodes(culture, selectedTroop, tier);
@@ -3325,18 +3118,18 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // If no branch found, fall back to just the selected troop
                 if (branchNodes.Count == 0)
                 {
-                    ModLogger.Debug("Quartermaster", "BuildWeaponOptions: No branch nodes, using selected troop");
+                    ModLogger.Debug("QUARTERMASTER","BuildWeaponOptions: No branch nodes, using selected troop");
                     branchNodes.Add(selectedTroop);
                 }
 
-                ModLogger.Debug("Quartermaster", $"BuildWeaponOptions: Branch has {branchNodes.Count} troops");
+                ModLogger.Debug("QUARTERMASTER",$"BuildWeaponOptions: Branch has {branchNodes.Count} troops");
 
                 // Collect weapon variants - for tier 4+, use all tiers immediately for better selection
                 Dictionary<EquipmentIndex, List<ItemObject>> weaponVariants;
                 if (tier >= 4)
                 {
                     // Higher tiers should have access to more weapon variety
-                    ModLogger.Debug("Quartermaster", $"BuildWeaponOptions: Tier {tier} - using all branch tiers for variety");
+                    ModLogger.Debug("QUARTERMASTER",$"BuildWeaponOptions: Tier {tier} - using all branch tiers for variety");
                     weaponVariants = CollectWeaponVariantsFromAllTiers(branchNodes, culture);
                 }
                 else
@@ -3345,12 +3138,12 @@ namespace Enlisted.Features.Equipment.Behaviors
                     weaponVariants = CollectWeaponVariantsFromNodes(branchNodes, tier, culture);
                     if (weaponVariants.Count == 0 || weaponVariants.All(kvp => kvp.Value.Count == 0))
                     {
-                        ModLogger.Debug("Quartermaster", $"BuildWeaponOptions: No weapons at exact tier {tier}, expanding to all branch tiers");
+                        ModLogger.Debug("QUARTERMASTER",$"BuildWeaponOptions: No weapons at exact tier {tier}, expanding to all branch tiers");
                         weaponVariants = CollectWeaponVariantsFromAllTiers(branchNodes, culture);
                     }
                 }
 
-                ModLogger.Info("Quartermaster", $"Collected weapon variants from {branchNodes.Count} branch troops: " +
+                ModLogger.Info("QUARTERMASTER",$"Collected weapon variants from {branchNodes.Count} branch troops: " +
                     $"Weapon0={GetSlotCount(weaponVariants, EquipmentIndex.Weapon0)}, " +
                     $"Weapon1={GetSlotCount(weaponVariants, EquipmentIndex.Weapon1)}, " +
                     $"Weapon2={GetSlotCount(weaponVariants, EquipmentIndex.Weapon2)}, " +
@@ -3363,11 +3156,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                 result = result.Where(kvp => kvp.Value is { Count: > 0 })
                                .ToDictionary(k => k.Key, v => v.Value);
 
-                ModLogger.Debug("Quartermaster", $"BuildWeaponOptions: Final result has {result.Count} slots with options");
+                ModLogger.Debug("QUARTERMASTER",$"BuildWeaponOptions: Final result has {result.Count} slots with options");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-101", "BuildWeaponOptionsFromCurrentTroop failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildWeaponOptionsFromCurrentTroop failed", ex);
             }
             return result;
         }
@@ -3414,7 +3207,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-102",
+                ModLogger.Caught("QUARTERMASTER",
                     $"CollectWeaponVariantsFromNodes failed (culture={culture?.StringId ?? "null"})", ex);
             }
             return variants;
@@ -3438,7 +3231,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
 
                     var loadoutCount = troop.BattleEquipments.Count();
-                    ModLogger.Debug("Quartermaster", $"  Scanning weapons: {troop.Name?.ToString() ?? "Unknown"} ({loadoutCount} loadouts)");
+                    ModLogger.Debug("QUARTERMASTER",$"  Scanning weapons: {troop.Name?.ToString() ?? "Unknown"} ({loadoutCount} loadouts)");
 
                     foreach (var equipment in troop.BattleEquipments)
                     {
@@ -3464,7 +3257,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                             {
                                 variants[slot].Add(item);
                                 var shieldTag = isShield ? " [SHIELD]" : "";
-                                ModLogger.Debug("Quartermaster", $"    {slot}: {item.Name} ({weaponType}){shieldTag} - ADDED");
+                                ModLogger.Debug("QUARTERMASTER",$"    {slot}: {item.Name} ({weaponType}){shieldTag} - ADDED");
                             }
                         }
                     }
@@ -3472,7 +3265,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-103",
+                ModLogger.Caught("QUARTERMASTER",
                     $"CollectWeaponVariantsFromAllTiers failed (culture={culture?.StringId ?? "null"})", ex);
             }
             return variants;
@@ -3535,7 +3328,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-104", "BuildVariantOptionsForWeapons failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildVariantOptionsForWeapons failed", ex);
             }
             return finalOptions;
         }
@@ -3557,7 +3350,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
 
                     var loadoutCount = troop.BattleEquipments.Count();
-                    ModLogger.Debug("Quartermaster", $"  Scanning {troop.Name?.ToString() ?? "Unknown"} ({loadoutCount} loadouts)");
+                    ModLogger.Debug("QUARTERMASTER",$"  Scanning {troop.Name?.ToString() ?? "Unknown"} ({loadoutCount} loadouts)");
 
                     foreach (var equipment in troop.BattleEquipments)
                     {
@@ -3575,7 +3368,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                             if (!hasArmorComp)
                             {
-                                ModLogger.Debug("Quartermaster", $"    {slot}: {item.Name} - SKIP (no ArmorComponent)");
+                                ModLogger.Debug("QUARTERMASTER",$"    {slot}: {item.Name} - SKIP (no ArmorComponent)");
                                 continue;
                             }
 
@@ -3590,7 +3383,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                             if (!variants[slot].Contains(item))
                             {
                                 variants[slot].Add(item);
-                                ModLogger.Debug("Quartermaster", $"    {slot}: {item.Name} - ADDED (culture: {itemCulture})");
+                                ModLogger.Debug("QUARTERMASTER",$"    {slot}: {item.Name} - ADDED (culture: {itemCulture})");
                             }
                         }
                     }
@@ -3598,7 +3391,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-105",
+                ModLogger.Caught("QUARTERMASTER",
                     $"CollectArmorVariantsFromAllTiers failed (culture={culture?.StringId ?? "null"})", ex);
             }
             return variants;
@@ -3655,7 +3448,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-106", "BuildVariantOptionsForArmor failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildVariantOptionsForArmor failed", ex);
             }
             return finalOptions;
         }
@@ -3703,7 +3496,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Debug("Quartermaster", $"Error in CollectArmorVariantsFromNodes: {ex.Message}");
+                        ModLogger.Debug("QUARTERMASTER",$"Error in CollectArmorVariantsFromNodes: {ex.Message}");
                     }
                     return false;
                 }
@@ -3714,7 +3507,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-107", "BuildTroopBranchNodes failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildTroopBranchNodes failed", ex);
             }
             return branch;
         }
@@ -3765,106 +3558,10 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-108",
+                ModLogger.Caught("QUARTERMASTER",
                     $"CollectArmorVariantsFromNodes failed (culture={culture?.StringId ?? "null"})", ex);
             }
             return variants;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "May be used for future exact variant matching")]
-        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildVariantOptionsExact(
-            Dictionary<EquipmentIndex, List<ItemObject>> variants)
-        {
-            var finalOptions = new Dictionary<EquipmentIndex, List<EquipmentVariantOption>>();
-            try
-            {
-                var hero = Hero.MainHero;
-                foreach (var slotItems in variants)
-                {
-                    var slot = slotItems.Key;
-                    var items = slotItems.Value;
-                    if (items == null || items.Count <= 1)
-                    {
-                        // need choices
-                        continue;
-                    }
-
-                    var currentItem = hero.BattleEquipment[slot].Item;
-                    var optionList = new List<EquipmentVariantOption>();
-                    foreach (var item in items)
-                    {
-                        var cost = CalculateVariantCost(item, currentItem, slot);
-
-                        var allowsDuplicate = IsWeaponSlot(slot) || IsConsumableItem(item);
-                        var limit = allowsDuplicate ? 2 : 1;
-                        var isAtLimit = GetPlayerItemCount(hero, item.StringId) >= limit;
-                        var isCurrent = item == currentItem;
-                        var canAfford = hero.Gold >= cost;
-
-                        optionList.Add(new EquipmentVariantOption
-                        {
-                            Item = item,
-                            Cost = cost,
-                            IsCurrent = isCurrent,
-                            CanAfford = canAfford,
-                            Slot = slot,
-                            IsOfficerExclusive = false,
-                            AllowsDuplicatePurchase = allowsDuplicate,
-                            IsAtLimit = isAtLimit
-                        });
-                    }
-
-                    optionList = optionList.OrderBy(o => o.IsCurrent ? 0 : 1).ThenBy(o => o.Cost).ToList();
-                    finalOptions[slot] = optionList;
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-109", "BuildVariantOptionsExact failed", ex);
-            }
-            return finalOptions;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "May be used for future armor slot selection UI")]
-        private void ShowArmorSlotPicker(Dictionary<EquipmentIndex, List<EquipmentVariantOption>> armorOptions)
-        {
-            try
-            {
-                var elements = new List<InquiryElement>();
-                foreach (var kvp in armorOptions)
-                {
-                    var slot = kvp.Key;
-                    var label = $"{GetSlotDisplayName(slot)} ({kvp.Value.Count})";
-                    elements.Add(new InquiryElement(slot, label, null, true, null));
-                }
-
-                void OnDone(List<InquiryElement> selection)
-                {
-                    if (selection == null || selection.Count == 0)
-                    {
-                        return;
-                    }
-                    var slot = (EquipmentIndex)selection[0].Identifier;
-                    if (armorOptions.TryGetValue(slot, out var variants))
-                    {
-                        ShowEquipmentVariantSelectionDialog(variants, "armor");
-                    }
-                }
-
-                MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-                    new TextObject("{=enl_qm_select_armor_slot_title}Select armor slot").ToString(),
-                    new TextObject("{=enl_qm_select_armor_slot_desc}Choose which armor piece to request").ToString(),
-                    elements,
-                    false, 1, 1,
-                    new TextObject("{=ll_default_continue}Continue").ToString(),
-                    new TextObject("{=enl_ui_cancel}Cancel").ToString(),
-                    OnDone,
-                    _ => { }));
-            }
-            catch (Exception ex)
-            {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-110", "ShowArmorSlotPicker failed", ex);
-            }
         }
 
         private int SafeGetTier(CharacterObject troop)
@@ -3875,32 +3572,6 @@ namespace Enlisted.Features.Equipment.Behaviors
         private int GetSlotCount(Dictionary<EquipmentIndex, List<ItemObject>> dict, EquipmentIndex slot)
         {
             return dict.TryGetValue(slot, out var list) ? list?.Count ?? 0 : 0;
-        }
-
-        /// <summary>
-        /// Handle helmet variant selection.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "May be used for future helmet variant selection")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Required by menu callback signature")]
-        private void OnHelmetVariantsSelected(MenuCallbackArgs args)
-        {
-            try
-            {
-                var armorOptions = BuildArmorOptionsFromCurrentTroop();
-                if (armorOptions.ContainsKey(EquipmentIndex.Head) && armorOptions[EquipmentIndex.Head].Count > 0)
-                {
-                    ShowEquipmentVariantSelectionDialog(armorOptions[EquipmentIndex.Head], "helmet");
-                }
-                else
-                {
-                    InformationManager.DisplayMessage(new InformationMessage(
-                        new TextObject("{=qm_no_helmet_variants}No helmet variants available for your troop type.").ToString()));
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("Quartermaster", "Error selecting helmet variants", ex);
-            }
         }
 
         /// <summary>
@@ -3923,16 +3594,16 @@ namespace Enlisted.Features.Equipment.Behaviors
                         if (option.Item?.WeaponComponent?.PrimaryWeapon?.IsShield == true)
                         {
                             shields.Add(option);
-                            ModLogger.Debug("Quartermaster", $"Found shield: {option.Item.Name} in slot {kvp.Key}");
+                            ModLogger.Debug("QUARTERMASTER",$"Found shield: {option.Item.Name} in slot {kvp.Key}");
                         }
                     }
                 }
 
-                ModLogger.Debug("Quartermaster", $"BuildShieldOptions: Found {shields.Count} shields");
+                ModLogger.Debug("QUARTERMASTER",$"BuildShieldOptions: Found {shields.Count} shields");
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Quartermaster", "E-QM-111", "BuildShieldOptionsFromWeapons failed", ex);
+                ModLogger.Caught("QUARTERMASTER", "BuildShieldOptionsFromWeapons failed", ex);
             }
             return shields;
         }
@@ -4043,7 +3714,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error initializing supply management menu", ex);
+                ModLogger.Error("QUARTERMASTER","Error initializing supply management menu", ex);
                 MBTextManager.SetTextVariable("SUPPLY_TEXT", "Supply information unavailable.");
             }
         }
@@ -4069,7 +3740,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 message.SetTextVariable("AMOUNT", foodBonus.ToString());
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
-                ModLogger.Info("Quartermaster", $"Food optimization applied: +{foodBonus} grain");
+                ModLogger.Info("QUARTERMASTER",$"Food optimization applied: +{foodBonus} grain");
             }
         }
 
@@ -4091,7 +3762,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             message.SetTextVariable("AMOUNT", capacityBonus.ToString("F0"));
             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
-            ModLogger.Info("Quartermaster", $"Inventory optimization applied: +{capacityBonus:F0} capacity");
+            ModLogger.Info("QUARTERMASTER",$"Inventory optimization applied: +{capacityBonus:F0} capacity");
         }
 
         private bool IsSupplyPurchaseAvailable(MenuCallbackArgs args)
@@ -4116,22 +3787,8 @@ namespace Enlisted.Features.Equipment.Behaviors
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_purchased_supplies}Purchased basic supplies: 5 grain, 2 tools.").ToString()));
 
-                ModLogger.Info("Quartermaster", "Supply purchase completed");
+                ModLogger.Info("QUARTERMASTER","Supply purchase completed");
             }
-        }
-
-        /// <summary>
-        /// Build display text for a variant option.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "May be used for future variant text formatting")]
-        private string BuildVariantOptionText(EquipmentVariantOption option)
-        {
-            var statusText = option.IsCurrent ? "(Current)" :
-                           option.CanAfford ? $"({option.Cost} denars)" :
-                           $"({option.Cost} denars - Can't afford)";
-
-            var marker = option.IsCurrent ? "[*]" : "[ ]"; // Simple ASCII markers
-            return $"{marker} {option.Item.Name} {statusText}";
         }
 
         /// <summary>
@@ -4189,7 +3846,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             // < 15%: Menu is blocked entirely (handled in EnlistedMenuBehavior)
             if (supplyLevel >= 60)
             {
-                ModLogger.Debug("Quartermaster", $"Stock roll: Supplies at {supplyLevel}% - all items in stock");
+                ModLogger.Debug("QUARTERMASTER",$"Stock roll: Supplies at {supplyLevel}% - all items in stock");
                 return;
             }
 
@@ -4373,7 +4030,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error getting officer tier equipment for stock roll", ex);
+                ModLogger.Error("QUARTERMASTER","Error getting officer tier equipment for stock roll", ex);
             }
 
             return items.ToList();
@@ -4397,11 +4054,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                 }
                 
-                ModLogger.Debug("Quartermaster", $"Found {foodItems.Count} food items for provisions");
+                ModLogger.Debug("QUARTERMASTER",$"Found {foodItems.Count} food items for provisions");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error getting food items for provisions shop", ex);
+                ModLogger.Error("QUARTERMASTER","Error getting food items for provisions shop", ex);
             }
             
             return foodItems;
@@ -4472,7 +4129,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                             availableItems.Add(foodItem);
                         }
                     }
-                    ModLogger.Debug("Quartermaster", $"Added {foodItems.Count} food items to provisions inventory");
+                    ModLogger.Debug("QUARTERMASTER",$"Added {foodItems.Count} food items to provisions inventory");
                 }
 
                 // Refresh inventory state with new stock quantities
@@ -4484,7 +4141,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Quartermaster", "Error refreshing inventory at muster", ex);
+                ModLogger.Error("QUARTERMASTER","Error refreshing inventory at muster", ex);
             }
         }
 
@@ -4759,7 +4416,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             // Clamp to valid int range and ensure non-negative
             if (upgradeCostLong > int.MaxValue)
             {
-                ModLogger.Warn("Equipment",
+                ModLogger.Warn("EQUIPMENT",
                     $"Upgrade cost overflow detected for {item.StringId}: clamping {upgradeCostLong} to {int.MaxValue}");
                 return int.MaxValue;
             }
@@ -4779,7 +4436,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (hero == null)
             {
                 errorMessage = "Hero not found.";
-                ModLogger.ErrorCode("Equipment", "E-QM-020", "Upgrade failed: Hero.MainHero is null");
+                ModLogger.Expected("EQUIPMENT", "upgrade_no_hero", "Upgrade failed: Hero.MainHero is null");
                 return false;
             }
 
@@ -4788,7 +4445,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (enlistment?.IsEnlisted != true)
             {
                 errorMessage = "You are no longer enlisted. Service has ended.";
-                ModLogger.Info("Equipment", "Upgrade blocked: Player no longer enlisted");
+                ModLogger.Info("EQUIPMENT", "Upgrade blocked: Player no longer enlisted");
                 return false;
             }
 
@@ -4797,7 +4454,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (currentElement.IsEmpty || currentElement.Item == null)
             {
                 errorMessage = "No item in that slot.";
-                ModLogger.ErrorCode("Equipment", "E-QM-021", $"Upgrade failed: Empty slot {slot}");
+                ModLogger.Expected("EQUIPMENT", "upgrade_empty_slot", $"Upgrade failed: Empty slot {slot}");
                 return false;
             }
 
@@ -4807,7 +4464,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (modGroup == null)
             {
                 errorMessage = new TextObject("{=qm_upgrade_no_modifier_group}This item cannot be improved.").ToString();
-                ModLogger.ErrorCode("Equipment", "E-QM-022", $"Upgrade failed: {item.StringId} has no modifier group");
+                ModLogger.Expected("EQUIPMENT", "upgrade_no_modifier_group", $"Upgrade failed: {item.StringId} has no modifier group");
                 return false;
             }
 
@@ -4816,7 +4473,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (targetModifiers == null || targetModifiers.Count == 0)
             {
                 errorMessage = $"No {targetQuality} variants exist for this item.";
-                ModLogger.ErrorCode("Equipment", "E-QM-023", $"Upgrade failed: {item.StringId} has no {targetQuality} modifiers");
+                ModLogger.Expected("EQUIPMENT", "upgrade_no_modifiers", $"Upgrade failed: {item.StringId} has no {targetQuality} modifiers");
                 return false;
             }
 
@@ -4840,7 +4497,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
 
                 var qmRep = enlistment?.GetQMReputation() ?? 0;
-                ModLogger.Info("Equipment",
+                ModLogger.Info("EQUIPMENT",
                     $"Upgrade blocked: {targetQuality} not available at current QM reputation ({qmRep})");
                 return false;
             }
@@ -4851,7 +4508,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (cost <= 0)
             {
                 errorMessage = "Cannot calculate upgrade cost for this item.";
-                ModLogger.ErrorCode("Equipment", "E-QM-024", $"Upgrade failed: Invalid cost calculation for {item.StringId} to {targetQuality}");
+                ModLogger.Expected("EQUIPMENT", "upgrade_invalid_cost", $"Upgrade failed: Invalid cost calculation for {item.StringId} to {targetQuality}");
                 return false;
             }
 
@@ -4859,7 +4516,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             if (hero.Gold < cost)
             {
                 errorMessage = new TextObject("{=qm_upgrade_cannot_afford}You can't afford this upgrade.").ToString();
-                ModLogger.Info("Equipment", $"Upgrade blocked: Player gold {hero.Gold} < cost {cost}");
+                ModLogger.Info("EQUIPMENT", $"Upgrade blocked: Player gold {hero.Gold} < cost {cost}");
                 return false;
             }
 
@@ -4873,7 +4530,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var newModifier = targetModifiers.GetRandomElement();
                 hero.BattleEquipment[slot] = new EquipmentElement(item, newModifier);
 
-                ModLogger.Info("Equipment",
+                ModLogger.Info("EQUIPMENT",
                     $"Upgrade successful: {item.Name} upgraded to {targetQuality} quality for {cost} denars (slot: {slot})");
 
                 return true;
@@ -4881,7 +4538,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             catch (Exception ex)
             {
                 errorMessage = "Error performing upgrade. Please try again.";
-                ModLogger.Error("Equipment", $"Upgrade failed with exception: {item.StringId} to {targetQuality}", ex);
+                ModLogger.Error("EQUIPMENT", $"Upgrade failed with exception: {item.StringId} to {targetQuality}", ex);
                 return false;
             }
         }

@@ -1,4 +1,4 @@
-{
+﻿{
   "packId": "enlisted_promotion_proving",
   "schemaVersion": 2,
   "events": [
@@ -32,7 +32,7 @@
           "text": "\"Discipline him publicly. The men need to see consequences.\"",
           "tooltip": "Hardline approach. Adds 1 discipline. Disciplinarian tag.",
           "effects": {
-            "discipline": 1,
+            "scrutiny": 1000000,
             "character_tag": "disciplinarian",
             "promotes": true
           },
@@ -43,9 +43,9 @@
           "text": "\"Give him a chance to earn it back. One mistake shouldn't define a man.\"",
           "tooltip": "Merciful approach. +5 Soldier rep. Merciful tag.",
           "effects": {
-            "soldierRep": 5,
             "character_tag": "merciful",
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 2
           },
           "resultText": "{SERGEANT} smiles faintly. 'Compassion has its place. The men will remember your kindness. Welcome to {NEXT_RANK}.'"
         },
@@ -101,8 +101,8 @@
           "tooltip": "Protective leadership. +5 Soldier rep. Defender tag. Promotes to Tier 4.",
           "effects": {
             "character_tag": "defender",
-            "soldierRep": 5,
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 2
           },
           "resultText": "{LORD_NAME} regards you thoughtfully. 'Loyalty to your comrades is rare these days. The rank of {NEXT_RANK} suits you. Lead them well.'"
         },
@@ -148,8 +148,8 @@
           "text": "\"I'm nothing without this squad. Whatever you decide, I'll accept.\"",
           "tooltip": "Defer to the squad. +10 Soldier rep. Promotes to Tier 5.",
           "effects": {
-            "soldierRep": 10,
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 5
           },
           "resultText": "The men exchange glances and nod. {SERGEANT} claps you on the shoulder. 'That's the right answer. Welcome to {NEXT_RANK}, soldier. The squad has spoken.'"
         },
@@ -158,7 +158,7 @@
           "text": "\"I've bled with you. Fought beside you. I'm ready to lead you.\"",
           "tooltip": "Assert your readiness with confidence.",
           "effects": {
-            "discipline": -1,
+            "scrutiny": -1000000,
             "promotes": true
           },
           "resultText": "{SERGEANT} grins. 'Confidence. Good. A {NEXT_RANK} needs that.' The veterans raise their cups. 'To {PLAYER_NAME}!'"
@@ -169,8 +169,8 @@
           "tooltip": "Promise care. +5 Soldier rep. Protector tag. Promotes to Tier 5.",
           "effects": {
             "character_tag": "protector",
-            "soldierRep": 5,
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 2
           },
           "resultText": "Silence falls. Then {SECOND_SHORT} stands. 'I believe him.' One by one, the others nod. {SERGEANT} smiles. 'Then it's decided. {NEXT_RANK} {PLAYER_NAME}.'"
         }
@@ -227,8 +227,8 @@
           "tooltip": "Camaraderie. +10 Soldier rep. Lance Bound tag. Promotes to Tier 6.",
           "effects": {
             "loyalty_tag": "lance_bound",
-            "soldierRep": 10,
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 5
           },
           "resultText": "{LORD_NAME} studies you for a long moment. 'Rare, to find such devotion to the common soldier. Very well, {NEXT_RANK}. Lead your men. I suspect they'd follow you anywhere.'"
         }
@@ -363,8 +363,8 @@
           "text": "\"The honor is mine. I'll make you proud, my lord.\"",
           "tooltip": "+5 Lord rep. Add 10 soldiers to retinue (40 total). Promotes to Tier 9.",
           "effects": {
-            "lordRep": 5,
-            "promotes": true
+            "promotes": true,
+            "lordReputation": 5
           },
           "resultText": "{LORD_NAME} smiles approvingly. 'Humility in a commander is rare. The men will respect you for it. Ten more soldiers are yours — lead them as you've led the rest.'"
         },

@@ -3,8 +3,8 @@
 **Summary:** Data-driven, role-based event system that delivers camp life moments, training opportunities, reputation shifts, and narrative choices during enlisted service. Events emerge based on player role (Scout, Medic, NCO, etc.) and campaign context, delivered through camp menu, automatic inquiries, or map incidents.
 
 **Status:** ✅ Current  
-**Last Updated:** 2025-12-22  
-**Related Docs:** [Content System Architecture](../Content/content-system-architecture.md), [Core Gameplay](core-gameplay.md)
+**Last Updated:** 2026-01-06 (Added pressure arc events documentation)
+**Related Docs:** [Content System Architecture](../Content/content-system-architecture.md), [Core Gameplay](core-gameplay.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md#supply-pressure-arc-events)
 
 ---
 
@@ -48,6 +48,34 @@ Events are organized into packs by context and role:
 | `events_pay_*.json` | Payment Context | Pay tension, loyalty, and mutiny events (3 files). |
 | `Role/scout_events.json` | Scout Role | Reconnaissance, tracking, intelligence gathering. |
 | `incidents_*.json` | Map Incidents | Battle, siege, town, village, leaving, waiting contexts (7 files). |
+| `pressure_arc_events.json` | Pressure Arcs | Supply/morale/rest pressure narrative events (9). |
+
+---
+
+## Pressure Arc Events
+
+**Summary:** Narrative events that fire at specific thresholds when company needs (supplies, morale, rest) remain low for extended periods.
+
+**File:** `ModuleData/Enlisted/Events/pressure_arc_events.json`
+
+### Supply Pressure Arc
+
+Fires when supplies remain low for consecutive days, escalating from warnings to crisis:
+
+| Threshold | Stage | Event IDs |
+|-----------|-------|-----------|
+| Day 3 | Stage 1: Warning | `supply_pressure_stage_1_grunt/nco/cmd` |
+| Day 5 | Stage 2: Tension | `supply_pressure_stage_2_grunt/nco/cmd` |
+| Day 7 | Crisis | `supply_crisis_grunt/nco/cmd` |
+
+**Tier Variants:** Each stage has 3 tier-specific events:
+- **Grunt (T1-T4):** Witness perspective - hunger, fights, whispers
+- **NCO (T5-T6):** Squad leader perspective - managing squad tensions
+- **Commander (T7+):** Strategic perspective - discipline breakdown, desertions
+
+**Implementation:** `CompanySimulationBehavior.CheckPressureArcEvents()` fires events at exact day thresholds using `_companyPressure.DaysLowSupplies` counter.
+
+**See Also:** [Company Supply Simulation](../Equipment/company-supply-simulation.md#pressure-tracking)
 
 ---
 

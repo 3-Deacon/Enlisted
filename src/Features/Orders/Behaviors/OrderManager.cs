@@ -809,16 +809,7 @@ namespace Enlisted.Features.Orders.Behaviors
                     escalation.ModifyLordReputation(lordRep);
                     feedbackMessages.Add($"{(lordRep > 0 ? "+" : "")}{lordRep} Lord Reputation");
                 }
-                if (outcome.Reputation.TryGetValue("officer", out var officerRep))
-                {
-                    escalation.ModifyOfficerReputation(officerRep);
-                    feedbackMessages.Add($"{(officerRep > 0 ? "+" : "")}{officerRep} Officer Reputation");
-                }
-                if (outcome.Reputation.TryGetValue("soldier", out var soldierRep))
-                {
-                    escalation.ModifySoldierReputation(soldierRep);
-                    feedbackMessages.Add($"{(soldierRep > 0 ? "+" : "")}{soldierRep} Soldier Reputation");
-                }
+                // NOTE: Officer/Soldier reputation removed. Converted to lord reputation in JSON Phase 3.
             }
 
             // Apply company need changes
@@ -877,7 +868,7 @@ namespace Enlisted.Features.Orders.Behaviors
                 }
             }
 
-            // Apply escalation changes
+            // Apply escalation changes (scrutiny now 0-100, merged with discipline)
             if (outcome.Escalation != null)
             {
                 var escalation = EscalationManager.Instance;
@@ -886,11 +877,6 @@ namespace Enlisted.Features.Orders.Behaviors
                 {
                     escalation.ModifyScrutiny(scrutinyEsc);
                     feedbackMessages.Add($"{(scrutinyEsc > 0 ? "+" : "")}{scrutinyEsc} Scrutiny");
-                }
-                if (outcome.Escalation.TryGetValue("discipline", out var disciplineEsc))
-                {
-                    escalation.ModifyDiscipline(disciplineEsc);
-                    feedbackMessages.Add($"{(disciplineEsc > 0 ? "+" : "")}{disciplineEsc} Discipline");
                 }
             }
 
@@ -1360,10 +1346,6 @@ namespace Enlisted.Features.Orders.Behaviors
                         return "Supplies critically low - Equipment access restricted";
                     case CompanyNeed.Readiness:
                         return "Unit readiness critical - Combat effectiveness severely reduced";
-                    case CompanyNeed.Morale:
-                        return "Morale breaking - Risk of desertion";
-                    case CompanyNeed.Rest:
-                        return "Men exhausted - Need rest urgently";
                     default:
                         return $"{needStr} is critically low";
                 }
@@ -1378,10 +1360,6 @@ namespace Enlisted.Features.Orders.Behaviors
                         return "Company well-supplied after resupply";
                     case CompanyNeed.Readiness:
                         return "Unit readiness greatly improved";
-                    case CompanyNeed.Morale:
-                        return "Morale lifted significantly";
-                    case CompanyNeed.Rest:
-                        return "Men well-rested and ready";
                     default:
                         return $"{needStr} significantly improved";
                 }
@@ -1392,14 +1370,10 @@ namespace Enlisted.Features.Orders.Behaviors
                 {
                     case CompanyNeed.Supplies:
                         return "Supplies replenished";
-                    case CompanyNeed.Readiness:
-                        return "Unit readiness improving";
-                    case CompanyNeed.Morale:
-                        return "Morale improving";
-                    case CompanyNeed.Rest:
-                        return "Men recovering from fatigue";
-                    default:
-                        return $"{needStr} improved";
+                case CompanyNeed.Readiness:
+                    return "Unit readiness improving";
+                default:
+                    return $"{needStr} improved";
                 }
             }
 
@@ -1412,10 +1386,6 @@ namespace Enlisted.Features.Orders.Behaviors
                         return "Supplies depleted significantly";
                     case CompanyNeed.Readiness:
                         return "Unit readiness declining sharply";
-                    case CompanyNeed.Morale:
-                        return "Morale declining";
-                    case CompanyNeed.Rest:
-                        return "Men growing exhausted";
                     default:
                         return $"{needStr} declined significantly";
                 }
@@ -1428,10 +1398,6 @@ namespace Enlisted.Features.Orders.Behaviors
                         return "Supplies running low";
                     case CompanyNeed.Readiness:
                         return "Unit readiness declining";
-                    case CompanyNeed.Morale:
-                        return "Morale slipping";
-                    case CompanyNeed.Rest:
-                        return "Men growing tired";
                     default:
                         return $"{needStr} declined";
                 }

@@ -20,6 +20,7 @@ Validation Phases:
     Phase 8: Code quality validation (hardcoded paths, sea context detection)
     Phase 9: C# TextObject localization (string IDs in code → XML)
     Phase 9.5: Camp schedule descriptions (meaningful phase text)
+    Phase 10: Error-code registry sync (generate_error_codes.py --check)
 """
 
 import argparse
@@ -27,6 +28,7 @@ import glob
 import json
 import os
 import re
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter, defaultdict
@@ -79,7 +81,8 @@ VALID_CONTEXTS = {
 VALID_CATEGORIES = {
     "decision", "escalation", "role", "universal", "muster", "crisis", "general",
     "onboarding", "pay", "promotion", "retinue", "training", "threshold",
-    "medical", "map_incident"  # Medical system events and map incident events
+    "medical", "map_incident",  # Medical system events and map incident events
+    "quiet_stretch"  # Low-intensity narrative filler events for the Director fallback pool
 }
 
 # Valid severities for order events (from schema)
@@ -328,11 +331,12 @@ def validate_structure(event: Dict, file_path: str, ctx: ValidationContext) -> b
         if not category:
             ctx.add_issue("error", "structure", "Missing 'category' field", file_path, event_id)
         elif category not in VALID_CATEGORIES:
-            ctx.add_issue("warning", "structure", f"Unknown category: '{category}'", file_path, event_id)
+            # Invalid category is an error - content won't behave correctly
+            ctx.add_issue("error", "structure", f"Invalid category: '{category}'. Valid: {sorted(VALID_CATEGORIES)}", file_path, event_id)
         
-        # Check news severity if present
+        # Check news severity if present - invalid severity is an error
         if severity and severity.lower() not in VALID_NEWS_SEVERITIES:
-            ctx.add_issue("warning", "structure", f"Unknown news severity: '{severity}'", file_path, event_id)
+            ctx.add_issue("error", "structure", f"Invalid severity: '{severity}'. Valid: {sorted(VALID_NEWS_SEVERITIES)}", file_path, event_id)
     
     # Title and setup (check both schema v1 and v2 locations)
     content = event.get("content") or {}
@@ -1530,6 +1534,42 @@ def validate_camp_schedule_descriptions(ctx: ValidationContext):
                 str(schedule_path), phase_name)
 
 
+def validate_error_code_registry(ctx: ValidationContext):
+    """Phase 10: Invoke generate_error_codes.py --check to confirm the
+    on-disk docs/error-codes.md is in sync with ModLogger.Surfaced(...)
+    call sites. Any drift or scan error fails validation."""
+    print("[Phase 10] Validating error-code registry sync...")
+    script = Path(__file__).parent / "generate_error_codes.py"
+    try:
+        result = subprocess.run(
+            [sys.executable, str(script), "--check"],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except Exception as ex:
+        ctx.add_issue(
+            "error", "error-codes",
+            f"Failed to invoke generate_error_codes.py: {ex}",
+            str(script),
+        )
+        return
+
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip() or "(no stderr)"
+        ctx.add_issue(
+            "error", "error-codes",
+            f"Registry out of sync or contains issues. "
+            f"Fix: run `python Tools/Validation/generate_error_codes.py`. "
+            f"Details: {stderr}",
+            str(script),
+        )
+    else:
+        stdout = (result.stdout or "").strip()
+        if stdout:
+            print(f"  {stdout}")
+
+
 # ============================================================================
 # Main Validation Pipeline
 # ============================================================================
@@ -1648,6 +1688,9 @@ def main():
     
     # Phase 9.5: Camp schedule description validation
     validate_camp_schedule_descriptions(ctx)
+
+    # Phase 10: Error-code registry sync
+    validate_error_code_registry(ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:

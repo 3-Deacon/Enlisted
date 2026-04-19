@@ -29,7 +29,7 @@ namespace Enlisted.Features.Camp
     /// </summary>
     public sealed class CampOpportunityGenerator : CampaignBehaviorBase
     {
-        private const string LogCategory = "CampLife";
+        private const string LogCategory = "CAMPLIFE";
         private const int FitnessThreshold = 40;
         private const int MaxOpportunitiesDefault = 3;
 
@@ -245,7 +245,7 @@ namespace Enlisted.Features.Camp
         }
 
         /// <summary>
-        /// Cancels a commitment with a minor fatigue penalty.
+        /// Cancels a commitment.
         /// </summary>
         public void CancelCommitment(string opportunityId)
         {
@@ -256,14 +256,6 @@ namespace Enlisted.Features.Camp
             }
 
             _commitments.RemoveCommitment(opportunityId);
-
-            // Apply small fatigue penalty for canceling plans (restless from changing plans)
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment != null)
-            {
-                // Positive delta = spend fatigue, negative = restore
-                enlistment.ModifyFatigue(2);
-            }
 
             // Clear cache to force menu refresh
             _cachedOpportunities = null;
@@ -479,16 +471,14 @@ namespace Enlisted.Features.Camp
             // before OnSessionLaunched fires on this behavior
             if (!_definitionsLoaded)
             {
-                ModLogger.WarnCode(LogCategory, "W-CAMP-001", 
-                    "Opportunity definitions not yet loaded - loading now (this is normal on first access after load)");
+                ModLogger.Surfaced("CAMPLIFE", "Opportunity definitions not yet loaded - loading now (this is normal on first access after load)");
                 LoadOpportunityDefinitions();
                 
                 // Diagnostic: warn if still no definitions after loading
                 if (_opportunityDefinitions.Count == 0)
                 {
-                    ModLogger.WarnCode(LogCategory, "W-CAMP-002", 
-                        "No opportunity definitions found - check camp_opportunities.json exists and has valid content. " +
-                        "Decisions won't appear in the accordion menu.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "No opportunity definitions found — check camp_opportunities.json exists and has valid content. Decisions won't appear in the accordion menu.");
                 }
             }
 
@@ -542,10 +532,8 @@ namespace Enlisted.Features.Camp
             // Diagnostic: warn if no candidates despite having definitions and budget
             if (candidates.Count == 0 && _opportunityDefinitions.Count > 0 && budget > 0)
             {
-                ModLogger.WarnCode(LogCategory, "W-CAMP-003", 
-                    $"No candidates passed filtering (definitions={_opportunityDefinitions.Count}, budget={budget}). " +
-                    $"Check tier/context requirements in camp_opportunities.json match current state " +
-                    $"(tier={EnlistmentBehavior.Instance?.EnlistmentTier}, lordIs={campContext.LordSituation})");
+                ModLogger.Surfaced("CAMPLIFE",
+                    "No candidates passed filtering — check tier/context requirements in camp_opportunities.json match current state.");
             }
 
             // Cache promotion reputation need (calculated once, used for all fitness calculations)
@@ -753,7 +741,6 @@ namespace Enlisted.Features.Camp
 
             // Player state
             context.PlayerOnDuty = IsPlayerOnDuty();
-            context.PlayerFatigue = 12; // Default fatigue - will integrate with fatigue system when available
             context.PlayerGold = Hero.MainHero.Gold;
             context.PlayerInjured = Hero.MainHero.HitPoints < Hero.MainHero.MaxHitPoints * 0.5f;
 
@@ -1219,12 +1206,6 @@ namespace Enlisted.Features.Camp
         {
             float mod = 0f;
 
-            // Fatigue affects training
-            if (opp.Type == OpportunityType.Training && camp.PlayerFatigue < 5)
-            {
-                mod -= 25f;
-            }
-
             // Recovery when injured
             if (opp.Type == OpportunityType.Recovery && camp.PlayerInjured)
             {
@@ -1356,8 +1337,9 @@ namespace Enlisted.Features.Camp
         }
 
         /// <summary>
-        /// Checks if an opportunity grants soldier reputation by examining its target decision.
+        /// Checks if an opportunity grants lord reputation by examining its target decision.
         /// These opportunities help players gain reputation needed for promotions.
+        /// Note: After Phase 3, all decisions grant lordReputation instead of separate officer/soldier rep.
         /// </summary>
         private bool IsReputationGrantingOpportunity(string targetDecisionId)
         {
@@ -1366,34 +1348,33 @@ namespace Enlisted.Features.Camp
                 return false;
             }
 
-            // Decisions that grant soldier reputation (based on Phase 6G decisions content)
-            // Training decisions: grant +3 soldierRep on success
+            // Training decisions: grant lordReputation on success
             if (targetDecisionId.StartsWith("dec_training_"))
             {
                 return true;
             }
 
-            // Social decisions: grant +1 to +4 soldierRep
-            if (targetDecisionId == "dec_social_stories" ||        // +2 soldierRep
-                targetDecisionId == "dec_social_storytelling" ||   // +1 soldierRep  
-                targetDecisionId == "dec_social_singing" ||        // +2 soldierRep
-                targetDecisionId == "dec_tavern_drink" ||          // +1 soldierRep (moderate)
-                targetDecisionId == "dec_arm_wrestling" ||         // +2 soldierRep on success
-                targetDecisionId == "dec_drinking_contest")        // +4 soldierRep on success
+            // Social decisions: grant lordReputation
+            if (targetDecisionId == "dec_social_stories" ||
+                targetDecisionId == "dec_social_storytelling" ||
+                targetDecisionId == "dec_social_singing" ||
+                targetDecisionId == "dec_tavern_drink" ||
+                targetDecisionId == "dec_arm_wrestling" ||
+                targetDecisionId == "dec_drinking_contest")
             {
                 return true;
             }
 
-            // Helping/mentoring decisions: grant +2 soldierRep
-            if (targetDecisionId == "dec_help_wounded" ||          // +2 soldierRep
-                targetDecisionId == "dec_mentor_recruit")          // +2 soldierRep + +1 officerRep
+            // Helping/mentoring decisions: grant lordReputation
+            if (targetDecisionId == "dec_help_wounded" ||
+                targetDecisionId == "dec_mentor_recruit")
             {
                 return true;
             }
 
             // Special decisions
-            if (targetDecisionId == "dec_gamble_cards" ||          // +1 soldierRep
-                targetDecisionId == "dec_gamble_high")             // +3 soldierRep on big wins
+            if (targetDecisionId == "dec_gamble_cards" ||
+                targetDecisionId == "dec_gamble_high")
             {
                 return true;
             }
@@ -1522,9 +1503,12 @@ namespace Enlisted.Features.Camp
                 chance += opportunity.Detection.NightModifier;
             }
 
-            // High reputation modifier (trusted soldiers get away with more)
-            var reputation = EscalationManager.Instance?.State?.OfficerReputation ?? 50;
-            if (reputation > 70)
+            // Lord reputation modifier (trusted soldiers get away with more - now uses native relation)
+            var enlistment = EnlistmentBehavior.Instance;
+            var reputation = enlistment?.EnlistedLord != null 
+                ? CharacterRelationManager.GetHeroRelation(Hero.MainHero, enlistment.EnlistedLord) 
+                : 0;
+            if (reputation > 30)
             {
                 chance += opportunity.Detection.HighRepModifier;
             }
@@ -1562,18 +1546,18 @@ namespace Enlisted.Features.Camp
             var escalation = EscalationManager.Instance;
             if (escalation != null)
             {
-                // Apply officer reputation penalty
+                // Apply lord reputation penalty (native system)
                 if (consequences.OfficerRep != 0)
                 {
-                    escalation.ModifyOfficerReputation(consequences.OfficerRep, "Caught away from post");
-                    ModLogger.Debug(LogCategory, $"Officer rep penalty: {consequences.OfficerRep}");
+                    escalation.ModifyLordReputation(consequences.OfficerRep, "Caught away from post");
+                    ModLogger.Debug(LogCategory, $"Lord rep penalty: {consequences.OfficerRep}");
                 }
 
-                // Apply discipline increase
+                // Apply scrutiny increase (discipline merged into scrutiny)
                 if (consequences.Discipline != 0)
                 {
-                    escalation.ModifyDiscipline(consequences.Discipline, "Absent from duty");
-                    ModLogger.Debug(LogCategory, $"Discipline increase: {consequences.Discipline}");
+                    escalation.ModifyScrutiny(consequences.Discipline * 10, "Absent from duty"); // Scale to 0-100
+                    ModLogger.Debug(LogCategory, $"Scrutiny increase: {consequences.Discipline * 10}");
                 }
             }
 
@@ -1587,9 +1571,9 @@ namespace Enlisted.Features.Camp
                     var currentOrder = OrderManager.Instance?.GetCurrentOrder();
                     if (currentOrder != null)
                     {
-                        ModLogger.Info(LogCategory, $"Order {currentOrder.Id} impacted by absence - extra discipline penalty");
-                        // Add extra discipline as consequence for potentially failing the order
-                        escalation.ModifyDiscipline(1, "Order compromised by absence");
+                        ModLogger.Info(LogCategory, $"Order {currentOrder.Id} impacted by absence - extra scrutiny penalty");
+                        // Add extra scrutiny as consequence for potentially failing the order
+                        escalation.ModifyScrutiny(10, "Order compromised by absence"); // Scale to 0-100
                     }
                 }
             }
@@ -1674,14 +1658,14 @@ namespace Enlisted.Features.Camp
                 return CampMood.Mourning;
             }
 
-            // Low morale or supplies = tense
-            if (needs != null && (needs.Morale < 30 || needs.Supplies < 30))
+            // Low readiness or supplies = tense
+            if (needs != null && (needs.Readiness < 30 || needs.Supplies < 30))
             {
                 return CampMood.Tense;
             }
 
-            // High morale = celebration
-            if (needs != null && needs.Morale > 70)
+            // High readiness = celebration
+            if (needs != null && needs.Readiness > 70)
             {
                 return CampMood.Celebration;
             }
@@ -1767,9 +1751,8 @@ namespace Enlisted.Features.Camp
                 var configPath = Path.Combine(ModulePaths.GetContentPath("Decisions"), "camp_opportunities.json");
                 if (!File.Exists(configPath))
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-CAMP-001", 
-                        $"camp_opportunities.json not found at {configPath} - decisions won't appear in menu. " +
-                        "Verify mod installation is complete.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete.");
                     _opportunityDefinitions = new List<CampOpportunity>();
                     _definitionsLoaded = true;
                     return;
@@ -1781,9 +1764,8 @@ namespace Enlisted.Features.Camp
 
                 if (opportunities == null)
                 {
-                    ModLogger.ErrorCode(LogCategory, "E-CAMP-002", 
-                        "No 'opportunities' array found in camp_opportunities.json - file may be corrupt or invalid. " +
-                        "Decisions won't appear in menu.");
+                    ModLogger.Surfaced("CAMPLIFE",
+                        "No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu.");
                     _definitionsLoaded = true;
                     return;
                 }
@@ -1804,8 +1786,8 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode(LogCategory, "E-CAMP-003", 
-                    "Failed to parse camp_opportunities.json - decisions won't appear in menu. Check JSON syntax.", ex);
+                ModLogger.Surfaced("CAMPLIFE",
+                    "Failed to parse camp_opportunities.json — decisions won't appear in menu. Check JSON syntax.", ex);
                 _opportunityDefinitions = new List<CampOpportunity>();
                 _definitionsLoaded = true; // Mark as loaded even on error to prevent retry loops
             }
@@ -1869,14 +1851,14 @@ namespace Enlisted.Features.Camp
                     };
                 }
 
-                // Caught consequences
+                // Caught consequences (after Phase 3: uses lordReputation and scrutiny)
                 var caught = item["caughtConsequences"] as JObject;
                 if (caught != null)
                 {
                     opp.CaughtConsequences = new CaughtConsequences
                     {
-                        OfficerRep = caught["officerRep"]?.Value<int>() ?? -15,
-                        Discipline = caught["discipline"]?.Value<int>() ?? 2,
+                        OfficerRep = caught["lordReputation"]?.Value<int>() ?? caught["officerRep"]?.Value<int>() ?? -15,
+                        Discipline = caught["scrutiny"]?.Value<int>() ?? caught["discipline"]?.Value<int>() ?? 20, // Scrutiny 0-100 scale
                         OrderFailureRisk = caught["orderFailureRisk"]?.Value<float>() ?? 0.20f
                     };
                 }

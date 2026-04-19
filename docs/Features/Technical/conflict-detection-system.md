@@ -1443,49 +1443,29 @@ if (!BaggageTrainAvailability.CanAccessBaggage(out string reason))
 
 ## Error Codes Reference
 
-Error codes are used throughout the mod for structured logging and debugging. Each system has a unique prefix.
+### Error Codes
 
-### Muster System (E-MUSTER-xxx)
+Surfaced error codes auto-generate at build time from `ModLogger.Surfaced(...)`
+call sites. The complete live registry is in
+[docs/error-codes.md](../../error-codes.md). For historical codes found in
+pre-redesign session logs (format `E-<SUBSYSTEM>-NNN`), see the frozen
+snapshot at [docs/error-codes-archive.md](../../error-codes-archive.md).
 
-| Code | Description | Recovery |
-|------|-------------|----------|
-| `E-MUSTER-001` | Menu registration failed | Falls back to legacy inquiry popup |
-| `E-MUSTER-002` | Stage transition or init failed | Jumps to muster complete or aborts |
-| `E-MUSTER-003` | State restoration failed (save/load) | Aborts muster, defers to next cycle |
-| `E-MUSTER-004` | Effect application failed | Continues muster, shows warning |
-| `E-MUSTER-005` | Unhandled exception | Aborts muster, falls back to legacy or defers |
+### System-level Error Codes
 
-### Incident System (E-INCIDENT-xxx)
-
-| Code | Description | Recovery |
-|------|-------------|----------|
-| `E-INCIDENT-005` | Pay muster inquiry failed | Defers muster to next cycle |
-
-### Content Orchestrator (E-ORCHESTRATOR-xxx, NEW 2026-01-03)
-
-| Code | Description | Recovery |
-|------|-------------|----------|
-| `E-ORCHESTRATOR-001` | Opportunity scheduling failed | Logs error, continues with empty schedule |
-| `E-ORCHESTRATOR-002` | Hint generation failed | Logs error, continues without hints |
-| `E-ORCHESTRATOR-003` | Consumption failed | Logs error, attempts fallback by decision ID |
-| `E-ORCHESTRATOR-004` | World state analysis failed | Logs error, uses default activity level |
-
-### Event Delivery (E-EVENT-xxx, E-DECISION-xxx, NEW 2026-01-03)
-
-| Code | Description | Recovery |
-|------|-------------|----------|
-| `E-EVENT-001` | Event effect application failed | Logs error, continues without effects |
-| `E-EVENT-002` | Localization string missing | Logs error, shows fallback text |
-| `E-DECISION-001` | Decision consumption failed | Logs error, attempts cleanup |
+System-specific codes (muster, incidents, orchestrator, events, decisions)
+are now auto-generated and listed in
+[docs/error-codes.md](../../error-codes.md). Recovery behavior is documented
+in the code at the `ModLogger.Surfaced(...)` call sites.
 
 ### General Patterns
 
-All error codes follow the format `E-SYSTEM-NNN` where:
-- `E` = Error (vs `W` for Warning)
-- `SYSTEM` = System identifier (MUSTER, INCIDENT, CONTENT, etc.)
-- `NNN` = Numeric code within that system
+All error codes follow the format `E-<CATEGORY>-<4hex>` where:
+- `E` = Error
+- `CATEGORY` = System identifier string literal (e.g. `MUSTER`, `INCIDENT`, `CAMP`)
+- `4-hex suffix` = deterministic SHA-256 hash of the summary string; stable as long as the summary is unchanged
 
-Errors are logged via `ModLogger.ErrorCode()` which includes:
+Errors are logged via `ModLogger.Surfaced()` which includes:
 - Error code for searchability
 - Human-readable message
 - Full exception stack trace (when applicable)

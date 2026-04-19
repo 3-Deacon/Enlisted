@@ -1,6 +1,6 @@
 # News & Reporting System
 
-**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages two feed types (kingdom-wide and personal), a daily brief with company/player/kingdom context, and a company needs status report. Event and order outcomes are displayed in Recent Activities using a queue system instead of popups to reduce UI interruption. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
+**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages two feed types (kingdom-wide and personal), a daily brief with company/player/kingdom context, and a company needs status report showing Readiness and Supplies. Event and order outcomes are displayed in Recent Activities using a queue system instead of popups to reduce UI interruption. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
 
 **2025-12-31 MAJOR UPDATE:** Menu narratives now comprehensively integrate with `WorldStateAnalyzer`, `CampLifeBehavior` pressures, and `CompanySimulationBehavior` for rich, context-aware storytelling that reflects actual simulated world state. Order outcomes now use RP-appropriate fallback text when JSON text is missing. XP displays removed from recaps in favor of narrative summaries.
 
@@ -45,7 +45,7 @@ The news system operates as a read-only observer of campaign events. It listens 
 
 **Two Report Types:**
 1. **Daily Brief** - Once-per-day narrative paragraph combining company situation, player status, and kingdom news
-2. **Company Status Report** - Four company needs with context-aware descriptions
+2. **Company Status Report** - Two company needs (Readiness, Supplies) with context-aware descriptions
 
 **Key Behavior:**
 - All feeds use `DispatchItem` struct (primitives only for save compatibility)
@@ -125,16 +125,15 @@ BuildMainMenuNarrative()
 │   ├── Kingdom.All + FactionManager - Active war enumeration
 │   └── Settlement.All - Active siege counting
 │
-├── BuildCampNarrativeParagraph()
+├── Camp Narrative Integration
 │   ├── WorldStateAnalyzer.LordSituation (Siege/Campaign/Marching/Garrison)
 │   ├── WorldStateAnalyzer.ActivityLevel (Quiet/Routine/Active/Intense)
 │   ├── CampLifeBehavior pressures:
 │   │   ├── LogisticsStrain (>60 = supply warnings)
-│   │   ├── MoraleShock (>50 = morale context)
 │   │   ├── PayTension (>50 = pay disputes)
 │   │   └── TerritoryPressure (>60 = hostile lands)
 │   ├── GetVisiblePersonalFeedItems() - Recent events
-│   ├── CompanyNeeds metrics (Supplies/Morale/Rest/Equipment)
+│   ├── CompanyNeeds metrics (Readiness, Supplies)
 │   └── BuildLordRumorsLine() - Strategic gossip based on all above
 │
 └── BuildPlayerNarrativeParagraph()
@@ -195,22 +194,13 @@ else
     // Show actual supply level: "Well-stocked" / "Adequate" / "Low" / "Critical"
 }
 
-// Morale context from MoraleShock + PayTension
-if (moraleShock || payProblems)
-{
-    // "Morale shaky from pay disputes and recent setbacks"
-}
-
-// Equipment warnings consider TerritoryPressure
-if (companyNeeds.Equipment < 40 && inHostileTerritory)
-{
-    // "Equipment worn, repairs limited" (can't resupply in enemy lands)
-}
+// Company needs are now just Readiness (0-100) and Supplies (0-100)
+// Player fatigue (0-24 budget) remains separate from company needs
 ```
 
 **Activity Level Context:**
-- `Intense` + low rest: *"Men push through fatigue"* (can't stop during siege/assault)
-- `Quiet` + morale issues: *"Men grow restless in garrison"*
+- `Intense` + low supplies: *"Hard campaigning tests every soldier"*
+- `Quiet` + low readiness: *"Garrison duty - training has slipped"*
 
 ### Player Status Integration
 
@@ -230,8 +220,8 @@ OFF DUTY examples based on WorldStateAnalyzer:
 ```
 CompanyNeeds + CampLifeBehavior integration:
 - Supplies <20 OR LogisticsStrain >70: "Men whisper of hunger. Logistics collapsing — resupply urgently."
-- Morale <20 OR MoraleShock >60: "Dark muttering. Morale crisis from pay disputes and setbacks."
 - PayTension >60: "Pay disputes simmer. The NCO works to keep tempers cool."
+- Readiness <25: "Training has slipped. Combat readiness poor."
 ```
 
 **Culture-Aware Rank Names:**
@@ -736,28 +726,15 @@ Company status information appears in two locations, both generated on-demand:
 Context-aware narrative builders used across both displays:
 
 ```csharp
-BuildReadinessLine(value, isMarching, isInCombat, lowMorale)
-BuildMoraleLine(value, enlistment, isInCombat, isInSiege)
-BuildSuppliesLine(value, isMarching, isInSiege)
-BuildEquipmentLine(value, isInCombat, isMarching, party)
-BuildRestLine(value, isMarching, isInSettlement, isInArmy)
+GetReadinessPhrase(readiness)  // Company-wide combat readiness
+GetSupplyPhrase(supplies)      // Company-wide provisions
 ```
 
-These are used by the Camp Hub's detailed status summary.
-
-### Context Detection
-
-**Checks performed:**
-- `party.IsMoving && party.CurrentSettlement == null` → isMarching
-- `party.MapEvent != null` → isInCombat
-- `party.Party.SiegeEvent != null` → isInSiege
-- `party.CurrentSettlement != null` → isInSettlement
-- `party.Army != null` → isInArmy
-- `Campaign.Current.MapSceneWrapper.GetFaceTerrainType()` → terrain
-- `CampaignTime.Now.GetHourOfDay` → time of day
-- `enlistment.PayTension` → pay status
+Player fatigue (0-24 budget) is displayed separately in the player status section and is NOT part of company needs.
 
 ### Status Levels
+
+**Company Needs (2 metrics):**
 
 Each need uses 5 thresholds:
 - **Excellent**: 80-100
@@ -766,16 +743,29 @@ Each need uses 5 thresholds:
 - **Poor**: 20-39
 - **Critical**: 0-19
 
-### Context Appending
+**Readiness Phrases:**
+- 80+: "Combat-ready and drilled" (Success/Green)
+- 60-79: "Adequately trained" (Success/Green)
+- 40-59: "Readiness adequate for most duties" (Default)
+- 25-39: "Training has slipped" (Warning/Yellow)
+- 15-24: "Combat readiness poor" (Alert/Red)
+- <15: "Unprepared for battle" (Alert/Red)
 
-Each builder returns:
-- Base status description (selected by value threshold)
-- Optional context sentence (selected by detected conditions)
-- Concatenated: `"{status} {context}"`
+**Supplies Phrases:**
+- 80+: "Well-stocked with provisions" (Success/Green)
+- 60-79: "Supplies holding steady" (Success/Green)
+- 40-59: "Rations adequate for now" (Default)
+- 25-39: "Food stores running thin" (Warning/Yellow)
+- 15-24: "Rations critically low" (Alert/Red)
+- <15: "Starvation threatens the company" (Alert/Red)
 
-**Example:** `"READINESS: The company is prepared for action, though some drills have been skipped. The march wears on the men."`
+**Player Fatigue (0-24 budget):**
 
-**Note:** Context sentence only appended when relevant condition detected.
+Player fatigue is tracked separately from company needs:
+- 24-17: Fresh, no display
+- 16-9: "Weariness creeps in" (Warning/Yellow)
+- 8-1: "Bone-deep exhaustion" (Alert/Red)
+- 0: Collapse risk
 
 ---
 
@@ -1089,8 +1079,10 @@ Factual snapshot with bands/tags. Populated by fact producers.
 **Fields:**
 - `DayNumber`: Day of snapshot
 - Delta fields: `WoundedDelta`, `SickDelta`, `DeadDelta`, `ReplacementsDelta`
-- Band enums: `ThreatBand`, `FoodBand`, `MoraleBand`, `HealthDeltaBand`
+- Band enums: `ThreatBand`, `FoodBand`, `HealthDeltaBand`
 - Tag strings: `ObjectiveTag`, `BattleTag`, `AttachedArmyTag`, `DisciplineTag`, `StrategicContextTag`, `TrainingTag`
+
+**Note:** `MoraleBand` enum removed (deprecated 2026-01-11)
 
 **Producers:**
 - `CompanyMovementObjectiveProducer`: Populates objective/army tags

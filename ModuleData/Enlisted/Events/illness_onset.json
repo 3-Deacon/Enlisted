@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "packId": "illness_onset",
   "category": "medical",
@@ -78,10 +78,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -1,
-            "fatigue_relief": 15
+            "fatigue_relief": 15,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -115,25 +114,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 1,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 1,
             "fatigue_relief": 0,
-            "illness_onset": "minor"
+            "illness_onset": "minor",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -165,10 +161,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -259,10 +254,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -5,
             "medical_risk": -3,
-            "fatigue_relief": 10
+            "fatigue_relief": 10,
+            "lordReputation": -2
           },
           "effects_success": null,
           "effects_failure": null,
@@ -298,25 +292,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 10,
             "medical_risk": 2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 5
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 15,
             "medical_risk": -1,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 7
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 2,
             "fatigue_relief": 0,
-            "illness_onset": "moderate"
+            "illness_onset": "moderate",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -348,25 +339,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 5
+            "fatigue_relief": 5,
+            "lordReputation": 0
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": -2,
-            "fatigue_relief": 10
+            "fatigue_relief": 10,
+            "lordReputation": 2
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 1,
             "fatigue_relief": 0,
-            "illness_onset": "minor"
+            "illness_onset": "minor",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -455,12 +443,11 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -10,
             "medical_risk": -2,
             "fatigue_relief": 20,
             "illness_onset": "moderate",
-            "begin_treatment": true
+            "begin_treatment": true,
+            "lordReputation": -5
           },
           "effects_success": null,
           "effects_failure": null,
@@ -496,11 +483,10 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 3,
             "fatigue_relief": 0,
-            "illness_onset": "severe"
+            "illness_onset": "severe",
+            "lordReputation": 2
           },
           "effects_success": null,
           "effects_failure": null,
@@ -593,10 +579,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -1,
-            "fatigue_relief": 15
+            "fatigue_relief": 15,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -630,25 +615,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 1,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 1,
             "fatigue_relief": 0,
-            "illness_onset": "minor"
+            "illness_onset": "minor",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -680,10 +662,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -774,10 +755,9 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -5,
             "medical_risk": -3,
-            "fatigue_relief": 10
+            "fatigue_relief": 10,
+            "lordReputation": -2
           },
           "effects_success": null,
           "effects_failure": null,
@@ -813,25 +793,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 10,
             "medical_risk": 2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 5
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 15,
             "medical_risk": -1,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 7
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 2,
             "fatigue_relief": 0,
-            "illness_onset": "moderate"
+            "illness_onset": "moderate",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -863,25 +840,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 0,
-            "fatigue_relief": 5
+            "fatigue_relief": 5,
+            "lordReputation": 0
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": -2,
-            "fatigue_relief": 10
+            "fatigue_relief": 10,
+            "lordReputation": 2
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": 1,
             "fatigue_relief": 0,
-            "illness_onset": "minor"
+            "illness_onset": "minor",
+            "lordReputation": 0
           },
           "flags_set": [],
           "flags_clear": [],
@@ -970,12 +944,11 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -10,
             "medical_risk": -2,
             "fatigue_relief": 20,
             "illness_onset": "moderate",
-            "begin_treatment": true
+            "begin_treatment": true,
+            "lordReputation": -5
           },
           "effects_success": null,
           "effects_failure": null,
@@ -1011,11 +984,10 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 3,
             "fatigue_relief": 0,
-            "illness_onset": "severe"
+            "illness_onset": "severe",
+            "lordReputation": 2
           },
           "effects_success": null,
           "effects_failure": null,
@@ -1107,11 +1079,10 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -2,
             "fatigue_relief": 10,
-            "begin_treatment": true
+            "begin_treatment": true,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -1147,25 +1118,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 10,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 5
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -5,
             "medical_risk": 3,
             "fatigue_relief": 0,
-            "worsen_condition": true
+            "worsen_condition": true,
+            "lordReputation": -2
           },
           "flags_set": [],
           "flags_clear": [],
@@ -1253,11 +1221,10 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 0,
             "medical_risk": -2,
             "fatigue_relief": 10,
-            "begin_treatment": true
+            "begin_treatment": true,
+            "lordReputation": 0
           },
           "effects_success": null,
           "effects_failure": null,
@@ -1293,25 +1260,22 @@
           },
           "effects": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 5,
             "medical_risk": 2,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 2
           },
           "effects_success": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": 10,
             "medical_risk": 0,
-            "fatigue_relief": 0
+            "fatigue_relief": 0,
+            "lordReputation": 5
           },
           "effects_failure": {
             "scrutiny": 0,
-            "discipline": 0,
-            "soldierRep": -5,
             "medical_risk": 3,
             "fatigue_relief": 0,
-            "worsen_condition": true
+            "worsen_condition": true,
+            "lordReputation": -2
           },
           "flags_set": [],
           "flags_clear": [],

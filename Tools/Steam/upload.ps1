@@ -7,12 +7,22 @@
 # 3. preview.png created
 
 param(
-    [string]$SteamCmdPath = "C:\Dev\steamcmd\steamcmd.exe",
+    [string]$SteamCmdPath = "",
     [string]$SteamUser = ""
 )
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$WorkspaceRoot = Split-Path -Parent (Split-Path -Parent $ScriptDir)
+
+# Auto-detect steamcmd in workspace root if not specified
+if ([string]::IsNullOrEmpty($SteamCmdPath)) {
+    if ($IsWindows -or $env:OS -eq "Windows_NT") {
+        $SteamCmdPath = Join-Path $WorkspaceRoot "steamcmd\steamcmd.exe"
+    } else {
+        $SteamCmdPath = Join-Path $WorkspaceRoot "steamcmd/steamcmd.sh"
+    }
+}
 $VdfPath = Join-Path $ScriptDir "workshop_upload.vdf"
 $PreviewPath = Join-Path $ScriptDir "preview.png"
 
@@ -22,8 +32,8 @@ Write-Host ""
 # Check prerequisites
 if (-not (Test-Path $SteamCmdPath)) {
     Write-Host "ERROR: SteamCMD not found at: $SteamCmdPath" -ForegroundColor Red
-    Write-Host "Download from: https://developer.valvesoftware.com/wiki/SteamCMD"
-    Write-Host "Or specify path: .\upload.ps1 -SteamCmdPath 'C:\path\to\steamcmd.exe'"
+    Write-Host "Expected location: steamcmd/ in workspace root"
+    Write-Host "Or specify path: .\upload.ps1 -SteamCmdPath '/path/to/steamcmd'"
     exit 1
 }
 

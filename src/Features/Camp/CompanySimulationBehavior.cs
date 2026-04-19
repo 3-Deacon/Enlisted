@@ -82,23 +82,23 @@ namespace Enlisted.Features.Camp
 
                 // Pressure tracking
                 int daysLowSupplies = _pressure?.DaysLowSupplies ?? 0;
-                int daysLowMorale = _pressure?.DaysLowMorale ?? 0;
-                int daysLowRest = _pressure?.DaysLowRest ?? 0;
                 int daysLowDiscipline = _pressure?.DaysLowDiscipline ?? 0;
                 int recentDesertions = _pressure?.RecentDesertions ?? 0;
                 int daysHighSickness = _pressure?.DaysHighSickness ?? 0;
+                // Backwards compatibility: Load old values but don't use them
+                int daysLowMorale = 0;
+                int daysLowRest = 0;
 
                 dataStore.SyncData("sim_daysLowSupplies", ref daysLowSupplies);
-                dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale);
-                dataStore.SyncData("sim_daysLowRest", ref daysLowRest);
+                dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale); // Discarded
+                dataStore.SyncData("sim_daysLowRest", ref daysLowRest); // Discarded (Rest removed 2026-01-11)
                 dataStore.SyncData("sim_daysLowDiscipline", ref daysLowDiscipline);
                 dataStore.SyncData("sim_recentDesertions", ref recentDesertions);
                 dataStore.SyncData("sim_daysHighSickness", ref daysHighSickness);
 
                 _pressure ??= new CompanyPressure();
                 _pressure.DaysLowSupplies = daysLowSupplies;
-                _pressure.DaysLowMorale = daysLowMorale;
-                _pressure.DaysLowRest = daysLowRest;
+                // DaysLowRest and DaysLowMorale no longer tracked
                 _pressure.DaysLowDiscipline = daysLowDiscipline;
                 _pressure.RecentDesertions = recentDesertions;
                 _pressure.DaysHighSickness = daysHighSickness;
@@ -228,6 +228,9 @@ namespace Enlisted.Features.Camp
             // Phase 5: Pulse Evaluation (threshold crossings)
             ProcessPulse(result);
 
+            // Phase 5.5: Pressure Arc Events (tier-variant narrative events at thresholds)
+            CheckPressureArcEvents();
+
             // Phase 6: News Generation
             GenerateNews(result);
 
@@ -336,10 +339,8 @@ namespace Enlisted.Features.Camp
                     var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
                     if (needs != null)
                     {
-                        if (needs.Rest > 70) recoveryChance += 0.10f;
                         if (needs.Supplies > 70) recoveryChance += 0.05f;
                         if (needs.Supplies < 30) recoveryChance -= 0.10f;
-                        if (needs.Rest < 30) recoveryChance -= 0.05f;
 
                         if (needs.Supplies < 20) deathChance += 0.02f;
                     }
@@ -441,13 +442,7 @@ namespace Enlisted.Features.Camp
 
             // Desertion (two-phase: missing first, then confirmed after 3 days)
             float desertionRate = _config.BaseDesertionRate;
-            var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
-            if (needs != null)
-            {
-                if (needs.Morale < 30) desertionRate *= 3.0f;
-                else if (needs.Morale < 50) desertionRate *= 1.5f;
-                else if (needs.Morale > 70) desertionRate *= 0.2f;
-            }
+            // Morale no longer affects desertion rate (system removed)
 
             int maxDesertion = Math.Max(0, (int)(desertionRate * totalTroops / 100));
             int newMissing = MBRandom.RandomInt(0, maxDesertion + 1);
@@ -527,10 +522,7 @@ namespace Enlisted.Features.Camp
                 {
                     weight = (int)(weight * 0.5f); // Less problem incidents when already struggling
                 }
-                if (inc.Category == "camp_life" && needs?.Morale > 60)
-                {
-                    weight = (int)(weight * 1.5f); // More positive incidents when morale is good
-                }
+                // Morale weight adjustment removed (morale system no longer exists)
 
                 if (weight > 0)
                 {
@@ -575,16 +567,7 @@ namespace Enlisted.Features.Camp
                 switch (effect.Key.ToLower())
                 {
                     case "morale":
-                        if (needs != null)
-                        {
-                            needs.SetNeed(CompanyNeed.Morale, needs.Morale + effect.Value);
-                        }
-                        break;
-                    case "rest":
-                        if (needs != null)
-                        {
-                            needs.SetNeed(CompanyNeed.Rest, needs.Rest + effect.Value);
-                        }
+                        // Morale system removed - skip morale effects
                         break;
                     case "supplies":
                         if (needs != null)
@@ -593,7 +576,13 @@ namespace Enlisted.Features.Camp
                         }
                         break;
                     case "discipline":
-                        escalation?.ModifyDiscipline(effect.Value, "camp incident");
+                        // Legacy: Discipline merged into Scrutiny in Phase 1 (0-100 scale)
+                        // Scale old 0-10 values to 0-100
+                        escalation?.ModifyScrutiny(effect.Value * 10, "camp incident - discipline");
+                        break;
+                    case "scrutiny":
+                        // Scrutiny effects (0-100 scale)
+                        escalation?.ModifyScrutiny(effect.Value, "camp incident");
                         break;
                 }
 
@@ -614,11 +603,7 @@ namespace Enlisted.Features.Camp
             if (needs.Supplies < 40) _pressure.DaysLowSupplies++;
             else _pressure.DaysLowSupplies = 0;
 
-            if (needs.Morale < 40) _pressure.DaysLowMorale++;
-            else _pressure.DaysLowMorale = 0;
-
-            if (needs.Rest < 30) _pressure.DaysLowRest++;
-            else _pressure.DaysLowRest = 0;
+            // Morale tracking removed (system no longer exists)
 
             // High sickness tracking
             if (_roster != null && _roster.TotalSoldiers > 0)
@@ -642,17 +627,75 @@ namespace Enlisted.Features.Camp
                 });
             }
 
-            if (needs.Morale < 20 && _pressure.DaysLowMorale == 1)
+            // Morale pulse event removed (morale system no longer exists)
+        }
+
+        /// <summary>
+        /// Checks pressure counters and fires narrative arc events at thresholds.
+        /// Called from ProcessDailySimulation after ProcessPulse.
+        /// </summary>
+        private void CheckPressureArcEvents()
+        {
+            if (_pressure == null)
             {
-                result.PulseEvents.Add(new PulseEvent
-                {
-                    Need = "Morale",
-                    Direction = "down",
-                    NewLevel = "Critical",
-                    NewsText = new TextObject("{=sim_pulse_morale_critical}The mood is dark. Men speak in whispers. Something may break.").ToString(),
-                    Severity = "critical"
-                });
+                return;
             }
+
+            // Supply pressure arc
+            CheckSupplyPressureArc(_pressure.DaysLowSupplies);
+        }
+
+        private void CheckSupplyPressureArc(int daysLow)
+        {
+            // Only fire at exact thresholds (avoid duplicates)
+            string eventId = null;
+
+            switch (daysLow)
+            {
+                case 3:
+                    eventId = GetTierVariantEventId("supply_pressure_stage_1");
+                    break;
+                case 5:
+                    eventId = GetTierVariantEventId("supply_pressure_stage_2");
+                    break;
+                case 7:
+                    eventId = GetTierVariantEventId("supply_crisis");
+                    break;
+            }
+
+            if (eventId != null)
+            {
+                var evt = EventCatalog.GetEvent(eventId);
+                if (evt != null)
+                {
+                    EventDeliveryManager.Instance?.QueueEvent(evt);
+                    ModLogger.Info(LogCategory, $"Fired supply pressure event: {eventId}");
+                }
+                else
+                {
+                    ModLogger.Warn(LogCategory, $"Supply pressure event not found: {eventId}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns tier-appropriate event ID suffix based on player tier.
+        /// </summary>
+        private string GetTierVariantEventId(string baseId)
+        {
+            var tier = EnlistmentBehavior.Instance?.EnlistmentTier ?? 1;
+
+            if (tier <= 4)
+            {
+                return $"{baseId}_grunt";
+            }
+
+            if (tier <= 6)
+            {
+                return $"{baseId}_nco";
+            }
+
+            return $"{baseId}_cmd";
         }
 
         /// <summary>Phase 6: Push simulation results to the news system.</summary>
@@ -719,17 +762,14 @@ namespace Enlisted.Features.Camp
                 return "";
             }
 
-            if (needs.Morale < 30)
-            {
-                return new TextObject("{=sim_status_morale_low}Grumbling in the ranks. The men are restless.").ToString();
-            }
+            // Morale status text removed (morale system no longer exists)
             if (needs.Supplies < 30)
             {
                 return new TextObject("{=sim_status_supplies_low}Rations are short. Belts tightened.").ToString();
             }
-            if (needs.Morale > 70 && needs.Supplies > 60)
+            if (needs.Supplies > 60)
             {
-                return new TextObject("{=sim_status_good}The company is in good spirits.").ToString();
+                return new TextObject("{=sim_status_good}The company is in good shape.").ToString();
             }
 
             return "";
@@ -751,21 +791,8 @@ namespace Enlisted.Features.Camp
                 ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Supply crisis");
             }
 
-            // Morale collapse: 3+ days at critical levels
-            if (_pressure.DaysLowMorale >= 3 && needs.Morale < 20)
-            {
-                result.TriggeredCrises.Add("evt_morale_collapse");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_morale_collapse");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Morale collapse");
-            }
-
-            // Exhaustion crisis: 2+ days at critical rest
-            if (_pressure.DaysLowRest >= 2 && needs.Rest < 15)
-            {
-                result.TriggeredCrises.Add("evt_exhaustion_crisis");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_exhaustion_crisis");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Exhaustion");
-            }
+            // Morale collapse crisis removed (morale system no longer exists)
+            // Exhaustion crisis removed 2026-01-11 (Rest system removed)
 
             // Epidemic: high sickness rate for extended period
             if (_pressure.DaysHighSickness >= 2 && _roster?.CasualtyRate > 0.2f)

@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_equipment_cleaning",
   "events": [
@@ -12,7 +12,14 @@
       "setupId": "cleaning_found_damage_setup",
       "setup": "This sword has a crack in the blade. Someone's been hiding it. Could fail in battle.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"]
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ]
       },
       "options": [
         {
@@ -20,8 +27,10 @@
           "textId": "cleaning_found_damage_report",
           "text": "Report it to {SERGEANT}.",
           "effects": {
-            "officerRep": 2,
-            "skillXp": { "Crafting": 12 }
+            "skillXp": {
+              "Crafting": 12
+            },
+            "lordReputation": 2
           },
           "resultTextId": "cleaning_found_damage_report_result",
           "resultText": "{SERGEANT} nods. 'Good eye. We'll get it to the smith.'"
@@ -35,15 +44,19 @@
             "difficulty": 35
           },
           "effects": {
-            "officerRep": 3,
             "companyNeeds": {
               "Equipment": 1
             },
-            "skillXp": { "Crafting": 25 }
+            "skillXp": {
+              "Crafting": 25
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "officerRep": 1,
-            "skillXp": { "Crafting": 10 }
+            "skillXp": {
+              "Crafting": 10
+            },
+            "lordReputation": 1
           },
           "resultTextId": "cleaning_found_damage_fix_quietly_result",
           "resultText": "You work the crack out. Good as new, or close enough.",
@@ -55,8 +68,10 @@
           "textId": "cleaning_found_damage_ignore",
           "text": "Put it back. Not your problem.",
           "effects": {
-            "officerRep": -2,
-            "skillXp": { "Crafting": 5 }
+            "skillXp": {
+              "Crafting": 5
+            },
+            "lordReputation": -2
           },
           "resultTextId": "cleaning_found_damage_ignore_result",
           "resultText": "You set it aside. Someone else can deal with it."
@@ -73,7 +88,9 @@
       "setupId": "cleaning_helped_comrade_setup",
       "setup": "{COMRADE_NAME} is struggling with a pile of gear. He's new and clearly overwhelmed.",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -81,9 +98,11 @@
           "textId": "cleaning_helped_comrade_help",
           "text": "Help him out.",
           "effects": {
-            "soldierRep": 3,
             "fatigue": 3,
-            "skillXp": { "Crafting": 18 }
+            "skillXp": {
+              "Crafting": 18
+            },
+            "lordReputation": 1
           },
           "resultTextId": "cleaning_helped_comrade_help_result",
           "resultText": "Together you finish twice as fast. He owes you one."
@@ -93,8 +112,10 @@
           "textId": "cleaning_helped_comrade_ignore",
           "text": "Focus on your own work.",
           "effects": {
-            "soldierRep": -1,
-            "skillXp": { "Crafting": 10 }
+            "skillXp": {
+              "Crafting": 10
+            },
+            "lordReputation": 0
           },
           "resultTextId": "cleaning_helped_comrade_ignore_result",
           "resultText": "You finish your pile. He's still working when you leave."
@@ -104,8 +125,10 @@
           "textId": "cleaning_helped_comrade_mock",
           "text": "Mock his slowness.",
           "effects": {
-            "soldierRep": -3,
-            "skillXp": { "Crafting": 6 }
+            "skillXp": {
+              "Crafting": 6
+            },
+            "lordReputation": -1
           },
           "resultTextId": "cleaning_helped_comrade_mock_result",
           "resultText": "The others laugh. He doesn't. You've made an enemy."
@@ -122,7 +145,9 @@
       "setupId": "cleaning_officer_inspection_setup",
       "setup": "{OFFICER_NAME} walks through, checking the work. He stops at your station.",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -134,12 +159,16 @@
             "difficulty": 40
           },
           "effects": {
-            "officerRep": 3,
-            "skillXp": { "Crafting": 24 }
+            "skillXp": {
+              "Crafting": 24
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "officerRep": -2,
-            "skillXp": { "Crafting": 8 }
+            "skillXp": {
+              "Crafting": 8
+            },
+            "lordReputation": -2
           },
           "resultTextId": "cleaning_officer_inspection_present_work_result",
           "resultText": "He examines a blade, nods. 'Fine work, soldier.'",
@@ -151,8 +180,10 @@
           "textId": "cleaning_officer_inspection_acknowledge_flaws",
           "text": "Point out the work you struggled with.",
           "effects": {
-            "officerRep": 1,
-            "skillXp": { "Crafting": 15 }
+            "skillXp": {
+              "Crafting": 15
+            },
+            "lordReputation": 1
           },
           "resultTextId": "cleaning_officer_inspection_acknowledge_flaws_result",
           "resultText": "He nods. 'Honesty is good. Keep working on it.'"

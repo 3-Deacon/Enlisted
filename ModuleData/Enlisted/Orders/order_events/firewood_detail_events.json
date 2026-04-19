@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_firewood_detail",
   "events": [
@@ -12,7 +12,14 @@
       "setupId": "firewood_axe_slip_setup",
       "setup": "The axe slips. Blood wells from your hand. Not deep, but it stings.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"],
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -27,12 +34,16 @@
           "effects": {
             "hpChange": -8,
             "medicalRisk": 1,
-            "skillXp": { "Athletics": 22 }
+            "skillXp": {
+              "Athletics": 22
+            }
           },
           "failEffects": {
             "hpChange": -12,
             "medicalRisk": 2,
-            "skillXp": { "Athletics": 10 }
+            "skillXp": {
+              "Athletics": 10
+            }
           },
           "resultTextId": "firewood_axe_slip_quick_fix_result",
           "resultText": "You bind it tight. Hurts, but you finish the job.",
@@ -45,7 +56,9 @@
           "text": "Report to the surgeon.",
           "effects": {
             "hpChange": -3,
-            "skillXp": { "Medicine": 8 }
+            "skillXp": {
+              "Medicine": 8
+            }
           },
           "resultTextId": "firewood_axe_slip_report_result",
           "resultText": "The surgeon cleans and binds it properly. You're back to work soon."
@@ -57,7 +70,9 @@
           "effects": {
             "hpChange": -15,
             "medicalRisk": 2,
-            "skillXp": { "Athletics": 18 }
+            "skillXp": {
+              "Athletics": 18
+            }
           },
           "resultTextId": "firewood_axe_slip_push_through_result",
           "resultText": "Blood drips down the axe handle. You finish, but the wound looks angry."
@@ -74,7 +89,10 @@
       "setupId": "firewood_found_something_setup",
       "setup": "Digging out a stump, your shovel hits something metal. A small chest, half-buried.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -83,8 +101,10 @@
           "textId": "firewood_found_something_report",
           "text": "Report it to {SERGEANT}.",
           "effects": {
-            "officerRep": 2,
-            "skillXp": { "Tactics": 12 }
+            "skillXp": {
+              "Tactics": 12
+            },
+            "lordReputation": 2
           },
           "resultTextId": "firewood_found_something_report_result",
           "resultText": "{SERGEANT} takes it for the company. You did the right thing."
@@ -94,9 +114,11 @@
           "textId": "firewood_found_something_keep",
           "text": "Pocket what's inside.",
           "effects": {
-            "officerRep": -2,
             "gold": 15,
-            "skillXp": { "Roguery": 14 }
+            "skillXp": {
+              "Roguery": 14
+            },
+            "lordReputation": -2
           },
           "resultTextId": "firewood_found_something_keep_result",
           "resultText": "A few coins. Not much, but it's yours now."
@@ -106,9 +128,11 @@
           "textId": "firewood_found_something_investigate",
           "text": "Open it carefully and examine contents.",
           "effects": {
-            "officerRep": 3,
             "gold": 20,
-            "skillXp": { "Scouting": 16 }
+            "skillXp": {
+              "Scouting": 16
+            },
+            "lordReputation": 3
           },
           "resultTextId": "firewood_found_something_investigate_result",
           "resultText": "Old coins and a map. {SERGEANT} rewards your thoroughness."
@@ -125,7 +149,10 @@
       "setupId": "firewood_wildlife_setup",
       "setup": "A boar crashes through the underbrush. It's big, angry, and between you and camp.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -134,8 +161,10 @@
           "textId": "firewood_wildlife_warn_others",
           "text": "Shout a warning to the others.",
           "effects": {
-            "soldierRep": 2,
-            "skillXp": { "Tactics": 12 }
+            "skillXp": {
+              "Tactics": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "firewood_wildlife_warn_others_result",
           "resultText": "Everyone backs off. The boar snorts and moves on."
@@ -149,13 +178,17 @@
             "difficulty": 40
           },
           "effects": {
-            "soldierRep": 3,
-            "skillXp": { "Polearm": 24 }
+            "skillXp": {
+              "Polearm": 24
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "hpChange": -10,
-            "soldierRep": 1,
-            "skillXp": { "Polearm": 12 }
+            "skillXp": {
+              "Polearm": 12
+            },
+            "lordReputation": 0
           },
           "resultTextId": "firewood_wildlife_kill_it_result",
           "resultText": "One clean strike. Tonight, the company eats well.",
@@ -167,7 +200,9 @@
           "textId": "firewood_wildlife_avoid",
           "text": "Circle around quietly.",
           "effects": {
-            "skillXp": { "Scouting": 10 }
+            "skillXp": {
+              "Scouting": 10
+            }
           },
           "resultTextId": "firewood_wildlife_avoid_result",
           "resultText": "You give it wide berth. It never notices you."
@@ -184,7 +219,14 @@
       "setupId": "firewood_work_song_setup",
       "setup": "{COMRADE_NAME} starts a work song. The rhythm helps the axes fall in time.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"],
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -193,11 +235,13 @@
           "textId": "firewood_work_song_join",
           "text": "Join in.",
           "effects": {
-            "soldierRep": 2,
             "companyNeeds": {
               "Morale": 2
             },
-            "skillXp": { "Athletics": 14 }
+            "skillXp": {
+              "Athletics": 14
+            },
+            "lordReputation": 1
           },
           "resultTextId": "firewood_work_song_join_result",
           "resultText": "Your voice joins the chorus. The work goes faster."
@@ -207,7 +251,9 @@
           "textId": "firewood_work_song_stay_quiet",
           "text": "Keep working in silence.",
           "effects": {
-            "skillXp": { "Athletics": 10 }
+            "skillXp": {
+              "Athletics": 10
+            }
           },
           "resultTextId": "firewood_work_song_stay_quiet_result",
           "resultText": "You focus on the work. The song continues without you."
@@ -217,11 +263,13 @@
           "textId": "firewood_work_song_lead_different",
           "text": "Start a different song—a better one.",
           "effects": {
-            "soldierRep": 3,
             "companyNeeds": {
               "Morale": 5
             },
-            "skillXp": { "Charm": 18 }
+            "skillXp": {
+              "Charm": 18
+            },
+            "lordReputation": 1
           },
           "resultTextId": "firewood_work_song_lead_different_result",
           "resultText": "The men pick up your tune. Soon the whole detail is singing."
@@ -238,7 +286,9 @@
       "setupId": "firewood_competition_setup",
       "setup": "{COMRADE_NAME} challenges you to a chopping contest. First to split ten logs wins.",
       "requirements": {
-        "world_state": ["peacetime_garrison"],
+        "world_state": [
+          "peacetime_garrison"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -251,14 +301,18 @@
             "difficulty": 35
           },
           "effects": {
-            "soldierRep": 3,
             "fatigue": 5,
-            "skillXp": { "Athletics": 22 }
+            "skillXp": {
+              "Athletics": 22
+            },
+            "lordReputation": 1
           },
           "failEffects": {
-            "soldierRep": 2,
             "fatigue": 5,
-            "skillXp": { "Athletics": 12 }
+            "skillXp": {
+              "Athletics": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "firewood_competition_accept_result",
           "resultText": "You win by two logs. {COMRADE_NAME} buys the drinks tonight.",
@@ -270,7 +324,9 @@
           "textId": "firewood_competition_decline",
           "text": "Decline. Save your energy.",
           "effects": {
-            "skillXp": { "Athletics": 8 }
+            "skillXp": {
+              "Athletics": 8
+            }
           },
           "resultTextId": "firewood_competition_decline_result",
           "resultText": "He shrugs and finds another challenger."
@@ -284,16 +340,20 @@
             "difficulty": 35
           },
           "effects": {
-            "soldierRep": 5,
             "fatigue": 10,
             "gold": 20,
-            "skillXp": { "Athletics": 26 }
+            "skillXp": {
+              "Athletics": 26
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "soldierRep": 3,
             "fatigue": 10,
             "gold": -20,
-            "skillXp": { "Athletics": 14 }
+            "skillXp": {
+              "Athletics": 14
+            },
+            "lordReputation": 1
           },
           "resultTextId": "firewood_competition_raise_stakes_result",
           "resultText": "You win, and his coin. The men cheer.",

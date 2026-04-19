@@ -34,7 +34,7 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class EventDeliveryManager : CampaignBehaviorBase
     {
-        private const string LogCategory = "EventDelivery";
+        private const string LogCategory = "EVENTDELIVERY";
 
         public static EventDeliveryManager Instance { get; private set; }
 
@@ -66,7 +66,7 @@ namespace Enlisted.Features.Content
         {
             if (evt == null)
             {
-                ModLogger.WarnCode(LogCategory, "W-EVT-001", "Attempted to queue null event - check event ID and catalog loading");
+                ModLogger.Expected(LogCategory, "event_queue_null", "Attempted to queue null event - check event ID and catalog loading");
                 return;
             }
 
@@ -125,7 +125,7 @@ namespace Enlisted.Features.Content
 
             if (options.Count == 0)
             {
-                ModLogger.WarnCode(LogCategory, "W-EVT-002", $"Event {evt.Id} has no valid options - check requirements in JSON");
+                ModLogger.Expected(LogCategory, "event_no_valid_options", $"Event {evt.Id} has no valid options - check requirements in JSON");
                 OnEventClosed();
                 return;
             }
@@ -334,7 +334,7 @@ namespace Enlisted.Features.Content
 
             if (option == null)
             {
-                ModLogger.ErrorCode(LogCategory, "E-EVT-001", "Selected option identifier is not an EventOption - internal error");
+                ModLogger.Expected(LogCategory, "event_option_wrong_type", "Selected option identifier is not an EventOption - internal error");
                 OnEventClosed();
                 return;
             }
@@ -609,7 +609,7 @@ namespace Enlisted.Features.Content
                 }
             }
 
-            // Apply reputation changes
+            // Apply lord reputation changes (uses native Hero.GetRelation system)
             if (effects.LordRep.HasValue && escalation != null)
             {
                 escalation.ModifyLordReputation(effects.LordRep.Value, "event");
@@ -617,19 +617,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Debug(LogCategory, $"Modified lord reputation by {effects.LordRep.Value}");
             }
 
-            if (effects.OfficerRep.HasValue && escalation != null)
-            {
-                escalation.ModifyOfficerReputation(effects.OfficerRep.Value, "event");
-                feedbackMessages.Add($"{(effects.OfficerRep.Value > 0 ? "+" : "")}{effects.OfficerRep.Value} Officer Reputation");
-                ModLogger.Debug(LogCategory, $"Modified officer reputation by {effects.OfficerRep.Value}");
-            }
-
-            if (effects.SoldierRep.HasValue && escalation != null)
-            {
-                escalation.ModifySoldierReputation(effects.SoldierRep.Value, "event");
-                feedbackMessages.Add($"{(effects.SoldierRep.Value > 0 ? "+" : "")}{effects.SoldierRep.Value} Soldier Reputation");
-                ModLogger.Debug(LogCategory, $"Modified soldier reputation by {effects.SoldierRep.Value}");
-            }
+            // Officer/Soldier reputation removed in Phase 3 - JSON files converted to use lordReputation
 
             // Apply escalation changes
             if (effects.Scrutiny.HasValue && escalation != null)
@@ -638,11 +626,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Debug(LogCategory, $"Modified scrutiny by {effects.Scrutiny.Value}");
             }
 
-            if (effects.Discipline.HasValue && escalation != null)
-            {
-                escalation.ModifyDiscipline(effects.Discipline.Value, "event");
-                ModLogger.Debug(LogCategory, $"Modified discipline by {effects.Discipline.Value}");
-            }
+            // Discipline merged into Scrutiny in Phase 1 - JSON files converted to use scrutiny (0-100 scale)
 
             if (effects.MedicalRisk.HasValue && escalation != null)
             {
@@ -812,12 +796,6 @@ namespace Enlisted.Features.Content
             if (effects.WorsenCondition == true)
             {
                 ApplyWorsenCondition();
-            }
-
-            // Apply fatigue change
-            if (effects.Fatigue.HasValue && effects.Fatigue.Value != 0)
-            {
-                ApplyFatigueChange(effects.Fatigue.Value);
             }
 
             // Apply discharge if specified. Ends the player's enlistment with the given band.
@@ -1207,23 +1185,6 @@ namespace Enlisted.Features.Content
             }
 
             enlistment.StopEnlist("Aborted enlistment during bag check", isHonorableDischarge: false);
-        }
-
-        /// <summary>
-        /// Applies a fatigue change to the player.
-        /// Positive values add fatigue (more tired), negative values restore stamina.
-        /// </summary>
-        private void ApplyFatigueChange(int delta)
-        {
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment == null)
-            {
-                ModLogger.Warn(LogCategory, "ApplyFatigueChange: EnlistmentBehavior not available");
-                return;
-            }
-
-            enlistment.ModifyFatigue(delta);
-            ModLogger.Debug(LogCategory, $"ApplyFatigueChange: Modified fatigue by {delta}");
         }
 
         /// <summary>
@@ -2004,25 +1965,10 @@ namespace Enlisted.Features.Content
                 parts.Add($"{effects.LordRep.Value:+#;-#;0} Lord Rep");
             }
 
-            if (effects.OfficerRep.HasValue && effects.OfficerRep.Value != 0)
-            {
-                parts.Add($"{effects.OfficerRep.Value:+#;-#;0} Officer Rep");
-            }
-
-            if (effects.SoldierRep.HasValue && effects.SoldierRep.Value != 0)
-            {
-                parts.Add($"{effects.SoldierRep.Value:+#;-#;0} Soldier Rep");
-            }
-
             // Escalation
             if (effects.Scrutiny.HasValue && effects.Scrutiny.Value != 0)
             {
                 parts.Add($"{effects.Scrutiny.Value:+#;-#;0} Scrutiny");
-            }
-
-            if (effects.Discipline.HasValue && effects.Discipline.Value != 0)
-            {
-                parts.Add($"{effects.Discipline.Value:+#;-#;0} Discipline");
             }
 
             // HP
@@ -2064,24 +2010,9 @@ namespace Enlisted.Features.Content
                 dict["LordRep"] = effects.LordRep.Value;
             }
 
-            if (effects.OfficerRep.HasValue && effects.OfficerRep.Value != 0)
-            {
-                dict["OfficerRep"] = effects.OfficerRep.Value;
-            }
-
-            if (effects.SoldierRep.HasValue && effects.SoldierRep.Value != 0)
-            {
-                dict["SoldierRep"] = effects.SoldierRep.Value;
-            }
-
             if (effects.Scrutiny.HasValue && effects.Scrutiny.Value != 0)
             {
                 dict["Scrutiny"] = effects.Scrutiny.Value;
-            }
-
-            if (effects.Discipline.HasValue && effects.Discipline.Value != 0)
-            {
-                dict["Discipline"] = effects.Discipline.Value;
             }
 
             if (effects.SkillXp != null)
@@ -2349,7 +2280,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Applies costs from a sub-choice option.
-        /// Deducts gold, applies fatigue, etc.
+        /// Deducts gold, time, etc.
         /// </summary>
         private void ApplyCosts(EventCosts costs)
         {
@@ -2367,18 +2298,6 @@ namespace Enlisted.Features.Content
                 ModLogger.Debug(LogCategory, $"Applied gold cost: -{costs.Gold.Value}");
             }
 
-            // Apply fatigue cost (affects company Rest need if available)
-            if (costs.Fatigue.HasValue && costs.Fatigue.Value > 0)
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.CompanyNeeds != null)
-                {
-                    var currentRest = enlistment.CompanyNeeds.GetNeed(CompanyNeed.Rest);
-                    enlistment.CompanyNeeds.SetNeed(CompanyNeed.Rest, currentRest - costs.Fatigue.Value);
-                    ModLogger.Debug(LogCategory, $"Applied fatigue cost: {costs.Fatigue.Value} (reduced Rest)");
-                }
-            }
-
             // Time costs could affect scheduling, but for now just log
             if (costs.TimeHours.HasValue && costs.TimeHours.Value > 0)
             {
@@ -2388,7 +2307,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Applies rewards from a sub-choice option.
-        /// Grants gold, fatigue relief, skill XP, etc.
+        /// Grants gold, skill XP, etc.
         /// </summary>
         private void ApplyRewards(EventRewards rewards)
         {
@@ -2406,19 +2325,6 @@ namespace Enlisted.Features.Content
                 GiveGoldAction.ApplyBetweenCharacters(null, hero, rewards.Gold.Value);
                 rewardMessages.Add($"+{rewards.Gold.Value} gold");
                 ModLogger.Debug(LogCategory, $"Applied gold reward: +{rewards.Gold.Value}");
-            }
-
-            // Apply fatigue relief (increases company Rest need)
-            if (rewards.FatigueRelief.HasValue && rewards.FatigueRelief.Value > 0)
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.CompanyNeeds != null)
-                {
-                    var currentRest = enlistment.CompanyNeeds.GetNeed(CompanyNeed.Rest);
-                    enlistment.CompanyNeeds.SetNeed(CompanyNeed.Rest, currentRest + rewards.FatigueRelief.Value);
-                    rewardMessages.Add($"-{rewards.FatigueRelief.Value} fatigue");
-                    ModLogger.Debug(LogCategory, $"Applied fatigue relief: +{rewards.FatigueRelief.Value} Rest");
-                }
             }
 
             // Apply skill XP rewards with experience track modifier and track for enlistment XP

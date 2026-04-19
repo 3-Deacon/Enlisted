@@ -441,9 +441,6 @@ namespace Enlisted.Features.Content
             // Parse HP requirement (for decisions like Seek Treatment that require being wounded)
             reqs.HpBelow = reqJson["hp_below"]?.Value<int>() ?? reqJson["hpBelow"]?.Value<int>();
 
-            // Parse soldier reputation maximum (for theft events that target unpopular soldiers)
-            reqs.MaxSoldierRep = reqJson["maxSoldierRep"]?.Value<int>() ?? reqJson["max_soldier_rep"]?.Value<int>();
-
             // Parse baggage items requirement (for theft events that require items to exist)
             reqs.BaggageHasItems = reqJson["baggageHasItems"]?.Value<bool>() ?? reqJson["baggage_has_items"]?.Value<bool>();
 
@@ -646,7 +643,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Parses effects for an event option.
-        /// Handles alternate field names (lance_reputation→soldierRep, trait_xp→traitXp, etc.).
+        /// Handles alternate field names (trait_xp→traitXp, etc.).
         /// </summary>
         private static int ParseOptionEffects(JObject optJson, EventOption option, string sourceFile)
         {
@@ -703,34 +700,14 @@ namespace Enlisted.Features.Content
                 }
             }
 
-            // Parse reputation, mapping lance_reputation → soldierRep if needed
+            // Parse reputation
             if (effectsJson != null)
             {
                 effects.LordRep = effectsJson["lordRep"]?.Value<int>() ??
                                   effectsJson["lord_reputation"]?.Value<int>();
-                effects.OfficerRep = effectsJson["officerRep"]?.Value<int>() ??
-                                     effectsJson["officer_reputation"]?.Value<int>();
-                effects.SoldierRep = effectsJson["soldierRep"]?.Value<int>() ??
-                                     effectsJson["soldier_reputation"]?.Value<int>();
-
-                // Parse camp_reputation (current term) or migrate lance_reputation (deprecated)
-                var campRep = effectsJson["camp_reputation"]?.Value<int>();
-                if (campRep.HasValue && !effects.SoldierRep.HasValue)
-                {
-                    effects.SoldierRep = campRep;
-                }
-
-                var lanceRep = effectsJson["lance_reputation"]?.Value<int>();
-                if (lanceRep.HasValue && !effects.SoldierRep.HasValue)
-                {
-                    effects.SoldierRep = lanceRep;
-                    ModLogger.Debug(LogCategory, $"[{sourceFile}] Migrated lance_reputation → camp_reputation");
-                    warnings++;
-                }
 
                 // Parse escalation changes
                 effects.Scrutiny = effectsJson["scrutiny"]?.Value<int>();
-                effects.Discipline = effectsJson["discipline"]?.Value<int>();
                 effects.MedicalRisk = effectsJson["medicalRisk"]?.Value<int>() ??
                                       effectsJson["medical_risk"]?.Value<int>();
 
@@ -774,9 +751,6 @@ namespace Enlisted.Features.Content
                 // Parse bag check choice (first-enlistment gear handling)
                 effects.BagCheckChoice = effectsJson["bagCheckChoice"]?.ToString() ??
                                         effectsJson["bag_check_choice"]?.ToString();
-
-                // Parse fatigue effect
-                effects.Fatigue = effectsJson["fatigue"]?.Value<int>();
 
                 // Parse company needs
                 ParseDictionaryField(effectsJson, "companyNeeds", effects.CompanyNeeds);
@@ -937,7 +911,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Parses a rewards block from JSON.
-        /// Contains gold, fatigue relief, xp, and skill xp rewards.
+        /// Contains gold, xp, and skill xp rewards.
         /// </summary>
         private static EventRewards ParseRewards(JToken rewardsToken)
         {
@@ -948,9 +922,7 @@ namespace Enlisted.Features.Content
 
             var rewards = new EventRewards
             {
-                Gold = rewardsToken["gold"]?.Value<int>(),
-                FatigueRelief = rewardsToken["fatigueRelief"]?.Value<int>() ??
-                               rewardsToken["fatigue_relief"]?.Value<int>()
+                Gold = rewardsToken["gold"]?.Value<int>()
             };
 
             // Parse general XP (e.g., {"enlisted": 20})
@@ -1000,7 +972,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Parses a costs block from JSON.
-        /// Contains gold, fatigue, and time costs.
+        /// Contains gold and time costs.
         /// </summary>
         private static EventCosts ParseCosts(JToken costsToken)
         {
@@ -1012,7 +984,6 @@ namespace Enlisted.Features.Content
             return new EventCosts
             {
                 Gold = costsToken["gold"]?.Value<int>(),
-                Fatigue = costsToken["fatigue"]?.Value<int>(),
                 TimeHours = costsToken["time_hours"]?.Value<int>() ??
                            costsToken["timeHours"]?.Value<int>()
             };
@@ -1045,15 +1016,9 @@ namespace Enlisted.Features.Content
 
             // Parse reputation changes
             effects.LordRep = effectsJson["lordRep"]?.Value<int>() ?? effectsJson["lord_reputation"]?.Value<int>();
-            effects.OfficerRep = effectsJson["officerRep"]?.Value<int>() ?? effectsJson["officer_reputation"]?.Value<int>();
-            effects.SoldierRep = effectsJson["soldierRep"]?.Value<int>() ??
-                                 effectsJson["soldier_reputation"]?.Value<int>() ??
-                                 effectsJson["camp_reputation"]?.Value<int>() ??
-                                 effectsJson["lance_reputation"]?.Value<int>();
 
             // Parse escalation changes
             effects.Scrutiny = effectsJson["scrutiny"]?.Value<int>();
-            effects.Discipline = effectsJson["discipline"]?.Value<int>();
             effects.MedicalRisk = effectsJson["medicalRisk"]?.Value<int>() ?? effectsJson["medical_risk"]?.Value<int>();
 
             // Parse resource changes
@@ -1085,9 +1050,6 @@ namespace Enlisted.Features.Content
             effects.BagCheckChoice = effectsJson["bagCheckChoice"]?.ToString() ??
                                     effectsJson["bag_check_choice"]?.ToString();
 
-            // Parse fatigue effect
-            effects.Fatigue = effectsJson["fatigue"]?.Value<int>();
-
             // Parse medical effects (illness, injury, treatment, worsening)
             effects.IllnessOnset = effectsJson["illnessOnset"]?.ToString() ?? effectsJson["illness_onset"]?.ToString();
             effects.InjuryOnset = effectsJson["injuryOnset"]?.ToString() ?? effectsJson["injury_onset"]?.ToString();
@@ -1114,25 +1076,10 @@ namespace Enlisted.Features.Content
 
             var effects = new EventEffects();
 
-            // Parse camp_reputation / soldierRep
-            var campRep = effectsToken["camp_reputation"]?.Value<int>();
-            if (campRep.HasValue)
-            {
-                effects.SoldierRep = campRep;
-            }
-            else
-            {
-                effects.SoldierRep = effectsToken["soldierRep"]?.Value<int>() ??
-                                     effectsToken["soldier_reputation"]?.Value<int>();
-            }
-
-            // Parse other common effects
+            // Parse common effects
             effects.LordRep = effectsToken["lordRep"]?.Value<int>() ??
                               effectsToken["lord_reputation"]?.Value<int>();
-            effects.OfficerRep = effectsToken["officerRep"]?.Value<int>() ??
-                                 effectsToken["officer_reputation"]?.Value<int>();
             effects.Scrutiny = effectsToken["scrutiny"]?.Value<int>();
-            effects.Discipline = effectsToken["discipline"]?.Value<int>();
             effects.MedicalRisk = effectsToken["medicalRisk"]?.Value<int>() ??
                                   effectsToken["medical_risk"]?.Value<int>();
             effects.Gold = effectsToken["gold"]?.Value<int>();

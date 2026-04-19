@@ -489,9 +489,9 @@ For first-enlistment gear handling.
 |--------|-------------------|---------------------|
 | **Events** | `effects`, `failEffects` | All types |
 | **Decisions** | `effects`, `effects_success`, `effects_failure` | Skill XP, rep, gold |
-| **Opportunities** | `effects` | Skill XP, fatigue, rep |
+| **Opportunities** | `effects` | Skill XP, rep |
 | **Order Events** | `effects`, `failEffects` | Skill XP, rep, HP |
-| **Routines** | Config-driven | Skill XP, fatigue, needs |
+| **Routines** | Config-driven | Skill XP, needs |
 | **Map Incidents** | `effects` | All types |
 
 ---

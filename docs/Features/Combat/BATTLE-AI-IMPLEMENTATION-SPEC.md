@@ -2268,7 +2268,6 @@ Phase 16-18: Advanced Polish ◄
 - `docs/Features/Combat/battle-ai-plan.md` - Full design document (13,000+ lines, 21 parts)
 - `docs/Features/Combat/tactical-formation-behavior-enhancement.md` - Formation tactical behaviors (1,128 lines)
 - `docs/Features/Combat/advanced-tactical-behaviors.md` - Agent AI, cavalry, micro-positioning (588 lines)
-- `docs/Features/Combat/tactical-enhancements-integration-map.md` - Phase integration mapping (515 lines)
 - `docs/Features/Combat/agent-combat-ai.md` - Agent-level AI reference (486 lines)
 - `docs/Features/Combat/formation-assignment.md` - Formation placement for enlisted soldiers
 - `docs/Features/Combat/training-system.md` - Training and XP progression

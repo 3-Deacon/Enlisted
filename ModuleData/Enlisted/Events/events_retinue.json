@@ -1,4 +1,4 @@
-{
+﻿{
   "packId": "enlisted_retinue_events",
   "schemaVersion": 2,
   "events": [
@@ -83,7 +83,7 @@
           "rewards": {},
           "effects": {
             "retinueGain": 4,
-            "lordRep": -5
+            "lordReputation": -5
           },
           "resultTextId": "evt_ret_volunteers_opt_request_result",
           "resultText": "The captain scowls but complies. More soldiers report for duty, though your lord may not appreciate the request."
@@ -97,7 +97,7 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_volunteers_opt_decline_result",
           "resultText": "Your men appreciate that you will not over-extend. They know you value quality over numbers."
@@ -158,7 +158,7 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "soldierRep": 10
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_recognition_opt_humble_result",
           "resultText": "Your lord nods approvingly. The soldiers nearby exchange pleased glances - their commander remembers who does the fighting."
@@ -172,7 +172,7 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "lordRep": 10
+            "lordReputation": 10
           },
           "resultTextId": "evt_ret_recognition_opt_confident_result",
           "resultText": "\"Confidence is good in a commander,\" your lord replies. \"I shall remember this.\""
@@ -187,7 +187,7 @@
           "rewards": {},
           "effects": {
             "retinueGain": 2,
-            "lordRep": -3
+            "lordReputation": -3
           },
           "resultTextId": "evt_ret_recognition_opt_request_result",
           "resultText": "Your lord's eyes narrow slightly, but he nods. \"Very well. I shall assign a few more to your command.\" You may have pushed too hard."
@@ -261,7 +261,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 5,
-            "scrutiny": 3
+            "scrutiny": 3000000
           },
           "resultTextId": "evt_ret_loyalty_low_strict_result",
           "resultText": "You crack down hard. The grumbling stops, but your men obey out of fear rather than respect. Officers take notice of the harsh methods."
@@ -461,7 +461,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 15,
-            "lordRep": -15
+            "lordReputation": -15
           },
           "resultTextId": "evt_ret_loyalty_mutiny_appeal_result",
           "resultText": "Your lord intervenes, addressing your men personally. The crisis is averted, but your lord now questions your ability to command."
@@ -548,7 +548,7 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_loyalty_high_thank_result",
           "resultText": "Your soldiers nod in respect. The bond between you and your men grows stronger. They would die for you without hesitation."
@@ -563,7 +563,7 @@
           "rewards": {},
           "effects": {
             "gold": -100,
-            "soldierRep": 10
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_loyalty_high_share_result",
           "resultText": "You buy a round for your soldiers. Laughter and song fill the camp. Your men are grateful to serve under a commander who values them."
@@ -639,7 +639,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -3,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_dispute_discipline_result",
           "resultText": "Neither man is happy, but they separate. Order is maintained. Your officers approve of the swift discipline."
@@ -656,7 +656,7 @@
               "Leadership": 15
             },
             "retinueLoyalty": 8,
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_dispute_investigate_result",
           "resultText": "You listen. Turns out it was a misunderstanding. You make them shake hands. The men respect that you bothered to hear them out."
@@ -672,7 +672,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 3,
-            "officerRep": -3
+            "lordReputation": -3
           },
           "effects_failure": {
             "retinueWounded": 1
@@ -691,7 +691,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -6,
-            "soldierRep": -5
+            "lordReputation": -2
           },
           "resultTextId": "evt_ret_dispute_dismiss_result",
           "resultText": "You walk away. The men exchange looks. Their commander does not care. The tension will fester."
@@ -750,7 +750,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 10,
-            "soldierRep": 8
+            "lordReputation": 4
           },
           "resultTextId": "evt_ret_leave_grant_result",
           "resultText": "The man's face lights up. He grabs your hand, thanking you over and over. The other soldiers see this. They know you are not heartless."
@@ -765,7 +765,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -8,
-            "officerRep": 3
+            "lordReputation": 3
           },
           "resultTextId": "evt_ret_leave_deny_result",
           "resultText": "His face falls. He nods slowly, knowing your words are true but hating you for them. The men mutter among themselves. Some things matter more than war."
@@ -781,7 +781,7 @@
           "effects": {
             "gold": -30,
             "retinueLoyalty": 4,
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "resultTextId": "evt_ret_leave_messenger_result",
           "resultText": "He hesitates, then accepts the coin. It's not what he wanted, but it's something. The men see you tried to help. That counts for something."
@@ -856,7 +856,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -10,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_theft_punish_result",
           "resultText": "Hunger breeds resentment. By nightfall, the men drag the thief before you. The rations are found. But now everyone is angry - at you as much as the thief."
@@ -886,7 +886,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -4,
-            "scrutiny": 2
+            "scrutiny": 2000000
           },
           "resultTextId": "evt_ret_theft_ignore_result",
           "resultText": "You let it slide. A week later, more rations vanish. Then some coin. Weakness invites predators. Even your own men start taking liberties."
@@ -947,7 +947,7 @@
               "Leadership": 20
             },
             "retinueLoyalty": 8,
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_veteran_listen_result",
           "resultText": "The veteran lays out an alternative. It's better - you can see that immediately. You change the orders. The men notice their commander listens. That matters."
@@ -962,7 +962,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -5,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_veteran_override_result",
           "resultText": "The veteran's jaw tightens. \"As you say, Commander.\" He walks off. The order stands. You hope you're right - because if you're wrong, men will die."
@@ -979,7 +979,7 @@
               "Tactics": 10
             },
             "retinueLoyalty": 3,
-            "officerRep": 3
+            "lordReputation": 3
           },
           "resultTextId": "evt_ret_veteran_compromise_result",
           "resultText": "The veteran nods. \"Fair enough, Commander. At least you're thinking.\" The scouts report back - he was right. You adjust the plan. Everyone saves face."
@@ -1042,7 +1042,7 @@
           "effects": {
             "retinueGain": 3,
             "retinueLoyalty": -3,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_recruits_harsh_result",
           "resultText": "The recruits pale. Good. Fear keeps men alive. Your veterans nod approvingly - you don't coddle greenhorns. These three will learn fast or die trying."
@@ -1058,7 +1058,7 @@
           "effects": {
             "retinueGain": 3,
             "retinueLoyalty": 5,
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "resultTextId": "evt_ret_recruits_welcome_result",
           "resultText": "The recruits relax slightly. One of your veterans claps the nearest on the shoulder. \"Don't worry, lad. Commander's decent. Just do what you're told.\" Integration begins."
@@ -1076,7 +1076,7 @@
             },
             "retinueGain": 3,
             "retinueLoyalty": 2,
-            "officerRep": 3
+            "lordReputation": 3
           },
           "resultTextId": "evt_ret_recruits_test_result",
           "resultText": "You run them through drills. Two are clumsy but eager. One shows promise. You assign each to a veteran mentor. They'll learn the company's ways soon enough."
@@ -1134,9 +1134,9 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "lordRep": 15,
             "retinueLoyalty": -8,
-            "retinueWounded": 2
+            "retinueWounded": 2,
+            "lordReputation": 15
           },
           "resultTextId": "evt_ret_test_obey_result",
           "resultText": "Your lord nods approvingly. Your men hold the line. Some fall, but the army escapes. Your lord remembers your sacrifice. Your soldiers remember being sacrificed."
@@ -1150,8 +1150,8 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "lordRep": 5,
-            "retinueLoyalty": 3
+            "retinueLoyalty": 3,
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_test_negotiate_result",
           "resultText": "Your lord hesitates, then agrees. You get a handful of archers for cover. Your men see you negotiated for their lives. They appreciate the effort."
@@ -1165,9 +1165,9 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "lordRep": -20,
             "retinueLoyalty": 15,
-            "scrutiny": 5
+            "scrutiny": 50,
+            "lordReputation": -20
           },
           "resultTextId": "evt_ret_test_refuse_result",
           "resultText": "Your lord's face hardens. \"Remember who commands here.\" He finds another unit for the task. Your men love you for standing up for them. Your lord will not forget this defiance."
@@ -1230,7 +1230,7 @@
           "effects": {
             "gold": -60,
             "retinueLoyalty": 12,
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_morale_share_result",
           "resultText": "You break open your personal stores. Wine flows, stories are told, laughter returns. Your men see you share their hardship. That means more than any speech."
@@ -1261,7 +1261,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -5,
-            "officerRep": 5
+            "lordReputation": 5
           },
           "resultTextId": "evt_ret_morale_discipline_result",
           "resultText": "The muttering stops. The resentment doesn't. Your men obey, but their eyes are cold. Fear keeps order, but it makes enemies of friends."
@@ -1321,7 +1321,7 @@
           "effects": {
             "retinueLoss": 1,
             "retinueLoyalty": -3,
-            "officerRep": 10
+            "lordReputation": 10
           },
           "resultTextId": "evt_ret_desertion_punish_result",
           "resultText": "The man is dragged away. In the morning, the army's justice is carried out. Your men stand silently. No one else will try to run. But they won't forget what you did."
@@ -1336,7 +1336,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -5,
-            "officerRep": 3
+            "lordReputation": 3
           },
           "resultTextId": "evt_ret_desertion_beat_result",
           "resultText": "The lashes are administered. The man takes his punishment without a word. He returns to his tent, bloodied but still one of yours. Some think you were merciful. Others think you were cruel."
@@ -1351,8 +1351,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 5,
-            "officerRep": -8,
-            "soldierRep": 5
+            "lordReputation": -6
           },
           "resultTextId": "evt_ret_desertion_forgive_result",
           "resultText": "The man's eyes widen. He nods, returns to his tent. Your officers disapprove, but your soldiers see a commander with a heart. Whether that's wisdom or weakness remains to be seen."
@@ -1411,10 +1410,10 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 8,
-            "soldierRep": 5,
             "skillXp": {
               "Leadership": 10
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_promotion_public_result",
           "resultText": "The men cheer as you pin the rank on his shoulder. He stands taller. Some are inspired. Others are jealous. Such is the nature of advancement."
@@ -1429,7 +1428,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 5,
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "resultTextId": "evt_ret_promotion_private_result",
           "resultText": "You promote him quietly, explaining your expectations. He accepts with dignity. Word spreads naturally. Those who deserved to know, know."
@@ -1445,7 +1444,7 @@
           "effects": {
             "gold": -50,
             "retinueLoyalty": 6,
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "resultTextId": "evt_ret_promotion_gold_result",
           "resultText": "You press coins into his hand. He grins. \"Thank you, Commander.\" Sometimes gold speaks louder than titles. He'll remember this generosity."
@@ -1504,7 +1503,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 10,
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_illness_quarantine_result",
           "resultText": "You set up a sick tent and assign the surgeon to watch them. The army marches ahead. In a week, your men recover. They remember you didn't leave them to die."
@@ -1519,7 +1518,7 @@
           "costs": {},
           "rewards": {},
           "effects": {
-            "officerRep": 5
+            "lordReputation": 5
           },
           "effects_failure": {
             "retinueWounded": 2,
@@ -1540,7 +1539,7 @@
           "effects": {
             "gold": -80,
             "retinueLoyalty": 8,
-            "soldierRep": 5
+            "lordReputation": 2
           },
           "resultTextId": "evt_ret_illness_surgeon_result",
           "resultText": "You pay for proper medicine and skilled care. Within days, your soldiers recover fully. Word spreads - your commander pays for healing. That means something to men who face death."
@@ -1628,7 +1627,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": -5,
-            "officerRep": 3
+            "lordReputation": 3
           },
           "resultTextId": "evt_ret_memorial_harsh_result",
           "resultText": "Your words are cold but true. Some men nod grimly. Others look away. You are not a sentimental commander. That may save lives in the long run - or cost you their hearts."
@@ -1643,7 +1642,7 @@
           "rewards": {},
           "effects": {
             "retinueLoyalty": 5,
-            "soldierRep": 8
+            "lordReputation": 4
           },
           "resultTextId": "evt_ret_memorial_personal_result",
           "resultText": "You take a moment of silence. The soldiers see their commander's grief is genuine. It is a small thing, but it makes them feel that you fight alongside them, not just command them from behind."

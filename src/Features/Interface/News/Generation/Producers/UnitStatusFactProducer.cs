@@ -62,18 +62,17 @@ namespace Enlisted.Features.Interface.News.Generation.Producers
                 // Training status is determined by the unit's recent activities.
                 snapshot.TrainingTag = TrainingTag.Routine;
 
-                // Discipline tag (best-effort): reuse the escalation track label semantics.
-                var discipline = EscalationManager.Instance?.State?.Discipline ?? -1;
-                snapshot.DisciplineIssues = discipline;
-                snapshot.DisciplineTag = discipline switch
+                // Scrutiny (0-100 scale): tracks rule-breaking and insubordination
+                var scrutiny = EscalationManager.Instance?.State?.Scrutiny ?? -1;
+                snapshot.DisciplineIssues = scrutiny; // Legacy field name (TODO: rename to ScrutinyValue)
+                snapshot.DisciplineTag = scrutiny switch
                 {
                     < 0 => string.Empty,
-                    <= 0 => "clean",
-                    <= 2 => "minor",
-                    <= 4 => "troubled",
-                    <= 6 => "serious",
-                    <= 9 => "critical",
-                    _ => "breaking"
+                    <= 20 => "clean",       // Clear record
+                    <= 40 => "minor",       // Minor infractions
+                    <= 60 => "troubled",    // Under watch
+                    <= 80 => "serious",     // Serious trouble
+                    _ => "breaking"         // Court-martial pending
                 };
             }
             catch

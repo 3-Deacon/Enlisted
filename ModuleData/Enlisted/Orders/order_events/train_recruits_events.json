@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_train_recruits",
   "events": [
@@ -27,17 +27,16 @@
             "difficulty": 45
           },
           "effects": {
-            "soldierRep": 2,
-            "officerRep": 1,
             "skillXp": {
               "Leadership": 8
-            }
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "soldierRep": 1,
             "skillXp": {
               "Leadership": 5
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "train_difficult_recruit_patience_result",
           "resultText": "He's scared. Hiding it behind bravado. You talk him through it. He falls in line.",
@@ -50,11 +49,10 @@
           "text": "Extra drills until his attitude improves.",
           "tooltip": "-1 Soldier Rep, +2 Officer Rep, +5 Leadership XP.",
           "effects": {
-            "soldierRep": -1,
-            "officerRep": 2,
             "skillXp": {
               "Leadership": 5
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "train_difficult_recruit_discipline_result",
           "resultText": "He drills until his arms shake. The defiance fades to exhaustion."
@@ -65,11 +63,10 @@
           "text": "Make an example of him. The others need to see consequences.",
           "tooltip": "-3 Soldier Rep, +3 Officer Rep, +3 Leadership XP.",
           "effects": {
-            "soldierRep": -3,
-            "officerRep": 3,
             "skillXp": {
               "Leadership": 3
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "train_difficult_recruit_make_example_result",
           "resultText": "Latrine duty for a week. He seethes, but the others snap to attention."
@@ -102,21 +99,21 @@
           },
           "effects": {
             "medicalRisk": 1,
-            "soldierRep": 2,
             "fatigue": 3,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "medicalRisk": 2,
-            "soldierRep": 1,
             "fatigue": 5,
             "skillXp": {
               "Leadership": 11,
               "Tactics": 8
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "train_injury_during_stop_treat_result",
           "resultText": "You set the bone and bind it tight. He'll mend. The others see you care.",
@@ -129,12 +126,12 @@
           "text": "Send him off. Continue training more carefully.",
           "tooltip": "+1 Soldier Rep, +5 fatigue.",
           "effects": {
-            "soldierRep": 1,
             "fatigue": 5,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "train_injury_during_continue_carefully_result",
           "resultText": "You send him to the surgeon and slow down the drills. Balance."
@@ -146,12 +143,12 @@
           "tooltip": "+2 Medical Risk, -2 Soldier Rep, +8 fatigue.",
           "effects": {
             "medicalRisk": 2,
-            "soldierRep": -2,
             "fatigue": 8,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "train_injury_during_push_through_result",
           "resultText": "'Walk it off!' He limps to the side. The drills continue. Harsh lesson."
@@ -179,12 +176,11 @@
           "text": "Praise him in front of everyone.",
           "tooltip": "+2 Soldier Rep, +1 Officer Rep.",
           "effects": {
-            "soldierRep": 2,
-            "officerRep": 1,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "train_impressive_performance_praise_publicly_result",
           "resultText": "'This is what I want to see!' The recruit stands taller. The others take note."
@@ -195,12 +191,11 @@
           "text": "Note it quietly. Tell {SERGEANT} later.",
           "tooltip": "+1 Soldier Rep, +2 Officer Rep.",
           "effects": {
-            "soldierRep": 1,
-            "officerRep": 2,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "train_impressive_performance_note_quietly_result",
           "resultText": "You mention it to {SERGEANT} after. 'I'll keep an eye on that one.'"
@@ -211,12 +206,11 @@
           "text": "Give him extra challenges. Push his limits.",
           "tooltip": "+3 Soldier Rep, +2 Officer Rep.",
           "effects": {
-            "soldierRep": 3,
-            "officerRep": 2,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "train_impressive_performance_extra_training_result",
           "resultText": "You pair him with veterans. He rises to every challenge. One to watch."
@@ -244,11 +238,11 @@
           "text": "Stick to the basics. By the book.",
           "tooltip": "+2 Officer Rep. Safe choice.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "train_officer_observes_stick_basics_result",
           "resultText": "Standard drills, properly executed. He nods and walks away. Good enough."
@@ -263,19 +257,18 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 4,
-            "lordRep": 2,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 6
           },
           "failEffects": {
-            "officerRep": 1,
             "skillXp": {
               "Leadership": 11,
               "Tactics": 8
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "train_officer_observes_show_off_result",
           "resultText": "You run them through complex formations. Impressive work. He's smiling.",
@@ -288,12 +281,11 @@
           "text": "Ask for his guidance.",
           "tooltip": "-1 Officer Rep, +1 Lord Rep. Humble.",
           "effects": {
-            "officerRep": -1,
-            "lordRep": 1,
             "skillXp": {
               "Leadership": 22,
               "Tactics": 16
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "train_officer_observes_ask_guidance_result",
           "resultText": "He steps in and demonstrates a technique. You learn something new."
@@ -321,10 +313,10 @@
           "text": "Answer honestly. He deserves the truth.",
           "tooltip": "+3 Soldier Rep, +5 Leadership XP.",
           "effects": {
-            "soldierRep": 3,
             "skillXp": {
               "Leadership": 5
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "train_recruit_question_answer_honestly_result",
           "resultText": "You tell him the truth. It's not pretty. He nods, thoughtful. Better he knows."
@@ -335,10 +327,10 @@
           "text": "Change the subject. Not the time for this.",
           "tooltip": "+1 Soldier Rep, +3 Leadership XP.",
           "effects": {
-            "soldierRep": 1,
             "skillXp": {
               "Leadership": 3
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "train_recruit_question_deflect_result",
           "resultText": "'Ask me after your first battle.' He accepts the deflection. For now."
@@ -349,10 +341,10 @@
           "text": "Give him the harsh truth. No sugarcoating.",
           "tooltip": "+2 Soldier Rep, +8 Leadership XP.",
           "effects": {
-            "soldierRep": 2,
             "skillXp": {
               "Leadership": 8
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "train_recruit_question_harsh_truth_result",
           "resultText": "'It's messy. It's loud. And it stays with you.' He goes pale, but he needed to hear it."

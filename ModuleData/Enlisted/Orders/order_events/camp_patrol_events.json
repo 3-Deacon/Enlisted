@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_camp_patrol",
   "events": [
@@ -12,7 +12,11 @@
       "setupId": "patrol_soldier_fight_setup",
       "setup": "Two soldiers are throwing punches behind the supply tents. Blood's already been drawn.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "war_marching", "war_active_campaign"],
+        "world_state": [
+          "peacetime_garrison",
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -25,15 +29,17 @@
             "difficulty": 35
           },
           "effects": {
-            "soldierRep": 1,
-            "officerRep": 1,
-            "skillXp": { "Athletics": 22 }
+            "skillXp": {
+              "Athletics": 22
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "hpChange": -5,
-            "soldierRep": 1,
-            "officerRep": 1,
-            "skillXp": { "Athletics": 10 }
+            "skillXp": {
+              "Athletics": 10
+            },
+            "lordReputation": 1
           },
           "resultTextId": "patrol_soldier_fight_break_up_result",
           "resultText": "You pull them apart. Both men are breathing hard but the fight's over.",
@@ -45,9 +51,10 @@
           "textId": "patrol_soldier_fight_get_sergeant",
           "text": "Get {SERGEANT}.",
           "effects": {
-            "soldierRep": -1,
-            "officerRep": 2,
-            "skillXp": { "Tactics": 12 }
+            "skillXp": {
+              "Tactics": 12
+            },
+            "lordReputation": 2
           },
           "resultTextId": "patrol_soldier_fight_get_sergeant_result",
           "resultText": "{SERGEANT} arrives and sorts them out. Both men glare at you."
@@ -57,8 +64,10 @@
           "textId": "patrol_soldier_fight_let_fight",
           "text": "Let them settle it.",
           "effects": {
-            "officerRep": -1,
-            "skillXp": { "Scouting": 5 }
+            "skillXp": {
+              "Scouting": 5
+            },
+            "lordReputation": -1
           },
           "resultTextId": "patrol_soldier_fight_let_fight_result",
           "resultText": "One man goes down. The other walks off. Not your problem."
@@ -75,7 +84,9 @@
       "setupId": "patrol_gambling_ring_setup",
       "setup": "Behind the tents, a group of soldiers are rolling dice. Coins glint in the firelight. They freeze when they see you.",
       "requirements": {
-        "world_state": ["peacetime_garrison"],
+        "world_state": [
+          "peacetime_garrison"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -84,9 +95,10 @@
           "textId": "patrol_gambling_ring_break_up",
           "text": "Break it up. Gambling's against regulations.",
           "effects": {
-            "officerRep": 1,
-            "soldierRep": -1,
-            "skillXp": { "Tactics": 12 }
+            "skillXp": {
+              "Tactics": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "patrol_gambling_ring_break_up_result",
           "resultText": "They scatter, grumbling. You've made no friends tonight."
@@ -96,16 +108,18 @@
           "textId": "patrol_gambling_ring_join",
           "text": "Join in for a few rounds.",
           "effects": {
-            "officerRep": -2,
-            "soldierRep": 1,
             "gold": 15,
-            "skillXp": { "Roguery": 12 }
+            "skillXp": {
+              "Roguery": 12
+            },
+            "lordReputation": -2
           },
           "failEffects": {
-            "officerRep": -2,
-            "soldierRep": 1,
             "gold": -15,
-            "skillXp": { "Roguery": 8 }
+            "skillXp": {
+              "Roguery": 8
+            },
+            "lordReputation": -2
           },
           "resultTextId": "patrol_gambling_ring_join_result",
           "resultText": "Luck's with you tonight. You walk away with heavier pockets.",
@@ -117,7 +131,9 @@
           "textId": "patrol_gambling_ring_ignore",
           "text": "Walk past. You saw nothing.",
           "effects": {
-            "skillXp": { "Scouting": 8 }
+            "skillXp": {
+              "Scouting": 8
+            }
           },
           "resultTextId": "patrol_gambling_ring_ignore_result",
           "resultText": "They nod gratefully as you pass. What gambling?"
@@ -134,7 +150,10 @@
       "setupId": "patrol_suspicious_activity_setup",
       "setup": "A figure moves between tents at the edge of camp. Something's not right about the way they're moving.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -147,13 +166,17 @@
             "difficulty": 35
           },
           "effects": {
-            "officerRep": 2,
-            "skillXp": { "Scouting": 20 }
+            "skillXp": {
+              "Scouting": 20
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "hpChange": -5,
-            "officerRep": 1,
-            "skillXp": { "Scouting": 8 }
+            "skillXp": {
+              "Scouting": 8
+            },
+            "lordReputation": 1
           },
           "resultTextId": "patrol_suspicious_activity_investigate_result",
           "resultText": "Just a soldier sneaking back from the latrine. False alarm.",
@@ -165,8 +188,10 @@
           "textId": "patrol_suspicious_activity_report",
           "text": "Report to {SERGEANT} immediately.",
           "effects": {
-            "officerRep": 1,
-            "skillXp": { "Tactics": 12 }
+            "skillXp": {
+              "Tactics": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "patrol_suspicious_activity_report_result",
           "resultText": "{SERGEANT} sends men to check. Nothing found, but you followed procedure."
@@ -176,8 +201,10 @@
           "textId": "patrol_suspicious_activity_ignore",
           "text": "Probably nothing. Keep walking.",
           "effects": {
-            "officerRep": -1,
-            "skillXp": { "Scouting": 5 }
+            "skillXp": {
+              "Scouting": 5
+            },
+            "lordReputation": -1
           },
           "resultTextId": "patrol_suspicious_activity_ignore_result",
           "resultText": "You continue your rounds. Hopefully it was nothing."
@@ -194,7 +221,11 @@
       "setupId": "patrol_twisted_ankle_setup",
       "setup": "The ground here is uneven and dark. Your ankle twists on a hidden rut. Pain shoots up your leg.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign", "siege_attacking"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -208,13 +239,17 @@
           },
           "effects": {
             "fatigue": 5,
-            "officerRep": 1,
-            "skillXp": { "Athletics": 18 }
+            "skillXp": {
+              "Athletics": 18
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "fatigue": 5,
             "hpChange": -5,
-            "skillXp": { "Athletics": 8 }
+            "skillXp": {
+              "Athletics": 8
+            }
           },
           "resultTextId": "patrol_twisted_ankle_push_through_result",
           "resultText": "You walk it off. Hurts, but you finish your patrol.",
@@ -227,7 +262,9 @@
           "text": "Rest for a moment.",
           "effects": {
             "fatigue": 2,
-            "skillXp": { "Athletics": 10 }
+            "skillXp": {
+              "Athletics": 10
+            }
           },
           "resultTextId": "patrol_twisted_ankle_rest_result",
           "resultText": "A few minutes off your feet helps. You continue more carefully."
@@ -237,8 +274,10 @@
           "textId": "patrol_twisted_ankle_report",
           "text": "Report the injury.",
           "effects": {
-            "officerRep": -1,
-            "skillXp": { "Medicine": 5 }
+            "skillXp": {
+              "Medicine": 5
+            },
+            "lordReputation": -1
           },
           "resultTextId": "patrol_twisted_ankle_report_result",
           "resultText": "{SERGEANT} sends someone to finish your patrol. You're off duty."
@@ -255,7 +294,9 @@
       "setupId": "patrol_lost_item_setup",
       "setup": "{SOLDIER_NAME} approaches you, worried. He's lost something valuable—a ring from his wife. Asks if you've seen it.",
       "requirements": {
-        "world_state": ["peacetime_garrison"],
+        "world_state": [
+          "peacetime_garrison"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -268,12 +309,16 @@
             "difficulty": 35
           },
           "effects": {
-            "soldierRep": 2,
-            "skillXp": { "Scouting": 20 }
+            "skillXp": {
+              "Scouting": 20
+            },
+            "lordReputation": 1
           },
           "failEffects": {
-            "soldierRep": 1,
-            "skillXp": { "Scouting": 8 }
+            "skillXp": {
+              "Scouting": 8
+            },
+            "lordReputation": 0
           },
           "resultTextId": "patrol_lost_item_help_find_result",
           "resultText": "You spot it glinting in the mud near his bedroll. His gratitude is genuine.",
@@ -285,8 +330,10 @@
           "textId": "patrol_lost_item_ignore",
           "text": "Not your problem. Keep patrolling.",
           "effects": {
-            "soldierRep": -1,
-            "skillXp": { "Athletics": 8 }
+            "skillXp": {
+              "Athletics": 8
+            },
+            "lordReputation": 0
           },
           "resultTextId": "patrol_lost_item_ignore_result",
           "resultText": "He looks disappointed as you walk away."
@@ -298,9 +345,11 @@
           "effects": {
             "gold": 10,
             "escalation": {
-              "discipline": 8
+              "scrutiny": 80
             },
-            "skillXp": { "Roguery": 15 }
+            "skillXp": {
+              "Roguery": 15
+            }
           },
           "resultTextId": "patrol_lost_item_take_it_result",
           "resultText": "The ring's worth something. He'll never know."
@@ -317,7 +366,14 @@
       "setupId": "patrol_shortcut_setup",
       "setup": "You know a shortcut that would skip two checkpoints. No one would know. Your feet ache.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"],
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -327,8 +383,10 @@
           "text": "Take the shortcut.",
           "effects": {
             "fatigue": -2,
-            "officerRep": -3,
-            "skillXp": { "Athletics": 5 }
+            "skillXp": {
+              "Athletics": 5
+            },
+            "lordReputation": -3
           },
           "resultTextId": "patrol_shortcut_take_shortcut_result",
           "resultText": "You cut through. {SERGEANT} was watching. You're in trouble."
@@ -339,8 +397,10 @@
           "text": "Do the full route. Orders are orders.",
           "effects": {
             "fatigue": 2,
-            "officerRep": 1,
-            "skillXp": { "Athletics": 16 }
+            "skillXp": {
+              "Athletics": 16
+            },
+            "lordReputation": 1
           },
           "resultTextId": "patrol_shortcut_full_route_result",
           "resultText": "You complete every checkpoint. Your feet hurt, but your conscience is clear."

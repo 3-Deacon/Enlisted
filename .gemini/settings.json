@@ -1,0 +1,11 @@
+{
+    "general": {
+        "previewFeatures": true
+    },
+    "systemInstruction": {
+        "thinking_level": "high"
+    },
+    "experimental": {
+        "tool_use": true
+    }
+}

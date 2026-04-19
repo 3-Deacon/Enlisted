@@ -414,6 +414,10 @@ namespace Enlisted.Mod.Entry
                     // Map incident system: delivers context-based events during travel (battle end, settlement entry/exit, siege).
                     campaignStarter.AddBehavior(new MapIncidentManager());
 
+                    // Story director: central broker that receives StoryCandidate emissions, filters by relevance,
+                    // classifies by severity, and routes to Modal or Observational delivery. Route is a no-op in Phase 1.
+                    campaignStarter.AddBehavior(new StoryDirector());
+
                     // Decision system: loads player-initiated decisions from JSON and provides them to the Decisions menu.
                     campaignStarter.AddBehavior(new DecisionManager());
 
@@ -506,6 +510,25 @@ namespace Enlisted.Mod.Entry
                 // Some behaviors may still be registered if the failure occurs partway through
                 ModLogger.Error("Bootstrap", "Exception during OnGameStart", ex);
             }
+        }
+
+        /// <summary>
+        ///     Called when the mod module is being unloaded, typically on clean game exit.
+        ///     Flushes the session summary footer so final Surfaced/Caught/Expected counts
+        ///     are persisted at the tail of the session log. Wrapped defensively —
+        ///     logging failures must never prevent a clean shutdown.
+        /// </summary>
+        protected override void OnSubModuleUnloaded()
+        {
+            try
+            {
+                SessionSummaryFooter.Flush();
+            }
+            catch
+            {
+                // Never let a logging flush failure break game shutdown.
+            }
+            base.OnSubModuleUnloaded();
         }
 
         /// <summary>

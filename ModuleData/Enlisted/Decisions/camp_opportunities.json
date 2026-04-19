@@ -18,21 +18,22 @@
       "maxTier": 0,
       "cooldownHours": 18,
       "baseFitness": 55,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "orderCompatibility": {
-        "guard_duty": "risky",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "guard_duty": "risky","default": "available"
       },
       "detection": {
-        "baseChance": 0.30,
+        "baseChance": 0.3,
         "nightModifier": 0.0,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -10,
-        "discipline": 1,
-        "orderFailureRisk": 0.15
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.15,
+        "lordReputation": -10
       },
       "tooltipRiskyId": "opp_tooltip_drill_risky",
       "tooltipRisky": "You're on duty. Joining the drill risks being caught away from your post."
@@ -54,7 +55,10 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "patrol": "risky",
@@ -63,12 +67,12 @@
       "detection": {
         "baseChance": 0.25,
         "nightModifier": -0.15,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -15,
-        "discipline": 2,
-        "orderFailureRisk": 0.20
+        "scrutiny": 20000,
+        "orderFailureRisk": 0.2,
+        "lordReputation": -15
       },
       "tooltipRiskyId": "opp_tooltip_cards_risky",
       "tooltipRisky": "Gambling while on duty? If you're caught, the sergeant won't be pleased."
@@ -90,7 +94,10 @@
       "maxTier": 0,
       "cooldownHours": 36,
       "baseFitness": 45,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
@@ -99,13 +106,13 @@
       },
       "detection": {
         "baseChance": 0.35,
-        "nightModifier": -0.20,
+        "nightModifier": -0.2,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -20,
-        "discipline": 3,
-        "orderFailureRisk": 0.25
+        "scrutiny": 30000,
+        "orderFailureRisk": 0.25,
+        "lordReputation": -20
       },
       "tooltipRiskyId": "opp_tooltip_dice_risky",
       "tooltipRisky": "Dice games are frowned upon. Being caught while on duty could mean trouble."
@@ -127,20 +134,23 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
-        "nightModifier": -0.10,
+        "baseChance": 0.2,
+        "nightModifier": -0.1,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_stories_risky",
       "tooltipRisky": "A brief absence from your post. Low risk, but still a risk."
@@ -162,7 +172,9 @@
       "maxTier": 0,
       "cooldownHours": 12,
       "baseFitness": 55,
-      "validPhases": ["Night"],
+      "validPhases": [
+        "Night"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "blocked",
@@ -187,10 +199,12 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 45,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
-      "orderCompatibility": {
-        "fatigue_duty": "available",
-        "default": "available"
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
+      "orderCompatibility": {"default": "available"
       }
     },
     {
@@ -210,7 +224,11 @@
       "maxTier": 0,
       "cooldownHours": 18,
       "baseFitness": 50,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "default": "available"
       }
@@ -232,21 +250,22 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 55,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "orderCompatibility": {
-        "guard_duty": "risky",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "guard_duty": "risky","default": "available"
       },
       "detection": {
         "baseChance": 0.35,
         "nightModifier": 0.0,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -10,
-        "discipline": 1,
-        "orderFailureRisk": 0.15
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.15,
+        "lordReputation": -10
       },
       "tooltipRiskyId": "opp_tooltip_spar_risky",
       "tooltipRisky": "Sparring will take you away from your post. You might be missed."
@@ -268,7 +287,10 @@
       "maxTier": 0,
       "cooldownHours": 18,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
@@ -276,14 +298,14 @@
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.40,
+        "baseChance": 0.4,
         "nightModifier": -0.15,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -20,
-        "discipline": 3,
-        "orderFailureRisk": 0.30
+        "scrutiny": 30000,
+        "orderFailureRisk": 0.3,
+        "lordReputation": -20
       },
       "tooltipRiskyId": "opp_tooltip_tavern_risky",
       "tooltipRisky": "Drinking while on duty is serious. If the sergeant smells wine on your breath..."
@@ -305,7 +327,10 @@
       "maxTier": 0,
       "cooldownHours": 36,
       "baseFitness": 40,
-      "validPhases": ["Dawn", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "default": "available"
       }
@@ -327,13 +352,14 @@
       "maxTier": 0,
       "cooldownHours": 48,
       "baseFitness": 45,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "blocked",
-        "patrol": "blocked",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "patrol": "blocked","default": "available"
       }
     },
     {
@@ -353,11 +379,13 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 50,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "notAtSea": true,
-      "orderCompatibility": {
-        "fatigue_duty": "available",
-        "default": "available"
+      "orderCompatibility": {"default": "available"
       }
     },
     {
@@ -377,7 +405,10 @@
       "maxTier": 0,
       "cooldownHours": 72,
       "baseFitness": 35,
-      "validPhases": ["Midday", "Dusk"],
+      "validPhases": [
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "default": "available"
       }
@@ -399,7 +430,9 @@
       "maxTier": 0,
       "cooldownHours": 168,
       "baseFitness": 40,
-      "validPhases": ["Midday"],
+      "validPhases": [
+        "Midday"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
@@ -424,20 +457,24 @@
       "maxTier": 0,
       "cooldownHours": 12,
       "baseFitness": 60,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
+        "baseChance": 0.2,
         "nightModifier": 0.0,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_baggage_risky",
       "tooltipRisky": "A quick trip to the baggage. Should be fine, but you are on duty."
@@ -459,11 +496,12 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 55,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "orderCompatibility": {
-        "guard_duty": "blocked",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "guard_duty": "blocked","default": "available"
       }
     },
     {
@@ -483,11 +521,12 @@
       "maxTier": 0,
       "cooldownHours": 48,
       "baseFitness": 50,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "orderCompatibility": {
-        "guard_duty": "risky",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "guard_duty": "risky","default": "available"
       },
       "detection": {
         "baseChance": 0.25,
@@ -495,9 +534,9 @@
         "highRepModifier": -0.15
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_veteran_risky",
       "tooltipRisky": "Training is respected, but you should be at your post."
@@ -519,21 +558,24 @@
       "maxTier": 0,
       "cooldownHours": 18,
       "baseFitness": 50,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
+        "baseChance": 0.2,
         "nightModifier": 0.0,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -8,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -8
       },
       "tooltipRiskyId": "opp_tooltip_archery_risky",
       "tooltipRisky": "The range is visible from anywhere in camp. Someone might notice you're not at your post."
@@ -555,7 +597,10 @@
       "maxTier": 0,
       "cooldownHours": 72,
       "baseFitness": 40,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
@@ -579,20 +624,23 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
         "baseChance": 0.15,
-        "nightModifier": -0.10,
+        "nightModifier": -0.1,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.05
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.05,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_storytelling_risky",
       "tooltipRisky": "Just listening for a moment. Low risk."
@@ -614,12 +662,12 @@
       "maxTier": 0,
       "cooldownHours": 72,
       "baseFitness": 35,
-      "validPhases": ["Night"],
+      "validPhases": [
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
-        "patrol": "blocked",
-        "fatigue_duty": "blocked",
-        "default": "available"
+        "patrol": "blocked","default": "available"
       }
     },
     {
@@ -639,20 +687,24 @@
       "maxTier": 0,
       "cooldownHours": 48,
       "baseFitness": 45,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
+        "baseChance": 0.2,
         "nightModifier": 0.0,
-        "highRepModifier": -0.10
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -8,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -8
       },
       "tooltipRiskyId": "opp_tooltip_trade_risky",
       "tooltipRisky": "Shopping while on duty. Not the worst offense, but still noticed."
@@ -674,7 +726,9 @@
       "maxTier": 0,
       "cooldownHours": 8,
       "baseFitness": 50,
-      "validPhases": ["Midday"],
+      "validPhases": [
+        "Midday"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
@@ -698,20 +752,22 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 40,
-      "validPhases": ["Dawn", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.10,
+        "baseChance": 0.1,
         "nightModifier": -0.05,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -3,
-        "discipline": 0,
-        "orderFailureRisk": 0.05
+        "orderFailureRisk": 0.05,
+        "lordReputation": -3
       },
       "tooltipRiskyId": "opp_tooltip_meditation_risky",
       "tooltipRisky": "A brief absence. Unlikely to cause trouble."
@@ -733,7 +789,10 @@
       "maxTier": 0,
       "cooldownHours": 48,
       "baseFitness": 45,
-      "validPhases": ["Dawn", "Midday"],
+      "validPhases": [
+        "Dawn",
+        "Midday"
+      ],
       "orderCompatibility": {
         "default": "available"
       }
@@ -755,7 +814,10 @@
       "maxTier": 0,
       "cooldownHours": 36,
       "baseFitness": 40,
-      "validPhases": ["Dawn", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
@@ -779,20 +841,23 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 45,
-      "validPhases": ["Midday", "Dusk"],
+      "validPhases": [
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.30,
-        "nightModifier": -0.10,
-        "highRepModifier": -0.10
+        "baseChance": 0.3,
+        "nightModifier": -0.1,
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -8,
-        "discipline": 1,
-        "orderFailureRisk": 0.15
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.15,
+        "lordReputation": -8
       },
       "tooltipRiskyId": "opp_tooltip_arm_risky",
       "tooltipRisky": "The crowd draws attention. Someone might ask where you should be."
@@ -814,7 +879,9 @@
       "maxTier": 0,
       "cooldownHours": 48,
       "baseFitness": 40,
-      "validPhases": ["Night"],
+      "validPhases": [
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
@@ -838,21 +905,24 @@
       "maxTier": 0,
       "cooldownHours": 36,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "notAtSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
+        "baseChance": 0.2,
         "nightModifier": -0.15,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_singing_risky",
       "tooltipRisky": "Music draws attention, but so does being absent. Middle ground."
@@ -874,7 +944,9 @@
       "maxTier": 0,
       "cooldownHours": 12,
       "baseFitness": 55,
-      "validPhases": ["Night"],
+      "validPhases": [
+        "Night"
+      ],
       "atSea": true,
       "orderCompatibility": {
         "guard_duty": "blocked",
@@ -899,7 +971,10 @@
       "maxTier": 0,
       "cooldownHours": 18,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "atSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
@@ -907,13 +982,13 @@
       },
       "detection": {
         "baseChance": 0.25,
-        "nightModifier": -0.10,
-        "highRepModifier": -0.10
+        "nightModifier": -0.1,
+        "highRepModifier": -0.1
       },
       "caughtConsequences": {
-        "officerRep": -12,
-        "discipline": 2,
-        "orderFailureRisk": 0.15
+        "scrutiny": 20000,
+        "orderFailureRisk": 0.15,
+        "lordReputation": -12
       },
       "tooltipRiskyId": "opp_tooltip_tavern_risky",
       "tooltipRisky": "Being drunk on duty is never a good look. Neither is being absent."
@@ -935,11 +1010,13 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 50,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "atSea": true,
-      "orderCompatibility": {
-        "fatigue_duty": "available",
-        "default": "available"
+      "orderCompatibility": {"default": "available"
       }
     },
     {
@@ -959,21 +1036,24 @@
       "maxTier": 0,
       "cooldownHours": 36,
       "baseFitness": 50,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "atSea": true,
       "orderCompatibility": {
         "guard_duty": "risky",
         "default": "available"
       },
       "detection": {
-        "baseChance": 0.20,
+        "baseChance": 0.2,
         "nightModifier": -0.15,
         "highRepModifier": -0.05
       },
       "caughtConsequences": {
-        "officerRep": -5,
-        "discipline": 1,
-        "orderFailureRisk": 0.10
+        "scrutiny": 10000,
+        "orderFailureRisk": 0.1,
+        "lordReputation": -5
       },
       "tooltipRiskyId": "opp_tooltip_singing_risky",
       "tooltipRisky": "Music draws attention, but so does being absent. Middle ground."
@@ -995,14 +1075,20 @@
       "maxTier": 0,
       "cooldownHours": 0,
       "baseFitness": 80,
-      "validPhases": ["Dawn", "Midday", "Dusk"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk"
+      ],
       "orderCompatibility": {
         "guard_duty": "available",
         "patrol": "available",
         "default": "available"
       },
       "requirements": {
-        "conditionStates": ["HasCondition"]
+        "conditionStates": [
+          "HasCondition"
+        ]
       },
       "suppressWhenTreated": true,
       "comment": "Generated by orchestrator when player has untreated injury or illness"
@@ -1024,15 +1110,20 @@
       "maxTier": 0,
       "cooldownHours": 0,
       "baseFitness": 100,
-      "validPhases": ["Dawn", "Midday", "Dusk", "Night"],
+      "validPhases": [
+        "Dawn",
+        "Midday",
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "available",
-        "patrol": "available",
-        "fatigue_duty": "available",
-        "default": "available"
+        "patrol": "available","default": "available"
       },
       "requirements": {
-        "conditionStates": ["HasSevereCondition"]
+        "conditionStates": [
+          "HasSevereCondition"
+        ]
       },
       "priority": "critical",
       "comment": "Generated by orchestrator when player has severe/critical condition requiring immediate attention"
@@ -1054,16 +1145,25 @@
       "maxTier": 0,
       "cooldownHours": 24,
       "baseFitness": 60,
-      "validPhases": ["Dusk", "Night"],
+      "validPhases": [
+        "Dusk",
+        "Night"
+      ],
       "orderCompatibility": {
         "guard_duty": "blocked",
         "patrol": "blocked",
         "default": "available"
       },
       "requirements": {
-        "medicalPressure": ["Moderate", "High"]
+        "medicalPressure": [
+          "Moderate",
+          "High"
+        ]
       },
       "comment": "Suggested by orchestrator when medical pressure is building but no condition yet"
     }
   ]
 }
+
+
+

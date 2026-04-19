@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_scout_route",
   "events": [
@@ -28,19 +28,19 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 3,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "hpChange": -12,
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 9,
               "Athletics": 6
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_tracks_found_follow_result",
           "resultText": "You trail them to their camp. Valuable intelligence for {LORD_NAME}.",
@@ -52,11 +52,11 @@
           "textId": "scout_tracks_found_note_continue",
           "text": "Note the direction and continue.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_tracks_found_note_continue_result",
           "resultText": "You mark the trail on your map. Good information without the risk."
@@ -66,10 +66,10 @@
           "textId": "scout_tracks_found_report_now",
           "text": "Return to report immediately.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 19
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_tracks_found_report_now_result",
           "resultText": "You ride back with the news. {SERGEANT} appreciates the caution."
@@ -99,10 +99,10 @@
           "textId": "scout_enemy_patrol_go_to_ground",
           "text": "Go to ground. Let them pass.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 5
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_enemy_patrol_go_to_ground_result",
           "resultText": "You press into the brush. They ride past, oblivious."
@@ -116,16 +116,16 @@
             "difficulty": 45
           },
           "effects": {
-            "officerRep": 4,
             "skillXp": {
               "Scouting": 15
-            }
+            },
+            "lordReputation": 4
           },
           "failEffects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 5
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_enemy_patrol_shadow_result",
           "resultText": "You follow for an hour. Their patrol pattern is now yours to report.",
@@ -137,10 +137,10 @@
           "textId": "scout_enemy_patrol_withdraw",
           "text": "Withdraw quietly.",
           "effects": {
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 3
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_enemy_patrol_withdraw_result",
           "resultText": "You slip away. Better to report what you know."
@@ -170,11 +170,11 @@
           "text": "Backtrack to the last known point.",
           "effects": {
             "fatigue": 5,
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_terrain_obstacle_backtrack_result",
           "resultText": "You retrace your steps. Time lost, but you find your bearings."
@@ -189,19 +189,19 @@
           },
           "effects": {
             "fatigue": 8,
-            "officerRep": 3,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "fatigue": 10,
-            "officerRep": -3,
             "skillXp": {
               "Scouting": 9,
               "Athletics": 6
-            }
+            },
+            "lordReputation": -3
           },
           "resultTextId": "scout_terrain_obstacle_push_on_result",
           "resultText": "Your gut was right. You find the route and press on.",
@@ -214,11 +214,11 @@
           "text": "Climb high for a better view.",
           "effects": {
             "fatigue": 5,
-            "officerRep": 3,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "scout_terrain_obstacle_climb_for_view_result",
           "resultText": "From the ridge, everything makes sense. You reorient and continue."
@@ -252,19 +252,19 @@
             "difficulty": 55
           },
           "effects": {
-            "lordRep": 5,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 5
           },
           "failEffects": {
             "hpChange": -18,
-            "lordRep": 2,
             "skillXp": {
               "Scouting": 9,
               "Athletics": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_enemy_camp_get_closer_result",
           "resultText": "You crawl close enough to count banners. {LORD_NAME} will want this.",
@@ -276,11 +276,11 @@
           "textId": "scout_enemy_camp_count_from_here",
           "text": "Estimate from this distance.",
           "effects": {
-            "lordRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_enemy_camp_count_from_here_result",
           "resultText": "You count what you can see. Rough numbers, but useful."
@@ -290,10 +290,10 @@
           "textId": "scout_enemy_camp_report_now",
           "text": "Report immediately.",
           "effects": {
-            "lordRep": 1,
             "skillXp": {
               "Scouting": 19
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_enemy_camp_report_now_result",
           "resultText": "You ride hard back to camp. The news alone is valuable."
@@ -350,11 +350,11 @@
           "text": "Fight through!",
           "effects": {
             "hpChange": -22,
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_ambush_sprung_fight_result",
           "resultText": "You charge the ambushers. Steel rings. You cut through, badly wounded."
@@ -364,11 +364,11 @@
           "textId": "scout_ambush_sprung_surrender",
           "text": "Surrender.",
           "effects": {
-            "officerRep": -8,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": -8
           },
           "resultTextId": "scout_ambush_sprung_surrender_result",
           "resultText": "You throw down your weapon. They take you prisoner."
@@ -413,11 +413,11 @@
           "effects": {
             "fatigue": 8,
             "hpChange": -8,
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_weather_closing_push_through_result",
           "resultText": "Rain lashes your face. You're soaked and cold, but you complete the route."
@@ -428,11 +428,11 @@
           "text": "Turn back before it hits.",
           "effects": {
             "fatigue": 5,
-            "officerRep": -1,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "scout_weather_closing_turn_back_result",
           "resultText": "You retreat to camp. The mission incomplete, but you're alive."
@@ -465,20 +465,20 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 4,
             "gold": 25,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 4
           },
           "failEffects": {
             "hpChange": -12,
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 9,
               "Athletics": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_opportunity_capture_result",
           "resultText": "You run him down. The dispatches are valuable. So is the ransom.",
@@ -490,11 +490,11 @@
           "textId": "scout_opportunity_observe",
           "text": "Observe and let him pass.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Scouting": 19,
               "Athletics": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "scout_opportunity_observe_result",
           "resultText": "You note his direction and markings. Information without risk."
@@ -536,10 +536,10 @@
           "textId": "scout_shortcut_found_mark_it",
           "text": "Mark it for later report.",
           "effects": {
-            "lordRep": 3,
             "skillXp": {
               "Scouting": 10
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "scout_shortcut_found_mark_it_result",
           "resultText": "You note the landmarks carefully. This could change the campaign."
@@ -549,10 +549,10 @@
           "textId": "scout_shortcut_found_report_immediately",
           "text": "Return to report immediately.",
           "effects": {
-            "lordRep": 4,
             "skillXp": {
               "Scouting": 5
-            }
+            },
+            "lordReputation": 4
           },
           "resultTextId": "scout_shortcut_found_report_immediately_result",
           "resultText": "You ride back with the news. {LORD_NAME} is pleased."
@@ -562,10 +562,10 @@
           "textId": "scout_shortcut_found_keep_going",
           "text": "Note it and continue your route.",
           "effects": {
-            "lordRep": 1,
             "skillXp": {
               "Scouting": 3
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "scout_shortcut_found_keep_going_result",
           "resultText": "You add it to your report. One discovery among many."

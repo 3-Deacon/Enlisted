@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_inspect_defenses",
   "events": [
@@ -25,11 +25,10 @@
           "text": "Report to {OFFICER_NAME} immediately.",
           "tooltip": "+3 Lord Rep, +2 Officer Rep. Proper procedure.",
           "effects": {
-            "lordRep": 3,
-            "officerRep": 2,
             "skillXp": {
               "Engineering": 18
-            }
+            },
+            "lordReputation": 5
           },
           "resultTextId": "inspect_found_weakness_report_captain_result",
           "resultText": "{OFFICER_NAME} sends a work crew within the hour. 'Good eye, soldier.'"
@@ -44,26 +43,24 @@
             "difficulty": 45
           },
           "effects": {
-            "lordRep": 2,
-            "officerRep": 4,
             "companyNeeds": {
               "Equipment": 3
             },
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 6
           },
           "failEffects": {
-            "lordRep": 1,
-            "officerRep": 2,
             "companyNeeds": {
               "Equipment": 1
             },
             "skillXp": {
               "Engineering": 9,
               "Tactics": 6
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "inspect_found_weakness_fix_yourself_result",
           "resultText": "You gather men and materials. By evening, the section is solid. Better than before.",
@@ -76,15 +73,14 @@
           "text": "Delegate the repair to the garrison crew.",
           "tooltip": "+1 Lord Rep, +2 Officer Rep, +2 Company Equipment.",
           "effects": {
-            "lordRep": 1,
-            "officerRep": 2,
             "companyNeeds": {
               "Equipment": 2
             },
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "inspect_found_weakness_delegate_repair_result",
           "resultText": "You mark the spot and find the work crew. They'll handle it. You move on."
@@ -113,12 +109,11 @@
           "text": "Support the senior officer.",
           "tooltip": "+1 Officer Rep, +2 Lord Rep. Safe choice.",
           "effects": {
-            "officerRep": 1,
-            "lordRep": 2,
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "inspect_officer_dispute_support_senior_result",
           "resultText": "You back the senior. Chain of command. The junior fumes but accepts it."
@@ -129,11 +124,11 @@
           "text": "Support the junior's assessment.",
           "tooltip": "-1 Lord Rep. Risky.",
           "effects": {
-            "lordRep": -1,
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "inspect_officer_dispute_support_junior_result",
           "resultText": "You side with the junior. The senior glares, but the walls do need work."
@@ -148,20 +143,18 @@
             "difficulty": 45
           },
           "effects": {
-            "officerRep": 3,
-            "lordRep": 3,
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 6
           },
           "failEffects": {
-            "officerRep": 1,
-            "lordRep": 1,
             "skillXp": {
               "Engineering": 9,
               "Tactics": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "inspect_officer_dispute_offer_solution_result",
           "resultText": "You suggest splitting the work crew. Both officers nod. Diplomacy wins.",
@@ -197,13 +190,13 @@
           },
           "effects": {
             "escalation": {
-              "scrutiny": 15
+              "scrutiny": 150
             },
-            "officerRep": 4,
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 4
           },
           "failEffects": {
             "hpChange": -10,
@@ -223,10 +216,10 @@
           "text": "Report to {OFFICER_NAME} immediately.",
           "tooltip": "+2 Officer Rep. Let command handle it.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Engineering": 18
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "inspect_sabotage_signs_report_immediately_result",
           "resultText": "The officer takes charge. Guards are doubled. The investigation begins."
@@ -238,13 +231,13 @@
           "tooltip": "+5 Scrutiny, +3 Officer Rep.",
           "effects": {
             "escalation": {
-              "scrutiny": 5
+              "scrutiny": 50
             },
-            "officerRep": 3,
             "skillXp": {
               "Engineering": 18,
               "Tactics": 12
-            }
+            },
+            "lordReputation": 3
           },
           "resultTextId": "inspect_sabotage_signs_set_watch_result",
           "resultText": "You position watchers and wait. If they come back, you'll be ready."
@@ -278,17 +271,16 @@
             "difficulty": 50
           },
           "effects": {
-            "lordRep": 4,
-            "officerRep": 2,
             "skillXp": {
               "Engineering": 15
-            }
+            },
+            "lordReputation": 6
           },
           "failEffects": {
-            "lordRep": 1,
             "skillXp": {
               "Engineering": 5
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "inspect_improvement_idea_propose_formally_result",
           "resultText": "You present your idea to the council. They're impressed. Work begins within the week.",
@@ -301,11 +293,10 @@
           "text": "Mention it quietly to {SERGEANT}.",
           "tooltip": "+2 Lord Rep, +3 Officer Rep, +10 Engineering XP.",
           "effects": {
-            "lordRep": 2,
-            "officerRep": 3,
             "skillXp": {
               "Engineering": 10
-            }
+            },
+            "lordReputation": 5
           },
           "resultTextId": "inspect_improvement_idea_suggest_quietly_result",
           "resultText": "{SERGEANT} nods slowly. 'Not bad. I'll mention it to the captain.' Credit may or may not come your way."

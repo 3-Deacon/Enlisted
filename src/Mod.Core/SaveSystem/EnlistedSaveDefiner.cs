@@ -53,6 +53,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddClassDefinition(typeof(LifetimeServiceRecord), 22);
             AddClassDefinition(typeof(FactionServiceRecord), 23);
             AddClassDefinition(typeof(ReservistRecord), 24);
+
+            // Pacing subsystem
+            AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
         }
 
         /// <summary>
@@ -77,6 +80,10 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Camp Life Simulation enums
             AddEnumDefinition(typeof(OpportunityType), 70);
             AddEnumDefinition(typeof(CampMood), 71);
+
+            // Pacing subsystem enums
+            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
+            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
         }
 
         /// <summary>
@@ -95,6 +102,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             ConstructContainerDefinition(typeof(List<string>));               // LifetimeServiceRecord.FactionsServed, Order.Tags
             ConstructContainerDefinition(typeof(List<NamedVeteran>));         // RetinueState.NamedVeterans
             ConstructContainerDefinition(typeof(List<PhaseRecap>));           // OrderProgressionBehavior._phaseRecaps
+
+            // Pacing subsystem containers (Dictionary<string,int> is already registered above)
+            ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
         }
     }
 }

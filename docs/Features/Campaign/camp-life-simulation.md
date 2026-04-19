@@ -11,7 +11,7 @@
 ## Index
 - [Overview](#overview)
 - [Architecture](#architecture)
-- [The Four Company Needs](#the-four-company-needs)
+- [The Two Company Needs](#the-two-company-needs)
 - [Camp Activities System](#camp-activities-system)
 - [CampLifeBehavior (Backend Layer)](#camplifebehavior-backend-layer)
 - [Fatigue System Integration](#fatigue-system-integration)
@@ -27,7 +27,9 @@
 
 Camp life simulation runs continuously while enlisted, tracking the state of your company through multiple interconnected systems. The simulation has two distinct layers:
 
-**Player-Facing Layer (Company Needs):** Five transparent metrics (0-100) that represent your unit's operational status. Players see these values, understand their impact, and take actions to manage them.
+**Player-Facing Layer (Company Needs):** Two transparent metrics (0-100) that represent your unit's operational status. Players see these values, understand their impact, and take actions to manage them.
+
+**Note:** Company Rest was removed (2026-01-11) as redundant with the Player Fatigue system (0-24 budget).
 
 **Backend Layer (CampLifeBehavior):** Hidden metrics that respond to campaign events (battles, time away from towns, pay delays) and drive dynamic Quartermaster pricing and mood.
 
@@ -46,9 +48,8 @@ Camp life simulation consists of four integrated systems:
 │                                                      │
 │  Company Needs (0-100)                              │
 │  ├─ Readiness: Combat preparation                   │
-│  ├─ Morale: Unit psychological state                │
-│  ├─ Supplies: Food & logistics                      │
-│  └─ Rest: Fatigue recovery                          │
+│  └─ Supply: Food & logistics                        │
+│  Note: Rest removed 2026-01-11 (use Player Fatigue) │
 │                                                      │
 │  Fatigue (0-24)                                     │
 │  └─ Gates intensive camp actions                    │
@@ -86,9 +87,11 @@ These layers interact:
 
 ---
 
-## The Four Company Needs
+## The Two Company Needs
 
-The player-facing simulation layer tracks five transparent metrics (0-100) representing your company's operational status. These are visible in the main Enlisted Status menu (COMPANY REPORTS section) and Camp Hub (COMPANY STATUS summary) with narrative descriptions.
+The player-facing simulation layer tracks two transparent metrics (0-100) representing your company's operational status.
+
+**Note:** Company Rest was removed (2026-01-11). Player Fatigue (0-24 budget) handles stamina for camp decisions.
 
 ### 1. Readiness (Combat Preparation)
 **Range:** 0-100  
@@ -98,30 +101,14 @@ The player-facing simulation layer tracks five transparent metrics (0-100) repre
 - Training decisions (+5 to +15 per session)
 - Successful orders (+3 to +10)
 - Combat results (victory +5, defeat -10)
-- Daily degradation (-2 base, -5 if low morale, -5 if on march)
+- Daily degradation (-2 base, -5 if on march)
 
 **Impact when low (<30):**
 - Reduced order success chance
 - Lower reputation gains
 - Risk of poor battle performance
 
-### 2. Morale (Unit Cohesion)
-**Range:** 0-100  
-**What it represents:** Psychological state, will to fight, unit cohesion
-
-**Affected by:**
-- Social decisions (join men, drinking: +3 to +8)
-- Pay status (late pay: -5 to -15)
-- Battle outcomes (victory +5, defeat -8)
-- Food quality and availability
-- Daily degradation (-1 base)
-
-**Impact when low (<30):**
-- Accelerated Readiness degradation (-3 additional per day)
-- Risk of desertion events
-- Reduced soldier reputation gains
-
-### 3. Supplies (Food & Consumables)
+### 2. Supply (Food & Consumables)
 **Range:** 0-100  
 **What it represents:** Food stocks and basic consumables
 
@@ -135,22 +122,12 @@ The player-facing simulation layer tracks five transparent metrics (0-100) repre
 **Impact when low (<30):**
 - Quartermaster restricts high-tier gear access
 - Risk of food shortage events
-- Morale penalties
+- Reduced company effectiveness
 
-### 4. Rest (Fatigue Recovery)
-**Range:** 0-100  
-**What it represents:** Physical recovery, sleep quality, exhaustion levels
+### 3. ~~Rest~~ (REMOVED 2026-01-11)
+**Replaced by:** Player Fatigue (0-24 budget system)
 
-**Affected by:**
-- Rest decisions (+2 to +10)
-- `fatigueRelief` rewards in events
-- March tempo and campaign intensity
-- Daily degradation (-4 base, -5 if on long march)
-
-**Impact when low (<30):**
-- Reduced maximum Fatigue capacity
-- Health penalties and injury risk
-- Poor performance in orders
+**Why removed:** Company-wide Rest metric was redundant. Player Fatigue already gates camp decisions with health penalties. No gameplay value was lost - the functional system remains.
 
 ### Critical Thresholds
 
@@ -172,22 +149,18 @@ The system forecasts upcoming requirements based on **Strategic Context** (loade
 
 **Grand Campaign (Offensive):**
 - Readiness: 85 (high combat demands)
-- Supplies: 80 (long operations)
-- Morale: 70 (sustained effort)
+- Supply: 80 (long operations)
 - Rest: 50 (intense tempo)
 
 **Last Stand (Desperate Defense):**
 - Readiness: 90 (critical preparation)
-- Morale: 65 (stress and fear)
-- Supplies: 60 (disrupted logistics)
-- Rest: 40 (emergency operations)
+- Supply: 60 (disrupted logistics)
 
 **Winter Camp (Seasonal Rest):**
-- Rest: 80 (primary focus)
-- Morale: 75 (social time)
-- Equipment: 65 (maintenance work)
 - Readiness: 55 (training continues)
-- Supplies: 60 (stable)
+- Supply: 60 (stable)
+
+**Note:** Rest predictions removed 2026-01-11 (metric no longer exists).
 
 Players can view these dynamics in the main Enlisted Status menu (COMPANY REPORTS) and Camp Hub (COMPANY STATUS with UPCOMING section) to prepare for upcoming operations.
 
@@ -220,7 +193,7 @@ Accessed via **Camp Hub (C key)** → Category navigation. Decisions are filtere
 - `dec_lead_drill`: Formation leadership practice (T5+)
 
 **SOCIAL (6 decisions):**
-- `dec_join_men`: Socialize with soldiers (+Soldier Rep, +Morale)
+- `dec_join_men`: Socialize with soldiers (+Soldier Rep)
 - `dec_join_drinking`: Drink with the men (+Soldier Rep, -denars)
 - `dec_seek_officers`: Network with officers (+Officer Rep)
 - `dec_keep_to_self`: Maintain distance (neutral)
@@ -279,7 +252,7 @@ Automatic events that fire when conditions are met (via `EventPacingManager`).
 - **Setup:** Evening fire, request for tales
 - **Options:**
   - Tell battle stories (Charm 20+, +12 Charm XP, +6 Soldier Rep)
-  - Tell legends (Charm 35+, +15 Charm XP, +8 Morale)
+- Tell legends (Charm 35+, +15 Charm XP, +8 Soldier Rep)
   - Listen (no requirements, small gains)
 
 **Event Characteristics:**
@@ -425,15 +398,13 @@ Every day at daily tick, multiple systems run:
 
 **Base Rates:**
 - Readiness: -2 per day
-- Equipment: -3 per day
-- Morale: -1 per day
-- Rest: -4 per day
-- Supplies: Handled by CompanySupplyManager
+- Supply: Handled by CompanySupplyManager
 
 **Accelerated Conditions:**
-- In combat: Equipment -10 additional
-- On long march: Readiness -5, Rest -5
-- Low morale (<40): Readiness -3 additional
+- In combat: Additional degradation effects
+- On long march: Readiness -5
+
+**Note:** Rest degradation removed 2026-01-11 (metric no longer tracked).
 
 ### 2. CampLifeBehavior Snapshot Update
 
@@ -520,12 +491,7 @@ Every day at daily tick, multiple systems run:
 - Accept training orders from officers
 - Avoid exhausting activities
 
-**When Morale is low (<40):**
-- Select Social decisions (Join the Men, Join Drinking)
-- Boost morale through rewards
-- Check pay status (late pay tanks morale)
-
-**When Supplies are low (<30):**
+**When Supply is low (<30):**
 - Prioritize resupply orders
 - Visit market if near town
 - Check with Quartermaster
@@ -535,10 +501,7 @@ Every day at daily tick, multiple systems run:
 - Visit Quartermaster for repairs
 - Avoid combat-heavy orders
 
-**When Rest is low (<40):**
-- Select Rest decisions immediately
-- Avoid fatigue-heavy activities
-- Check for medical conditions
+**Note:** Company Rest removed 2026-01-11. Use Player Fatigue budget (0-24) to manage stamina for camp decisions.
 
 ---
 
@@ -551,17 +514,16 @@ Orders have `CompanyNeeds` effects defined in JSON:
 ```json
 "effects": {
   "companyNeeds": {
-    "Readiness": 10,
-    "Rest": -5
+    "Readiness": 10
   }
 }
 ```
 
 **Examples:**
-- Successful patrol: +10 Readiness, +5 Morale
-- Forced march: -15 Rest, -5 Equipment
+- Successful patrol: +10 Readiness
 - Training detail: +15 Readiness, -3 Fatigue
-- Guard duty: +5 Discipline, -8 Rest
+
+**Note:** Rest effects removed 2026-01-11 (metric no longer exists).
 
 ### Quartermaster Integration
 
@@ -571,9 +533,7 @@ Orders have `CompanyNeeds` effects defined in JSON:
 - Predatory mood: 15% markup (1.15x)
 
 **Access Restrictions:**
-- Supplies < 30: May restrict high-tier gear
-- Equipment < 30: Maintenance costs increase
-- Morale < 30: Quartermaster may refuse credit
+- Supply < 30: May restrict high-tier gear
 
 **Dialogue System:**
 - Quartermaster references mood in conversation
@@ -588,7 +548,7 @@ Orders have `CompanyNeeds` effects defined in JSON:
 - Recent changes noted ("Rest has declined significantly")
 
 **Company Status Report:**
-- Full breakdown of all four needs
+- Full breakdown of company needs (Readiness, Supply)
 - Status level text (Excellent/Good/Fair/Poor/Critical)
 - Contextual explanations (why each need is changing)
 - Upcoming predictions based on strategic context
@@ -596,7 +556,8 @@ Orders have `CompanyNeeds` effects defined in JSON:
 **Threshold Notifications:**
 - Crossing below 30: Warning in Daily Brief
 - Crossing below 20: Immediate popup notification
-- "CRITICAL: Company rest has reached dangerously low levels"
+
+**Note:** Rest notifications removed 2026-01-11 (metric no longer tracked).
 
 ### Event System Integration
 
@@ -604,7 +565,7 @@ Orders have `CompanyNeeds` effects defined in JSON:
 ```json
 "effects": {
   "companyNeeds": {
-    "Morale": 5
+    "Readiness": 5
   }
 },
 "rewards": {
@@ -619,7 +580,7 @@ Orders have `CompanyNeeds` effects defined in JSON:
 
 **Pacing Interaction:**
 - Company Needs affect event selection weight
-- Low Morale → more morale-boosting event options
+- Low Supply → more foraging/supply event options
 - High stress → more rest-focused events
 
 ### Combat System
@@ -630,16 +591,16 @@ Orders have `CompanyNeeds` effects defined in JSON:
 
 **Post-Battle:**
 - MoraleShock spikes (backend)
-- Equipment degrades (-10 to -15)
-- Rest depletes (-10 to -20)
-- Morale changes based on outcome (victory +5, defeat -10)
+- Readiness may change based on outcome
+
+**Note:** Rest depletion removed 2026-01-11 (metric no longer exists).
 
 ### Medical System
 
 **Condition Triggers:**
-- Low Rest (<20): Risk of exhaustion condition
-- Low Fatigue (<5): Risk of collapse
-- Combined low Rest + Fatigue: Higher injury risk
+- Low Fatigue (<5): Risk of collapse and injury
+
+**Note:** Rest-based condition triggers removed 2026-01-11 (metric no longer tracked).
 
 **Treatment Integration:**
 - `dec_seek_treatment` uses Medical system
@@ -727,7 +688,7 @@ Contains needs prediction templates for each strategic context. Used by `Company
 **Company Needs (Player-Facing):**
 - `CompanyNeedsState.cs`: Data model storing current values (0-100)
 - `CompanyNeedsManager.cs`: Static helpers for degradation, recovery, prediction
-- `CompanyNeed.cs`: Enum defining the five need types
+- `CompanyNeed.cs`: Enum defining need types (Readiness, Supply) - Rest removed 2026-01-11
 
 **Access:** `EnlistmentBehavior.Instance.CompanyNeeds`
 
@@ -753,7 +714,7 @@ Contains needs prediction templates for each strategic context. Used by `Company
 state.SetNeed(CompanyNeed.Readiness, currentValue + delta);
 
 // Via Decision effect
-enlistment.CompanyNeeds.ModifyNeed(CompanyNeed.Morale, +5);
+enlistment.CompanyNeeds.ModifyNeed(CompanyNeed.Readiness, +5);
 
 // Via Daily degradation
 CompanyNeedsManager.ProcessDailyDegradation(needs, army);
@@ -783,7 +744,7 @@ SetDecisionCooldown(decision.Id, cooldownDays);
 
 **Company Needs:**
 - Serialized in `EnlistmentBehavior.SyncData()`
-- Stored as five integer fields (Readiness, Morale, etc.)
+- Stored as three integer fields (Readiness, Supply, Rest)
 - Validated on load (clamped 0-100)
 
 **CampLifeBehavior:**

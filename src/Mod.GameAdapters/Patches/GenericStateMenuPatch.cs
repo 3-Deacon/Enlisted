@@ -206,7 +206,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("GenericStateMenuPatch", "E-PATCH-001", "Error in GetGenericStateMenu patch", ex);
+                ModLogger.Caught("GenericStateMenuPatch", "Error in GetGenericStateMenu patch", ex);
             }
         }
     }

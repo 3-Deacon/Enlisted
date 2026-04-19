@@ -2,9 +2,9 @@
 
 **Summary:** The company supply system tracks logistical health of the military unit including rations, equipment maintenance materials, ammunition/consumables, and fodder/animal care supplies. Supply levels are consumed through time and combat, and replenished through quartermaster purchases and settlement resupply, creating realistic military logistics gameplay.
 
-**Status:** ⚠️ Mixed (Core implemented, enhancements planned)  
-**Last Updated:** 2026-01-03  
-**Related Docs:** [Quartermaster System](quartermaster-system.md), [Provisions & Rations](provisions-rations-system.md)
+**Status:** ⚠️ Mixed (Core implemented, pressure arc events implemented, enhancements planned)  
+**Last Updated:** 2026-01-06 (Added supply pressure arc events)
+**Related Docs:** [Quartermaster System](quartermaster-system.md), [Provisions & Rations](provisions-rations-system.md), [Company Events](../../Core/company-events.md#pressure-arc-events)
 
 ---
 
@@ -326,60 +326,48 @@ Player must:
 
 ---
 
-## Supply Crisis Events (Planned - Not Yet Implemented)
+## Supply Pressure Arc Events
 
-> **Note:** These events are designed but the JSON definitions do not exist yet. The event IDs below are placeholders for future content.
+**Status:** ✅ Implemented
 
-**Currently Implemented:**
-- Equipment menu blocked at <30% supply (in `QuartermasterManager`)
-- Warning messages logged at 50% and 30% thresholds (via `ModLogger`)
+**File:** `ModuleData/Enlisted/Events/pressure_arc_events.json`
 
-**Planned Event System:**
+### Pressure Tracking
 
-| Threshold | Event ID (Planned) | Effect |
-|-----------|----------|-------------|
-| 50% | `evt_supply_warning` | UI warning message |
-| 30% | `evt_supply_critical_gate` | Equipment menu blocked (✅ this works now) |
-| 20% | `evt_supply_critical` | Crisis event with player choices |
-| 10% | `evt_supply_catastrophic` | Automatic desertion effects |
+The `CompanySimulationBehavior` tracks consecutive days of low supplies (< 50%) and fires narrative events at specific thresholds:
 
-### **Planned Threshold Effects (Design):**
+```csharp
+// In CompanySimulationBehavior.cs
+private CompanyPressure _companyPressure;
 
-**50% Supply (Design):**
-```
-QM: "Supplies are running low. We should restock soon."
-Effect: Yellow warning on main menu
-```
+// Daily tracking
+if (_supplies < 50)
+    _companyPressure.DaysLowSupplies++;
+else
+    _companyPressure.DaysLowSupplies = 0;
 
-**30% Supply - IMPLEMENTED:**
-```
-Effect:
-  - ✅ Cannot access Master at Arms (equipment menu blocked)
-  - ⏳ Morale/Scrutiny penalties (not yet connected)
+// Event triggering
+CheckPressureArcEvents();
 ```
 
-**20% Supply (Design):**
-```
-Event fires:
-  "Starvation in Camp"
-  
-  The company is out of food. Men are hungry and desperate.
-  
-  Options:
-    [Emergency Foraging] → High risk mission (+10% supply or disaster)
-    [Requisition from Villages] → Raid nearby village (-30 relation, +15% supply)
-    [Cut Rations] → -10 Morale, slower consumption (1% per day)
-    [Desert] → Leave service to avoid catastrophe
-```
+### Event Thresholds
 
-**10% Supply (Design):**
-```
-Automatic effects:
-  - 1d6 troops desert per day
-  - +5 Scrutiny per day
-  - -20 Morale per day
-  - Lord may dismiss you for incompetence
-```
+| Days Low | Stage | Event IDs | Description |
+|----------|-------|-----------|-------------|
+| Day 3 | Stage 1 | `supply_pressure_stage_1_*` | Thin rations, grumbling, warnings |
+| Day 5 | Stage 2 | `supply_pressure_stage_2_*` | Fights, discipline breakdown |
+| Day 7 | Crisis | `supply_crisis_*` | Whispers of desertion, actual desertions |
+
+**Tier Variants:** Each stage has 3 events (`_grunt`, `_nco`, `_cmd`) scaled to player tier (T1-T4, T5-T6, T7+).
+
+### Equipment Gating
+
+**30% Supply Threshold:**
+- Equipment menu blocked in Quartermaster
+- "Master at Arms isn't seeing anyone right now" message
+- Forces player to address supply crisis before upgrading gear
+
+**See Also:** [Company Events - Pressure Arcs](../../Core/company-events.md#pressure-arc-events)
 
 ---
 

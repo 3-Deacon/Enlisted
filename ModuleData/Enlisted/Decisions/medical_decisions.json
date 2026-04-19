@@ -63,10 +63,10 @@
           "textId": "dec_medical_rest_extended",
           "text": "Find a quiet corner and rest.",
           "effects": { "hpChange": 10, "medicalRisk": -1 },
-          "rewards": { "fatigueRelief": 3 },
+          "rewards": {},
           "resultTextId": "dec_medical_rest_result",
           "resultText": "You settle against a wagon wheel and close your eyes. Hours pass. When you wake, the world feels less sharp, less hostile. The ache persists, but it's quieter now. Still there, just... waiting. Like everything else in this life.",
-          "tooltip": "+10 HP. -3 fatigue. -1 Medical risk. Free but slow."
+          "tooltip": "+10 HP. -1 Medical risk. Free but slow."
         },
         {
           "id": "cancel",
@@ -223,10 +223,10 @@
           "textId": "dec_medical_rest_sea_deck",
           "text": "Find a spot topside and breathe deep.",
           "effects": { "hpChange": 10, "medicalRisk": -1 },
-          "rewards": { "fatigueRelief": 3 },
+          "rewards": {},
           "resultTextId": "dec_medical_rest_sea_result",
           "resultText": "You wedge yourself into a corner near the mainmast and let the wind work. Salt air, endless horizon, the ship's steady rhythm. Hours pass. When you stir, the tightness in your chest has eased. The sea heals what it can, in its own time.",
-          "tooltip": "+10 HP. -3 fatigue. -1 Medical risk. Sea air helps recovery."
+          "tooltip": "+10 HP. -1 Medical risk. Sea air helps recovery."
         },
         {
           "id": "cancel_sea",
@@ -326,3 +326,7 @@
     }
   ]
 }
+
+
+
+

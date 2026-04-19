@@ -46,15 +46,18 @@ Start-Process powershell.exe -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypas
 ## Prerequisites
 
 1. **Steam Account** with Bannerlord (AppID: 261550)
-2. **SteamCMD** installed - Download from https://developer.valvesoftware.com/wiki/SteamCMD
+2. **SteamCMD** - Already included in `steamcmd/` folder (workspace root)
 3. **Built mod** in your Bannerlord Modules folder
 4. **Preview image** (512x512 or 1024x1024 PNG, under 1MB)
 
 ## First-Time Setup
 
-### 1. Install SteamCMD
+### 1. SteamCMD Location
 
-Download and extract SteamCMD to a folder like `C:\Dev\steamcmd\`.
+SteamCMD is included in the workspace at `steamcmd/` (cross-platform compatible).
+
+**Windows:** Use `steamcmd\steamcmd.exe`
+**Linux:** Use `steamcmd/steamcmd.sh` (may need to make executable: `chmod +x steamcmd/steamcmd.sh`)
 
 ### 2. Prepare Your Mod
 
@@ -111,15 +114,23 @@ This will:
 
 If the script fails, you can upload manually:
 
-1. Open PowerShell in interactive mode (NOT through automation)
-2. Navigate to SteamCMD:
-   ```powershell
-   cd C:\Dev\steamcmd
+1. Open terminal/PowerShell in interactive mode (NOT through automation)
+2. Navigate to workspace steamcmd folder:
+   ```bash
+   # Windows PowerShell
+   cd steamcmd
+   
+   # Linux
+   cd steamcmd
    ```
 
 3. Login and upload:
-   ```powershell
-   .\steamcmd.exe +login YOUR_STEAM_USERNAME +workshop_build_item "C:\Dev\Enlisted\Enlisted\Tools\Steam\workshop_upload.vdf" +quit
+   ```bash
+   # Windows
+   .\steamcmd.exe +login YOUR_STEAM_USERNAME +workshop_build_item "..\Tools\Steam\workshop_upload.vdf" +quit
+   
+   # Linux
+   ./steamcmd.sh +login YOUR_STEAM_USERNAME +workshop_build_item "../Tools/Steam/workshop_upload.vdf" +quit
    ```
    
    You'll be prompted for your password and Steam Guard code.

@@ -7,13 +7,13 @@
         "category": "formation",
         "weight": 0.7,
         "description": "Morning formation and inspection",
-        "skippedWhen": ["low_morale", "siege", "marching", "exhausted"]
+        "skippedWhen": ["low_morale", "siege", "marching"]
       },
       "slot2": {
         "category": "training",
         "weight": 0.2,
         "description": "Early drill",
-        "skippedWhen": ["exhausted", "marching", "siege", "routine", "quiet"]
+        "skippedWhen": ["marching", "siege", "routine", "quiet"]
       },
       "flavor": "The camp stirs to life. Sergeants bark orders."
     },
@@ -52,13 +52,13 @@
         "category": "recovery",
         "weight": 0.9,
         "description": "Rest and sleep",
-        "boostedWhen": ["exhausted", "marching"]
+        "boostedWhen": ["marching"]
       },
       "slot2": {
         "category": "special",
         "weight": 0.1,
         "description": "Night activities",
-        "skippedWhen": ["exhausted", "routine", "quiet", "marching", "siege"]
+        "skippedWhen": ["routine", "quiet", "marching", "siege"]
       },
       "flavor": "The camp grows quiet. Torches gutter."
     }
@@ -124,12 +124,6 @@
       "effect": "restrict_leisure",
       "description": "Officers watching closely",
       "recoveryThreshold": 60
-    },
-    "exhausted": {
-      "threshold": 30,
-      "effect": "boost_recovery",
-      "description": "Men need rest",
-      "recoveryThreshold": 40
     },
     "pre_battle": {
       "hoursBeforeBattle": 24,

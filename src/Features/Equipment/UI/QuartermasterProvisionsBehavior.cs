@@ -5,11 +5,14 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
+using TaleWorlds.Library;
+using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
 using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.TimeControl;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -28,8 +31,8 @@ namespace Enlisted.Features.Equipment.UI
         private static GauntletMovieIdentifier _gauntletMovie;
         private static QuartermasterProvisionsVm _provisionsViewModel;
         
-        // Captured time state for restoring after provisions screen closes
-        private static CampaignTimeControlMode? _capturedTimeMode;
+        // Time scope spanning the provisions screen's open lifetime.
+        private static EnlistedTimeScope? _provisionsTimeScope;
         
         // Track whether to return to QM conversation after closing
         private static bool _returnToConversationOnClose = true;
@@ -94,14 +97,14 @@ namespace Enlisted.Features.Equipment.UI
             var isPlayerInMapEvent = MobileParty.MainParty?.MapEvent != null;
             var isPlayerInConversation = Campaign.Current?.ConversationManager?.IsConversationInProgress ?? false;
             
-            ModLogger.Debug("QuartermasterUI", 
+            ModLogger.Debug("QUARTERMASTERUI", 
                 $"MapEventEnded (Provisions): EventType={eventType}, IsOpen={IsOpen}, " +
                 $"PlayerInMapEvent={isPlayerInMapEvent}, PlayerInConversation={isPlayerInConversation}");
             
             // Don't close UI when mapEvent is null (conversations don't have MapEvents)
             if (mapEvent == null)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded with null mapEvent - not closing provisions (likely conversation end)");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded with null mapEvent - not closing provisions (likely conversation end)");
                 return;
             }
             
@@ -109,7 +112,7 @@ namespace Enlisted.Features.Equipment.UI
             // This prevents old/unrelated MapEvents from closing the provisions screen
             if (isPlayerInConversation)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded during conversation - ignoring (QM dialogue in progress)");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded during conversation - ignoring (QM dialogue in progress)");
                 return;
             }
             
@@ -117,12 +120,12 @@ namespace Enlisted.Features.Equipment.UI
             // This prevents unrelated map events from closing our UI
             if (MobileParty.MainParty?.MapEvent != mapEvent)
             {
-                ModLogger.Debug("QuartermasterUI", "MapEventEnded for non-player MapEvent - ignoring");
+                ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded for non-player MapEvent - ignoring");
                 return;
             }
             
             bool isCombatEvent = mapEvent.EventType != MapEvent.BattleTypes.None;
-            ModLogger.Debug("QuartermasterUI", $"isCombatEvent={isCombatEvent}");
+            ModLogger.Debug("QUARTERMASTERUI", $"isCombatEvent={isCombatEvent}");
             
             if (isCombatEvent && IsOpen)
             {
@@ -136,7 +139,7 @@ namespace Enlisted.Features.Equipment.UI
         /// </summary>
         private static void ForceCloseOnInterruption(string reason)
         {
-            ModLogger.Info("QuartermasterUI", $"Force-closing provisions screen due to: {reason}");
+            ModLogger.Info("QUARTERMASTERUI", $"Force-closing provisions screen due to: {reason}");
             CloseProvisionsScreen(false);
         }
         
@@ -151,18 +154,12 @@ namespace Enlisted.Features.Equipment.UI
                 // Prevent double-open
                 if (IsOpen)
                 {
-                    ModLogger.Debug("QuartermasterUI", "Closing existing provisions screen before opening new one");
+                    ModLogger.Debug("QUARTERMASTERUI", "Closing existing provisions screen before opening new one");
                     CloseProvisionsScreen(false);
                 }
                 
-                // Capture current time mode and pause time while purchasing provisions
-                if (Campaign.Current != null)
-                {
-                    _capturedTimeMode = Campaign.Current.TimeControlMode;
-                    Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
-                    Campaign.Current.SetTimeControlModeLock(true);
-                    ModLogger.Debug("QuartermasterUI", $"Time paused for provisions screen (captured: {_capturedTimeMode})");
-                }
+                _provisionsTimeScope = EnlistedTimeScope.Capture();
+                ModLogger.Debug("QUARTERMASTERUI", "Time paused via EnlistedTimeScope for provisions screen");
                 
                 // Create ViewModel
                 _provisionsViewModel = new QuartermasterProvisionsVm();
@@ -177,18 +174,29 @@ namespace Enlisted.Features.Equipment.UI
                 // Set up input handling
                 _gauntletLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
                 _gauntletLayer.InputRestrictions.SetInputRestrictions();
-                
-                // Add layer to screen
-                ScreenManager.TopScreen.AddLayer(_gauntletLayer);
+
+                var topScreen = ScreenManager.TopScreen;
+                if (topScreen == null)
+                {
+                    ModLogger.Expected("QUARTERMASTERUI", "qm_ui_no_top_screen", "ScreenManager.TopScreen is null — cannot add provisions layer");
+                    CloseProvisionsScreen(false);
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
+                    return;
+                }
+
+                topScreen.AddLayer(_gauntletLayer);
                 _gauntletLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_gauntletLayer);
                 
-                ModLogger.Info("QuartermasterUI", "Provisions screen opened successfully");
+                ModLogger.Info("QUARTERMASTERUI", "Provisions screen opened successfully");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Failed to open provisions screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Failed to open provisions screen", ex);
                 CloseProvisionsScreen(false);
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=qm_ui_provisions_failed}Provisions screen failed to open. Check the log for details.").ToString()));
             }
         }
         
@@ -218,7 +226,7 @@ namespace Enlisted.Features.Equipment.UI
                     ScreenManager.TopScreen?.RemoveLayer(_gauntletLayer);
                     _gauntletLayer = null;
                     
-                    ModLogger.Debug("QuartermasterUI", "Provisions screen layer removed");
+                    ModLogger.Debug("QUARTERMASTERUI", "Provisions screen layer removed");
                 }
                 
                 // Clean up ViewModel
@@ -236,11 +244,11 @@ namespace Enlisted.Features.Equipment.UI
                     
                     if (enlistment?.IsEnlisted != true)
                     {
-                        ModLogger.Debug("QuartermasterUI", "Not returning to conversation - player no longer enlisted");
+                        ModLogger.Debug("QUARTERMASTERUI", "Not returning to conversation - player no longer enlisted");
                     }
                     else if (qmHero == null || !qmHero.IsAlive)
                     {
-                        ModLogger.Debug("QuartermasterUI", "Not returning to conversation - QM hero unavailable");
+                        ModLogger.Debug("QUARTERMASTERUI", "Not returning to conversation - QM hero unavailable");
                     }
                     else
                     {
@@ -248,11 +256,11 @@ namespace Enlisted.Features.Equipment.UI
                     }
                 }
                 
-                ModLogger.Info("QuartermasterUI", "Provisions screen closed");
+                ModLogger.Info("QUARTERMASTERUI", "Provisions screen closed");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing provisions screen", ex);
+                ModLogger.Error("QUARTERMASTERUI", "Error closing provisions screen", ex);
             }
             finally
             {
@@ -261,20 +269,9 @@ namespace Enlisted.Features.Equipment.UI
                 _gauntletMovie = null;
                 _provisionsViewModel = null;
                 
-                // Restore time control mode
-                if (Campaign.Current != null)
-                {
-                    Campaign.Current.SetTimeControlModeLock(false);
-                    
-                    if (_capturedTimeMode.HasValue)
-                    {
-                        var normalized = QuartermasterManager.NormalizeToStoppable(_capturedTimeMode.Value);
-                        Campaign.Current.TimeControlMode = normalized;
-                        ModLogger.Debug("QuartermasterUI", $"Time restored from provisions screen: {normalized}");
-                    }
-                    
-                    _capturedTimeMode = null;
-                }
+                _provisionsTimeScope?.Dispose();
+                _provisionsTimeScope = null;
+                ModLogger.Debug("QUARTERMASTERUI", "Provisions screen time scope disposed");
             }
         }
         

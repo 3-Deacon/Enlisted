@@ -445,15 +445,14 @@ namespace Enlisted.Features.Equipment.UI
 
                 var sb = new System.Text.StringBuilder();
 
-                // Get food quality info
-                var (qualityName, moraleBonus, _, daysRemaining) = enlistment.GetFoodQualityInfo();
+                // Get food quality info (morale system removed - quality is now just for flavor)
+                var (qualityName, daysRemaining) = enlistment.GetFoodQualityInfo();
 
                 if (daysRemaining > 0)
                 {
-                    var statusText = new TextObject("{=qm_ration_status}Current: {QUALITY} (+{MORALE} morale) - {DAYS} days remaining");
+                    var statusText = new TextObject("{=qm_ration_status}Current: {QUALITY} - {DAYS} days remaining");
                     statusText.SetTextVariable("QUALITY", qualityName);
-                    statusText.SetTextVariable("MORALE", moraleBonus);
-                    statusText.SetTextVariable("DAYS", daysRemaining);
+                    statusText.SetTextVariable("DAYS", (int)Math.Ceiling(daysRemaining));
                     sb.AppendLine(statusText.ToString());
                 }
                 else

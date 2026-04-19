@@ -62,7 +62,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Incident", "E-INCIDENT-002", "Failed to register pay muster incident", ex);
+                ModLogger.Caught("Incident", "Failed to register pay muster incident", ex);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var musterHandler = MusterMenuHandler.Instance;
                 if (musterHandler == null)
                 {
-                    ModLogger.ErrorCode("Incident", "E-INCIDENT-004", "MusterMenuHandler not found, deferring muster");
+                    ModLogger.Expected("Incident", "muster_handler_not_found", "MusterMenuHandler not found, deferring muster");
                     EnlistmentBehavior.Instance?.DeferPayMuster();
                     return;
                 }
@@ -88,7 +88,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.ErrorCode("Incident", "E-INCIDENT-004", "Error triggering pay muster, deferring", ex);
+                ModLogger.Caught("Incident", "Error triggering pay muster, deferring", ex);
                 EnlistmentBehavior.Instance?.DeferPayMuster();
             }
         }

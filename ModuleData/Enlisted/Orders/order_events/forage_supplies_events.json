@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_forage_supplies",
   "events": [
@@ -28,10 +28,10 @@
             "companyNeeds": {
               "Food": 8
             },
-            "officerRep": 1,
             "skillXp": {
               "Scouting": 16
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "forage_rich_find_take_needed_result",
           "resultText": "You load the essentials and move on. Professional."
@@ -45,13 +45,13 @@
             "companyNeeds": {
               "Food": 15
             },
-            "officerRep": -2,
             "escalation": {
-              "discipline": 10
+              "scrutiny": 100
             },
             "skillXp": {
               "Scouting": 20
-            }
+            },
+            "lordReputation": -2
           },
           "resultTextId": "forage_rich_find_take_everything_result",
           "resultText": "You strip it bare. Scorched earth. Effective, but hard on the locals."
@@ -65,11 +65,11 @@
             "companyNeeds": {
               "Food": 5
             },
-            "officerRep": 2,
             "gold": -10,
             "skillXp": {
               "Charm": 14
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "forage_rich_find_leave_payment_result",
           "resultText": "You leave silver on the table. Soldiers aren't always thieves."
@@ -108,10 +108,10 @@
               "Food": 5
             },
             "gold": -15,
-            "soldierRep": 1,
             "skillXp": {
               "Charm": 22
-            }
+            },
+            "lordReputation": 0
           },
           "failEffects": {
             "companyNeeds": {
@@ -136,10 +136,10 @@
             "companyNeeds": {
               "Food": 8
             },
-            "soldierRep": -2,
             "skillXp": {
               "Roguery": 16
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "forage_farmer_encounter_intimidate_result",
           "resultText": "He backs down. You take what you need. His eyes follow you all the way."
@@ -150,10 +150,10 @@
           "text": "Leave empty-handed. Not worth the trouble.",
           "tooltip": "+1 Soldier Rep. Merciful.",
           "effects": {
-            "soldierRep": 1,
             "skillXp": {
               "Scouting": 8
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "forage_farmer_encounter_leave_empty_result",
           "resultText": "You walk away. One less enemy. The company will find food elsewhere."
@@ -406,10 +406,10 @@
           "text": "Call out. Hope they hear you.",
           "tooltip": "-1 Soldier Rep. Might attract enemies.",
           "effects": {
-            "soldierRep": -1,
             "skillXp": {
               "Scouting": 6
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "forage_separated_call_out_result",
           "resultText": "A whistle answers. You follow the sound back to your group."
@@ -438,11 +438,11 @@
             "difficulty": 40
           },
           "effects": {
-            "soldierRep": 2,
             "fatigue": 8,
             "skillXp": {
               "Scouting": 24
-            }
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "hpChange": -8,

@@ -74,7 +74,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 			}
 			catch (Exception ex)
 			{
-				ModLogger.ErrorCode("EncounterGuard", "E-ENCOUNTER-001", "Error in TryLeaveEncounter", ex);
+				ModLogger.Caught("EncounterGuard", "Error in TryLeaveEncounter", ex);
 			}
 		}
 

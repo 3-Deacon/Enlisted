@@ -124,7 +124,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Escalation thresholds required to trigger this event.
-        /// Key: track name ("Scrutiny", "Discipline", "MedicalRisk"), Value: minimum level.
+        /// Key: track name ("Scrutiny", "MedicalRisk"), Value: minimum level.
         /// </summary>
         public Dictionary<string, int> MinEscalation { get; set; } = [];
 
@@ -154,12 +154,6 @@ namespace Enlisted.Features.Content
         /// </summary>
         public int? HpBelow { get; set; }
 
-        /// <summary>
-        /// Maximum soldier reputation for this event to trigger.
-        /// Used for events like theft that only happen to unpopular soldiers.
-        /// Null means no soldier rep maximum check.
-        /// </summary>
-        public int? MaxSoldierRep { get; set; }
 
         /// <summary>
         /// If true, requires the player's baggage stash to have at least one item.
@@ -450,7 +444,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// Rewards applied when this sub-choice is selected.
-        /// Includes gold, fatigue relief, XP, skill XP.
+        /// Includes gold, XP, skill XP.
         /// </summary>
         public EventRewards Rewards { get; set; }
 
@@ -471,11 +465,6 @@ namespace Enlisted.Features.Content
         /// Gold/denar reward (positive value).
         /// </summary>
         public int? Gold { get; set; }
-
-        /// <summary>
-        /// Fatigue relief (reduces current fatigue).
-        /// </summary>
-        public int? FatigueRelief { get; set; }
 
         /// <summary>
         /// General XP rewards (e.g., {"enlisted": 20} for enlisted-specific XP tracking).
@@ -505,11 +494,6 @@ namespace Enlisted.Features.Content
         /// Gold cost (deducted from player).
         /// </summary>
         public int? Gold { get; set; }
-
-        /// <summary>
-        /// Fatigue cost (added to player fatigue or company rest need).
-        /// </summary>
-        public int? Fatigue { get; set; }
 
         /// <summary>
         /// Time cost in hours (advances campaign time or affects scheduling).
@@ -546,24 +530,9 @@ namespace Enlisted.Features.Content
         public int? LordRep { get; set; }
 
         /// <summary>
-        /// Reputation change with officers (-100 to +100 delta).
-        /// </summary>
-        public int? OfficerRep { get; set; }
-
-        /// <summary>
-        /// Reputation change with soldiers (-50 to +50 delta).
-        /// </summary>
-        public int? SoldierRep { get; set; }
-
-        /// <summary>
-        /// Scrutiny escalation change (0-10 scale delta).
+        /// Scrutiny escalation change (-100 to +100 delta).
         /// </summary>
         public int? Scrutiny { get; set; }
-
-        /// <summary>
-        /// Discipline escalation change (0-10 scale delta).
-        /// </summary>
-        public int? Discipline { get; set; }
 
         /// <summary>
         /// Medical risk escalation change (0-5 scale delta).
@@ -685,12 +654,6 @@ namespace Enlisted.Features.Content
         /// Used by theft, raid, and loss events. Gracefully handles empty stash (no crash, no message).
         /// </summary>
         public int? RandomBaggageLoss { get; set; }
-
-        /// <summary>
-        /// Fatigue cost to apply (positive values add fatigue, negative values restore stamina).
-        /// Standard fatigue threshold is 100; actions become restricted at higher levels.
-        /// </summary>
-        public int? Fatigue { get; set; }
 
         /// <summary>
         /// Bag check action to execute when this option is chosen.

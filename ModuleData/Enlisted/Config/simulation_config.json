@@ -20,8 +20,6 @@
 
   "pressure_thresholds": {
     "lowSuppliesDays": 3,
-    "lowMoraleDays": 3,
-    "lowRestDays": 2,
     "highSicknessDays": 2,
     "desertionCount": 5,
     "_comment": "Days of low values before triggering crisis events"
@@ -48,21 +46,21 @@
     },
     {
       "id": "inc_argument_minor",
-      "category": "discipline",
+      "category": "scrutiny",
       "severity": "minor",
       "textId": "{=sim_inc_argument}Words exchanged over rations. No blows, but bad blood.",
       "weight": 12,
       "cooldown": 4,
-      "effects": { "Discipline": -1 }
+      "effects": { "scrutiny": 10 }
     },
     {
       "id": "inc_fight_minor",
-      "category": "discipline",
+      "category": "scrutiny",
       "severity": "minor",
       "textId": "{=sim_inc_fight}A scuffle in the camp. Bloody noses but nothing broken.",
       "weight": 8,
       "cooldown": 5,
-      "effects": { "Morale": -2, "Discipline": -2 }
+      "effects": { "Morale": -2, "scrutiny": 20 }
     },
     {
       "id": "inc_theft_suspected",
@@ -71,7 +69,7 @@
       "textId": "{=sim_inc_theft}Someone's kit went missing. Accusations fly but no proof.",
       "weight": 8,
       "cooldown": 6,
-      "effects": { "Morale": -3, "Discipline": -1 },
+      "effects": { "Morale": -3, "scrutiny": 10 },
       "setsFlag": "theft_tension"
     },
     {
@@ -117,7 +115,7 @@
       "textId": "{=sim_inc_repair}The men spent the evening mending kit. Quiet, useful work.",
       "weight": 10,
       "cooldown": 5,
-      "effects": { "Equipment": 2, "Rest": -1 }
+      "effects": { "Equipment": 2 }
     },
     {
       "id": "inc_campfire_tales",
@@ -144,7 +142,7 @@
       "textId": "{=sim_inc_weather_good}Clear skies and a warm breeze. Spirits lifted.",
       "weight": 8,
       "cooldown": 5,
-      "effects": { "Morale": 2, "Rest": 2 }
+      "effects": { "Morale": 2 }
     },
     {
       "id": "inc_bad_weather",
@@ -153,7 +151,7 @@
       "textId": "{=sim_inc_weather_bad}Rain soaked the camp. Everything damp and miserable.",
       "weight": 8,
       "cooldown": 4,
-      "effects": { "Morale": -2, "Rest": -2 }
+      "effects": { "Morale": -2 }
     },
     {
       "id": "inc_rumor_victory",
@@ -189,7 +187,7 @@
       "textId": "{=sim_inc_tavern}Some of the men snuck off to a local tavern. Came back in good spirits.",
       "weight": 6,
       "cooldown": 7,
-      "effects": { "Morale": 3, "Discipline": -2 }
+      "effects": { "Morale": 3, "scrutiny": 20 }
     },
     {
       "id": "inc_sermon",

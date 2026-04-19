@@ -12,7 +12,9 @@
       "setupId": "muster_kit_problem_setup",
       "setup": "You're in formation. Something's wrong with your kit—a missing buckle, a torn strap. The officer is three men away.",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -20,8 +22,10 @@
           "textId": "muster_kit_problem_borrow",
           "text": "Quickly borrow from the man beside you.",
           "effects": {
-            "soldierRep": -1,
-            "skillXp": { "Roguery": 10 }
+            "skillXp": {
+              "Roguery": 10
+            },
+            "lordReputation": 0
           },
           "resultTextId": "muster_kit_problem_borrow_result",
           "resultText": "He slips you a spare. You owe him."
@@ -31,8 +35,10 @@
           "textId": "muster_kit_problem_face_consequences",
           "text": "Stand tall and face the consequences.",
           "effects": {
-            "officerRep": -5,
-            "skillXp": { "Athletics": 12 }
+            "skillXp": {
+              "Athletics": 12
+            },
+            "lordReputation": -5
           },
           "resultTextId": "muster_kit_problem_face_consequences_result",
           "resultText": "The officer stops. 'Disgraceful, soldier. Extra duty for you.'"
@@ -46,12 +52,16 @@
             "difficulty": 40
           },
           "effects": {
-            "officerRep": 2,
-            "skillXp": { "Charm": 24 }
+            "skillXp": {
+              "Charm": 24
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "officerRep": -3,
-            "skillXp": { "Charm": 10 }
+            "skillXp": {
+              "Charm": 10
+            },
+            "lordReputation": -3
           },
           "resultTextId": "muster_kit_problem_bluff_result",
           "resultText": "You adjust your stance. The officer passes without noticing.",
@@ -70,7 +80,9 @@
       "setupId": "muster_praised_setup",
       "setup": "The officer stops in front of you. 'This is how a soldier should look. The rest of you, take note.'",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -78,9 +90,10 @@
           "textId": "muster_praised_accept_humbly",
           "text": "Accept humbly.",
           "effects": {
-            "officerRep": 3,
-            "soldierRep": 1,
-            "skillXp": { "Charm": 16 }
+            "skillXp": {
+              "Charm": 16
+            },
+            "lordReputation": 3
           },
           "resultTextId": "muster_praised_accept_humbly_result",
           "resultText": "'Thank you, sir.' You keep your eyes forward. The men respect that."
@@ -90,9 +103,10 @@
           "textId": "muster_praised_puff_up",
           "text": "Puff up with pride.",
           "effects": {
-            "officerRep": 2,
-            "soldierRep": -2,
-            "skillXp": { "Athletics": 10 }
+            "skillXp": {
+              "Athletics": 10
+            },
+            "lordReputation": 1
           },
           "resultTextId": "muster_praised_puff_up_result",
           "resultText": "You can't hide your satisfaction. The men beside you roll their eyes."
@@ -109,7 +123,9 @@
       "setupId": "muster_singled_out_setup",
       "setup": "The officer stops in front of you. He stares. Says nothing. Just... stares. Something's wrong.",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -118,10 +134,12 @@
           "text": "Stand firm. Meet his gaze.",
           "effects": {
             "escalation": {
-              "scrutiny": 8
+              "scrutiny": 80
             },
-            "officerRep": 1,
-            "skillXp": { "Athletics": 14 }
+            "skillXp": {
+              "Athletics": 14
+            },
+            "lordReputation": 1
           },
           "resultTextId": "muster_singled_out_stand_firm_result",
           "resultText": "He grunts and moves on. Whatever he was looking for, he didn't find it."
@@ -132,10 +150,12 @@
           "text": "Look away nervously.",
           "effects": {
             "escalation": {
-              "scrutiny": 15
+              "scrutiny": 150
             },
-            "officerRep": -1,
-            "skillXp": { "Roguery": 8 }
+            "skillXp": {
+              "Roguery": 8
+            },
+            "lordReputation": -1
           },
           "resultTextId": "muster_singled_out_look_nervous_result",
           "resultText": "His eyes narrow. He makes a note. You've drawn attention to yourself."

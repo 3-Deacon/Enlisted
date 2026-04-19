@@ -3,7 +3,7 @@
 **Summary:** Master list of all narrative content with IDs, titles, descriptions, requirements, effects, and skill checks. This index provides quick reference for all events, decisions, orders, map incidents, and orchestrated opportunities in the mod.
 
 **Status:** ✅ Current  
-**Last Updated:** 2026-01-04 (Phase-aware scheduling, duplicate prevention, commitment model, baggage access filtering)  
+**Last Updated:** 2026-01-06 (Added supply pressure arc events)
 **Related Docs:** [Content Organization Map](content-organization-map.md), [Content System Architecture](content-system-architecture.md), [Orders Content](orders-content.md), [Event System Schemas](event-system-schemas.md), [Orchestrator Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)
 
 **Diagnostics:** All content systems now include searchable error codes for user support. See [Content System Architecture - Error Codes](content-system-architecture.md#error-codes--diagnostics) for complete code reference and logging features.
@@ -25,9 +25,9 @@
 | **Orders** | 17 | Military directives from chain of command (see [Orders Content](orders-content.md)) |
 | **Order Events** | 84 | Events that fire during order execution (17 order types in `ModuleData/Enlisted/Orders/order_events/`) |
 | **Decisions** | 37 | Player-initiated choices from Camp Hub (3 core + 26 camp + 8 medical with sea variants) |
-| **Context Events** | 56 | Context-triggered situations (escalation, pay, promotion, retinue, illness, baggage) |
+| **Context Events** | 65 | Context-triggered situations (escalation, pay, promotion, retinue, illness, baggage, pressure arcs) |
 | **Map Incidents** | 51 | Triggered by map actions (battle, siege, settlement entry/exit, waiting) - includes retinue incidents |
-| **Total** | **245** | Full content catalog including all systems (verified by Tools/count_content.py) |
+| **Total** | **254** | Full content catalog including all systems (verified by Tools/count_content.py) |
 
 **Training Decisions**: 3 weapon-aware training decisions using dynamic skill XP. Uses `reward_choices` and `dynamic_skill_xp` for equipped weapon training. See [Training System](../Features/Combat/training-system.md) for implementation details.
 
@@ -198,7 +198,7 @@ Some orders have severe failure penalties beyond reputation loss:
 
 ---
 
-## Camp Opportunities (29 total)
+## Camp Opportunities (36 total)
 
 **File:** `ModuleData/Enlisted/Decisions/camp_opportunities.json`  
 **System:** Pre-scheduled by ContentOrchestrator 24 hours ahead  
@@ -316,11 +316,11 @@ Some orders have severe failure penalties beyond reputation loss:
 
 ---
 
-## Events (56 total)
+## Events (65 total)
 
 **⚠️ WARNING:** The detailed event listings below may contain outdated IDs and descriptions. This section needs reconciliation with actual JSON files in `ModuleData/Enlisted/Events/`. Use `python Tools/count_content.py` for accurate counts.
 
-**Actual Event Files (57 events total):**
+**Actual Event Files (66 events total):**
 - `events_escalation_thresholds.json` - Scrutiny (5) + Discipline (5) threshold events = 10
 - `events_pay_tension.json` - Pay complaints and tension events
 - `events_pay_loyal.json` - Pay loyalty and wage satisfaction events
@@ -331,6 +331,7 @@ Some orders have severe failure penalties beyond reputation loss:
 - `events_baggage_stowage.json` - Baggage onboarding event (1)
 - `illness_onset.json` - Medical system illness onset events (4)
 - `events_camp_life.json` - Universal camp events (7)
+- `pressure_arc_events.json` - Supply pressure narrative arc events (9) **NEW**
 - `incidents_*.json` - Map-triggered incidents (6 files, counted separately as Map Incidents below)
 
 **For detailed event listings with actual IDs and content, run:** `python Tools/list_events.py`
@@ -400,6 +401,21 @@ Triggered during the 12-day muster cycle. See `quartermaster-dialogue-implementa
 | `evt_ambush_patrol` | Patrol Ambushed | The patrol you sent didn't all come back. | Search / Mourn / Avenge | **Troop Loss 1-4**, Morale, Soldier Rep |
 | `evt_disease_outbreak` | Camp Fever | Fever sweeps the camp. The surgeon is overwhelmed. | Quarantine / Pray / Move camp | **Troop Loss 2-6**, **Troop Wounded**, Medical Risk |
 | `evt_supply_spoilage` | Rotten Supplies | The stores are bad. Worms, mold, sickness waiting. | Destroy / Use carefully / Blame quartermaster | **Food Loss**, Supplies, Medical Risk |
+
+### Supply Pressure Arc (9) **NEW**
+
+**File:** `ModuleData/Enlisted/Events/pressure_arc_events.json`  
+**Trigger:** Fires automatically at Day 3, 5, 7 of low supplies (tracked by `CompanySimulationBehavior`)  
+**Tier Variants:** Each stage has 3 variants (grunt T1-4, NCO T5-6, commander T7+)
+
+| Stage | Day | Grunt (T1-4) | NCO (T5-6) | Commander (T7+) |
+|-------|-----|--------------|------------|------------------|
+| Stage 1 | 3 | `supply_pressure_stage_1_grunt` - Thin Rations | `supply_pressure_stage_1_nco` - Your Squad Grumbles | `supply_pressure_stage_1_cmd` - Supply Officer's Report |
+| Stage 2 | 5 | `supply_pressure_stage_2_grunt` - Fight at the Cook Fire | `supply_pressure_stage_2_nco` - Your Men Are Fighting | `supply_pressure_stage_2_cmd` - Discipline Breaking Down |
+| Crisis | 7 | `supply_crisis_grunt` - Whispers of Desertion | `supply_crisis_nco` - One of Yours Is Leaving | `supply_crisis_cmd` - Desertions Imminent |
+
+**Effects:** Soldier/Officer/Lord Rep, Discipline, Morale, HP, Gold (varies by tier and choice)  
+**See:** [Company Events - Pressure Arcs](../../Core/company-events.md#pressure-arc-events)
 
 ### Role: Scout (6)
 
@@ -675,7 +691,7 @@ Retinue events focus on managing your personal command at T7+. Events cover loya
 | **Core Decisions** | 3 | `decisions.json` | ✅ Implemented |
 | **Camp Decisions** | 26 | `camp_decisions.json` | ✅ Implemented |
 | **Medical Decisions** | 8 | `medical_decisions.json` (4 land + 4 sea) | ✅ Implemented |
-| **Camp Opportunities** | 29 | `camp_opportunities.json` | ✅ Implemented |
+| **Camp Opportunities** | 36 | `camp_opportunities.json` | ✅ Implemented |
 | **Escalation Events** | 10 | `events_escalation_thresholds.json` | ✅ Implemented |
 | Events - Universal | 8 | `events_camp_life.json` | Indexed |
 | Events - Food/Supply | 10 | `events_food_supply.json` | Indexed |
@@ -683,7 +699,7 @@ Retinue events focus on managing your personal command at T7+. Events cover loya
 | Map Incidents | 45 | `incidents_battle/siege/town/village/leaving/waiting.json` | ✅ Implemented |
 | **Retinue Events** | 17 | `events_retinue.json` | ✅ Implemented |
 | **Retinue Incidents** | 6 | `incidents_retinue.json` | ✅ Implemented |
-| **TOTAL** | **275** | **38 JSON files** | ✅ Complete |
+| **TOTAL** | **282** | **38 JSON files** | ✅ Complete |
 
 ### By Trigger
 
@@ -692,7 +708,7 @@ Retinue events focus on managing your personal command at T7+. Events cover loya
 | System-assigned | 17 | Orders from chain of command |
 | Duty-based | 84 | Order events during duty execution |
 | Player-initiated | 37 | Camp Hub menu decisions (direct choice) |
-| Orchestrated | 29 | Camp opportunities (pre-scheduled 24hrs ahead) |
+| Orchestrated | 36 | Camp opportunities (pre-scheduled 24hrs ahead) |
 | State threshold | 10 | Escalation crossed (Scrutiny/Discipline) |
 | Medical pressure | 4 | Illness onset triggers |
 | Onboarding | 1 | Baggage stowage (first enlistment) |

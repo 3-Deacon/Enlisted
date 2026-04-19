@@ -2,7 +2,7 @@ namespace Enlisted.Features.Camp.Models
 {
     /// <summary>
     /// Current mood of the camp affecting opportunity selection and flavor text.
-    /// Derived from recent battles, victories/defeats, casualties, and morale.
+    /// Derived from recent battles, victories/defeats, and casualties.
     /// </summary>
     public enum CampMood
     {
@@ -15,7 +15,7 @@ namespace Enlisted.Features.Camp.Models
         /// <summary>After defeat, casualties, deaths in company.</summary>
         Mourning,
 
-        /// <summary>Before battle, siege, low morale, supply crisis.</summary>
+        /// <summary>Before battle, siege, supply crisis.</summary>
         Tense
     }
 }

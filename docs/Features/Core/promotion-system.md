@@ -1,15 +1,15 @@
 # Promotion & Rank Progression System
 
-**Summary:** Complete guide to military rank progression from T1 (Follower) to T9 (Marshal). Covers XP requirements, multi-factor promotion criteria, proving events, culture-specific rank titles, and the mechanics of advancement. This system rewards consistent service, combat performance, and maintaining good standing with superiors and comrades.
+**Summary:** Complete guide to military rank progression from T1 (Follower) to T9 (Marshal). Covers XP requirements, multi-factor promotion criteria, proving events, culture-specific rank titles, and the mechanics of advancement. This system rewards consistent service, combat performance, and maintaining good standing with your lord.
 
 **Status:** ✅ Current  
-**Last Updated:** 2026-01-03 (Fixed promotion effect processing bug - proving events now correctly grant promotions)  
+**Last Updated:** 2026-01-14 (Updated to reflect Scrutiny 0-100 and native lord relation system)  
 **Related Docs:** [Enlistment System](enlistment.md), [Training System](../Combat/training-system.md), [Pay System](pay-system.md), [Order Progression System](order-progression-system.md)
 
-**RECENT FIXES:**
-- **(2026-01-03)** Fixed critical bug in `EventDeliveryManager` where promotion effects from proving events were never applied. The condition `effects.Promotes.Value > 0` failed for the sentinel value `-1` (which represents `"promotes": true` in JSON). Changed to `!= 0` to properly handle both explicit tier promotions and the `-1` sentinel. This resolves the reported issue where players remained at T1 despite meeting all promotion requirements.
-- **(2026-01-01)** Fixed bug where promotions were permanently blocked after re-enlistment if the previous lord was defeated while a proving event was pending. Declined promotions and pending promotion events now properly reset when starting new service with a different lord.
-- **(2026-01-01)** Fixed XP tracking bug where skill XP was awarded but enlistment XP (used for rank progression) was not. All XP-granting activities now properly update both systems. See [XP Sources](#xp-sources) for details.
+**SYSTEM CHANGES (2026-01-14):**
+- **Scrutiny** is now 0-100 scale (merged from old Discipline 0-10)
+- **Native lord reputation** via `Hero.GetRelation()` replaces custom reputation systems
+- Soldier/Officer reputation removed - focus on lord trust and avoiding trouble
 
 ---
 
@@ -17,22 +17,19 @@
 
 1. [Overview](#overview)
 2. [Tier Progression Table](#tier-progression-table)
-3. [XP Requirements](#xp-requirements)
-4. [Multi-Factor Promotion Requirements](#multi-factor-promotion-requirements)
-5. [XP Sources](#xp-sources)
-6. [The Promotion Process](#the-promotion-process)
-7. [Proving Events](#proving-events)
-8. [Culture-Specific Ranks](#culture-specific-ranks)
-9. [Promotion Blocking](#promotion-blocking)
-10. [Equipment & Benefits](#equipment--benefits)
-11. [Configuration](#configuration)
-12. [News Integration](#news-integration)
+3. [Multi-Factor Promotion Requirements](#multi-factor-promotion-requirements)
+4. [XP Sources](#xp-sources)
+5. [The Promotion Process](#the-promotion-process)
+6. [Proving Events](#proving-events)
+7. [Culture-Specific Ranks](#culture-specific-ranks)
+8. [Equipment & Benefits](#equipment--benefits)
+9. [Configuration](#configuration)
 
 ---
 
 ## Overview
 
-The promotion system transforms you from a raw recruit (T1) into a veteran commander (T9) through nine tiers of military rank. Promotion requires more than just experience—you must prove your worth through battle, maintain relationships with your superiors, earn respect from your fellow soldiers, and avoid disciplinary problems.
+The promotion system transforms you from a raw recruit (T1) into a veteran commander (T9) through nine tiers of military rank. Promotion requires more than just experience—you must prove your worth through battle, maintain a good relationship with your lord, and avoid disciplinary problems.
 
 **Three Career Tracks:**
 - **Enlisted Track (T1-T4)**: Raw recruit to veteran soldier
@@ -61,140 +58,65 @@ Each promotion unlocks better equipment from the Quartermaster, higher wages, an
 
 ---
 
-## XP Requirements
-
-### Base XP Thresholds
-
-XP thresholds are the foundation of progression, but meeting the XP requirement alone does not guarantee promotion. These values come from `progression_config.json`:
-
-```json
-{
-  "tier": 2,
-  "xp_required": 800
-}
-```
-
-The system checks your total accumulated enlistment XP against these thresholds every in-game hour. When you reach a threshold AND meet all other requirements, a promotion proving event is triggered.
-
-### XP Display
-
-Your XP progress is logged with each XP gain:
-```
-+25 XP from Daily Service | Total: 2,150/3,000 (72% to Tier 3)
-```
-
-This shows:
-- XP gained this tick
-- Source of XP
-- Total accumulated XP
-- Next tier threshold
-- Progress percentage
-
----
-
 ## Multi-Factor Promotion Requirements
 
-Meeting the XP threshold is necessary but not sufficient for promotion. You must also satisfy five additional requirements:
+Meeting the XP threshold is necessary but not sufficient for promotion. You must also satisfy four additional requirements:
 
 ### Complete Requirements Table
 
-| Promotion | XP | Days in Rank | Battles | Soldier Rep | Leader Relation | Max Discipline |
-|-----------|-----|--------------|---------|-------------|-----------------|----------------|
-| **T1→T2** | 800 | 14 days | 2 | ≥0 | ≥0 | <8 |
-| **T2→T3** | 3,000 | 35 days | 6 | ≥10 | ≥10 | <7 |
-| **T3→T4** | 6,000 | 56 days | 12 | ≥20 | ≥20 | <6 |
-| **T4→T5** | 11,000 | 56 days | 20 | ≥30 | ≥30 | <5 |
-| **T5→T6** | 19,000 | 56 days | 30 | ≥40 | ≥15 | <4 |
-| **T6→T7** | 30,000 | 70 days | 40 | ≥50 | ≥20 | <3 |
-| **T7→T8** | 45,000 | 84 days | 50 | ≥60 | ≥25 | <2 |
-| **T8→T9** | 65,000 | 112 days | 60 | ≥70 | ≥30 | <1 |
+| Promotion | XP | Days in Rank | Battles | Min Lord Relation | Max Scrutiny |
+|-----------|-----|--------------|---------|-------------------|--------------|
+| **T1→T2** | 800 | 14 days | 2 | ≥0 | <80 |
+| **T2→T3** | 3,000 | 35 days | 6 | ≥10 | <70 |
+| **T3→T4** | 6,000 | 56 days | 12 | ≥20 | <60 |
+| **T4→T5** | 11,000 | 56 days | 20 | ≥30 | <50 |
+| **T5→T6** | 19,000 | 56 days | 30 | ≥15 | <40 |
+| **T6→T7** | 30,000 | 70 days | 40 | ≥20 | <30 |
+| **T7→T8** | 45,000 | 84 days | 50 | ≥25 | <20 |
+| **T8→T9** | 65,000 | 112 days | 60 | ≥30 | <10 |
 
 ### Requirement Explanations
 
-**1. Days in Rank**
+**1. XP Threshold**
+- Cumulative enlistment XP earned from orders, events, and combat
+- Tracked separately from skill XP
+- See [XP Sources](#xp-sources) for details
+
+**2. Days in Rank**
 - Minimum time you must serve at your current rank
 - Prevents rapid advancement without proving yourself
 - Represents the time needed to learn your role
 
-**2. Battles Survived**
+**3. Battles Survived**
 - Combat experience requirement
 - Only counts battles where you participated (not reserve duty)
 - Incremented after each battle completion
 - Shows you can survive under fire
 
-**3. Soldier Reputation**
-- Your standing with the rank-and-file troops (scale: -50 to +100)
-- Gained through: completing orders successfully, helping comrades, fair treatment
-- Lost through: order failures, selfish choices, ignoring troop welfare
-- Managed by the Escalation system
-- Higher ranks require respect from those you'll lead
+**4. Lord Relation**
+- Your personal relationship with your enlisted lord (native Bannerlord scale: -100 to +100)
+- Gained through: order success, loyalty, combat performance, helpful actions
+- Lost through: order failures, disobedience, poor performance, criminal activity
+- Uses native `Hero.GetRelation()` system - integrates with vanilla Bannerlord
+- Critical for officer and commander promotions - the lord must trust you before granting authority
 
-**4. Leader Relation**
-- Your personal relationship with your enlisted lord (Bannerlord native scale)
-- Gained through: order success, loyalty, combat performance
-- Lost through: order failures, disobedience, poor performance
-- Critical for officer and commander promotions
-- The lord must trust you before granting authority
-
-**5. Maximum Discipline**
-- Discipline is a "trouble counter" (scale: 0-10, where 10 is discharge)
-- Must be BELOW the threshold (e.g., <4 means discipline must be 3 or lower)
-- Gained from: order failures, insubordination, criminal activity
-- Reduced over time with good behavior
+**5. Maximum Scrutiny**
+- Scrutiny is a "trouble/suspicion counter" (scale: 0-100, where 100 is discharge)
+- Must be BELOW the threshold (e.g., <40 means scrutiny must be 39 or lower)
+- Gained from: order failures, insubordination, criminal activity, suspicious behavior, theft
+- Reduced slowly over time with good behavior (passive decay)
 - Cannot promote with active disciplinary problems
+- Replaces old Discipline system (0-10) - now on 0-100 scale for finer granularity
 
 ### Checking Your Status
 
 When you're blocked from promotion but close (≥75% progress), the system logs the blocking factors:
 
 ```
-Promotion to T3 blocked (82% progress): Days in rank: 28/35, Soldier reputation: 8/10
+Promotion to T3 blocked (82% progress): Days in rank: 28/35, Leader relation: 8/10
 ```
 
 This tells you exactly what you need to improve to advance.
-
-### Orchestrator Promotion Assistance
-
-When you meet the XP requirement but lack sufficient soldier reputation for promotion, the **Content Orchestrator** automatically helps by prioritizing reputation-gaining camp opportunities.
-
-**How It Works:**
-
-1. **Detection:** System checks if you have enough XP but are blocked by soldier reputation
-2. **Gap Calculation:** Calculates exactly how much reputation you need
-3. **Pressure Tracking:** Adds "Needs +X Rep for Promotion" to the simulation pressure sources
-4. **Fitness Boosting:** Boosts reputation-granting opportunities based on gap size:
-   - Small gap (1-5 rep): +15 fitness boost
-   - Medium gap (6-15 rep): +25 fitness boost  
-   - Large gap (16+ rep): +35 fitness boost
-
-5. **Phase-Aware Boosting:** Opportunities get additional boosts when they match the current camp phase schedule:
-   - **Dawn:** Training activities get +40% extra boost
-   - **Midday:** Training and helping wounded get +30% extra boost  
-   - **Dusk:** Social activities get +50% extra boost (prime social time)
-   - **Night:** Quiet social activities (stories, cards) get +20% extra boost
-
-**Reputation-Granting Opportunities:**
-- Training decisions (dec_training_*) - +3 soldier rep on success
-- Social activities (stories, storytelling, singing) - +1 to +2 soldier rep
-- Helping wounded (+2 soldier rep)
-- Mentoring recruits (+2 soldier rep, +1 officer rep)
-- Arm wrestling, drinking contests - +2 to +4 soldier rep on success
-- Gambling (cards, dice) - +1 to +3 soldier rep
-
-**Integration with Camp Systems:**
-- Respects the camp routine schedule (training at dawn, social at dusk)
-- Cached per opportunity generation cycle for performance
-- Works with existing fitness scoring layers (World State, Camp Context, History)
-- Pressure appears in simulation pressure tracking alongside other sources
-
-**Player Notice:**
-When reputation opportunities are prioritized, the log shows:
-```
-Promotion reputation pressure: boosting rep-granting opportunities (need X more soldier rep)
-```
-
-**No Action Required:**
-This happens automatically. Visit the Decisions menu and you'll see appropriate reputation-gaining opportunities appear more frequently when you need them. The system ensures you always have an intelligent path to meet promotion requirements while respecting the camp's daily rhythm.
 
 ---
 
@@ -239,14 +161,8 @@ All order events grant XP. Failed skill checks typically award 50% of success XP
 **Activities:**
 - Training sessions (weapon skills, athletics)
 - Medical self-treatment
-- Muster interactions (bribe, smuggle, protest)
-
-**Example:**
-```
-Camp Activity: Self-Treatment
-+25 Medicine XP (skill)
-+25 Enlistment XP (rank)
-```
+- Social activities (helping comrades, mentoring)
+- Special decisions (quartermaster interactions, etc.)
 
 ### Combat & Battle XP
 
@@ -254,319 +170,108 @@ Camp Activity: Self-Treatment
 **Amount:** Varies by enemy tier, damage dealt, and killing blows  
 **When:** During battle participation
 
-Native Bannerlord awards skill XP for combat actions using a tier-scaled formula:
-```
-baseXP = 0.4 × (attackerPower + 0.5) × (victimPower + 0.5) × damage × multiplier
-```
-
-**Enemy tier scaling:**
-- Higher tier enemies have higher "victimPower" values
-- Killing a T5 veteran grants significantly more XP than a T1 recruit
-- Killing blows add the victim's full HP to the damage component (bonus XP)
-- XP is awarded to the weapon skill used (OneHanded, Bow, Polearm, etc.)
-
-**Integration with enlistment:**
-- The mod intercepts native skill XP awards during combat
-- Accumulated combat skill XP is converted to enlistment XP at battle end
-- This appears in muster reports under the "Combat" source
-- All combat skills count: melee weapons, ranged weapons, and Athletics (unarmed)
-
-### Narrative Event XP
-
-**Source:** General narrative events (escalation, pay, promotion, etc.)  
-**Amount:** 10-30 XP per event  
-**When:** Event triggers based on context
-
-Events outside the order system can also grant XP through their effects and rewards.
-
-### XP Flow Architecture
-
-**Technical Implementation:**
-1. Activity grants skill XP via `Hero.AddSkillXp(skill, amount)`
-2. Same activity calls `EnlistmentBehavior.AddEnlistmentXP(amount, source)`
-3. Enlistment XP is tracked for rank progression and muster reports
-4. Both types contribute to character development
-
-**Source Tracking:**
-The system tracks XP sources for muster period summaries:
-```
-XP Sources This Period:
-• Order: Guard Post Duty: +48 XP
-• Order: Camp Patrol: +36 XP
-• Camp: Athletics: +20 XP
-• Self-Treatment: +25 XP
-• Training: OneHanded: +15 XP
-```
-
-### Progression Timeline
-
-Typical XP rates per 12-day muster period:
-
-| Activity Level | Orders | Events | Camp | Total/Period | T1→T4 Time |
-|---------------|--------|--------|------|--------------|------------|
-| Quiet Garrison | 2 orders | 0-1 events | 1-2 activities | 40-80 XP | 6-12 months |
-| Routine Campaign | 3 orders | 2-3 events | 2-3 activities | 100-150 XP | 3-6 months |
-| Active Campaign | 4 orders | 4-6 events | 3-4 activities | 180-250 XP | 2-3 months |
-
-**Key Insight:** Players who engage with order events and camp activities progress 3-4x faster than those who ignore them.
-
-### Estimated Progression Timeline
-
-With typical play (2-3 battles per week, daily service):
-- **Weekly XP:** ~350-450 (175 daily + 100-150 battle + kills)
-- **T1→T2:** 2-3 weeks
-- **T2→T3:** 5-7 weeks (also need 35 days in rank)
-- **T3→T4:** 8-10 weeks (also need 56 days, 12 battles)
-- **T4→T5:** 10-14 weeks (also need reputation ≥30)
-- **T5→T6:** 18-24 weeks (also need reputation ≥40)
-
-The time gates (days in rank, battle requirements) ensure you can't rush through promotions even with high XP gain.
+The mod intercepts native skill XP awards during combat and converts accumulated combat skill XP to enlistment XP at battle end.
 
 ---
 
 ## The Promotion Process
 
-### Step-by-Step Flow
+### 1. Eligibility Check (Hourly)
 
-**1. Hourly Eligibility Check**
-- `PromotionBehavior` checks every in-game hour if you're ready
-- Runs the full requirements check: XP, days, battles, reputation, relation, discipline
-- This ensures responsive promotions without performance overhead
+The system checks promotion eligibility every in-game hour:
+- XP threshold met?
+- Days in rank sufficient?
+- Battles survived requirement met?
+- Lord relation high enough?
+- Scrutiny low enough?
 
-**2. Requirements Validation**
-- If ANY requirement fails, promotion is blocked
-- System logs the reason if you're close (≥75% progress)
-- You can see what's blocking you in the logs
+### 2. Proving Event Trigger
 
-**3. Proving Event Queued**
-- If all requirements pass, the system queues a narrative proving event
-- Event priority is "critical" (displays as soon as safe)
-- The event ID follows the pattern: `promotion_t{from}_t{to}_{name}`
+When all requirements are met, a **proving event** is triggered:
+- Narrative event testing your character and choices
+- Multiple options representing different approaches
+- All options grant promotion (proving events test *how* you approach command, not *if* you deserve it)
+- **T1→T2**: No proving event (direct promotion)
+- **T2→T9**: Tier-specific proving events (see below)
 
-**4. Proving Event Display**
-- A popup presents the proving scenario
-- Multiple choice options reflecting different approaches
-- Each option affects discipline, reputation, or character tags
-- All options marked `"promotes": true` grant the promotion
+### 3. Promotion Complete
 
-**5. Promotion Granted**
-- Your tier increases via `EnlistmentBehavior.SetTier(targetTier)`
-- Quartermaster inventory updates with newly unlocked equipment via `QuartermasterManager.UpdateNewlyUnlockedItems()`
-- Days in rank counter resets to 0
-- Battles survived counter persists (cumulative)
-- Promotion notification displays with your culture-specific rank title
-- **Personal Feed updated** with tier-specific narrative entry (see [News Integration](#news-integration))
-
-**6. Quartermaster Prompt**
-After each promotion, the system displays:
-```
-"Report to the Quartermaster for your new kit."
-```
-This reminds players to visit the Quartermaster to:
-- Purchase new tier equipment now available
-- Upgrade existing equipment to better quality
-- At T5+, transition from issued rations to officer provisions
-
-**7. Player Actions**
-- Visit the Quartermaster to get new equipment (see [Quartermaster System](../Equipment/quartermaster-system.md))
-- Note your new wage rate (increases with tier)
-- At T7+, select your retinue formation type
-- Continue service at your new rank
-
-**8. Muster Recap**
-- At the next muster (12-day pay cycle), a **Promotion Recap** stage displays
-- This formal acknowledgment shows when the promotion occurred during the period
-- Recap appears as stage 4 in the muster sequence (after recruit, before retinue/complete)
-- **Formal acknowledgment before assembled company:** Captain addresses formation with official recognition
-- **Promotion details displayed:**
-  - Previous rank → Current rank
-  - Date of promotion (e.g., "Day 20 (8 days ago)")
-  - Wage increase (old rate → new rate)
-  - Equipment tier unlocked (e.g., "Tier 4 equipment available from Quartermaster")
-  - New authorities granted (e.g., "Lead small patrols")
-  - New camp decisions/orders unlocked
-  - Current XP progress toward next tier
-- **Options:**
-  - Continue with muster
-  - Visit Quartermaster immediately (flag for after muster completion)
-- **Special notes:**
-  - For T7 promotions: Acknowledges retinue grant
-  - For T9 promotions: Shows "pinnacle of service" message
-  - If multiple tiers skipped (rare): Shows all aggregate benefits
-- **See:** [Muster System - Promotion Recap](muster-system.md#6-promotion-recap) for complete stage details
-
-### Fallback Mechanism
-
-If proving events are missing or the event system is disabled, the system falls back to direct promotion:
-- Promotion is granted automatically when requirements are met
-- No narrative event displays
-- Quartermaster still updates
-- Notification still displays
-
-This ensures the core progression system never breaks even if content files are missing.
+After choosing your option:
+- Tier advances immediately
+- Culture-specific rank title applied
+- Quartermaster equipment unlocked
+- Wage increase applied
+- Promotion notification shown
+- Entry added to Personal Feed
 
 ---
 
 ## Proving Events
 
-Each tier transition (T2→T9) includes a unique narrative event that tests your character and leadership philosophy. These events shape your emergent identity through your choices.
-
-**Note:** T1→T2 promotion has no proving event. Formation is now determined automatically by equipped weapons (bow→Ranged, horse→Cavalry, etc.), so the player simply advances to T2 when requirements are met.
-
----
+### T1→T2: Direct Promotion
+No proving event - automatic promotion when requirements are met. This is the initial advancement from raw recruit to trained soldier.
 
 ### T2→T3: The Sergeant's Test
+**Theme:** Earning the respect of NCOs  
+**Situation:** The sergeant tests your competence under pressure with a complex order.
 
-**Theme:** Leadership philosophy and discipline approach  
-**Situation:** A recruit lost his rations gambling. The sergeant asks how you'd handle it.
-
-**Choices:**
-1. **"Discipline him publicly"** → Hard but fair approach
-   - Effect: +1 Discipline risk, gains "Disciplinarian" character tag
-   
-2. **"Give him a chance to earn it back"** → Merciful approach
-   - Effect: +5 Soldier Reputation, gains "Merciful" character tag
-   
-3. **"Make him work extra duties"** → Practical approach
-   - Effect: No special modifiers, recognized as pragmatic
-
-**What This Tests:** Your approach to authority and how you balance discipline with compassion. This sets the tone for your leadership style as you advance.
-
-**Location:** `ModuleData/Enlisted/Events/events_promotion.json` → `promotion_t2_t3_sergeants_test`
-
----
+**What This Tests:** Your ability to handle responsibility and follow complex instructions. Shows the NCOs you're ready for veteran status.
 
 ### T3→T4: Crisis of Command
-
 **Theme:** Battlefield leadership under pressure  
-**Situation:** The sergeant falls wounded in battle. The line wavers. You must lead. Afterward, your lord asks what you did.
+**Situation:** The sergeant falls wounded in battle. The line wavers. You must lead.
 
 **Choices:**
-1. **"I led the charge"** → Aggressive offense
-   - Effect: Gains "Aggressive" character tag
-   
-2. **"I held the line and protected the wounded"** → Defensive protection
-   - Effect: +5 Soldier Reputation, gains "Defender" character tag
-   
-3. **"I ordered a tactical withdrawal"** → Calculated retreat
-   - Effect: Gains "Tactician" character tag
+1. **"I led the charge"** → Aggressive offense (Aggressive tag)
+2. **"I held the line and protected the wounded"** → Defensive protection (Defender tag, +5 lord relation)
+3. **"I ordered a tactical withdrawal"** → Calculated retreat (Tactician tag)
 
-**What This Tests:** Your decision-making under fire and whether you prioritize aggression, defense, or tactics. Shows the lord your command instincts.
-
-**Location:** `ModuleData/Enlisted/Events/events_promotion.json` → `promotion_t3_t4_crisis_of_command`
-
----
+**What This Tests:** Your decision-making under fire and command instincts.
 
 ### T4→T5: The Veterans' Vote
-
-**Theme:** Earning trust and respect from those you'll lead  
-**Situation:** The veteran squad gathers. The sergeant says some think you're ready for command stripes, but rank must be earned by the trust of those you lead.
+**Theme:** Earning trust from those you'll lead  
+**Situation:** The veteran squad gathers to decide if you're ready for officer rank.
 
 **Choices:**
-1. **"I'm nothing without this squad"** → Humble deference
-   - Effect: +10 Soldier Reputation
-   
-2. **"I've bled with you. I'm ready to lead you"** → Confident assertion
-   - Effect: -1 Discipline risk (confidence, not arrogance)
-   
-3. **"I swear no one goes hungry or forgotten"** → Protective promise
-   - Effect: +5 Soldier Reputation, gains "Protector" character tag
+1. **"I'm nothing without this squad"** → Humble deference (+10 lord relation)
+2. **"I've bled with you. I'm ready to lead you"** → Confident assertion (-10 scrutiny)
+3. **"I swear no one goes hungry or forgotten"** → Protective promise (+5 lord relation, Protector tag)
 
-**What This Tests:** How you relate to those who will serve under your command. The veterans decide if they trust you with authority.
-
-**Location:** `ModuleData/Enlisted/Events/events_promotion.json` → `promotion_t4_t5_squad_vote`
-
----
+**What This Tests:** How you relate to those who will serve under your command.
 
 ### T5→T6: Audience with the Lord
-
-**Theme:** Loyalty and where your allegiance truly lies  
-**Situation:** Your lord summons you to the pavilion. You've served well. The rank of T6 is theirs to give, but first they must know where your loyalty lies.
+**Theme:** Loyalty and where your allegiance lies  
+**Situation:** Your lord summons you. The rank of T6 is theirs to give, but first they must know where your loyalty lies.
 
 **Choices:**
-1. **"My sword belongs to you, my lord"** → Personal loyalty to the lord
-   - Effect: Gains "Lord Sworn" loyalty tag
-   
-2. **"My loyalty is to [Kingdom] and its people"** → Loyalty to the realm
-   - Effect: Gains "Realm Loyal" loyalty tag
-   
-3. **"My loyalty is to the soldiers beside me"** → Loyalty to comrades
-   - Effect: +10 Soldier Reputation, gains "Lance Bound" loyalty tag
+1. **"My sword belongs to you, my lord"** → Personal loyalty (Lord Sworn tag)
+2. **"My loyalty is to [Kingdom] and its people"** → Loyalty to the realm (Realm Loyal tag)
+3. **"My loyalty is to the soldiers beside me"** → Loyalty to comrades (+10 lord relation, Lance Bound tag)
 
-**What This Tests:** Your fundamental allegiance. This shapes how NPCs perceive your motivations and may affect future story events. Each choice is valid—personal loyalty, political loyalty, or soldier brotherhood.
-
-**Location:** `ModuleData/Enlisted/Events/events_promotion.json` → `promotion_t5_t6_lord_audience`
-
----
+**What This Tests:** Your fundamental allegiance - personal, political, or brotherly.
 
 ### T6→T7: Commander's Commission
-
-**Theme:** Transition from soldier to commander of troops  
-**Situation:** Your lord offers you command of twenty soldiers. Maps spread across the table show troop positions. This is real command authority.
+**Theme:** Transition from soldier to commander  
+**Situation:** Your lord offers command of twenty soldiers. Maps spread across the table. This is real command authority.
 
 **Choices:**
-1. **"I'm ready, my lord. Give me the command"** → Accept command
-   - Effect: Gains "Leader" character tag, grants T7 and retinue
-   
-2. **"I'm not ready to lead men yet"** → Decline (honest self-assessment)
-   - Effect: Gains "Cautious" tag, NO promotion (must request later via dialog)
+1. **"I'm ready, my lord. Give me the command"** → Accept command (Leader tag, grants T7 + retinue)
+2. **"I'm not ready to lead men yet"** → Decline (Cautious tag, NO promotion - must request later)
 
-**What This Tests:** Whether you're ready for the responsibility of command. This is the first promotion you can decline. If you decline, you must manually request it later—the system will not auto-promote you to T7.
+**What This Tests:** Whether you're ready for command responsibility. First promotion you can decline.
 
-**Note:** This is the transition point to the Commander Track. From T7 onward, you command your own retinue of soldiers who fight under your banner. At T7, you also select your **retinue formation type** (Infantry, Archers, Cavalry, or Horse Archers)—this is separate from your personal battle formation chosen at T2.
-
-**Location:** `ModuleData/Enlisted/Events/events_promotion.json` → `promotion_t6_t7_commanders_commission`
-
-**See:** [Retinue System](retinue-system.md) for complete T7+ retinue mechanics including formation selection, loyalty, reinforcements, and named veterans.
-
----
+**Note:** This is the transition point to the Commander Track. From T7 onward, you command your own retinue of soldiers who fight under your banner.
 
 ### T7→T8 & T8→T9: Expanded Command
-
-These promotions expand your retinue:
-- **T7→T8:** +10 soldiers (20→30 total) — "Expanded Command" event
-- **T8→T9:** +10 soldiers (30→40 total, maximum) — "Elite Commander" event
-
-Both follow similar proving event structures where the lord acknowledges your command performance and offers expanded responsibility. You can accept or defer.
-
-**See:** [Retinue System - Command Progression](retinue-system.md#command-progression) for complete details.
-
-### Event Option Effects
-
-Each proving event option includes effects that modify your character. The critical effect is `"promotes": true`:
-
-**Effect Types Used in Proving Events:**
-- `"promotes": true` — Triggers promotion to next tier (resolved at runtime)
-- `"promotes": 5` — Explicit promotion to tier 5 (alternative syntax)
-- `"formation": "infantry"` — Sets your battle formation (T1→T2 only)
-- `"character_tag": "tactician"` — Adds a character tag for identity tracking
-- `"loyalty_tag": "lord_sworn"` — Records loyalty declaration (T5→T6)
-- `"soldierRep": 10` — Modifies soldier reputation
-- `"discipline": -1` — Reduces discipline risk
-
-**Example from T5→T6:**
-```json
-{
-  "id": "loyal_to_soldiers",
-  "text": "\"My loyalty is to the soldiers beside me.\"",
-  "effects": {
-    "loyalty_tag": "lance_bound",
-    "soldierRep": 10,
-    "promotes": true
-  }
-}
-```
-
-**How `"promotes": true` Works:**
-When the parser encounters `"promotes": true`, it converts this to a sentinel value (-1). At runtime, `EventDeliveryManager.ApplyPromotesEffect()` resolves -1 to `currentTier + 1`, ensuring the player advances exactly one tier regardless of their current position.
-
-Options without `"promotes": true` will NOT grant the promotion (e.g., declining T6→T7).
+Both follow similar structures where the lord acknowledges your command performance and offers expanded responsibility:
+- **T7→T8:** +10 soldiers (20→30 total)
+- **T8→T9:** +10 soldiers (30→40 total, maximum)
 
 ---
 
 ## Culture-Specific Ranks
 
-Generic rank names (Follower, Recruit, etc.) are replaced by culture-specific titles matching the faction you serve. This provides cultural flavor and immersion.
+Generic rank names (Follower, Recruit, etc.) are replaced by culture-specific titles matching the faction you serve.
 
 ### Empire Ranks (Legion/Discipline)
 
@@ -610,180 +315,31 @@ Generic rank names (Follower, Recruit, etc.) are replaced by culture-specific ti
 | T8 | Thane |
 | T9 | High Warlord |
 
-### Khuzait Ranks (Steppe/Horde)
-
-| Tier | Rank |
-|------|------|
-| T1 | Outsider |
-| T2 | Nomad |
-| T3 | Noker |
-| T4 | Warrior |
-| T5 | Veteran |
-| T6 | Bahadur |
-| T7 | Arban |
-| T8 | Zuun |
-| T9 | Noyan |
-
-### Battania Ranks (Celtic/Guerrilla)
-
-| Tier | Rank |
-|------|------|
-| T1 | Woodrunner |
-| T2 | Clan Warrior |
-| T3 | Skirmisher |
-| T4 | Raider |
-| T5 | Oathsworn |
-| T6 | Fian |
-| T7 | Highland Champion |
-| T8 | Clan Chief |
-| T9 | High King's Guard |
-
-### Aserai Ranks (Desert/Mercantile)
-
-| Tier | Rank |
-|------|------|
-| T1 | Tribesman |
-| T2 | Skirmisher |
-| T3 | Footman |
-| T4 | Veteran |
-| T5 | Guard |
-| T6 | Faris |
-| T7 | Emir's Chosen |
-| T8 | Sheikh |
-| T9 | Grand Vizier |
-
-### Mercenary/Generic Ranks (Universal)
-
-| Tier | Rank |
-|------|------|
-| T1 | Follower |
-| T2 | Recruit |
-| T3 | Free Sword |
-| T4 | Veteran |
-| T5 | Blade |
-| T6 | Chosen |
-| T7 | Captain |
-| T8 | Commander |
-| T9 | Marshal |
-
-**Note:** Rank titles are localized in `ModuleData/Languages/enlisted_strings.xml` with keys like `{=Enlisted_Rank_Empire_T1}`. The system automatically selects the appropriate culture based on your enlisted lord's faction.
-
----
-
-## Promotion Blocking
-
-Promotions can be blocked even when XP requirements are met. The system handles several blocking scenarios:
-
-### Discipline Blocking
-
-If your discipline risk is at or above the tier's maximum discipline threshold, promotion is blocked:
-
-```
-Promotion blocked: your discipline is under review. 
-Reduce discipline risk before advancing.
-```
-
-**How It Works:**
-- Discipline ranges from 0-10 (10 is discharge)
-- Each tier has a maximum discipline threshold (e.g., T2→T3 requires <7)
-- If your discipline is 7 or higher, you cannot promote to T3
-- XP continues to accumulate while blocked
-- Once discipline drops below threshold, promotion resumes automatically
-
-**Reducing Discipline:**
-- Time passage (discipline naturally decays)
-- Successful order completion
-- Avoiding further infractions
-- Completing certain events with discipline-reducing choices
-
-### Declined Promotion
-
-If you decline a proving event (like T6→T7), promotion is blocked for that tier until you manually request it:
-
-```
-Promotion to T7 previously declined - must request via dialog
-```
-
-**How to Resume:**
-- Speak with your lord or a superior officer
-- Use a specific dialogue option to request the promotion
-- You must still meet all requirements
-- The proving event may be offered again, or promotion may be granted directly
-
-**Re-enlistment Behavior:**
-- Declined promotions are cleared when you re-enlist with a new lord (fresh start)
-- Pending promotion events are cancelled when your current service ends
-- This prevents promotion blocks from carrying over between enlistments
-
-### Missing Requirements
-
-The most common block is simply not meeting all requirements yet:
-
-```
-Promotion to T4 blocked (82% progress): 
-  Days in rank: 48/56
-  Battles: 10/12
-```
-
-**What to Do:**
-- Check the log to see what you're missing
-- Focus on the specific requirements blocking you
-- Battles: Participate in more combat
-- Days: Wait for time to pass (continue daily service)
-- Reputation: Complete orders, make reputation-positive event choices
-- Relation: Succeed at orders, avoid failures
-- Discipline: Avoid trouble, complete orders successfully
-
-### Relief Valve Design
-
-The system is designed with a "relief valve" philosophy:
-- XP never stops accumulating
-- You can be over-qualified for a tier (e.g., T3 XP but still T2 rank)
-- When blocks are removed, promotion triggers immediately
-- This prevents dead-end scenarios where you can't progress
+*(Additional cultures: Khuzait, Battania, Aserai, Mercenary - see progression_config.json)*
 
 ---
 
 ## Equipment & Benefits
 
-### Equipment Tier Unlocks
+### Equipment Access
 
-Each promotion unlocks new equipment tiers at the Quartermaster:
-
-| Promotion | Standard Equipment | Officers' Armory Access |
-|-----------|-------------------|------------------------|
-| **T1** | Tier 1 only | - |
-| **T2** | Tiers 1-2 | - |
-| **T3** | Tiers 1-3 | - |
-| **T4** | Tiers 1-4 | - |
-| **T5** | Tiers 1-5 | - |
-| **T6** | Tiers 1-6 | - |
-| **T7+** | Tiers 1-6 | T8-T9 with Rep 60+ |
-
-**How It Works:**
-- After promotion, visit the Quartermaster
+Each promotion unlocks higher-tier equipment from the Quartermaster:
 - New items appear in the equipment grid
-- You're not automatically equipped—you must purchase/request items
+- You must purchase/request items (not automatic)
 - Higher tiers = better armor, weapons, and horses
-- Equipment quality gates represent supply chain limitations (the lord won't waste elite gear on unproven recruits)
+- Equipment quality gates represent supply chain limitations
 
 **Officers' Armory (T7+ Only):**
-At T7+ with Quartermaster Reputation 60+, you gain access to the Officers' Armory which provides:
-- T8-T9 tier equipment (beyond your normal access)
-- Better quality modifiers (Fine/Masterwork/Legendary)
-- Higher reputation = better tier bonus and quality rolls
-
-See [Quartermaster System](../Equipment/quartermaster-system.md#officers-armory) for complete details.
+At T7+ with Quartermaster Reputation 60+, you gain access to the Officers' Armory which provides T8-T9 tier equipment beyond your normal access.
 
 ### Wage Increases
 
-Your daily wage increases with tier through the formula:
+Your daily wage increases with tier:
 
+**Base Formula:**
 ```
-Base Formula:
-  daily_base = 10
-  tier_bonus = tier × 5
-  
+daily_base = 10
+tier_bonus = tier × 5
 Wage = (10 + tier×5) × multipliers
 ```
 
@@ -793,11 +349,7 @@ Wage = (10 + tier×5) × multipliers
 - T5: ~35-45 denars/day
 - T7: ~50-65 denars/day (+ retinue management responsibility)
 
-Assignment multipliers and in-army bonuses further increase wages. See [Pay System](pay-system.md) for complete wage calculation.
-
 ### Authority & Responsibilities
-
-Higher tiers unlock new interactions and responsibilities:
 
 **T1-T2 (Enlisted):**
 - Take orders from sergeants
@@ -805,9 +357,9 @@ Higher tiers unlock new interactions and responsibilities:
 - No command authority
 
 **T3-T4 (Veteran):**
-- Can train lower-ranked troops (if that system is implemented)
 - More complex orders
 - Input on tactical decisions
+- Veteran status recognition
 
 **T5-T6 (Officer):**
 - Officer-level orders
@@ -824,24 +376,6 @@ Higher tiers unlock new interactions and responsibilities:
 ---
 
 ## Configuration
-
-### XP Source Values
-
-File: `ModuleData/Enlisted/progression_config.json`
-
-```json
-"xp_sources": {
-  "daily_base": 25,
-  "battle_participation": 25,
-  "xp_per_kill": 2
-}
-```
-
-**Adjusting XP Gain:**
-- XP rates are now defined per-order in `ModuleData/Enlisted/Orders/*.json`
-- Order completion XP is in the `consequences.success.skill_xp` section
-- Event XP is in individual event definitions in `ModuleData/Enlisted/Events/*.json`
-- No global daily/battle XP config (those systems were removed)
 
 ### Tier Requirements
 
@@ -860,7 +394,6 @@ File: `ModuleData/Enlisted/progression_config.json`
 - Modify `xp_required` to change how much XP is needed
 - Values are cumulative totals, not deltas
 - Lower values = faster progression
-- Higher values = longer career arcs
 
 ### Multi-Factor Requirements
 
@@ -868,65 +401,20 @@ File: `src/Features/Ranks/Behaviors/PromotionBehavior.cs`
 
 ```csharp
 2 => new PromotionRequirements { 
-  XP = 700, 
   DaysInRank = 14, 
   BattlesRequired = 2, 
-  MinSoldierReputation = 0, 
   MinLeaderRelation = 0, 
-  MaxDiscipline = 8 
+  MaxScrutiny = 80 
 }
 ```
 
 **Adjusting Requirements:**
 - Reduce `DaysInRank` for faster time progression
 - Reduce `BattlesRequired` for less combat dependency
-- Lower reputation/relation requirements for easier advancement
-- Raise `MaxDiscipline` to be more forgiving of trouble
+- Lower `MinLeaderRelation` for easier advancement
+- Raise `MaxScrutiny` to be more forgiving of trouble (0-100 scale)
 
 **Warning:** These are code-based values. Changes require recompiling the mod.
-
-### Proving Event Content
-
-File: `ModuleData/Enlisted/Events/events_promotion.json`
-
-Event content can be edited directly:
-- Change dialogue text
-- Add new choice options
-- Modify effect tags
-- Adjust reputation/discipline impacts
-
-All promotion events have `"timing": { "one_time": true }` to ensure they only fire once per tier.
-
----
-
-## News Integration
-
-Promotions are recorded to the Personal Feed for historical review. Players can look back at their career progression with immersive military flavor text.
-
-### Personal Feed Entries
-
-Each promotion generates a tier-specific headline:
-
-| Tier | Personal Feed Entry |
-|------|---------------------|
-| T2 | "The sergeant's stripe is sewn to your sleeve. You are now {RANK}." |
-| T3 | "Your service has been recognized. You stand among the {RANK}s now." |
-| T4 | "The men call you {RANK}. Years of blood and iron have earned that name." |
-| T5 | "Officers' council admits you to their ranks. You are {RANK}." |
-| T6 | "Your lord has raised you to {RANK}. The camp speaks of nothing else." |
-| T7 | "Twenty soldiers salute their new commander. You are {RANK}, with a retinue of your own." |
-| T8 | "The banner grows. Thirty soldiers now march under your command as {RANK}." |
-| T9 | "Forty hardened warriors answer to you. {RANK} is a title few ever earn." |
-
-### Implementation
-
-Called from `PromotionBehavior.TriggerPromotionNotification()`:
-
-```csharp
-EnlistedNewsBehavior.Instance?.AddPromotionNews(newTier, rankName, retinueSoldiers);
-```
-
-Localization strings use `News_Promotion_T{N}` keys in `enlisted_strings.xml`.
 
 ---
 
@@ -939,7 +427,7 @@ Localization strings use `News_Promotion_T{N}` keys in `enlisted_strings.xml`.
 | `src/Features/Ranks/Behaviors/PromotionBehavior.cs` | Hourly eligibility checks, proving event queuing, requirements validation |
 | `src/Features/Ranks/RankHelper.cs` | Culture-specific rank title lookup |
 | `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` | XP tracking, tier storage, `SetTier()` method |
-| `src/Features/Escalation/EscalationManager.cs` | Reputation and discipline tracking for requirements |
+| `src/Features/Escalation/EscalationManager.cs` | Scrutiny tracking for promotion requirements |
 | `src/Features/Content/EventDeliveryManager.cs` | Processes `"promotes": true` effect from event options |
 | `src/Features/Equipment/Behaviors/QuartermasterManager.cs` | `UpdateNewlyUnlockedItems()` after promotions |
 | `ModuleData/Enlisted/Events/events_promotion.json` | Proving event definitions (8 events) |
@@ -949,13 +437,13 @@ Localization strings use `News_Promotion_T{N}` keys in `enlisted_strings.xml`.
 
 **Promotion Check (hourly):**
 ```csharp
-// PromotionBehavior.CheckForPromotion()
-var (canPromote, failureReasons) = CanPromote();
-if (canPromote)
-{
-    var eventId = GetProvingEventId(currentTier, targetTier);
-    EventDeliveryManager.Instance.QueueEvent(provingEvent);
-}
+// PromotionBehavior.CanPromote()
+// Lines 186-260
+- Checks XP threshold
+- Checks days in rank
+- Checks battles survived
+- Checks scrutiny (escalation.State.Scrutiny < req.MaxScrutiny)
+- Checks lord relation (lord.GetRelationWithPlayer() >= req.MinLeaderRelation)
 ```
 
 **XP Award:**
@@ -981,8 +469,3 @@ All promotion data persists through saves:
 - `_daysInRank` — Days at current rank
 - `_battlesSurvived` — Total battles completed
 - `_pendingPromotionTier` — Tracks queued proving event
-
----
-
-**End of Document**
-

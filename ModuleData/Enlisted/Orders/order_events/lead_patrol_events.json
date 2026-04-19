@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_lead_patrol",
   "events": [
@@ -12,7 +12,10 @@
       "setupId": "lead_soldier_behind_setup",
       "setup": "One of your men is struggling. He's limping, falling behind the group. The patrol can't wait forever.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -22,9 +25,11 @@
           "text": "Wait for him. We don't leave anyone behind.",
           "tooltip": "Delay the patrol. +3 Soldier Rep, +3 fatigue.",
           "effects": {
-            "soldierRep": 3,
             "fatigue": 3,
-            "skillXp": { "Leadership": 18 }
+            "skillXp": {
+              "Leadership": 18
+            },
+            "lordReputation": 1
           },
           "resultTextId": "lead_soldier_behind_wait_result",
           "resultText": "He catches up, grateful. The men notice how you treat your own."
@@ -35,9 +40,11 @@
           "text": "Send someone back to help him.",
           "tooltip": "-1 Soldier Rep, +2 fatigue.",
           "effects": {
-            "soldierRep": -1,
             "fatigue": 2,
-            "skillXp": { "Leadership": 12 }
+            "skillXp": {
+              "Leadership": 12
+            },
+            "lordReputation": 0
           },
           "resultTextId": "lead_soldier_behind_send_someone_result",
           "resultText": "{COMRADE_NAME} drops back. You keep the patrol moving."
@@ -48,8 +55,10 @@
           "text": "Leave him. He knows the way back.",
           "tooltip": "-5 Soldier Rep. Cold but efficient.",
           "effects": {
-            "soldierRep": -5,
-            "skillXp": { "Tactics": 8 }
+            "skillXp": {
+              "Tactics": 8
+            },
+            "lordReputation": -2
           },
           "resultTextId": "lead_soldier_behind_leave_him_result",
           "resultText": "He'll make it back. Probably. The patrol moves faster without him."
@@ -66,7 +75,10 @@
       "setupId": "lead_route_dispute_setup",
       "setup": "Your scout disagrees on the direction. 'That way leads into rough ground. I know a better path.'",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -76,9 +88,10 @@
           "text": "Trust his judgment.",
           "tooltip": "+2 Officer Rep, +2 Soldier Rep.",
           "effects": {
-            "officerRep": 2,
-            "soldierRep": 2,
-            "skillXp": { "Leadership": 16 }
+            "skillXp": {
+              "Leadership": 16
+            },
+            "lordReputation": 3
           },
           "resultTextId": "lead_route_dispute_trust_him_result",
           "resultText": "His route is clear. He knows this ground better than you."
@@ -93,14 +106,16 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 3,
-            "soldierRep": -1,
-            "skillXp": { "Tactics": 28 }
+            "skillXp": {
+              "Tactics": 28
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "officerRep": 1,
-            "soldierRep": -2,
-            "skillXp": { "Tactics": 14 }
+            "skillXp": {
+              "Tactics": 14
+            },
+            "lordReputation": 0
           },
           "resultTextId": "lead_route_dispute_overrule_result",
           "resultText": "Your route works. Sometimes the plan is right.",
@@ -113,9 +128,10 @@
           "text": "Hear him out, then decide.",
           "tooltip": "+1 Officer Rep, +1 Soldier Rep.",
           "effects": {
-            "officerRep": 1,
-            "soldierRep": 1,
-            "skillXp": { "Leadership": 14 }
+            "skillXp": {
+              "Leadership": 14
+            },
+            "lordReputation": 1
           },
           "resultTextId": "lead_route_dispute_compromise_result",
           "resultText": "You blend both ideas. A good leader listens."
@@ -132,7 +148,11 @@
       "setupId": "lead_enemy_contact_setup",
       "setup": "Enemy patrol spotted ahead. Eight men. They haven't seen you yet. Your call.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign", "siege_attacking"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -147,15 +167,19 @@
           },
           "effects": {
             "troopLoss": -1,
-            "officerRep": 3,
             "hpChange": -15,
-            "skillXp": { "Tactics": 30 }
+            "skillXp": {
+              "Tactics": 30
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "troopLoss": -2,
-            "officerRep": 2,
             "hpChange": -18,
-            "skillXp": { "Tactics": 16 }
+            "skillXp": {
+              "Tactics": 16
+            },
+            "lordReputation": 2
           },
           "resultTextId": "lead_enemy_contact_engage_result",
           "resultText": "Steel and blood. You take them down, but not without cost.",
@@ -169,9 +193,11 @@
           "tooltip": "Safer option. +1 Officer Rep, -8 HP.",
           "effects": {
             "troopLoss": -1,
-            "officerRep": 1,
             "hpChange": -8,
-            "skillXp": { "Tactics": 18 }
+            "skillXp": {
+              "Tactics": 18
+            },
+            "lordReputation": 1
           },
           "resultTextId": "lead_enemy_contact_evade_result",
           "resultText": "You slip around their flank. Mission continues."
@@ -186,14 +212,18 @@
             "difficulty": 55
           },
           "effects": {
-            "officerRep": 5,
-            "skillXp": { "Tactics": 32 }
+            "skillXp": {
+              "Tactics": 32
+            },
+            "lordReputation": 5
           },
           "failEffects": {
             "troopLoss": -1,
-            "officerRep": 2,
             "hpChange": -12,
-            "skillXp": { "Tactics": 16 }
+            "skillXp": {
+              "Tactics": 16
+            },
+            "lordReputation": 2
           },
           "resultTextId": "lead_enemy_contact_ambush_result",
           "resultText": "They walk right into it. Quick and clean. Your men look at you with new respect.",
@@ -212,7 +242,10 @@
       "setupId": "lead_morale_drop_setup",
       "setup": "The men are tired and starting to complain. 'Another patrol. What's the point?' Morale is slipping.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -229,15 +262,19 @@
             "companyNeeds": {
               "Morale": 5
             },
-            "soldierRep": 3,
-            "skillXp": { "Leadership": 28 }
+            "skillXp": {
+              "Leadership": 28
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "companyNeeds": {
               "Morale": 2
             },
-            "soldierRep": 1,
-            "skillXp": { "Leadership": 14 }
+            "skillXp": {
+              "Leadership": 14
+            },
+            "lordReputation": 0
           },
           "resultTextId": "lead_morale_drop_inspiring_speech_result",
           "resultText": "You remind them what they're fighting for. Backs straighten. Pace quickens.",
@@ -253,8 +290,10 @@
             "companyNeeds": {
               "Morale": 2
             },
-            "soldierRep": -3,
-            "skillXp": { "Leadership": 14 }
+            "skillXp": {
+              "Leadership": 14
+            },
+            "lordReputation": -1
           },
           "resultTextId": "lead_morale_drop_threaten_result",
           "resultText": "They shut up and march. Fear works, but it's not loyalty."
@@ -268,8 +307,10 @@
             "companyNeeds": {
               "Morale": 3
             },
-            "soldierRep": 2,
-            "skillXp": { "Leadership": 20 }
+            "skillXp": {
+              "Leadership": 20
+            },
+            "lordReputation": 1
           },
           "resultTextId": "lead_morale_drop_listen_result",
           "resultText": "You let them vent. Sometimes that's all men need."
@@ -286,7 +327,10 @@
       "setupId": "lead_terrain_hazard_setup",
       "setup": "A river crossing ahead. The current looks strong, the bridge half-rotted.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -301,11 +345,15 @@
           },
           "effects": {
             "fatigue": 5,
-            "skillXp": { "Scouting": 26 }
+            "skillXp": {
+              "Scouting": 26
+            }
           },
           "failEffects": {
             "fatigue": 8,
-            "skillXp": { "Scouting": 12 }
+            "skillXp": {
+              "Scouting": 12
+            }
           },
           "resultTextId": "lead_terrain_hazard_find_safe_path_result",
           "resultText": "You find a shallow ford upstream. Everyone crosses safely.",
@@ -320,7 +368,9 @@
           "effects": {
             "fatigue": 8,
             "hpChange": -10,
-            "skillXp": { "Leadership": 16 }
+            "skillXp": {
+              "Leadership": 16
+            }
           },
           "resultTextId": "lead_terrain_hazard_push_through_result",
           "resultText": "The bridge holds. Barely. Everyone's soaked and shaken."
@@ -332,7 +382,9 @@
           "tooltip": "+3 fatigue. Safer approach.",
           "effects": {
             "fatigue": 3,
-            "skillXp": { "Tactics": 18 }
+            "skillXp": {
+              "Tactics": 18
+            }
           },
           "resultTextId": "lead_terrain_hazard_send_scout_result",
           "resultText": "{SOLDIER_NAME} tests the bridge. It's stronger than it looks. You cross carefully."
@@ -349,7 +401,10 @@
       "setupId": "lead_man_injured_setup",
       "setup": "{SOLDIER_NAME} twisted his ankle badly. He can barely walk. You're still deep in enemy territory.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -364,13 +419,17 @@
           },
           "effects": {
             "medicalRisk": 1,
-            "soldierRep": 2,
-            "skillXp": { "Medicine": 24 }
+            "skillXp": {
+              "Medicine": 24
+            },
+            "lordReputation": 1
           },
           "failEffects": {
             "medicalRisk": 2,
-            "soldierRep": 1,
-            "skillXp": { "Medicine": 12 }
+            "skillXp": {
+              "Medicine": 12
+            },
+            "lordReputation": 0
           },
           "resultTextId": "lead_man_injured_field_treatment_result",
           "resultText": "You bind it tight. He limps along, but he's with you.",
@@ -383,8 +442,10 @@
           "text": "Send him back with an escort.",
           "tooltip": "+1 Soldier Rep. Lose two men from patrol.",
           "effects": {
-            "soldierRep": 1,
-            "skillXp": { "Leadership": 14 }
+            "skillXp": {
+              "Leadership": 14
+            },
+            "lordReputation": 0
           },
           "resultTextId": "lead_man_injured_send_back_result",
           "resultText": "Two men head back with him. Your patrol is smaller, but unslowed."
@@ -396,8 +457,10 @@
           "tooltip": "+2 Medical Risk, -2 Soldier Rep.",
           "effects": {
             "medicalRisk": 2,
-            "soldierRep": -2,
-            "skillXp": { "Leadership": 10 }
+            "skillXp": {
+              "Leadership": 10
+            },
+            "lordReputation": -1
           },
           "resultTextId": "lead_man_injured_push_on_result",
           "resultText": "He hobbles along, face tight with pain. The men are not pleased."
@@ -414,7 +477,10 @@
       "setupId": "lead_ambush_sprung_setup",
       "setup": "Arrows from the treeline! You've walked right into an ambush. Men are falling.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -429,15 +495,19 @@
           },
           "effects": {
             "troopLoss": -1,
-            "officerRep": 4,
             "hpChange": -15,
-            "skillXp": { "Tactics": 32 }
+            "skillXp": {
+              "Tactics": 32
+            },
+            "lordReputation": 4
           },
           "failEffects": {
             "troopLoss": -2,
-            "officerRep": 3,
             "hpChange": -18,
-            "skillXp": { "Tactics": 18 }
+            "skillXp": {
+              "Tactics": 18
+            },
+            "lordReputation": 3
           },
           "resultTextId": "lead_ambush_sprung_rally_defense_result",
           "resultText": "You shout orders. Men form a ring. The attackers break against your steel.",
@@ -451,9 +521,11 @@
           "tooltip": "Escape with fewer casualties. +3 Officer Rep, -1 troop, -12 HP.",
           "effects": {
             "troopLoss": -1,
-            "officerRep": 3,
             "hpChange": -12,
-            "skillXp": { "Tactics": 28 }
+            "skillXp": {
+              "Tactics": 28
+            },
+            "lordReputation": 3
           },
           "resultTextId": "lead_ambush_sprung_fighting_retreat_result",
           "resultText": "You fall back in order. Men covering each other. You escape the kill zone."
@@ -465,9 +537,11 @@
           "tooltip": "Aggressive. +5 Officer Rep, -2 troops, -20 HP.",
           "effects": {
             "troopLoss": -2,
-            "officerRep": 5,
             "hpChange": -20,
-            "skillXp": { "Leadership": 30 }
+            "skillXp": {
+              "Leadership": 30
+            },
+            "lordReputation": 5
           },
           "resultTextId": "lead_ambush_sprung_charge_through_result",
           "resultText": "You scream and charge. The ambushers break. Costly, but you shattered them."
@@ -484,7 +558,10 @@
       "setupId": "lead_good_find_setup",
       "setup": "Your patrol spots something—an abandoned supply cache. Enemy markings on the crates.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign"],
+        "world_state": [
+          "war_marching",
+          "war_active_campaign"
+        ],
         "notAtSea": true
       },
       "options": [
@@ -501,15 +578,19 @@
             "companyNeeds": {
               "Food": 5
             },
-            "lordRep": 2,
-            "skillXp": { "Scouting": 24 }
+            "skillXp": {
+              "Scouting": 24
+            },
+            "lordReputation": 2
           },
           "failEffects": {
             "companyNeeds": {
               "Food": 3
             },
-            "lordRep": 1,
-            "skillXp": { "Scouting": 12 }
+            "skillXp": {
+              "Scouting": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "lead_good_find_secure_it_result",
           "resultText": "Good find. The men load what they can carry. {LORD_NAME} will be pleased.",
@@ -522,8 +603,10 @@
           "text": "Mark the location and report back.",
           "tooltip": "+3 Lord Rep. Safer approach.",
           "effects": {
-            "lordRep": 3,
-            "skillXp": { "Tactics": 18 }
+            "skillXp": {
+              "Tactics": 18
+            },
+            "lordReputation": 3
           },
           "resultTextId": "lead_good_find_report_location_result",
           "resultText": "You note the landmarks carefully. A recovery party can collect everything."
@@ -541,12 +624,16 @@
             "companyNeeds": {
               "Food": 8
             },
-            "lordRep": 4,
-            "skillXp": { "Scouting": 26 }
+            "skillXp": {
+              "Scouting": 26
+            },
+            "lordReputation": 4
           },
           "failEffects": {
             "hpChange": -8,
-            "skillXp": { "Scouting": 10 }
+            "skillXp": {
+              "Scouting": 10
+            }
           },
           "resultTextId": "lead_good_find_investigate_result",
           "resultText": "You check for traps first. It's clean. A proper haul.",

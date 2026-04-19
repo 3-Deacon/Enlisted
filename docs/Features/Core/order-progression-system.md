@@ -5,7 +5,7 @@
 **Status:** ✅ **IMPLEMENTED** - OrderProgressionBehavior, 17 orders, 84 order events active  
 **Last Updated:** 2026-01-04 (Bug fix: Order events now properly check notAtSea requirements)  
 **Implementation:** `src/Features/Orders/Behaviors/OrderProgressionBehavior.cs`, `ModuleData/Enlisted/Orders/`  
-**Related Docs:** [Orders System](orders-system.md), [Orders Content](../Content/orders-content.md), [Event System Schemas](../Content/event-system-schemas.md), [Injury System](../Content/injury-system.md), [Content System Architecture](../Content/content-system-architecture.md)
+**Related Docs:** [Orders Content](../Content/orders-content.md), [Event System Schemas](../Content/event-system-schemas.md), [Injury System](../Content/injury-system.md), [Content System Architecture](../Content/content-system-architecture.md)
 
 **RECENT CHANGES (2026-01-04):**
 - **Bug fix: notAtSea filtering**: `SelectOrderEvent()` now uses `EventRequirementChecker.MeetsRequirements()` to properly filter order events by all requirement fields (notAtSea, tier, role, etc.). Previously only checked `world_state`. Added `notAtSea: true` to 35 land-based events across 6 files (escort duty, forage, scout, patrol, march, inspect defenses, camp patrol).

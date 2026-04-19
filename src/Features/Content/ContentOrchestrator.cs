@@ -73,7 +73,7 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class ContentOrchestrator : CampaignBehaviorBase
     {
-        private const string LogCategory = "Orchestrator";
+        private const string LogCategory = "ORCHESTRATOR";
 
         /// <summary>Singleton instance for global access.</summary>
         public static ContentOrchestrator Instance { get; private set; }
@@ -759,13 +759,6 @@ namespace Enlisted.Features.Content
             // Calculate probability with modifiers
             var baseChance = pressure.MedicalRisk * 0.05f; // 5% per risk level (15-25% base)
             
-            // Fatigue modifier
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment != null && enlistment.FatigueCurrent <= 8)
-            {
-                baseChance += 0.10f; // +10% if exhausted
-            }
-
             // Season modifier - winter increases illness risk
             var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
             // TODO: Add season detection when WorldStateAnalyzer has GetSeason()
@@ -1064,7 +1057,7 @@ namespace Enlisted.Features.Content
             var generator = CampOpportunityGenerator.Instance;
             if (generator == null)
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-001", $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear");
+                ModLogger.Expected(LogCategory, "orchestrator_no_generator", $"SchedulePhaseOpportunities({phase}): CampOpportunityGenerator not available - decisions won't appear");
                 return new List<ScheduledOpportunity>();
             }
 
@@ -1251,7 +1244,7 @@ namespace Enlisted.Features.Content
             if (_scheduledOpportunities == null ||
                 !_scheduledOpportunities.TryGetValue(currentPhase, out var opportunities))
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-004",
+                ModLogger.Expected(LogCategory, "orchestrator_no_schedule",
                     $"GetCurrentPhaseOpportunities: No schedule exists for {currentPhase} " +
                     $"(_scheduledOpportunities={_scheduledOpportunities != null}, _scheduledDay={_scheduledDay})");
                 return new List<ScheduledOpportunity>();
@@ -1298,7 +1291,7 @@ namespace Enlisted.Features.Content
         {
             if (string.IsNullOrEmpty(opportunityId))
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-002", "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu");
+                ModLogger.Expected(LogCategory, "orchestrator_consume_null_id", "ConsumeOpportunity called with null/empty ID - decision may not disappear from menu");
                 return;
             }
 
@@ -1355,7 +1348,7 @@ namespace Enlisted.Features.Content
 
             if (!found)
             {
-                ModLogger.WarnCode(LogCategory, "W-ORCH-003",
+                ModLogger.Expected(LogCategory, "orchestrator_opportunity_not_in_schedule",
                     $"ConsumeOpportunity({opportunityId}): Not found in schedule - decision may reappear after phase change");
             }
         }
@@ -1877,8 +1870,6 @@ namespace Enlisted.Features.Content
             return needName.ToLowerInvariant() switch
             {
                 "supplies" => needs.Supplies,
-                "rest" => needs.Rest,
-                "morale" => needs.Morale,
                 "readiness" => needs.Readiness,
                 _ => 100
             };

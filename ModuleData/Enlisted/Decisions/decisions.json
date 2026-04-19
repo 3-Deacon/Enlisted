@@ -12,7 +12,10 @@
       "setupId": "dec_maintain_gear_setup",
       "setup": "Oil, polish, sharpen. Keep it battle-ready. A soldier's gear is his life.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 },
+        "tier": {
+          "min": 1,
+          "max": 999
+        },
         "maxIllness": "Moderate"
       },
       "timing": {
@@ -25,12 +28,11 @@
           "textId": "dec_maintain_gear_do",
           "text": "Spend time maintaining your equipment.",
           "effects": {
-            "fatigue": 1,
-            "discipline": -1
+                        "scrutiny": -1000000
           },
           "resultTextId": "dec_maintain_gear_result",
           "resultText": "You work methodically - cleaning rust, sharpening edges, oiling leather. Your gear is ready for whatever comes.",
-          "tooltip": "Maintain your gear. Costs 1 fatigue."
+          "tooltip": "Maintain your gear."
         },
         {
           "id": "cancel",
@@ -50,7 +52,10 @@
       "setupId": "dec_write_letter_setup",
       "setup": "Ink, paper, and memories of another life. Someone back home might appreciate hearing from you.",
       "requirements": {
-        "tier": { "min": 1, "max": 999 }
+        "tier": {
+          "min": 1,
+          "max": 999
+        }
       },
       "timing": {
         "cooldown_days": 10,
@@ -61,21 +66,27 @@
           "id": "write_reassuring",
           "textId": "dec_write_letter_reassuring",
           "text": "Write a reassuring letter, downplaying the dangers.",
-          "costs": { "gold": 20 },
-          "rewards": { "fatigueRelief": 2 },
+          "costs": {
+            "gold": 20
+          },
+          "rewards": {
+                      },
           "resultTextId": "dec_write_letter_reassuring_result",
           "resultText": "You craft careful words of safety and good fortune. No need to worry those waiting for you. The courier takes your letter with the next dispatch.",
-          "tooltip": "Restores 2 fatigue. Costs 20 gold."
+          "tooltip": "Costs 20 gold."
         },
         {
           "id": "write_honest",
           "textId": "dec_write_letter_honest",
           "text": "Write honestly about your experiences.",
-          "costs": { "gold": 50 },
-          "rewards": { "fatigueRelief": 4 },
+          "costs": {
+            "gold": 50
+          },
+          "rewards": {
+                      },
           "resultTextId": "dec_write_letter_honest_result",
           "resultText": "The truth flows onto the page - the fear, the boredom, the moments of strange pride. It feels good to be honest, even if the words might worry them.",
-          "tooltip": "Restores 4 fatigue. Costs 50 gold."
+          "tooltip": "Costs 50 gold."
         },
         {
           "id": "cancel",
@@ -95,7 +106,10 @@
       "setupId": "dec_gamble_high_setup",
       "setup": "Real money. Real risk. The kind of game where fortunes change hands.",
       "requirements": {
-        "tier": { "min": 2, "max": 999 },
+        "tier": {
+          "min": 2,
+          "max": 999
+        },
         "gold": 50
       },
       "timing": {
@@ -107,10 +121,17 @@
           "id": "play",
           "textId": "dec_gamble_high_play",
           "text": "Put real money on the table.",
-          "costs": { "gold": 50 },
+          "costs": {
+            "gold": 50
+          },
           "riskChance": 45,
-          "rewards": { "gold": 150 },
-          "effects": { "soldierRep": 3, "scrutiny": 2 },
+          "rewards": {
+            "gold": 150
+          },
+          "effects": {
+            "scrutiny": 2000000,
+            "lordReputation": 1
+          },
           "resultTextId": "dec_gamble_high_win_result",
           "resultText": "Fortune favors the bold! You rake in a substantial pot. The losers eye you with new respect.",
           "resultTextFailure": "The dice betray you. Your stake is gone. The winners smirk as you count what's left.",
@@ -128,3 +149,6 @@
     }
   ]
 }
+
+
+

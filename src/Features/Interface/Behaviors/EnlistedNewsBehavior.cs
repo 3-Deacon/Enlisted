@@ -4263,24 +4263,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     return new TextObject("{=brief_medrisk_mild}Feeling run down. Could be coming down with something.").ToString();
                 }
 
-                // Priority 3: Fatigue
-                if (enlistment != null && enlistment.FatigueMax > 0)
-                {
-                    var fatiguePct = (float)enlistment.FatigueCurrent / enlistment.FatigueMax;
-
-                    if (fatiguePct <= 0.25f)
-                    {
-                        var prefix = $"brief_exhausted_{tierKey}_";
-                        return PickRandomLocalizedString(prefix, 3, "brief_fallback_exhausted");
-                    }
-                    if (fatiguePct <= 0.5f)
-                    {
-                        var prefix = $"brief_tired_{tierKey}_";
-                        return PickRandomLocalizedString(prefix, 3, "brief_fallback_tired");
-                    }
-                }
-
-                // Priority 4: Good condition - vary by tier and time of day
+                // Priority 3: Good condition - vary by tier and time of day
                 var timeKey = GetTimeKey(hour);
                 var prefix2 = $"brief_good_{tierKey}_{timeKey}_";
                 return PickRandomLocalizedString(prefix2, 3, "brief_fallback_default");

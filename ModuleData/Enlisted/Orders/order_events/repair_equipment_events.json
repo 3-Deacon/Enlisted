@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_repair_equipment",
   "events": [
@@ -32,24 +32,24 @@
             "difficulty": 50
           },
           "effects": {
-            "officerRep": 3,
             "companyNeeds": {
               "Equipment": 2
             },
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "officerRep": 1,
             "companyNeeds": {
               "Equipment": 1
             },
             "skillXp": {
               "Crafting": 8,
               "Engineering": 6
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "repair_missing_parts_improvise_result",
           "resultText": "You forge a replacement from scrap. Not pretty, but it holds.",
@@ -62,14 +62,14 @@
           "text": "Cannibalize another piece of gear.",
           "tooltip": "+1 Officer Rep, +1 Company Equipment. Trade-off.",
           "effects": {
-            "officerRep": 1,
             "companyNeeds": {
               "Equipment": 1
             },
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "repair_missing_parts_cannibalize_result",
           "resultText": "You sacrifice one piece to save another. The math works out."
@@ -80,10 +80,10 @@
           "text": "Report the shortage to {SERGEANT}.",
           "tooltip": "+2 Officer Rep. Let quartermaster handle it.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Crafting": 17
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_missing_parts_report_shortage_result",
           "resultText": "{SERGEANT} notes it for the quartermaster. The proper way."
@@ -117,23 +117,23 @@
           },
           "effects": {
             "escalation": {
-              "scrutiny": 10
+              "scrutiny": 100
             },
-            "officerRep": 3,
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
             "escalation": {
-              "scrutiny": 15
+              "scrutiny": 150
             },
-            "officerRep": 2,
             "skillXp": {
               "Crafting": 8,
               "Engineering": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_sabotage_discovered_investigate_quietly_result",
           "resultText": "You start asking careful questions. Someone knows something.",
@@ -146,10 +146,10 @@
           "text": "Report to {OFFICER_NAME} immediately.",
           "tooltip": "+2 Officer Rep. Proper procedure.",
           "effects": {
-            "officerRep": 2,
             "skillXp": {
               "Crafting": 17
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_sabotage_discovered_report_immediately_result",
           "resultText": "The officer takes charge. An investigation begins."
@@ -161,17 +161,17 @@
           "tooltip": "+15 Scrutiny, +4 Officer Rep. Risk of fight.",
           "effects": {
             "escalation": {
-              "scrutiny": 15
+              "scrutiny": 150
             },
-            "officerRep": 4,
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 4
           },
           "failEffects": {
             "escalation": {
-              "scrutiny": 20
+              "scrutiny": 200
             },
             "hpChange": -8,
             "skillXp": {
@@ -207,11 +207,11 @@
           "text": "Help him willingly.",
           "tooltip": "+3 Soldier Rep, +5 fatigue, +10 Crafting XP.",
           "effects": {
-            "soldierRep": 3,
             "fatigue": 5,
             "skillXp": {
               "Crafting": 10
-            }
+            },
+            "lordReputation": 1
           },
           "resultTextId": "repair_helped_smith_help_willingly_result",
           "resultText": "You spend the afternoon at the forge. Hard work, but you learn a few tricks."
@@ -222,11 +222,11 @@
           "text": "Help, but let him know it's extra duty.",
           "tooltip": "+1 Soldier Rep, +3 fatigue, +5 Crafting XP.",
           "effects": {
-            "soldierRep": 1,
             "fatigue": 3,
             "skillXp": {
               "Crafting": 5
-            }
+            },
+            "lordReputation": 0
           },
           "resultTextId": "repair_helped_smith_help_grudgingly_result",
           "resultText": "You help, but make sure he owes you one."
@@ -237,11 +237,11 @@
           "text": "Refuse. You have your own work.",
           "tooltip": "-2 Soldier Rep. You're busy.",
           "effects": {
-            "soldierRep": -2,
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": -1
           },
           "resultTextId": "repair_helped_smith_refuse_result",
           "resultText": "He shrugs and goes back to work alone. The other smiths notice."
@@ -275,24 +275,24 @@
             "difficulty": 55
           },
           "effects": {
-            "officerRep": 3,
             "companyNeeds": {
               "Equipment": 1
             },
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "officerRep": 2,
             "companyNeeds": {
               "Equipment": -1
             },
             "skillXp": {
               "Crafting": 8,
               "Engineering": 6
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_rush_job_work_fast_result",
           "resultText": "Your hands fly. It's done. Not your best work, but serviceable.",
@@ -305,14 +305,14 @@
           "text": "Explain that proper work takes time.",
           "tooltip": "+2 Officer Rep, +2 Company Equipment.",
           "effects": {
-            "officerRep": 2,
             "companyNeeds": {
               "Equipment": 2
             },
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_rush_job_explain_properly_result",
           "resultText": "He's not happy, but he sees reason. You do it right."
@@ -323,14 +323,14 @@
           "text": "Cut corners. Get it done.",
           "tooltip": "-2 Officer Rep, -1 Company Equipment. Fast but shoddy.",
           "effects": {
-            "officerRep": -2,
             "companyNeeds": {
               "Equipment": -1
             },
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": -2
           },
           "resultTextId": "repair_rush_job_cut_corners_result",
           "resultText": "Done fast. Done badly. It won't hold."
@@ -358,12 +358,11 @@
           "text": "Show it to {OFFICER_NAME}.",
           "tooltip": "+4 Officer Rep, -1 Soldier Rep. Recognition.",
           "effects": {
-            "officerRep": 4,
-            "soldierRep": -1,
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 4
           },
           "resultTextId": "repair_quality_work_show_officer_result",
           "resultText": "He inspects it carefully. 'Fine work. I'll remember this.'"
@@ -374,12 +373,11 @@
           "text": "Stay humble. Let the work speak for itself.",
           "tooltip": "+2 Officer Rep, +1 Soldier Rep.",
           "effects": {
-            "officerRep": 2,
-            "soldierRep": 1,
             "skillXp": {
               "Crafting": 17,
               "Engineering": 12
-            }
+            },
+            "lordReputation": 2
           },
           "resultTextId": "repair_quality_work_stay_humble_result",
           "resultText": "You say nothing. Someone notices anyway. Good work finds recognition."

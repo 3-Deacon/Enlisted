@@ -74,8 +74,6 @@ namespace Enlisted.Mod.Core.Triggers
         public const string MoraleShock = "morale_shock";
         public const string PayTension = "pay_tension";
         public const string Scrutiny = "scrutiny";
-        public const string Discipline = "discipline";
-        public const string SoldierReputation = "soldier_reputation";
         public const string CampReputation = "camp_reputation";
         public const string MedicalRisk = "medical_risk";
 
@@ -99,27 +97,17 @@ namespace Enlisted.Mod.Core.Triggers
         public const string PayTensionHigh = "pay_tension_high";
         public const string ScrutinyHigh = "scrutiny_high";
 
-        // Escalation thresholds (Phase 4)
-        public const string Scrutiny3 = "scrutiny_3";
-        public const string Scrutiny5 = "scrutiny_5";
-        public const string Scrutiny7 = "scrutiny_7";
-        public const string Scrutiny10 = "scrutiny_10";
-
-        public const string Discipline3 = "discipline_3";
-        public const string Discipline2 = "discipline_2";
-        public const string Discipline5 = "discipline_5";
-        public const string Discipline7 = "discipline_7";
-        public const string Discipline10 = "discipline_10";
+        // Escalation thresholds (0-100 scale for scrutiny)
+        public const string Scrutiny20 = "scrutiny_20";
+        public const string Scrutiny40 = "scrutiny_40";
+        public const string Scrutiny60 = "scrutiny_60";
+        public const string Scrutiny80 = "scrutiny_80";
+        public const string Scrutiny100 = "scrutiny_100";
 
         public const string CampRep20 = "camp_rep_20";
         public const string CampRep40 = "camp_rep_40";
         public const string CampRepNeg20 = "camp_rep_-20";
         public const string CampRepNeg40 = "camp_rep_-40";
-        
-        public const string SoldierRep20 = "soldier_rep_20";
-        public const string SoldierRep40 = "soldier_rep_40";
-        public const string SoldierRepNeg20 = "soldier_rep_-20";
-        public const string SoldierRepNeg40 = "soldier_rep_-40";
 
         public const string Medical3 = "medical_3";
         public const string Medical4 = "medical_4";
@@ -144,10 +132,8 @@ namespace Enlisted.Mod.Core.Triggers
             CampEstablished, EnemyNearby, WoundedInCamp, AtSea,
             IsEnlisted, AiSafe,
             LogisticsHigh, MoraleLow, PayTensionHigh, ScrutinyHigh,
-            Scrutiny3, Scrutiny5, Scrutiny7, Scrutiny10,
-            Discipline3, Discipline5, Discipline7, Discipline10,
+            Scrutiny20, Scrutiny40, Scrutiny60, Scrutiny80, Scrutiny100,
             CampRep20, CampRep40, CampRepNeg20, CampRepNeg40,
-            SoldierRep20, SoldierRep40, SoldierRepNeg20, SoldierRepNeg40,
             Medical3, Medical4, Medical5,
             HasInjury, HasIllness, HasCondition,
             FactionHasHorseArchers
@@ -155,7 +141,7 @@ namespace Enlisted.Mod.Core.Triggers
 
         private static readonly HashSet<string> ImplementedTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            // Implemented today means “we have a concrete provider in shipping code”.
+            // Implemented today means "we have a concrete provider in shipping code".
             // Recognized-but-unimplemented tokens are intentionally allowed in data; they just evaluate false until implemented.
             Dawn, Morning, Afternoon, Evening, Day, Dusk, Night, LateNight,
             EnteredSettlement, EnteredTown, EnteredCastle, EnteredVillage, LeftSettlement,
@@ -167,10 +153,8 @@ namespace Enlisted.Mod.Core.Triggers
             CampEstablished, EnemyNearby, WoundedInCamp, AtSea,
             IsEnlisted, AiSafe,
             LogisticsHigh, MoraleLow, PayTensionHigh, ScrutinyHigh,
-            Scrutiny3, Scrutiny5, Scrutiny7, Scrutiny10,
-            Discipline2, Discipline3, Discipline5, Discipline7, Discipline10,
+            Scrutiny20, Scrutiny40, Scrutiny60, Scrutiny80, Scrutiny100,
             CampRep20, CampRep40, CampRepNeg20, CampRepNeg40,
-            SoldierRep20, SoldierRep40, SoldierRepNeg20, SoldierRepNeg40,
             Medical3, Medical4, Medical5,
             HasInjury, HasIllness, HasCondition,
             FactionHasHorseArchers
@@ -218,9 +202,7 @@ namespace Enlisted.Mod.Core.Triggers
                 trimmed.StartsWith(MoraleShock, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(PayTension, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(Scrutiny, StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith(Discipline, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(CampReputation, StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith(SoldierReputation, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(MedicalRisk, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
@@ -270,9 +252,7 @@ namespace Enlisted.Mod.Core.Triggers
                 trimmed.StartsWith(MoraleShock, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(PayTension, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(Scrutiny, StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith(Discipline, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(CampReputation, StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith(SoldierReputation, StringComparison.OrdinalIgnoreCase) ||
                 trimmed.StartsWith(MedicalRisk, StringComparison.OrdinalIgnoreCase))
             {
                 return true;

@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "order_type": "order_treat_wounded",
   "events": [
@@ -12,7 +12,14 @@
       "setupId": "treat_supply_shortage_setup",
       "setup": "Bandages are running out. Two more wounded and you've got nothing left to bind their wounds.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"]
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ]
       },
       "options": [
         {
@@ -25,14 +32,16 @@
             "difficulty": 45
           },
           "effects": {
-            "soldierRep": 2,
-            "officerRep": 2,
-            "skillXp": { "Medicine": 26 }
+            "skillXp": {
+              "Medicine": 26
+            },
+            "lordReputation": 3
           },
           "failEffects": {
-            "soldierRep": 1,
-            "officerRep": 1,
-            "skillXp": { "Medicine": 12 }
+            "skillXp": {
+              "Medicine": 12
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_supply_shortage_improvise_result",
           "resultText": "You make do with what you have. The wounded don't complain.",
@@ -45,9 +54,10 @@
           "text": "Send word to the quartermaster.",
           "tooltip": "+1 Soldier Rep, +2 Officer Rep.",
           "effects": {
-            "soldierRep": 1,
-            "officerRep": 2,
-            "skillXp": { "Medicine": 14 }
+            "skillXp": {
+              "Medicine": 14
+            },
+            "lordReputation": 2
           },
           "resultTextId": "treat_supply_shortage_request_more_result",
           "resultText": "Fresh supplies arrive within the hour. Crisis averted."
@@ -58,8 +68,10 @@
           "text": "Ration what's left. Prioritize the worst cases.",
           "tooltip": "-1 Officer Rep. Triage approach.",
           "effects": {
-            "officerRep": -1,
-            "skillXp": { "Medicine": 18 }
+            "skillXp": {
+              "Medicine": 18
+            },
+            "lordReputation": -1
           },
           "resultTextId": "treat_supply_shortage_ration_carefully_result",
           "resultText": "You stretch the supplies thin. Some wounds go untreated today."
@@ -76,7 +88,14 @@
       "setupId": "treat_difficult_case_setup",
       "setup": "This one's bad. Deep wound, lost a lot of blood. You're not sure he'll make it through the night.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"]
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ]
       },
       "options": [
         {
@@ -89,14 +108,18 @@
             "difficulty": 55
           },
           "effects": {
-            "soldierRep": 4,
             "fatigue": 8,
-            "skillXp": { "Medicine": 32 }
+            "skillXp": {
+              "Medicine": 32
+            },
+            "lordReputation": 2
           },
           "failEffects": {
-            "soldierRep": 2,
             "fatigue": 10,
-            "skillXp": { "Medicine": 16 }
+            "skillXp": {
+              "Medicine": 16
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_difficult_case_all_effort_result",
           "resultText": "Hours of work. Your hands are steady. By morning, his fever breaks.",
@@ -109,9 +132,11 @@
           "text": "Focus on those you can save.",
           "tooltip": "-1 Soldier Rep, +3 fatigue. Practical choice.",
           "effects": {
-            "soldierRep": -1,
             "fatigue": 3,
-            "skillXp": { "Medicine": 16 }
+            "skillXp": {
+              "Medicine": 16
+            },
+            "lordReputation": 0
           },
           "resultTextId": "treat_difficult_case_triage_others_result",
           "resultText": "You make him comfortable and move on. He dies quietly."
@@ -122,9 +147,11 @@
           "text": "Stay with him. He shouldn't die alone.",
           "tooltip": "+2 Soldier Rep, +5 fatigue. Compassionate.",
           "effects": {
-            "soldierRep": 2,
             "fatigue": 5,
-            "skillXp": { "Medicine": 20 }
+            "skillXp": {
+              "Medicine": 20
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_difficult_case_comfort_him_result",
           "resultText": "You hold his hand. He talks about home. Then silence."
@@ -141,7 +168,11 @@
       "setupId": "treat_infection_risk_setup",
       "setup": "The wound is red and hot. Smells wrong. If this spreads, you'll lose the arm. Or the man.",
       "requirements": {
-        "world_state": ["peacetime_garrison", "war_marching", "war_active_campaign"]
+        "world_state": [
+          "peacetime_garrison",
+          "war_marching",
+          "war_active_campaign"
+        ]
       },
       "options": [
         {
@@ -154,12 +185,16 @@
             "difficulty": 50
           },
           "effects": {
-            "soldierRep": 3,
-            "skillXp": { "Medicine": 28 }
+            "skillXp": {
+              "Medicine": 28
+            },
+            "lordReputation": 1
           },
           "failEffects": {
-            "soldierRep": 1,
-            "skillXp": { "Medicine": 14 }
+            "skillXp": {
+              "Medicine": 14
+            },
+            "lordReputation": 0
           },
           "resultTextId": "treat_infection_risk_aggressive_treatment_result",
           "resultText": "He screams but holds. The flesh is clean. He'll keep the arm.",
@@ -172,8 +207,10 @@
           "text": "Watch and wait. It might clear on its own.",
           "tooltip": "+1 Soldier Rep. Risk of worsening.",
           "effects": {
-            "soldierRep": 1,
-            "skillXp": { "Medicine": 14 }
+            "skillXp": {
+              "Medicine": 14
+            },
+            "lordReputation": 0
           },
           "resultTextId": "treat_infection_risk_watch_wait_result",
           "resultText": "By morning, the swelling's down. Sometimes the body heals itself."
@@ -184,9 +221,10 @@
           "text": "Fetch someone with more experience.",
           "tooltip": "+2 Soldier Rep, +2 Officer Rep.",
           "effects": {
-            "soldierRep": 2,
-            "officerRep": 2,
-            "skillXp": { "Medicine": 18 }
+            "skillXp": {
+              "Medicine": 18
+            },
+            "lordReputation": 3
           },
           "resultTextId": "treat_infection_risk_seek_help_result",
           "resultText": "The company surgeon takes over. Knowing your limits is wisdom."
@@ -203,7 +241,14 @@
       "setupId": "treat_grateful_soldier_setup",
       "setup": "{SOLDIER_NAME} grabs your arm as you finish changing his bandage. 'You saved my life. I won't forget.'",
       "requirements": {
-        "world_state": ["peacetime_garrison", "peacetime_recruiting", "war_marching", "war_active_campaign", "siege_attacking", "siege_defending"]
+        "world_state": [
+          "peacetime_garrison",
+          "peacetime_recruiting",
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking",
+          "siege_defending"
+        ]
       },
       "options": [
         {
@@ -212,8 +257,10 @@
           "text": "Accept his thanks.",
           "tooltip": "+3 Soldier Rep.",
           "effects": {
-            "soldierRep": 3,
-            "skillXp": { "Medicine": 16 }
+            "skillXp": {
+              "Medicine": 16
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_grateful_soldier_accept_graciously_result",
           "resultText": "'Just doing my job.' But his gratitude is real. Word spreads."
@@ -224,8 +271,10 @@
           "text": "Brush it off. Move to the next patient.",
           "tooltip": "+1 Soldier Rep.",
           "effects": {
-            "soldierRep": 1,
-            "skillXp": { "Medicine": 12 }
+            "skillXp": {
+              "Medicine": 12
+            },
+            "lordReputation": 0
           },
           "resultTextId": "treat_grateful_soldier_brush_off_result",
           "resultText": "You nod and move on. There's always more work."
@@ -242,7 +291,11 @@
       "setupId": "treat_officer_wounded_setup",
       "setup": "An officer needs treatment. He's bleeding badly, but so are three common soldiers waiting their turn.",
       "requirements": {
-        "world_state": ["war_marching", "war_active_campaign", "siege_attacking"]
+        "world_state": [
+          "war_marching",
+          "war_active_campaign",
+          "siege_attacking"
+        ]
       },
       "options": [
         {
@@ -255,16 +308,16 @@
             "difficulty": 50
           },
           "effects": {
-            "lordRep": 3,
-            "officerRep": 3,
-            "soldierRep": -2,
-            "skillXp": { "Medicine": 28 }
+            "skillXp": {
+              "Medicine": 28
+            },
+            "lordReputation": 5
           },
           "failEffects": {
-            "lordRep": 1,
-            "officerRep": 2,
-            "soldierRep": -3,
-            "skillXp": { "Medicine": 14 }
+            "skillXp": {
+              "Medicine": 14
+            },
+            "lordReputation": 2
           },
           "resultTextId": "treat_officer_wounded_prioritize_him_result",
           "resultText": "You save him. The common soldiers mutter, but officers look after you.",
@@ -277,10 +330,10 @@
           "text": "Treat them in order. The officer can wait.",
           "tooltip": "-2 Lord Rep, +2 Officer Rep, +2 Soldier Rep.",
           "effects": {
-            "lordRep": -2,
-            "officerRep": 2,
-            "soldierRep": 2,
-            "skillXp": { "Medicine": 24 }
+            "skillXp": {
+              "Medicine": 24
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_officer_wounded_treat_in_order_result",
           "resultText": "'Fair is fair,' you say. The soldiers nod. The officer is not pleased."
@@ -291,9 +344,10 @@
           "text": "Quick stabilize the officer, then treat the others.",
           "tooltip": "+1 Lord Rep, +2 Officer Rep. Balanced approach.",
           "effects": {
-            "lordRep": 1,
-            "officerRep": 2,
-            "skillXp": { "Medicine": 26 }
+            "skillXp": {
+              "Medicine": 26
+            },
+            "lordReputation": 3
           },
           "resultTextId": "treat_officer_wounded_quick_stabilize_result",
           "resultText": "You stop his bleeding quickly, then move to the soldiers. Everyone lives."
@@ -310,7 +364,9 @@
       "setupId": "treat_contagion_risk_setup",
       "setup": "Two men came in with fevers. Now three more have it. This could spread through the whole camp.",
       "requirements": {
-        "world_state": ["peacetime_garrison"]
+        "world_state": [
+          "peacetime_garrison"
+        ]
       },
       "options": [
         {
@@ -320,8 +376,10 @@
           "tooltip": "+2 Medical Risk, +1 Soldier Rep. Proper procedure.",
           "effects": {
             "medicalRisk": 2,
-            "soldierRep": 1,
-            "skillXp": { "Medicine": 22 }
+            "skillXp": {
+              "Medicine": 22
+            },
+            "lordReputation": 0
           },
           "resultTextId": "treat_contagion_risk_isolate_result",
           "resultText": "You set up a separate tent. The fever doesn't spread further."
@@ -333,8 +391,10 @@
           "tooltip": "+1 Medical Risk, +2 Soldier Rep.",
           "effects": {
             "medicalRisk": 1,
-            "soldierRep": 2,
-            "skillXp": { "Medicine": 20 }
+            "skillXp": {
+              "Medicine": 20
+            },
+            "lordReputation": 1
           },
           "resultTextId": "treat_contagion_risk_treat_together_result",
           "resultText": "You work through them quickly. Risky, but you get ahead of it."
@@ -345,8 +405,10 @@
           "text": "Report to {OFFICER_NAME} immediately.",
           "tooltip": "+2 Officer Rep. Let command decide.",
           "effects": {
-            "officerRep": 2,
-            "skillXp": { "Medicine": 16 }
+            "skillXp": {
+              "Medicine": 16
+            },
+            "lordReputation": 2
           },
           "resultTextId": "treat_contagion_risk_report_captain_result",
           "resultText": "The captain orders quarantine protocols. The right call."

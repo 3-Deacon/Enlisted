@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered during sieges (during_siege context). 10 total incidents.",
@@ -32,14 +32,14 @@
           "resultText": "You press your waterskin into a suffering soldier's hands. He drinks gratefully, and others see what you did. It costs you, but it matters.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 10,
             "companyNeeds": {
               "Supplies": -2
             },
             "traitXp": {
               "Mercy": 8,
               "Generosity": 5
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "Share water. +10 Soldier rep. -2 Company supplies. Mercy and Generosity trait XP."
         },
@@ -51,14 +51,11 @@
           "resultText": "You guard your water jealously. Survival comes first—there's no room for sentiment when the wells run dry.",
           "risk": "safe",
           "effects": {
-            "companyNeeds": {
-              "Rest": 3
-            },
             "traitXp": {
               "Calculating": 3
             }
           },
-          "tooltip": "Safe choice. +3 Company rest. Calculating trait XP."
+          "tooltip": "Safe choice. Calculating trait XP."
         },
         {
           "id": "find_source",
@@ -71,16 +68,16 @@
           },
           "resultTextId": "mi_siege_water_find_result",
           "resultText": "You slip away and search the siege works. A spring, missed by others, trickles from the rocks. You mark the spot and report it to the sergeant.",
-          "tooltip": "Requires Scouting 40. Moderate risk. Train Scouting. +8 Officer rep. Boosts company supplies.",
+          "tooltip": "Requires Scouting 40. Moderate risk. +20 Scouting XP, +8 Lord reputation. Boosts company supplies.",
           "risk": "moderate",
           "effects": {
             "skillXp": {
               "Scouting": 20
             },
-            "officerRep": 8,
             "companyNeeds": {
               "Supplies": 5
-            }
+            },
+            "lordReputation": 8
           }
         }
       ]
@@ -117,16 +114,16 @@
           },
           "resultTextId": "mi_siege_boredom_games_result",
           "resultText": "Wrestling, races, archery contests—you give the men something to do besides brood. Morale lifts, if only for a while.",
-          "tooltip": "Requires Leadership 35. Train Leadership. +8 Soldier rep. Boosts company morale.",
+          "tooltip": "Requires Leadership 35. +15 Leadership XP, +4 Lord reputation. Boosts company morale.",
           "risk": "safe",
           "effects": {
             "skillXp": {
               "Leadership": 15
             },
-            "soldierRep": 8,
             "companyNeeds": {
               "Morale": 8
-            }
+            },
+            "lordReputation": 4
           }
         },
         {
@@ -137,14 +134,13 @@
           "resultText": "You crack down on idleness. Drills, patrols, pointless work details—anything to keep the men occupied. They grumble, but they stop fighting each other.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
-            "soldierRep": -3,
             "companyNeeds": {
               "Morale": -3
             },
-            "discipline": -2
+            "scrutiny": -20,
+            "lordReputation": 4
           },
-          "tooltip": "Enforce order. +5 Officer rep, -3 Soldier rep. Reduces discipline issues."
+          "tooltip": "Enforce order. +4 Lord reputation, -20 Scrutiny. Reduces morale."
         },
         {
           "id": "let_be",
@@ -154,12 +150,12 @@
           "resultText": "You stay out of it. Men will be men. A few black eyes and bureaucratic egos won't change the course of the siege.",
           "risk": "safe",
           "effects": {
-            "discipline": 2,
+            "scrutiny": 20,
             "companyNeeds": {
               "Morale": -5
             }
           },
-          "tooltip": "Safe choice. Adds 2 discipline issues. Harms company morale."
+          "tooltip": "Safe choice. +20 Scrutiny. Harms company morale."
         }
       ]
     },
@@ -192,13 +188,13 @@
           "resultText": "You raise the alarm quietly. Guards intercept the deserter before he reaches the walls. His fate is sealed—but you did your duty.",
           "risk": "safe",
           "effects": {
-            "officerRep": 10,
             "traitXp": {
               "Honor": 5
             },
-            "discipline": -2
+            "scrutiny": -20,
+            "lordReputation": 10
           },
-          "tooltip": "Report deserter. +10 Officer rep. Honor trait XP. Reduces discipline issues."
+          "tooltip": "Report deserter. +10 Lord reputation, +5 Honor XP, -20 Scrutiny."
         },
         {
           "id": "confront",
@@ -217,10 +213,10 @@
             "skillXp": {
               "Charm": 15
             },
-            "soldierRep": 5,
             "traitXp": {
               "Mercy": 5
-            }
+            },
+            "lordReputation": 2
           }
         },
         {
@@ -234,7 +230,7 @@
             "traitXp": {
               "Mercy": 8
             },
-            "scrutiny": 2
+            "scrutiny": 2000000
           },
           "tooltip": "Risky choice. Adds 2 scrutiny. Mercy trait XP."
         }
@@ -278,11 +274,11 @@
             "skillXp": {
               "Medicine": 25
             },
-            "officerRep": 12,
             "medicalRisk": -3,
             "companyNeeds": {
               "Morale": 5
-            }
+            },
+            "lordReputation": 12
           }
         },
         {
@@ -294,10 +290,10 @@
           "risk": "risky",
           "effects": {
             "medicalRisk": 2,
-            "soldierRep": 5,
             "traitXp": {
               "Mercy": 5
-            }
+            },
+            "lordReputation": 2
           },
           "tooltip": "Enforce quarantine. Risky choice. +5 Soldier rep. Adds 2 medical risk. Mercy trait XP."
         },
@@ -374,13 +370,13 @@
             "skillXp": {
               "Leadership": 20
             },
-            "soldierRep": 10,
             "companyNeeds": {
               "Morale": 10
             },
             "traitXp": {
               "Valor": 5
-            }
+            },
+            "lordReputation": 5
           }
         },
         {
@@ -391,17 +387,13 @@
           "resultText": "The wine doesn't make the fear go away, but it blurs the edges. You drink with the men who might not see tomorrow, sharing stories and lies in equal measure. When dawn comes, your hands shake—from drink or terror, who can tell?",
           "risk": "moderate",
           "effects": {
-            "soldierRep": 8,
             "gold": -10,
-            "companyNeeds": {
-              "Rest": -8,
-              "Morale": 5
-            },
             "traitXp": {
               "Valor": -3
-            }
+            },
+            "lordReputation": 4
           },
-          "tooltip": "Moderate risk. +8 Soldier rep. -10 gold. Harms company rest. -3 Valor trait XP."
+          "tooltip": "Moderate risk. +8 Soldier rep. -10 gold. -3 Valor trait XP."
         }
       ]
     },
@@ -440,8 +432,7 @@
             "skillXp": {
               "Engineering": 25
             },
-            "lordRep": 8,
-            "officerRep": 10
+            "lordReputation": 18
           },
           "tooltip": "Train Engineering. +10 Officer rep, +8 Lord rep."
         },
@@ -460,12 +451,10 @@
             "skillXp": {
               "Tactics": 30
             },
-            "lordRep": 15,
-            "officerRep": 12,
-            "soldierRep": 10,
             "traitXp": {
               "Valor": 15
-            }
+            },
+            "lordReputation": 32
           },
           "effects_failure": {
             "hpChange": -35,
@@ -485,7 +474,7 @@
               "Calculating": 8,
               "Honor": -3
             },
-            "scrutiny": 1
+            "scrutiny": 1000000
           },
           "tooltip": "Safe choice. Adds 1 scrutiny. Calculating trait XP."
         }
@@ -522,11 +511,11 @@
           "risk_chance": 55,
           "effects": {
             "gold": 40,
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "effects_failure": {
             "gold": -30,
-            "soldierRep": -3
+            "lordReputation": -1
           },
           "failure_resultText": "The dice aren't kind. You lose more than you can afford and walk away poorer, watching your coin disappear into other pockets.",
           "tooltip": "55% success chance. +40 gold, +3 Soldier rep. Failure loses 30 gold and 3 Soldier rep."
@@ -545,9 +534,8 @@
           "tooltip": "Requires Leadership 40. Moderate risk. +8 Officer rep, -5 Soldier rep. Reduces discipline issues.",
           "risk": "moderate",
           "effects": {
-            "officerRep": 8,
-            "soldierRep": -5,
-            "discipline": -2
+            "scrutiny": -2000000,
+            "lordReputation": 6
           }
         },
         {
@@ -558,9 +546,8 @@
           "resultText": "The sergeant arrives and scatters the game. Coin is confiscated, men are disciplined. You're not popular for it.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
-            "soldierRep": -10,
-            "scrutiny": 1
+            "scrutiny": 1000000,
+            "lordReputation": 0
           },
           "tooltip": "Report gambling. +5 Officer rep, -10 Soldier rep. Adds 1 scrutiny."
         }
@@ -604,11 +591,11 @@
             "skillXp": {
               "Scouting": 15
             },
-            "officerRep": 10,
             "companyNeeds": {
               "Supplies": 5
             },
-            "discipline": -2
+            "scrutiny": -2000000,
+            "lordReputation": 10
           }
         },
         {
@@ -619,10 +606,10 @@
           "resultText": "You tell the quartermaster what you've noticed. He promises to increase the guard. The thefts slow, but don't stop entirely.",
           "risk": "safe",
           "effects": {
-            "officerRep": 5,
             "companyNeeds": {
               "Supplies": 2
-            }
+            },
+            "lordReputation": 5
           },
           "tooltip": "Report theft. +5 Officer rep. Boosts company supplies."
         },
@@ -643,11 +630,11 @@
             "companyNeeds": {
               "Supplies": -3
             },
-            "scrutiny": 3
+            "scrutiny": 3000000
           },
-            "skillXp": {
-              "Roguery": 15
-            }
+          "skillXp": {
+            "Roguery": 15
+          }
         }
       ]
     },
@@ -687,9 +674,9 @@
             "skillXp": {
               "Medicine": 30
             },
-            "officerRep": 15,
             "medicalRisk": -5,
-            "troopLoss": 2
+            "troopLoss": 2,
+            "lordReputation": 15
           },
           "effects_failure": {
             "medicalRisk": 3,
@@ -721,12 +708,12 @@
           "tooltip": "Avoid the sick. -8 Soldier rep, +4 troop loss.",
           "risk": "moderate",
           "effects": {
-            "soldierRep": -8,
             "troopLoss": 4,
             "traitXp": {
               "Calculating": 5,
               "Mercy": -10
-            }
+            },
+            "lordReputation": -4
           }
         }
       ]
@@ -769,8 +756,8 @@
             "skillXp": {
               "Stewardship": 20
             },
-            "officerRep": 8,
-            "foodLoss": 3
+            "foodLoss": 3,
+            "lordReputation": 8
           }
         },
         {
@@ -788,10 +775,10 @@
             "skillXp": {
               "Scouting": 25
             },
-            "officerRep": 10,
             "companyNeeds": {
               "Supplies": 10
-            }
+            },
+            "lordReputation": 10
           },
           "effects_failure": {
             "hpChange": -20,

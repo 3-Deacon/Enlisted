@@ -1,4 +1,4 @@
-{
+﻿{
   "schemaVersion": 2,
   "category": "map_incident",
   "description": "Map incidents triggered when entering villages (entering_village context). 6 total incidents.",
@@ -35,11 +35,11 @@
             "fatigueRelief": 2
           },
           "effects": {
-            "soldierRep": 5,
             "companyNeeds": {
               "Morale": 5,
               "Supplies": 3
-            }
+            },
+            "lordReputation": 2
           },
           "tooltip": "Accept hospitality. +5 Soldier rep. Boosts company morale and supplies. Restores 2 fatigue."
         },
@@ -55,7 +55,7 @@
               "Mercy": 8,
               "Generosity": 5
             },
-            "soldierRep": 3
+            "lordReputation": 1
           },
           "tooltip": "+3 Soldier rep. Mercy and Generosity trait XP."
         },
@@ -68,16 +68,15 @@
           "risk": "dangerous",
           "effects": {
             "gold": 35,
-            "soldierRep": -12,
-            "officerRep": -5,
-            "scrutiny": 4,
+            "scrutiny": 4000000,
             "traitXp": {
               "Mercy": -15,
               "Honor": -8
             },
             "companyNeeds": {
               "Supplies": 8
-            }
+            },
+            "lordReputation": -11
           },
           "tooltip": "Guaranteed. +35 gold, +8 Supplies. -12 Soldier/-5 Officer rep, +4 scrutiny. Mercy/Honor XP loss."
         }
@@ -112,10 +111,10 @@
           "resultText": "You keep your distance, speak softly, and cause no trouble. By the time you leave, a few villagers nod in grudging respect.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 3,
             "traitXp": {
               "Mercy": 5
-            }
+            },
+            "lordReputation": 1
           },
           "tooltip": "Stay polite. +3 Soldier rep. Mercy trait XP."
         },
@@ -130,11 +129,11 @@
             "companyNeeds": {
               "Supplies": 3
             },
-            "soldierRep": -5,
-            "scrutiny": 2,
+            "scrutiny": 2000000,
             "traitXp": {
               "Mercy": -8
-            }
+            },
+            "lordReputation": -2
           },
           "tooltip": "Risky choice. -5 Soldier rep. Adds 2 scrutiny. Boosts company supplies."
         },
@@ -195,7 +194,7 @@
             "traitXp": {
               "Mercy": 10
             },
-            "soldierRep": 5
+            "lordReputation": 2
           }
         },
         {
@@ -264,7 +263,7 @@
             "skillXp": {
               "Scouting": 15
             },
-            "officerRep": 5
+            "lordReputation": 5
           },
           "tooltip": "Gather intel. Train Scouting. +5 Officer rep."
         },
@@ -297,12 +296,11 @@
             "skillXp": {
               "Scouting": 25
             },
-            "lordRep": 8,
-            "officerRep": 10
+            "lordReputation": 18
           },
           "effects_failure": {
             "hpChange": -15,
-            "scrutiny": 1
+            "scrutiny": 100
           },
           "failure_resultText": "You're spotted by enemy scouts and have to fight your way back. The intelligence is valuable, but so is your blood."
         }
@@ -338,11 +336,11 @@
           "tooltip": "Intervene. -3 Soldier rep. Reduces discipline issues. Honor trait XP.",
           "risk": "moderate",
           "effects": {
-            "soldierRep": -3,
             "traitXp": {
               "Honor": 8
             },
-            "discipline": -1
+            "scrutiny": -1000000,
+            "lordReputation": -1
           }
         },
         {
@@ -353,12 +351,11 @@
           "resultText": "You find the sergeant and explain what you saw. The thief is disciplined—flogged, probably. He won't forget who reported him.",
           "risk": "safe",
           "effects": {
-            "officerRep": 8,
-            "soldierRep": -8,
-            "discipline": -2,
+            "scrutiny": -2000000,
             "traitXp": {
               "Honor": 5
-            }
+            },
+            "lordReputation": 4
           },
           "tooltip": "Report thief. +8 Officer rep, -8 Soldier rep. Adds 2 discipline issues. Honor trait XP."
         },
@@ -370,10 +367,10 @@
           "resultText": "You turn your head and keep walking. It's not your problem. The soldier relaxes and pockets his prize. These things happen.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 3,
             "traitXp": {
               "Honor": -5
-            }
+            },
+            "lordReputation": 1
           },
           "tooltip": "Look away. +3 Soldier rep. -5 Honor trait XP."
         }
@@ -408,10 +405,10 @@
           "resultText": "You tell him where to find the recruiting sergeant. His face lights up with joy. His mother's face crumbles with grief. War needs bodies.",
           "risk": "safe",
           "effects": {
-            "soldierRep": 5,
             "traitXp": {
               "Calculating": 3
-            }
+            },
+            "lordReputation": 2
           },
           "tooltip": "+5 Soldier rep. Calculating trait XP."
         },
