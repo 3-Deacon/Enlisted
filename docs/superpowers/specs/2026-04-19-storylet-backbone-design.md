@@ -212,6 +212,32 @@ public sealed class SlotDecl
 
 The base class is concrete enough that 95% of storylets never need a subclass. The 5% that do (complex promotion branches, chain coordinators, slot-fillers with bespoke rules) inherit and override — Banner Kings' pattern, validated by their survey.
 
+### 6.3 Observational storylets (news)
+
+A news item is just a storylet with `observational: true`, empty `options`, and default Log tier. The existing `EnlistedNewsBehavior` becomes a *source* (not a writer): it observes world events (war declared, siege begun, hero died) and emits templated news storylets with slots filled from the observed event.
+
+```json
+{
+  "id": "slt_news_war_declared",
+  "observational": true,
+  "title": "{=slt_news_war.t}{attacker.name} declares war on {defender.name}",
+  "setup": "{=slt_news_war.s}Word reaches camp: the {attacker.name} have broken peace with the {defender.name}. Heralds ride for every village.",
+  "scope": {
+    "slots": {
+      "attacker": { "role": "kingdom" },
+      "defender": { "role": "kingdom" }
+    }
+  },
+  "trigger": ["beat:WarDeclared"],
+  "options": [],
+  "cooldown_days": 0
+}
+```
+
+Observational storylets route through `Storylet.ToCandidate` like any other; the resulting `StoryCandidate` has `HasObservationalRender = true` and its `Payload` delegate is a no-op (no effects fire on tier grant — observational content has no mechanical outcomes). News appears in the Log accordion or, on a Headline/Pertinent beat, as an accordion headline.
+
+One schema, two modes. Authors write both the same way.
+
 ## 7. Qualities
 
 ### 7.1 Storage
@@ -470,20 +496,41 @@ Primitives dispatch to `EffectExecutor`, which is the thin C# layer that does th
 
 ### 12.1 Authoring
 
+Two chain forms:
+
 ```json
 "chain": { "id": "slt_followup", "days": 7 }
 ```
 
+```json
+"chain": { "id": "slt_promoted", "when": "next_muster.promotion_phase" }
+```
+
+The first form fires after an in-game delay. The second form parks until a named phase of a named activity runs and then fires during that phase. The second form is how promotion chains and escalation-deferred storylets land in the Muster Activity (see §15) — it's the mechanism that makes the muster menu the legibility layer for promotions and big news.
+
 ### 12.2 Runtime
 
-On option-select, if `chain` is non-null, the executor:
+On option-select, if `chain` is non-null, the executor schedules a deferred `StoryCandidate`:
 
-1. Schedules a deferred `StoryCandidate` via `StoryDirector.ScheduleChain(storyletId, fireAt)` — reuses the existing `PendingChainEvents` persistence.
-2. Sets `ChainContinuation = true` on the candidate so the Director's in-game floor + category cooldown do not defer it (60s wall-clock guard still applies — from the 2026-04-18 pacing spec).
+1. **Time-delay form** (`days: N`) → `StoryDirector.ScheduleChain(storyletId, fireAt)` — reuses the existing `PendingChainEvents` persistence.
+2. **Phase-target form** (`when: "activity.phase"`) → `ActivityRuntime.ParkChain(storyletId, activityTypeId, phaseId)` — persisted on the runtime, consumed when the matching activity's matching phase runs.
+
+Either way, the candidate sets `ChainContinuation = true` on fire so the Director's in-game floor + category cooldown do not defer it (60s wall-clock guard still applies — from the 2026-04-18 pacing spec).
 
 ### 12.3 Multi-step arcs
 
 Multi-storylet arcs express as: each storylet's chain chains to the next. The `arc_*` flag convention marks progression (`flag:arc_torgrim_homecoming_step_2`). Arc completion is declarative — when the final storylet fires, it sets `flag:arc_torgrim_homecoming_complete`.
+
+### 12.4 Deferred-to-activity queue
+
+The `when:` chain form generalises the existing `QueueEscalationEventForAfterMuster` pattern. Any storylet can target any activity phase; not just muster. Typical targets:
+
+- `next_muster.pay_phase` — pay-related surprises land during the pay stage
+- `next_muster.promotion_phase` — rank advancement and promotion-chain resolutions
+- `next_muster.retinue_phase` — squad news, casualty reports, morale moments
+- `next_camp.arrive_phase` — things that want to greet the player when they enter camp
+
+This is the single mechanism behind "muster is the legibility layer." Promotions, escalation outcomes, retinue drama, and pay consequences all chain themselves to the appropriate muster phase rather than interrupting mid-duty.
 
 ## 13. Director integration
 
@@ -543,8 +590,8 @@ Spec 0 ships plumbing only — no deletions yet. The table below is the **author
 | 2 | `ModuleData/Enlisted/Orders/*.json`, `order_events/*.json` | Rewritten under new schema in `ModuleData/Enlisted/Activities/` + `ModuleData/Enlisted/Storylets/` |
 | 3 (Land/Sea) | `Content/MapIncidentManager.cs`, `IncidentEffectTranslator.cs` | `StoryletCatalog` + Director (incidents become storylets) |
 | 3 | `ModuleData/Enlisted/Events/incidents_*.json` | Rewritten as scoped storylets |
-| 4 (Promotion+Muster) | (Scattered promotion logic in `EnlistedBehavior`) | `PromotionActivity` + chain storylets |
-| 4 | `Muster` menu logic | `MusterActivity` |
+| 4 (Promotion) | Scattered promotion logic in `EnlistedBehavior` | Chain storylet family per rank transition (no activity wrapper) — storylets chain via `when: "next_muster.promotion_phase"` so they land in the muster ceremony instead of mid-duty |
+| 4 (Muster) | `Enlistment/Behaviors/MusterMenuHandler.cs` (3,751 lines) | `MusterActivity` subclass: 5 phases (Intro / Pay / Promotion / Retinue / Complete), per-phase storylet pools, `MusterOutcomeRecord` → `PhaseQuality` composite state, intent derived from state (normal / high-scrutiny / discharge-threshold / first-muster), `fire_at_next_muster` deferred-queue via `when:` chain targets |
 | 5 (Quartermaster) | `QuartermasterManager` dialog-event hybrid | `QuartermasterActivity` + QM storylets + optional `IssueBase` shim for side-jobs |
 | All | `Content/EventDefinition.cs`, `EventOption.cs`, `EventCatalog.cs`, `EventSelector.cs`, `EventRequirementChecker.cs`, `DecisionCatalog.cs`, `DecisionManager.cs` | `Storylet` + `StoryletCatalog` + `TriggerRegistry` + `SlotFiller` |
 | All | `Escalation/EscalationState.cs` fields (Scrutiny, LordReputation, MedicalRisk, ActiveFlags) | `QualityStore` + `FlagStore` |
