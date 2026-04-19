@@ -4,7 +4,7 @@
 
 ---
 
-## Current status — Phase 1 complete, resuming at Task 11
+## Current status — Phase 2 complete, resuming at Task 17 (Phase 3)
 
 **Phase 1 (infrastructure, no-op at runtime):** ✅ 10 commits landed and smoke-tested in-game 2026-04-18. No `E-PACE-*` warnings, save/load clean in 5ms, no SaveableType errors.
 
@@ -21,9 +21,31 @@
 | 8 | `StoryDirector` skeleton — registered in `src/Mod.Entry/SubModule.cs` after `MapIncidentManager`, before `DecisionManager`. `Route` is a no-op. | `fa1f8a2` |
 | 9 | Save-type registration in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` — class offset `30`, enum offsets `80`/`81`, container for `List<StoryCandidatePersistent>` | `9eb56e6` |
 
-**Phase 2 starts at Task 11** (`### Task 11: Add DensitySettings config reader`). Tasks 11–16 add the config reader, Modal delivery with guards, the `AddPersonalDispatch` wrapper, the Headlines accordion, muster digest, and quiet-stretch fallback tick. After Phase 2, Route is live and the Director actually delivers content.
+**Phase 2 (routing live):** ✅ 10 commits landed 2026-04-18; build 0W/0E. The Director actually routes now — Modal fires through pacing guards, observational writes land in `_personalFeed`, a 14-day silence triggers the quiet-stretch fallback, the muster intro digest filters by severity, and the `enlisted_status` menu exposes a Headlines drilldown. Pre-commit smoke-test was NOT run for Phase 2 (Task 10-style) — recommend a ~15-min in-game soak before Phase 3.
 
-**Execution pattern that worked in Phase 1:** subagent-driven development with haiku for mechanical tasks and sonnet for TaleWorlds API work. Per-task flow = implementer → spec reviewer → code quality reviewer. MINOR issues from reviewers get fixed and re-reviewed before marking done. See conversation history under commits listed above.
+| # | Task | Commit(s) |
+|---|---|---|
+| 11 | `DensitySettings` config reader + `event_density` / `speed_downshift_on_modal` JSON keys | `919aa55` + `64df234` (code-review cleanup) |
+| 13 | Public `AddPersonalDispatch` wrapper on `EnlistedNewsBehavior` (done before Task 12 because Route needs it to compile) | `9e9d12e` |
+| 12 | Director `Route` — Modal via floor/wall-clock/category guards, defer-on-floor-fail, observational via news feed | `f81480e` + `8992291` (null-guard + constants + stale-doc cleanup) |
+| 14 | Headlines drilldown on `enlisted_status` — filters `_personalFeed` for `Severity >= 2` in last 7 days, session-scoped viewed-key set | `6e3537c` + `b800f02` (revert hand-edit of auto-generated error registry) + `aa63927` (render via `FormatDispatchForDisplay`, split render/mark) |
+| 15 | Muster intro digest — severity filter + dispatch resolver on pre-existing `BuildPeriodSummary` flow | `e267e97` |
+| 16 | Quiet-stretch fallback on `DailyTickEvent` — picks random event from `quiet_stretch` category after `QuietStretchDays` of silence | `1773578` |
+
+**Phase 3 starts at Task 17** (`### Task 17: MapIncidentManager`). Tasks 17–30 migrate the 14 production `EventDeliveryManager.Instance.QueueEvent` call sites plus 4 non-QueueEvent ShowInquiry annotations, then add the deferred-interactive retry queue on DailyTick. Current QueueEvent call-site count is **16 production + 1 debug = 17 total** (slightly higher than the plan's "14+1" estimate — see ContentOrchestrator.cs lines 274/621/834 and CompanySimulationBehavior.cs:671 for the extra sites to reconcile). Phase 4 (Tasks 31–32) adds smoke-test scenarios and INDEX/BLUEPRINT docs.
+
+**Execution pattern that worked in Phase 1 and Phase 2:** subagent-driven development (`superpowers:subagent-driven-development`) with haiku for mechanical tasks and sonnet for TaleWorlds API / multi-file integration work. Per-task flow = implementer → spec reviewer → code quality reviewer, with fixup cycles until APPROVED. MINOR issues from reviewers get fixed and re-reviewed before marking done. Plan edits also worth noting:
+
+- Plan's Task 12 reference code calls `AddPersonalDispatch` — which is added in Task 13. In practice, do Task 13 first so Task 12 compiles.
+- Plan's Task 13 pseudocode invented a severity-gated replace check. The project's canonical private `AddPersonalNews` (EnlistedNewsBehavior.cs:5165) replaces unconditionally on StoryKey match. The wrapper should forward, not re-implement (severity gating isn't the existing contract).
+- Plan references the retired `ModLogger.ErrorCode` / `WarnCode` API and E-PACE-NNN codes. The current API is `Surfaced` / `Caught` / `Expected`; codes for `Surfaced` only are auto-generated from the summary string by `Tools/Validation/generate_error_codes.py`. `Caught` / `Expected` call sites don't appear in the registry. **Do NOT hand-edit `docs/error-codes.md`** — it's overwritten on the next validate run.
+- `DispatchItem` is a **struct**. Do not try to mutate fields on items returned by `GetPersonalFeedSince` — changes evaporate. Session-scoped state (HashSet on the menu behavior) is the pragmatic workaround.
+- Plan's Task 14/15 body templates use `{=key}fallback` references (`{=enl_headlines_body}{...}`, `{=enl_back}Back`). Missing XML entries fall back to the literal text; don't block on registering them.
+
+**Known pre-existing issues surfaced during Phase 2** (out of scope, flag to the user if relevant):
+- `validate_content.py` reports 2 ERRORS in `ModuleData/Enlisted/Decisions/camp_decisions.json` — `dec_rest_short` option `rest_nap` and `dec_prayer` option `prayer_attend` have empty tooltips (`"tooltip": ""`). Both options predate Phase 1 (last touched in commits `159da71` / `eb5b289`). Phase 2 builds anyway because validator errors don't block `dotnet build`, but the next content commit should repair them.
+- `CountBattlesThisPeriod` in MusterMenuHandler (line 3675) still reads raw `HeadlineKey` via pattern matching. Same Task-14/15 placeholder-resolution issue, different code path. Low blast radius — worth revisiting if playtesting finds muster counts off.
+- `EnlistedMenuBehavior.cs` continues growing (~7.1k lines after Task 14). Splitting into partials by menu surface is an orthogonal refactor worth its own spec.
 
 **Environment notes:**
 - Parallel AI sessions may edit files (`.codex/config.toml`, `Enlisted.csproj`) concurrently. Subagents must commit selectively with `git add <path>` — never `git add -A`.
