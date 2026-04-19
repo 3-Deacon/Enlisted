@@ -863,14 +863,31 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            var deliveryManager = EventDeliveryManager.Instance;
-            if (deliveryManager != null)
+            var director = StoryDirector.Instance;
+            if (director != null)
             {
-                deliveryManager.QueueEvent(eventDef);
-                _lastIllnessOnsetDay = currentDay;
-                ModLogger.Info(LogCategory, 
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "content.illness_onset." + eventToQueue,
+                    CategoryId = "company.illness",
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.70f,
+                    Beats = { StoryBeat.EscalationThreshold },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
+                ModLogger.Info(LogCategory,
                     $"Illness onset event queued: {eventToQueue} (MedRisk={pressure.MedicalRisk}, chance={baseChance * 100:F1}%)");
             }
+            else
+            {
+                EventDeliveryManager.Instance?.QueueEvent(eventDef);
+            }
+            _lastIllnessOnsetDay = currentDay;
         }
 
         #endregion
