@@ -104,6 +104,32 @@ basePath + "\\Prompts\\order_prompts.json"
 
 Line endings are enforced by `.gitattributes` (`.cs` / `.csproj` / `.sln` / `.ps1` = CRLF; everything else `text=auto`). Don't override locally.
 
+### 10. Event Delivery — route through StoryDirector
+
+Modal events go through `StoryDirector.EmitCandidate(...)`, not `EventDeliveryManager.Instance.QueueEvent(...)` directly. The Director gates Modal firing with a 5-day in-game floor + 60s wall-clock floor + per-category cooldown, and writes non-Modal items to the news feed as accordion entries.
+
+```csharp
+// CORRECT - gated by pacing, supports deferral + accordion routing
+StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+{
+    SourceId = "myfeature.context",
+    CategoryId = "myfeature.subcategory",
+    ProposedTier = StoryTier.Modal,
+    SeverityHint = 0.5f,
+    Beats = { StoryBeat.OrderPhaseTransition },
+    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+    EmittedAt = CampaignTime.Now,
+    InteractiveEvent = evt,
+    RenderedTitle = evt.TitleFallback,
+    RenderedBody = evt.SetupFallback,
+    StoryKey = evt.Id
+});
+// Fallback for when Director isn't registered yet (early boot only):
+// EventDeliveryManager.Instance?.QueueEvent(evt);
+```
+
+Use `ChainContinuation = true` for player-opted continuations (promotions, bag checks, chain events) so the in-game floor + category cooldown don't defer them (60s wall-clock still applies). Spec: [docs/superpowers/specs/2026-04-18-event-pacing-design.md](docs/superpowers/specs/2026-04-18-event-pacing-design.md).
+
 ---
 
 ## Code Standards
@@ -149,7 +175,7 @@ Tools/Validation/      Validators (run before commit)
 
 - `Enlistment/` — Service state, retirement
 - `Orders/` — Mission directives
-- `Content/` — Events, decisions, narrative
+- `Content/` — Events, decisions, narrative, StoryDirector (pacing gate)
 - `Escalation/` — Reputation, scrutiny/discipline
 - `Company/` — Readiness, supply needs
 - `Equipment/` — Quartermaster, gear
@@ -201,6 +227,12 @@ Link, don't duplicate — open these for depth:
     `TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem.CampaignBehaviors/LordConversationsCampaignBehavior.cs:607`
     (`AddWandererConversations`) and `:1274` (`conversation_wanderer_on_condition`,
     checks `Occupation == Occupation.Wanderer`).
+12. Calling `EventDeliveryManager.Instance.QueueEvent(evt)` directly bypasses
+    StoryDirector pacing (no floor, no cooldown, no deferral). The only
+    legitimate direct-call sites are (a) Director-null fallbacks inside a
+    migrated caller, (b) the debug tool at `src/Debugging/Behaviors/DebugToolsBehavior.cs:141`,
+    and (c) the Director's own internal `Route()`. Everything else must use
+    `StoryDirector.Instance?.EmitCandidate(...)` — see Critical Rule #10.
 
 Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 
