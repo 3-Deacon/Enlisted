@@ -64,6 +64,9 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Activity subsystem (Spec 0) — concrete subclasses claim offsets 45-60 in surface specs
             AddClassDefinition(typeof(Enlisted.Features.Activities.Activity), 44);
+
+            // Spec 1 (Enlisted Home Surface) — offset 45
+            AddClassDefinition(typeof(Enlisted.Features.Activities.Home.HomeActivity), 45);
         }
 
         /// <summary>
