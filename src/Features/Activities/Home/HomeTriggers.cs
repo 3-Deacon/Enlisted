@@ -52,10 +52,12 @@ namespace Enlisted.Features.Activities.Home
             });
 
             // --- Lord traits (mercy, valor, honor, calculating × positive/negative) ---
-            RegisterTrait("mercy",      DefaultTraits.Mercy);
-            RegisterTrait("valor",      DefaultTraits.Valor);
-            RegisterTrait("honor",      DefaultTraits.Honor);
-            RegisterTrait("calculating", DefaultTraits.Calculating);
+            // DefaultTraits.X resolves Campaign.Current.DefaultTraits, which is null at OnGameStart.
+            // Pass a provider so the lookup happens at predicate-evaluation time.
+            RegisterTrait("mercy",      () => DefaultTraits.Mercy);
+            RegisterTrait("valor",      () => DefaultTraits.Valor);
+            RegisterTrait("honor",      () => DefaultTraits.Honor);
+            RegisterTrait("calculating", () => DefaultTraits.Calculating);
 
             // --- Clan / kingdom ---
             TriggerRegistry.Register("enlisted_lord_is_mercenary", (_, _2) =>
@@ -122,12 +124,18 @@ namespace Enlisted.Features.Activities.Home
         }
 
         // Registers positive and negative trait-level predicates for the given trait name.
-        private static void RegisterTrait(string name, TraitObject trait)
+        private static void RegisterTrait(string name, Func<TraitObject> traitProvider)
         {
-            TriggerRegistry.Register($"lord_trait_{name}_positive",
-                (_, _2) => (Lord()?.GetTraitLevel(trait) ?? 0) >= 1);
-            TriggerRegistry.Register($"lord_trait_{name}_negative",
-                (_, _2) => (Lord()?.GetTraitLevel(trait) ?? 0) <= -1);
+            TriggerRegistry.Register($"lord_trait_{name}_positive", (_, _2) =>
+            {
+                var trait = traitProvider();
+                return trait != null && (Lord()?.GetTraitLevel(trait) ?? 0) >= 1;
+            });
+            TriggerRegistry.Register($"lord_trait_{name}_negative", (_, _2) =>
+            {
+                var trait = traitProvider();
+                return trait != null && (Lord()?.GetTraitLevel(trait) ?? 0) <= -1;
+            });
         }
 
         // Returns the enlisted lord hero, or null if not enlisted.
