@@ -8,7 +8,7 @@
 - Orders: `ModuleData/Enlisted/Orders/orders_t1_t3.json`, `orders_t4_t6.json`, `orders_t7_t9.json`
 - Events: `ModuleData/Enlisted/Orders/order_events/*.json` (16 files, 84 total events)
 
-**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Content System Architecture](content-system-architecture.md), [Event System Schemas](event-system-schemas.md#order-context-variants-sealand-awareness)
+**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](storylet-backbone.md)
 
 ---
 
