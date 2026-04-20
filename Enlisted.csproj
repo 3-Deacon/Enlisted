@@ -388,6 +388,9 @@
     
     <!-- Camp Activities (Wildcard - all .cs files) -->
     <Compile Include="src\Features\Activities\*.cs"/>
+
+    <!-- Home Activities (explicit - wildcard above is non-recursive) -->
+    <Compile Include="src\Features\Activities\Home\HomeActivity.cs" />
     
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
