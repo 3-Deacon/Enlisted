@@ -220,7 +220,7 @@ Defined in `ModuleData/Enlisted/Effects/scripted_effects.json`:
 | Enum | 82 | `QualityScope` |
 | Enum | 83 | `ActivityEndReason` |
 
-Surface specs claim their class offset from the 45–60 range in their owning spec — e.g. `MusterActivity` in Spec 4, `CampActivity` in Spec 1, `OrderActivity` in Spec 2, `QuartermasterActivity` in Spec 5.
+Surface specs claim their class offset from the 45–60 range in their owning spec. Current claims: `HomeActivity` at **45** (Spec 1). Reserved next claims: `OrderActivity` (Spec 2), `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
 
 Pre-Spec-0 claims (class 1, 10–14, 20–24, 30; enum 50–52, 60–64, 70–71, 80–81) remain owned by their prior subsystems — don't reuse.
 
@@ -248,9 +248,9 @@ Arc conventions: each storylet's chain links to the next; `flag:arc_*_step_N` tr
 
 ---
 
-## Generic primitives from Spec 1 Phase A (inherited by Specs 2–5)
+## Generic primitives from Spec 1 (inherited by Specs 2–5)
 
-Spec 1 Phase A (Tasks 1–5, `development` commits `fc93285`→`24b7e50`) shipped three generic pieces that every surface spec (2–5) inherits. You don't need to re-implement any of these; just know how to use them.
+Spec 1 Phase A (Tasks 1–5, `development` commits `fc93285`→`24b7e50`) shipped three generic pieces that every surface spec (2–5) inherits, and Phase B (Tasks 6–9, `e4b6806`→`a48983c`) added a fourth (`ActivityContext.FromCurrent()`) plus the first concrete subclass (`HomeActivity` at save offset 45) as the canonical reference implementation. You don't need to re-implement any of these; just know how to use them.
 
 ### `ActivityTypeCatalog.LoadAll()`
 
@@ -329,6 +329,28 @@ StoryDirector.Instance?.EmitCandidate(candidate);
 **Save-load restore:** On `OnGameLoaded`, `ActivityRuntime` re-resolves `_activeChoicePhase` by scanning the reloaded `_active` list for any activity whose current phase is `PhaseDelivery.PlayerChoice`. This means mid-choice saves reload with the menu slot-bank still visible.
 
 **`FireIntervalHours` pacing for Auto phases:** `Activity` base now carries `LastAutoFireHour` (default `-1`). `TryFireAutoPhaseStorylet` checks: if `phase.FireIntervalHours > 0` AND `currentHour - a.LastAutoFireHour < phase.FireIntervalHours`, skip the tick. On fire, `LastAutoFireHour` is updated to `currentHour`. This is on the base class so all surface-spec activities inherit pacing without extra code.
+
+---
+
+### `ActivityContext.FromCurrent()`
+
+**What it returns:** a fresh `ActivityContext` snapshot with `EnteredAt = CampaignTime.Now`; `TypeId`, `Intent`, and `Attendees` are left at their defaults. Callers populate `Intent` on the `Activity` itself (object-initializer before `Start(...)`), not on the context.
+
+**Typical call pattern** (in a settlement-entry starter behavior):
+
+```csharp
+var activity = new HomeActivity { Intent = PickInitialIntent(lord, settlement) };
+var ctx = ActivityContext.FromCurrent();
+ActivityRuntime.Instance?.Start(activity, ctx);
+```
+
+For beat emissions (e.g., `OnSettlementLeftEvent`), reuse the factory:
+
+```csharp
+home.OnBeat("departure_imminent", ActivityContext.FromCurrent());
+```
+
+The factory is a single-responsibility helper — no lord lookup, no logging. Keeps starter behaviors free of boilerplate without introducing a subsystem.
 
 ---
 

@@ -10,7 +10,7 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-19-enlisted-home-surface-design.md](../specs/2026-04-19-enlisted-home-surface-design.md) (commits `133a147` + `46272c1` on `development`).
 
-**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` branch (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + triggers + starter + save registration) not yet started.
+**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + save registration + triggers + starter) complete 2026-04-20 on `development` (commits `e4b6806` → `a48983c`). Phase C (Tasks 10–12: menu integration + smoke) not yet started.
 
 ---
 
@@ -78,8 +78,8 @@ Tools/Validation/validate_content.py            -- Phase 12 extension for Activi
 ## Execution order
 
 **Phase A (Tasks 1-5): Substrate extensions.** Must land before any HomeActivity code compiles.
-**Phase B (Tasks 6-9): HomeActivity scaffolding.** Class + save + csproj + triggers.
-**Phase C (Tasks 10-12): Lifecycle + menu integration.** Wires HomeActivity to live gameplay.
+**Phase B (Tasks 6-9): HomeActivity scaffolding + lifecycle.** Class + save + triggers + settlement-entry starter.
+**Phase C (Tasks 10-12): Menu integration + smoke.** Wires the Evening slot-bank to live gameplay.
 **Phase D (Tasks 13-18): Content authoring.** 50 storylets + localization sync.
 **Phase E (Tasks 19-21): Debug helpers + validator + acceptance smoke.**
 
