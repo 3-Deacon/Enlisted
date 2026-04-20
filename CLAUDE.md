@@ -51,7 +51,7 @@ Match the task to the right skill:
 | Writing an implementation plan | `superpowers:writing-plans` |
 | Executing a multi-task plan | `superpowers:subagent-driven-development` |
 | Security review of the branch | `security-review` |
-| Updating this CLAUDE.md file | `claude-md-management:revise-claude-md` |
+| Updating this CLAUDE.md file | `claude-md-management:revise-claude-md` (small targeted edits) or `claude-md-management:claude-md-improver` (full audit + improve) |
 | Reducing permission prompts | `fewer-permission-prompts` |
 
 ---
@@ -68,6 +68,9 @@ Match the task to the right skill:
 - AGENTS.md's build form `/p:Platform=x64` trips bash's argument parser when the config has a space. From bash use: `dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64`
 - Multi-line commit messages: no `cat` heredoc here. Write the message to a temp file (e.g. `/c/Users/<you>/commit.txt`) and pass with `git commit -F <file>`
 - Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. For **newly created** files, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>`. **Known bug:** the script prepends a UTF-8 BOM unconditionally, so running it on files that already have a BOM creates a double-BOM defect (surfaced during the PR-c review, 2026-04-19). For **edits** to existing `.cs` files, rely on `.gitattributes` CRLF enforcement at commit time — don't re-run the script.
+- **`Enlisted.csproj` uses wildcards for some dirs** — e.g. `<Compile Include="src\Features\Activities\*.cs"/>` (line 390) and similar. New `.cs` files in wildcard-covered folders compile automatically — no csproj edit needed. Before adding a `<Compile Include>` line for a new file, grep `Enlisted.csproj` for an existing wildcard covering your directory.
+- **`ModLogger.Surfaced` / `Caught` / `Expected`** need string *literals at the call site* for category + summary. `generate_error_codes.py`'s scanner doesn't follow `private const string Cat = "X"` and will reject the call. Write `ModLogger.Surfaced("CATEGORY", "summary literal", ex)` at every call site, not a shared const.
+- Regenerate the error-code registry after adding or changing any `ModLogger.Surfaced` call sites: `/c/Python313/python.exe Tools/Validation/generate_error_codes.py`. This rewrites `docs/error-codes.md` — don't hand-edit.
 
 ---
 
