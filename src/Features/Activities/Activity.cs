@@ -40,6 +40,14 @@ namespace Enlisted.Features.Activities
         public abstract void OnPhaseExit(Phase phase);
         public abstract void Finish(ActivityEndReason reason);
 
+        /// <summary>Called by ActivityRuntime.ResolvePlayerChoice after the player selects
+        /// an option in a PlayerChoice-delivery phase. Default no-op.</summary>
+        public virtual void OnPlayerChoice(string optionId, ActivityContext ctx) { }
+
+        /// <summary>Called by starter behaviors to signal a campaign beat relevant to this
+        /// activity (e.g. "departure_imminent"). Default no-op.</summary>
+        public virtual void OnBeat(string beatId, ActivityContext ctx) { }
+
         /// <summary>Called by ActivityRuntime after load; resolves Phases from the TypeDefinition.</summary>
         public void ResolvePhasesFromType(IDictionary<string, ActivityTypeDefinition> types)
         {
