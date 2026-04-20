@@ -1,10 +1,10 @@
 # Orders Surface — Design Spec
 
 **Date:** 2026-04-20
-**Status:** Design draft, awaiting review.
+**Status:** Design draft, revised once after adversarial review (2026-04-20). Awaiting user re-review.
 **Scope:** Spec 2 in the 6-spec cycle. Replaces the existing 11-file `src/Features/Orders/` subsystem with a single `OrderActivity` running on the Spec 0 storylet backbone. Reframes "Orders" as the **career-arc text RPG** that hums in the background while Bannerlord's foreground campaign plays out — making enlistment a replayable rise from peasant to commander, with real Bannerlord-native progression rewards (skill XP, focus points, attribute points, traits, renown, relations, native-issue loot from the lord's faction troop tree).
 
-Depends on Spec 0 (Storylet Backbone, landed `45b38bf`) and Spec 1 (Enlisted Home Surface, landed `0390fdf`). Spec 1's `ActivityTypeCatalog`, `Storylet → InteractiveEvent` adapter, and `PhaseDelivery.PlayerChoice` runtime are inherited unchanged. Spec 2 adds eight scripted-effect primitives, a duty-profile sampling subsystem, an arc-storylet variant, a path-progression accumulator, and a faction-troop-tree-aware loot resolver.
+Depends on Spec 0 (Storylet Backbone, landed `45b38bf`) and Spec 1 (Enlisted Home Surface, landed `0390fdf`). Spec 1's `ActivityTypeCatalog`, `Storylet → InteractiveEvent` adapter, and `PhaseDelivery.PlayerChoice` runtime are inherited unchanged. Spec 2 adds **twelve scripted-effect primitives** (eight character-development reward currencies plus four runtime-control), a duty-profile sampling subsystem, an arc-storylet variant with explicit save-load reconstruction, a path-progression accumulator, a faction-troop-tree-aware loot resolver, **a thin `EnlistmentBehavior.OnTierChanged` event**, and **migration of eight consumer call sites** that today read `OrderManager.Instance` directly.
 
 ---
 
@@ -24,8 +24,8 @@ A separate investigation against the v1.3.13 decompile (`AiPartyThinkBehavior.cs
 
 ## 2. Goals
 
-- Retire `src/Features/Orders/` entirely; replace with `src/Features/Activities/Orders/OrderActivity.cs` (Activity subclass, save offset 46).
-- Ship eight new scripted-effect primitives that bring Bannerlord's full character-development vocabulary (focus / attribute / trait / renown / item / relation) into the storylet authoring surface.
+- Retire `src/Features/Orders/` entirely; replace with `src/Features/Activities/Orders/OrderActivity.cs` (Activity subclass, save offset 46). **Migrate the eight existing consumer call sites** (`EnlistedMenuBehavior.cs:956,2167,2408`; `EnlistedNewsBehavior.cs:768,4204`; `ForecastGenerator.cs:66`; `CampOpportunityGenerator.cs:1598`; `ContentOrchestrator.cs:571`) to read from `OrderActivity` instead of `OrderManager.Instance` *before* deleting the old subsystem.
+- Ship **twelve** new scripted-effect primitives — eight character-development reward currencies (`grant_skill_level`, `grant_focus_point`, `grant_unspent_focus`, `grant_attribute_level`, `grant_unspent_attribute`, `set_trait_level`, `grant_renown`, `relation_change`) and four runtime-control primitives (`grant_item`, `grant_random_item_from_pool`, `clear_active_named_order`, `start_arc`).
 - Sample the lord's party state hourly with 2-hour hysteresis to classify a stable **duty profile** (one of six: `besieging` / `raiding` / `escorting` / `garrisoned` / `marching` / `wandering`). Treat profile transitions as content via dedicated transition storylets.
 - Replace the 17 hand-authored orders with **named-order storylets** (storylets with an `arc` block); replace the 84 hand-authored order events with a richer corpus of profile-pool ambient storylets, intent-biased mid-arc storylets, transition storylets, path crossroads, and progression-floor storylets. Target initial corpus: ~260 storylets.
 - Make every duty profile cover **all 18 Bannerlord skill axes** at varying density. A 30-day garrison stint progresses every skill at some rate; combat skills slow but never zero, social/support skills accelerate.
@@ -38,10 +38,10 @@ A separate investigation against the v1.3.13 decompile (`AiPartyThinkBehavior.cs
 
 ## 3. Non-goals
 
-- **No new Activity infrastructure.** `ActivityRuntime` / `ActivityTypeCatalog` / `PhaseDelivery.PlayerChoice` are inherited from Spec 0+1 unchanged. Spec 2 adds one new delivery semantic (the arc splice) but it lives inside `OrderActivity`, not in the runtime.
-- **No rewrite of `EnlistedMenuBehavior`.** Spec 2 may add 1–2 menu options for surfacing accept-candidate named orders, but the menu architecture stays.
-- **No promotion-storylet authoring.** Spec 2 ships the eight scripted-effect primitives that promotions will consume; **Spec 4 (Promotion+Muster)** owns the actual rank-up flow and authors the per-tier promotion storylets. Spec 2 stops at the primitive layer.
-- **No quartermaster changes.** Spec 5 (Quartermaster) reads the same `BuildCultureTroopTree` output Spec 2's loot system reads; both consume, neither modifies.
+- **No `ActivityRuntime` / `Phase` schema changes.** `ActivityRuntime`, `ActivityTypeCatalog`, and `PhaseDelivery.PlayerChoice` are inherited from Spec 0+1 unchanged. **However**, the named-order arc splice IS new runtime state that must survive save/load; `OrderActivity.OnGameLoaded` is responsible for re-resolving the arc from `ActiveNamedOrder.OrderStoryletId` against the storylet catalog (no new serialization fields on `Activity` itself; reconstruction is local to `OrderActivity`). See §5 + §10.
+- **No rewrite of `EnlistedMenuBehavior`.** Spec 2 may add 1–2 menu options for surfacing accept-candidate named orders, and **must replace the three internal `OrderManager.Instance` reads** at `:956`, `:2167`, `:2408` with `OrderActivity` queries. The menu architecture stays.
+- **No promotion-storylet authoring.** Spec 2 ships the twelve scripted-effect primitives that promotions will consume; **Spec 4 (Promotion+Muster)** owns the actual rank-up flow and authors the per-tier promotion storylets. Spec 2 stops at the primitive layer.
+- **No quartermaster behavior changes.** Spec 5 (Quartermaster) and Spec 2's loot system both consume `BuildCultureTroopTree`. The method is currently `private` inside `TroopSelectionManager` (`TroopSelectionManager.cs:494`); **Spec 2 owns extracting it into a shared `CultureTroopTreeHelper`** under `src/Features/Equipment/CultureTroopTreeHelper.cs` and rewires `TroopSelectionManager` to call the helper. This is a pure refactor — no QM behavior change, no storage change, no UX change.
 - **No new error-output channels.** Use `ModLogger.Surfaced` / `Caught` / `Expected` per AGENTS.md.
 - **No naval-specific duty profile.** Naval contexts route through the existing sea/land filter pattern at the storylet level (`requires_at_sea` / `excludes_at_sea` predicates). A future spec may add `seafaring` as a seventh profile if naval enlistment lands.
 - **No backwards-compatibility with old order JSON.** Saves containing references to deleted order ids (e.g. `order_guard_duty`) will lose that state on load — acceptable per Spec 0's "saves lose deleted-quality data" precedent (Spec 0, §15).
@@ -117,18 +117,23 @@ Spec 2 inherits Spec 0's vocabulary plus Spec 1's (Activity, Phase, Pool, Player
                    └─────────────────┘            └──────────────────┘
 ```
 
-Six new C# files under `src/Features/Activities/Orders/`:
+Eight new C# files (six under `src/Features/Activities/Orders/`, one under `src/Features/Equipment/`, plus a thin event addition to `EnlistmentBehavior`):
 
-- `OrderActivity.cs` — Activity subclass; holds runtime state listed in §10.
-- `DutyProfileSelector.cs` — pure function `Resolve(MobileParty) → DutyProfileId`. No state.
-- `DutyProfileBehavior.cs` — `CampaignBehaviorBase`. Owns `HourlyTickEvent` subscription, hysteresis counters, profile commit, `profile_changed` beat emission, transition-storylet dispatch.
-- `CombatClassResolver.cs` — shared helper extracted from `EnlistedFormationAssignmentBehavior.DetectFormationFromEquipment`. The old behavior becomes a thin wrapper that calls the new resolver. **No duplicate logic.**
-- `NamedOrderArcRuntime.cs` — Listens for option-effect dispatches with `apply: "start_arc"`. Splices the arc's phases onto `OrderActivity`. Tracks phase progress via `ActivityRuntime`'s normal phase advancement. On final phase, fires the resolve storylet. Handles abort on `profile_changed` while active.
-- `DailyDriftApplicator.cs` — `CampaignBehaviorBase`. `DailyTickEvent`. Selects 2–3 skills weighted by current profile + combat class, fires a `floor_<profile>_<n>` storylet that bundles 5–15 XP per skill with one-line news-feed texture.
-- `PathScorer.cs` — `CampaignBehaviorBase`. Subscribes to intent-pick and skill-XP-gain events. Increments `path_<name>_score` qualities. On rank promotion at T3 / T5 / T7, queries scores and fires the appropriate crossroads storylet.
-- `LordStateListener.cs` — `CampaignBehaviorBase`. Subscribes to `OnHeroPrisonerTaken`, `OnHeroKilled`, `OnClanChangedKingdom`. Sets / clears `lord_imprisoned`, invalidates culture/trait variant caches, fires teardown handshake on death.
+- `src/Features/Activities/Orders/OrderActivity.cs` — Activity subclass; holds runtime state listed in §10. **Owns arc reconstruction in `OnGameLoaded`** — re-resolves `ActiveNamedOrder.OrderStoryletId` against `StoryletCatalog`, re-extracts the `arc` block, re-builds the spliced `Phase` list, and re-seats it via `Activity.Phases` setter. Without this, a save/load mid-arc loses the arc's phase list (the `[NonSerialized]` `_cachedPhases` field on the base, `Activity.cs:33`).
+- `src/Features/Activities/Orders/DutyProfileSelector.cs` — pure function `Resolve(MobileParty) → DutyProfileId`. No state.
+- `src/Features/Activities/Orders/DutyProfileBehavior.cs` — `CampaignBehaviorBase`. Owns `CampaignEvents.HourlyTickEvent` subscription, hysteresis counters, profile commit, `profile_changed` beat emission, transition-storylet dispatch.
+- `src/Features/Activities/Orders/CombatClassResolver.cs` — shared helper extracted from `EnlistedFormationAssignmentBehavior.DetectFormationFromEquipment` (`EnlistedFormationAssignmentBehavior.cs:1343-1385`). The old behavior becomes a thin wrapper that calls the new resolver. **No duplicate logic.**
+- `src/Features/Activities/Orders/NamedOrderArcRuntime.cs` — Listens for option-effect dispatches with `apply: "start_arc"`. Splices the arc's phases onto `OrderActivity` (mutates `OrderActivity._cachedPhases` via the `Phases` setter; persists `ActiveNamedOrder.OrderStoryletId` so `OnGameLoaded` can reconstruct). Tracks phase progress via `ActivityRuntime`'s normal advancement. On final phase, fires the resolve storylet. Handles abort on `profile_changed` while active.
+- `src/Features/Activities/Orders/DailyDriftApplicator.cs` — `CampaignBehaviorBase`. `CampaignEvents.DailyTickEvent`. Selects 2–3 skills weighted by current profile + combat class, fires a `floor_<profile>_<n>` storylet that bundles 5–15 XP per skill with one-line news-feed texture.
+- `src/Features/Activities/Orders/PathScorer.cs` — `CampaignBehaviorBase`. Subscribes to intent-pick (via `EffectExecutor` callback after `start_arc`) and skill-XP-gain (via `EnlistmentBehavior.OnXPGained`, `EnlistmentBehavior.cs:8451`). Increments `path_<name>_score` qualities. On rank promotion at T3 / T5 / T7 (via the new `EnlistmentBehavior.OnTierChanged` event Spec 2 introduces — see below), queries scores and fires the appropriate crossroads storylet.
+- `src/Features/Activities/Orders/LordStateListener.cs` — `CampaignBehaviorBase`. Subscribes to **`CampaignEvents.HeroKilledEvent`** (`CampaignEvents.cs:707`), **`CampaignEvents.HeroPrisonerTaken`** (`:723`), **`CampaignEvents.HeroPrisonerReleased`** (`:725`), and `CampaignEvents.OnClanChangedKingdomEvent`. Sets / clears `lord_imprisoned`, invalidates culture/trait variant caches, fires teardown handshake on death (via `EnlistmentBehavior.StopEnlist(reason, isHonorableDischarge: true)`, `EnlistmentBehavior.cs:3333`).
+- `src/Features/Equipment/CultureTroopTreeHelper.cs` — extracted from the currently-private `TroopSelectionManager.BuildCultureTroopTree` (`TroopSelectionManager.cs:494`). Public static method `BuildCultureTroopTree(CultureObject culture) → List<CharacterObject>`. `TroopSelectionManager` becomes a thin caller. Spec 2's loot system AND Spec 5's QM use it.
 
-Plus extensions to existing infrastructure (`src/Features/Content/EffectExecutor.cs`, the storylet schema parser): eight new scripted-effect primitives (§7), three new storylet schema fields (`arc`, `class_affinity`, `intent_affinity`).
+Plus extensions to existing infrastructure:
+
+- `src/Features/Content/EffectExecutor.cs` — twelve new scripted-effect primitives (§7).
+- Storylet schema parser — three new fields (`arc`, `class_affinity`, `intent_affinity`) plus four already-supported fields used at higher density (`profile_requires`, `requires_combat_class`, `requires_culture`/`excludes_culture`, `requires_lord_trait`/`excludes_lord_trait`).
+- **`src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs`** — add a new `public static event Action<int, int> OnTierChanged` (params `oldTier`, `newTier`), fired from the same code path that currently increments `EnlistmentTier`. Targeted addition; no rewrite. Spec 2's `PathScorer` is the first consumer; Spec 4 will be the second.
 
 ## 6. Duty profile system
 
@@ -161,7 +166,11 @@ If no matching transition storylet exists, fall back to a generic `transition_ge
 
 ## 7. Scripted-effect primitives
 
-Spec 2 extends `EffectExecutor` with **eight new primitives** (Revisions 8 + 11 from brainstorming) that map to Bannerlord's character-creation reward vocabulary plus the inventory pipeline:
+Spec 2 extends `EffectExecutor` with **twelve new primitives**, split into two categories.
+
+### 7.1 Eight character-development reward currencies
+
+These mirror Bannerlord's own character-creation reward vocabulary (`NarrativeMenuOptionArgs` from `TaleWorlds.CampaignSystem.CharacterCreationContent`) plus the relation pipeline:
 
 | Primitive | Schema | Bannerlord API | Use case |
 | :--- | :--- | :--- | :--- |
@@ -172,11 +181,44 @@ Spec 2 extends `EffectExecutor` with **eight new primitives** (Revisions 8 + 11 
 | `grant_unspent_attribute` | `{ amount: 1 }` | `HeroDeveloper.UnspentAttributePoints += amount` | rank promotions when player should choose later |
 | `set_trait_level` | `{ trait: "Valor", level: 1 }` | `Hero.SetTraitLevel(trait, level)` | crossroads commits; major narrative moments |
 | `grant_renown` | `{ amount: 2 }` | `GainRenownAction.Apply(Hero.MainHero, amount)` | named-order completions; battle aftermath |
-| `relation_change` | `{ target: "lord" \| "companion_in_party" \| "officer_present" \| "notable_local", delta: -1 \| 1 \| 2 }` | `ChangeRelationAction.ApplyPlayerRelation(hero, delta)` | core feedback loop; common |
+| `relation_change` | `{ target_slot: "<slot_name>", delta: -1 \| 1 \| 2 }` | resolves `Hero` from `StoryletContext.ResolvedSlots[target_slot]` → `ChangeRelationAction.ApplyPlayerRelation(hero, delta)` | core feedback loop; common |
+
+**`relation_change` resolver contract.** The `target_slot` references a slot **declared in the storylet's `scope.slots` table** (`ScopeDecl` / `SlotDecl` model, `src/Features/Content/ScopeDecl.cs:6` / `SlotDecl.cs:3`). Valid `SlotDecl.Role` values per the existing model: `enlisted_lord`, `squadmate`, `named_veteran`, `chaplain`, `quartermaster`, `enemy_commander`, `settlement_notable`, `kingdom`. Authors declare the role they want filled, give it a slot name, and pass that slot name to `relation_change.target_slot`. The slot filler (existing infrastructure) resolves the role to a concrete hero at storylet evaluation time and populates `StoryletContext.ResolvedSlots`. If the slot is unresolved at apply time (filler returned null), `relation_change` no-ops with `Expected("EFFECT", "relation_target_unresolved", ctx)`. **No pseudo-selectors like `companion_in_party` or `officer_present` — the slot filler is the only resolver.**
+
+Example storylet snippet:
+
+```jsonc
+{
+  "scope": {
+    "slots": {
+      "lord": { "role": "enlisted_lord" },
+      "buddy": { "role": "squadmate", "tag": "companion_present" }
+    }
+  },
+  "options": [
+    {
+      "id": "thank_lord",
+      "effects": [
+        { "relation_change": { "target_slot": "lord", "delta": 2 } },
+        { "relation_change": { "target_slot": "buddy", "delta": 1 } }
+      ]
+    }
+  ]
+}
+```
+
+If a needed slot role isn't covered by the existing `SlotDecl.Role` enumeration (e.g. "the officer who ordered this duty"), the spec extends `SlotDecl.Role` with explicit new values; it does not invent ad-hoc selector strings.
+
+### 7.2 Four runtime-control primitives
+
+These manipulate Spec 2's runtime state, not character development:
+
+| Primitive | Schema | Behavior | Use case |
+| :--- | :--- | :--- | :--- |
 | `grant_item` | `{ item_id: "vlandian_sword_t3", count: 1 }` | resolve `ItemObject` by stringId → `PartyBase.MainParty.ItemRoster.AddToCounts(item, count)` | rare; specific narrative items only (heirloom blade) |
-| `grant_random_item_from_pool` | `{ pool_id: "issue_weapon_melee" }` | resolve via §8 loot pipeline | common; battle spoils, scavenged finds |
-| `clear_active_named_order` | `{}` | sets `OrderActivity.ActiveNamedOrder = null`; clears arc phase splice | transition storylets only |
-| `start_arc` | `{}` (uses parent storylet's `arc` block) | calls `NamedOrderArcRuntime.SpliceArc(storylet)` | named-order accept options only |
+| `grant_random_item_from_pool` | `{ pool_id: "issue_weapon_melee" }` | resolve via §8 loot pipeline; same `AddToCounts` call | common; battle spoils, scavenged finds |
+| `clear_active_named_order` | `{}` | sets `OrderActivity.ActiveNamedOrder = null`; calls `NamedOrderArcRuntime.UnspliceArc()` to truncate `Phases` back to the base profile phase | transition storylets only |
+| `start_arc` | `{}` | reads parent storylet's `arc` block, calls `NamedOrderArcRuntime.SpliceArc(storylet)`, sets `OrderActivity.ActiveNamedOrder` with `OrderStoryletId` for save-load reconstruction | named-order accept options only |
 
 `GiveGoldAction` (existing scripted effect `give_gold`) and the existing Spec 0 primitives (`quality_add`, `set_flag`, `clear_flag`, `apply_scripted`) remain unchanged.
 
@@ -281,6 +323,14 @@ Enum offsets: `CombatClass` at **84**, `DutyProfileId` at **85**.
 
 **Mandatory `EnsureInitialized()` per Critical Rule (CLAUDE.md "[Serializable] save stores deserialize with null Dictionary/List properties").** `OrderActivity.SyncData(IDataStore)` calls `EnsureInitialized()` after `dataStore.SyncData(...)`; the same method runs on `OnSessionLaunched` and `OnGameLoaded`. Method body reseats `PendingProfileMatches` if null, ensures `ActiveNamedOrder.AccumulatedOutcomes` if `ActiveNamedOrder != null`.
 
+**Mandatory arc reconstruction in `OrderActivity.OnGameLoaded`.** The base `Activity._cachedPhases` field is `[NonSerialized]` (`src/Features/Activities/Activity.cs:33`); only `CurrentPhaseIndex` survives. The base class's `ResolvePhasesFromType` (`Activity.cs:60-65`) restores phases from the static `ActivityTypeDefinition`. For an `OrderActivity` whose `ActiveNamedOrder != null` at load time, the static type definition does NOT contain the spliced arc phases — those came from the named-order storylet's `arc` block at accept time. So `OrderActivity` overrides `OnGameLoaded` (or hooks `ActivityRuntime.OnGameLoaded`) to:
+
+1. Let the base class call `ResolvePhasesFromType` (restores the base `on_duty` phase).
+2. If `ActiveNamedOrder != null`, look up the storylet by `ActiveNamedOrder.OrderStoryletId` via `StoryletCatalog`, extract the `arc` block, build the spliced `Phase` list, and re-seat via `Activity.Phases` setter so `CurrentPhaseIndex` resolves to the correct spliced phase.
+3. If the storylet id no longer exists (content was deleted between save and load), fail gracefully: clear `ActiveNamedOrder`, fire `Caught("ARC", "stale_arc_id_on_load", ctx)`, leave the player on the base `on_duty` phase.
+
+Save-load test scenario added to Phase D playtest list: accept a named order, advance to mid-arc phase, save, exit to main menu, reload, verify the named order's mid-arc phase is restored and ticks normally to resolve.
+
 **Quality registrations** (added to Spec 0's registry):
 
 - `path_ranger_score`, `path_enforcer_score`, `path_support_score`, `path_diplomat_score`, `path_rogue_score` — read-write, range [0, 100], decay none.
@@ -309,30 +359,41 @@ Offsets 48–60 (classes) and 86+ (enums) remain reserved for Specs 3–5.
 
 ## 11. Lord-state contract
 
-`LordStateListener` (Revision 7) handles three cases:
+`LordStateListener` handles three cases. Hook names verified against `../Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem/CampaignEvents.cs`:
 
-**Lord captured** (`CampaignEvents.OnHeroPrisonerTaken`):
+**Lord captured** (`CampaignEvents.HeroPrisonerTaken`, `CampaignEvents.cs:723`):
+- Subscribe via `CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken)` in `RegisterEvents`.
 - Filter: `prisoner == EnlistmentBehavior.Instance.EnlistedLord`.
 - Set `lord_imprisoned` flag.
-- Force `_committedProfile` to `imprisoned` (a special profile not in the public enumeration; pool prefix `duty_imprisoned_*`; ~10 storylets).
+- Force `_committedProfile` to `imprisoned` (a special profile id; pool prefix `duty_imprisoned_*`; ~10 storylets). The DutyProfileSelector resolution order at §6 doesn't return `imprisoned` — it's only set externally here.
 - Suppress named-order arc emission while flag is set (named-order storylets gated by `excludes_flag: ["lord_imprisoned"]`).
-- On lord release (`OnHeroReleasedFromCaptivity`): clear flag, allow normal profile resampling.
 
-**Lord killed** (`CampaignEvents.OnHeroKilledEvent`):
-- Filter: same.
-- Fire one farewell storylet (`lord_killed_farewell`) as Modal.
-- Schedule `EnlistmentBehavior.Discharge(reason: "lord_killed")` on next campaign tick.
-- `OrderActivity` torn down by Discharge path; no special teardown needed here.
+**Lord released** (`CampaignEvents.HeroPrisonerReleased`, `CampaignEvents.cs:725`):
+- Subscribe via `CampaignEvents.HeroPrisonerReleased.AddNonSerializedListener(this, OnHeroPrisonerReleased)`. Signature: `(Hero, PartyBase, IFaction, EndCaptivityDetail, bool)`.
+- Filter: `hero == EnlistmentBehavior.Instance.EnlistedLord`.
+- Clear `lord_imprisoned` flag, clear `_committedProfile = "wandering"` (recomputed on next sample tick), reset `_pendingMatches`.
 
-**Kingdom changed** (`CampaignEvents.OnClanChangedKingdom`):
+**Lord killed** (`CampaignEvents.HeroKilledEvent`, `CampaignEvents.cs:707`):
+- Subscribe via `CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnHeroKilled)`. Signature: `(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)`.
+- Filter: `victim == EnlistmentBehavior.Instance.EnlistedLord`.
+- Fire one farewell storylet (`lord_killed_farewell`) as Modal via `StoryDirector.EmitCandidate` with `ChainContinuation = true`.
+- Trigger `EnlistmentBehavior.StopEnlist(reason: "lord_killed", isHonorableDischarge: true)` (`EnlistmentBehavior.cs:3333`) on the next campaign tick — `StopEnlist` is the actual public discharge entry point; `Discharge` does not exist as a method.
+- `OrderActivity` torn down by `StopEnlist` path's existing tear-down hooks; Spec 2 wires `ActivityRuntime.Stop(orderActivity)` as a discharge listener (see Discharge handler below).
+
+**Kingdom changed** (`CampaignEvents.OnClanChangedKingdomEvent`):
 - Filter: `clan == EnlistmentBehavior.Instance.EnlistedLord.Clan`.
 - Fire `lord_kingdom_changed` storylet (Modal).
 - Invalidate culture/trait variant caches if implemented (otherwise no-op — variant resolution is per-storylet at fire time).
 - Reset `_pendingMatches` to force re-sampling.
 
-**Discharge handler** (modifies `EnlistmentBehavior.Discharge` to call into Spec 2):
-- Capture `prior_service_culture_<lord.Culture>`, `prior_service_rank_<currentTier>`, `prior_service_path_<committed_path>` if set.
-- Tear down `OrderActivity` via `ActivityRuntime.Stop(activity)`.
+**Discharge handler.** `EnlistmentBehavior.StopEnlist` (`EnlistmentBehavior.cs:3333`) is the existing discharge entry point. `EnlistmentBehavior` does NOT currently expose a public discharge event for external behaviors to subscribe to. Spec 2 adds one:
+
+- Add `public static event Action<string, bool> OnEnlistmentEnded` (params `reason`, `isHonorableDischarge`) to `EnlistmentBehavior`. Fired from `StopEnlist` immediately before its existing tear-down work runs (so subscribers see lord/tier state before reset).
+- `LordStateListener` subscribes to `OnEnlistmentEnded` and:
+  - Captures `prior_service_culture_<lord.Culture>`, `prior_service_rank_<currentTier>`, `prior_service_path_<committed_path>` flags if set.
+  - Calls `ActivityRuntime.Instance.Stop(orderActivity, ActivityEndReason.Discharged)`.
+
+This is a second targeted addition to `EnlistmentBehavior` (beyond `OnTierChanged`), but both are pure event additions — no logic change. Phase A introduces both events.
 
 ## 12. Authoring schema
 
@@ -422,7 +483,28 @@ All files at top level of `ModuleData/Enlisted/Storylets/` per Spec 1's `Storyle
 
 ## 13. Migration plan
 
-**Delete (per Spec 0 deletion list, Spec 2 rows):**
+The migration has THREE explicit steps that must run in order; skipping the consumer-migration step (the middle one) breaks the build.
+
+### 13.1 Migrate the eight existing consumer call sites (Phase B, before deletion)
+
+Today's `OrderManager.Instance` is read directly from these 8 sites across 5 files. Each must be replaced with an equivalent read against `OrderActivity.Instance` (or a published event). Below is the contract per consumer:
+
+| Call site | What it reads today | What it reads after migration |
+| :--- | :--- | :--- |
+| `EnlistedMenuBehavior.cs:956` ("Orders accordion header") | `OrderManager.Instance.GetCurrentOrder()` (returns `Order` or null) | `OrderActivity.Instance?.ActiveNamedOrder` (returns `NamedOrderState` or null); rendered text composed from the order's source storylet's `title` |
+| `EnlistedMenuBehavior.cs:2167` (headlines / news) | order list iteration | `OrderActivity.Instance?.ActiveNamedOrder` + recent `profile_changed` log |
+| `EnlistedMenuBehavior.cs:2408` (status text) | current-order display | same as `:956` |
+| `EnlistedNewsBehavior.cs:768` (news feed) | order events log | StoryDirector news-feed accordion (already populated by ambient + transition storylets) |
+| `EnlistedNewsBehavior.cs:4204` (daily report) | order completion outcomes | scripted-effect log entries written by `EffectExecutor` (same news-feed source) |
+| `ForecastGenerator.cs:66` (forecast text) | "On duty: Guard Post (day 2 of 3)" | `OrderActivity.Instance?.ActiveNamedOrder?.OrderStoryletId` → resolve title via storylet catalog → "On duty: {title}" |
+| `CampOpportunityGenerator.cs:1598` (camp-opportunity gating) | order-active suppression of camp opportunities | check `OrderActivity.Instance?.ActiveNamedOrder != null` |
+| `ContentOrchestrator.cs:571` ("on-duty" gate for ambient content) | `OrderManager.Instance.IsOrderActive` | `OrderActivity.Instance?.ActiveNamedOrder != null` (same semantic) |
+
+`OrderActivity.Instance` is a singleton accessor (analogous to `EnlistmentBehavior.Instance`). Public read-only properties: `CurrentDutyProfile`, `ActiveNamedOrder`, `CachedCombatClass`. Mutations are internal — callers read; they do not call `Accept`/`Decline`/`Apply` on Spec 2.
+
+Phase B's task list (§15) explicitly enumerates each migration as its own task. Validation: after migration, `grep -r "OrderManager.Instance" src/` returns zero hits before old code is deleted.
+
+### 13.2 Delete (per Spec 0 deletion list, Spec 2 rows; AFTER §13.1 completes)
 
 C# files:
 - `src/Features/Orders/Behaviors/OrderManager.cs`
@@ -437,6 +519,12 @@ JSON files:
 
 `Enlisted.csproj`: remove all `<Compile Include="src\Features\Orders\..."/>` entries (these are individually listed; they were never under a wildcard).
 
+### 13.3 Refactor (touches Quartermaster & EnlistmentBehavior with zero behavior change)
+
+- Extract `TroopSelectionManager.BuildCultureTroopTree` (currently `private`, `TroopSelectionManager.cs:494`) into a new file `src/Features/Equipment/CultureTroopTreeHelper.cs`. Promote signature to `public static List<CharacterObject> BuildCultureTroopTree(CultureObject culture)`. Rewire `TroopSelectionManager` to call the helper. **Pure refactor — no QM behavior change.**
+- Add `public static event Action<int, int> OnTierChanged` to `EnlistmentBehavior` (params `oldTier`, `newTier`). Fire from the existing tier-increment code path. **Pure addition — no logic change.**
+- Add `public static event Action<string, bool> OnEnlistmentEnded` to `EnlistmentBehavior` (params `reason`, `isHonorableDischarge`). Fire from `StopEnlist` (`EnlistmentBehavior.cs:3333`) immediately before the tear-down work runs. **Pure addition — no logic change.**
+
 **Salvage** (rewrite under new schema, do not delete content):
 
 The 84 hand-authored order events have prose worth keeping. Categorize:
@@ -446,9 +534,9 @@ The 84 hand-authored order events have prose worth keeping. Categorize:
 
 Salvaged prose is rewritten under the new storylet schema. Storylet ids change (prefix `order_guard_post_mid_` instead of `guard_drunk_soldier`); old save references to old order ids become meaningless on load. Acceptable per Spec 0 §15 ("saves lose deleted-quality data").
 
-**Add (`src/Features/Activities/Orders/`):**
+**Add (per §5 architecture, eight files total):**
 
-Six new C# files (§5 architecture). Each gets an explicit `<Compile Include>` in `Enlisted.csproj` (per CLAUDE.md "non-recursive wildcard" warning — `Activities\*.cs` does NOT match `Activities\Orders\*.cs`).
+Six under `src/Features/Activities/Orders/` (`OrderActivity.cs`, `DutyProfileSelector.cs`, `DutyProfileBehavior.cs`, `CombatClassResolver.cs`, `NamedOrderArcRuntime.cs`, `DailyDriftApplicator.cs`, `PathScorer.cs`, `LordStateListener.cs` — actually seven under Orders), plus `src/Features/Equipment/CultureTroopTreeHelper.cs` (extracted per §13.3). Each gets an explicit `<Compile Include>` in `Enlisted.csproj` (per CLAUDE.md "non-recursive wildcard" warning — `Activities\*.cs` does NOT match `Activities\Orders\*.cs`, and `Equipment\*.cs` does NOT match nested directories either; verify with `grep` against the existing wildcard pattern before authoring the new entries).
 
 **Add (`ModuleData/Enlisted/`):**
 
@@ -490,12 +578,12 @@ Four phases, mirroring Spec 1's pattern. Each ends in a playtestable build with 
 
 | Phase | Scope | Estimate |
 | :--- | :--- | :--- |
-| **A — Backbone & dual-run** | `OrderActivity` + `DutyProfileBehavior` + `DutyProfileSelector` + `CombatClassResolver` (extracted from `EnlistedFormationAssignmentBehavior`) + `LordStateListener` + `DailyDriftApplicator` (registered, disabled) + `PathScorer` (registered, no crossroads firing yet) + `NamedOrderArcRuntime` (no arcs to splice yet). All eight scripted-effect primitives in `EffectExecutor`. Save offsets registered (46/47/84/85). Storylet schema extensions parsed. `Enlisted.csproj` additions. Old `OrderManager` + `OrderProgressionBehavior` left running in parallel (shadow mode for new system). Smoke playtest: enlist, observe duty profile transitions in session log, verify no regression of existing Orders surface. | ~5 days |
-| **B — Content migration** | Author 6 profile pools (~120 ambient storylets across all skill axes). Author 10 named-order storylets with arc blocks + their mid-arc + resolve pools (~100 storylets). Author 15-20 transition storylets. Salvage 80 of the 84 old order events into the new corpus. Ship `loot_pools.json`. Implement Phase 13-17 validators. **End of phase: retire `OrderManager` + `OrderProgressionBehavior`; delete all files per §13 migration.** Smoke playtest: enlist for 14+ in-game days, verify daily drift, 1+ named-order accept-and-complete cycle, 1+ transition storylet on profile change, all 18 skills receive XP. | ~10 days |
-| **C — Path system + crossroads** | `PathScorer` event subscriptions wired (intent picks + skill XP gains). Author ~25-30 crossroads storylets across (5 paths × 3 bands) + culture variants on hot ones. `committed_path` quality + Phase-15/17 validators. T7+ named-order variants gated on committed path. `prior_service_*` flag emission on discharge. Smoke playtest: enlist, level to T4 / T6 / T8, verify crossroads fire correctly with score-based path leader detection; commit one and verify lockout + path-gated content unlocks. | ~5 days |
-| **D — Polish & playtest** | Floor-storylet authoring (~50 across profiles). Lord-state edge cases authored (~10 imprisoned-profile storylets, lord-killed farewell, lord-kingdom-changed). Replayability sweep: `culture_variants` overlays on ~15 hot-path storylets across all 6 cultures; `requires_lord_trait` / `excludes_lord_trait` gates on ~15 storylets where personality matters. Verification doc following Spec 1's plan-verification template. Final smoke playtest scenarios A-F covering each profile + each named-order archetype + each path commit. | ~5 days |
+| **A — Backbone, refactors & dual-run** | `OrderActivity` + `DutyProfileBehavior` + `DutyProfileSelector` + `CombatClassResolver` (extracted from `EnlistedFormationAssignmentBehavior`) + `LordStateListener` + `DailyDriftApplicator` (registered, disabled) + `PathScorer` (registered, no crossroads firing yet) + `NamedOrderArcRuntime` (no arcs to splice yet). All twelve scripted-effect primitives in `EffectExecutor`. Save offsets registered (46/47/84/85). Storylet schema extensions parsed. `Enlisted.csproj` additions. **Three refactors per §13.3:** extract `CultureTroopTreeHelper`, add `EnlistmentBehavior.OnTierChanged`, add `EnlistmentBehavior.OnEnlistmentEnded`. Old `OrderManager` + `OrderProgressionBehavior` left running in parallel (shadow mode for new system; no consumer migration yet). Smoke playtest: enlist, observe duty profile transitions in session log, verify no regression of existing Orders surface, verify QM gear lists unchanged after `BuildCultureTroopTree` extraction. | ~6 days |
+| **B — Content migration + consumer rewire** | Author 6 profile pools (~120 ambient storylets across all skill axes). Author 10 named-order storylets with arc blocks + their mid-arc + resolve pools (~100 storylets). Author 15-20 transition storylets. Salvage 80 of the 84 old order events into the new corpus. Ship `loot_pools.json`. Implement Phase 13-17 validators. **Migrate the eight `OrderManager.Instance` consumer call sites per §13.1** (own task per call site). After migration: `grep -r "OrderManager.Instance" src/` returns zero. **End of phase: retire `OrderManager` + `OrderProgressionBehavior`; delete all files per §13.2.** Smoke playtest: enlist for 14+ in-game days, verify daily drift, 1+ named-order accept-and-complete cycle, 1+ transition storylet on profile change, all 18 skills receive XP, accordion / forecast / news-feed / camp-opportunity gating all read from `OrderActivity`. | ~12 days |
+| **C — Path system + crossroads** | `PathScorer` event subscriptions wired: intent picks (via `EffectExecutor` post-`start_arc` callback) + skill XP gains (via `EnlistmentBehavior.OnXPGained`, `EnlistmentBehavior.cs:8451`) + tier-up (via the new `EnlistmentBehavior.OnTierChanged`). Author ~25-30 crossroads storylets across (5 paths × 3 bands) + culture variants on hot ones. `committed_path` quality + Phase-15/17 validators. T7+ named-order variants gated on committed path. `prior_service_*` flag emission via `EnlistmentBehavior.OnEnlistmentEnded` listener. Smoke playtest: enlist, level to T4 / T6 / T8, verify crossroads fire correctly with score-based path leader detection; commit one and verify lockout + path-gated content unlocks. | ~5 days |
+| **D — Polish, save-load & playtest** | Floor-storylet authoring (~50 across profiles). Lord-state edge cases authored (~10 imprisoned-profile storylets, lord-killed farewell, lord-kingdom-changed). Replayability sweep: `culture_variants` overlays on ~15 hot-path storylets across all 6 cultures; `requires_lord_trait` / `excludes_lord_trait` gates on ~15 storylets where personality matters. **Save-load arc reconstruction test scenario added** (accept named order → mid-arc → save → reload → verify phase restored). Verification doc following Spec 1's plan-verification template. Final smoke playtest scenarios A-G covering each profile + each named-order archetype + each path commit + a mid-arc save/reload cycle. | ~5 days |
 
-**Total: ~25 working days = ~5 calendar weeks** at the cadence Spec 1 ran. Larger than Spec 1 (which ran ~3 weeks for 50 storylets) primarily because the corpus is 5× the size; per-phase the engineering work is comparable.
+**Total: ~28 working days = ~5.5 calendar weeks** at the cadence Spec 1 ran (revised up from 25 days after adding the consumer-migration step in Phase B and the refactor work in Phase A). Larger than Spec 1 (which ran ~3 weeks for 50 storylets) primarily because the corpus is 5× the size and the consumer-migration tax is real; per-phase the engineering work is comparable.
 
 ## 16. End state — what the player gets
 
@@ -524,6 +612,10 @@ Beyond the player surface, Spec 2 leaves Spec 4 (Promotion+Muster) with a ready 
 **R6 — Save-offset collisions with Specs 3-5.** If Spec 3 or later proceeds in parallel and claims 46/47/84/85 first, collision corrupts saves silently (per CLAUDE.md "claim a `SaveableTypeDefiner` offset without grepping" warning). Mitigation: implementation Phase A claims offsets first thing, before any other Spec 2 work; commit the definer change immediately.
 
 **R7 — Loot pool resolves to nothing for a (culture, tier) pair.** Some cultures may not have e.g. `Polearm` items in their tree at low tiers. Phase 16 validator catches this at build, but resolution can also fail at runtime if items are unavailable due to mods or data corruption. Mitigation: `grant_random_item_from_pool` logs `Expected("LOOT", "pool_no_match", ctx)` and skips the drop silently — never surfaces.
+
+**R8 — Consumer-migration tax bigger than estimated.** §13.1 enumerates 8 known call sites; an undocumented additional consumer of `OrderManager.Instance` could appear during Phase B and add scope. Mitigation: the first task of Phase B is `grep -r "OrderManager" src/` to enumerate the actual consumer count before authoring task slots. Any new consumers found get their own migration task before the storylet-authoring work begins.
+
+**R9 — Save-load arc reconstruction has a gap.** If the user saves mid-arc, deletes the named-order storylet from content, then loads, the arc cannot be reconstructed. Mitigation: §10's "stale_arc_id_on_load" path logs `Caught` and clears the arc; the player loses the in-progress duty silently but the activity continues from the base `on_duty` phase. Acceptable degradation — the alternative is hard-locking the save against content edits, which is worse.
 
 **Open question 1 — Should `escorting` collapse into `marching + is_subordinate flag`?** Recommended in brainstorming Revision 4, held during finalization. The decision was to keep 6 profiles with `escorting` deliberately thin (~10 storylets) since those runs are rare. Revisit during Phase D if `escorting`-pool authoring feels disproportionate to player exposure.
 
