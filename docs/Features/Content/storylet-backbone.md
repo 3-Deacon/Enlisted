@@ -250,7 +250,7 @@ Arc conventions: each storylet's chain links to the next; `flag:arc_*_step_N` tr
 
 ## Generic primitives from Spec 1 (inherited by Specs 2–5)
 
-Spec 1 Phase A (Tasks 1–5, `development` commits `fc93285`→`24b7e50`) shipped three generic pieces that every surface spec (2–5) inherits, and Phase B (Tasks 6–9, `e4b6806`→`a48983c`) added a fourth (`ActivityContext.FromCurrent()`) plus the first concrete subclass (`HomeActivity` at save offset 45) as the canonical reference implementation. You don't need to re-implement any of these; just know how to use them.
+Spec 1 Phase A (Tasks 1–5, `development` commits `fc93285`→`24b7e50`) shipped three generic pieces that every surface spec (2–5) inherits, and Phase B (Tasks 6–9, `e4b6806`→`a48983c`) added a fourth (`ActivityContext.FromCurrent()`) plus the first concrete subclass (`HomeActivity` at save offset 45) as the canonical reference implementation. Phase C (Tasks 10–12, `18b4021`→`19391a4`) wired the Evening slot-bank on `enlisted_status` via `HomeEveningMenuProvider` — the canonical pattern for `PhaseDelivery.PlayerChoice` menu integration (preallocated N-slot option bank, per-intent eligibility check, priority-9 visibility gated by current phase). You don't need to re-implement any of these; just know how to use them.
 
 ### `ActivityTypeCatalog.LoadAll()`
 
