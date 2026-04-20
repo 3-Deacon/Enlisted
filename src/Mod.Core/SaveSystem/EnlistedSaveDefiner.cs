@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Equipment.Managers;
@@ -55,18 +55,18 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddClassDefinition(typeof(ReservistRecord), 24);
 
             // Pacing subsystem
-            AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
+            AddClassDefinition(typeof(Features.Content.StoryCandidatePersistent), 30);
 
             // Storylet backbone (Spec 0)
-            AddClassDefinition(typeof(Enlisted.Features.Flags.FlagStore), 43);
-            AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityStore), 40);
-            AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityValue), 41);
+            AddClassDefinition(typeof(Features.Flags.FlagStore), 43);
+            AddClassDefinition(typeof(Features.Qualities.QualityStore), 40);
+            AddClassDefinition(typeof(Features.Qualities.QualityValue), 41);
 
             // Activity subsystem (Spec 0) — concrete subclasses claim offsets 45-60 in surface specs
-            AddClassDefinition(typeof(Enlisted.Features.Activities.Activity), 44);
+            AddClassDefinition(typeof(Features.Activities.Activity), 44);
 
             // Spec 1 (Enlisted Home Surface) — offset 45
-            AddClassDefinition(typeof(Enlisted.Features.Activities.Home.HomeActivity), 45);
+            AddClassDefinition(typeof(Features.Activities.Home.HomeActivity), 45);
         }
 
         /// <summary>
@@ -93,14 +93,14 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddEnumDefinition(typeof(CampMood), 71);
 
             // Pacing subsystem enums
-            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
-            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
+            AddEnumDefinition(typeof(Features.Content.StoryTier), 80);
+            AddEnumDefinition(typeof(Features.Content.StoryBeat), 81);
 
             // Storylet backbone enums (Spec 0)
-            AddEnumDefinition(typeof(Enlisted.Features.Qualities.QualityScope), 82);
+            AddEnumDefinition(typeof(Features.Qualities.QualityScope), 82);
 
             // Activity subsystem enums (Spec 0)
-            AddEnumDefinition(typeof(Enlisted.Features.Activities.ActivityEndReason), 83);
+            AddEnumDefinition(typeof(Features.Activities.ActivityEndReason), 83);
         }
 
         /// <summary>
@@ -121,17 +121,17 @@ namespace Enlisted.Mod.Core.SaveSystem
             ConstructContainerDefinition(typeof(List<PhaseRecap>));           // OrderProgressionBehavior._phaseRecaps
 
             // Pacing subsystem containers (Dictionary<string,int> is already registered above)
-            ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
+            ConstructContainerDefinition(typeof(List<Features.Content.StoryCandidatePersistent>));
 
             // Storylet backbone containers (Spec 0)
-            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>));
-            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
-            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>));
-            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>>));
+            ConstructContainerDefinition(typeof(Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>));
+            ConstructContainerDefinition(typeof(Dictionary<TaleWorlds.ObjectSystem.MBGUID, Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
+            ConstructContainerDefinition(typeof(Dictionary<string, Features.Qualities.QualityValue>));
+            ConstructContainerDefinition(typeof(Dictionary<TaleWorlds.ObjectSystem.MBGUID, Dictionary<string, Features.Qualities.QualityValue>>));
 
             // Activity subsystem containers (Spec 0)
-            ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Activities.Activity>));
-            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>));
+            ConstructContainerDefinition(typeof(List<Features.Activities.Activity>));
+            ConstructContainerDefinition(typeof(Dictionary<string, List<string>>));
         }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
@@ -35,7 +34,7 @@ namespace Enlisted.Features.Combat.Behaviors
         ///     Used to prevent XP awards when entering reserve mode (OnPlayerBattleEnd fires but battle isn't actually over).
         /// </summary>
         public static bool IsWaitingInReserve { get; private set; }
-        
+
         /// <summary>
         ///     Clears the reserve state flag. Called when the lord is captured while player is in reserve,
         ///     allowing the capture to proceed cleanly.
@@ -82,31 +81,6 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 ModLogger.Caught("COMBAT", "Failed to initialize encounter behavior", ex);
             }
-        }
-        
-        /// <summary>
-        /// Menu background initialization for enlisted_battle_wait menu.
-        /// Sets culture-appropriate background and ambient audio for battle wait.
-        /// </summary>
-        [GameMenuInitializationHandler("enlisted_battle_wait")]
-        [SuppressMessage("ReSharper", "UnusedMember.Local", 
-            Justification = "Called by Bannerlord engine via GameMenuInitializationHandler attribute")]
-        private static void OnBattleWaitBackgroundInit(MenuCallbackArgs args)
-        {
-            var lord = EnlistmentBehavior.Instance?.CurrentLord;
-            var backgroundMesh = "encounter_looter";
-            
-            if (lord?.Clan?.Kingdom?.Culture?.EncounterBackgroundMesh != null)
-            {
-                backgroundMesh = lord.Clan.Kingdom.Culture.EncounterBackgroundMesh;
-            }
-            else if (lord?.Culture?.EncounterBackgroundMesh != null)
-            {
-                backgroundMesh = lord.Culture.EncounterBackgroundMesh;
-            }
-            
-            args.MenuContext.SetBackgroundMeshName(backgroundMesh);
-            args.MenuContext.SetAmbientSound("event:/map/ambient/node/settlements/2d/camp_army");
         }
 
         /// <summary>
@@ -204,14 +178,14 @@ namespace Enlisted.Features.Combat.Behaviors
             var lordParty = lord.PartyBelongedTo;
             var mapEvent = lordParty?.Party.MapEvent;
             var siegeEvent = lordParty?.Party.SiegeEvent;
-            
+
             // DIAGNOSTIC: Log why Wait in Reserve is being shown
             var currentMenu = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "unknown";
             var lordName = lord.Name?.ToString() ?? "null";
             var hasMapEvent = mapEvent != null;
             var hasSiegeEvent = siegeEvent != null;
-            
-            ModLogger.Info("ENCOUNTERGUARD", 
+
+            ModLogger.Info("ENCOUNTERGUARD",
                 $"WAIT_IN_RESERVE CHECK: Menu={currentMenu}, Lord={lordName}, MapEvent={hasMapEvent}, SiegeEvent={hasSiegeEvent}");
 
             // Two valid contexts for "Wait in Reserve":
@@ -219,14 +193,14 @@ namespace Enlisted.Features.Combat.Behaviors
             // 2. Pre-assault siege menu: No MapEvent yet, but SiegeEvent exists (join_siege_event menu)
             var hasFieldBattle = mapEvent != null && !mapEvent.IsSiegeAssault && mapEvent.EventType != MapEvent.BattleTypes.Siege;
             var hasPreAssaultSiege = mapEvent == null && siegeEvent != null;
-            
+
             // CRITICAL: Check if battle is already over (auto-resolved) - don't show Wait in Reserve, trigger cleanup
             if (mapEvent != null && (mapEvent.HasWinner || mapEvent.IsFinalized))
             {
                 var winnerSide = mapEvent.WinningSide;
-                ModLogger.Info("ENCOUNTERGUARD", 
+                ModLogger.Info("ENCOUNTERGUARD",
                     $"WAIT_IN_RESERVE: Battle already ended (HasWinner={mapEvent.HasWinner}, IsFinalized={mapEvent.IsFinalized}, WinningSide={winnerSide}) - triggering auto-cleanup");
-                
+
                 // Trigger deferred cleanup of the stale encounter
                 TriggerPostBattleCleanup();
                 return false;
@@ -267,12 +241,12 @@ namespace Enlisted.Features.Combat.Behaviors
         ///     Tracks whether a deferred cleanup is already scheduled to prevent duplicate cleanups.
         /// </summary>
         private static bool _postBattleCleanupScheduled;
-        
+
         /// <summary>
         ///     Timestamp when cleanup was last scheduled (for race condition detection).
         /// </summary>
         private static CampaignTime _lastCleanupScheduledTime = CampaignTime.Never;
-        
+
         /// <summary>
         ///     Triggers cleanup of a stale encounter after the battle has already ended.
         ///     This handles the case where auto-resolve completes but the encounter menu stays open.
@@ -295,23 +269,23 @@ namespace Enlisted.Features.Combat.Behaviors
             var currentMenu = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "none";
             var hasEncounter = PlayerEncounter.Current != null;
             var mapEventId = MobileParty.MainParty?.Party?.MapEvent?.GetHashCode().ToString() ?? "none";
-            
+
             // Guard against duplicate cleanup scheduling
             if (_postBattleCleanupScheduled)
             {
                 var timeSinceLastSchedule = CampaignTime.Now - _lastCleanupScheduledTime;
-                ModLogger.Debug("ENCOUNTERGUARD", 
+                ModLogger.Debug("ENCOUNTERGUARD",
                     $"AUTO-CLEANUP: Already scheduled {timeSinceLastSchedule.ToSeconds:F2}s ago, skipping duplicate (menu={currentMenu}, mapEvent={mapEventId})");
                 return;
             }
-            
+
             _postBattleCleanupScheduled = true;
             _lastCleanupScheduledTime = CampaignTime.Now;
-            
+
             // DIAGNOSTIC: Log that we're deferring cleanup during menu rendering to prevent crash
-            ModLogger.Info("ENCOUNTERGUARD", 
+            ModLogger.Info("ENCOUNTERGUARD",
                 $"AUTO-CLEANUP: Scheduling deferred cleanup for next frame (currentMenu={currentMenu}, hasEncounter={hasEncounter}, mapEventId={mapEventId})");
-            
+
             // CRITICAL: Defer to next frame to avoid modifying state during menu condition evaluation
             // The crash occurs because we're called from GetConditionsHold() during menu rendering,
             // and modifying encounter state corrupts the menu refresh loop.
@@ -324,7 +298,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 ExecutePostBattleCleanup(currentMenu, mapEventId);
             });
         }
-        
+
         /// <summary>
         ///     Executes the actual post-battle cleanup logic. Called from next frame dispatch.
         /// </summary>
@@ -339,17 +313,17 @@ namespace Enlisted.Features.Combat.Behaviors
                 var currentMapEventId = MobileParty.MainParty?.Party?.MapEvent?.GetHashCode().ToString() ?? "none";
                 var hasEncounter = PlayerEncounter.Current != null;
                 var timeSinceScheduled = CampaignTime.Now - _lastCleanupScheduledTime;
-                
-                ModLogger.Info("ENCOUNTERGUARD", 
+
+                ModLogger.Info("ENCOUNTERGUARD",
                     $"AUTO-CLEANUP: Executing deferred cleanup (delay={timeSinceScheduled.ToSeconds:F3}s, originalMenu={originalMenu}, currentMenu={currentMenu}, hasEncounter={hasEncounter})");
-                
+
                 // DIAGNOSTIC: Detect if map event changed during defer (indicates OnMapEventEnded already ran)
                 if (originalMapEventId != "none" && currentMapEventId != originalMapEventId)
                 {
-                    ModLogger.Info("ENCOUNTERGUARD", 
+                    ModLogger.Info("ENCOUNTERGUARD",
                         $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - OnMapEventEnded likely already handled cleanup");
                 }
-                
+
                 // Check if cleanup is still needed - OnMapEventEnded may have already handled it
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
@@ -357,13 +331,13 @@ namespace Enlisted.Features.Combat.Behaviors
                     ModLogger.Debug("ENCOUNTERGUARD", "AUTO-CLEANUP: No longer enlisted, skipping (OnMapEventEnded likely handled it)");
                     return;
                 }
-                
+
                 // DIAGNOSTIC: Warn if encounter already cleaned up
                 if (!hasEncounter)
                 {
                     ModLogger.Debug("ENCOUNTERGUARD", "AUTO-CLEANUP: No PlayerEncounter exists (OnMapEventEnded likely already cleaned it up)");
                 }
-                
+
                 // Clean up the encounter state
                 if (PlayerEncounter.Current != null)
                 {
@@ -375,7 +349,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     PlayerEncounter.Finish();
                     ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: PlayerEncounter finished");
                 }
-                
+
                 // Deactivate player party to prevent further stale encounters
                 var mainParty = MobileParty.MainParty;
                 if (mainParty != null && enlistment.IsEnlisted)
@@ -384,10 +358,10 @@ namespace Enlisted.Features.Combat.Behaviors
                     mainParty.IsVisible = false;
                     ModLogger.Info("ENCOUNTERGUARD", "AUTO-CLEANUP: Deactivated party");
                 }
-                
+
                 // Clear the reserve state flag if set
                 ClearReserveState();
-                
+
                 // Return to appropriate menu based on army status
                 if (mainParty?.Army != null && mainParty.Army.LeaderParty != mainParty)
                 {
@@ -431,10 +405,10 @@ namespace Enlisted.Features.Combat.Behaviors
                 var enlistmentBehavior = EnlistmentBehavior.Instance;
                 var lordParty = enlistmentBehavior?.CurrentLord?.PartyBelongedTo;
                 var mapEvent = lordParty?.Party.MapEvent;
-                
+
                 // Only block during ACTIVE siege assault (MapEvent exists and is siege type)
                 // Allow on join_siege_event menu (no MapEvent yet, just choosing whether to participate)
-                var inActiveSiegeAssault = mapEvent != null && 
+                var inActiveSiegeAssault = mapEvent != null &&
                                            (mapEvent.IsSiegeAssault || mapEvent.EventType == MapEvent.BattleTypes.Siege);
 
                 if (inActiveSiegeAssault)
@@ -566,19 +540,19 @@ namespace Enlisted.Features.Combat.Behaviors
                 {
                     return;
                 }
-                
+
                 // If no time state was captured yet (menu opened via native encounter system),
                 // capture current time now so we have a baseline for restoration
                 if (!QuartermasterManager.CapturedTimeMode.HasValue && Campaign.Current != null)
                 {
                     QuartermasterManager.CapturedTimeMode = Campaign.Current.TimeControlMode;
                 }
-                
+
                 // NOTE: Time mode restoration is handled ONCE in menu init, not here.
                 // Previously this tick handler would restore CapturedTimeMode whenever it saw
                 // UnstoppableFastForward, but this fought with user input - when the user clicked
                 // fast forward, the next tick would immediately restore it. This caused x3 speed to pause.
-                
+
                 // Validate time delta to prevent assertion failures
                 // Zero-delta-time updates can cause assertion failures in the rendering system
                 if (dt.ToSeconds <= 0)
@@ -590,7 +564,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 var lord = enlistment?.CurrentLord;
                 var lordParty = lord?.PartyBelongedTo;
                 var mapEvent = lordParty?.Party.MapEvent;
-                
+
                 // Check if this is an actual siege ASSAULT (attacking the walls)
                 // Do NOT exit reserve for:
                 // - Sally out battles (defenders coming out to fight)
@@ -605,7 +579,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     // Otherwise GenericStateMenuPatch still sees IsWaitingInReserve=true and returns
                     // "enlisted_battle_wait", causing the menu to immediately re-open in an infinite loop
                     IsWaitingInReserve = false;
-                    
+
                     // Restore player party to active state so they can participate in the siege
                     var mainParty = MobileParty.MainParty;
                     if (mainParty != null)
@@ -613,7 +587,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         mainParty.IsActive = true;
                         mainParty.IsVisible = true;
                     }
-                    
+
                     args.MenuContext.GameMenu.EndWait();
                     ModLogger.Info("BATTLE", "Siege assault started - cleared reserve state, exiting for native encounter");
                     NextFrameDispatcher.RunNextFrame(() =>
@@ -663,13 +637,13 @@ namespace Enlisted.Features.Combat.Behaviors
                             mainParty.MapEventSide = null;
                         }
                     }
-                    
+
                     return;
                 }
 
                 // Lord's current MapEvent is null, but check if we're in an army that's still fighting
                 // Army battles can have multiple waves - don't exit reserve until the entire army sequence is done
-                var armyStillInBattle = lordParty?.Army != null && 
+                var armyStillInBattle = lordParty?.Army != null &&
                                         lordParty.Army.Parties.Any(p => p?.Party?.MapEvent != null);
 
                 if (armyStillInBattle)
@@ -708,16 +682,16 @@ namespace Enlisted.Features.Combat.Behaviors
                 // Battle ends when: MapEvent is null, OR MapEvent.HasWinner is true
                 // Note: lord, lordParty, and mapEvent are already declared above
                 var battleEnded = mapEvent == null || mapEvent.HasWinner;
-                
+
                 // Also check if lord's party is gone (disbanded/captured)
                 var lordPartyGone = lordParty == null || !lordParty.IsActive;
-                
+
                 if ((battleEnded || lordPartyGone) && string.IsNullOrEmpty(genericStateMenu))
                 {
                     // Clear the waiting in reserve flag - battle has ended
                     IsWaitingInReserve = false;
                     args.MenuContext.GameMenu.EndWait();
-                    
+
                     // CRITICAL: Fully clean up the encounter state so the player doesn't get stuck invisible
                     // When the battle ends while in reserve, we must call Finish() to immediately clear
                     // PlayerEncounter.Current. Setting LeaveEncounter=true alone is not enough because
@@ -735,7 +709,7 @@ namespace Enlisted.Features.Combat.Behaviors
                             {
                                 PlayerEncounter.LeaveSettlement();
                             }
-                            
+
                             PlayerEncounter.Finish(); // Immediately clear PlayerEncounter.Current
                             ModLogger.Info("BATTLE", "Finished PlayerEncounter after battle end");
                         }
@@ -744,7 +718,7 @@ namespace Enlisted.Features.Combat.Behaviors
                             ModLogger.Caught("BATTLE", "Error finishing encounter", finishEx);
                         }
                     }
-                    
+
                     // Restore player party to map - needed whether enlisted or not since we just exited reserve
                     var mainParty = MobileParty.MainParty;
                     if (mainParty != null && Hero.MainHero?.IsPrisoner != true)
@@ -754,7 +728,7 @@ namespace Enlisted.Features.Combat.Behaviors
                         mainParty.SetMoveModeHold(); // Stop any phantom movement from battle
                         ModLogger.Info("BATTLE", "Restored player party to map after battle/reserve end");
                     }
-                    
+
                     // Return to normal enlisted state or campaign map
                     // Note: 'enlistment' variable is already defined at the start of this method
                     // If lord's party is gone, go to campaign map (hourly tick will handle grace period)
@@ -826,12 +800,12 @@ namespace Enlisted.Features.Combat.Behaviors
                             {
                                 playerParty.MapEventSide = lordSide;
                             }
-                            
+
                             GameMenu.ActivateGameMenu("encounter");
                             ModLogger.Info("BATTLE", "Player rejoining battle from reserve");
                             return;
                         }
-                        
+
                         // Lord not in battle - check what menu native system wants
                         var desiredMenu = Campaign.Current?.Models?.EncounterGameMenuModel?.GetGenericStateMenu();
 

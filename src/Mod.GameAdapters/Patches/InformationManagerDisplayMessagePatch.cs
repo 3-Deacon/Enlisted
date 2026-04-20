@@ -1,9 +1,9 @@
-using HarmonyLib;
-using TaleWorlds.Library;
-using TaleWorlds.MountAndBlade;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.Library;
+using TaleWorlds.MountAndBlade;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -15,7 +15,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [HarmonyPatch(typeof(InformationManager), "DisplayMessage")]
     internal class InformationManagerDisplayMessagePatch
     {
-        
+
         /// <summary>
         /// Prefix that decides whether to show messages in native log or custom log.
         /// Returns false to suppress native display when enlisted.
@@ -30,14 +30,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true; // Execute original DisplayMessage
                 }
-                
+
                 // Not enlisted: use native combat log
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment == null || !enlistment.IsEnlisted)
                 {
                     return true; // Execute original DisplayMessage
                 }
-                
+
                 // Enlisted: route to custom combat log
                 var combatLog = EnlistedCombatLogBehavior.Instance;
                 if (combatLog != null)

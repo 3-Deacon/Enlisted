@@ -131,14 +131,17 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 | File | Purpose | Key Rules |
 | :--- | :--- | :--- |
 | [.editorconfig](../.editorconfig) | Formatting and style | 4-space C# indent, warns on unused `using`, warns on redundant qualifiers |
-| [qodana.yaml](../qodana.yaml) | Static analysis (CI) | Enforces: unused code detection, redundant qualifier removal, documented suppressions only |
+| [ruff.toml](../ruff.toml) | Python lint/format | Enforces imports, common errors, safe upgrades, and simplifications for `Tools/**/*.py` |
+| [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1) | PowerShell lint | Enforces approved verbs, comment help, formatting, and scripting pitfalls for `Tools/**/*.ps1` |
+| [Tools/Validation/lint_repo.ps1](../Tools/Validation/lint_repo.ps1) | Unified lint command | Runs C# style, content validation, Ruff, and PSScriptAnalyzer |
 | [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings) | ReSharper settings | Excludes markdown from inspections |
 
 **What these enforce (from Blueprint):**
 
 - ✅ No unused `using` directives (warns in IDE)
 - ✅ No redundant namespace qualifiers like `System.String.Empty` (warns in IDE)
-- ✅ No unused methods, variables, or parameters (Qodana CI check)
+- ✅ Python tool scripts are linted and format-checked by Ruff
+- ✅ PowerShell scripts are linted by PSScriptAnalyzer
 - ✅ JSON/XML files use 2-space indentation
 - ✅ All suppressions must be documented with reasons
 
@@ -513,10 +516,10 @@ if (eb?.IsEnlisted == true)
 
 ### Code Quality
 
-- **Read the configuration files first**: [.editorconfig](../.editorconfig), [qodana.yaml](../qodana.yaml), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
-- **ReSharper/Rider is the linter**: Follow warnings and recommendations
-- **Fix issues, don't suppress**: Only suppress with documented justification (see `qodana.yaml` for examples)
-- **Enforced by CI**: Unused code, redundant qualifiers, and missing documentation are flagged by Qodana
+- **Read the configuration files first**: [.editorconfig](../.editorconfig), [ruff.toml](../ruff.toml), [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
+- **Run the repo lint stack**: `.\Tools\Validation\lint_repo.ps1`
+- **ReSharper/Rider plus repo lint are the active checks**: Follow warnings and recommendations
+- **Fix issues, don't suppress**: Only suppress with documented justification in the active config files
 - **Blueprint Constraint #6**: "Follow ReSharper recommendations (never suppress without documented reason)"
 
 ### Comments

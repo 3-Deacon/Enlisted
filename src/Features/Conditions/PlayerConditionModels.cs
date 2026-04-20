@@ -60,10 +60,12 @@ namespace Enlisted.Features.Conditions
     {
         [JsonProperty("schemaVersion")] public int SchemaVersion { get; set; } = 1;
 
-        [JsonProperty("injuries")] public Dictionary<string, InjuryDefinitionJson> Injuries { get; set; } =
+        [JsonProperty("injuries")]
+        public Dictionary<string, InjuryDefinitionJson> Injuries { get; set; } =
             new Dictionary<string, InjuryDefinitionJson>();
 
-        [JsonProperty("illnesses")] public Dictionary<string, IllnessDefinitionJson> Illnesses { get; set; } =
+        [JsonProperty("illnesses")]
+        public Dictionary<string, IllnessDefinitionJson> Illnesses { get; set; } =
             new Dictionary<string, IllnessDefinitionJson>();
     }
 
@@ -88,7 +90,7 @@ namespace Enlisted.Features.Conditions
 
         public bool HasInjury => CurrentInjury != InjurySeverity.None && InjuryDaysRemaining > 0;
         public bool HasIllness => CurrentIllness != IllnessSeverity.None && IllnessDaysRemaining > 0;
-        
+
         /// <summary>
         /// True if player has an injury or illness requiring medical attention.
         /// Exhaustion is NOT included as it doesn't require surgeon/medical decisions.

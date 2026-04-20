@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Qualities
+namespace Enlisted.Features.Qualities
 {
     /// <summary>
     /// Stored = QualityStore owns the int; persists in save.

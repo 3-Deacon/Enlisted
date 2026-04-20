@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Features.Content
@@ -48,10 +47,10 @@ namespace Enlisted.Features.Content
         /// <summary>Persists pacing state across save/load cycles.</summary>
         public override void SyncData(IDataStore dataStore)
         {
-            dataStore.SyncData("storydir_lastModalDay", ref _lastModalDay);
-            dataStore.SyncData("storydir_lastModalUtcTicks", ref _lastModalUtcTicks);
-            dataStore.SyncData("storydir_categoryCooldowns", ref _categoryCooldowns);
-            dataStore.SyncData("storydir_deferredInteractive", ref _deferredInteractive);
+            _ = dataStore.SyncData("storydir_lastModalDay", ref _lastModalDay);
+            _ = dataStore.SyncData("storydir_lastModalUtcTicks", ref _lastModalUtcTicks);
+            _ = dataStore.SyncData("storydir_categoryCooldowns", ref _categoryCooldowns);
+            _ = dataStore.SyncData("storydir_deferredInteractive", ref _deferredInteractive);
         }
 
         /// <summary>
@@ -307,7 +306,7 @@ namespace Enlisted.Features.Content
 
         private static void WriteDispatchItem(StoryCandidate c, StoryTier tier)
         {
-            var news = Campaign.Current?.GetCampaignBehavior<Enlisted.Features.Interface.Behaviors.EnlistedNewsBehavior>();
+            var news = Campaign.Current?.GetCampaignBehavior<Interface.Behaviors.EnlistedNewsBehavior>();
             if (news == null) { return; }
 
             int severity = c.SeverityLevel;
@@ -329,7 +328,7 @@ namespace Enlisted.Features.Content
                 severity: severity,
                 minDisplayDays: c.MinDisplayDays,
                 tier: tier,
-                beats: c.Beats != null ? new System.Collections.Generic.HashSet<StoryBeat>(c.Beats) : null,
+                beats: c.Beats != null ? new HashSet<StoryBeat>(c.Beats) : null,
                 body: c.RenderedBody);
         }
     }

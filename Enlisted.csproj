@@ -600,8 +600,6 @@
     <Content Include="ModuleData\Languages\language_data.xml"/>
     <Content Include="ModuleData\Languages\enlisted_qm_dialogue.xml"/>
     
-    <!-- Development Tools -->
-    <Content Include="parse_qodana.py" />
   </ItemGroup>
   <!-- ========================================================================
        DATA FILE COLLECTIONS (for AfterBuild Copy)
@@ -705,8 +703,8 @@
     <!-- Configuration Files -->
     <None Include=".editorconfig"/>
     <None Include=".gitignore"/>
-    <None Include="qodana.yaml"/>
-    <None Include="qodana-fix.yml"/>
+    <None Include="ruff.toml"/>
+    <None Include="PSScriptAnalyzerSettings.psd1"/>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
   

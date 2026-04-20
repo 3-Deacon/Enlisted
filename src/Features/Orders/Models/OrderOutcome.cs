@@ -64,7 +64,7 @@ namespace Enlisted.Features.Orders.Models
         /// DEPRECATED: Use InjuryType instead for narrative-driven injuries with varied severity.
         /// </summary>
         public int? HpLoss { get; set; }
-        
+
         /// <summary>
         /// Injury type inflicted on player (e.g., "sprained_ankle", "broken_rib", "head_wound").
         /// When set, applies percentage-based HP loss and narrative from injury definitions.

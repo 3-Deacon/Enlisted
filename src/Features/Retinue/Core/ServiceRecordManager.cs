@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -76,11 +76,11 @@ namespace Enlisted.Features.Retinue.Core
                 var totalEnlist = _lifetimeRecord.TotalEnlistments;
                 var totalBattles = _lifetimeRecord.TotalBattlesFought;
 
-                dataStore.SyncData("svc_lifetimeKills", ref lifetimeKills);
-                dataStore.SyncData("svc_totalDaysServed", ref totalDays);
-                dataStore.SyncData("svc_termsCompleted", ref termsComplete);
-                dataStore.SyncData("svc_totalEnlistments", ref totalEnlist);
-                dataStore.SyncData("svc_totalBattles", ref totalBattles);
+                _ = dataStore.SyncData("svc_lifetimeKills", ref lifetimeKills);
+                _ = dataStore.SyncData("svc_totalDaysServed", ref totalDays);
+                _ = dataStore.SyncData("svc_termsCompleted", ref termsComplete);
+                _ = dataStore.SyncData("svc_totalEnlistments", ref totalEnlist);
+                _ = dataStore.SyncData("svc_totalBattles", ref totalBattles);
 
                 if (dataStore.IsLoading)
                 {
@@ -93,7 +93,7 @@ namespace Enlisted.Features.Retinue.Core
 
                 var factionsServedList = _lifetimeRecord.FactionsServed ?? new List<string>();
                 var factionCount = factionsServedList.Count;
-                dataStore.SyncData("svc_factionServedCount", ref factionCount);
+                _ = dataStore.SyncData("svc_factionServedCount", ref factionCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -101,7 +101,7 @@ namespace Enlisted.Features.Retinue.Core
                     for (var i = 0; i < factionCount; i++)
                     {
                         var factionId = string.Empty;
-                        dataStore.SyncData($"svc_factionServed_{i}", ref factionId);
+                        _ = dataStore.SyncData($"svc_factionServed_{i}", ref factionId);
                         if (!string.IsNullOrEmpty(factionId))
                         {
                             factionsServedList.Add(factionId);
@@ -114,14 +114,14 @@ namespace Enlisted.Features.Retinue.Core
                     for (var i = 0; i < factionCount; i++)
                     {
                         var factionId = factionsServedList[i];
-                        dataStore.SyncData($"svc_factionServed_{i}", ref factionId);
+                        _ = dataStore.SyncData($"svc_factionServed_{i}", ref factionId);
                     }
                 }
 
-                dataStore.SyncData("svc_currentTermBattles", ref _currentTermBattles);
-                dataStore.SyncData("svc_currentTermKills", ref _currentTermKills);
-                dataStore.SyncData("svc_currentFactionId", ref _currentFactionId);
-                dataStore.SyncData("svc_currentLordId", ref _currentLordId);
+                _ = dataStore.SyncData("svc_currentTermBattles", ref _currentTermBattles);
+                _ = dataStore.SyncData("svc_currentTermKills", ref _currentTermKills);
+                _ = dataStore.SyncData("svc_currentFactionId", ref _currentFactionId);
+                _ = dataStore.SyncData("svc_currentLordId", ref _currentLordId);
 
                 // Reservist snapshot
                 var resLord = _reservistRecord.LastLordId;
@@ -135,16 +135,16 @@ namespace Enlisted.Features.Retinue.Core
                 var resConsumed = _reservistRecord.Consumed;
                 var resGrantedProbation = _reservistRecord.GrantedProbation;
 
-                dataStore.SyncData("svc_reservist_lastLord", ref resLord);
-                dataStore.SyncData("svc_reservist_lastFaction", ref resFaction);
-                dataStore.SyncData("svc_reservist_daysServed", ref resDays);
-                dataStore.SyncData("svc_reservist_tier", ref resTier);
-                dataStore.SyncData("svc_reservist_xp", ref resXp);
-                dataStore.SyncData("svc_reservist_band", ref resBand);
-                dataStore.SyncData("svc_reservist_relation", ref resRel);
-                dataStore.SyncData("svc_reservist_recordedAt", ref resAt);
-                dataStore.SyncData("svc_reservist_consumed", ref resConsumed);
-                dataStore.SyncData("svc_reservist_grantedProbation", ref resGrantedProbation);
+                _ = dataStore.SyncData("svc_reservist_lastLord", ref resLord);
+                _ = dataStore.SyncData("svc_reservist_lastFaction", ref resFaction);
+                _ = dataStore.SyncData("svc_reservist_daysServed", ref resDays);
+                _ = dataStore.SyncData("svc_reservist_tier", ref resTier);
+                _ = dataStore.SyncData("svc_reservist_xp", ref resXp);
+                _ = dataStore.SyncData("svc_reservist_band", ref resBand);
+                _ = dataStore.SyncData("svc_reservist_relation", ref resRel);
+                _ = dataStore.SyncData("svc_reservist_recordedAt", ref resAt);
+                _ = dataStore.SyncData("svc_reservist_consumed", ref resConsumed);
+                _ = dataStore.SyncData("svc_reservist_grantedProbation", ref resGrantedProbation);
 
                 if (dataStore.IsLoading)
                 {
@@ -180,47 +180,47 @@ namespace Enlisted.Features.Retinue.Core
         {
             // Selected type
             var typeId = _retinueState.SelectedTypeId ?? string.Empty;
-            dataStore.SyncData("ret_selectedType", ref typeId);
+            _ = dataStore.SyncData("ret_selectedType", ref typeId);
 
             // Trickle tracking
             var daysSinceTrickle = _retinueState.DaysSinceLastTrickle;
-            dataStore.SyncData("ret_trickleDays", ref daysSinceTrickle);
+            _ = dataStore.SyncData("ret_trickleDays", ref daysSinceTrickle);
 
             // Requisition cooldown - CampaignTime can be serialized directly
             var cooldownEnd = _retinueState.RequisitionCooldownEnd;
-            dataStore.SyncData("ret_reqCooldown", ref cooldownEnd);
+            _ = dataStore.SyncData("ret_reqCooldown", ref cooldownEnd);
 
             // Battle tracking
             var lastBattleTime = _retinueState.LastBattleTime;
             var lastBattleWon = _retinueState.LastBattleWon;
             var lastBattleOutcome = (int)_retinueState.LastBattleOutcome;
-            dataStore.SyncData("ret_lastBattleTime", ref lastBattleTime);
-            dataStore.SyncData("ret_lastBattleWon", ref lastBattleWon);
-            dataStore.SyncData("ret_lastBattleOutcome", ref lastBattleOutcome);
+            _ = dataStore.SyncData("ret_lastBattleTime", ref lastBattleTime);
+            _ = dataStore.SyncData("ret_lastBattleWon", ref lastBattleWon);
+            _ = dataStore.SyncData("ret_lastBattleOutcome", ref lastBattleOutcome);
 
             // Reinforcement request cooldown
             var reinforcementCooldown = _retinueState.ReinforcementRequestCooldownEnd;
-            dataStore.SyncData("ret_reinforceCooldown", ref reinforcementCooldown);
+            _ = dataStore.SyncData("ret_reinforceCooldown", ref reinforcementCooldown);
 
             // Loyalty system
             var retinueLoyalty = _retinueState.RetinueLoyalty;
             var lastThreshold = (int)_retinueState.LastLoyaltyThresholdCrossed;
             var thresholdEventTime = _retinueState.LastThresholdEventTime;
-            dataStore.SyncData("ret_loyalty", ref retinueLoyalty);
-            dataStore.SyncData("ret_lastThreshold", ref lastThreshold);
-            dataStore.SyncData("ret_thresholdEventTime", ref thresholdEventTime);
+            _ = dataStore.SyncData("ret_loyalty", ref retinueLoyalty);
+            _ = dataStore.SyncData("ret_lastThreshold", ref lastThreshold);
+            _ = dataStore.SyncData("ret_thresholdEventTime", ref thresholdEventTime);
 
             // Battles participated counter
             var battlesParticipated = _retinueState.BattlesParticipated;
-            dataStore.SyncData("ret_battlesParticipated", ref battlesParticipated);
+            _ = dataStore.SyncData("ret_battlesParticipated", ref battlesParticipated);
 
             // Troop counts dictionary
             var troopCount = _retinueState.TroopCounts?.Count ?? 0;
-            dataStore.SyncData("ret_troopCount", ref troopCount);
+            _ = dataStore.SyncData("ret_troopCount", ref troopCount);
 
             // Named veterans list
             var veteranCount = _retinueState.NamedVeterans?.Count ?? 0;
-            dataStore.SyncData("ret_veteranCount", ref veteranCount);
+            _ = dataStore.SyncData("ret_veteranCount", ref veteranCount);
 
             if (dataStore.IsLoading)
             {
@@ -241,8 +241,8 @@ namespace Enlisted.Features.Retinue.Core
                 {
                     var troopId = string.Empty;
                     var count = 0;
-                    dataStore.SyncData($"ret_troop_{i}_id", ref troopId);
-                    dataStore.SyncData($"ret_troop_{i}_count", ref count);
+                    _ = dataStore.SyncData($"ret_troop_{i}_id", ref troopId);
+                    _ = dataStore.SyncData($"ret_troop_{i}_count", ref count);
 
                     if (!string.IsNullOrEmpty(troopId) && count > 0)
                     {
@@ -262,13 +262,13 @@ namespace Enlisted.Features.Retinue.Core
                     var vetWounded = false;
                     var vetEmergenceTime = 0f;
 
-                    dataStore.SyncData($"ret_vet_{i}_id", ref vetId);
-                    dataStore.SyncData($"ret_vet_{i}_name", ref vetName);
-                    dataStore.SyncData($"ret_vet_{i}_trait", ref vetTrait);
-                    dataStore.SyncData($"ret_vet_{i}_battles", ref vetBattles);
-                    dataStore.SyncData($"ret_vet_{i}_kills", ref vetKills);
-                    dataStore.SyncData($"ret_vet_{i}_wounded", ref vetWounded);
-                    dataStore.SyncData($"ret_vet_{i}_emergence", ref vetEmergenceTime);
+                    _ = dataStore.SyncData($"ret_vet_{i}_id", ref vetId);
+                    _ = dataStore.SyncData($"ret_vet_{i}_name", ref vetName);
+                    _ = dataStore.SyncData($"ret_vet_{i}_trait", ref vetTrait);
+                    _ = dataStore.SyncData($"ret_vet_{i}_battles", ref vetBattles);
+                    _ = dataStore.SyncData($"ret_vet_{i}_kills", ref vetKills);
+                    _ = dataStore.SyncData($"ret_vet_{i}_wounded", ref vetWounded);
+                    _ = dataStore.SyncData($"ret_vet_{i}_emergence", ref vetEmergenceTime);
 
                     if (!string.IsNullOrEmpty(vetId))
                     {
@@ -295,8 +295,8 @@ namespace Enlisted.Features.Retinue.Core
                     {
                         var troopId = kvp.Key;
                         var count = kvp.Value;
-                        dataStore.SyncData($"ret_troop_{idx}_id", ref troopId);
-                        dataStore.SyncData($"ret_troop_{idx}_count", ref count);
+                        _ = dataStore.SyncData($"ret_troop_{idx}_id", ref troopId);
+                        _ = dataStore.SyncData($"ret_troop_{idx}_count", ref count);
                         idx++;
                     }
                 }
@@ -315,13 +315,13 @@ namespace Enlisted.Features.Retinue.Core
                         var vetWounded = vet.IsWounded;
                         var vetEmergenceTime = vet.EmergenceTimeInDays;
 
-                        dataStore.SyncData($"ret_vet_{i}_id", ref vetId);
-                        dataStore.SyncData($"ret_vet_{i}_name", ref vetName);
-                        dataStore.SyncData($"ret_vet_{i}_trait", ref vetTrait);
-                        dataStore.SyncData($"ret_vet_{i}_battles", ref vetBattles);
-                        dataStore.SyncData($"ret_vet_{i}_kills", ref vetKills);
-                        dataStore.SyncData($"ret_vet_{i}_wounded", ref vetWounded);
-                        dataStore.SyncData($"ret_vet_{i}_emergence", ref vetEmergenceTime);
+                        _ = dataStore.SyncData($"ret_vet_{i}_id", ref vetId);
+                        _ = dataStore.SyncData($"ret_vet_{i}_name", ref vetName);
+                        _ = dataStore.SyncData($"ret_vet_{i}_trait", ref vetTrait);
+                        _ = dataStore.SyncData($"ret_vet_{i}_battles", ref vetBattles);
+                        _ = dataStore.SyncData($"ret_vet_{i}_kills", ref vetKills);
+                        _ = dataStore.SyncData($"ret_vet_{i}_wounded", ref vetWounded);
+                        _ = dataStore.SyncData($"ret_vet_{i}_emergence", ref vetEmergenceTime);
                     }
                 }
             }
@@ -330,133 +330,133 @@ namespace Enlisted.Features.Retinue.Core
         private void SerializeFactionRecords(IDataStore dataStore)
         {
             var recordCount = _factionRecords?.Count ?? 0;
-            dataStore.SyncData("svc_recordCount", ref recordCount);
+            _ = dataStore.SyncData("svc_recordCount", ref recordCount);
 
-                if (dataStore.IsLoading)
+            if (dataStore.IsLoading)
+            {
+                _factionRecords = new Dictionary<string, FactionServiceRecord>();
+                for (var i = 0; i < recordCount; i++)
                 {
-                    _factionRecords = new Dictionary<string, FactionServiceRecord>();
-                    for (var i = 0; i < recordCount; i++)
+                    var factionId = string.Empty;
+                    var factionType = string.Empty;
+                    var displayName = string.Empty;
+                    var terms = 0;
+                    var days = 0;
+                    var tier = 0;
+                    var battles = 0;
+                    var lords = 0;
+                    var enlistments = 0;
+                    var kills = 0;
+
+                    // New fields for discharge/re-enlistment tracking
+                    var reenlistBlockedUntil = CampaignTime.Zero;
+                    var lastDischargeBand = string.Empty;
+
+                    // Term tracking fields (migrated from FactionVeteranRecord)
+                    var firstTermCompleted = false;
+                    var preservedTier = 1;
+                    var cooldownEnds = CampaignTime.Zero;
+                    var currentTermEnd = CampaignTime.Zero;
+                    var isInRenewalTerm = false;
+                    var renewalTermsCompleted = 0;
+
+                    _ = dataStore.SyncData($"svc_rec_{i}_id", ref factionId);
+                    _ = dataStore.SyncData($"svc_rec_{i}_type", ref factionType);
+                    _ = dataStore.SyncData($"svc_rec_{i}_name", ref displayName);
+                    _ = dataStore.SyncData($"svc_rec_{i}_terms", ref terms);
+                    _ = dataStore.SyncData($"svc_rec_{i}_days", ref days);
+                    _ = dataStore.SyncData($"svc_rec_{i}_tier", ref tier);
+                    _ = dataStore.SyncData($"svc_rec_{i}_battles", ref battles);
+                    _ = dataStore.SyncData($"svc_rec_{i}_lords", ref lords);
+                    _ = dataStore.SyncData($"svc_rec_{i}_enlist", ref enlistments);
+                    _ = dataStore.SyncData($"svc_rec_{i}_kills", ref kills);
+
+                    // Sync new fields
+                    _ = dataStore.SyncData($"svc_rec_{i}_reblockUntil", ref reenlistBlockedUntil);
+                    _ = dataStore.SyncData($"svc_rec_{i}_dischargeBand", ref lastDischargeBand);
+                    _ = dataStore.SyncData($"svc_rec_{i}_firstTerm", ref firstTermCompleted);
+                    _ = dataStore.SyncData($"svc_rec_{i}_preservedTier", ref preservedTier);
+                    _ = dataStore.SyncData($"svc_rec_{i}_cooldownEnds", ref cooldownEnds);
+                    _ = dataStore.SyncData($"svc_rec_{i}_termEnd", ref currentTermEnd);
+                    _ = dataStore.SyncData($"svc_rec_{i}_inRenewal", ref isInRenewalTerm);
+                    _ = dataStore.SyncData($"svc_rec_{i}_renewalCount", ref renewalTermsCompleted);
+
+                    if (!string.IsNullOrEmpty(factionId))
                     {
-                        var factionId = string.Empty;
-                        var factionType = string.Empty;
-                        var displayName = string.Empty;
-                        var terms = 0;
-                        var days = 0;
-                        var tier = 0;
-                        var battles = 0;
-                        var lords = 0;
-                        var enlistments = 0;
-                        var kills = 0;
-
-                        // New fields for discharge/re-enlistment tracking
-                        var reenlistBlockedUntil = CampaignTime.Zero;
-                        var lastDischargeBand = string.Empty;
-
-                        // Term tracking fields (migrated from FactionVeteranRecord)
-                        var firstTermCompleted = false;
-                        var preservedTier = 1;
-                        var cooldownEnds = CampaignTime.Zero;
-                        var currentTermEnd = CampaignTime.Zero;
-                        var isInRenewalTerm = false;
-                        var renewalTermsCompleted = 0;
-
-                        dataStore.SyncData($"svc_rec_{i}_id", ref factionId);
-                        dataStore.SyncData($"svc_rec_{i}_type", ref factionType);
-                        dataStore.SyncData($"svc_rec_{i}_name", ref displayName);
-                        dataStore.SyncData($"svc_rec_{i}_terms", ref terms);
-                        dataStore.SyncData($"svc_rec_{i}_days", ref days);
-                        dataStore.SyncData($"svc_rec_{i}_tier", ref tier);
-                        dataStore.SyncData($"svc_rec_{i}_battles", ref battles);
-                        dataStore.SyncData($"svc_rec_{i}_lords", ref lords);
-                        dataStore.SyncData($"svc_rec_{i}_enlist", ref enlistments);
-                        dataStore.SyncData($"svc_rec_{i}_kills", ref kills);
-
-                        // Sync new fields
-                        dataStore.SyncData($"svc_rec_{i}_reblockUntil", ref reenlistBlockedUntil);
-                        dataStore.SyncData($"svc_rec_{i}_dischargeBand", ref lastDischargeBand);
-                        dataStore.SyncData($"svc_rec_{i}_firstTerm", ref firstTermCompleted);
-                        dataStore.SyncData($"svc_rec_{i}_preservedTier", ref preservedTier);
-                        dataStore.SyncData($"svc_rec_{i}_cooldownEnds", ref cooldownEnds);
-                        dataStore.SyncData($"svc_rec_{i}_termEnd", ref currentTermEnd);
-                        dataStore.SyncData($"svc_rec_{i}_inRenewal", ref isInRenewalTerm);
-                        dataStore.SyncData($"svc_rec_{i}_renewalCount", ref renewalTermsCompleted);
-
-                        if (!string.IsNullOrEmpty(factionId))
+                        _factionRecords[factionId] = new FactionServiceRecord(factionId, factionType, displayName)
                         {
-                            _factionRecords[factionId] = new FactionServiceRecord(factionId, factionType, displayName)
-                            {
-                                TermsCompleted = terms,
-                                TotalDaysServed = days,
-                                HighestTier = tier,
-                                BattlesFought = battles,
-                                LordsServed = lords,
-                                Enlistments = enlistments,
-                                TotalKills = kills,
-                                ReenlistmentBlockedUntil = reenlistBlockedUntil,
-                                LastDischargeBand = lastDischargeBand ?? string.Empty,
-                                FirstTermCompleted = firstTermCompleted,
-                                PreservedTier = preservedTier,
-                                CooldownEnds = cooldownEnds,
-                                CurrentTermEnd = currentTermEnd,
-                                IsInRenewalTerm = isInRenewalTerm,
-                                RenewalTermsCompleted = renewalTermsCompleted
-                            };
-                        }
+                            TermsCompleted = terms,
+                            TotalDaysServed = days,
+                            HighestTier = tier,
+                            BattlesFought = battles,
+                            LordsServed = lords,
+                            Enlistments = enlistments,
+                            TotalKills = kills,
+                            ReenlistmentBlockedUntil = reenlistBlockedUntil,
+                            LastDischargeBand = lastDischargeBand ?? string.Empty,
+                            FirstTermCompleted = firstTermCompleted,
+                            PreservedTier = preservedTier,
+                            CooldownEnds = cooldownEnds,
+                            CurrentTermEnd = currentTermEnd,
+                            IsInRenewalTerm = isInRenewalTerm,
+                            RenewalTermsCompleted = renewalTermsCompleted
+                        };
                     }
                 }
-                else if (_factionRecords != null)
+            }
+            else if (_factionRecords != null)
+            {
+                var idx = 0;
+                foreach (var kvp in _factionRecords)
                 {
-                    var idx = 0;
-                    foreach (var kvp in _factionRecords)
-                    {
-                        var rec = kvp.Value;
-                        var factionId = rec.FactionId;
-                        var factionType = rec.FactionType;
-                        var displayName = rec.FactionDisplayName;
-                        var terms = rec.TermsCompleted;
-                        var days = rec.TotalDaysServed;
-                        var tier = rec.HighestTier;
-                        var battles = rec.BattlesFought;
-                        var lords = rec.LordsServed;
-                        var enlistments = rec.Enlistments;
-                        var kills = rec.TotalKills;
+                    var rec = kvp.Value;
+                    var factionId = rec.FactionId;
+                    var factionType = rec.FactionType;
+                    var displayName = rec.FactionDisplayName;
+                    var terms = rec.TermsCompleted;
+                    var days = rec.TotalDaysServed;
+                    var tier = rec.HighestTier;
+                    var battles = rec.BattlesFought;
+                    var lords = rec.LordsServed;
+                    var enlistments = rec.Enlistments;
+                    var kills = rec.TotalKills;
 
-                        // New fields for discharge/re-enlistment tracking
-                        var reenlistBlockedUntil = rec.ReenlistmentBlockedUntil;
-                        var lastDischargeBand = rec.LastDischargeBand ?? string.Empty;
+                    // New fields for discharge/re-enlistment tracking
+                    var reenlistBlockedUntil = rec.ReenlistmentBlockedUntil;
+                    var lastDischargeBand = rec.LastDischargeBand ?? string.Empty;
 
-                        // Term tracking fields
-                        var firstTermCompleted = rec.FirstTermCompleted;
-                        var preservedTier = rec.PreservedTier;
-                        var cooldownEnds = rec.CooldownEnds;
-                        var currentTermEnd = rec.CurrentTermEnd;
-                        var isInRenewalTerm = rec.IsInRenewalTerm;
-                        var renewalTermsCompleted = rec.RenewalTermsCompleted;
+                    // Term tracking fields
+                    var firstTermCompleted = rec.FirstTermCompleted;
+                    var preservedTier = rec.PreservedTier;
+                    var cooldownEnds = rec.CooldownEnds;
+                    var currentTermEnd = rec.CurrentTermEnd;
+                    var isInRenewalTerm = rec.IsInRenewalTerm;
+                    var renewalTermsCompleted = rec.RenewalTermsCompleted;
 
-                        dataStore.SyncData($"svc_rec_{idx}_id", ref factionId);
-                        dataStore.SyncData($"svc_rec_{idx}_type", ref factionType);
-                        dataStore.SyncData($"svc_rec_{idx}_name", ref displayName);
-                        dataStore.SyncData($"svc_rec_{idx}_terms", ref terms);
-                        dataStore.SyncData($"svc_rec_{idx}_days", ref days);
-                        dataStore.SyncData($"svc_rec_{idx}_tier", ref tier);
-                        dataStore.SyncData($"svc_rec_{idx}_battles", ref battles);
-                        dataStore.SyncData($"svc_rec_{idx}_lords", ref lords);
-                        dataStore.SyncData($"svc_rec_{idx}_enlist", ref enlistments);
-                        dataStore.SyncData($"svc_rec_{idx}_kills", ref kills);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_id", ref factionId);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_type", ref factionType);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_name", ref displayName);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_terms", ref terms);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_days", ref days);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_tier", ref tier);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_battles", ref battles);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_lords", ref lords);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_enlist", ref enlistments);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_kills", ref kills);
 
-                        // Sync new fields
-                        dataStore.SyncData($"svc_rec_{idx}_reblockUntil", ref reenlistBlockedUntil);
-                        dataStore.SyncData($"svc_rec_{idx}_dischargeBand", ref lastDischargeBand);
-                        dataStore.SyncData($"svc_rec_{idx}_firstTerm", ref firstTermCompleted);
-                        dataStore.SyncData($"svc_rec_{idx}_preservedTier", ref preservedTier);
-                        dataStore.SyncData($"svc_rec_{idx}_cooldownEnds", ref cooldownEnds);
-                        dataStore.SyncData($"svc_rec_{idx}_termEnd", ref currentTermEnd);
-                        dataStore.SyncData($"svc_rec_{idx}_inRenewal", ref isInRenewalTerm);
-                        dataStore.SyncData($"svc_rec_{idx}_renewalCount", ref renewalTermsCompleted);
+                    // Sync new fields
+                    _ = dataStore.SyncData($"svc_rec_{idx}_reblockUntil", ref reenlistBlockedUntil);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_dischargeBand", ref lastDischargeBand);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_firstTerm", ref firstTermCompleted);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_preservedTier", ref preservedTier);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_cooldownEnds", ref cooldownEnds);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_termEnd", ref currentTermEnd);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_inRenewal", ref isInRenewalTerm);
+                    _ = dataStore.SyncData($"svc_rec_{idx}_renewalCount", ref renewalTermsCompleted);
 
-                        idx++;
-                    }
+                    idx++;
                 }
+            }
         }
 
         public void RecordReservist(string dischargeBand, int daysServed, int tier, int xp, Hero lord)
@@ -680,8 +680,8 @@ namespace Enlisted.Features.Retinue.Core
                 // Notify player
                 var msg = new TaleWorlds.Localization.TextObject(
                     "{=enl_culture_mismatch}Your previous retinue type ({TYPE}) is not available in {CULTURE}. You will select a new formation type upon reaching commander rank.");
-                msg.SetTextVariable("TYPE", previousType);
-                msg.SetTextVariable("CULTURE", culture.Name);
+                _ = msg.SetTextVariable("TYPE", previousType);
+                _ = msg.SetTextVariable("CULTURE", culture.Name);
                 TaleWorlds.Library.InformationManager.DisplayMessage(
                     new TaleWorlds.Library.InformationMessage(msg.ToString(), TaleWorlds.Library.Colors.Yellow));
             }

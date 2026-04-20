@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
-using static TaleWorlds.Core.ViewModelCollection.CharacterViewModel;
-using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Mod.Core.Logging;
+using static TaleWorlds.Core.ViewModelCollection.CharacterViewModel;
 
 namespace Enlisted.Features.Equipment.UI
 {

@@ -37,10 +37,10 @@ Tools/
 ├── README.md              This file - master tools reference
 ├── WARP.md                Guidance for WARP terminal (warp.dev)
 ├── TECHNICAL-REFERENCE.md Logging, save system, code patterns
-├── Validation/            Content validators, analyzers, sync tools
+├── Validation/            Content validators, lint entry points, sync tools
 ├── Debugging/             Reports, debug scripts, backups (safe to delete)
 ├── Steam/                 Workshop upload scripts and configuration
-└── Research/              Native extraction, localization, Qodana analysis
+└── Research/              Native extraction, localization, ad-hoc analysis
 ```
 
 ---
@@ -48,6 +48,14 @@ Tools/
 ## Validation Tools
 
 Content and project validation ensures everything follows schema rules and project structure standards.
+
+**Start here for repo-wide checks:** `.\Tools\Validation\lint_repo.ps1`
+
+This runs the active lint stack end-to-end:
+- `dotnet format` for C# / `.editorconfig`
+- `python Tools/Validation/validate_content.py` for content and project validation
+- `ruff check` and `ruff format --check` for `Tools/**/*.py`
+- `PSScriptAnalyzer` for `Tools/**/*.ps1`
 
 ### Validation Phases
 
@@ -163,7 +171,6 @@ Temporary reports, diagnostic scripts, and backups. **All files safe to delete.*
 | Type | Files | Description |
 | :--- | :--- | :--- |
 | **Validation Reports** | `validation_report*.txt` | Content validation output (regenerate anytime) |
-| **Qodana Reports** | `qodana_*.txt`, `redundant_qualifiers.txt` | Static analysis output (regenerate with `qodana scan`) |
 | **Backups** | `enlisted_strings_backup_*.xml` | XML snapshots before major changes |
 | **Backups** | `fallback_backups/*.json` | Event JSON snapshots |
 | **Debug Scripts** | `*.ps1` | One-off PowerShell diagnostics |
@@ -209,12 +216,10 @@ Utilities for analyzing the native game, localization, and codebase.
 
 | Script | Purpose |
 | :--- | :--- |
+| `lint_repo.ps1` | Run the active repo lint stack (`dotnet format`, content validation, Ruff, PSScriptAnalyzer) |
 | `extract_native_map_incidents.py` | Extract incident data from game files |
 | `generate_language_template.py` | Create XML templates for new language translations |
 | `find_articles*.py` | Search and analyze documentation |
-| `list_messages.py` | List game messages |
-| `parse_qodana.py` | Parse Qodana static analysis reports |
-| `extract_issues.py` | Extract issues from reports |
 
 ---
 
@@ -318,10 +323,6 @@ These files are in `.gitignore`:
 Tools/Debugging/validation*.txt
 validation*.txt
 
-# Qodana reports (anywhere)
-Tools/Debugging/qodana_*.txt
-qodana_*.txt
-redundant_qualifiers.txt
 ```
 
 **Note:** If you see these files in the root directory, they're gitignored but haven't been deleted. Move them to `Tools/Debugging/` or delete them - they can be regenerated anytime.

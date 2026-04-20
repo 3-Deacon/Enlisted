@@ -60,7 +60,7 @@ namespace Enlisted.Features.Camp.Models
                 var troop = GetRandomHealthyRegularTroop(roster);
                 if (troop != null)
                 {
-                    roster.AddToCounts(troop, count: 0, insertAtFront: false, woundedCount: 1);
+                    _ = roster.AddToCounts(troop, count: 0, insertAtFront: false, woundedCount: 1);
                     ModLogger.Debug(LogCategory, $"Wounded a regular troop: {troop.Name}");
                 }
                 else
@@ -88,7 +88,7 @@ namespace Enlisted.Features.Camp.Models
                 var troop = GetRandomNonHeroTroop(roster);
                 if (troop != null)
                 {
-                    roster.AddToCounts(troop, count: -1);
+                    _ = roster.AddToCounts(troop, count: -1);
                     ModLogger.Info(LogCategory, $"A regular troop deserted: {troop.Name}");
                 }
                 else
@@ -117,7 +117,7 @@ namespace Enlisted.Features.Camp.Models
             var troop = GetRandomNonHeroTroop(roster);
             if (troop != null)
             {
-                roster.AddToCounts(troop, count: -1);
+                _ = roster.AddToCounts(troop, count: -1);
                 ModLogger.Info(LogCategory, $"A sick soldier died: {troop.Name}");
             }
             else
@@ -165,7 +165,7 @@ namespace Enlisted.Features.Camp.Models
                 return;
             }
 
-            _missingSoldiers.Remove(id);
+            _ = _missingSoldiers.Remove(id);
 
             if (!returned)
             {

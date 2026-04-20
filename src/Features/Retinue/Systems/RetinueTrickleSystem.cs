@@ -1,6 +1,6 @@
-﻿using System;
-using Enlisted.Features.Retinue.Core;
+using System;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;

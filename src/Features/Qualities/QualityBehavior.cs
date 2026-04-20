@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -27,7 +26,7 @@ namespace Enlisted.Features.Qualities
         {
             try
             {
-                dataStore.SyncData("_qualityStore", ref _store);
+                _ = dataStore.SyncData("_qualityStore", ref _store);
                 _store = _store ?? new QualityStore();
                 _store.EnsureInitialized();
                 QualityStore.SetInstance(_store);
@@ -44,8 +43,8 @@ namespace Enlisted.Features.Qualities
         {
             _store.EnsureInitialized();
             QualityStore.SetInstance(_store);
-            Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
-            Enlisted.Features.Content.StoryletCatalog.LoadAll();
+            Content.ScriptedEffectRegistry.LoadAll();
+            Content.StoryletCatalog.LoadAll();
             RegisterDefinitions();
         }
 
@@ -53,8 +52,8 @@ namespace Enlisted.Features.Qualities
         {
             _store.EnsureInitialized();
             QualityStore.SetInstance(_store);
-            Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
-            Enlisted.Features.Content.StoryletCatalog.LoadAll();
+            Content.ScriptedEffectRegistry.LoadAll();
+            Content.StoryletCatalog.LoadAll();
             RegisterDefinitions();
         }
 

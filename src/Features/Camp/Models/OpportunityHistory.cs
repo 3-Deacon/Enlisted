@@ -90,6 +90,7 @@ namespace Enlisted.Features.Camp.Models
         /// </summary>
         public void RecordIgnored(string opportunityId, string opportunityType)
         {
+            _ = opportunityId;
             if (!TimesIgnored.ContainsKey(opportunityType))
             {
                 TimesIgnored[opportunityType] = 0;

@@ -115,7 +115,7 @@ namespace Enlisted.Features.Content
         public static DecisionDefinition GetDecision(string decisionId)
         {
             EnsureInitialized();
-            DecisionsById.TryGetValue(decisionId, out var decision);
+            _ = DecisionsById.TryGetValue(decisionId, out var decision);
             return decision;
         }
 

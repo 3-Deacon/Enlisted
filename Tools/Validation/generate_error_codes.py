@@ -16,6 +16,7 @@ Exits with non-zero on:
 --check mode: validates that the on-disk docs/error-codes.md matches what
 would be generated, without writing. Used by CI.
 """
+
 import argparse
 import hashlib
 import re
@@ -31,20 +32,20 @@ REGISTRY_PATH = REPO_ROOT / "docs" / "error-codes.md"
 # We only accept two string literals as the first two args. Interpolated
 # strings, concatenations, or variables make the code unstable and are rejected.
 SURFACED_RE = re.compile(
-    r'ModLogger\.Surfaced\s*\(\s*'
-    r'"([A-Z][A-Z0-9\-]*)"\s*,\s*'   # group 1: category (uppercase alnum + dash)
-    r'"([^"\\]*(?:\\.[^"\\]*)*)"'    # group 2: summary (handles simple escapes)
-    r'',
+    r"ModLogger\.Surfaced\s*\(\s*"
+    r'"([A-Z][A-Z0-9\-]*)"\s*,\s*'  # group 1: category (uppercase alnum + dash)
+    r'"([^"\\]*(?:\\.[^"\\]*)*)"'  # group 2: summary (handles simple escapes)
+    r"",
     re.MULTILINE,
 )
 
 # Detect suspicious (non-literal) Surfaced calls so we can fail loudly.
-SUSPICIOUS_RE = re.compile(r'ModLogger\.Surfaced\s*\(')
+SUSPICIOUS_RE = re.compile(r"ModLogger\.Surfaced\s*\(")
 
 # Block and line comments. Block is non-greedy, multi-line via DOTALL.
 # Line comment matches // (including ///) up to but not including the newline.
-_BLOCK_COMMENT_RE = re.compile(r'/\*.*?\*/', re.DOTALL)
-_LINE_COMMENT_RE = re.compile(r'//[^\n]*')
+_BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+_LINE_COMMENT_RE = re.compile(r"//[^\n]*")
 
 
 def _blank_preserving_newlines(match: re.Match) -> str:
@@ -93,12 +94,14 @@ def scan() -> tuple[list[dict], list[str]]:
         matched_spans = []
         for m in SURFACED_RE.finditer(text):
             line = text[: m.start()].count("\n") + 1
-            entries.append({
-                "category": m.group(1),
-                "summary": m.group(2),
-                "file": cs_file.relative_to(REPO_ROOT).as_posix(),
-                "line": line,
-            })
+            entries.append(
+                {
+                    "category": m.group(1),
+                    "summary": m.group(2),
+                    "file": cs_file.relative_to(REPO_ROOT).as_posix(),
+                    "line": line,
+                }
+            )
             matched_spans.append((m.start(), m.end()))
 
         # Any call to Surfaced(...) NOT caught by SURFACED_RE is non-literal
@@ -127,7 +130,7 @@ def validate(entries: list[dict]) -> list[str]:
     by_cat_suffix = defaultdict(dict)
     for e in entries:
         suffix = compute_suffix(e["summary"])
-        key = (e["category"], suffix)
+        (e["category"], suffix)
         prior = by_cat_suffix[e["category"]].get(suffix)
         if prior is not None and prior["summary"] != e["summary"]:
             errors.append(
@@ -180,8 +183,9 @@ def render(entries: list[dict]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true",
-                        help="Validate registry is in sync; do not write.")
+    parser.add_argument(
+        "--check", action="store_true", help="Validate registry is in sync; do not write."
+    )
     args = parser.parse_args()
 
     entries, scan_errors = scan()
@@ -196,15 +200,20 @@ def main() -> int:
     if args.check:
         current = REGISTRY_PATH.read_text(encoding="utf-8") if REGISTRY_PATH.exists() else ""
         if current != rendered:
-            print("[generate_error_codes] docs/error-codes.md is out of sync. "
-                  "Run without --check to regenerate.", file=sys.stderr)
+            print(
+                "[generate_error_codes] docs/error-codes.md is out of sync. "
+                "Run without --check to regenerate.",
+                file=sys.stderr,
+            )
             return 1
         print(f"[generate_error_codes] OK — {len(entries)} Surfaced call(s), registry in sync.")
         return 0
 
     REGISTRY_PATH.write_text(rendered, encoding="utf-8")
-    print(f"[generate_error_codes] Wrote {REGISTRY_PATH} "
-          f"({len(entries)} Surfaced call(s) across {len({e['category'] for e in entries})} categories).")
+    print(
+        f"[generate_error_codes] Wrote {REGISTRY_PATH} "
+        f"({len(entries)} Surfaced call(s) across {len({e['category'] for e in entries})} categories)."
+    )
     return 0
 
 

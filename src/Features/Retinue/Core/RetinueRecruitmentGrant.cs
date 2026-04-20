@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -166,13 +166,13 @@ namespace Enlisted.Features.Retinue.Core
             }
 
             // Add recruits to party roster
-            mobileParty.MemberRoster.AddToCounts(recruitTroop, count);
+            _ = mobileParty.MemberRoster.AddToCounts(recruitTroop, count);
 
             // Update retinue state tracking
             var manager = RetinueManager.Instance;
             if (manager != null)
             {
-                manager.State.UpdateTroopCount(recruitTroop.StringId, count);
+                _ = manager.State.UpdateTroopCount(recruitTroop.StringId, count);
                 manager.State.SelectedTypeId = GetFormationTypeId(formation);
             }
 

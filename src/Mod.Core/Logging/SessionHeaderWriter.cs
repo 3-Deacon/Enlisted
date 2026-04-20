@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+using System;
 using System.Reflection;
 using System.Text;
 using TaleWorlds.CampaignSystem;
@@ -17,13 +16,13 @@ namespace Enlisted.Mod.Core.Logging
         public static string Build()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("=== ENLISTED SESSION ===");
-            sb.AppendLine($"Started:  {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($"Mod:      {GetModVersion()}");
-            sb.AppendLine($"Game:     {GetGameVersion()}");
-            sb.AppendLine($"Player:   {GetPlayerSummary()}");
-            sb.AppendLine($"Flags:    {GetFlags()}");
-            sb.AppendLine("========================");
+            _ = sb.AppendLine("=== ENLISTED SESSION ===");
+            _ = sb.AppendLine($"Started:  {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _ = sb.AppendLine($"Mod:      {GetModVersion()}");
+            _ = sb.AppendLine($"Game:     {GetGameVersion()}");
+            _ = sb.AppendLine($"Player:   {GetPlayerSummary()}");
+            _ = sb.AppendLine($"Flags:    {GetFlags()}");
+            _ = sb.AppendLine("========================");
             return sb.ToString();
         }
 

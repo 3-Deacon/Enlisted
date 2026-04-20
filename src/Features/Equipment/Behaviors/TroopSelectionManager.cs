@@ -1,6 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Interface.Behaviors;
+using Enlisted.Mod.Core.Config;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Entry;
+using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Party;
@@ -9,12 +15,6 @@ using TaleWorlds.Core.ImageIdentifiers; // 1.3.4 API: ImageIdentifier moved here
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
-using Helpers;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Interface.Behaviors;
-using Enlisted.Mod.Core.Config;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Entry;
 
 namespace Enlisted.Features.Equipment.Behaviors
 {
@@ -51,9 +51,9 @@ namespace Enlisted.Features.Equipment.Behaviors
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("_promotionPending", ref _promotionPending);
-                dataStore.SyncData("_pendingTier", ref _pendingTier);
-                dataStore.SyncData("_lastSelectedTroopId", ref _lastSelectedTroopId);
+                _ = dataStore.SyncData("_promotionPending", ref _promotionPending);
+                _ = dataStore.SyncData("_pendingTier", ref _pendingTier);
+                _ = dataStore.SyncData("_lastSelectedTroopId", ref _lastSelectedTroopId);
             });
         }
 
@@ -69,20 +69,6 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             ModLogger.Info("TROOPSELECTION", "Troop selection system initialized with modern UI styling");
-        }
-
-        /// <summary>
-        /// Menu background initialization for enlisted_troop_selection menu.
-        /// Sets culture-appropriate background and ambient audio.
-        /// </summary>
-        [GameMenuInitializationHandler("enlisted_troop_selection")]
-        private static void OnTroopSelectionBackgroundInit(MenuCallbackArgs args)
-        {
-            // Troop selection/promotion is a logistics/supply-facing flow (Quartermaster vibe).
-            // Use a known "trade/logistics" encounter mesh instead of a generic battle encounter.
-            args.MenuContext.SetBackgroundMeshName("encounter_caravan");
-            args.MenuContext.SetAmbientSound("event:/map/ambient/node/settlements/2d/camp_army");
-            args.MenuContext.SetPanelSound("event:/ui/panels/settlement_camp");
         }
 
         /// <summary>
@@ -397,10 +383,10 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 var intro = new TextObject("{=enl_master_at_arms_summons_intro}You've been summoned before the Master at Arms.");
                 var promo = new TextObject("{=enl_master_at_arms_promotion_line}\"Soldier, your service has not gone unnoticed. You've earned promotion to {RANK_NAME}.\"");
-                promo.SetTextVariable("RANK_NAME", rankName);
+                _ = promo.SetTextVariable("RANK_NAME", rankName);
                 var note = new TextObject("{=enl_master_at_arms_after_t1_note}After Tier 1, gear is not auto-issued. Your chosen kit becomes purchasable from the Quartermaster.");
                 var count = new TextObject("{=enl_master_at_arms_specializations_count}({COUNT} troop specializations available)");
-                count.SetTextVariable("COUNT", _availableTroops.Count);
+                _ = count.SetTextVariable("COUNT", _availableTroops.Count);
 
                 var statusText = $"{intro}\n\n{promo}\n\n{note}\n\n{count}";
 
@@ -602,14 +588,14 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                     // Show promotion notification
                     var message = new TextObject("{=eq_promoted_new_equipment}Promoted to {TROOP_NAME}! New equipment issued.");
-                    message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
+                    _ = message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                 }
                 else
                 {
                     // No auto-issue: inform player gear is purchasable at Quartermaster
                     var message = new TextObject("{=eq_purchasable_qm}Promotion recorded. Gear for {TROOP_NAME} is now available at the Quartermaster.");
-                    message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
+                    _ = message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                 }
 
@@ -662,7 +648,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
 
                     // Move to inventory
-                    partyRoster.AddToCounts(element, 1);
+                    _ = partyRoster.AddToCounts(element, 1);
                     stashedCount++;
                     ModLogger.Debug("TROOPSELECTION", $"Moved to inventory: {element.Item.Name}");
                 }
@@ -694,7 +680,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
 
                         // Move to inventory
-                        partyRoster.AddToCounts(element, 1);
+                        _ = partyRoster.AddToCounts(element, 1);
                         stashedCount++;
                         ModLogger.Debug("TROOPSELECTION", $"Moved civilian item to inventory: {element.Item.Name}");
                     }

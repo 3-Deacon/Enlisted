@@ -40,11 +40,11 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var partyVisible = mainParty?.IsVisible ?? false;
                 var playerInMapEvent = mainParty?.Party?.MapEvent != null;
                 var hasEncounter = PlayerEncounter.Current != null;
-                
-                ModLogger.Info("EncounterGuard", 
+
+                ModLogger.Info("EncounterGuard",
                     $"JOIN_ENCOUNTER MENU TRIGGERED | Active={partyActive}, Visible={partyVisible}, " +
                     $"InMapEvent={playerInMapEvent}, HasEncounter={hasEncounter}");
-                
+
                 // Check if player is enlisted
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted != true)
@@ -60,10 +60,10 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var lordArmy = lord?.PartyBelongedTo?.Army;
                 var armyLeaderName = lordArmy?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "none";
                 var playerInArmy = mainParty?.Army != null;
-                
-                ModLogger.Info("EncounterGuard", 
+
+                ModLogger.Info("EncounterGuard",
                     $"JOIN_ENCOUNTER LORD: Lord={lordName}, Army={armyLeaderName}, PlayerInArmy={playerInArmy}");
-                
+
                 if (lordParty == null)
                 {
                     ModLogger.Info("EncounterGuard", $"JOIN_ENCOUNTER: Lord party is null (Lord={lordName}), allowing native menu");
@@ -82,18 +82,18 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var defenderName = battle.DefenderSide?.LeaderParty?.Name?.ToString() ?? "unknown";
                 var attackerPartyCount = battle.AttackerSide?.Parties?.Count ?? 0;
                 var defenderPartyCount = battle.DefenderSide?.Parties?.Count ?? 0;
-                ModLogger.Info("EncounterGuard", 
+                ModLogger.Info("EncounterGuard",
                     $"JOIN_ENCOUNTER BATTLE: Attacker={attackerName} ({attackerPartyCount} parties) vs Defender={defenderName} ({defenderPartyCount} parties)");
 
                 // Check if our lord is involved in this battle
                 var lordIsAttacker = battle.AttackerSide.Parties.Any(p => p.Party == lordParty);
                 var lordIsDefender = battle.DefenderSide.Parties.Any(p => p.Party == lordParty);
-                
+
                 // Also check if any army member is involved
                 var armyMemberIsAttacker = lordArmy != null && battle.AttackerSide.Parties.Any(p => lordArmy.Parties.Contains(p.Party?.MobileParty));
                 var armyMemberIsDefender = lordArmy != null && battle.DefenderSide.Parties.Any(p => lordArmy.Parties.Contains(p.Party?.MobileParty));
-                
-                ModLogger.Info("EncounterGuard", 
+
+                ModLogger.Info("EncounterGuard",
                     $"JOIN_ENCOUNTER INVOLVEMENT: LordIsAttacker={lordIsAttacker}, LordIsDefender={lordIsDefender}, " +
                     $"ArmyMemberIsAttacker={armyMemberIsAttacker}, ArmyMemberIsDefender={armyMemberIsDefender}");
 
@@ -104,7 +104,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     ModLogger.Info("EncounterGuard", $"JOIN_ENCOUNTER: Lord ({lordName}) and army not in battle, allowing native menu");
                     return true;
                 }
-                
+
                 // If lord isn't directly involved but army member is, use army member's side
                 if (!lordIsAttacker && !lordIsDefender)
                 {
@@ -132,14 +132,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 // Check if we can actually join on the lord's side using native faction checks
                 bool canJoinNatively = battle.CanPartyJoinBattle(PartyBase.MainParty, lordSide);
-                
+
                 // Check if lord is in a minor/bandit faction (not a Kingdom)
                 // Non-Kingdom faction lords don't trigger the mercenary join logic, so player's faction state
                 // may not have proper war relations with enemies like bandits.
-                bool isNonKingdomFactionLord = lord.MapFaction != null && 
+                bool isNonKingdomFactionLord = lord.MapFaction != null &&
                                                !(lord.MapFaction is Kingdom) &&
                                                (lord.MapFaction.IsMinorFaction || lord.MapFaction.IsBanditFaction);
-                
+
                 if (!canJoinNatively)
                 {
                     if (isNonKingdomFactionLord)

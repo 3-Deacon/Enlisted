@@ -36,12 +36,14 @@ param(
     [switch]$ShowCurrent
 )
 
+. (Join-Path $PSScriptRoot 'Write-Status.ps1')
+
 $settingsPath = "C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\ModuleData\Enlisted\Config\settings.json"
 
 # Check if settings file exists
 if (-not (Test-Path $settingsPath)) {
-    Write-Host "Settings file not found at: $settingsPath" -ForegroundColor Red
-    Write-Host "The file will be created when you first run the game." -ForegroundColor Yellow
+    Write-Status "Settings file not found at: $settingsPath" -ForegroundColor Red
+    Write-Status "The file will be created when you first run the game." -ForegroundColor Yellow
     exit 1
 }
 
@@ -49,49 +51,49 @@ if (-not (Test-Path $settingsPath)) {
 try {
     $settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
 } catch {
-    Write-Host "Failed to parse settings file: $_" -ForegroundColor Red
+    Write-Status "Failed to parse settings file: $_" -ForegroundColor Red
     exit 1
 }
 
 # Show current levels if requested
 if ($ShowCurrent) {
-    Write-Host "`n=== Current Log Levels ===" -ForegroundColor Cyan
-    Write-Host "Default: $($settings.LogLevels.Default)" -ForegroundColor Gray
-    Write-Host ""
+    Write-Status "`n=== Current Log Levels ===" -ForegroundColor Cyan
+    Write-Status "Default: $($settings.LogLevels.Default)" -ForegroundColor Gray
+    Write-Status ""
     
     $settings.LogLevels.PSObject.Properties | Where-Object { $_.Name -ne "Default" } | Sort-Object Name | ForEach-Object {
         $color = switch ($_.Value) {
             "Debug" { "Green" }
             "Trace" { "Magenta" }
-            "Info"  { "White" }
-            "Warn"  { "Yellow" }
+            "Info" { "White" }
+            "Warn" { "Yellow" }
             "Error" { "Red" }
-            "Off"   { "DarkGray" }
+            "Off" { "DarkGray" }
             default { "White" }
         }
-        Write-Host "$($_.Name.PadRight(25)): $($_.Value)" -ForegroundColor $color
+        Write-Status "$($_.Name.PadRight(25)): $($_.Value)" -ForegroundColor $color
     }
-    Write-Host ""
+    Write-Status ""
     exit 0
 }
 
 # Validate parameters
 if (-not $Category -or -not $Level) {
-    Write-Host "Usage: .\toggle_debug_logging.ps1 -Category <CategoryName> -Level <LogLevel>" -ForegroundColor Yellow
-    Write-Host "   Or: .\toggle_debug_logging.ps1 -ShowCurrent" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Common categories:" -ForegroundColor Cyan
-    Write-Host "  Interface, Battle, Enlistment, Orders, Content, Equipment" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "Log levels: Off, Error, Warn, Info, Debug, Trace" -ForegroundColor Cyan
+    Write-Status "Usage: .\toggle_debug_logging.ps1 -Category <CategoryName> -Level <LogLevel>" -ForegroundColor Yellow
+    Write-Status "   Or: .\toggle_debug_logging.ps1 -ShowCurrent" -ForegroundColor Yellow
+    Write-Status ""
+    Write-Status "Common categories:" -ForegroundColor Cyan
+    Write-Status "  Interface, Battle, Enlistment, Orders, Content, Equipment" -ForegroundColor Gray
+    Write-Status ""
+    Write-Status "Log levels: Off, Error, Warn, Info, Debug, Trace" -ForegroundColor Cyan
     exit 1
 }
 
 # Check if category exists
 $categoryProperty = $settings.LogLevels.PSObject.Properties | Where-Object { $_.Name -eq $Category }
 if (-not $categoryProperty) {
-    Write-Host "Category '$Category' not found in settings." -ForegroundColor Yellow
-    Write-Host "Adding new category..." -ForegroundColor Gray
+    Write-Status "Category '$Category' not found in settings." -ForegroundColor Yellow
+    Write-Status "Adding new category..." -ForegroundColor Gray
 }
 
 # Update the category
@@ -101,13 +103,13 @@ $settings.LogLevels | Add-Member -MemberType NoteProperty -Name $Category -Value
 # Save settings
 try {
     $settings | ConvertTo-Json -Depth 10 | Out-File -FilePath $settingsPath -Encoding UTF8
-    Write-Host ""
-    Write-Host "Updated $Category logging: $oldValue -> $Level" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Restart the game for changes to take effect." -ForegroundColor Yellow
-    Write-Host ""
+    Write-Status ""
+    Write-Status "Updated $Category logging: $oldValue -> $Level" -ForegroundColor Green
+    Write-Status ""
+    Write-Status "Restart the game for changes to take effect." -ForegroundColor Yellow
+    Write-Status ""
 } catch {
     $errorMsg = $_.Exception.Message
-    Write-Host "Failed to save settings: $errorMsg" -ForegroundColor Red
+    Write-Status "Failed to save settings: $errorMsg" -ForegroundColor Red
     exit 1
 }

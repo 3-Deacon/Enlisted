@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Flags;
 using Enlisted.Features.Qualities;
-using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
-using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Features.Content
@@ -25,7 +24,11 @@ namespace Enlisted.Features.Content
 
         public static void Register(string name, Func<string[], StoryletContext, bool> predicate)
         {
-            if (string.IsNullOrEmpty(name) || predicate == null) return;
+            if (string.IsNullOrEmpty(name) || predicate == null)
+            {
+                return;
+            }
+
             _predicates[name] = predicate;
         }
 
@@ -35,23 +38,37 @@ namespace Enlisted.Features.Content
 
         public static bool Evaluate(IList<string> triggers, StoryletContext ctx)
         {
-            if (triggers == null || triggers.Count == 0) return true;
+            if (triggers == null || triggers.Count == 0)
+            {
+                return true;
+            }
+
             foreach (var t in triggers)
             {
-                if (!EvaluateOne(t, ctx)) return false;
+                if (!EvaluateOne(t, ctx))
+                {
+                    return false;
+                }
             }
             return true;
         }
 
         public static bool EvaluateOne(string trigger, StoryletContext ctx)
         {
-            if (string.IsNullOrEmpty(trigger)) return true;
+            if (string.IsNullOrEmpty(trigger))
+            {
+                return true;
+            }
+
             var negate = trigger.StartsWith("not:", StringComparison.OrdinalIgnoreCase);
             var body = negate ? trigger.Substring(4) : trigger;
             var parts = body.Split(':');
             var name = parts[0];
-            var args = parts.Length > 1 ? new string[parts.Length - 1] : System.Array.Empty<string>();
-            for (var i = 1; i < parts.Length; i++) args[i - 1] = parts[i];
+            var args = parts.Length > 1 ? new string[parts.Length - 1] : Array.Empty<string>();
+            for (var i = 1; i < parts.Length; i++)
+            {
+                args[i - 1] = parts[i];
+            }
 
             if (!_predicates.TryGetValue(name, out var predicate))
             {
@@ -84,8 +101,16 @@ namespace Enlisted.Features.Content
             Register("in_siege", (_, _2) =>
             {
                 var p = MobileParty.MainParty;
-                if (p == null) return false;
-                if (p.BesiegerCamp != null) return true;
+                if (p == null)
+                {
+                    return false;
+                }
+
+                if (p.BesiegerCamp != null)
+                {
+                    return true;
+                }
+
                 return p.CurrentSettlement?.SiegeEvent != null;
             });
 
@@ -99,30 +124,54 @@ namespace Enlisted.Features.Content
 
             Register("quality_gte", (args, _) =>
             {
-                if (args.Length < 2 || QualityStore.Instance == null) return false;
+                if (args.Length < 2 || QualityStore.Instance == null)
+                {
+                    return false;
+                }
+
                 return int.TryParse(args[1], out var threshold)
                     && QualityStore.Instance.Get(args[0]) >= threshold;
             });
 
             Register("quality_lte", (args, _) =>
             {
-                if (args.Length < 2 || QualityStore.Instance == null) return false;
+                if (args.Length < 2 || QualityStore.Instance == null)
+                {
+                    return false;
+                }
+
                 return int.TryParse(args[1], out var threshold)
                     && QualityStore.Instance.Get(args[0]) <= threshold;
             });
 
             Register("rank_gte", (args, _) =>
             {
-                if (args.Length < 1) return false;
+                if (args.Length < 1)
+                {
+                    return false;
+                }
+
                 return int.TryParse(args[0], out var threshold)
                     && (EnlistmentBehavior.Instance?.EnlistmentTier ?? 0) >= threshold;
             });
 
             Register("veteran_has_flag", (args, ctx) =>
             {
-                if (args.Length < 1) return false;
-                if (ctx?.ResolvedSlots == null) return false;
-                if (!ctx.ResolvedSlots.TryGetValue("veteran", out var hero) || hero == null) return false;
+                if (args.Length < 1)
+                {
+                    return false;
+                }
+
+                if (ctx?.ResolvedSlots == null)
+                {
+                    return false;
+                }
+
+                if (!ctx.ResolvedSlots.TryGetValue("veteran", out var hero) || hero == null)
+                {
+                    return false;
+                }
+
                 return FlagStore.Instance?.HasForHero(hero, args[0]) == true;
             });
 

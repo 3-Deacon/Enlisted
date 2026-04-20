@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
-using HarmonyLib;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
 namespace Enlisted.Mod.GameAdapters.Patches
 {
     /// <summary>
@@ -58,7 +58,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     typeof(NavalMobilePartyVisualUpdateEntityPositionCrashGuardPatch),
                     nameof(UpdateEntityPositionPrefix));
 
-                harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
+                _ = harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
                 _patchApplied = true;
 
                 ModLogger.Info(LogCategory, "Naval UpdateEntityPosition crash guard patch registered");
@@ -77,7 +77,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// IMPORTANT: This method can run on background worker threads. Do not touch ScreenManager,
         /// Campaign objects, or any non-thread-safe game state here.
         /// </remarks>
-        public static bool UpdateEntityPositionPrefix(float dt, float realDt, bool isVisible)
+        public static bool UpdateEntityPositionPrefix(float dt, float realDt)
         {
             try
             {

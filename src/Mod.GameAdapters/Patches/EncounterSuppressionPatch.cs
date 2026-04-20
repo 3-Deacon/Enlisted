@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Logging;
 using EnlistedEncounterBehavior = Enlisted.Features.Combat.Behaviors.EnlistedEncounterBehavior;
 
 namespace Enlisted.Mod.GameAdapters.Patches
@@ -42,7 +42,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var enlistment = EnlistmentBehavior.Instance;
                 var isEnlisted = enlistment?.IsEnlisted == true;
                 var hasGraceProtection = enlistment?.HasActiveGraceProtection == true;
-                
+
                 // Check if player just ended enlistment and is still in a MapEvent/Encounter
                 var mainParty = MobileParty.MainParty?.Party;
                 var mainMobileParty = MobileParty.MainParty;
@@ -50,7 +50,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var playerInEncounter = PlayerEncounter.Current != null;
                 var playerInBattleState = playerInMapEvent || playerInEncounter;
                 var justEndedEnlistment = !isEnlisted && playerInBattleState;
-                
+
                 // Check if this encounter involves the main party
                 if (mainParty == null)
                 {
@@ -62,29 +62,29 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true; // Allow normal encounter creation
                 }
-                
+
                 // DIAGNOSTIC: Log every encounter attempt involving the player
                 var attackerName = attackerParty?.Name?.ToString() ?? "null";
                 var defenderName = defenderParty?.Name?.ToString() ?? "null";
                 var partyActive = mainMobileParty?.IsActive ?? false;
                 var partyVisible = mainMobileParty?.IsVisible ?? false;
-                ModLogger.Info("EncounterGuard", 
+                ModLogger.Info("EncounterGuard",
                     $"ENCOUNTER ATTEMPT: Attacker={attackerName}, Defender={defenderName} | " +
                     $"Enlisted={isEnlisted}, Active={partyActive}, Visible={partyVisible}, " +
                     $"InMapEvent={playerInMapEvent}, InEncounter={playerInEncounter}");
-                
+
                 // If player is already a prisoner, allow encounters (captor movement)
                 // Log with party state to help diagnose "attacked while prisoner" bugs
                 if (Hero.MainHero?.IsPrisoner == true)
                 {
                     var inSettlement = Hero.MainHero?.CurrentSettlement?.Name?.ToString();
-                    
+
                     // PlayerActive: True while prisoner = BUG (party should be deactivated)
-                    ModLogger.Info("Captivity", 
+                    ModLogger.Info("Captivity",
                         $"Encounter while prisoner (Attacker: {attackerName}, PlayerActive: {partyActive}, Settlement: {inSettlement ?? "none"})");
                     return true;
                 }
-                
+
                 // Block encounters when waiting in reserve AND still enlisted
                 // Only block if actively enlisted - if enlistment ended, clear stale flag and allow
                 var isInReserve = EnlistedEncounterBehavior.IsWaitingInReserve;
@@ -93,14 +93,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     ModLogger.Info("EncounterGuard", $"BLOCKED: Waiting in reserve (Attacker={attackerName})");
                     return false;
                 }
-                
+
                 // If reserve flag is stale (enlistment ended but flag wasn't cleared), clear it
                 else if (isInReserve) // here isEnlisted must be false if still in reserve
                 {
                     ModLogger.Info("EncounterGuard", "Clearing stale reserve flag during encounter creation");
                     EnlistedEncounterBehavior.ClearReserveState();
                 }
-                
+
                 // Suppress encounters if enlistment just ended and player is still in MapEvent/Encounter
                 if (justEndedEnlistment)
                 {
@@ -113,7 +113,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     ModLogger.Info("EncounterGuard", $"BLOCKED: Grace protection active (Attacker={attackerName})");
                     return false;
                 }
-                
+
                 // If not enlisted and not in grace period, allow normal encounters
                 if (!isEnlisted)
                 {
@@ -124,7 +124,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // CRITICAL: Prevent encounters with the lord's party itself
                 var enlistedLord = enlistment!.CurrentLord;
                 var lordParty = enlistedLord?.PartyBelongedTo?.Party;
-                
+
                 var lordName = enlistedLord?.Name?.ToString() ?? "null";
                 var lordInMapEvent = lordParty?.MapEvent != null;
                 var lordArmy = enlistedLord?.PartyBelongedTo?.Army;
@@ -132,7 +132,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var armyLeaderInMapEvent = lordArmy?.LeaderParty?.Party?.MapEvent != null;
                 var playerInArmy = mainMobileParty?.Army != null;
                 var playerArmyLeaderName = mainMobileParty?.Army?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "none";
-                
+
                 // Check if ANY party in the army is in a MapEvent
                 var anyArmyPartyInBattle = false;
                 var armyBattlePartyName = "none";
@@ -148,20 +148,20 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         }
                     }
                 }
-                
-                ModLogger.Info("EncounterGuard", 
+
+                ModLogger.Info("EncounterGuard",
                     $"LORD STATE: Lord={lordName}, LordInMapEvent={lordInMapEvent}, " +
                     $"Army={armyLeaderName}, ArmyLeaderInMapEvent={armyLeaderInMapEvent}");
-                ModLogger.Info("EncounterGuard", 
+                ModLogger.Info("EncounterGuard",
                     $"ARMY STATE: PlayerInArmy={playerInArmy}, PlayerArmyLeader={playerArmyLeaderName}, " +
                     $"AnyArmyPartyInBattle={anyArmyPartyInBattle}, BattleParty={armyBattlePartyName}");
-                
+
                 if (lordParty != null)
                 {
                     // Check if this encounter is between the player and the lord's party (not a battle)
                     var isEncounterWithLord = (attackerParty == mainParty && defenderParty == lordParty) ||
                                                (attackerParty == lordParty && defenderParty == mainParty);
-                    
+
                     if (isEncounterWithLord)
                     {
                         // Check if the lord is in a battle - if so, this might be legitimate
@@ -169,54 +169,54 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         {
                             // Allow encounters when player party is visible/active - indicates player-initiated conversation
                             var isPlayerInitiated = partyVisible || partyActive;
-                            
+
                             if (isPlayerInitiated)
                             {
                                 ModLogger.Info("EncounterGuard", $"ALLOWED: Player-initiated encounter with lord (Lord={lordName})");
                                 return true;
                             }
-                            
+
                             // Party is invisible and inactive - suppress unwanted automatic encounter
                             ModLogger.Info("EncounterGuard", $"BLOCKED: Unwanted encounter with lord's party (Lord={lordName})");
                             return false;
                         }
                     }
-                    
+
                     // Check if this is a legitimate battle involving the lord's party or army
                     var lordInvolved = attackerParty == lordParty || defenderParty == lordParty;
-                    
+
                     if (lordInvolved && lordInMapEvent)
                     {
                         ModLogger.Info("EncounterGuard", $"ALLOWED: Lord's battle (Lord={lordName})");
                         return true;
                     }
-                    
+
                     // Check if the lord's army is involved in this encounter
                     if (lordArmy != null)
                     {
                         var armyLeaderInvolved = attackerParty == lordArmy.LeaderParty?.Party || defenderParty == lordArmy.LeaderParty?.Party;
-                        
+
                         // Also check if the OTHER party in the encounter is part of the army's battle
                         var otherParty = attackerParty == mainParty ? defenderParty : attackerParty;
                         var otherPartyName = otherParty?.Name?.ToString() ?? "null";
                         var otherPartyInArmyBattle = false;
-                        
+
                         if (anyArmyPartyInBattle && lordArmy.LeaderParty?.Party?.MapEvent != null)
                         {
                             var armyMapEvent = lordArmy.LeaderParty.Party.MapEvent;
                             otherPartyInArmyBattle = armyMapEvent.InvolvedParties?.Any(p => p == otherParty) == true;
                         }
-                        
-                        ModLogger.Info("EncounterGuard", 
+
+                        ModLogger.Info("EncounterGuard",
                             $"ARMY BATTLE CHECK: ArmyLeaderInvolved={armyLeaderInvolved}, " +
                             $"OtherParty={otherPartyName}, OtherPartyInArmyBattle={otherPartyInArmyBattle}");
-                        
+
                         if (armyLeaderInvolved && armyLeaderInMapEvent)
                         {
                             ModLogger.Info("EncounterGuard", $"ALLOWED: Army leader battle (Army={armyLeaderName})");
                             return true;
                         }
-                        
+
                         // NEW: Also allow if any army party is in a battle with this enemy
                         if (anyArmyPartyInBattle && otherPartyInArmyBattle)
                         {

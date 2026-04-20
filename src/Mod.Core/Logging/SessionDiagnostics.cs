@@ -34,12 +34,12 @@ namespace Enlisted.Mod.Core.Logging
             _hasLoggedStartup = true;
 
             var sb = new StringBuilder();
-            sb.AppendLine("=== ENLISTED MOD SESSION START ===");
-            sb.AppendLine($"Mod Version: {ModVersion}");
-            sb.AppendLine($"Target Game Version: {TargetGameVersion}");
-            sb.AppendLine($"Session Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($".NET Runtime: {Environment.Version}");
-            sb.AppendLine("===================================");
+            _ = sb.AppendLine("=== ENLISTED MOD SESSION START ===");
+            _ = sb.AppendLine($"Mod Version: {ModVersion}");
+            _ = sb.AppendLine($"Target Game Version: {TargetGameVersion}");
+            _ = sb.AppendLine($"Session Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _ = sb.AppendLine($".NET Runtime: {Environment.Version}");
+            _ = sb.AppendLine("===================================");
 
             ModLogger.Info("SESSION", sb.ToString());
         }
@@ -60,28 +60,28 @@ namespace Enlisted.Mod.Core.Logging
             try
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("--- Configuration Loaded ---");
+                _ = sb.AppendLine("--- Configuration Loaded ---");
 
                 // Phase 1: Many config systems deleted (Lance, Duties, Schedule)
                 // Only core configurations remain active
 
                 // Core gameplay config (stub in Phase 1)
-                sb.AppendLine($"[Gameplay] (stub in Phase 1, will be implemented in Phase 2+)");
+                _ = sb.AppendLine($"[Gameplay] (stub in Phase 1, will be implemented in Phase 2+)");
 
                 // Retirement config (still active)
                 var retirement = ConfigurationManager.LoadRetirementConfig();
-                sb.AppendLine($"[Retirement] first_term_days: {retirement.FirstTermDays}");
-                sb.AppendLine($"[Retirement] probation_days: {retirement.ProbationDays}");
+                _ = sb.AppendLine($"[Retirement] first_term_days: {retirement.FirstTermDays}");
+                _ = sb.AppendLine($"[Retirement] probation_days: {retirement.ProbationDays}");
 
                 // Escalation config (still active)
                 var escalation = ConfigurationManager.LoadEscalationConfig();
-                sb.AppendLine($"[Escalation] enabled: {escalation?.Enabled == true}");
-                sb.AppendLine($"[Escalation] scrutiny_decay_days: {escalation?.ScrutinyDecayIntervalDays}");
-                sb.AppendLine($"[Escalation] discipline_decay_days: {escalation?.DisciplineDecayIntervalDays}");
+                _ = sb.AppendLine($"[Escalation] enabled: {escalation?.Enabled == true}");
+                _ = sb.AppendLine($"[Escalation] scrutiny_decay_days: {escalation?.ScrutinyDecayIntervalDays}");
+                _ = sb.AppendLine($"[Escalation] discipline_decay_days: {escalation?.DisciplineDecayIntervalDays}");
 
                 // Lance, Duties, Schedule, and related systems deleted in Phase 1
 
-                sb.AppendLine("----------------------------");
+                _ = sb.AppendLine("----------------------------");
 
                 ModLogger.Info("CONFIG", sb.ToString());
             }

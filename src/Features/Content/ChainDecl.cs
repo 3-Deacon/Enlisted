@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Content
+namespace Enlisted.Features.Content
 {
     /// <summary>
     /// Chain continuation. Either time-delay form (Days set, When empty) or phase-target form

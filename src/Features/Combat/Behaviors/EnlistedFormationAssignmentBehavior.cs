@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Enlisted.Features.Retinue.Core;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.AgentOrigins;
@@ -340,7 +340,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (_needsLordAttachRetry && _lordAttachRetryAttempts < MaxLordAttachRetryAttempts)
                 {
                     _lordAttachRetryAttempts++;
-                    TryAttachToAlliedOrLordFormation("OnMissionTick-Retry");
+                    _ = TryAttachToAlliedOrLordFormation("OnMissionTick-Retry");
                 }
                 else if (_lordAttachRetryAttempts >= MaxLordAttachRetryAttempts)
                 {
@@ -888,92 +888,6 @@ namespace Enlisted.Features.Combat.Behaviors
                     LogCtx.Of("Mission", Mission.Current?.Mode.ToString(), "Formation", Agent.Main?.Formation?.FormationIndex.ToString()));
                 _needsPositionFix = false;
             }
-        }
-
-        /// <summary>
-        /// Teleports all squad members (retinue + companions) to positions near the player within the formation.
-        /// This ensures the entire squad spawns together with their troop type formation, not behind the line.
-        /// </summary>
-        private int TeleportSquadToFormation(Agent playerAgent, Formation formation, Vec3 formationCenter)
-        {
-            var teleportedCount = 0;
-
-            try
-            {
-                var team = playerAgent.Team;
-                if (team?.ActiveAgents == null)
-                {
-                    return 0;
-                }
-
-                var mainParty = PartyBase.MainParty;
-                if (mainParty == null)
-                {
-                    return 0;
-                }
-
-                // Get formation direction for proper positioning
-                var formationDirection = formation.Direction.IsValid ? formation.Direction : Vec2.Forward;
-                var formationRight = formationDirection.RightVec();
-
-                // Position squad members in a small cluster around the formation center
-                // Spread them out slightly so they don't stack on top of each other
-                var squadIndex = 0;
-                const float squadSpacing = 1.5f; // meters between squad members
-
-                foreach (var agent in team.ActiveAgents)
-                {
-                    // Skip the player
-                    if (agent == playerAgent || agent == null || !agent.IsActive())
-                    {
-                        continue;
-                    }
-
-                    // Only teleport agents from player's party
-                    if (agent.Origin is not PartyGroupAgentOrigin partyOrigin || partyOrigin.Party != mainParty)
-                    {
-                        continue;
-                    }
-
-                    // Skip companions that were faded out (stay back)
-                    if (!agent.IsActive())
-                    {
-                        continue;
-                    }
-
-                    // Calculate offset position in a grid pattern around the player
-                    // This keeps the squad together but not stacked
-                    var row = squadIndex / 3;
-                    var col = (squadIndex % 3) - 1; // -1, 0, 1 for left, center, right
-
-                    var offsetForward = -row * squadSpacing; // Behind the player slightly
-                    var offsetRight = col * squadSpacing;
-
-                    var squadPosition = formationCenter
-                        + formationDirection.ToVec3() * offsetForward
-                        + formationRight.ToVec3() * offsetRight;
-
-                    agent.TeleportToPosition(squadPosition);
-
-                    // Face same direction as formation
-                    if (formation.Direction.IsValid)
-                    {
-                        agent.SetMovementDirection(formation.Direction);
-                        agent.LookDirection = formation.Direction.ToVec3();
-                    }
-
-                    agent.ForceUpdateCachedAndFormationValues(true, false);
-
-                    teleportedCount++;
-                    squadIndex++;
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("FORMATIONASSIGNMENT", "Error teleporting squad to formation", ex);
-            }
-
-            return teleportedCount;
         }
 
         /// <summary>

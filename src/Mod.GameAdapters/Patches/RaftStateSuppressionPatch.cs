@@ -1,12 +1,12 @@
 using System;
 using System.Reflection;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -67,7 +67,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 // Apply the prefix patch
                 var prefixMethod = AccessTools.Method(typeof(RaftStateSuppressionPatch), nameof(OnMobilePartyRaftStateChangedPrefix));
-                harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
+                _ = harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
 
                 _patchApplied = true;
                 ModLogger.Info(LogCategory, "Raft state suppression patch registered");
@@ -129,7 +129,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     {
                         try
                         {
-                            _deactivateRaftStateMethod.Invoke(null, new object[] { mobileParty });
+                            _ = _deactivateRaftStateMethod.Invoke(null, new object[] { mobileParty });
                             ModLogger.Debug(LogCategory, "Deactivated incorrectly applied raft state");
                         }
                         catch (Exception deactivateEx)
@@ -165,7 +165,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     {
                         try
                         {
-                            _deactivateRaftStateMethod.Invoke(null, new object[] { mobileParty });
+                            _ = _deactivateRaftStateMethod.Invoke(null, new object[] { mobileParty });
                             ModLogger.Debug(LogCategory, "Deactivated incorrectly applied raft state");
                         }
                         catch (Exception deactivateEx)
@@ -213,7 +213,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
 
                 var prefixMethod = AccessTools.Method(typeof(RaftStateSuppressionPatch), nameof(OnPartyLeftArmyPrefix));
-                harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
+                _ = harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
 
                 ModLogger.Info(LogCategory, "OnPartyLeftArmy suppression patch registered");
             }

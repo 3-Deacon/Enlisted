@@ -1,7 +1,6 @@
-using System;
-using TaleWorlds.Library;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using TaleWorlds.Library;
 
 namespace Enlisted.Features.Interface.ViewModels
 {
@@ -17,13 +16,13 @@ namespace Enlisted.Features.Interface.ViewModels
         private const float InactivityFadeDelay = 10f; // Fade after 10 seconds of inactivity
         private const float DimmedAlpha = 0.35f; // Dimmed opacity
         private const float FullAlpha = 1.0f; // Full opacity
-        
+
         private bool _isVisible;
         private float _positionYOffset;
         private float _containerAlpha;
         private float _timeSinceLastActivity;
         private MBBindingList<CombatLogMessageVM> _messages;
-        
+
         public EnlistedCombatLogVM()
         {
             Messages = new MBBindingList<CombatLogMessageVM>();
@@ -32,7 +31,7 @@ namespace Enlisted.Features.Interface.ViewModels
             ContainerAlpha = FullAlpha; // Start at full opacity
             _timeSinceLastActivity = 0f;
         }
-        
+
         /// <summary>
         /// List of combat log messages displayed in the UI.
         /// </summary>
@@ -49,7 +48,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Controls visibility based on enlistment state.
         /// </summary>
@@ -66,7 +65,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Y-axis offset for positioning when army menu is open.
         /// Shifts the log up to avoid overlap.
@@ -84,7 +83,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Overall opacity of the combat log container.
         /// Fades to dimmed after inactivity, returns to full on activity.
@@ -102,7 +101,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Adds a new message to the combat log.
         /// Enforces message cap and updates visibility.
@@ -115,7 +114,7 @@ namespace Enlisted.Features.Interface.ViewModels
             {
                 return;
             }
-            
+
             // Use message text as-is - no modifications
             // Mod messages: Already have proper colors via message.Color
             // Native messages: Already have rich text formatting and links built-in
@@ -123,20 +122,20 @@ namespace Enlisted.Features.Interface.ViewModels
                 message.Information,
                 message.Color
             );
-            
+
             Messages.Add(messageVM);
-            
+
             // Enforce message cap
             while (Messages.Count > MaxMessages)
             {
                 Messages.RemoveAt(0);
             }
-            
+
             // Reset activity timer and restore full opacity on new message
             _timeSinceLastActivity = 0f;
             ContainerAlpha = FullAlpha;
         }
-        
+
         /// <summary>
         /// Called each frame to handle message expiration, fade effects, and inactivity dimming.
         /// </summary>
@@ -147,7 +146,7 @@ namespace Enlisted.Features.Interface.ViewModels
             {
                 var message = Messages[i];
                 float age = message.GetAgeInSeconds();
-                
+
                 if (age >= MessageLifetimeSeconds)
                 {
                     Messages.RemoveAt(i);
@@ -159,10 +158,10 @@ namespace Enlisted.Features.Interface.ViewModels
                     message.AlphaFactor = 1.0f - fadeProgress;
                 }
             }
-            
+
             // Handle inactivity fade
             _timeSinceLastActivity += dt;
-            
+
             if (_timeSinceLastActivity >= InactivityFadeDelay)
             {
                 // Fade to dimmed after inactivity
@@ -173,11 +172,11 @@ namespace Enlisted.Features.Interface.ViewModels
                 // Keep at full opacity during activity
                 ContainerAlpha = FullAlpha;
             }
-            
+
             // Update visibility based on enlistment state
             UpdateVisibility();
         }
-        
+
         /// <summary>
         /// Updates visibility based on current enlistment state and mission state.
         /// Hides during missions (taverns, halls, etc.) - only visible on campaign map.
@@ -187,12 +186,12 @@ namespace Enlisted.Features.Interface.ViewModels
         {
             bool isEnlisted = EnlistmentBehavior.Instance?.IsEnlisted ?? false;
             bool isInMission = TaleWorlds.MountAndBlade.Mission.Current != null;
-            
+
             // Only visible when enlisted AND on campaign map (not in any mission/scene)
             // Conversations are handled at the layer level by EnlistedCombatLogBehavior
             IsVisible = isEnlisted && !isInMission;
         }
-        
+
         /// <summary>
         /// Updates Y-axis positioning to avoid menu overlap.
         /// Moves up when menus open, returns to original compact position when closed.
@@ -203,7 +202,7 @@ namespace Enlisted.Features.Interface.ViewModels
             // Menu open: -280f (moved up to avoid party screen overlap)
             PositionYOffset = isMenuOpen ? -280f : -100f;
         }
-        
+
         /// <summary>
         /// Called when user interacts with the log (hover, scroll, clicks links).
         /// Resets inactivity timer and restores full opacity.
@@ -213,7 +212,7 @@ namespace Enlisted.Features.Interface.ViewModels
             _timeSinceLastActivity = 0f;
             ContainerAlpha = FullAlpha;
         }
-        
+
         /// <summary>
         /// Clears all messages from the log.
         /// </summary>
@@ -222,7 +221,7 @@ namespace Enlisted.Features.Interface.ViewModels
             Messages.Clear();
             ModLogger.Debug("Interface", "Combat log cleared");
         }
-        
+
         public override void OnFinalize()
         {
             base.OnFinalize();

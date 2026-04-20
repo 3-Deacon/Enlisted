@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # Delete Unused XML Strings Script
 # Removes unused localization strings from enlisted_strings.xml
 # Keeps: Used strings (519), Map Incidents (mi_*), Orders (order_*), Core decisions
@@ -5,24 +7,22 @@
 $ErrorActionPreference = "Stop"
 $xmlFile = "C:\Dev\Enlisted\Enlisted\ModuleData\Languages\enlisted_strings.xml"
 $backupFile = "C:\Dev\Enlisted\Enlisted\Debugging\enlisted_strings_backup_before_cleanup.xml"
-$unusedFile = "C:\Dev\Enlisted\Enlisted\Debugging\xml_string_ids.txt"
 $reportFile = "C:\Dev\Enlisted\Enlisted\Debugging\xml_audit_report.txt"
 
-Write-Host "=== Phase 7: Delete Unused Strings ===" -ForegroundColor Cyan
-Write-Host ""
+Write-Status "=== Phase 7: Delete Unused Strings ===" -ForegroundColor Cyan
+Write-Status ""
 
 # Create backup
-Write-Host "Creating backup..." -ForegroundColor Yellow
+Write-Status "Creating backup..." -ForegroundColor Yellow
 Copy-Item $xmlFile $backupFile -Force
-Write-Host "  Backup saved to: $backupFile" -ForegroundColor Green
-Write-Host ""
+Write-Status "  Backup saved to: $backupFile" -ForegroundColor Green
+Write-Status ""
 
 # Read the report to get unused strings
-Write-Host "Loading unused strings list..." -ForegroundColor Yellow
+Write-Status "Loading unused strings list..." -ForegroundColor Yellow
 $reportContent = Get-Content $reportFile -Raw
 
 # Extract unused strings from the report
-$unusedSection = $reportContent -match "(?s)UNUSED STRINGS.*?The following (\d+) string IDs.*?^  - (.+?)(?=^USED STRINGS)"
 $unusedStrings = @()
 
 if ($reportContent -match "(?s)UNUSED STRINGS.*?\n((?:  - .+\n)+)") {
@@ -32,8 +32,8 @@ if ($reportContent -match "(?s)UNUSED STRINGS.*?\n((?:  - .+\n)+)") {
     }
 }
 
-Write-Host "  Found $($unusedStrings.Count) unused strings" -ForegroundColor White
-Write-Host ""
+Write-Status "  Found $($unusedStrings.Count) unused strings" -ForegroundColor White
+Write-Status ""
 
 # Define strings to KEEP even if unused (planned features)
 $keepPrefixes = @(
@@ -102,26 +102,24 @@ foreach ($stringId in $unusedStrings) {
     }
 }
 
-Write-Host "Deletion Strategy:" -ForegroundColor Cyan
-Write-Host "  Strings to DELETE: $($stringsToDelete.Count)" -ForegroundColor Red
-Write-Host "  Strings to KEEP (planned features): $($stringsToKeep.Count)" -ForegroundColor Green
-Write-Host ""
+Write-Status "Deletion Strategy:" -ForegroundColor Cyan
+Write-Status "  Strings to DELETE: $($stringsToDelete.Count)" -ForegroundColor Red
+Write-Status "  Strings to KEEP (planned features): $($stringsToKeep.Count)" -ForegroundColor Green
+Write-Status ""
 
 # Show categories being deleted
 $deleteCategories = $stringsToDelete | ForEach-Object { ($_ -split '_')[0] } | Group-Object | Sort-Object Count -Descending
-Write-Host "Categories being deleted:" -ForegroundColor Yellow
+Write-Status "Categories being deleted:" -ForegroundColor Yellow
 foreach ($cat in $deleteCategories | Select-Object -First 10) {
-    Write-Host "  $($cat.Name): $($cat.Count) strings" -ForegroundColor Gray
+    Write-Status "  $($cat.Name): $($cat.Count) strings" -ForegroundColor Gray
 }
-Write-Host ""
+Write-Status ""
 
 # Read XML and delete strings
-Write-Host "Processing XML file..." -ForegroundColor Yellow
+Write-Status "Processing XML file..." -ForegroundColor Yellow
 $xmlContent = Get-Content $xmlFile -Raw
 
 $deletedCount = 0
-$pattern = '<string id="([^"]+)"[^>]*(?:/>|>.*?</string>)'
-
 foreach ($stringId in $stringsToDelete) {
     # Escape special regex characters
     $escapedId = [regex]::Escape($stringId)
@@ -133,19 +131,19 @@ foreach ($stringId in $stringsToDelete) {
         $deletedCount++
         
         if ($deletedCount % 100 -eq 0) {
-            Write-Host "  Deleted $deletedCount strings..." -ForegroundColor Gray
+            Write-Status "  Deleted $deletedCount strings..." -ForegroundColor Gray
         }
     }
 }
 
-Write-Host "  Total deleted: $deletedCount strings" -ForegroundColor Green
-Write-Host ""
+Write-Status "  Total deleted: $deletedCount strings" -ForegroundColor Green
+Write-Status ""
 
 # Save cleaned XML
-Write-Host "Saving cleaned XML..." -ForegroundColor Yellow
+Write-Status "Saving cleaned XML..." -ForegroundColor Yellow
 $xmlContent | Out-File -FilePath $xmlFile -Encoding UTF8 -NoNewline
-Write-Host "  Saved to: $xmlFile" -ForegroundColor Green
-Write-Host ""
+Write-Status "  Saved to: $xmlFile" -ForegroundColor Green
+Write-Status ""
 
 # Generate summary
 $newSize = (Get-Item $xmlFile).Length
@@ -154,15 +152,15 @@ $savedBytes = $oldSize - $newSize
 $savedKB = [math]::Round($savedBytes / 1KB, 2)
 $savedPercent = [math]::Round(($savedBytes / $oldSize) * 100, 1)
 
-Write-Host "=== Cleanup Complete ===" -ForegroundColor Green
-Write-Host ""
-Write-Host "Results:" -ForegroundColor Cyan
-Write-Host "  Strings deleted: $deletedCount" -ForegroundColor White
-Write-Host "  File size reduced: $savedKB KB ($savedPercent%)" -ForegroundColor White
-Write-Host "  Old size: $([math]::Round($oldSize / 1KB, 2)) KB" -ForegroundColor Gray
-Write-Host "  New size: $([math]::Round($newSize / 1KB, 2)) KB" -ForegroundColor Gray
-Write-Host ""
-Write-Host "Backup location: $backupFile" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Next: Run 'dotnet build' to verify changes" -ForegroundColor Cyan
+Write-Status "=== Cleanup Complete ===" -ForegroundColor Green
+Write-Status ""
+Write-Status "Results:" -ForegroundColor Cyan
+Write-Status "  Strings deleted: $deletedCount" -ForegroundColor White
+Write-Status "  File size reduced: $savedKB KB ($savedPercent%)" -ForegroundColor White
+Write-Status "  Old size: $([math]::Round($oldSize / 1KB, 2)) KB" -ForegroundColor Gray
+Write-Status "  New size: $([math]::Round($newSize / 1KB, 2)) KB" -ForegroundColor Gray
+Write-Status ""
+Write-Status "Backup location: $backupFile" -ForegroundColor Yellow
+Write-Status ""
+Write-Status "Next: Run 'dotnet build' to verify changes" -ForegroundColor Cyan
 

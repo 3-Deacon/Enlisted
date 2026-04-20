@@ -31,8 +31,8 @@ namespace Enlisted.Mod.Core.Logging
         private static string _conflictLogPath;
         private static bool _hasRunStartup;
         private static bool _hasDeferredPatchInfo;
-		private const string ConflictPrefix = "Conflicts-";
-		private static readonly string[] ConflictSlots = { "Conflicts-A", "Conflicts-B", "Conflicts-C" };
+        private const string ConflictPrefix = "Conflicts-";
+        private static readonly string[] ConflictSlots = { "Conflicts-A", "Conflicts-B", "Conflicts-C" };
 
         /// <summary>
         ///     Runs initial startup diagnostics and writes to Debugging/Conflicts-A_*.log.
@@ -170,7 +170,7 @@ namespace Enlisted.Mod.Core.Logging
                     var qmCatalogType = Type.GetType("Enlisted.Features.Conversations.Data.QMDialogueCatalog, Enlisted");
                     if (qmCatalogType != null)
                     {
-                        var instanceProp = qmCatalogType.GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var instanceProp = qmCatalogType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
                         var instance = instanceProp?.GetValue(null);
                         var countProp = qmCatalogType.GetProperty("NodeCount");
                         var count = (int)(countProp?.GetValue(instance) ?? 0);
@@ -185,7 +185,7 @@ namespace Enlisted.Mod.Core.Logging
                     var eventCatalogType = Type.GetType("Enlisted.Features.Content.EventCatalog, Enlisted");
                     if (eventCatalogType != null)
                     {
-                        var countProp = eventCatalogType.GetProperty("EventCount", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var countProp = eventCatalogType.GetProperty("EventCount", BindingFlags.Public | BindingFlags.Static);
                         var count = (int)(countProp?.GetValue(null) ?? 0);
                         catalogStatus.Add(("Events", count, count > 0 ? "OK" : "EMPTY"));
                     }
@@ -198,7 +198,7 @@ namespace Enlisted.Mod.Core.Logging
                     var decisionCatalogType = Type.GetType("Enlisted.Features.Content.DecisionCatalog, Enlisted");
                     if (decisionCatalogType != null)
                     {
-                        var countProp = decisionCatalogType.GetProperty("DecisionCount", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                        var countProp = decisionCatalogType.GetProperty("DecisionCount", BindingFlags.Public | BindingFlags.Static);
                         var count = (int)(countProp?.GetValue(null) ?? 0);
                         catalogStatus.Add(("Decisions", count, count > 0 ? "OK" : "EMPTY"));
                     }
@@ -223,7 +223,7 @@ namespace Enlisted.Mod.Core.Logging
                 foreach (var (name, count, status) in catalogStatus)
                 {
                     var countStr = count >= 0 ? count.ToString() : "N/A";
-                    var statusMarker = status == "OK" || status == "PRESENT" ? "✓" : 
+                    var statusMarker = status == "OK" || status == "PRESENT" ? "✓" :
                                       status == "EMPTY" ? "⚠" : "✗";
                     WriteLine($"  {name,-20} {countStr,7}  {statusMarker} {status}");
                 }
@@ -287,10 +287,10 @@ namespace Enlisted.Mod.Core.Logging
 
                 if (!Directory.Exists(debugDir))
                 {
-                    Directory.CreateDirectory(debugDir);
+                    _ = Directory.CreateDirectory(debugDir);
                 }
 
-				_conflictLogPath = RotateConflictLogs(debugDir);
+                _conflictLogPath = RotateConflictLogs(debugDir);
             }
             catch (Exception ex)
             {
@@ -299,19 +299,19 @@ namespace Enlisted.Mod.Core.Logging
                 {
                     var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                     var fallbackDir = Path.Combine(docs, "Mount and Blade II Bannerlord", "Logs", "Enlisted");
-                    Directory.CreateDirectory(fallbackDir);
-					_conflictLogPath = RotateConflictLogs(fallbackDir);
+                    _ = Directory.CreateDirectory(fallbackDir);
+                    _conflictLogPath = RotateConflictLogs(fallbackDir);
                     System.Diagnostics.Debug.WriteLine(
                         $"[Enlisted] Conflict log using Documents fallback (Error: {ex.Message})");
                 }
                 catch (Exception fallbackEx)
                 {
                     // Last resort: use a temp path
-					_conflictLogPath = RotateConflictLogs(Path.Combine(Path.GetTempPath(), "Enlisted"));
+                    _conflictLogPath = RotateConflictLogs(Path.Combine(Path.GetTempPath(), "Enlisted"));
                     var tempDir = Path.GetDirectoryName(_conflictLogPath);
                     if (tempDir != null && !Directory.Exists(tempDir))
                     {
-                        Directory.CreateDirectory(tempDir);
+                        _ = Directory.CreateDirectory(tempDir);
                     }
 
                     System.Diagnostics.Debug.WriteLine(
@@ -320,58 +320,58 @@ namespace Enlisted.Mod.Core.Logging
             }
         }
 
-		private static string RotateConflictLogs(string logDir)
-		{
-			try
-			{
-				if (string.IsNullOrWhiteSpace(logDir))
-				{
-					logDir = "Debugging";
-				}
+        private static string RotateConflictLogs(string logDir)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(logDir))
+                {
+                    logDir = "Debugging";
+                }
 
-				if (!Directory.Exists(logDir))
-				{
-					Directory.CreateDirectory(logDir);
-				}
+                if (!Directory.Exists(logDir))
+                {
+                    _ = Directory.CreateDirectory(logDir);
+                }
 
-				var utcNow = DateTime.UtcNow;
+                var utcNow = DateTime.UtcNow;
 
-			var files = Directory.GetFiles(logDir, $"{ConflictPrefix}*.log", SearchOption.TopDirectoryOnly)
-				.Select(path => new FileInfo(path))
-				.OrderByDescending(f => f.CreationTimeUtc)
-				.ToList();
+                var files = Directory.GetFiles(logDir, $"{ConflictPrefix}*.log", SearchOption.TopDirectoryOnly)
+                    .Select(path => new FileInfo(path))
+                    .OrderByDescending(f => f.CreationTimeUtc)
+                    .ToList();
 
-			var toShift = files.Take(ConflictSlots.Length - 1).ToList();
-				var toDelete = files.Skip(ConflictSlots.Length - 1).ToList();
-				foreach (var old in toDelete)
-				{
-					TryDelete(old.FullName);
-				}
+                var toShift = files.Take(ConflictSlots.Length - 1).ToList();
+                var toDelete = files.Skip(ConflictSlots.Length - 1).ToList();
+                foreach (var old in toDelete)
+                {
+                    TryDelete(old.FullName);
+                }
 
-				for (int i = 0; i < toShift.Count && i + 1 < ConflictSlots.Length; i++)
-				{
-					var stamp = ExtractTimestamp(toShift[i]) ?? toShift[i].CreationTimeUtc;
-					var target = Path.Combine(logDir, $"{ConflictSlots[i + 1]}_{stamp:yyyy-MM-dd_HH-mm-ss}.log");
-					TryMove(toShift[i].FullName, target);
-				}
+                for (int i = 0; i < toShift.Count && i + 1 < ConflictSlots.Length; i++)
+                {
+                    var stamp = ExtractTimestamp(toShift[i]) ?? toShift[i].CreationTimeUtc;
+                    var target = Path.Combine(logDir, $"{ConflictSlots[i + 1]}_{stamp:yyyy-MM-dd_HH-mm-ss}.log");
+                    TryMove(toShift[i].FullName, target);
+                }
 
-				var newName = $"{ConflictSlots[0]}_{utcNow:yyyy-MM-dd_HH-mm-ss}.log";
-				var newPath = Path.Combine(logDir, newName);
+                var newName = $"{ConflictSlots[0]}_{utcNow:yyyy-MM-dd_HH-mm-ss}.log";
+                var newPath = Path.Combine(logDir, newName);
 
-				// Touch the file so WriteLine can append later
-				File.WriteAllText(newPath, string.Empty, Encoding.UTF8);
+                // Touch the file so WriteLine can append later
+                File.WriteAllText(newPath, string.Empty, Encoding.UTF8);
 
-				// Update combined pointer with latest conflicts file
-				ModLogger.WriteCombinedPointer(logDir, null, newName);
+                // Update combined pointer with latest conflicts file
+                ModLogger.WriteCombinedPointer(logDir, null, newName);
 
-				return newPath;
-			}
-	catch
-	{
-		// Fallback: use a placeholder filename
-		return Path.Combine(logDir ?? "Debugging", "_.log");
-	}
-		}
+                return newPath;
+            }
+            catch
+            {
+                // Fallback: use a placeholder filename
+                return Path.Combine(logDir ?? "Debugging", "_.log");
+            }
+        }
 
         /// <summary>
         ///     Writes a line to the conflict log file.
@@ -393,60 +393,60 @@ namespace Enlisted.Mod.Core.Logging
 
         #endregion
 
-		#region Helpers for rotation
+        #region Helpers for rotation
 
-		private static DateTime? ExtractTimestamp(FileInfo file)
-		{
-			try
-			{
-				var name = Path.GetFileNameWithoutExtension(file.Name);
-				if (string.IsNullOrWhiteSpace(name))
-				{
-					return null;
-				}
+        private static DateTime? ExtractTimestamp(FileInfo file)
+        {
+            try
+            {
+                var name = Path.GetFileNameWithoutExtension(file.Name);
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return null;
+                }
 
-				var parts = name.Split('_');
-				if (parts.Length == 0)
-				{
-					return null;
-				}
+                var parts = name.Split('_');
+                if (parts.Length == 0)
+                {
+                    return null;
+                }
 
-				var tail = parts[parts.Length - 1];
-				if (DateTime.TryParseExact(tail, "yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture,
-						DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed))
-				{
-					return parsed;
-				}
-			}
-			catch
-			{
-				// ignore parse errors
-			}
-			return null;
-		}
+                var tail = parts[parts.Length - 1];
+                if (DateTime.TryParseExact(tail, "yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture,
+                        DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed))
+                {
+                    return parsed;
+                }
+            }
+            catch
+            {
+                // ignore parse errors
+            }
+            return null;
+        }
 
-		private static void TryDelete(string path)
-		{
-			try { File.Delete(path); } catch { /* best effort */ }
-		}
+        private static void TryDelete(string path)
+        {
+            try { File.Delete(path); } catch { /* best effort */ }
+        }
 
-		private static void TryMove(string source, string destination)
-		{
-			try
-			{
-				if (File.Exists(destination))
-				{
-					File.Delete(destination);
-				}
-				File.Move(source, destination);
-			}
-			catch
-			{
-				// best effort
-			}
-		}
+        private static void TryMove(string source, string destination)
+        {
+            try
+            {
+                if (File.Exists(destination))
+                {
+                    File.Delete(destination);
+                }
+                File.Move(source, destination);
+            }
+            catch
+            {
+                // best effort
+            }
+        }
 
-		#endregion
+        #endregion
 
         #region Header and Footer
 
@@ -651,9 +651,9 @@ namespace Enlisted.Mod.Core.Logging
                 if (Directory.Exists(decisionsPath))
                 {
                     var decisionFiles = Directory.GetFiles(decisionsPath, "*.json").Length;
-                    var expectedDecisionFiles = new[] { 
-                        "decisions.json", "camp_decisions.json", "camp_opportunities.json", 
-                        "medical_decisions.json" 
+                    var expectedDecisionFiles = new[] {
+                        "decisions.json", "camp_decisions.json", "camp_opportunities.json",
+                        "medical_decisions.json"
                     };
                     var foundCount = 0;
                     foreach (var expectedFile in expectedDecisionFiles)
@@ -702,8 +702,8 @@ namespace Enlisted.Mod.Core.Logging
                 var configPath = ModulePaths.GetContentPath("Config");
                 if (Directory.Exists(configPath))
                 {
-                    var expectedConfigs = new[] { 
-                        "settings.json", "progression_config.json", "enlisted_config.json", 
+                    var expectedConfigs = new[] {
+                        "settings.json", "progression_config.json", "enlisted_config.json",
                         "equipment_pricing.json", "retinue_config.json", "baggage_config.json",
                         "camp_schedule.json", "orchestrator_overrides.json", "routine_outcomes.json",
                         "simulation_config.json", "strategic_context_config.json"
@@ -771,7 +771,7 @@ namespace Enlisted.Mod.Core.Logging
                             WriteLine($"      - {issue}");
                         }
                     }
-                    
+
                     if (warnings.Count > 0)
                     {
                         WriteLine($"  [!] WARNINGS: {warnings.Count}");
@@ -780,7 +780,7 @@ namespace Enlisted.Mod.Core.Logging
                             WriteLine($"      - {warning}");
                         }
                     }
-                    
+
                     WriteLine();
                     WriteLine("  RECOMMENDATION: Verify game files or reinstall the mod.");
                     WriteLine("  Fallback systems may activate for missing content.");
@@ -828,7 +828,7 @@ namespace Enlisted.Mod.Core.Logging
             {
                 var patchedMethods = harmony.GetPatchedMethods().ToList();
                 WriteLine($"  Patches Applied: {patchedMethods.Count} methods");
-                
+
                 // Count patch types
                 var prefixCount = 0;
                 var postfixCount = 0;
@@ -900,22 +900,22 @@ namespace Enlisted.Mod.Core.Logging
                     var owners = new HashSet<string>();
                     foreach (var p in patchInfo.Prefixes)
                     {
-                        owners.Add(p.owner);
+                        _ = owners.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Postfixes)
                     {
-                        owners.Add(p.owner);
+                        _ = owners.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Transpilers)
                     {
-                        owners.Add(p.owner);
+                        _ = owners.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Finalizers)
                     {
-                        owners.Add(p.owner);
+                        _ = owners.Add(p.owner);
                     }
 
                     // If more than just Enlisted patches this method, we have a potential conflict
@@ -1091,22 +1091,22 @@ namespace Enlisted.Mod.Core.Logging
 
                     foreach (var p in patchInfo.Prefixes.Where(p => !ourIds.Contains(p.owner)))
                     {
-                        allOtherMods.Add(p.owner);
+                        _ = allOtherMods.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Postfixes.Where(p => !ourIds.Contains(p.owner)))
                     {
-                        allOtherMods.Add(p.owner);
+                        _ = allOtherMods.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Transpilers.Where(p => !ourIds.Contains(p.owner)))
                     {
-                        allOtherMods.Add(p.owner);
+                        _ = allOtherMods.Add(p.owner);
                     }
 
                     foreach (var p in patchInfo.Finalizers.Where(p => !ourIds.Contains(p.owner)))
                     {
-                        allOtherMods.Add(p.owner);
+                        _ = allOtherMods.Add(p.owner);
                     }
                 }
 

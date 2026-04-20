@@ -108,7 +108,7 @@ namespace Enlisted.Features.Content
                 // Check if player had a bad discharge - if so, don't grant faction bonus
                 var lastBand = factionRecord.LastDischargeBand?.ToLowerInvariant() ?? string.Empty;
                 var wasBadDischarge = lastBand == "washout" || lastBand == "dishonorable" || lastBand == "deserter";
-                
+
                 if (!wasBadDischarge)
                 {
                     factionTier = Math.Max(1, factionRecord.HighestTier - 2);

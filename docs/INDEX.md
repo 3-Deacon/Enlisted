@@ -114,7 +114,9 @@
 | --- | --- | --- |
 | [README.md](README.md) | Main entry point and mod overview | ✅ Current |
 | [BLUEPRINT.md](BLUEPRINT.md) | Project architecture and coding standards | ✅ Current |
-| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Build guide, development patterns, validation (Phase 7 project structure checks) | ✅ Current |
+| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Build guide, development patterns, and the active repo lint stack | ✅ Current |
+| [../Tools/README.md](../Tools/README.md) | Validation tools, lint entry points, and maintenance scripts | ✅ Current |
+| [../Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) | Logging, save-system patterns, and repo tooling config | ✅ Current |
 
 ---
 

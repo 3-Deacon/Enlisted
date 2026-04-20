@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Flags;
@@ -20,6 +20,12 @@ namespace Enlisted.Features.Content
     /// </summary>
     public static class EffectExecutor
     {
+        // Guard against malformed scripted-effect catalogs that reference each other
+        // cyclically (A -> B -> A) or nest unreasonably deep. A well-authored catalog
+        // never nears this depth; hitting it implies a JSON mistake worth surfacing.
+        private const int MaxScriptedDepth = 8;
+        private static int _scriptedDepth;
+
         public static void Apply(IList<EffectDecl> effects, StoryletContext ctx)
         {
             if (effects == null || effects.Count == 0)
@@ -40,11 +46,27 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // Scripted effect? Expand and recurse.
+            // Scripted effect? Expand and recurse, with a depth cap so a cyclic
+            // catalog can't stack-overflow the campaign thread.
             var scripted = ScriptedEffectRegistry.Resolve(eff.Apply);
             if (scripted != null)
             {
-                Apply(scripted, ctx);
+                if (_scriptedDepth >= MaxScriptedDepth)
+                {
+                    ModLogger.Expected("EFFECT", "scripted_depth_limit",
+                        "Scripted-effect recursion cap hit — check for cyclic refs",
+                        new Dictionary<string, object> { { "apply", eff.Apply } });
+                    return;
+                }
+                _scriptedDepth++;
+                try
+                {
+                    Apply(scripted, ctx);
+                }
+                finally
+                {
+                    _scriptedDepth--;
+                }
                 return;
             }
 
@@ -101,7 +123,7 @@ namespace Enlisted.Features.Content
                 Hero hero = null;
                 if (!string.IsNullOrEmpty(slot) && ctx?.ResolvedSlots != null)
                 {
-                    ctx.ResolvedSlots.TryGetValue(slot, out hero);
+                    _ = ctx.ResolvedSlots.TryGetValue(slot, out hero);
                 }
 
                 QualityStore.Instance?.AddForHero(hero, quality, amount, "storylet");
@@ -256,7 +278,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            PartyBase.MainParty?.ItemRoster?.AddToCounts(item, count);
+            _ = (PartyBase.MainParty?.ItemRoster?.AddToCounts(item, count));
         }
 
         private static string GetStr(EffectDecl eff, string key)

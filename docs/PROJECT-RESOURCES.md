@@ -3,7 +3,7 @@
 **Summary:** Documentation for workspace resources (Decompile, steamcmd, SQLite3) that support development but are not part of the mod build.
 
 **Status:** ✅ Current
-**Last Updated:** 2026-01-16
+**Last Updated:** 2026-04-20
 **Related Docs:** [BLUEPRINT.md](BLUEPRINT.md), [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md)
 
 ---
@@ -143,4 +143,4 @@ If you add new development resources:
 
 ---
 
-**Last updated:** 2026-01-16 (Removed CrewAI references)
+**Last updated:** 2026-04-20

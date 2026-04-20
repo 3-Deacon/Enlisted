@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -88,49 +88,49 @@ namespace Enlisted.Features.Retinue.Data
         /// </summary>
         public CampaignTime ReinforcementRequestCooldownEnd { get; set; }
 
-    /// <summary>
-    /// Loyalty level of the retinue (0-100 scale).
-    /// Represents the Commander's relationship with their personal soldiers.
-    /// Starts at 50 (neutral). Low loyalty can trigger desertion events.
-    /// High loyalty provides combat bonuses and morale stability.
-    /// </summary>
-    public int RetinueLoyalty { get; set; }
+        /// <summary>
+        /// Loyalty level of the retinue (0-100 scale).
+        /// Represents the Commander's relationship with their personal soldiers.
+        /// Starts at 50 (neutral). Low loyalty can trigger desertion events.
+        /// High loyalty provides combat bonuses and morale stability.
+        /// </summary>
+        public int RetinueLoyalty { get; set; }
 
-    /// <summary>
-    /// The last loyalty threshold that was crossed and triggered an event.
-    /// Prevents duplicate events when loyalty oscillates around a threshold.
-    /// </summary>
-    public LoyaltyThreshold LastLoyaltyThresholdCrossed { get; set; }
+        /// <summary>
+        /// The last loyalty threshold that was crossed and triggered an event.
+        /// Prevents duplicate events when loyalty oscillates around a threshold.
+        /// </summary>
+        public LoyaltyThreshold LastLoyaltyThresholdCrossed { get; set; }
 
-    /// <summary>
-    /// Campaign time when the last threshold event was triggered.
-    /// Used to enforce cooldown between threshold events (7 days minimum).
-    /// </summary>
-    public CampaignTime LastThresholdEventTime { get; set; }
+        /// <summary>
+        /// Campaign time when the last threshold event was triggered.
+        /// Used to enforce cooldown between threshold events (7 days minimum).
+        /// </summary>
+        public CampaignTime LastThresholdEventTime { get; set; }
 
-    /// <summary>
-    /// Named veterans who have emerged from the ranks. These soldiers have names, traits,
-    /// and tracked history. Their deaths trigger memorial events. Maximum 5 veterans at a time.
-    /// </summary>
-    public List<NamedVeteran> NamedVeterans { get; set; }
+        /// <summary>
+        /// Named veterans who have emerged from the ranks. These soldiers have names, traits,
+        /// and tracked history. Their deaths trigger memorial events. Maximum 5 veterans at a time.
+        /// </summary>
+        public List<NamedVeteran> NamedVeterans { get; set; }
 
-    /// <summary>
-    /// Maximum number of named veterans that can exist at once.
-    /// Keeps the system manageable and each veteran feeling special.
-    /// </summary>
-    public const int MaxNamedVeterans = 5;
+        /// <summary>
+        /// Maximum number of named veterans that can exist at once.
+        /// Keeps the system manageable and each veteran feeling special.
+        /// </summary>
+        public const int MaxNamedVeterans = 5;
 
-    /// <summary>
-    /// Number of battles the retinue has participated in since formation.
-    /// Used to track when anonymous soldiers become eligible to emerge as named veterans.
-    /// </summary>
-    public int BattlesParticipated { get; set; }
+        /// <summary>
+        /// Number of battles the retinue has participated in since formation.
+        /// Used to track when anonymous soldiers become eligible to emerge as named veterans.
+        /// </summary>
+        public int BattlesParticipated { get; set; }
 
-    /// <summary>
-    /// Total number of soldiers currently in the retinue.
-    /// Computed from TroopCounts dictionary.
-    /// </summary>
-    public int TotalSoldiers => TroopCounts?.Values.Sum() ?? 0;
+        /// <summary>
+        /// Total number of soldiers currently in the retinue.
+        /// Computed from TroopCounts dictionary.
+        /// </summary>
+        public int TotalSoldiers => TroopCounts?.Values.Sum() ?? 0;
 
         /// <summary>
         /// Returns true if the player has an active retinue (type selected and soldiers present).
@@ -199,7 +199,7 @@ namespace Enlisted.Features.Retinue.Data
             }
             else
             {
-                TroopCounts.Remove(characterId);
+                _ = TroopCounts.Remove(characterId);
             }
 
             return newCount;
@@ -325,7 +325,7 @@ namespace Enlisted.Features.Retinue.Data
             var veteran = NamedVeterans.FirstOrDefault(v => v.Id == veteranId);
             if (veteran != null)
             {
-                NamedVeterans.Remove(veteran);
+                _ = NamedVeterans.Remove(veteran);
             }
 
             return veteran;

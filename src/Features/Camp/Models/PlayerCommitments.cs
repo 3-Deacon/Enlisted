@@ -68,7 +68,7 @@ namespace Enlisted.Features.Camp.Models
             string scheduledPhase, int scheduledDay, string displayText)
         {
             // Remove any existing commitment for the same opportunity
-            Commitments.RemoveAll(c => c.OpportunityId == opportunityId);
+            _ = Commitments.RemoveAll(c => c.OpportunityId == opportunityId);
 
             var commitment = new ScheduledCommitment
             {

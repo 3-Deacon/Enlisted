@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Activities
+namespace Enlisted.Features.Activities
 {
     /// <summary>
     /// Auto: ActivityRuntime picks one weighted storylet from the phase pool per tick.

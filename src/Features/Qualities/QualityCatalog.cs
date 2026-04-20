@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Enlisted.Mod.Core.Logging;
@@ -64,8 +64,8 @@ namespace Enlisted.Features.Qualities
                 Min = (int?)obj["min"] ?? 0,
                 Max = (int?)obj["max"] ?? 100,
                 Default = (int?)obj["default"] ?? 0,
-                Scope = ParseEnum<QualityScope>((string)obj["scope"], QualityScope.Global),
-                Kind = ParseEnum<QualityKind>((string)obj["kind"], QualityKind.Stored),
+                Scope = ParseEnum((string)obj["scope"], QualityScope.Global),
+                Kind = ParseEnum((string)obj["kind"], QualityKind.Stored),
                 Writable = (bool?)obj["writable"] ?? true,
             };
 

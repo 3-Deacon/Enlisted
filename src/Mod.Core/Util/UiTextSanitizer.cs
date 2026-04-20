@@ -61,7 +61,7 @@ namespace Enlisted.Mod.Core.Util
                     continue;
                 }
 
-                sb.Append(c);
+                _ = sb.Append(c);
             }
 
             return sb.ToString();

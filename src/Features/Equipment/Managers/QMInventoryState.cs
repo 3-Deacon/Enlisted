@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.SaveSystem;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.Managers
 {
@@ -181,7 +181,7 @@ namespace Enlisted.Features.Equipment.Managers
             if (newQty <= 0)
             {
                 // Remove from stock entirely
-                CurrentStock.Remove(itemStringId);
+                _ = CurrentStock.Remove(itemStringId);
                 ModLogger.Info("Inventory", $"Item sold out: {itemStringId}");
             }
             else

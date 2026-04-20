@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
 
 namespace Enlisted.Features.Content
@@ -26,7 +26,10 @@ namespace Enlisted.Features.Content
 
         public virtual bool IsEligible(StoryletContext ctx)
         {
-            if (ctx == null) return false;
+            if (ctx == null)
+            {
+                return false;
+            }
 
             // Scope.context filter — skipped for mid-encounter storylets (spec §10.3).
             if (!string.IsNullOrEmpty(Scope?.Context)
@@ -38,11 +41,18 @@ namespace Enlisted.Features.Content
 
             // Slot requirements — any unfilled required slot = ineligible.
             var resolved = SlotFiller.Resolve(Scope);
-            if (!SlotFiller.AllRequiredFilled(resolved)) return false;
+            if (!SlotFiller.AllRequiredFilled(resolved))
+            {
+                return false;
+            }
+
             ctx.ResolvedSlots = resolved;
 
             // Trigger predicates.
-            if (!TriggerRegistry.Evaluate(Trigger, ctx)) return false;
+            if (!TriggerRegistry.Evaluate(Trigger, ctx))
+            {
+                return false;
+            }
 
             return true;
         }
@@ -50,18 +60,33 @@ namespace Enlisted.Features.Content
         public virtual float WeightFor(StoryletContext ctx)
         {
             var w = Weight?.Base ?? 1.0f;
-            if (Weight?.Modifiers == null) return w;
+            if (Weight?.Modifiers == null)
+            {
+                return w;
+            }
+
             foreach (var mod in Weight.Modifiers)
             {
-                if (string.IsNullOrEmpty(mod.If)) continue;
-                if (TriggerRegistry.EvaluateOne(mod.If, ctx)) w *= mod.Factor;
+                if (string.IsNullOrEmpty(mod.If))
+                {
+                    continue;
+                }
+
+                if (TriggerRegistry.EvaluateOne(mod.If, ctx))
+                {
+                    w *= mod.Factor;
+                }
             }
             return w;
         }
 
         public virtual StoryCandidate ToCandidate(StoryletContext ctx)
         {
-            if (ctx == null) return null;
+            if (ctx == null)
+            {
+                return null;
+            }
+
             return new StoryCandidate
             {
                 SourceId = "storylet." + Id,

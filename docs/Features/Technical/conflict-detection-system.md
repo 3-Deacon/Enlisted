@@ -518,7 +518,7 @@ if (Hero.MainHero.IsPrisoner) return false;
 
 ### Content Validation Tool
 
-**File:** `tools/events/validate_content.py` (enhanced validator)
+**File:** `Tools/Validation/validate_content.py` (enhanced validator)
 
 **What It Does:**
 - **Phase 1:** Structure validation (JSON schema, required fields, enum values)
@@ -538,12 +538,12 @@ if (Hero.MainHero.IsPrisoner) return false;
 - **NEW (2026-01-03):** Validates opportunity hints (`hint`/`hintId` fields for narrative foreshadowing)
 
 **What To Do:**
-- Run before committing content changes: `python tools/events/validate_content.py`
-- Use `--strict` mode for pre-merge validation: `python tools/events/validate_content.py --strict`
-- See `tools/events/README.md` for complete usage guide
+- Run before committing content changes: `python Tools/Validation/validate_content.py`
+- Use `--strict` mode for pre-merge validation: `python Tools/Validation/validate_content.py --strict`
+- See [../../../Tools/README.md](../../../Tools/README.md) for complete usage guide
 - **NEW:** Add `hint` or `hintId` to camp opportunities for Daily Brief integration (see [Event System Schemas](../Content/event-system-schemas.md#narrative-hints-orchestrator-pre-scheduling))
 
-**Legacy Tool:** `tools/events/validate_events.py` (basic ID/option count checks, use enhanced tool instead)
+**Legacy Tool:** `Tools/Validation/validate_events.py` (basic ID/option count checks, use enhanced tool instead)
 
 ---
 

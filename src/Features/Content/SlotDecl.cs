@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Content
+namespace Enlisted.Features.Content
 {
     /// <summary>Named slot role binding. Tag is optional; when set the filler requires that flag on the candidate hero.</summary>
     public sealed class SlotDecl

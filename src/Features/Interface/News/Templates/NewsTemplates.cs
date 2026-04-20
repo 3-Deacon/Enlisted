@@ -28,6 +28,7 @@ namespace Enlisted.Features.Interface.News.Templates
     {
         public NewsTemplate(string id, NewsTemplateCategory category, string format)
         {
+            _ = category;
             Id = id ?? string.Empty;
             Format = format ?? string.Empty;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.UI;
@@ -29,7 +29,7 @@ namespace Enlisted.Debugging.Behaviors
 
             hero.Gold += GoldPerClick;
             var msg = new TextObject("{=dbg_gold_added}+{G} gold granted (debug).");
-            msg.SetTextVariable("G", GoldPerClick);
+            _ = msg.SetTextVariable("G", GoldPerClick);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "GiveGold", $"gold={GoldPerClick}, total={hero.Gold}");
         }
@@ -46,7 +46,7 @@ namespace Enlisted.Debugging.Behaviors
 
             enlist.AddEnlistmentXP(XpPerClick, "Debug");
             var msg = new TextObject("{=dbg_xp_added}+{XP} enlistment XP granted (debug).");
-            msg.SetTextVariable("XP", XpPerClick);
+            _ = msg.SetTextVariable("XP", XpPerClick);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "GiveXP",
                 $"xp={XpPerClick}, total={enlist.EnlistmentXP}, tier={enlist.EnlistmentTier}");
@@ -75,8 +75,8 @@ namespace Enlisted.Debugging.Behaviors
             var totalCount = EventCatalog.EventCount;
 
             var msg = new TextObject("{C} eligible events out of {T} total. Check log for details.");
-            msg.SetTextVariable("C", eligibleCount);
-            msg.SetTextVariable("T", totalCount);
+            _ = msg.SetTextVariable("C", eligibleCount);
+            _ = msg.SetTextVariable("T", totalCount);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
 
             ModLogger.Info("Debug", $"Eligible events: {eligibleCount}/{totalCount}");
@@ -101,7 +101,7 @@ namespace Enlisted.Debugging.Behaviors
             escalationState.EventLastFired?.Clear();
 
             var msg = new TextObject("Cleared {C} event cooldowns. All events can fire again.");
-            msg.SetTextVariable("C", clearedCount);
+            _ = msg.SetTextVariable("C", clearedCount);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "ClearEventCooldowns", $"cleared={clearedCount}");
         }
@@ -123,7 +123,7 @@ namespace Enlisted.Debugging.Behaviors
             if (evt == null)
             {
                 var warn = new TextObject("Event '{ID}' not found in catalog.");
-                warn.SetTextVariable("ID", eventId);
+                _ = warn.SetTextVariable("ID", eventId);
                 InformationManager.DisplayMessage(new InformationMessage(warn.ToString()));
                 return;
             }
@@ -140,7 +140,7 @@ namespace Enlisted.Debugging.Behaviors
             // immediately for testing, regardless of pacing guards.
             deliveryManager.QueueEvent(evt);
             var msg = new TextObject("Queued event '{ID}' for delivery.");
-            msg.SetTextVariable("ID", eventId);
+            _ = msg.SetTextVariable("ID", eventId);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "FireSpecificEvent", $"eventId={eventId}");
         }
@@ -222,7 +222,7 @@ namespace Enlisted.Debugging.Behaviors
 
             EventDeliveryManager.Instance?.QueueEvent(evt);
             var msg = new TextObject("Queued test event '{ID}'. Save now, reload, then run DebugPrintQueue.");
-            msg.SetTextVariable("ID", testId);
+            _ = msg.SetTextVariable("ID", testId);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             ModLogger.Info("Debug", $"Queued test event {testId}. Save now, reload, then run DebugPrintQueue.");
             SessionDiagnostics.LogEvent("Debug", "DebugQueueTestEvent", $"eventId={testId}");
@@ -248,7 +248,7 @@ namespace Enlisted.Debugging.Behaviors
             var idList = string.Join(", ", ids);
             ModLogger.Info("Debug", $"PendingQueue count={count}, ids=[{idList}]");
             var msg = new TextObject("Queue: {C} event(s). Check log for IDs.");
-            msg.SetTextVariable("C", count);
+            _ = msg.SetTextVariable("C", count);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "DebugPrintQueue", $"count={count}, ids=[{idList}]");
         }
@@ -259,7 +259,7 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void SmokeTestQualities()
         {
-            var store = Enlisted.Features.Qualities.QualityStore.Instance;
+            var store = Features.Qualities.QualityStore.Instance;
             if (store == null)
             {
                 SessionDiagnostics.LogEvent("Debug", "SmokeTestQualities", "FAIL: QualityStore.Instance null");
@@ -281,14 +281,14 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void SmokeTestFlags()
         {
-            var store = Enlisted.Features.Flags.FlagStore.Instance;
+            var store = Features.Flags.FlagStore.Instance;
             if (store == null)
             {
                 SessionDiagnostics.LogEvent("Debug", "SmokeTestFlags", "FAIL: FlagStore.Instance null");
                 return;
             }
 
-            store.Set("smoke_test_flag", TaleWorlds.CampaignSystem.CampaignTime.DaysFromNow(1));
+            store.Set("smoke_test_flag", CampaignTime.DaysFromNow(1));
             var hasIt = store.Has("smoke_test_flag");
             store.Clear("smoke_test_flag");
             SessionDiagnostics.LogEvent("Debug", "SmokeTestFlags",
@@ -301,7 +301,7 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void SmokeTestScriptedEffects()
         {
-            var ids = Enlisted.Features.Content.ScriptedEffectRegistry.AllIds;
+            var ids = ScriptedEffectRegistry.AllIds;
             var count = 0;
             foreach (var _ in ids)
             {
@@ -318,11 +318,11 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void SmokeTestTriggers()
         {
-            var ctx = new Enlisted.Features.Content.StoryletContext { CurrentContext = "land" };
+            var ctx = new StoryletContext { CurrentContext = "land" };
             var trueTriggers = new System.Collections.Generic.List<string> { "context:land" };
             var falseTriggers = new System.Collections.Generic.List<string> { "context:sea" };
-            var okTrue = Enlisted.Features.Content.TriggerRegistry.Evaluate(trueTriggers, ctx);
-            var okFalse = !Enlisted.Features.Content.TriggerRegistry.Evaluate(falseTriggers, ctx);
+            var okTrue = TriggerRegistry.Evaluate(trueTriggers, ctx);
+            var okFalse = !TriggerRegistry.Evaluate(falseTriggers, ctx);
             SessionDiagnostics.LogEvent("Debug", "SmokeTestTriggers",
                 okTrue && okFalse
                     ? "PASS: context:land true, context:sea false while on land"
@@ -337,21 +337,21 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void ForceStartHomeActivity()
         {
-            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
+            var runtime = Features.Activities.ActivityRuntime.Instance;
             if (runtime == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage(
                     "[DEBUG] ActivityRuntime not available."));
                 return;
             }
-            if (runtime.FindActive<Enlisted.Features.Activities.Home.HomeActivity>() != null)
+            if (runtime.FindActive<Features.Activities.Home.HomeActivity>() != null)
             {
                 InformationManager.DisplayMessage(new InformationMessage(
                     "[DEBUG] HomeActivity already active."));
                 return;
             }
-            var ctx = Enlisted.Features.Activities.ActivityContext.FromCurrent();
-            var activity = new Enlisted.Features.Activities.Home.HomeActivity { Intent = "brood" };
+            var ctx = Features.Activities.ActivityContext.FromCurrent();
+            var activity = new Features.Activities.Home.HomeActivity { Intent = "brood" };
             runtime.Start(activity, ctx);
             InformationManager.DisplayMessage(new InformationMessage(
                 "[DEBUG] HomeActivity force-started."));
@@ -370,8 +370,8 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void AdvanceHomeToEvening()
         {
-            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
-            var home = runtime?.FindActive<Enlisted.Features.Activities.Home.HomeActivity>();
+            var runtime = Features.Activities.ActivityRuntime.Instance;
+            var home = runtime?.FindActive<Features.Activities.Home.HomeActivity>();
             if (home == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage(
@@ -399,8 +399,8 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void AdvanceHomeToBreakCamp()
         {
-            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
-            var home = runtime?.FindActive<Enlisted.Features.Activities.Home.HomeActivity>();
+            var runtime = Features.Activities.ActivityRuntime.Instance;
+            var home = runtime?.FindActive<Features.Activities.Home.HomeActivity>();
             if (home == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage(
@@ -408,7 +408,7 @@ namespace Enlisted.Debugging.Behaviors
                 return;
             }
             home.OnBeat("departure_imminent",
-                Enlisted.Features.Activities.ActivityContext.FromCurrent());
+                Features.Activities.ActivityContext.FromCurrent());
             var phaseId = home.CurrentPhase?.Id ?? "(ended)";
             InformationManager.DisplayMessage(new InformationMessage(
                 $"[DEBUG] Home advanced to Break Camp (phase={phaseId})."));
@@ -423,14 +423,14 @@ namespace Enlisted.Debugging.Behaviors
         /// </summary>
         public static void DumpTriggerEvalTable()
         {
-            var ctx = new Enlisted.Features.Content.StoryletContext
+            var ctx = new StoryletContext
             {
                 ActivityTypeId = "home_activity",
                 CurrentContext = "settlement"
             };
             var log = new System.Text.StringBuilder();
-            log.AppendLine("[DEBUG] HomeTriggers eval dump:");
-            foreach (var name in Enlisted.Features.Content.TriggerRegistry.AllRegisteredNames())
+            _ = log.AppendLine("[DEBUG] HomeTriggers eval dump:");
+            foreach (var name in TriggerRegistry.AllRegisteredNames())
             {
                 if (!name.StartsWith("home_") && !name.StartsWith("lord_") && !name.StartsWith("party_")
                     && !name.StartsWith("settlement_") && !name.StartsWith("kingdom_")
@@ -440,8 +440,8 @@ namespace Enlisted.Debugging.Behaviors
                 {
                     continue;
                 }
-                var val = Enlisted.Features.Content.TriggerRegistry.EvaluateOne(name, ctx);
-                log.Append("  ").Append(name).Append(" = ").AppendLine(val.ToString());
+                var val = TriggerRegistry.EvaluateOne(name, ctx);
+                _ = log.Append("  ").Append(name).Append(" = ").AppendLine(val.ToString());
             }
             ModLogger.Expected("HOME-DEBUG", "trigger_dump", log.ToString());
             InformationManager.DisplayMessage(new InformationMessage(

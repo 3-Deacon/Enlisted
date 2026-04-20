@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # XML String Audit Script
 # This script analyzes all XML string IDs and checks their usage in the codebase
 
@@ -6,21 +8,21 @@ $projectRoot = "C:\Dev\Enlisted\Enlisted"
 $outputFile = "$projectRoot\Debugging\xml_audit_report.txt"
 $stringIdsFile = "$projectRoot\Debugging\xml_string_ids.txt"
 
-Write-Host "Starting XML String Audit..." -ForegroundColor Cyan
-Write-Host "Project Root: $projectRoot" -ForegroundColor Gray
-Write-Host ""
+Write-Status "Starting XML String Audit..." -ForegroundColor Cyan
+Write-Status "Project Root: $projectRoot" -ForegroundColor Gray
+Write-Status ""
 
 # Load all string IDs
 $stringIds = Get-Content $stringIdsFile
-Write-Host "Total XML String IDs: $($stringIds.Count)" -ForegroundColor Yellow
-Write-Host ""
+Write-Status "Total XML String IDs: $($stringIds.Count)" -ForegroundColor Yellow
+Write-Status ""
 
 # Get all C# source files
 $csFiles = Get-ChildItem -Path $projectRoot -Recurse -Include *.cs | 
     Where-Object { $_.FullName -notlike "*\obj\*" -and $_.FullName -notlike "*\bin\*" }
 
-Write-Host "Scanning $($csFiles.Count) C# source files..." -ForegroundColor Yellow
-Write-Host ""
+Write-Status "Scanning $($csFiles.Count) C# source files..." -ForegroundColor Yellow
+Write-Status ""
 
 # Initialize results
 $usedStrings = @{}
@@ -34,7 +36,7 @@ $totalStrings = $stringIds.Count
 foreach ($stringId in $stringIds) {
     $progress++
     if ($progress % 100 -eq 0) {
-        Write-Host "Progress: $progress / $totalStrings ($([math]::Round($progress/$totalStrings*100, 1))%)" -ForegroundColor Gray
+        Write-Status "Progress: $progress / $totalStrings ($([math]::Round($progress/$totalStrings*100, 1))%)" -ForegroundColor Gray
     }
     
     # Search for this string ID in all C# files
@@ -51,7 +53,7 @@ foreach ($stringId in $stringIds) {
                 $totalReferences++
             }
         } catch {
-            # Skip files that can't be read
+            Write-Verbose "Skipping unreadable file: $($file.FullName)"
         }
     }
     
@@ -62,9 +64,9 @@ foreach ($stringId in $stringIds) {
     }
 }
 
-Write-Host ""
-Write-Host "Analysis Complete!" -ForegroundColor Green
-Write-Host ""
+Write-Status ""
+Write-Status "Analysis Complete!" -ForegroundColor Green
+Write-Status ""
 
 # Generate report
 $report = @"
@@ -139,10 +141,10 @@ foreach ($stringId in $usedStrings.Keys | Sort-Object) {
 # Save report
 $report | Out-File -FilePath $outputFile -Encoding UTF8
 
-Write-Host "Report saved to: $outputFile" -ForegroundColor Green
-Write-Host ""
-Write-Host "SUMMARY:" -ForegroundColor Cyan
-Write-Host "  Used:   $($usedStrings.Count) strings" -ForegroundColor Green
-Write-Host "  Unused: $($unusedStrings.Count) strings" -ForegroundColor $(if ($unusedStrings.Count -gt 0) { "Yellow" } else { "Green" })
-Write-Host "  Usage:  $([math]::Round($usedStrings.Count / $stringIds.Count * 100, 2))%" -ForegroundColor Cyan
+Write-Status "Report saved to: $outputFile" -ForegroundColor Green
+Write-Status ""
+Write-Status "SUMMARY:" -ForegroundColor Cyan
+Write-Status "  Used:   $($usedStrings.Count) strings" -ForegroundColor Green
+Write-Status "  Unused: $($unusedStrings.Count) strings" -ForegroundColor $(if ($unusedStrings.Count -gt 0) { "Yellow" } else { "Green" })
+Write-Status "  Usage:  $([math]::Round($usedStrings.Count / $stringIds.Count * 100, 2))%" -ForegroundColor Cyan
 

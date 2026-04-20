@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -15,7 +15,7 @@ namespace Enlisted.Mod.Core.Logging
     internal static class SessionSummaryFooter
     {
         private const string SentinelStart = "=== SUMMARY ===";
-        private const string SentinelEnd   = "===============";
+        private const string SentinelEnd = "===============";
 
         private static readonly object Sync = new object();
 
@@ -69,10 +69,11 @@ namespace Enlisted.Mod.Core.Logging
         /// </summary>
         public static void RecordCaught(string category, string file, int line)
         {
+            _ = category;
             var key = $"{file}:{line}";
             lock (Sync)
             {
-                CaughtSites.TryGetValue(key, out var n);
+                _ = CaughtSites.TryGetValue(key, out var n);
                 CaughtSites[key] = n + 1;
             }
         }
@@ -83,9 +84,10 @@ namespace Enlisted.Mod.Core.Logging
         /// </summary>
         public static void RecordExpected(string category, string key)
         {
+            _ = category;
             lock (Sync)
             {
-                ExpectedKeys.TryGetValue(key, out var n);
+                _ = ExpectedKeys.TryGetValue(key, out var n);
                 ExpectedKeys[key] = n + 1;
             }
         }
@@ -114,9 +116,17 @@ namespace Enlisted.Mod.Core.Logging
 
         private static void RewriteFooter()
         {
-            if (_footerDisabled) return;
+            if (_footerDisabled)
+            {
+                return;
+            }
+
             var path = SessionLogPath;
-            if (string.IsNullOrEmpty(path) || !File.Exists(path)) return;
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+            {
+                return;
+            }
+
             try
             {
                 lock (Sync)
@@ -141,20 +151,28 @@ namespace Enlisted.Mod.Core.Logging
         private static string BuildFooterBlock()
         {
             var sb = new StringBuilder();
-            sb.AppendLine(SentinelStart);
-            sb.AppendLine($"Surfaced errors: {Surfaced.Count}");
+            _ = sb.AppendLine(SentinelStart);
+            _ = sb.AppendLine($"Surfaced errors: {Surfaced.Count}");
             foreach (var kvp in Surfaced)
             {
                 var e = kvp.Value;
-                sb.AppendLine($"  [{kvp.Key}] {e.Summary} - {e.File}:{e.Line} (x{e.Count})");
+                _ = sb.AppendLine($"  [{kvp.Key}] {e.Summary} - {e.File}:{e.Line} (x{e.Count})");
             }
             int caughtTotal = 0;
-            foreach (var n in CaughtSites.Values) caughtTotal += n;
-            sb.AppendLine($"Caught (non-surfaced): {caughtTotal} across {CaughtSites.Count} sites");
+            foreach (var n in CaughtSites.Values)
+            {
+                caughtTotal += n;
+            }
+
+            _ = sb.AppendLine($"Caught (non-surfaced): {caughtTotal} across {CaughtSites.Count} sites");
             int expectedTotal = 0;
-            foreach (var n in ExpectedKeys.Values) expectedTotal += n;
-            sb.AppendLine($"Expected (guard-rail): {expectedTotal} across {ExpectedKeys.Count} keys");
-            sb.AppendLine(SentinelEnd);
+            foreach (var n in ExpectedKeys.Values)
+            {
+                expectedTotal += n;
+            }
+
+            _ = sb.AppendLine($"Expected (guard-rail): {expectedTotal} across {ExpectedKeys.Count} keys");
+            _ = sb.AppendLine(SentinelEnd);
             return sb.ToString();
         }
     }

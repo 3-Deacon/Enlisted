@@ -53,10 +53,10 @@ namespace Enlisted.Features.Content
 
         public override void SyncData(IDataStore dataStore)
         {
-            dataStore.SyncData("_lastBattleIncidentTime", ref _lastBattleIncidentTime);
-            dataStore.SyncData("_lastSettlementIncidentTime", ref _lastSettlementIncidentTime);
-            dataStore.SyncData("_lastSiegeIncidentTime", ref _lastSiegeIncidentTime);
-            dataStore.SyncData("_lastWaitingIncidentTime", ref _lastWaitingIncidentTime);
+            _ = dataStore.SyncData("_lastBattleIncidentTime", ref _lastBattleIncidentTime);
+            _ = dataStore.SyncData("_lastSettlementIncidentTime", ref _lastSettlementIncidentTime);
+            _ = dataStore.SyncData("_lastSiegeIncidentTime", ref _lastSiegeIncidentTime);
+            _ = dataStore.SyncData("_lastWaitingIncidentTime", ref _lastWaitingIncidentTime);
         }
 
         /// <summary>
@@ -606,14 +606,14 @@ namespace Enlisted.Features.Content
         {
             return context switch
             {
-                "leaving_battle"       => (StoryTier.Modal,    StoryBeat.PlayerBattleEnd,   0.6f),
-                "entering_town"        => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
-                "entering_village"     => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
-                "during_siege"         => (StoryTier.Headline,  StoryBeat.SiegeBegin,        0.5f),
-                "waiting_in_settlement"=> (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.25f),
+                "leaving_battle" => (StoryTier.Modal, StoryBeat.PlayerBattleEnd, 0.6f),
+                "entering_town" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "entering_village" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "during_siege" => (StoryTier.Headline, StoryBeat.SiegeBegin, 0.5f),
+                "waiting_in_settlement" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.25f),
                 // leaving_settlement: settlement-transition, treated as Pertinent settlement beat
-                "leaving_settlement"   => (StoryTier.Pertinent, StoryBeat.SettlementLeft, 0.3f),
-                _                      => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f)
+                "leaving_settlement" => (StoryTier.Pertinent, StoryBeat.SettlementLeft, 0.3f),
+                _ => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f)
             };
         }
 

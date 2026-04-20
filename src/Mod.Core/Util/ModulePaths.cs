@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using TaleWorlds.Library;
 using TaleWorlds.ModuleManager;
@@ -33,10 +32,10 @@ namespace Enlisted.Mod.Core.Util
                     {
                         // This is the correct Bannerlord API that handles Workshop paths
                         var path = ModuleHelper.GetModuleFullPath(ModuleId);
-                        
+
                         // Normalize path separators for Windows
                         _cachedModulePath = path?.Replace('/', Path.DirectorySeparatorChar);
-                        
+
                         if (string.IsNullOrEmpty(_cachedModulePath) || !Directory.Exists(_cachedModulePath))
                         {
                             // Fallback: try to find module via BasePath (manual install only)

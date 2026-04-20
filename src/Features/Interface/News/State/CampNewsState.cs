@@ -141,14 +141,14 @@ namespace Enlisted.Features.Interface.News.State
         {
             EnsureInitialized();
 
-            dataStore.SyncData("cn_lastGeneratedDay", ref _lastGeneratedDayNumber);
+            _ = dataStore.SyncData("cn_lastGeneratedDay", ref _lastGeneratedDayNumber);
 
-            dataStore.SyncData("cn_archiveCapacity", ref _archiveCapacity);
-            dataStore.SyncData("cn_archiveHeadIndex", ref _archiveHeadIndex);
+            _ = dataStore.SyncData("cn_archiveCapacity", ref _archiveCapacity);
+            _ = dataStore.SyncData("cn_archiveHeadIndex", ref _archiveHeadIndex);
 
             // Baselines for deltas.
-            dataStore.SyncData("cn_lastCompanyManCount", ref _lastCompanyManCount);
-            dataStore.SyncData("cn_lastCompanyWoundedCount", ref _lastCompanyWoundedCount);
+            _ = dataStore.SyncData("cn_lastCompanyManCount", ref _lastCompanyManCount);
+            _ = dataStore.SyncData("cn_lastCompanyWoundedCount", ref _lastCompanyWoundedCount);
 
             // Company simulation status fields
             int lastFitForDuty = LastFitForDuty;
@@ -156,10 +156,10 @@ namespace Enlisted.Features.Interface.News.State
             int lastNetChange = LastNetChange;
             string lastPulseText = LastPulseText ?? string.Empty;
 
-            dataStore.SyncData("cn_lastFitForDuty", ref lastFitForDuty);
-            dataStore.SyncData("cn_lastTotalStrength", ref lastTotalStrength);
-            dataStore.SyncData("cn_lastNetChange", ref lastNetChange);
-            dataStore.SyncData("cn_lastPulseText", ref lastPulseText);
+            _ = dataStore.SyncData("cn_lastFitForDuty", ref lastFitForDuty);
+            _ = dataStore.SyncData("cn_lastTotalStrength", ref lastTotalStrength);
+            _ = dataStore.SyncData("cn_lastNetChange", ref lastNetChange);
+            _ = dataStore.SyncData("cn_lastPulseText", ref lastPulseText);
 
             LastFitForDuty = lastFitForDuty;
             LastTotalStrength = lastTotalStrength;
@@ -197,11 +197,11 @@ namespace Enlisted.Features.Interface.News.State
             // Mirror the ledger fields explicitly to avoid relying on array serialization.
             // (IDataStore.SyncData requires a ref to a variable, not a property.)
             var capacity = _ledger.Capacity;
-            dataStore.SyncData("cn_ledgerCapacity", ref capacity);
+            _ = dataStore.SyncData("cn_ledgerCapacity", ref capacity);
             _ledger.Capacity = capacity;
 
             var headIndex = _ledger.HeadIndex;
-            dataStore.SyncData("cn_ledgerHeadIndex", ref headIndex);
+            _ = dataStore.SyncData("cn_ledgerHeadIndex", ref headIndex);
             _ledger.HeadIndex = headIndex;
 
             _ledger.EnsureInitialized();
@@ -211,14 +211,14 @@ namespace Enlisted.Features.Interface.News.State
             {
                 var a = i < days.Length ? days[i] : default;
 
-                dataStore.SyncData($"cn_ledger_{i}_has", ref a.HasValue);
-                dataStore.SyncData($"cn_ledger_{i}_day", ref a.DayNumber);
-                dataStore.SyncData($"cn_ledger_{i}_lost", ref a.LostToday);
-                dataStore.SyncData($"cn_ledger_{i}_wounded", ref a.WoundedToday);
-                dataStore.SyncData($"cn_ledger_{i}_sick", ref a.SickToday);
-                dataStore.SyncData($"cn_ledger_{i}_train", ref a.TrainingIncidentsToday);
-                dataStore.SyncData($"cn_ledger_{i}_dec", ref a.DecisionsResolvedToday);
-                dataStore.SyncData($"cn_ledger_{i}_dispatch", ref a.HighSignalDispatchesToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_has", ref a.HasValue);
+                _ = dataStore.SyncData($"cn_ledger_{i}_day", ref a.DayNumber);
+                _ = dataStore.SyncData($"cn_ledger_{i}_lost", ref a.LostToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_wounded", ref a.WoundedToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_sick", ref a.SickToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_train", ref a.TrainingIncidentsToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_dec", ref a.DecisionsResolvedToday);
+                _ = dataStore.SyncData($"cn_ledger_{i}_dispatch", ref a.HighSignalDispatchesToday);
 
                 if (i < days.Length)
                 {
@@ -267,11 +267,11 @@ namespace Enlisted.Features.Interface.News.State
 
         public void SyncData(IDataStore dataStore, string prefix)
         {
-            dataStore.SyncData($"{prefix}_has", ref HasValue);
-            dataStore.SyncData($"{prefix}_day", ref DayNumber);
+            _ = dataStore.SyncData($"{prefix}_has", ref HasValue);
+            _ = dataStore.SyncData($"{prefix}_day", ref DayNumber);
 
             var lineCount = Lines?.Length ?? 0;
-            dataStore.SyncData($"{prefix}_lineCount", ref lineCount);
+            _ = dataStore.SyncData($"{prefix}_lineCount", ref lineCount);
 
             if (dataStore.IsLoading)
             {
@@ -279,7 +279,7 @@ namespace Enlisted.Features.Interface.News.State
                 for (var i = 0; i < Lines.Length; i++)
                 {
                     var line = string.Empty;
-                    dataStore.SyncData($"{prefix}_line_{i}", ref line);
+                    _ = dataStore.SyncData($"{prefix}_line_{i}", ref line);
                     Lines[i] = line ?? string.Empty;
                 }
             }
@@ -289,7 +289,7 @@ namespace Enlisted.Features.Interface.News.State
                 for (var i = 0; i < Math.Min(lineCount, safeLines.Length); i++)
                 {
                     var line = safeLines[i] ?? string.Empty;
-                    dataStore.SyncData($"{prefix}_line_{i}", ref line);
+                    _ = dataStore.SyncData($"{prefix}_line_{i}", ref line);
                 }
             }
 

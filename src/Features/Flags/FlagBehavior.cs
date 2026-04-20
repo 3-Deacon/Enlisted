@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 
@@ -20,7 +20,7 @@ namespace Enlisted.Features.Flags
         {
             try
             {
-                dataStore.SyncData("_flagStore", ref _store);
+                _ = dataStore.SyncData("_flagStore", ref _store);
                 if (_store == null)
                 {
                     _store = new FlagStore();

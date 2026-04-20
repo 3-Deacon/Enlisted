@@ -1,6 +1,6 @@
 #if BATTLE_AI
-using TaleWorlds.MountAndBlade;
 using Enlisted.Mod.Core.Logging;
+using TaleWorlds.MountAndBlade;
 
 namespace Enlisted.Features.Combat.BattleAI
 {
@@ -22,11 +22,11 @@ namespace Enlisted.Features.Combat.BattleAI
         protected override void OnBeforeInitialModuleScreenSetAsRoot()
         {
             base.OnBeforeInitialModuleScreenSetAsRoot();
-            
+
             // Register Battle AI mission behaviors here when implemented
             // Example:
             // MissionManager.OnMissionBehaviourCreated += RegisterBattleAIBehaviors;
-            
+
             ModLogger.Info(LogCategory, "Battle AI systems initialized");
         }
 
@@ -34,31 +34,6 @@ namespace Enlisted.Features.Combat.BattleAI
         {
             base.OnSubModuleUnloaded();
             ModLogger.Info(LogCategory, "Battle AI SubModule unloaded");
-        }
-
-        /// <summary>
-        /// Registers Battle AI mission behaviors for field battles.
-        /// Called automatically when missions are created.
-        /// </summary>
-        private void RegisterBattleAIBehaviors(Mission mission)
-        {
-            // Only add Battle AI to field battles (not siege/naval)
-            if (mission.CombatType != Mission.MissionCombatType.Combat)
-            {
-                return;
-            }
-
-            // Check if this is a field battle
-            if (mission.Scene.GetName().Contains("siege") || mission.Scene.GetName().Contains("naval"))
-            {
-                return;
-            }
-
-            // TODO: Add Battle AI behaviors here when implemented
-            // Example:
-            // mission.AddMissionBehavior(new EnlistedBattleAIBehavior());
-            
-            ModLogger.Debug(LogCategory, $"Battle AI behaviors registered for mission: {mission.SceneName}");
         }
     }
 }

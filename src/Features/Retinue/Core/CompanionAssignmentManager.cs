@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
@@ -37,7 +37,7 @@ namespace Enlisted.Features.Retinue.Core
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("_companionBattleParticipation", ref _companionBattleParticipation);
+                _ = dataStore.SyncData("_companionBattleParticipation", ref _companionBattleParticipation);
                 _companionBattleParticipation ??= new Dictionary<string, bool>();
 
                 ModLogger.Debug(LogCategory, $"SyncData: {_companionBattleParticipation.Count} companion assignments loaded");
@@ -57,10 +57,10 @@ namespace Enlisted.Features.Retinue.Core
 
             var hasEntry = _companionBattleParticipation.TryGetValue(companion.StringId, out var fights);
             var result = !hasEntry || fights;
-            
-            ModLogger.Trace(LogCategory, 
+
+            ModLogger.Trace(LogCategory,
                 $"ShouldFight check: {companion.Name} -> {(result ? "Fight" : "Stay Back")} (hasEntry={hasEntry})");
-            
+
             return result;
         }
 
@@ -75,7 +75,7 @@ namespace Enlisted.Features.Retinue.Core
             }
 
             _companionBattleParticipation[companion.StringId] = shouldFight;
-            
+
             ModLogger.Debug(LogCategory,
                 $"Set {companion.Name} participation to {(shouldFight ? "Fight" : "Stay Back")}");
         }

@@ -14,7 +14,6 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
 
 namespace Enlisted.Features.Camp
 {
@@ -27,7 +26,7 @@ namespace Enlisted.Features.Camp
     public static class CampRoutineProcessor
     {
         private const string LogCategory = "RoutineProcessor";
-        
+
         private static JObject _outcomesConfig;
         private static bool _configLoaded;
         private static readonly Random _random = new Random();
@@ -49,7 +48,7 @@ namespace Enlisted.Features.Camp
             // Skip if player has a commitment (they're doing something specific)
             if (schedule.HasPlayerCommitment)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Player has commitment '{schedule.PlayerCommitmentTitle}', skipping auto-routine");
                 return outcomes;
             }
@@ -63,12 +62,12 @@ namespace Enlisted.Features.Camp
             // Log the phase transition
             if (isOverride)
             {
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Processing override routine for {completedPhase}: {overrideInfo.ActivityName}");
             }
             else
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Processing routine for {completedPhase}: {schedule.Slot1Description}");
             }
 
@@ -143,16 +142,16 @@ namespace Enlisted.Features.Camp
             }
 
             // Roll for outcome quality
-            var outcomeType = RollOutcomeType(category);
+            var outcomeType = RollOutcomeType();
 
             // Calculate XP
             int xpGained = CalculateXp(activityConfig, outcomeType, overrideInfo);
 
-        // Calculate other effects
-        int goldChange = CalculateGoldChange(activityConfig, outcomeType);
-        int supplyChange = CalculateSupplyChange(activityConfig, outcomeType);
+            // Calculate other effects
+            int goldChange = CalculateGoldChange(activityConfig, outcomeType);
+            int supplyChange = CalculateSupplyChange(activityConfig, outcomeType);
 
-        // Check for mishap condition
+            // Check for mishap condition
             string conditionApplied = null;
             if (outcomeType == OutcomeType.Mishap)
             {
@@ -170,16 +169,16 @@ namespace Enlisted.Features.Camp
                 ActivityName = description ?? activityConfig["name"]?.Value<string>() ?? category,
                 Outcome = outcomeType,
                 XpGained = xpGained,
-            SkillAffected = skillName,
-            GoldChange = goldChange,
-            SupplyChange = supplyChange,
-            ConditionApplied = conditionApplied,
+                SkillAffected = skillName,
+                GoldChange = goldChange,
+                SupplyChange = supplyChange,
+                ConditionApplied = conditionApplied,
                 FlavorText = flavorText,
                 WasOverride = isOverride,
                 OverrideReason = overrideInfo?.Reason
             };
 
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"Activity '{category}' outcome: {outcomeType} (+{xpGained} XP)");
 
             return outcome;
@@ -188,7 +187,7 @@ namespace Enlisted.Features.Camp
         /// <summary>
         /// Rolls for outcome type using weighted random based on player state.
         /// </summary>
-        private static OutcomeType RollOutcomeType(string category)
+        private static OutcomeType RollOutcomeType()
         {
             // Get weight set based on player condition
             var weightSet = DetermineWeightSet();
@@ -199,19 +198,31 @@ namespace Enlisted.Features.Camp
             int roll = _random.Next(total);
 
             int cumulative = 0;
-            
+
             cumulative += weights.excellent;
-            if (roll < cumulative) return OutcomeType.Excellent;
-            
+            if (roll < cumulative)
+            {
+                return OutcomeType.Excellent;
+            }
+
             cumulative += weights.good;
-            if (roll < cumulative) return OutcomeType.Good;
-            
+            if (roll < cumulative)
+            {
+                return OutcomeType.Good;
+            }
+
             cumulative += weights.normal;
-            if (roll < cumulative) return OutcomeType.Normal;
-            
+            if (roll < cumulative)
+            {
+                return OutcomeType.Normal;
+            }
+
             cumulative += weights.poor;
-            if (roll < cumulative) return OutcomeType.Poor;
-            
+            if (roll < cumulative)
+            {
+                return OutcomeType.Poor;
+            }
+
             return OutcomeType.Mishap;
         }
 
@@ -226,11 +237,11 @@ namespace Enlisted.Features.Camp
                 return "default";
             }
 
-        // Check for negative conditions
-        // Note: Morale removed (system no longer exists)
-        // For now, always use default weights
+            // Check for negative conditions
+            // Note: Morale removed (system no longer exists)
+            // For now, always use default weights
 
-        // TODO: Check player skill level for highSkill set
+            // TODO: Check player skill level for highSkill set
             // For now, default to normal weights
             return "default";
         }
@@ -304,7 +315,7 @@ namespace Enlisted.Features.Camp
         private static int CalculateGoldChange(JToken activityConfig, OutcomeType outcome)
         {
             var goldChance = activityConfig["goldChance"]?[outcome.ToString().ToLowerInvariant()]?.Value<float>() ?? 0;
-            
+
             if (goldChance <= 0)
             {
                 // Check for gold loss on mishap
@@ -327,7 +338,7 @@ namespace Enlisted.Features.Camp
             var range = activityConfig["goldRange"];
             int min = range?["min"]?.Value<int>() ?? 5;
             int max = range?["max"]?.Value<int>() ?? 25;
-            
+
             return _random.Next(min, max + 1);
         }
 
@@ -380,21 +391,19 @@ namespace Enlisted.Features.Camp
         /// </summary>
         private static string GetFlavorText(JToken activityConfig, OutcomeType outcome)
         {
-            List<string> texts = null;
-            
             // Check if we're at sea and have sea variants
             if (IsPartyAtSea())
             {
-                texts = activityConfig["seaVariants"]?[outcome.ToString().ToLowerInvariant()]?.ToObject<List<string>>();
-                if (texts != null && texts.Count > 0)
+                var seaTexts = activityConfig["seaVariants"]?[outcome.ToString().ToLowerInvariant()]?.ToObject<List<string>>();
+                if (seaTexts != null && seaTexts.Count > 0)
                 {
                     ModLogger.Debug(LogCategory, "Using sea variant flavor text");
-                    return texts[_random.Next(texts.Count)];
+                    return seaTexts[_random.Next(seaTexts.Count)];
                 }
             }
-            
+
             // Fall back to standard land flavor text
-            texts = activityConfig["flavorText"]?[outcome.ToString().ToLowerInvariant()]?.ToObject<List<string>>();
+            var texts = activityConfig["flavorText"]?[outcome.ToString().ToLowerInvariant()]?.ToObject<List<string>>();
             if (texts == null || texts.Count == 0)
             {
                 return GetDefaultFlavorText(outcome);
@@ -402,7 +411,7 @@ namespace Enlisted.Features.Camp
 
             return texts[_random.Next(texts.Count)];
         }
-        
+
         /// <summary>
         /// Checks if the party is currently at sea.
         /// Uses native IsCurrentlyAtSea property for Warsails DLC compatibility.
@@ -423,7 +432,7 @@ namespace Enlisted.Features.Camp
             {
                 ModLogger.Caught("RoutineProcessor", "Failed to check sea travel status", ex);
             }
-            
+
             return false;
         }
 
@@ -470,14 +479,14 @@ namespace Enlisted.Features.Camp
             var needs = enlistment.CompanyNeeds;
             if (needs != null)
             {
-            if (outcome.SupplyChange != 0)
-            {
-                needs.ModifyNeed(CompanyNeed.Supplies, outcome.SupplyChange);
+                if (outcome.SupplyChange != 0)
+                {
+                    needs.ModifyNeed(CompanyNeed.Supplies, outcome.SupplyChange);
+                }
+                // Note: Morale removed (system no longer exists)
             }
-            // Note: Morale removed (system no longer exists)
-        }
 
-        // Apply condition if mishap caused one
+            // Apply condition if mishap caused one
             if (!string.IsNullOrEmpty(outcome.ConditionApplied))
             {
                 ApplyCondition(outcome.ConditionApplied);

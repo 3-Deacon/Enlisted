@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,24 +6,17 @@ using System.Text;
 using Enlisted.Debugging.Behaviors;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
-using Enlisted.Features.Conditions;
+using Enlisted.Features.Content;
 using Enlisted.Features.Content.Models;
-using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
-using Enlisted.Features.Equipment.UI;
-using Enlisted.Features.Escalation;
-using Enlisted.Features.Interface.News.Models;
 using Enlisted.Features.Logistics;
 using Enlisted.Features.Orders.Behaviors;
-using Enlisted.Features.Content;
 using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Conversation;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.GameMenus;
@@ -111,7 +104,7 @@ namespace Enlisted.Features.Interface.Behaviors
         // Auto-expands when new decisions are available, collapses when empty.
         private bool _decisionsMainMenuCollapsed = true;
         private HashSet<string> _decisionsMainMenuLastSeenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        
+
         // CACHED decisions list - populated when menu renders, used for click handling.
         // This prevents the "phase changed between render and click" bug where decisions
         // disappear mid-interaction because the game phase advanced.
@@ -123,7 +116,7 @@ namespace Enlisted.Features.Interface.Behaviors
         private string _cachedMainMenuNarrative = string.Empty;
         private CampaignTime _narrativeLastBuiltAt = CampaignTime.Zero;
         private int _lastKnownSupplyLevel = -1;
-        
+
         // State tracking for smooth past/present tense transitions (static since EnlistedMenuBehavior is singleton)
         private static Settlement _lastKnownSettlement = null;
         private static CampaignTime _lastSettlementChangeTime = CampaignTime.Zero;
@@ -190,11 +183,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 var lordInBattle = lordParty.Party.MapEvent != null;
                 var siegeRelatedBattle = IsSiegeRelatedBattle(MobileParty.MainParty, lordParty);
 
-                    // Only treat actual battles (MapEvent) as "battle" for menu switching.
-                    // During siege waiting (lordParty.Party.SiegeEvent != null but no MapEvent), switching into
-                    // menu_siege_strategies is disruptive for enlisted soldiers and can re-trigger unwanted
-                    // siege screens. Siege assault still creates a MapEvent and will be handled by lordInBattle.
-                    var lordInAnyBattle = lordInBattle || siegeRelatedBattle;
+                // Only treat actual battles (MapEvent) as "battle" for menu switching.
+                // During siege waiting (lordParty.Party.SiegeEvent != null but no MapEvent), switching into
+                // menu_siege_strategies is disruptive for enlisted soldiers and can re-trigger unwanted
+                // siege screens. Siege assault still creates a MapEvent and will be handled by lordInBattle.
+                var lordInAnyBattle = lordInBattle || siegeRelatedBattle;
 
                 if (lordInAnyBattle)
                 {
@@ -209,15 +202,15 @@ namespace Enlisted.Features.Interface.Behaviors
                             var desiredMenu = Campaign.Current.Models?.EncounterGameMenuModel?.GetGenericStateMenu();
                             if (!string.IsNullOrEmpty(desiredMenu))
                             {
-                                        // Never force enlisted players into the commander siege strategy menu.
-                                        // This particular menu is prone to reopening loops after siege auto-resolve, and the native
-                                        // siege AI can continue without us manually pushing this menu via hourly ticks.
-                                        if (desiredMenu == "menu_siege_strategies" || desiredMenu == "encounter_interrupted_siege_preparations")
-                                        {
-                                            ModLogger.Info("INTERFACE",
-                                                $"Battle detected - NOT switching to '{desiredMenu}' (enlisted: siege strategy menu is native-only)");
-                                            return;
-                                        }
+                                // Never force enlisted players into the commander siege strategy menu.
+                                // This particular menu is prone to reopening loops after siege auto-resolve, and the native
+                                // siege AI can continue without us manually pushing this menu via hourly ticks.
+                                if (desiredMenu == "menu_siege_strategies" || desiredMenu == "encounter_interrupted_siege_preparations")
+                                {
+                                    ModLogger.Info("INTERFACE",
+                                        $"Battle detected - NOT switching to '{desiredMenu}' (enlisted: siege strategy menu is native-only)");
+                                    return;
+                                }
 
                                 ModLogger.Info("INTERFACE",
                                     $"Battle detected - switching to native menu '{desiredMenu}'");
@@ -431,20 +424,20 @@ namespace Enlisted.Features.Interface.Behaviors
             if (enlistment?.IsEnlisted == true)
             {
                 var lordParty = enlistment.CurrentLord?.PartyBelongedTo;
-                var lordInSiege = lordParty?.SiegeEvent != null || 
-                                  lordParty?.BesiegerCamp != null || 
+                var lordInSiege = lordParty?.SiegeEvent != null ||
+                                  lordParty?.BesiegerCamp != null ||
                                   lordParty?.BesiegedSettlement != null;
-                
+
                 // If lord is in an army, also check if the army leader is besieging
                 var lordArmy = lordParty?.Army;
                 if (!lordInSiege && lordArmy != null)
                 {
                     var armyLeader = lordArmy.LeaderParty;
-                    lordInSiege = armyLeader?.BesiegerCamp != null || 
+                    lordInSiege = armyLeader?.BesiegerCamp != null ||
                                   armyLeader?.BesiegedSettlement != null ||
                                   armyLeader?.SiegeEvent != null;
                 }
-                
+
                 if (lordInSiege)
                 {
                     ModLogger.Debug("MENU", "Skipping enlisted menu activation - lord/army at siege, letting native menu show");
@@ -986,10 +979,10 @@ namespace Enlisted.Features.Interface.Behaviors
                             headerText += " <span style=\"Warning\">[IMMINENT]</span>";
                             var hoursUntil = (int)(currentOrder.IssueTime - CampaignTime.Now).ToHours;
                             args.Tooltip = new TextObject("{=enlisted_orders_tooltip_imminent}Orders will be issued in {HOURS} hour(s): {TITLE}");
-                            args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
-                            args.Tooltip.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(currentOrder));
+                            _ = args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
+                            _ = args.Tooltip.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(currentOrder));
                         }
-                        else if (currentOrder.State == Orders.Models.OrderState.Pending || 
+                        else if (currentOrder.State == Orders.Models.OrderState.Pending ||
                                  currentOrder.State == Orders.Models.OrderState.Active)
                         {
                             var daysAgo = (int)(CampaignTime.Now - currentOrder.IssuedTime).ToDays;
@@ -999,7 +992,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             }
 
                             args.Tooltip = new TextObject("{=enlisted_orders_tooltip_pending}You have a pending order from {ISSUER}.");
-                            args.Tooltip.SetTextVariable("ISSUER", currentOrder.Issuer);
+                            _ = args.Tooltip.SetTextVariable("ISSUER", currentOrder.Issuer);
                         }
                     }
                     else
@@ -1068,13 +1061,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     var row = $"    {phaseLabel} {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}";
 
                     MBTextManager.SetTextVariable("ACTIVE_ORDER_TEXT", row);
-                    
+
                     // Different tooltip based on state
                     if (isImminent)
                     {
                         var hoursUntil = (int)(currentOrder.IssueTime - CampaignTime.Now).ToHours;
                         args.Tooltip = new TextObject("{=enlisted_orders_tooltip_imminent_detail}Order will be issued in {HOURS} hour(s). Advance warning for preparation.");
-                        args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
+                        _ = args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
                     }
                     else if (currentOrder.Mandatory)
                     {
@@ -1088,7 +1081,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         args.Tooltip = new TextObject("View the order details and respond.");
                     }
-                    
+
                     return true;
                 },
                 _ => ShowOrdersMenu(),
@@ -1170,7 +1163,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     $"{{EVENING_SLOT_{i}_TEXT}}",
                     args =>
                     {
-                        if (!Enlisted.Features.Activities.Home.HomeEveningMenuProvider
+                        if (!Activities.Home.HomeEveningMenuProvider
                                 .IsSlotActive(slotIndex, out var label, out var tooltip))
                         {
                             return false;
@@ -1182,7 +1175,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     },
                     _ =>
                     {
-                        Enlisted.Features.Activities.Home.HomeEveningMenuProvider.OnSlotSelected(slotIndex);
+                        Activities.Home.HomeEveningMenuProvider.OnSlotSelected(slotIndex);
                     },
                     false, 9 + i);
             }
@@ -1260,7 +1253,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     args.Tooltip = new TextObject("{=menu_tooltip_visit}Enter the settlement while your lord is present.");
                     var visitText = new TextObject("{=Enlisted_Menu_VisitSettlementNamed}Visit {SETTLEMENT}");
-                    visitText.SetTextVariable("SETTLEMENT", settlement.Name);
+                    _ = visitText.SetTextVariable("SETTLEMENT", settlement.Name);
                     MBTextManager.SetTextVariable("VISIT_SETTLEMENT_TEXT", visitText);
                     return true;
                 },
@@ -1598,7 +1591,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Prefer the typed predicate when the dispatch carries a Tier (i.e. was written
                 // via the StoryDirector path post-PR-c). Fall back to the legacy Severity check
                 // for dispatches created through older code paths that don't set Tier.
-                bool isHeadline = it.Tier != Enlisted.Features.Content.StoryTier.Log
+                bool isHeadline = it.Tier != StoryTier.Log
                     ? it.IsHeadline
                     : it.Severity >= 2;
                 if (!isHeadline) { continue; }
@@ -1616,13 +1609,13 @@ namespace Enlisted.Features.Interface.Behaviors
         private string FormatHeadlines(EnlistedNewsBehavior news)
         {
             var items = GetUnreadHighSeverity(news);
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             foreach (var it in items)
             {
                 var line = EnlistedNewsBehavior.FormatDispatchForDisplay(it, includeColor: false);
                 if (!string.IsNullOrWhiteSpace(line))
                 {
-                    sb.AppendLine("• " + line);
+                    _ = sb.AppendLine("• " + line);
                 }
             }
             return sb.ToString();
@@ -1635,15 +1628,9 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 if (!string.IsNullOrEmpty(it.StoryKey))
                 {
-                    _viewedHeadlineStoryKeys.Add(it.StoryKey);
+                    _ = _viewedHeadlineStoryKeys.Add(it.StoryKey);
                 }
             }
-        }
-
-        private static void NoopMenuTick(MenuCallbackArgs args, CampaignTime dt)
-        {
-            _ = args;
-            _ = dt;
         }
 
         private static string BuildCampHubText()
@@ -1664,8 +1651,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 var companyStatus = BuildCompanyStatusSummary(enlistment, lord, lordParty);
                 if (!string.IsNullOrWhiteSpace(companyStatus))
                 {
-                    sb.AppendLine(companyStatus);
-                    sb.AppendLine();
+                    _ = sb.AppendLine(companyStatus);
+                    _ = sb.AppendLine();
                 }
 
                 // === PERIOD RECAP (Since last muster - orders, battles, training) ===
@@ -1673,29 +1660,29 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (!string.IsNullOrWhiteSpace(periodRecap))
                 {
                     var headerText = new TextObject("{=status_header_since_muster}SINCE LAST MUSTER").ToString();
-                    sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    sb.AppendLine(periodRecap);
-                    sb.AppendLine();
+                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
+                    _ = sb.AppendLine(periodRecap);
+                    _ = sb.AppendLine();
                 }
 
                 // === UPCOMING (Scheduled activities, expected orders) ===
-                var upcoming = BuildUpcomingSection(enlistment);
+                var upcoming = BuildUpcomingSection();
                 if (!string.IsNullOrWhiteSpace(upcoming))
                 {
                     var headerText = new TextObject("{=status_header_upcoming}UPCOMING").ToString();
-                    sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    sb.AppendLine(upcoming);
-                    sb.AppendLine();
+                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
+                    _ = sb.AppendLine(upcoming);
+                    _ = sb.AppendLine();
                 }
 
                 // === RECENT ACTIVITY (What the player and company have been doing) ===
-                var recentActivities = BuildRecentActivitiesNarrative(enlistment, lordParty);
+                var recentActivities = BuildRecentActivitiesNarrative(enlistment);
                 if (!string.IsNullOrWhiteSpace(recentActivities))
                 {
                     var headerText = new TextObject("{=status_header_recent_activity}RECENT ACTIVITY").ToString();
-                    sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    sb.AppendLine(recentActivities);
-                    sb.AppendLine();
+                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
+                    _ = sb.AppendLine(recentActivities);
+                    _ = sb.AppendLine();
                 }
 
                 // === STATUS (Player's personal condition - injuries, illness, duty status) ===
@@ -1703,8 +1690,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (!string.IsNullOrWhiteSpace(playerStatus))
                 {
                     var headerText = new TextObject("{=status_header_your_status}YOUR STATUS").ToString();
-                    sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    sb.AppendLine(playerStatus);
+                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
+                    _ = sb.AppendLine(playerStatus);
                 }
 
                 return sb.ToString().TrimEnd();
@@ -1753,7 +1740,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                         var tier = troop.Character.Tier;
                         var count = troop.Number;
-                        
+
                         if (tier >= 5)
                         {
                             highTier += count;
@@ -1771,7 +1758,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var strengthParts = new List<string>();
                     var soldiersText = new TextObject("{=status_soldiers}soldiers").ToString();
                     strengthParts.Add($"<span style=\"Default\">{totalTroops} {soldiersText}</span>");
-                    
+
                     if (totalWounded > 0)
                     {
                         var woundedStyle = totalWounded > (totalTroops * 0.3) ? "Alert" : "Warning";
@@ -1793,24 +1780,24 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Company needs woven into narrative
                 if (companyNeeds != null)
                 {
-                var needsParts = new List<string>();
-                
-                var supplyPhrase = GetSupplyPhrase(companyNeeds.Supplies);
-                var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
-                
-                if (!string.IsNullOrEmpty(supplyPhrase))
-                {
-                    needsParts.Add(supplyPhrase);
-                }
-                if (!string.IsNullOrEmpty(readinessPhrase))
-                {
-                    needsParts.Add(readinessPhrase);
-                }
+                    var needsParts = new List<string>();
 
-                if (needsParts.Count > 0)
-                {
-                    parts.Add(string.Join(", ", needsParts) + ".");
-                }
+                    var supplyPhrase = GetSupplyPhrase(companyNeeds.Supplies);
+                    var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
+
+                    if (!string.IsNullOrEmpty(supplyPhrase))
+                    {
+                        needsParts.Add(supplyPhrase);
+                    }
+                    if (!string.IsNullOrEmpty(readinessPhrase))
+                    {
+                        needsParts.Add(readinessPhrase);
+                    }
+
+                    if (needsParts.Count > 0)
+                    {
+                        parts.Add(string.Join(", ", needsParts) + ".");
+                    }
                 }
 
                 // Location context
@@ -1891,10 +1878,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Get comprehensive world state analysis
-                var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                var campLife = Camp.CampLifeBehavior.Instance;
+                var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                var campLife = CampLifeBehavior.Instance;
                 var newsSystem = EnlistedNewsBehavior.Instance;
-                
+
                 var rumors = new List<string>();
 
                 // Build context-aware rumors based on lord situation from WorldStateAnalyzer
@@ -1903,8 +1890,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 var warStance = worldState.KingdomStance;
 
                 // === SIEGE SITUATION === (Highest priority - WorldStateAnalyzer detected)
-                if (lordSituation == Content.Models.LordSituation.SiegeAttacking || 
-                    lordSituation == Content.Models.LordSituation.SiegeDefending)
+                if (lordSituation == LordSituation.SiegeAttacking ||
+                    lordSituation == LordSituation.SiegeDefending)
                 {
                     var siegeTarget = lordParty.CurrentSettlement ?? lordParty.TargetSettlement;
                     if (siegeTarget != null)
@@ -1914,7 +1901,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         // MoraleShock removed - ReadinessStrain doesn't exist either, just use logistics
                         var readinessLow = logisticsLow;
 
-                        if (lordSituation == Content.Models.LordSituation.SiegeAttacking)
+                        if (lordSituation == LordSituation.SiegeAttacking)
                         {
                             if (logisticsLow && readinessLow)
                             {
@@ -1924,7 +1911,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             {
                                 rumors.Add($"<span style=\"Warning\">Camp talk: {lord.Name} won't lift the siege, but men wonder how long supplies will last.</span>");
                             }
-                            else if (activityLevel == Content.Models.ActivityLevel.Intense)
+                            else if (activityLevel == ActivityLevel.Intense)
                             {
                                 rumors.Add($"<span style=\"Alert\">Assault on {siegeTarget.Name} expected soon. {lord.Name} pushes hard for a breach.</span>");
                             }
@@ -1940,7 +1927,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 }
                 // === ARMY CAMPAIGN === (WorldStateAnalyzer: WarActiveCampaign or in army)
-                else if (lordSituation == Content.Models.LordSituation.WarActiveCampaign || lordParty.Army != null)
+                else if (lordSituation == LordSituation.WarActiveCampaign || lordParty.Army != null)
                 {
                     var army = lordParty.Army;
                     var isLeader = army?.LeaderParty == lordParty;
@@ -1950,13 +1937,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         var target = lordParty.TargetSettlement;
                         var isEnemyFort = target.IsFortification && target.OwnerClan?.Kingdom != kingdom;
-                        
+
                         if (isEnemyFort)
                         {
                             // Check recent news for context
                             var recentVictory = newsSystem?.GetVisiblePersonalFeedItems(3)
                                 ?.Any(n => n.Category == "participation" && n.HeadlineKey == "News_PlayerBattle") == true;
-                            
+
                             if (recentVictory)
                             {
                                 rumors.Add($"<span style=\"Success\">After our victory, {lord.Name} marches on {target.Name}. Morale is high.</span>");
@@ -1989,12 +1976,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 }
                 // === WAR MARCHING === (WorldStateAnalyzer: moving during wartime, but not in army)
-                else if (lordSituation == Content.Models.LordSituation.WarMarching)
+                else if (lordSituation == LordSituation.WarMarching)
                 {
                     var target = lordParty.TargetSettlement;
                     if (target != null)
                     {
-                        var isEnemyTerritory = target.OwnerClan?.Kingdom != null && 
+                        var isEnemyTerritory = target.OwnerClan?.Kingdom != null &&
                                               FactionManager.IsAtWarAgainstFaction(kingdom, target.OwnerClan.Kingdom);
 
                         if (isEnemyTerritory && target.IsFortification)
@@ -2002,7 +1989,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             // Check if lord recently formed army (from news)
                             var recentArmyFormed = newsSystem?.GetVisiblePersonalFeedItems(3)
                                 ?.Any(n => n.Category == "army" && n.HeadlineKey == "News_ArmyForming") == true;
-                            
+
                             if (recentArmyFormed)
                             {
                                 rumors.Add($"<span style=\"Warning\">{lord.Name} gathers allies. {target.Name} is surely the target.</span>");
@@ -2039,16 +2026,16 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 }
                 // === PEACETIME GARRISON === (WorldStateAnalyzer: PeacetimeGarrison or PeacetimeRecruiting)
-                else if (lordSituation == Content.Models.LordSituation.PeacetimeGarrison || 
-                        lordSituation == Content.Models.LordSituation.PeacetimeRecruiting)
+                else if (lordSituation == LordSituation.PeacetimeGarrison ||
+                        lordSituation == LordSituation.PeacetimeRecruiting)
                 {
                     var settlement = lordParty.CurrentSettlement;
-                    
+
                     // Check for recent pay tension
                     var payProblems = campLife?.PayTension > 50;
                     // MoraleShock removed - ReadinessStrain doesn't exist, use payProblems as proxy
                     var readinessIssues = payProblems;
-                    
+
                     if (payProblems && readinessIssues)
                     {
                         rumors.Add($"<span style=\"Warning\">Men grumble about pay and boredom. {lord.Name} better have work for us soon.</span>");
@@ -2082,11 +2069,11 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                 }
                 // === DEFEATED/CAPTURED === (WorldStateAnalyzer detected crisis)
-                else if (lordSituation == Content.Models.LordSituation.Defeated)
+                else if (lordSituation == LordSituation.Defeated)
                 {
                     rumors.Add($"<span style=\"Alert\">After the defeat, {lord.Name} regroups. Men speak of revenge in hushed tones.</span>");
                 }
-                else if (lordSituation == Content.Models.LordSituation.Captured)
+                else if (lordSituation == LordSituation.Captured)
                 {
                     rumors.Add($"<span style=\"Alert\">{lord.Name} is held captive. We await word of ransom or rescue.</span>");
                 }
@@ -2115,7 +2102,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// <summary>
         /// Builds Recent Activity narrative showing what the player and company have been doing.
         /// </summary>
-        private static string BuildRecentActivitiesNarrative(EnlistmentBehavior enlistment, MobileParty lordParty)
+        private static string BuildRecentActivitiesNarrative(EnlistmentBehavior enlistment)
         {
             try
             {
@@ -2164,7 +2151,7 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var parts = new List<string>();
                 var mainHero = Hero.MainHero;
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
+                var orderManager = OrderManager.Instance;
                 var currentOrder = orderManager?.GetCurrentOrder();
 
                 // Current duty
@@ -2176,7 +2163,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         orderTitle = "duty";
                     }
                     var hoursSinceIssued = (CampaignTime.Now - currentOrder.IssuedTime).ToHours;
-                    
+
                     if (hoursSinceIssued < 6)
                     {
                         var freshOrdersText = new TextObject("{=status_fresh_orders}Fresh orders").ToString();
@@ -2208,14 +2195,14 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var conditionBehavior = Conditions.PlayerConditionBehavior.Instance;
                     var playerCondition = conditionBehavior?.State;
-                    
+
                     // Check for injuries (custom system)
                     if (playerCondition?.HasInjury == true)
                     {
                         var severity = playerCondition.CurrentInjury;
                         var daysRemaining = playerCondition.InjuryDaysRemaining;
                         var dayText = daysRemaining == 1 ? "day" : "days";
-                        
+
                         var severityLabel = severity switch
                         {
                             Conditions.InjurySeverity.Critical => "Critical injury",
@@ -2223,11 +2210,11 @@ namespace Enlisted.Features.Interface.Behaviors
                             Conditions.InjurySeverity.Moderate => "Injured",
                             _ => "Injured"
                         };
-                        
-                        var urgentNote = severity >= Conditions.InjurySeverity.Severe 
-                            ? " Urgent care recommended." 
+
+                        var urgentNote = severity >= Conditions.InjurySeverity.Severe
+                            ? " Urgent care recommended."
                             : " Training restricted.";
-                        
+
                         parts.Add($"<span style=\"Alert\">{severityLabel}.</span> {daysRemaining} {dayText} recovery.{urgentNote}");
                     }
                     // Check for illness (custom system)
@@ -2236,7 +2223,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         var severity = playerCondition.CurrentIllness;
                         var daysRemaining = playerCondition.IllnessDaysRemaining;
                         var dayText = daysRemaining == 1 ? "day" : "days";
-                        
+
                         var severityLabel = severity switch
                         {
                             Conditions.IllnessSeverity.Critical => "Critical illness",
@@ -2244,11 +2231,11 @@ namespace Enlisted.Features.Interface.Behaviors
                             Conditions.IllnessSeverity.Moderate => "Ill",
                             _ => "Ill"
                         };
-                        
-                        var urgentNote = severity >= Conditions.IllnessSeverity.Severe 
-                            ? " Urgent care recommended." 
+
+                        var urgentNote = severity >= Conditions.IllnessSeverity.Severe
+                            ? " Urgent care recommended."
                             : " Seek treatment if worsening.";
-                        
+
                         parts.Add($"<span style=\"Alert\">{severityLabel}.</span> {daysRemaining} {dayText} recovery.{urgentNote}");
                     }
                     // Check for native wounds
@@ -2263,15 +2250,15 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (lord != null)
                 {
                     var daysSinceEnlistment = (int)(CampaignTime.Now - enlistment.EnlistmentDate).ToDays;
-                    var lordTitle = lord.Clan?.Kingdom != null 
-                        ? $"{lord.Name} of {lord.Clan.Kingdom.Name}" 
+                    var lordTitle = lord.Clan?.Kingdom != null
+                        ? $"{lord.Name} of {lord.Clan.Kingdom.Name}"
                         : lord.Name.ToString();
-                    
+
                     parts.Add($"Serving under <span style=\"Link\">{lordTitle}</span> ({daysSinceEnlistment} days).");
                 }
 
                 // Player forecast (upcoming commitments, expected orders)
-                var forecast = BuildBriefPlayerForecast(enlistment, orderManager);
+                var forecast = BuildBriefPlayerForecast(orderManager);
                 if (!string.IsNullOrWhiteSpace(forecast))
                 {
                     parts.Add(forecast);
@@ -2296,23 +2283,23 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var parts = new List<string>();
                 var news = EnlistedNewsBehavior.Instance;
-                
+
                 // Calculate days since last muster
                 var lastMusterDay = enlistment?.LastMusterDay ?? 0;
                 var currentDay = (int)CampaignTime.Now.ToDays;
                 var daysSinceMuster = lastMusterDay > 0 ? currentDay - lastMusterDay : 0;
                 var musterDaysRemaining = Math.Max(0, 12 - daysSinceMuster);
-                
+
                 // Get period statistics from tracking systems
                 var orderOutcomes = news?.GetRecentOrderOutcomes(12) ?? new List<OrderOutcomeRecord>();
                 var eventOutcomes = news?.GetRecentEventOutcomes(12) ?? new List<EventOutcomeRecord>();
                 var xpSources = enlistment?.GetXPSourcesThisPeriod() ?? new Dictionary<string, int>();
                 var lastMuster = news?.GetLastMusterOutcome();
-                
+
                 // Count completed orders and their success rate
                 var ordersCompleted = orderOutcomes.Count(o => o.Success);
                 var ordersFailed = orderOutcomes.Count(o => !o.Success);
-                
+
                 // Orders summary with narrative from recent orders
                 if (ordersCompleted > 0 || ordersFailed > 0)
                 {
@@ -2325,14 +2312,14 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         orderParts.Add($"<span style=\"Alert\">{ordersFailed} failed</span>");
                     }
-                    
+
                     // Add narrative from most recent order
                     var recentOrder = orderOutcomes.FirstOrDefault(o => !string.IsNullOrWhiteSpace(o.BriefSummary));
                     if (recentOrder != null)
                     {
                         var narrative = recentOrder.BriefSummary;
-                        var lastPart = recentOrder.Success 
-                            ? $"Last: {narrative}" 
+                        var lastPart = recentOrder.Success
+                            ? $"Last: {narrative}"
                             : $"Last: <span style=\"Alert\">{narrative}</span>";
                         parts.Add($"Orders: {string.Join(", ", orderParts)}. {lastPart}.");
                     }
@@ -2341,11 +2328,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         parts.Add($"Orders: {string.Join(", ", orderParts)}.");
                     }
                 }
-                
+
                 // Battles and casualties (from last muster record or news tracking)
                 var lostCount = news?.LostSinceLastMuster ?? 0;
                 var sickCount = news?.SickSinceLastMuster ?? 0;
-                
+
                 if (lostCount > 0 || sickCount > 0)
                 {
                     var casualtyParts = new List<string>();
@@ -2359,7 +2346,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                     parts.Add("Company losses: " + string.Join(", ", casualtyParts) + ".");
                 }
-                
+
                 // Event choices made
                 var eventCount = eventOutcomes.Count;
                 if (eventCount > 0)
@@ -2370,7 +2357,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         parts.Add($"<span style=\"Link\">{eventCount} incidents</span> handled (last: {recentEvent.EventTitle}).");
                     }
                 }
-                
+
                 // Days until next muster
                 if (musterDaysRemaining > 0)
                 {
@@ -2381,12 +2368,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     parts.Add("<span style=\"Warning\">Muster pending.</span> Report for pay.");
                 }
-                
+
                 if (parts.Count == 0)
                 {
                     return "New muster period. No activity recorded yet.";
                 }
-                
+
                 return string.Join(" ", parts);
             }
             catch
@@ -2400,15 +2387,15 @@ namespace Enlisted.Features.Interface.Behaviors
         /// Displays player commitments, routine schedule, and order forecasts.
         /// Color-coded: blue for scheduled commitments, gold for imminent orders.
         /// </summary>
-        private static string BuildUpcomingSection(EnlistmentBehavior enlistment)
+        private static string BuildUpcomingSection()
         {
             try
             {
                 var parts = new List<string>();
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                var scheduleManager = Camp.CampScheduleManager.Instance;
-                var opportunityGenerator = Camp.CampOpportunityGenerator.Instance;
-                
+                var orderManager = OrderManager.Instance;
+                var scheduleManager = CampScheduleManager.Instance;
+                var opportunityGenerator = CampOpportunityGenerator.Instance;
+
                 // Player commitments (scheduled activities)
                 var nextCommitment = opportunityGenerator?.GetNextCommitment();
                 if (nextCommitment != null)
@@ -2416,7 +2403,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var hoursUntil = opportunityGenerator.GetHoursUntilCommitment(nextCommitment);
                     var activity = nextCommitment.Title ?? "activity";
                     var phase = nextCommitment.ScheduledPhase ?? "later";
-                    
+
                     if (hoursUntil < 2f)
                     {
                         var startingSoonText = new TextObject("{=status_starting_soon}starting soon").ToString();
@@ -2428,7 +2415,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         parts.Add($"<span style=\"Link\">{activity}</span> {scheduledForText} {phase} ({(int)hoursUntil}h).");
                     }
                 }
-                
+
                 // Current order status and forecast
                 var currentOrder = orderManager?.GetCurrentOrder();
                 if (currentOrder != null)
@@ -2468,13 +2455,13 @@ namespace Enlisted.Features.Interface.Behaviors
                 else
                 {
                     // Check world state for activity level hints
-                    var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                    if (worldState.ExpectedActivity == Content.Models.ActivityLevel.Intense)
+                    var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                    if (worldState.ExpectedActivity == ActivityLevel.Intense)
                     {
                         var expectSoonText = new TextObject("{=status_expect_orders_soon}Expect orders soon. The situation is intense.").ToString();
                         parts.Add($"<span style=\"Warning\">{expectSoonText}</span>");
                     }
-                    else if (worldState.ExpectedActivity == Content.Models.ActivityLevel.Active)
+                    else if (worldState.ExpectedActivity == ActivityLevel.Active)
                     {
                         var likelyText = new TextObject("{=status_likely_receive_orders}Likely to receive orders within the day").ToString();
                         parts.Add($"{likelyText}.");
@@ -2485,14 +2472,14 @@ namespace Enlisted.Features.Interface.Behaviors
                         parts.Add($"{noOrdersText}.");
                     }
                 }
-                
+
                 // Camp schedule forecast (next phase)
                 if (scheduleManager != null)
                 {
-                    var currentPhase = Content.WorldStateAnalyzer.GetDayPhaseFromHour(CampaignTime.Now.GetHourOfDay);
+                    var currentPhase = WorldStateAnalyzer.GetDayPhaseFromHour(CampaignTime.Now.GetHourOfDay);
                     var nextPhase = GetNextPhase(currentPhase);
                     var schedule = scheduleManager.GetScheduleForPhase(nextPhase);
-                    
+
                     if (schedule != null && !string.IsNullOrWhiteSpace(schedule.Slot1Description))
                     {
                         var phaseName = GetLocalizedPhaseName(nextPhase);
@@ -2503,7 +2490,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             var isVarietyAssignment = schedule.DeviationReason?.Contains("Variety") == true ||
                                                      schedule.DeviationReason?.Contains("variety") == true ||
                                                      schedule.DeviationReason?.Contains("Special assignment") == true;
-                            
+
                             if (isVarietyAssignment)
                             {
                                 // Use FlavorText for immersive text if available
@@ -2530,12 +2517,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                     }
                 }
-                
+
                 if (parts.Count == 0)
                 {
                     return "All quiet. Enjoy the respite while it lasts.";
                 }
-                
+
                 return string.Join(" ", parts);
             }
             catch
@@ -2547,15 +2534,15 @@ namespace Enlisted.Features.Interface.Behaviors
         /// <summary>
         /// Gets the next day phase in sequence.
         /// </summary>
-        private static Content.Models.DayPhase GetNextPhase(Content.Models.DayPhase current)
+        private static DayPhase GetNextPhase(DayPhase current)
         {
             return current switch
             {
-                Content.Models.DayPhase.Dawn => Content.Models.DayPhase.Midday,
-                Content.Models.DayPhase.Midday => Content.Models.DayPhase.Dusk,
-                Content.Models.DayPhase.Dusk => Content.Models.DayPhase.Night,
-                Content.Models.DayPhase.Night => Content.Models.DayPhase.Dawn,
-                _ => Content.Models.DayPhase.Dawn
+                DayPhase.Dawn => DayPhase.Midday,
+                DayPhase.Midday => DayPhase.Dusk,
+                DayPhase.Dusk => DayPhase.Night,
+                DayPhase.Night => DayPhase.Dawn,
+                _ => DayPhase.Dawn
             };
         }
 
@@ -2572,8 +2559,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 var news = EnlistedNewsBehavior.Instance;
 
                 // Get comprehensive systems state
-                var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                var campLife = Camp.CampLifeBehavior.Instance;
+                var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                var campLife = CampLifeBehavior.Instance;
                 var lordSituation = worldState.LordIs;
                 var activityLevel = worldState.ExpectedActivity;
 
@@ -2591,12 +2578,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (companyNeeds != null)
                 {
                     var statusParts = new List<string>();
-                    
+
                     // Supplies with logistics strain context
                     // Only show "stretched thin" if logistics is strained AND supplies are actually concerning
                     var logisticsHigh = campLife?.LogisticsStrain > 60;
                     var suppliesLow = companyNeeds.Supplies < 50;
-                    
+
                     // Diagnostic: Log supply status computation for troubleshooting news vs QM discrepancies
                     var logisticsValue = campLife?.LogisticsStrain ?? 0f;
                     ModLogger.LogOnce(
@@ -2604,7 +2591,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         "Supply",
                         $"Company Reports: Supplies={companyNeeds.Supplies}%, Logistics={logisticsValue:F0}, " +
                         $"ShowStretchedThin={logisticsHigh && suppliesLow} (requires both logistics>60 AND supplies<50)");
-                    
+
                     if (logisticsHigh && suppliesLow)
                     {
                         // Both logistics strained and supplies actually low - show the combined warning
@@ -2620,12 +2607,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                     }
 
-                // Readiness check
-                var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
-                if (!string.IsNullOrEmpty(readinessPhrase))
-                {
-                    statusParts.Add(readinessPhrase);
-                }
+                    // Readiness check
+                    var readinessPhrase = GetReadinessPhrase(companyNeeds.Readiness);
+                    if (!string.IsNullOrEmpty(readinessPhrase))
+                    {
+                        statusParts.Add(readinessPhrase);
+                    }
 
                     if (statusParts.Count > 0)
                     {
@@ -2637,7 +2624,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var detailParts = new List<string>();
                 var wounded = lordParty?.MemberRoster?.TotalWounded ?? 0;
                 var inHostileTerritory = campLife?.TerritoryPressure > 60;
-                
+
                 if (wounded > 20)
                 {
                     detailParts.Add($"<span style=\"Alert\">{wounded} wounded</span> strain the healers");
@@ -2669,25 +2656,25 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sentence 5: Context - location/army status with past/present tense blending
                 var currentSettlement = lordParty?.CurrentSettlement;
                 var inArmy = lordParty?.Army != null && lordParty.Army.LeaderParty != lordParty;
-                
+
                 // Track settlement changes for "recently arrived" phrasing
                 if (currentSettlement != _lastKnownSettlement)
                 {
                     _lastKnownSettlement = currentSettlement;
                     _lastSettlementChangeTime = CampaignTime.Now;
                 }
-                
+
                 // Track army changes for smooth transitions
                 if (inArmy != _lastKnownInArmy)
                 {
                     _lastKnownInArmy = inArmy;
                     _lastArmyChangeTime = CampaignTime.Now;
                 }
-                
-                var hoursSinceArrival = currentSettlement != null ? 
+
+                var hoursSinceArrival = currentSettlement != null ?
                     (CampaignTime.Now - _lastSettlementChangeTime).ToHours : 999;
                 var hoursSinceArmyChange = (CampaignTime.Now - _lastArmyChangeTime).ToHours;
-                
+
                 if (currentSettlement != null)
                 {
                     // Use "Recently arrived" for first 24 hours, then "Encamped"
@@ -2772,33 +2759,33 @@ namespace Enlisted.Features.Interface.Behaviors
             return "<span style=\"Alert\">Starvation threatens the company</span>";
         }
 
-    /// <summary>
-    /// Returns a color-coded, descriptive phrase about readiness status.
-    /// </summary>
-    private static string GetReadinessPhrase(int readiness)
-    {
-        if (readiness >= 80)
+        /// <summary>
+        /// Returns a color-coded, descriptive phrase about readiness status.
+        /// </summary>
+        private static string GetReadinessPhrase(int readiness)
         {
-            return "<span style=\"Success\">combat readiness high</span>";
+            if (readiness >= 80)
+            {
+                return "<span style=\"Success\">combat readiness high</span>";
+            }
+            if (readiness >= 60)
+            {
+                return "<span style=\"Success\">readiness solid</span>";
+            }
+            if (readiness >= 40)
+            {
+                return "readiness adequate";
+            }
+            if (readiness >= 25)
+            {
+                return "<span style=\"Warning\">training deficiencies noted</span>";
+            }
+            if (readiness >= 15)
+            {
+                return "<span style=\"Alert\">readiness poor</span>";
+            }
+            return "<span style=\"Alert\">unit combat ineffective</span>";
         }
-        if (readiness >= 60)
-        {
-            return "<span style=\"Success\">readiness solid</span>";
-        }
-        if (readiness >= 40)
-        {
-            return "readiness adequate";
-        }
-        if (readiness >= 25)
-        {
-            return "<span style=\"Warning\">training deficiencies noted</span>";
-        }
-        if (readiness >= 15)
-        {
-            return "<span style=\"Alert\">readiness poor</span>";
-        }
-        return "<span style=\"Alert\">unit combat ineffective</span>";
-    }
 
         /// <summary>
         /// Returns a phrase describing current camp activity.
@@ -2831,61 +2818,6 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Builds a compact one-sentence period recap for the main menu camp section.
-        /// Shows orders completed and days until muster.
-        /// </summary>
-        private static string BuildBriefPeriodRecap(EnlistmentBehavior enlistment)
-        {
-            try
-            {
-                var news = EnlistedNewsBehavior.Instance;
-                var orderOutcomes = news?.GetRecentOrderOutcomes(12) ?? new List<OrderOutcomeRecord>();
-                
-                var ordersCompleted = orderOutcomes.Count(o => o.Success);
-                var ordersFailed = orderOutcomes.Count(o => !o.Success);
-                var lastMusterDay = enlistment?.LastMusterDay ?? 0;
-                var currentDay = (int)CampaignTime.Now.ToDays;
-                var daysSinceMuster = lastMusterDay > 0 ? currentDay - lastMusterDay : 0;
-                var daysRemaining = Math.Max(0, 12 - daysSinceMuster);
-                
-                // Build compact summary
-                var parts = new List<string>();
-                
-                if (ordersCompleted > 0)
-                {
-                    parts.Add($"<span style=\"Success\">{ordersCompleted} orders completed</span>");
-                }
-                
-                if (ordersFailed > 0)
-                {
-                    parts.Add($"<span style=\"Alert\">{ordersFailed} failed</span>");
-                }
-                
-                // Always show muster countdown even if no orders
-                var musterPart = daysRemaining > 0 
-                    ? $"{daysRemaining}d to muster" 
-                    : "<span style=\"Warning\">muster pending</span>";
-                
-                if (parts.Count == 0)
-                {
-                    // Show service days instead
-                    var daysServed = (int)(enlistment?.DaysServed ?? 0);
-                    if (daysServed > 0)
-                    {
-                        return $"This period: {daysSinceMuster}d served. {musterPart}.";
-                    }
-                    return $"{musterPart}.";
-                }
-                
-                return $"This period: {string.Join(", ", parts)}. {musterPart}.";
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
         /// Builds a compact one-sentence player recap for the main menu player status section.
         /// Shows narrative from recent activities in natural Bannerlord RP flavor with color coding.
         /// Integrates routine outcomes, orders, and events into a flowing status summary.
@@ -2899,7 +2831,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     return string.Empty;
                 }
-                
+
                 // Priority 1: Recent order outcomes (most important)
                 var orderOutcomes = news.GetRecentOrderOutcomes(3);
                 var recentOrder = orderOutcomes.FirstOrDefault(o => !string.IsNullOrWhiteSpace(o.BriefSummary));
@@ -2909,7 +2841,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var colorStyle = recentOrder.Success ? "Success" : "Alert";
                     return $"<span style=\"{colorStyle}\">{narrative}</span>";
                 }
-                
+
                 // Priority 2: Check personal feed for routine outcomes and recent events
                 var personalFeed = news.GetVisiblePersonalFeedItems(3);
                 if (personalFeed.Count > 0)
@@ -2920,7 +2852,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         // Format the dispatch item properly to resolve headline key and placeholders
                         var text = EnlistedNewsBehavior.FormatDispatchForDisplay(recentItem, includeColor: false);
-                        
+
                         if (!string.IsNullOrWhiteSpace(text))
                         {
                             // Determine color based on severity
@@ -2932,7 +2864,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                 4 => "Critical",  // Critical danger
                                 _ => "Default"    // Normal
                             };
-                            
+
                             // For routine activities, strip the activity name prefix if present
                             // to make it more natural ("Good progress" instead of "Combat Training: Good progress")
                             if (recentItem.Category == "routine_activity" && text.Contains(": "))
@@ -2943,7 +2875,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                     text = parts[1]; // Use the flavor text part only
                                 }
                             }
-                            
+
                             // For event outcomes, also simplify by removing event title prefix
                             // Display just the narrative part for natural flow
                             if (text.Contains(": ") && !recentItem.Category.StartsWith("simulation_"))
@@ -2954,19 +2886,19 @@ namespace Enlisted.Features.Interface.Behaviors
                                     text = parts[1];
                                 }
                             }
-                            
+
                             return $"<span style=\"{colorStyle}\">{text}</span>";
                         }
                     }
                 }
-                
+
                 // Fallback based on service time
                 var daysServed = (int)(enlistment?.DaysServed ?? 0);
                 if (daysServed < 2)
                 {
                     return "Still settling in. The routine will come.";
                 }
-                
+
                 return string.Empty;
             }
             catch
@@ -2979,12 +2911,12 @@ namespace Enlisted.Features.Interface.Behaviors
         /// Builds a compact player forecast sentence for the main menu player status section.
         /// Shows upcoming commitments, expected orders, or activity level hints in natural flowing text.
         /// </summary>
-        private static string BuildBriefPlayerForecast(EnlistmentBehavior enlistment, Orders.Behaviors.OrderManager orderManager)
+        private static string BuildBriefPlayerForecast(OrderManager orderManager)
         {
             try
             {
-                var opportunityGenerator = Camp.CampOpportunityGenerator.Instance;
-                
+                var opportunityGenerator = CampOpportunityGenerator.Instance;
+
                 // Check for player commitments first
                 var nextCommitment = opportunityGenerator?.GetNextCommitment();
                 if (nextCommitment != null)
@@ -2992,14 +2924,14 @@ namespace Enlisted.Features.Interface.Behaviors
                     var hoursUntil = opportunityGenerator.GetHoursUntilCommitment(nextCommitment);
                     var activity = nextCommitment.Title ?? "activity";
                     var phase = nextCommitment.ScheduledPhase ?? "later";
-                    
+
                     if (hoursUntil < 2f)
                     {
                         return $"<span style=\"Link\">{activity} calls shortly.</span>";
                     }
                     return $"<span style=\"Link\">{activity} comes at {phase}.</span>";
                 }
-                
+
                 // Check for imminent orders
                 if (orderManager?.IsOrderImminent() == true)
                 {
@@ -3010,20 +2942,20 @@ namespace Enlisted.Features.Interface.Behaviors
                         return $"<span style=\"Warning\">{forecastText} — word travels fast.</span>";
                     }
                 }
-                
+
                 // Check world state for activity level hints - factual military context
-                var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                if (worldState.ExpectedActivity == Content.Models.ActivityLevel.Intense)
+                var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                if (worldState.ExpectedActivity == ActivityLevel.Intense)
                 {
                     var text = new TextObject("{=forecast_activity_intense}The captain's tent is busy. Expect orders soon.").ToString();
                     return $"<span style=\"Warning\">{text}</span>";
                 }
-                else if (worldState.ExpectedActivity == Content.Models.ActivityLevel.Active)
+                else if (worldState.ExpectedActivity == ActivityLevel.Active)
                 {
                     var text = new TextObject("{=forecast_activity_active}The company is on the move. Stay sharp for duty calls.").ToString();
                     return $"<span style=\"Link\">{text}</span>";
                 }
-                else if (worldState.ExpectedActivity == Content.Models.ActivityLevel.Routine)
+                else if (worldState.ExpectedActivity == ActivityLevel.Routine)
                 {
                     // Show actual schedule instead of generic phase text
                     var scheduleText = BuildScheduleForecast(worldState.CurrentDayPhase);
@@ -3031,12 +2963,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         return scheduleText;
                     }
-                    
+
                     // Fallback if schedule unavailable
                     var fallbackText = new TextObject("{=forecast_routine_fallback}Routine duty. Nothing unusual.").ToString();
                     return $"<span style=\"Default\">{fallbackText}</span>";
                 }
-                
+
                 // Quiet period fallback
                 var quietText = new TextObject("{=forecast_activity_quiet}Garrison duty. Nothing pressing.").ToString();
                 return $"<span style=\"Default\">{quietText}</span>";
@@ -3051,11 +2983,11 @@ namespace Enlisted.Features.Interface.Behaviors
         /// Builds a schedule-based forecast showing actual planned activities for the current phase.
         /// Shows what's scheduled (formations, training, etc.) and any deviations from routine.
         /// </summary>
-        private static string BuildScheduleForecast(Content.Models.DayPhase currentPhase)
+        private static string BuildScheduleForecast(DayPhase currentPhase)
         {
             try
             {
-                var scheduleManager = Camp.CampScheduleManager.Instance;
+                var scheduleManager = CampScheduleManager.Instance;
                 if (scheduleManager == null)
                 {
                     return null;
@@ -3076,7 +3008,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     // Check if this is a variety/special assignment
                     var isVarietyAssignment = schedule.DeviationReason?.Contains("Variety") == true ||
                                              schedule.DeviationReason?.Contains("variety") == true;
-                    
+
                     if (isVarietyAssignment)
                     {
                         // Use FlavorText (activationText) for immersive narrative
@@ -3085,12 +3017,12 @@ namespace Enlisted.Features.Interface.Behaviors
                         {
                             return $"<span style=\"Link\">{schedule.FlavorText}</span>";
                         }
-                        
+
                         // Fallback to activity name if no flavor text
                         var activityName = schedule.Slot1Description ?? "Special duty";
                         return $"<span style=\"Link\">{activityName} assigned.</span>";
                     }
-                    
+
                     // Need-based deviation: show activity + reason (e.g., "Foraging detail. Supplies critical.")
                     var deviationText = schedule.Slot1Description ?? schedule.DeviationReason;
                     return $"<span style=\"Warning\">{deviationText}. {schedule.DeviationReason}.</span>";
@@ -3128,306 +3060,6 @@ namespace Enlisted.Features.Interface.Behaviors
             catch
             {
                 return null;
-            }
-        }
-
-        /// <summary>
-        /// Builds the recent activities section showing what's been happening in camp.
-        /// Includes wounded soldiers, casualties, sickness, and other notable events.
-        /// </summary>
-        private static string BuildRecentActivitiesSection(EnlistmentBehavior enlistment)
-        {
-            try
-            {
-                var sb = new StringBuilder();
-                var lord = enlistment?.CurrentLord;
-                var lordParty = lord?.PartyBelongedTo;
-                var news = EnlistedNewsBehavior.Instance;
-
-                // Wounded soldiers currently in the party
-                if (lordParty?.MemberRoster != null)
-                {
-                    var totalWounded = lordParty.MemberRoster.TotalWounded;
-                    var totalTroops = lordParty.MemberRoster.TotalManCount;
-
-                    if (totalWounded > 0 && totalTroops > 0)
-                    {
-                        var woundedPercent = (totalWounded * 100) / totalTroops;
-                        var woundedStyle = woundedPercent >= 30 ? "Alert" : woundedPercent >= 15 ? "Warning" : "Default";
-                        sb.AppendLine($"<span style=\"{woundedStyle}\">• {totalWounded} wounded soldiers recovering</span>");
-                    }
-                }
-
-                // Losses since last muster
-                if (news != null)
-                {
-                    var lostSinceMuster = news.LostSinceLastMuster;
-                    if (lostSinceMuster > 0)
-                    {
-                        var lossText = lostSinceMuster == 1 ? "1 soldier lost" : $"{lostSinceMuster} soldiers lost";
-                        sb.AppendLine($"<span style=\"Alert\">• {lossText} since last muster</span>");
-                    }
-
-                    var sickSinceMuster = news.SickSinceLastMuster;
-                    if (sickSinceMuster >= 2)
-                    {
-                        var sickStyle = sickSinceMuster >= 5 ? "Alert" : "Warning";
-                        var sickText = sickSinceMuster >= 5 ? "Sickness spreading through camp" : "Some soldiers have fallen ill";
-                        sb.AppendLine($"<span style=\"{sickStyle}\">• {sickText}</span>");
-                    }
-                }
-
-                // Recent battle aftermath
-                if (news != null && news.TryGetLastPlayerBattleSummary(out var lastBattleTime, out var playerWon))
-                {
-                    var hoursSinceBattle = (CampaignTime.Now - lastBattleTime).ToHours;
-                    if (hoursSinceBattle < 48 && hoursSinceBattle > 0)
-                    {
-                        var battleStyle = playerWon ? "Success" : "Warning";
-                        var battleText = playerWon ? "Victory in recent battle" : "Recovering from defeat";
-                        sb.AppendLine($"<span style=\"{battleStyle}\">• {battleText}</span>");
-                    }
-                }
-
-                // Check for pending muster
-                if (enlistment?.IsPayMusterPending == true)
-                {
-                    sb.AppendLine("<span style=\"Warning\">• Muster awaiting your attention</span>");
-                }
-
-                // If nothing notable, show quiet message
-                if (sb.Length == 0)
-                {
-                    sb.AppendLine("<span style=\"Default\">• All quiet. No urgent matters.</span>");
-                }
-
-                return sb.ToString().TrimEnd();
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        // Note: BuildAroundCampSection removed - replaced by GetCampActivityPhrase in paragraph format
-
-        private static string GetOpportunityTypeFlavor(Camp.Models.OpportunityType type)
-        {
-            return type switch
-            {
-                Camp.Models.OpportunityType.Training => new TextObject("{=opp_type_training}Veterans drilling by the wagons.").ToString(),
-                Camp.Models.OpportunityType.Social => new TextObject("{=opp_type_social}Card game forming by the fire.").ToString(),
-                Camp.Models.OpportunityType.Economic => new TextObject("{=opp_type_economic}Trading happening in camp.").ToString(),
-                Camp.Models.OpportunityType.Recovery => new TextObject("{=opp_type_recovery}Soldiers resting in the shade.").ToString(),
-                Camp.Models.OpportunityType.Special => new TextObject("{=opp_type_special}The quartermaster is open for business.").ToString(),
-                _ => string.Empty
-            };
-        }
-
-        /// <summary>
-        /// Builds the "Your Duty" section showing the player's current order status.
-        /// Shows active orders, scheduled orders, or off-duty status.
-        /// </summary>
-        private static string BuildDutySection()
-        {
-            try
-            {
-                var sb = new StringBuilder();
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                var currentOrder = orderManager?.GetCurrentOrder();
-
-                if (currentOrder != null)
-                {
-                    // Active order - show status
-                    var orderTitle = Orders.OrderCatalog.GetDisplayTitle(currentOrder);
-                    if (string.IsNullOrEmpty(orderTitle))
-                    {
-                        orderTitle = "Duty";
-                    }
-                    var issuer = currentOrder.Issuer ?? "Command";
-
-                    // Check how long ago the order was issued
-                    var hoursSinceIssued = (CampaignTime.Now - currentOrder.IssuedTime).ToHours;
-                    var isNew = hoursSinceIssued < 24;
-
-                    if (isNew)
-                    {
-                        sb.AppendLine($"<span style=\"Link\">• NEW ORDER: {orderTitle}</span>");
-                        sb.AppendLine($"<span style=\"Default\">  From {issuer}</span>");
-                    }
-                    else
-                    {
-                        sb.AppendLine($"<span style=\"Warning\">• ACTIVE: {orderTitle}</span>");
-                        sb.AppendLine($"<span style=\"Default\">  Assigned by {issuer}</span>");
-                    }
-                }
-                else
-                {
-                    // No active order - off duty
-                    sb.AppendLine("<span style=\"Success\">• Off duty. No active orders.</span>");
-                }
-
-                return sb.ToString().TrimEnd();
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Builds the camp news section containing notable updates for the player.
-        /// Includes company health (wounded, sick, casualties), supply status, morale, and upcoming events.
-        /// Returns empty string when there's nothing notable to report.
-        /// </summary>
-        private static string BuildCampNewsSection(EnlistmentBehavior enlistment)
-        {
-            try
-            {
-                var newsItems = new List<string>();
-                var lord = enlistment?.CurrentLord;
-                var lordParty = lord?.PartyBelongedTo;
-
-                // Company health: wounded soldiers currently in the party
-                if (lordParty?.MemberRoster != null)
-                {
-                    var totalWounded = lordParty.MemberRoster.TotalWounded;
-                    var totalTroops = lordParty.MemberRoster.TotalManCount;
-
-                    if (totalWounded > 0 && totalTroops > 0)
-                    {
-                        var woundedPercent = (totalWounded * 100) / totalTroops;
-                        if (woundedPercent >= 30)
-                        {
-                            newsItems.Add($"Many wounded in camp ({totalWounded} soldiers recovering)");
-                        }
-                        else if (woundedPercent >= 15)
-                        {
-                            newsItems.Add($"Wounded soldiers in the medical tent ({totalWounded})");
-                        }
-                        else if (totalWounded >= 5)
-                        {
-                            newsItems.Add($"{totalWounded} wounded being tended to");
-                        }
-                    }
-                }
-
-                // Casualty and sickness summary since last muster (resets each pay cycle)
-                var news = EnlistedNewsBehavior.Instance;
-                if (news != null)
-                {
-                    // Losses since last muster (resets when pay is resolved)
-                    var lostSinceMuster = news.LostSinceLastMuster;
-                    if (lostSinceMuster > 0)
-                    {
-                        var lossText = lostSinceMuster == 1
-                            ? "1 soldier lost since last muster"
-                            : $"{lostSinceMuster} soldiers lost since last muster";
-                        newsItems.Add($"{lossText}");
-                    }
-
-                    // Sickness since last muster
-                    var sickSinceMuster = news.SickSinceLastMuster;
-                    if (sickSinceMuster >= 5)
-                    {
-                        newsItems.Add("Sickness spreading through the camp");
-                    }
-                    else if (sickSinceMuster >= 2)
-                    {
-                        newsItems.Add("Some soldiers have fallen ill");
-                    }
-                }
-
-                // Today's snapshot for morale and food status
-                var snapshot = news?.GetTodayDailyReportSnapshot();
-                if (snapshot != null)
-                {
-                    // Morale removed - readiness is primary indicator now
-
-                    // Food status (only show if problematic)
-                    switch (snapshot.Food)
-                    {
-                        case FoodBand.Critical:
-                            newsItems.Add("Food stores nearly exhausted");
-                            break;
-                        case FoodBand.Low:
-                            newsItems.Add("Rations are running low");
-                            break;
-                        case FoodBand.Thin:
-                            newsItems.Add("Food supplies are thin");
-                            break;
-                    }
-                }
-
-                // Supply level and quartermaster stock
-                var companyNeeds = enlistment?.CompanyNeeds;
-                var qm = QuartermasterManager.Instance;
-
-                if (companyNeeds != null && qm != null)
-                {
-                    var supplyLevel = companyNeeds.Supplies;
-                    var outOfStockCount = qm.OutOfStockCount;
-
-                    // Critical supply warning (below 15% - QM is blocked)
-                    if (supplyLevel < 15)
-                    {
-                        newsItems.Add($"Supplies critical ({supplyLevel}%) — Quartermaster closed");
-                    }
-                    // Low supply with stock shortages
-                    else if (supplyLevel < 40 && outOfStockCount > 0)
-                    {
-                        newsItems.Add($"Supply shortage — {outOfStockCount} items out of stock");
-                    }
-                    // Moderate supply with some shortages
-                    else if (supplyLevel < 60 && outOfStockCount > 0)
-                    {
-                        newsItems.Add($"Limited quartermaster stock ({outOfStockCount} items unavailable)");
-                    }
-                }
-
-                // Check days until next muster (only show if within 2 days)
-                var nextPayday = enlistment?.NextPaydaySafe ?? CampaignTime.Never;
-                if (nextPayday != CampaignTime.Never && nextPayday != CampaignTime.Zero)
-                {
-                    var daysUntilMuster = (nextPayday - CampaignTime.Now).ToDays;
-                    if (daysUntilMuster <= 2 && daysUntilMuster > 0)
-                    {
-                        var dayText = daysUntilMuster <= 1 ? "tomorrow" : "in 2 days";
-                        newsItems.Add($"Muster {dayText}");
-                    }
-                    else if (daysUntilMuster <= 0 && enlistment?.IsPayMusterPending == true)
-                    {
-                        newsItems.Add("Muster awaiting your attention");
-                    }
-                }
-
-                // Check for pay tension (owed backpay)
-                var owedBackpay = enlistment?.OwedBackpay ?? 0;
-                if (owedBackpay > 0)
-                {
-                    newsItems.Add($"Owed backpay: {owedBackpay} denars");
-                }
-
-                // If no notable news, show a neutral status
-                if (newsItems.Count == 0)
-                {
-                    return "— Camp News —\nAll quiet in camp. No urgent matters.";
-                }
-
-                // Build the news section
-                var sb = new StringBuilder();
-                sb.AppendLine("— Camp News —");
-                foreach (var item in newsItems)
-                {
-                    sb.AppendLine(item);
-                }
-
-                return sb.ToString().TrimEnd();
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug("INTERFACE", $"Error building camp news: {ex.Message}");
-                return string.Empty;
             }
         }
 
@@ -3631,14 +3263,6 @@ namespace Enlisted.Features.Interface.Behaviors
             "Night at sea. The crew sleeps below while the watch keeps vigil."
         };
 
-        // Embark/Disembark transition lines
-        private static readonly string[] EmbarkingAtmoLines =
-        {
-            "The company boards ships. Men load gear and settle in for the voyage.",
-            "Embarking for sea travel. Horses and supplies are loaded aboard.",
-            "Ships wait at the docks. The company prepares to set sail."
-        };
-
         private static readonly string[] DisembarkingAtmoLines =
         {
             "The ships make port. Men prepare to disembark.",
@@ -3654,9 +3278,9 @@ namespace Enlisted.Features.Interface.Behaviors
             try
             {
                 ModLogger.Debug("INTERFACE", "OnEnlistedStatusInit: Menu opened");
-                
+
                 // No cache to clear - Orchestrator owns the schedule, we query it directly
-                
+
                 // Time state is captured by calling code BEFORE menu activation
                 // (not here - vanilla has already set Stop by the time init runs)
 
@@ -3734,7 +3358,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Check if supply level changed significantly (invalidates cache to prevent stale data)
                 var currentSupply = enlistment?.CompanyNeeds?.Supplies ?? 0;
-                var supplyChanged = _lastKnownSupplyLevel >= 0 && 
+                var supplyChanged = _lastKnownSupplyLevel >= 0 &&
                                    Math.Abs(currentSupply - _lastKnownSupplyLevel) >= 10;
 
                 // Only rebuild narrative every 30 seconds to prevent rapid flickering,
@@ -3755,7 +3379,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (menuContext != null)
                 {
                     var text = menuContext.GameMenu.GetText();
-                    text.SetTextVariable("PARTY_TEXT", _cachedMainMenuNarrative);
+                    _ = text.SetTextVariable("PARTY_TEXT", _cachedMainMenuNarrative);
                 }
                 else
                 {
@@ -3772,8 +3396,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (menuContext != null)
                 {
                     var text = menuContext.GameMenu.GetText();
-                    text.SetTextVariable("PARTY_LEADER", "Error");
-                    text.SetTextVariable("PARTY_TEXT", "Status information unavailable.");
+                    _ = text.SetTextVariable("PARTY_LEADER", "Error");
+                    _ = text.SetTextVariable("PARTY_TEXT", "Status information unavailable.");
                 }
             }
         }
@@ -3794,26 +3418,26 @@ namespace Enlisted.Features.Interface.Behaviors
                 var kingdomParagraph = BuildKingdomNarrativeParagraph(enlistment, news);
                 if (!string.IsNullOrWhiteSpace(kingdomParagraph))
                 {
-                    sb.AppendLine("<span style=\"Header\">KINGDOM REPORTS</span>");
-                    sb.AppendLine(kingdomParagraph);
-                    sb.AppendLine();
+                    _ = sb.AppendLine("<span style=\"Header\">KINGDOM REPORTS</span>");
+                    _ = sb.AppendLine(kingdomParagraph);
+                    _ = sb.AppendLine();
                 }
 
                 // SECTION 2: Company Reports (local - color-coded keywords)
                 var campParagraph = BuildCampNarrativeParagraph(enlistment, lord, lordParty);
                 if (!string.IsNullOrWhiteSpace(campParagraph))
                 {
-                    sb.AppendLine("<span style=\"Header\">COMPANY REPORTS</span>");
-                    sb.AppendLine(campParagraph);
-                    sb.AppendLine();
+                    _ = sb.AppendLine("<span style=\"Header\">COMPANY REPORTS</span>");
+                    _ = sb.AppendLine(campParagraph);
+                    _ = sb.AppendLine();
                 }
 
                 // SECTION 3: Player Status (personal - duty, health, notable conditions)
                 var youParagraph = BuildPlayerNarrativeParagraph(enlistment);
                 if (!string.IsNullOrWhiteSpace(youParagraph))
                 {
-                    sb.AppendLine("<span style=\"Header\">PLAYER STATUS</span>");
-                    sb.AppendLine(youParagraph);
+                    _ = sb.AppendLine("<span style=\"Header\">PLAYER STATUS</span>");
+                    _ = sb.AppendLine(youParagraph);
                 }
 
                 var result = sb.ToString().TrimEnd();
@@ -3839,10 +3463,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Get comprehensive world state
-                var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                var campLife = Camp.CampLifeBehavior.Instance;
+                var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                var campLife = CampLifeBehavior.Instance;
                 var warStance = worldState.KingdomStance;
-                
+
                 var sentences = new List<string>();
 
                 // Sentence 1-2: Recent kingdom news headlines (context-aware)
@@ -3872,7 +3496,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     .Where(k => k != kingdom && FactionManager.IsAtWarAgainstFaction(kingdom, k))
                     .ToList();
 
-                if (warStance == Content.Models.WarStance.Desperate && enemyKingdoms.Count > 0)
+                if (warStance == WarStance.Desperate && enemyKingdoms.Count > 0)
                 {
                     // Desperate war situation
                     var firstTwo = string.Join(" and ", enemyKingdoms.Take(2).Select(k => k.Name?.ToString() ?? ""));
@@ -3884,7 +3508,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (enemyKingdoms.Count == 1)
                     {
                         var enemyName = enemyKingdoms[0].Name?.ToString() ?? "the enemy";
-                        var intensity = warStance == Content.Models.WarStance.Offensive ? "active war" : "conflict";
+                        var intensity = warStance == WarStance.Offensive ? "active war" : "conflict";
                         sentences.Add($"<span style=\"Warning\">{kingdom.Name} fights {intensity} with {enemyName}.</span>");
                     }
                     else
@@ -3901,16 +3525,16 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Sentence 4: Siege situation
                 var activeSieges = Settlement.All
-                    .Count(s => s.IsUnderSiege && 
-                               (s.MapFaction == kingdom || 
+                    .Count(s => s.IsUnderSiege &&
+                               (s.MapFaction == kingdom ||
                                 s.SiegeEvent?.BesiegerCamp?.LeaderParty?.MapFaction == kingdom));
 
                 if (activeSieges > 0)
                 {
-                    var ourSieges = Settlement.All.Count(s => s.IsUnderSiege && 
+                    var ourSieges = Settlement.All.Count(s => s.IsUnderSiege &&
                                                               s.SiegeEvent?.BesiegerCamp?.LeaderParty?.MapFaction == kingdom);
                     var enemySieges = activeSieges - ourSieges;
-                    
+
                     if (ourSieges > 0 && enemySieges > 0)
                     {
                         sentences.Add($"<span style=\"Warning\">{ourSieges} of our sieges press enemy holds, while {enemySieges} threaten our towns.</span>");
@@ -3970,24 +3594,24 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var sentences = new List<string>();
                 var mainHero = Hero.MainHero;
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
+                var orderManager = OrderManager.Instance;
                 var currentOrder = orderManager?.GetCurrentOrder();
                 var lord = enlistment?.CurrentLord;
                 var lordParty = lord?.PartyBelongedTo;
                 var companyNeeds = enlistment?.CompanyNeeds;
-                
+
                 // Get comprehensive systems state
-                var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
-                var campLife = Camp.CampLifeBehavior.Instance;
+                var worldState = WorldStateAnalyzer.AnalyzeSituation();
+                var campLife = CampLifeBehavior.Instance;
                 var lordSituation = worldState.LordIs;
                 var activityLevel = worldState.ExpectedActivity;
-                
+
                 // Get culture-aware rank names for RP immersion
                 var ncoTitle = GetNCOTitle(lord);
                 var officerTitle = GetOfficerTitle(lord);
 
                 // Build flowing NOW + AHEAD narrative combining present state with forecast hints
-                
+
                 // Opening: Current duty state with world-state-aware forecast
                 if (currentOrder != null)
                 {
@@ -3996,7 +3620,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         orderTitle = "duty";
                     }
-                    
+
                     // Safety check: ensure IssuedTime is valid (not default/zero)
                     // Orders created/loaded without proper initialization may have unset IssuedTime
                     var issuedTime = currentOrder.IssuedTime;
@@ -4005,15 +3629,15 @@ namespace Enlisted.Features.Interface.Behaviors
                         // IssuedTime not set properly - use IssueTime or current time as fallback
                         issuedTime = currentOrder.IssueTime.ToHours >= 1.0 ? currentOrder.IssueTime : CampaignTime.Now;
                     }
-                    
+
                     var hoursSinceIssued = (CampaignTime.Now - issuedTime).ToHours;
-                    
+
                     // Additional safety: cap to reasonable duration (30 days max)
                     if (hoursSinceIssued > 720) // 30 days
                     {
                         hoursSinceIssued = 24; // Default to 1 day if something's wrong
                     }
-                    
+
                     if (hoursSinceIssued < 6)
                     {
                         sentences.Add($"<span style=\"Link\">Fresh orders:</span> {orderTitle}. The work lies ahead.");
@@ -4032,12 +3656,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 else
                 {
                     // Off duty - weave in WorldStateAnalyzer-based forecast hints
-                    if (lordSituation == Content.Models.LordSituation.SiegeAttacking || 
-                        lordSituation == Content.Models.LordSituation.SiegeDefending)
+                    if (lordSituation == LordSituation.SiegeAttacking ||
+                        lordSituation == LordSituation.SiegeDefending)
                     {
                         sentences.Add($"<span style=\"Success\">Off duty</span> between siege shifts. The {ncoTitle} watches for the next call to arms.");
                     }
-                    else if (activityLevel == Content.Models.ActivityLevel.Intense)
+                    else if (activityLevel == ActivityLevel.Intense)
                     {
                         sentences.Add($"<span style=\"Success\">Brief respite.</span> The {officerTitle} will have orders soon enough.");
                     }
@@ -4045,7 +3669,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         sentences.Add($"<span style=\"Success\">Off duty</span> while the {officerTitle} plans with other commanders.");
                     }
-                    else if (lordSituation == Content.Models.LordSituation.WarMarching)
+                    else if (lordSituation == LordSituation.WarMarching)
                     {
                         sentences.Add($"<span style=\"Success\">Off duty</span> but ready. Wartime brings orders without warning.");
                     }
@@ -4053,7 +3677,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         sentences.Add($"<span style=\"Success\">Off duty</span> as the {ncoTitle} readies the company for the march ahead.");
                     }
-                    else if (activityLevel == Content.Models.ActivityLevel.Quiet)
+                    else if (activityLevel == ActivityLevel.Quiet)
                     {
                         sentences.Add($"<span style=\"Success\">Off duty.</span> Garrison life means quiet hours between the routines.");
                     }
@@ -4068,7 +3692,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var conditionBehavior = Conditions.PlayerConditionBehavior.Instance;
                     var playerCondition = conditionBehavior?.State;
-                    
+
                     // Check for custom injuries first (twisted ankle, etc.)
                     if (playerCondition?.HasInjury == true)
                     {
@@ -4127,7 +3751,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // AHEAD: What's coming up for the player (scheduled activities, expected orders)
-                var playerForecast = BuildBriefPlayerForecast(enlistment, orderManager);
+                var playerForecast = BuildBriefPlayerForecast(orderManager);
                 if (!string.IsNullOrWhiteSpace(playerForecast) && sentences.Count < 5)
                 {
                     sentences.Add(playerForecast);
@@ -4137,21 +3761,21 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (sentences.Count < 5)
                 {
                     var leadership = mainHero?.GetSkillValue(DefaultSkills.Leadership) ?? 0;
-                    
+
                     // Crisis situations take priority
-                    if (lordSituation == Content.Models.LordSituation.Defeated)
+                    if (lordSituation == LordSituation.Defeated)
                     {
                         sentences.Add("The defeat stings, but the company rebuilds. There will be another chance.");
                     }
-                    else if (activityLevel == Content.Models.ActivityLevel.Intense && (companyNeeds?.Supplies < 30 || companyNeeds?.Readiness < 30))
+                    else if (activityLevel == ActivityLevel.Intense && (companyNeeds?.Supplies < 30 || companyNeeds?.Readiness < 30))
                     {
                         sentences.Add("Hard campaigning tests every soldier. Hold the line.");
                     }
-                    else if (lordSituation == Content.Models.LordSituation.SiegeAttacking)
+                    else if (lordSituation == LordSituation.SiegeAttacking)
                     {
                         sentences.Add("The siege grinds on. Patience and discipline will see it through.");
                     }
-                    else if (activityLevel == Content.Models.ActivityLevel.Quiet && leadership >= 100)
+                    else if (activityLevel == ActivityLevel.Quiet && leadership >= 100)
                     {
                         sentences.Add("Garrison duty suits a measured leader. The men trust your judgment.");
                     }
@@ -4235,46 +3859,6 @@ namespace Enlisted.Features.Interface.Behaviors
 
         // Note: Removed legacy section builders (BuildMainMenuKingdomSection, BuildMainMenuCampSummary,
         // BuildMainMenuYouSection) - replaced by paragraph-based BuildMainMenuNarrative()
-
-        /// <summary>
-        ///     Get current objective display based on lord's activities.
-        /// </summary>
-        private string GetCurrentObjectiveDisplay(Hero lord)
-        {
-            var lordParty = lord?.PartyBelongedTo;
-            if (lordParty == null)
-            {
-                return "";
-            }
-
-            if (lordParty.Ai.DoNotMakeNewDecisions)
-            {
-                return new TextObject("{=Enlisted_Objective_DirectOrders}Following direct orders").ToString();
-            }
-
-            if (lordParty.IsActive && lordParty.Party.MapEvent != null)
-            {
-                var text = new TextObject("{=Enlisted_Objective_Battle}Engaged in battle at {LOCATION}");
-                text.SetTextVariable("LOCATION",
-                    lordParty.Party.MapEvent.MapEventSettlement?.Name ?? new TextObject("{=menu_field_battle}field"));
-                return text.ToString();
-            }
-
-            if (lordParty.CurrentSettlement != null)
-            {
-                var settlement = lordParty.CurrentSettlement;
-                var text = new TextObject("{=Enlisted_Objective_Stationed}Stationed at {SETTLEMENT}");
-                text.SetTextVariable("SETTLEMENT", settlement.Name);
-                return text.ToString();
-            }
-
-            if (lordParty.Army != null)
-            {
-                return new TextObject("{=Enlisted_Objective_Army}Army operations").ToString();
-            }
-
-            return new TextObject("{=Enlisted_Objective_Patrol}Patrol duties").ToString();
-        }
 
         // Note: Removed unused GetDynamicStatusMessages, CanPromote, and GetOfficerSkillName methods
 
@@ -4387,7 +3971,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         const string seaConversationScene = "conversation_scene_sea_multi_agent";
                         ModLogger.Info("INTERFACE", $"Opening sea conversation with QM using scene: {seaConversationScene}");
-                        CampaignMission.OpenConversationMission(playerData, qmData, seaConversationScene);
+                        _ = CampaignMission.OpenConversationMission(playerData, qmData, seaConversationScene);
                     }
                     else
                     {
@@ -4412,134 +3996,6 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Opens quartermaster conversation with baggage request context set.
-        /// Used when player needs emergency baggage access during march or lockdown.
-        /// </summary>
-        private void OpenQuartermasterConversationForBaggageRequest(string requestType)
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.IsEnlisted != true)
-                {
-                    ModLogger.Warn("BAGGAGE", "Cannot open baggage request conversation: not enlisted");
-                    return;
-                }
-
-                var qm = enlistment.GetOrCreateQuartermaster();
-                if (qm != null && qm.IsAlive)
-                {
-                    var party = QuartermasterPartyResolver.GetConversationParty(qm);
-                    if (party == null)
-                    {
-                        ModLogger.Surfaced("QUARTERMASTER", "Both QM and enlisted lord have no party — cannot open baggage-request conversation with correct scene");
-                        InformationManager.DisplayMessage(new InformationMessage(
-                            new TextObject("{=qm_party_unavailable}The quartermaster cannot be reached right now.").ToString()));
-                        return;
-                    }
-
-                    // Set baggage request context before opening conversation
-                    var dialogManager = EnlistedDialogManager.Instance;
-                    if (dialogManager != null)
-                    {
-                        dialogManager.SetBaggageRequestContext(requestType);
-                    }
-
-                    ModLogger.Info("BAGGAGE", $"Opening QM conversation for baggage request: {requestType}");
-
-                    // Open conversation with quartermaster
-                    var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
-                    var qmData = new ConversationCharacterData(qm.CharacterObject, party);
-
-                    // Use sea conversation scene if at sea, otherwise use map conversation
-                    if (MobileParty.MainParty?.IsCurrentlyAtSea == true)
-                    {
-                        const string seaConversationScene = "conversation_scene_sea_multi_agent";
-                        CampaignMission.OpenConversationMission(playerData, qmData, seaConversationScene);
-                    }
-                    else
-                    {
-                        CampaignMapConversation.OpenConversation(playerData, qmData);
-                    }
-                }
-                else
-                {
-                    ModLogger.Warn("BAGGAGE", "Quartermaster Hero unavailable for baggage request conversation");
-                    InformationManager.DisplayMessage(new InformationMessage(
-                        new TextObject("{=menu_qm_unavailable}Quartermaster services temporarily unavailable.").ToString()));
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error opening baggage request conversation", ex,
-                    ctx: LogCtx.PlayerState());
-            }
-        }
-
-        /// <summary>
-        /// Returns dynamic tooltip for baggage train access based on current state and player tier.
-        /// Shows tier-appropriate costs for emergency access requests.
-        /// </summary>
-        private static TextObject GetBaggageAccessTooltip(BaggageAccessState state)
-        {
-            switch (state)
-            {
-                case BaggageAccessState.FullAccess:
-                    return new TextObject("{=baggage_tooltip_full_access}Access your stored belongings");
-
-                case BaggageAccessState.Locked:
-                    return new TextObject("{=baggage_tooltip_locked}Request baggage access (storage locked down)");
-
-                case BaggageAccessState.TemporaryAccess:
-                    return new TextObject("{=baggage_tooltip_full_access}Access your stored belongings");
-
-                case BaggageAccessState.NoAccess:
-                default:
-                    return GetNoAccessTooltipWithCost();
-            }
-        }
-
-        /// <summary>
-        /// Returns tooltip for NoAccess state, showing tier-appropriate cost for emergency access.
-        /// </summary>
-        private static TextObject GetNoAccessTooltipWithCost()
-        {
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment == null || !enlistment.IsEnlisted)
-            {
-                return new TextObject("{=baggage_tooltip_no_access}Request baggage access (wagons behind the column)");
-            }
-
-            var tier = enlistment.EnlistmentTier;
-            var qmRep = enlistment.QuartermasterRelationship;
-
-            // Check if high rep favor is available
-            if (qmRep >= 50 && tier >= 3)
-            {
-                return new TextObject("{=baggage_tooltip_favor}Request baggage access (favor, no cost)");
-            }
-
-            // Tier-based cost display
-            if (tier < 3)
-            {
-                return new TextObject("{=baggage_tooltip_rank_too_low}Baggage unavailable (rank too low)");
-            }
-
-            if (tier >= 7)
-            {
-                return new TextObject("{=baggage_tooltip_officer_free}Request baggage access (free)");
-            }
-
-            if (tier >= 5)
-            {
-                return new TextObject("{=baggage_tooltip_nco_cost}Request baggage access (-2 QM Rep)");
-            }
-
-            // T3-T4
-            return new TextObject("{=baggage_tooltip_enlisted_cost}Request baggage access (-5 QM Rep)");
-        }
-
-        /// <summary>
         /// Handles baggage train access menu selection. Routes to direct stash access or QM conversation
         /// based on current baggage access state.
         /// </summary>
@@ -4552,7 +4008,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     // Not enlisted - direct access to personal stash
                     ModLogger.Debug("BAGGAGE", "Baggage access: Not enlisted, opening stash directly");
-                    enlistment?.TryOpenBaggageTrain();
+                    _ = args;
+                    _ = enlistment?.TryOpenBaggageTrain();
                     return;
                 }
 
@@ -4560,7 +4017,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (baggageManager == null)
                 {
                     ModLogger.Warn("BAGGAGE", "BaggageTrainManager not available, opening stash directly");
-                    enlistment.TryOpenBaggageTrain();
+                    _ = enlistment.TryOpenBaggageTrain();
                     return;
                 }
 
@@ -4572,7 +4029,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     case BaggageAccessState.FullAccess:
                     case BaggageAccessState.TemporaryAccess:
                         // Direct access to baggage stash
-                        enlistment.TryOpenBaggageTrain();
+                        _ = enlistment.TryOpenBaggageTrain();
                         break;
 
                     case BaggageAccessState.Locked:
@@ -4772,7 +4229,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     // Use Naval DLC's sea conversation scene for proper ship deck visuals
                     const string seaConversationScene = "conversation_scene_sea_multi_agent";
                     ModLogger.Info("INTERFACE", $"Opening sea conversation with {lord.Name} using scene: {seaConversationScene}");
-                    CampaignMission.OpenConversationMission(playerData, lordData, seaConversationScene);
+                    _ = CampaignMission.OpenConversationMission(playerData, lordData, seaConversationScene);
                 }
                 else
                 {
@@ -4930,308 +4387,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-
-        private bool IsAskLeaveAvailable(MenuCallbackArgs args)
-        {
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment?.IsEnlisted != true)
-            {
-                return false;
-            }
-
-            if (enlistment.IsLeaveOnCooldown(out var daysRemaining))
-            {
-                args.IsEnabled = false;
-                var tooltip = new TextObject("{=Enlisted_Leave_Cooldown_Tooltip}Leave is on cooldown. {DAYS} days remain.");
-                tooltip.SetTextVariable("DAYS", daysRemaining);
-                args.Tooltip = tooltip;
-            }
-
-            return true;
-        }
-
-        private void OnAskLeaveSelected(MenuCallbackArgs args)
-        {
-            try
-            {
-                // Capture current time state - user may have changed it with spacebar since menu opened
-                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
-
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.IsEnlisted != true)
-                {
-                    return;
-                }
-
-                // Show leave request confirmation
-                var titleText = new TextObject("{=enl_ui_request_leave_title}Request Leave from Commander").ToString();
-                var descriptionText = new TextObject("{=enl_ui_request_leave_desc}Request temporary leave for 14 days. You regain independent movement but forfeit daily wages and duties until you return. Taking leave starts a 7-day cooldown after you come back.").ToString();
-
-                var confirmData = new InquiryData(
-                    titleText,
-                    descriptionText,
-                    isAffirmativeOptionShown: true,
-                    isNegativeOptionShown: true,
-                    affirmativeText: new TextObject("{=enl_ui_request_leave}Request Leave").ToString(),
-                    negativeText: new TextObject("{=enl_ui_cancel}Cancel").ToString(),
-                    affirmativeAction: () =>
-                    {
-                        try
-                        {
-                            RequestTemporaryLeave();
-                        }
-                        catch (Exception ex)
-                        {
-                            ModLogger.Surfaced("INTERFACE", "Error requesting leave", ex);
-                        }
-                    },
-                    negativeAction: () =>
-                    {
-                        // Cancel action - just close popup, don't affect menu or time state
-                        // The enlisted_status menu is already active underneath
-                    });
-
-                InformationManager.ShowInquiry(confirmData);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error in Ask for Leave", ex,
-                    ctx: LogCtx.PlayerState());
-            }
-        }
-
-        /// <summary>
-        ///     Request temporary leave from service using our established EnlistmentBehavior patterns.
-        /// </summary>
-        private void RequestTemporaryLeave()
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.IsEnlisted != true)
-                {
-                    return;
-                }
-
-                // Use temporary leave instead of permanent discharge
-                enlistment?.StartTemporaryLeave();
-
-                var message = new TextObject("{=enl_ui_leave_granted}Leave granted. You are temporarily released from service. Speak with your lord when ready to return to duty.");
-                InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
-
-                // Exit menu to campaign map (deferred to next frame)
-                NextFrameDispatcher.RunNextFrame(() =>
-                {
-                    if (Campaign.Current.CurrentMenuContext != null)
-                    {
-                        GameMenu.ExitToLast();
-                    }
-                });
-
-                ModLogger.Info("INTERFACE", "Temporary leave granted using proper StopEnlist method");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error granting temporary leave", ex,
-                    ctx: LogCtx.PlayerState());
-            }
-        }
-
         #region Desertion Menu
-
-        /// <summary>
-        ///     Condition for showing the "Desert Army" menu option.
-        ///     Always available when enlisted - desertion is always an option.
-        /// </summary>
-        private bool IsDesertArmyAvailable(MenuCallbackArgs args)
-        {
-            args.optionLeaveType = GameMenuOption.LeaveType.Escape;
-            return EnlistmentBehavior.Instance?.IsEnlisted == true;
-        }
-
-        /// <summary>
-        ///     Handler for when the player selects "Desert Army" from the menu.
-        ///     Opens the desertion confirmation menu with roleplay explanation.
-        /// </summary>
-        private void OnDesertArmySelected(MenuCallbackArgs args)
-        {
-            try
-            {
-                // Capture time state BEFORE menu switch to preserve player's time control
-                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
-                GameMenu.SwitchToMenu("enlisted_desert_confirm");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error opening desertion menu", ex);
-            }
-        }
-
-        /// <summary>
-        ///     Handles free desertion when PayTension >= 60.
-        ///     Shows a confirmation dialog then processes the clean desertion.
-        /// </summary>
-        private void OnFreeDesertionSelected(MenuCallbackArgs args)
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.IsEnlisted != true || enlistment.PayTension < 60)
-                {
-                    ModLogger.Warn("INTERFACE", "Free desertion attempted but conditions not met");
-                    return;
-                }
-
-                var lordName = enlistment.CurrentLord?.Name?.ToString() ?? "your lord";
-                var confirmText = new TextObject(
-                    "Pay has been late for too long. You approach your comrades and explain that you can't continue like this.\n\n" +
-                    "They nod slowly. \"Can't blame you. No one would. Go — find something better.\"\n\n" +
-                    "You can leave now with minimal consequences:\n" +
-                    "• -5 relation with {LORD_NAME} (they understand)\n" +
-                    "• No crime penalty\n" +
-                    "• Keep your equipment\n\n" +
-                    "Are you sure you want to leave?");
-                confirmText.SetTextVariable("LORD_NAME", lordName);
-
-                InformationManager.ShowInquiry(new InquiryData(
-                    new TextObject("{=Enlisted_FreeDesert_Title}Leave Without Penalty").ToString(),
-                    confirmText.ToString(),
-                    true, true,
-                    new TextObject("{=Enlisted_FreeDesert_Confirm}Leave").ToString(),
-                    new TextObject("{=Enlisted_FreeDesert_Cancel}Stay").ToString(),
-                    () =>
-                    {
-                        // DEPRECATED: Free desertion removed - desertion now only happens at muster
-                        ModLogger.Warn("INTERFACE", "Free desertion is deprecated - use muster discharge instead");
-                    },
-                    () =>
-                    {
-                        // Player chose to stay
-                        ModLogger.Debug("INTERFACE", "Player cancelled free desertion");
-                    }));
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error in free desertion", ex);
-            }
-        }
-
-        /// <summary>
-        ///     Creates the desertion confirmation menu with roleplay-appropriate warning text
-        ///     and options to proceed with desertion or return to camp.
-        /// </summary>
-        private void AddDesertionConfirmMenu(CampaignGameStarter starter)
-        {
-            // Create the desertion confirmation menu with dramatic RP text
-            // Omit default parameter values for cleaner code
-            starter.AddGameMenu("enlisted_desert_confirm",
-                "{DESERT_WARNING_TEXT}",
-                OnDesertionConfirmInit);
-
-            // Back button - returns to Leave Service submenu (Leave icon)
-            starter.AddGameMenuOption("enlisted_desert_confirm", "desert_back",
-                "{=enl_ui_back}Back",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
-                    return true;
-                },
-                OnDesertionBackSelected,
-                false, 0);
-
-            // Continue with Desertion button - executes the desertion (Escape icon - already set)
-            starter.AddGameMenuOption("enlisted_desert_confirm", "desert_confirm",
-                "{=enl_ui_desert_confirm}Desert the Army (Accept Penalties)",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Escape;
-                    return true;
-                },
-                OnDesertionConfirmed,
-                false, 1);
-        }
-
-        /// <summary>
-        ///     Initializes the desertion confirmation menu with dramatic roleplay text
-        ///     explaining the consequences of desertion.
-        /// </summary>
-        private void OnDesertionConfirmInit(MenuCallbackArgs args)
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                var lordName = enlistment?.CurrentLord?.Name?.ToString() ?? "your commander";
-                var kingdomName = (enlistment?.CurrentLord?.MapFaction as Kingdom)?.Name?.ToString() ?? "the realm";
-
-                var warningText = new StringBuilder();
-                warningText.AppendLine("You stand at a crossroads, contemplating an act of betrayal.");
-                warningText.AppendLine();
-                warningText.AppendLine(
-                    $"To desert {lordName}'s service would mark you as an oath-breaker. Word travels fast among the nobility, and your treachery will not go unnoticed.");
-                warningText.AppendLine();
-                warningText.AppendLine("The consequences of desertion:");
-                warningText.AppendLine(
-                    "• Your reputation with ALL lords of {KINGDOM} will be severely damaged (-50 relations)");
-                warningText.AppendLine("• You will be branded a criminal in {KINGDOM} (+50 crime rating)");
-                warningText.AppendLine("• You may keep the equipment on your back");
-                warningText.AppendLine("• You will be free to seek service elsewhere... if anyone will have you");
-                warningText.AppendLine();
-                warningText.AppendLine("Are you certain you wish to abandon your post?");
-
-                var textObject = new TextObject(warningText.ToString());
-                textObject.SetTextVariable("KINGDOM", kingdomName);
-                MBTextManager.SetTextVariable("DESERT_WARNING_TEXT", textObject);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("INTERFACE", "Error initializing desertion menu", ex);
-                MBTextManager.SetTextVariable("DESERT_WARNING_TEXT",
-                    "Are you sure you want to desert? This will have serious consequences.");
-            }
-        }
-
-        /// <summary>
-        ///     Handler for returning to camp from the desertion confirmation menu.
-        /// </summary>
-        private void OnDesertionBackSelected(MenuCallbackArgs args)
-        {
-            try
-            {
-                // Capture time state BEFORE menu switch to preserve player's time control
-                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
-                GameMenu.SwitchToMenu("enlisted_status");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error returning from desertion menu", ex);
-            }
-        }
-
-        /// <summary>
-        ///     Handler for confirming desertion. Calls EnlistmentBehavior.DesertArmy()
-        ///     and exits to the campaign map.
-        /// </summary>
-        private void OnDesertionConfirmed(MenuCallbackArgs args)
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment == null)
-                {
-                    ModLogger.Expected("INTERFACE", "menu_desert_no_enlistment", "Cannot desert - EnlistmentBehavior not available");
-                    return;
-                }
-
-                // Execute the desertion - DEPRECATED: Player-triggered desertion removed
-                // Desertion now only happens as muster discharge outcome
-                ModLogger.Warn("INTERFACE", "Desert Army action is deprecated - use muster discharge instead");
-                return;
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Error confirming desertion", ex);
-            }
-        }
 
         #endregion
 
@@ -5282,15 +4438,15 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (encounterModel != null)
                 {
                     var desiredMenu = encounterModel.GetGenericStateMenu();
-                    
+
                     // If native wants a different menu (not enlisted_status), switch to it
-                    if (!string.IsNullOrEmpty(desiredMenu) && 
-                        desiredMenu != "enlisted_status" && 
+                    if (!string.IsNullOrEmpty(desiredMenu) &&
+                        desiredMenu != "enlisted_status" &&
                         desiredMenu != "enlisted_battle_wait")
                     {
-                        ModLogger.Info("MENU", 
+                        ModLogger.Info("MENU",
                             $"OnEnlistedStatusTick: Native wants '{desiredMenu}' - yielding to native menu system");
-                        
+
                         // Switch to the native menu (e.g., menu_siege_strategies, army_wait during siege)
                         GameMenu.SwitchToMenu(desiredMenu);
                         return;
@@ -5351,7 +4507,7 @@ namespace Enlisted.Features.Interface.Behaviors
             // Phase values: Dawn=0, Midday=1, Dusk=2, Night=3
             int scheduled = (int)scheduledPhase;
             int current = (int)currentPhase;
-            
+
             // Simple comparison - scheduled is future if it's greater than current
             // This works because the day cycle is Dawn -> Midday -> Dusk -> Night
             return scheduled > current;
@@ -5476,7 +4632,7 @@ namespace Enlisted.Features.Interface.Behaviors
             try
             {
                 ModLogger.Info("INTERFACE", $"Decision selected: {decision.Id}");
-                
+
                 // Mark this decision as currently showing to prevent spam-clicking
                 DecisionManager.Instance?.MarkDecisionAsShowing(decision.Id);
 
@@ -5485,7 +4641,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     ModLogger.Info("INTERFACE", "Decision selected: baggage access (routing to stash)");
                     OnBaggageTrainSelected(null);
-                    
+
                     // Clear the "currently showing" mark since we bypassed the event popup
                     // (normally this is done when the popup closes in EventDeliveryManager)
                     DecisionManager.Instance?.ClearCurrentlyShowingDecision();
@@ -5519,7 +4675,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             // Clear the "currently showing" mark since we're scheduling, not showing a popup
                             DecisionManager.Instance?.ClearCurrentlyShowingDecision();
                             ModLogger.Debug("INTERFACE", $"Opportunity scheduled, showing mark cleared for {decision.Id}");
-                            
+
                             // Refresh the main status menu to show the scheduled state
                             var menuContext = Campaign.Current?.CurrentMenuContext;
                             if (Campaign.Current != null && menuContext?.GameMenu != null)
@@ -5550,7 +4706,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                 {
                                     // Player was caught - don't show the event, already showed notification
                                     ModLogger.Info("INTERFACE", $"Player caught attempting risky opportunity: {opportunity.Id}");
-                                    
+
                                     // Clear the "currently showing" mark since we're not showing a popup
                                     DecisionManager.Instance?.ClearCurrentlyShowingDecision();
                                     return;
@@ -5709,493 +4865,6 @@ namespace Enlisted.Features.Interface.Behaviors
             MBInformationManager.ShowMultiSelectionInquiry(inquiry, true);
         }
 
-
-        private void OnStatusDetailMenuInit(MenuCallbackArgs args)
-        {
-            try
-            {
-                args.MenuContext.GameMenu.StartWait();
-                Campaign.Current.SetTimeControlModeLock(false);
-
-                var captured = QuartermasterManager.CapturedTimeMode ?? Campaign.Current.TimeControlMode;
-                var normalized = QuartermasterManager.NormalizeToStoppable(captured);
-                Campaign.Current.TimeControlMode = normalized;
-
-                MBTextManager.SetTextVariable("STATUS_DETAIL_TEXT", BuildStatusDetailText());
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("INTERFACE", "Error initializing status detail menu", ex);
-                MBTextManager.SetTextVariable("STATUS_DETAIL_TEXT", "Status details unavailable.");
-            }
-        }
-
-        private static string BuildStatusDetailText()
-        {
-            try
-            {
-                var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment?.IsEnlisted != true)
-                {
-                    return "You are not currently enlisted.";
-                }
-
-                var escalation = EscalationManager.Instance;
-                var lord = enlistment.CurrentLord;
-                var sb = new StringBuilder();
-
-                // Add player status RP flavor line at the top
-                var playerStatus = EnlistedNewsBehavior.Instance?.BuildPlayerStatusLine(enlistment);
-                if (!string.IsNullOrWhiteSpace(playerStatus))
-                {
-                    sb.AppendLine(playerStatus);
-                    sb.AppendLine();
-                }
-
-                var rank = Ranks.RankHelper.GetCurrentRank(enlistment);
-                sb.AppendLine($"Rank: {rank} (Tier {enlistment.EnlistmentTier})");
-                sb.AppendLine($"Lord: {lord?.Name?.ToString() ?? "Unknown"}");
-                sb.AppendLine($"Campaign: {Instance?.GetCurrentObjectiveDisplay(lord) ?? "Unknown"}");
-                sb.AppendLine();
-
-                // Add duty log if player is on an active order
-                var dutyLog = BuildDutyLogSection();
-                if (!string.IsNullOrWhiteSpace(dutyLog))
-                {
-                    sb.AppendLine(dutyLog);
-                    sb.AppendLine();
-                }
-
-                sb.AppendLine("<span style=\"Header\">=== REPUTATION ===</span>");
-                if (escalation?.State != null)
-                {
-                    // Officer/Soldier reputation removed - now using native lord relation
-                    var lordColor = escalation.State.LordReputation >= 60 ? "Success" : escalation.State.LordReputation >= 40 ? "Warning" : "Alert";
-                    sb.AppendLine($"<span style=\"Label\">Lord:</span>     <span style=\"{lordColor}\">{escalation.State.LordReputation}/100 ({GetReputationLevel(escalation.State.LordReputation)})</span>");
-                }
-                else
-                {
-                    sb.AppendLine("Reputation data unavailable.");
-                }
-                sb.AppendLine();
-
-                sb.AppendLine("<span style=\"Header\">=== ROLE & SPECIALIZATIONS ===</span>");
-                var statusManager = Identity.EnlistedStatusManager.Instance;
-                if (statusManager != null)
-                {
-                    var role = statusManager.GetPrimaryRole();
-                    var roleDesc = statusManager.GetRoleDescription();
-                    sb.AppendLine($"<span style=\"Label\">Primary Role:</span> {role}");
-                    sb.AppendLine(roleDesc);
-                    sb.AppendLine();
-                    sb.AppendLine("<span style=\"Label\">Specializations:</span>");
-                    sb.AppendLine(statusManager.GetAllSpecializations());
-                }
-                else
-                {
-                    sb.AppendLine("Role data unavailable.");
-                }
-                sb.AppendLine();
-
-                sb.AppendLine("<span style=\"Header\">=== PERSONALITY TRAITS ===</span>");
-                sb.AppendLine(GetPersonalityTraits());
-
-                return sb.ToString().TrimEnd();
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("INTERFACE", "Failed to build status detail text", ex);
-                return "Status details unavailable.";
-            }
-        }
-
-        /// <summary>
-        /// Builds the duty log section showing phase-by-phase recaps for the current order.
-        /// Shows what happened during each phase (routine, foreshadowing, events).
-        /// </summary>
-        private static string BuildDutyLogSection()
-        {
-            try
-            {
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                var progressionBehavior = Orders.Behaviors.OrderProgressionBehavior.Instance;
-                
-                var currentOrder = orderManager?.GetCurrentOrder();
-                if (currentOrder == null || progressionBehavior == null)
-                {
-                    return string.Empty; // No active order, no log to show
-                }
-
-                var recaps = progressionBehavior.GetCurrentOrderRecaps();
-                if (recaps == null || recaps.Count == 0)
-                {
-                    return string.Empty; // No recaps yet
-                }
-
-                var sb = new StringBuilder();
-                sb.AppendLine("<span style=\"Header\">=== DUTY LOG ===</span>");
-                sb.AppendLine($"<span style=\"Label\">Order:</span> {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}");
-                
-                // Calculate current day and phases
-                var hoursSinceStart = (CampaignTime.Now - currentOrder.IssuedTime).ToHours;
-                var currentDay = (int)(hoursSinceStart / 24) + 1;
-                var currentPhaseIndex = ((int)hoursSinceStart / 6);
-                
-                // Get current hour to determine current phase
-                var currentHour = (int)CampaignTime.Now.CurrentHourInDay;
-                var currentPhase = GetDayPhaseFromHour(currentHour);
-                
-                // Show recaps grouped by day (show last 8 phases = 2 days max)
-                // .NET 4.7.2 doesn't have TakeLast, so use Skip + Take
-                var recentRecaps = recaps.Count > 8 
-                    ? recaps.Skip(recaps.Count - 8).ToList() 
-                    : recaps;
-                var recapsByDay = recentRecaps.GroupBy(r => r.OrderDay).OrderBy(g => g.Key);
-
-                foreach (var dayGroup in recapsByDay)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine($"<span style=\"Label\">Day {dayGroup.Key}:</span>");
-                    
-                    // Show all 4 phases for this day
-                    var phasesForDay = dayGroup.OrderBy(r => r.Phase).ToList();
-                    
-                    // Create slots for all 4 phases
-                    var phaseSlots = new Dictionary<Content.Models.DayPhase, string>
-                    {
-                        { Content.Models.DayPhase.Dawn, null },
-                        { Content.Models.DayPhase.Midday, null },
-                        { Content.Models.DayPhase.Dusk, null },
-                        { Content.Models.DayPhase.Night, null }
-                    };
-                    
-                    // Fill in actual recaps
-                    foreach (var recap in phasesForDay)
-                    {
-                        phaseSlots[recap.Phase] = recap.RecapText;
-                    }
-                    
-                    // Display all phases
-                    foreach (var phase in new[] { Content.Models.DayPhase.Dawn, Content.Models.DayPhase.Midday, Content.Models.DayPhase.Dusk, Content.Models.DayPhase.Night })
-                    {
-                        var phaseName = phase.ToString();
-                        var recapText = phaseSlots[phase];
-                        
-                        if (recapText != null)
-                        {
-                            // Phase has happened
-                            sb.AppendLine($"  <span style=\"Label\">[{phaseName}]</span> {recapText}");
-                        }
-                        else
-                        {
-                            // Check if this is the current phase
-                            if (dayGroup.Key == currentDay && phase == currentPhase)
-                            {
-                                sb.AppendLine($"  <span style=\"Warning\">[{phaseName}]</span> <span style=\"Warning\">IN PROGRESS</span>");
-                            }
-                            else if (dayGroup.Key == currentDay)
-                            {
-                                // Future phase today
-                                sb.AppendLine($"  <span style=\"Default\">[{phaseName}]</span> —");
-                            }
-                        }
-                    }
-                }
-
-                return sb.ToString().TrimEnd();
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("INTERFACE", "Failed to build duty log section", ex);
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Gets the day phase from hour of day (for display purposes).
-        /// </summary>
-        private static Content.Models.DayPhase GetDayPhaseFromHour(int hour)
-        {
-            return hour switch
-            {
-                >= 6 and <= 11 => Content.Models.DayPhase.Dawn,
-                >= 12 and <= 17 => Content.Models.DayPhase.Midday,
-                >= 18 and <= 21 => Content.Models.DayPhase.Dusk,
-                _ => Content.Models.DayPhase.Night
-            };
-        }
-
-        private static string GetReputationLevel(int value)
-        {
-            if (value >= 80)
-            {
-                return "Celebrated";
-            }
-            if (value >= 60)
-            {
-                return "Trusted";
-            }
-            if (value >= 40)
-            {
-                return "Respected";
-            }
-            if (value >= 20)
-            {
-                return "Promising";
-            }
-            if (value >= 0)
-            {
-                return "Neutral";
-            }
-            if (value >= -20)
-            {
-                return "Questionable";
-            }
-            if (value >= -40)
-            {
-                return "Disliked";
-            }
-            if (value >= -60)
-            {
-                return "Despised";
-            }
-            if (value >= -80)
-            {
-                return "Hated";
-            }
-            return "Enemy";
-        }
-
-        private static string GetSoldierReputationLevel(int value)
-        {
-            if (value >= 40)
-            {
-                return "Admired";
-            }
-            if (value >= 20)
-            {
-                return "Liked";
-            }
-            if (value >= 0)
-            {
-                return "Accepted";
-            }
-            if (value >= -20)
-            {
-                return "Ignored";
-            }
-            if (value >= -40)
-            {
-                return "Disliked";
-            }
-            return "Despised";
-        }
-
-        private static string BuildReadinessLine(int value, bool isMarching, bool isInCombat, bool lowMorale)
-        {
-            // Context: What's affecting readiness?
-            var context = "";
-            if (isInCombat)
-            {
-                context = new TextObject("{=status_readiness_combat} Battle drains our reserves.").ToString();
-            }
-            else if (isMarching && lowMorale)
-            {
-                context = new TextObject("{=status_readiness_march_morale} The long march and low spirits take their toll.").ToString();
-            }
-            else if (isMarching)
-            {
-                context = new TextObject("{=status_readiness_march} The march wears on the men.").ToString();
-            }
-            else if (lowMorale)
-            {
-                context = new TextObject("{=status_readiness_morale} Low morale saps the company's edge.").ToString();
-            }
-
-            // Status description by level
-            var description = value switch
-            {
-                >= 80 => new TextObject("{=status_readiness_excellent}The company stands battle-ready, formations tight and weapons sharp.").ToString(),
-                >= 60 => new TextObject("{=status_readiness_good}The company is prepared for action, though some drills have been skipped.").ToString(),
-                >= 40 => new TextObject("{=status_readiness_fair}The company can fight, but coordination has slipped.").ToString(),
-                >= 20 => new TextObject("{=status_readiness_poor}The company is disorganized. Officers bark orders to restore discipline.").ToString(),
-                _ => new TextObject("{=status_readiness_critical}The company is a shambles. Men mill about confused, barely fit for battle.").ToString()
-            };
-
-            // Apply color based on severity
-            var colorStyle = value >= 60 ? "Default" : value >= 40 ? "Warning" : "Alert";
-            var coloredDescription = $"<span style=\"{colorStyle}\">{description}</span>";
-            var fullText = $"<span style=\"Label\">READINESS:</span> {coloredDescription}";
-
-            return string.IsNullOrEmpty(context) ? fullText : $"{fullText} {context}";
-        }
-
-        private static string BuildMoraleLine(int value, EnlistmentBehavior enlistment, bool isInCombat, bool isInSiege)
-        {
-            // Context: What's affecting morale?
-            var context = "";
-            var payTension = enlistment?.PayTension ?? 0;
-
-            if (payTension >= 50)
-            {
-                context = new TextObject("{=status_morale_pay_high} Pay is long overdue and the men are angry.").ToString();
-            }
-            else if (payTension >= 25)
-            {
-                context = new TextObject("{=status_morale_pay_low} The men grumble about late wages.").ToString();
-            }
-            else if (isInSiege)
-            {
-                context = new TextObject("{=status_morale_siege} The tedium of siege weighs on everyone.").ToString();
-            }
-            else if (isInCombat)
-            {
-                context = new TextObject("{=status_morale_combat} Battle tests every man's courage.").ToString();
-            }
-
-            var description = value switch
-            {
-                >= 80 => new TextObject("{=status_morale_excellent}Spirits are high. The men sing as they march and talk of glory.").ToString(),
-                >= 60 => new TextObject("{=status_morale_good}The company's mood is steady. Complaints are few.").ToString(),
-                >= 40 => new TextObject("{=status_morale_fair}The men are restless. Grumbling spreads around the cookfires.").ToString(),
-                >= 20 => new TextObject("{=status_morale_poor}The company is unhappy. Fights break out and discipline slips.").ToString(),
-                _ => new TextObject("{=status_morale_critical}The company is on the edge. Desertion whispers spread through camp.").ToString()
-            };
-
-            // Apply color based on severity
-            var colorStyle = value >= 60 ? "Default" : value >= 40 ? "Warning" : "Alert";
-            var coloredDescription = $"<span style=\"{colorStyle}\">{description}</span>";
-            var fullText = $"<span style=\"Label\">MORALE:</span> {coloredDescription}";
-
-            return string.IsNullOrEmpty(context) ? fullText : $"{fullText} {context}";
-        }
-
-        private static string BuildSuppliesLine(int value, bool isMarching, bool isInSiege)
-        {
-            // Context: What's affecting supplies?
-            var context = "";
-            if (isInSiege)
-            {
-                context = new TextObject("{=status_supplies_siege} Siege rations are stretched thin.").ToString();
-            }
-            else if (isMarching)
-            {
-                context = new TextObject("{=status_supplies_march} The march consumes provisions quickly.").ToString();
-            }
-
-            var description = value switch
-            {
-                >= 80 => new TextObject("{=status_supplies_excellent}The wagons are well-stocked. Food is plentiful and gear is available.").ToString(),
-                >= 60 => new TextObject("{=status_supplies_good}Adequate provisions remain. The quartermaster is not worried.").ToString(),
-                >= 40 => new TextObject("{=status_supplies_fair}Rations are tightening. The quartermaster counts every sack of grain.").ToString(),
-                >= 20 => new TextObject("{=status_supplies_poor}Food is scarce. Men go hungry and equipment cannot be replaced.").ToString(),
-                _ => new TextObject("{=status_supplies_critical}The company is starving. Men eye the pack horses with desperation.").ToString()
-            };
-
-            // Apply color based on severity (supplies are critical resource)
-            var colorStyle = value >= 60 ? "Success" : value >= 40 ? "Warning" : "Alert";
-            var coloredDescription = $"<span style=\"{colorStyle}\">{description}</span>";
-            var fullText = $"<span style=\"Label\">SUPPLIES:</span> {coloredDescription}";
-
-            return string.IsNullOrEmpty(context) ? fullText : $"{fullText} {context}";
-        }
-
-        private static string BuildEquipmentLine(int value, bool isInCombat, bool isMarching, MobileParty party)
-        {
-            // Context: What's affecting equipment?
-            var context = "";
-            if (isInCombat)
-            {
-                context = new TextObject("{=status_equipment_combat} Battle wears hard on arms and armor.").ToString();
-            }
-            else if (isMarching)
-            {
-                // Check terrain for equipment wear context
-                var terrainType = Campaign.Current?.MapSceneWrapper?.GetFaceTerrainType(party?.CurrentNavigationFace ?? default);
-                if (terrainType == TerrainType.Mountain || terrainType == TerrainType.Desert)
-                {
-                    context = new TextObject("{=status_equipment_terrain} Rough terrain damages gear faster than usual.").ToString();
-                }
-            }
-
-            var description = value switch
-            {
-                >= 80 => new TextObject("{=status_equipment_excellent}Weapons are sharp, armor polished. The armorer has little to do.").ToString(),
-                >= 60 => new TextObject("{=status_equipment_good}Gear is serviceable. Minor repairs needed here and there.").ToString(),
-                >= 40 => new TextObject("{=status_equipment_fair}The armorer works constantly. Notched blades and dented helms are common.").ToString(),
-                >= 20 => new TextObject("{=status_equipment_poor}Gear is failing. Men fight with bent swords and cracked shields.").ToString(),
-                _ => new TextObject("{=status_equipment_critical}The company is barely armed. Some men wrap rags around their hands for lack of gloves.").ToString()
-            };
-
-            // Apply color based on severity
-            var colorStyle = value >= 60 ? "Default" : value >= 40 ? "Warning" : "Alert";
-            var coloredDescription = $"<span style=\"{colorStyle}\">{description}</span>";
-            var fullText = $"<span style=\"Label\">EQUIPMENT:</span> {coloredDescription}";
-
-            return string.IsNullOrEmpty(context) ? fullText : $"{fullText} {context}";
-        }
-
-        private static string BuildRestLine(int value, bool isMarching, bool isInSettlement, bool isInArmy)
-        {
-            // Context: What's affecting rest?
-            var context = "";
-            if (isMarching && isInArmy)
-            {
-                context = new TextObject("{=status_rest_army_march} Forced marches with the army leave no time for rest.").ToString();
-            }
-            else if (isMarching)
-            {
-                context = new TextObject("{=status_rest_march} Days on the road exhaust even the hardiest soldiers.").ToString();
-            }
-            else if (isInSettlement)
-            {
-                context = new TextObject("{=status_rest_settlement} The settlement offers a chance to recover.").ToString();
-            }
-
-            var description = value switch
-            {
-                >= 80 => new TextObject("{=status_rest_excellent}The company is well-rested. Men wake refreshed and ready.").ToString(),
-                >= 60 => new TextObject("{=status_rest_good}The company has had adequate rest. Some yawning, but nothing serious.").ToString(),
-                >= 40 => new TextObject("{=status_rest_fair}Exhaustion is setting in. Men doze on their feet during long halts.").ToString(),
-                >= 20 => new TextObject("{=status_rest_poor}The company is exhausted. Tempers flare and mistakes multiply.").ToString(),
-                _ => new TextObject("{=status_rest_critical}The company is dead on their feet. Men collapse during marches.").ToString()
-            };
-
-            // Apply color based on severity
-            var colorStyle = value >= 60 ? "Default" : value >= 40 ? "Warning" : "Alert";
-            var coloredDescription = $"<span style=\"{colorStyle}\">{description}</span>";
-            var fullText = $"<span style=\"Label\">REST:</span> {coloredDescription}";
-
-            return string.IsNullOrEmpty(context) ? fullText : $"{fullText} {context}";
-        }
-
-        private static string GetPersonalityTraits()
-        {
-            try
-            {
-                var hero = Hero.MainHero;
-                if (hero == null || Campaign.Current?.DefaultTraits == null)
-                {
-                    return "No trait data available.";
-                }
-
-                var sb = new StringBuilder();
-                sb.AppendLine($"Valor: {hero.GetTraitLevel(DefaultTraits.Valor)}");
-                sb.AppendLine($"Mercy: {hero.GetTraitLevel(DefaultTraits.Mercy)}");
-                sb.AppendLine($"Generosity: {hero.GetTraitLevel(DefaultTraits.Generosity)}");
-                sb.AppendLine($"Honor: {hero.GetTraitLevel(DefaultTraits.Honor)}");
-                sb.AppendLine($"Calculating: {hero.GetTraitLevel(DefaultTraits.Calculating)}");
-
-                return sb.ToString();
-            }
-            catch
-            {
-                return "Trait data unavailable.";
-            }
-        }
-
-
-
         #endregion
 
         #region Orders Integration
@@ -6259,7 +4928,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var decisions = GetCurrentDecisions();
                 _cachedDecisionsForCurrentMenu = decisions;
                 _cachedDecisionsTime = CampaignTime.Now;
-                
+
                 if (decisions.Count == 0)
                 {
                     _decisionsMainMenuCollapsed = true;
@@ -6299,16 +4968,16 @@ namespace Enlisted.Features.Interface.Behaviors
             // Otherwise fetch and cache new decisions
             var decisions = _cachedDecisionsForCurrentMenu;
             var isFresh = _cachedDecisionsTime.ElapsedHoursUntilNow < 1.0f;
-            
+
             if (decisions == null || decisions.Count == 0 || !isFresh)
             {
                 decisions = GetCurrentDecisions();
-                
+
                 // CACHE the decisions list - used by click handlers to prevent race condition
                 // where phase changes between render and click cause index mismatch
                 _cachedDecisionsForCurrentMenu = decisions;
                 _cachedDecisionsTime = CampaignTime.Now;
-                
+
                 ModLogger.Debug("INTERFACE", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions FETCHED and cached");
             }
             else
@@ -6558,7 +5227,7 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             // Use CACHED decisions to prevent race condition between render and click
             var decisions = _cachedDecisionsForCurrentMenu ?? new List<DecisionAvailability>();
-            
+
             if (_decisionsMainMenuCollapsed || slotIndex >= decisions.Count)
             {
                 return false;
@@ -6586,13 +5255,13 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Log what was clicked and what we have cached for debugging
                 var cachedIds = decisions.Select(d => d.Decision?.Id ?? "null").ToList();
-                ModLogger.Info("INTERFACE", 
+                ModLogger.Info("INTERFACE",
                     $"Decision slot {slotIndex} clicked - cached: [{string.Join(", ", cachedIds)}] " +
                     $"(count={decisions.Count}, age={_cachedDecisionsTime.ElapsedHoursUntilNow:F2}h)");
 
                 if (slotIndex >= decisions.Count)
                 {
-                    ModLogger.Warn("INTERFACE", 
+                    ModLogger.Warn("INTERFACE",
                         $"Decision slot {slotIndex} out of range! Have {decisions.Count} cached decisions. " +
                         $"Cache may be stale - will refresh on next menu render.");
                     return;
@@ -6604,7 +5273,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     ModLogger.Warn("INTERFACE", $"Decision slot {slotIndex} has null Decision object");
                     return;
                 }
-                
+
                 ModLogger.Info("INTERFACE", $"Processing decision from slot {slotIndex}: {availability.Decision.Id}");
 
                 // Mark all current decisions as "seen" since user is now interacting with them
@@ -6724,7 +5393,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var ordersTitle = new TextObject("{=orders_title}Orders").ToString();
                     var noOrdersText = new TextObject("{=orders_none_available}No active orders at this time. Check back later.").ToString();
                     var continueText = new TextObject("{=orders_continue}Continue").ToString();
-                    
+
                     InformationManager.ShowInquiry(new InquiryData(
                         titleText: ordersTitle,
                         text: noOrdersText,
@@ -6740,47 +5409,47 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Build order display text
                 var sb = new StringBuilder();
-                sb.AppendLine($"ORDER FROM: {currentOrder.Issuer}");
-                sb.AppendLine();
-                sb.AppendLine($"TITLE: {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}");
-                sb.AppendLine();
-                sb.AppendLine($"OBJECTIVE:");
-                sb.AppendLine(Orders.OrderCatalog.GetDisplayDescription(currentOrder));
-                sb.AppendLine();
+                _ = sb.AppendLine($"ORDER FROM: {currentOrder.Issuer}");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"TITLE: {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"OBJECTIVE:");
+                _ = sb.AppendLine(Orders.OrderCatalog.GetDisplayDescription(currentOrder));
+                _ = sb.AppendLine();
 
                 // Show requirements if any
                 if (currentOrder.Requirements != null)
                 {
                     if (currentOrder.Requirements.MinSkills != null && currentOrder.Requirements.MinSkills.Count > 0)
                     {
-                        sb.AppendLine("Required Skills:");
+                        _ = sb.AppendLine("Required Skills:");
                         foreach (var skill in currentOrder.Requirements.MinSkills)
                         {
-                            sb.AppendLine($"  • {skill.Key}: {skill.Value}");
+                            _ = sb.AppendLine($"  • {skill.Key}: {skill.Value}");
                         }
-                        sb.AppendLine();
+                        _ = sb.AppendLine();
                     }
 
                     if (currentOrder.Requirements.MinTraits != null && currentOrder.Requirements.MinTraits.Count > 0)
                     {
-                        sb.AppendLine("Required Traits:");
+                        _ = sb.AppendLine("Required Traits:");
                         foreach (var trait in currentOrder.Requirements.MinTraits)
                         {
-                            sb.AppendLine($"  • {trait.Key}: {trait.Value}");
+                            _ = sb.AppendLine($"  • {trait.Key}: {trait.Value}");
                         }
-                        sb.AppendLine();
+                        _ = sb.AppendLine();
                     }
                 }
 
                 var daysAgo = (int)(CampaignTime.Now - currentOrder.IssuedTime).ToDays;
                 string timeStr = daysAgo == 0 ? "today" : daysAgo == 1 ? "yesterday" : $"{daysAgo} days ago";
-                sb.AppendLine($"Issued: {timeStr}");
-                sb.AppendLine($"Declines: {orderManager.GetDeclineCount()}");
+                _ = sb.AppendLine($"Issued: {timeStr}");
+                _ = sb.AppendLine($"Declines: {orderManager.GetDeclineCount()}");
 
                 var activeOrderTitle = new TextObject("{=orders_active_title}Active Order").ToString();
                 var acceptText = new TextObject("{=orders_accept}Accept Order").ToString();
                 var declineText = new TextObject("{=orders_decline}Decline Order").ToString();
-                
+
                 InformationManager.ShowInquiry(new InquiryData(
                     titleText: activeOrderTitle,
                     text: sb.ToString(),
@@ -6802,7 +5471,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         var declineConfirmText = new TextObject("{=orders_decline_confirm_text}Declining orders damages your reputation with your superiors. Continue?").ToString();
                         var yesDeclineText = new TextObject("{=orders_yes_decline}Yes, Decline").ToString();
                         var cancelText = new TextObject("{=orders_cancel}Cancel").ToString();
-                        
+
                         InformationManager.ShowInquiry(new InquiryData(
                             titleText: declineConfirmTitle,
                             text: declineConfirmText,
@@ -6835,14 +5504,14 @@ namespace Enlisted.Features.Interface.Behaviors
         /// <summary>
         /// Returns the localized name for a day phase.
         /// </summary>
-        private static string GetLocalizedPhaseName(Content.Models.DayPhase phase)
+        private static string GetLocalizedPhaseName(DayPhase phase)
         {
             return phase switch
             {
-                Content.Models.DayPhase.Dawn => new TextObject("{=phase_dawn}dawn").ToString(),
-                Content.Models.DayPhase.Midday => new TextObject("{=phase_midday}midday").ToString(),
-                Content.Models.DayPhase.Dusk => new TextObject("{=phase_dusk}dusk").ToString(),
-                Content.Models.DayPhase.Night => new TextObject("{=phase_night}night").ToString(),
+                DayPhase.Dawn => new TextObject("{=phase_dawn}dawn").ToString(),
+                DayPhase.Midday => new TextObject("{=phase_midday}midday").ToString(),
+                DayPhase.Dusk => new TextObject("{=phase_dusk}dusk").ToString(),
+                DayPhase.Night => new TextObject("{=phase_night}night").ToString(),
                 _ => phase.ToString().ToLower()
             };
         }

@@ -1,8 +1,6 @@
-using HarmonyLib;
-using TaleWorlds.CampaignSystem.Conversation;
-using TaleWorlds.ScreenSystem;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -33,7 +31,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
             }
         }
-        
+
         /// <summary>
         /// Patch the IMapStateHandler.OnMapConversationOver implementation in MapScreen.
         /// This is called when a map conversation ends.
@@ -54,14 +52,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     ModLogger.Caught("Bootstrap", "Failed to find MapScreen type for MapConversationEndPatch", null);
                     return null;
                 }
-                
+
                 var interfaceType = AccessTools.TypeByName("TaleWorlds.CampaignSystem.GameState.IMapStateHandler");
                 if (interfaceType == null)
                 {
                     ModLogger.Caught("Bootstrap", "Failed to find IMapStateHandler interface for MapConversationEndPatch", null);
                     return null;
                 }
-                
+
                 // Get the explicit interface implementation method
                 var interfaceMap = mapScreenType.GetInterfaceMap(interfaceType);
                 for (int i = 0; i < interfaceMap.InterfaceMethods.Length; i++)
@@ -72,11 +70,11 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         return interfaceMap.TargetMethods[i];
                     }
                 }
-                
+
                 ModLogger.Caught("Bootstrap", "Failed to find OnMapConversationOver method in MapScreen interface map", null);
                 return null;
             }
-            
+
             [HarmonyPostfix]
             public static void Postfix()
             {

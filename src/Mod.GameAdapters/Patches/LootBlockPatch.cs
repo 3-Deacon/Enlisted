@@ -1,12 +1,7 @@
-using System;
-using System.Reflection;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.MapEvents;
-using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core.Logging;
 
 // ReSharper disable UnusedType.Global - Harmony patches are applied via attributes, not direct code references
 // ReSharper disable UnusedMember.Local - Harmony Prefix/Postfix methods are invoked via reflection
@@ -37,50 +32,12 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedType.Global", Justification = "Harmony patch classes discovered via reflection")]
     public static class LootBlockPatch
     {
-        // Minimum tier required to receive personal loot (T4 = Veteran)
-        private const int MinimumLootTier = 4;
-        
         // Dummy rosters that receive loot but are never used
         // These prevent crashes while still blocking loot from going to player
         private static readonly ItemRoster _dummyItemRoster = new ItemRoster();
         private static readonly TroopRoster _dummyMemberRoster = TroopRoster.CreateDummyTroopRoster();
         private static readonly TroopRoster _dummyPrisonerRoster = TroopRoster.CreateDummyTroopRoster();
-        
-        private static bool ShouldBlockLoot()
-        {
-            var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment?.IsEnlisted != true)
-            {
-                return false; // Not enlisted - allow loot
-            }
-            
-            // Allow loot when on leave or in grace period - player is operating independently
-            if (enlistment.IsOnLeave || enlistment.IsInDesertionGracePeriod)
-            {
-                return false;
-            }
-            
-            // Phase 4: Tier-gated loot - veterans (T4+) get personal loot
-            // T1-T3: Blocked (compensated via gold share)
-            // T4+: Allowed (earned the privilege)
-            if (enlistment.EnlistmentTier >= MinimumLootTier)
-            {
-                ModLogger.Debug("LootBlock", $"Loot allowed - T{enlistment.EnlistmentTier} veteran privilege");
-                return false; // Allow loot for veterans
-            }
-            
-            return true; // Block loot for T1-T3 grunts
-        }
-        
-        /// <summary>
-        /// Log that loot was blocked and track the count for summary reporting.
-        /// </summary>
-        private static void LogLootBlocked(string lootType)
-        {
-            ModLogger.IncrementSummary("loot_blocked");
-            ModLogger.Trace("Gold", $"Blocked {lootType} loot - enlisted soldiers don't receive personal loot");
-        }
-        
+
         /// <summary>
         /// Clears the dummy rosters periodically to prevent memory buildup.
         /// Called after battles complete.
@@ -110,24 +67,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch(typeof(MapEventParty), nameof(MapEventParty.RosterToReceiveLootItems), MethodType.Getter)]
         public static class ItemLootPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-            private static bool Prefix(MapEventParty __instance, ref ItemRoster __result)
-            {
-                if (__instance.Party != PartyBase.MainParty)
-                {
-                    return true;
-                }
-                
-                if (!ShouldBlockLoot())
-                {
-                    return true;
-                }
-                
-                // Return empty dummy roster instead of null to prevent crashes
-                __result = _dummyItemRoster;
-                LogLootBlocked("item");
-                return false;
-            }
         }
 
         /// <summary>
@@ -139,24 +78,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch(typeof(MapEventParty), nameof(MapEventParty.RosterToReceiveLootMembers), MethodType.Getter)]
         public static class MemberLootPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-            private static bool Prefix(MapEventParty __instance, ref TroopRoster __result)
-            {
-                if (__instance.Party != PartyBase.MainParty)
-                {
-                    return true;
-                }
-                
-                if (!ShouldBlockLoot())
-                {
-                    return true;
-                }
-                
-                // Return empty dummy roster instead of null to prevent crashes
-                __result = _dummyMemberRoster;
-                LogLootBlocked("member");
-                return false;
-            }
         }
 
         /// <summary>
@@ -168,24 +89,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch(typeof(MapEventParty), nameof(MapEventParty.RosterToReceiveLootPrisoners), MethodType.Getter)]
         public static class PrisonerLootPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-            private static bool Prefix(MapEventParty __instance, ref TroopRoster __result)
-            {
-                if (__instance.Party != PartyBase.MainParty)
-                {
-                    return true;
-                }
-                
-                if (!ShouldBlockLoot())
-                {
-                    return true;
-                }
-                
-                // Return empty dummy roster instead of null to prevent crashes
-                __result = _dummyPrisonerRoster;
-                LogLootBlocked("prisoner");
-                return false;
-            }
         }
 
         #endregion
@@ -202,36 +105,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch(typeof(PlayerEncounter), "DoLootParty")]
         public static class LootScreenPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
-            private static bool Prefix(PlayerEncounter __instance)
-            {
-                try
-                {
-                    if (!ShouldBlockLoot())
-                    {
-                        return true;
-                    }
-
-                    ModLogger.Info("LootBlock", "Skipping loot screen - enlisted soldiers don't receive personal loot");
-                    
-                    // Clear dummy rosters to prevent memory buildup
-                    ClearDummyRosters();
-                    
-                    // Skip ALL loot states (party, inventory, ships/figureheads) and go directly to End
-                    var mapEventStateField = typeof(PlayerEncounter).GetField("_mapEventState",
-                        BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    if (mapEventStateField != null)
-                    {
-                        mapEventStateField.SetValue(__instance, PlayerEncounterState.End);
-                    }
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    ModLogger.Caught("LootBlock", "Error in loot screen patch", ex);
-                    return true; // Allow loot on error to prevent breaking gameplay
-                }
-            }
         }
 
         #endregion

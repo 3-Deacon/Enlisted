@@ -131,7 +131,7 @@ namespace Enlisted.Features.Content
                 Initialize();
             }
 
-            EventsById.TryGetValue(eventId, out var eventDef);
+            _ = EventsById.TryGetValue(eventId, out var eventDef);
             return eventDef;
         }
 

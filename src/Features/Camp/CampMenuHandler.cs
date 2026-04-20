@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Enlisted.Features.Retinue.Core;
-using Enlisted.Features.Retinue.Systems;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Retinue.Core;
+using Enlisted.Features.Retinue.Systems;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -21,7 +21,7 @@ namespace Enlisted.Features.Camp
     /// <summary>
     /// Handles the Camp menu system for service records display.
     /// Provides menus for viewing current posting, faction history, and lifetime statistics.
-        /// Integrates with the existing enlisted status menu by adding a "Camp" option.
+    /// Integrates with the existing enlisted status menu by adding a "Camp" option.
     /// </summary>
     public sealed class CampMenuHandler : CampaignBehaviorBase
     {
@@ -399,76 +399,76 @@ namespace Enlisted.Features.Camp
             var pensionDaily = GetPensionDaily(enlistment);
             var pensionStatus = GetPensionStatus(enlistment);
 
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_posting_header_record}â€” Current Service Record â€”").ToString());
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_posting_header_record}â€” Current Service Record â€”").ToString());
+            _ = sb.AppendLine();
 
             var postingLine = new TextObject("{=enl_posting_line_posting}Posting: Army of {FACTION}");
-            postingLine.SetTextVariable("FACTION", factionName);
-            sb.AppendLine(postingLine.ToString());
+            _ = postingLine.SetTextVariable("FACTION", factionName);
+            _ = sb.AppendLine(postingLine.ToString());
 
             var commanderLine = new TextObject("{=enl_posting_line_commander}Commander: {LORD}");
-            commanderLine.SetTextVariable("LORD", lordName);
-            sb.AppendLine(commanderLine.ToString());
+            _ = commanderLine.SetTextVariable("LORD", lordName);
+            _ = sb.AppendLine(commanderLine.ToString());
 
             var rankLine = new TextObject("{=enl_posting_line_rank}Rank: {RANK} (Tier {TIER})");
-            rankLine.SetTextVariable("RANK", rankName ?? string.Empty);
-            rankLine.SetTextVariable("TIER", tier);
-            sb.AppendLine(rankLine.ToString());
-            sb.AppendLine();
+            _ = rankLine.SetTextVariable("RANK", rankName ?? string.Empty);
+            _ = rankLine.SetTextVariable("TIER", tier);
+            _ = sb.AppendLine(rankLine.ToString());
+            _ = sb.AppendLine();
 
             var daysLine = new TextObject("{=enl_posting_line_days_served}Days Served: {DAYS}");
-            daysLine.SetTextVariable("DAYS", daysServed);
-            sb.AppendLine(daysLine.ToString());
+            _ = daysLine.SetTextVariable("DAYS", daysServed);
+            _ = sb.AppendLine(daysLine.ToString());
 
             var contractLine = new TextObject("{=enl_posting_line_contract}Contract: {CONTRACT}");
-            contractLine.SetTextVariable("CONTRACT", daysRemaining ?? string.Empty);
-            sb.AppendLine(contractLine.ToString());
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_posting_header_pay}â€” Pay Muster â€”").ToString());
-            sb.AppendLine();
+            _ = contractLine.SetTextVariable("CONTRACT", daysRemaining ?? string.Empty);
+            _ = sb.AppendLine(contractLine.ToString());
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_posting_header_pay}â€” Pay Muster â€”").ToString());
+            _ = sb.AppendLine();
 
             var pendingLine = new TextObject("{=enl_posting_line_pending_pay}Pending Muster Pay: {PAY} denars");
-            pendingLine.SetTextVariable("PAY", pendingPay);
-            sb.AppendLine(pendingLine.ToString());
+            _ = pendingLine.SetTextVariable("PAY", pendingPay);
+            _ = sb.AppendLine(pendingLine.ToString());
 
             var nextPayLine = new TextObject("{=enl_posting_line_next_payday}Next Payday: in {DAYS} days");
-            nextPayLine.SetTextVariable("DAYS", $"{daysToPay:F1}");
-            sb.AppendLine(nextPayLine.ToString());
+            _ = nextPayLine.SetTextVariable("DAYS", $"{daysToPay:F1}");
+            _ = sb.AppendLine(nextPayLine.ToString());
 
             var lastOutcomeLine = new TextObject("{=enl_posting_line_last_outcome}Last Outcome: {OUTCOME}");
-            lastOutcomeLine.SetTextVariable("OUTCOME", lastPay ?? string.Empty);
-            sb.AppendLine(lastOutcomeLine.ToString());
+            _ = lastOutcomeLine.SetTextVariable("OUTCOME", lastPay ?? string.Empty);
+            _ = sb.AppendLine(lastOutcomeLine.ToString());
             if (musterQueued)
             {
-                sb.AppendLine(new TextObject("{=enl_posting_status_muster_queued}Status: Muster queued").ToString());
+                _ = sb.AppendLine(new TextObject("{=enl_posting_status_muster_queued}Status: Muster queued").ToString());
             }
             if (enlistment.IsPendingDischarge)
             {
-                sb.AppendLine(new TextObject("{=enl_posting_status_discharge_pending}Status: Discharge pending (will resolve at next pay muster)").ToString());
+                _ = sb.AppendLine(new TextObject("{=enl_posting_status_discharge_pending}Status: Discharge pending (will resolve at next pay muster)").ToString());
             }
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_posting_header_pension}â€” Pension â€”").ToString());
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_posting_header_pension}â€” Pension â€”").ToString());
+            _ = sb.AppendLine();
 
             var pensionLine = new TextObject("{=enl_posting_line_pension_daily}Daily Pension: {PAY} denars");
-            pensionLine.SetTextVariable("PAY", pensionDaily);
-            sb.AppendLine(pensionLine.ToString());
+            _ = pensionLine.SetTextVariable("PAY", pensionDaily);
+            _ = sb.AppendLine(pensionLine.ToString());
 
             var pensionStatusLine = new TextObject("{=enl_posting_line_status}Status: {STATUS}");
-            pensionStatusLine.SetTextVariable("STATUS", pensionStatus ?? string.Empty);
-            sb.AppendLine(pensionStatusLine.ToString());
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_posting_header_term}â€” This Term â€”").ToString());
-            sb.AppendLine();
+            _ = pensionStatusLine.SetTextVariable("STATUS", pensionStatus ?? string.Empty);
+            _ = sb.AppendLine(pensionStatusLine.ToString());
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_posting_header_term}â€” This Term â€”").ToString());
+            _ = sb.AppendLine();
 
             var battlesLine = new TextObject("{=enl_posting_line_battles}Battles Fought: {COUNT}");
-            battlesLine.SetTextVariable("COUNT", termBattles);
-            sb.AppendLine(battlesLine.ToString());
+            _ = battlesLine.SetTextVariable("COUNT", termBattles);
+            _ = sb.AppendLine(battlesLine.ToString());
 
             var killsLine = new TextObject("{=enl_posting_line_kills}Enemies Slain: {COUNT}");
-            killsLine.SetTextVariable("COUNT", termKills);
-            sb.AppendLine(killsLine.ToString());
+            _ = killsLine.SetTextVariable("COUNT", termKills);
+            _ = sb.AppendLine(killsLine.ToString());
 
             return sb.ToString();
         }
@@ -510,7 +510,7 @@ namespace Enlisted.Features.Camp
                 }
 
                 var t = new TextObject("{=enl_days_count}{DAYS} days");
-                t.SetTextVariable("DAYS", remainingDays);
+                _ = t.SetTextVariable("DAYS", remainingDays);
                 return t.ToString();
             }
             catch (Exception ex)
@@ -594,26 +594,26 @@ namespace Enlisted.Features.Camp
             var recordManager = ServiceRecordManager.Instance;
             var records = recordManager?.GetAllRecords();
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
             var factionServiceRecordsText = new TextObject("{=records_faction_service_title}Faction Service Records").ToString();
-            sb.AppendLine($"— {factionServiceRecordsText} —");
-            sb.AppendLine();
+            _ = sb.AppendLine($"— {factionServiceRecordsText} —");
+            _ = sb.AppendLine();
 
             if (records == null || records.Count == 0)
             {
-                sb.AppendLine("No faction service records found.");
-                sb.AppendLine();
-                sb.AppendLine("Enlist with a lord to begin building your military service history.");
+                _ = sb.AppendLine("No faction service records found.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Enlist with a lord to begin building your military service history.");
             }
             else
             {
                 foreach (var record in records.Values.OrderByDescending(r => r.TotalDaysServed))
                 {
                     var factionType = FormatFactionType(record.FactionType);
-                    sb.AppendLine($"• {record.FactionDisplayName}");
-                    sb.AppendLine($"  {factionType} — {record.TermsCompleted} terms, {record.TotalDaysServed} days");
-                    sb.AppendLine($"  Kills: {record.TotalKills}");
-                    sb.AppendLine();
+                    _ = sb.AppendLine($"• {record.FactionDisplayName}");
+                    _ = sb.AppendLine($"  {factionType} — {record.TermsCompleted} terms, {record.TotalDaysServed} days");
+                    _ = sb.AppendLine($"  Kills: {record.TotalKills}");
+                    _ = sb.AppendLine();
                 }
             }
 
@@ -716,19 +716,19 @@ namespace Enlisted.Features.Camp
 
             var highestRank = GetRankName(record.HighestTier);
 
-            sb.AppendLine();
-            sb.AppendLine($"â€” {record.FactionDisplayName} â€”");
-            sb.AppendLine();
-            sb.AppendLine($"Enlistments: {record.Enlistments}");
-            sb.AppendLine($"Terms Completed: {record.TermsCompleted}");
-            sb.AppendLine($"Days Served: {record.TotalDaysServed}");
-            sb.AppendLine($"Highest Rank: {highestRank} (Tier {record.HighestTier})");
-            sb.AppendLine();
-            sb.AppendLine("â€” Combat Record â€”");
-            sb.AppendLine();
-            sb.AppendLine($"Battles Fought: {record.BattlesFought}");
-            sb.AppendLine($"Enemies Slain: {record.TotalKills}");
-            sb.AppendLine($"Lords Served: {record.LordsServed}");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"â€” {record.FactionDisplayName} â€”");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"Enlistments: {record.Enlistments}");
+            _ = sb.AppendLine($"Terms Completed: {record.TermsCompleted}");
+            _ = sb.AppendLine($"Days Served: {record.TotalDaysServed}");
+            _ = sb.AppendLine($"Highest Rank: {highestRank} (Tier {record.HighestTier})");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("â€” Combat Record â€”");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"Battles Fought: {record.BattlesFought}");
+            _ = sb.AppendLine($"Enemies Slain: {record.TotalKills}");
+            _ = sb.AppendLine($"Lords Served: {record.LordsServed}");
 
             return sb.ToString();
         }
@@ -815,31 +815,31 @@ namespace Enlisted.Features.Camp
             var recordManager = ServiceRecordManager.Instance;
             var lifetime = recordManager?.LifetimeRecord;
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
             var lifetimeHeaderText = new TextObject("{=records_lifetime_summary}Lifetime Service Summary").ToString();
-            sb.AppendLine($"— {lifetimeHeaderText} —");
-            sb.AppendLine();
+            _ = sb.AppendLine($"— {lifetimeHeaderText} —");
+            _ = sb.AppendLine();
 
             if (lifetime == null)
             {
                 var noRecordsText = new TextObject("{=records_no_lifetime}No lifetime service records found").ToString();
                 var careerNotBegunText = new TextObject("{=records_career_not_begun}Your military career has not yet begun").ToString();
-                sb.AppendLine($"{noRecordsText}.");
-                sb.AppendLine();
-                sb.AppendLine($"{careerNotBegunText}.");
+                _ = sb.AppendLine($"{noRecordsText}.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"{careerNotBegunText}.");
             }
             else
             {
                 // Calculate years and months from total days
                 var (years, months) = lifetime.GetServiceDuration();
-                var yearText = years > 1 
-                    ? new TextObject("{=records_years}years").ToString() 
+                var yearText = years > 1
+                    ? new TextObject("{=records_years}years").ToString()
                     : new TextObject("{=records_year}year").ToString();
-                var monthText = months != 1 
-                    ? new TextObject("{=records_months}months").ToString() 
+                var monthText = months != 1
+                    ? new TextObject("{=records_months}months").ToString()
                     : new TextObject("{=records_month}month").ToString();
                 var daysText = new TextObject("{=records_days}days").ToString();
-                
+
                 var timeString = years > 0
                     ? $"{years} {yearText}, {months} {monthText}"
                     : $"{months} {monthText}";
@@ -852,99 +852,99 @@ namespace Enlisted.Features.Camp
                 var timeInServiceLabel = new TextObject("{=records_time_in_service}Time in Service").ToString();
                 var totalEnlistmentsLabel = new TextObject("{=records_total_enlistments}Total Enlistments").ToString();
                 var termsCompletedLabel = new TextObject("{=records_terms_completed}Terms Completed").ToString();
-                
-                sb.AppendLine($"{timeInServiceLabel}: {timeString}");
-                sb.AppendLine($"{totalEnlistmentsLabel}: {lifetime.TotalEnlistments}");
-                sb.AppendLine($"{termsCompletedLabel}: {lifetime.TermsCompleted}");
-                sb.AppendLine();
+
+                _ = sb.AppendLine($"{timeInServiceLabel}: {timeString}");
+                _ = sb.AppendLine($"{totalEnlistmentsLabel}: {lifetime.TotalEnlistments}");
+                _ = sb.AppendLine($"{termsCompletedLabel}: {lifetime.TermsCompleted}");
+                _ = sb.AppendLine();
 
                 // Current service snapshot (replaces the removed Activity Log + XP Breakdown menus)
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted == true)
                 {
                     var currentEnlistmentText = new TextObject("{=records_current_enlistment}Current Enlistment").ToString();
-                    sb.AppendLine($"— {currentEnlistmentText} —");
-                    sb.AppendLine();
-                    
+                    _ = sb.AppendLine($"— {currentEnlistmentText} —");
+                    _ = sb.AppendLine();
+
                     var tierLabel = new TextObject("{=records_tier}Tier").ToString();
                     var serviceXpLabel = new TextObject("{=records_service_xp}Service XP").ToString();
                     var daysServedLabel = new TextObject("{=records_days_served}Days Served").ToString();
                     var nextTierLabel = new TextObject("{=records_next_tier_req}Next Tier Requirement").ToString();
-                    
-                    sb.AppendLine($"{tierLabel}: {enlistment.EnlistmentTier}");
-                    sb.AppendLine($"{serviceXpLabel}: {enlistment.EnlistmentXP}");
-                    sb.AppendLine($"{daysServedLabel}: {(int)enlistment.DaysServed}");
+
+                    _ = sb.AppendLine($"{tierLabel}: {enlistment.EnlistmentTier}");
+                    _ = sb.AppendLine($"{serviceXpLabel}: {enlistment.EnlistmentXP}");
+                    _ = sb.AppendLine($"{daysServedLabel}: {(int)enlistment.DaysServed}");
 
                     if (enlistment.EnlistmentTier < 6)
                     {
-                        var tierXp = Mod.Core.Config.ConfigurationManager.GetTierXpRequirements();
+                        var tierXp = EnlistedConfig.GetTierXpRequirements();
                         var nextTierXp = enlistment.EnlistmentTier < tierXp.Length ? tierXp[enlistment.EnlistmentTier] : tierXp[tierXp.Length - 1];
-                        sb.AppendLine($"{nextTierLabel}: {nextTierXp} XP");
+                        _ = sb.AppendLine($"{nextTierLabel}: {nextTierXp} XP");
                     }
                     else
                     {
                         var maxTierText = new TextObject("{=records_max_tier}(Max tier)").ToString();
-                        sb.AppendLine($"{nextTierLabel}: {maxTierText}");
+                        _ = sb.AppendLine($"{nextTierLabel}: {maxTierText}");
                     }
 
                     if (enlistment.IsPendingDischarge)
                     {
                         var dischargeLabel = new TextObject("{=records_discharge}Discharge").ToString();
                         var pendingText = new TextObject("{=records_pending_discharge}Pending (resolves at next pay muster)").ToString();
-                        sb.AppendLine($"{dischargeLabel}: {pendingText}");
+                        _ = sb.AppendLine($"{dischargeLabel}: {pendingText}");
                     }
 
                     if (enlistment.PendingMusterPay > 0)
                     {
                         var pendingPayLabel = new TextObject("{=records_pending_pay}Pending Pay (next muster)").ToString();
-                        sb.AppendLine($"{pendingPayLabel}: {enlistment.PendingMusterPay}");
+                        _ = sb.AppendLine($"{pendingPayLabel}: {enlistment.PendingMusterPay}");
                     }
 
                     if (enlistment.OwedBackpay > 0)
                     {
                         var backpayLabel = new TextObject("{=records_owed_backpay}Owed Backpay").ToString();
-                        sb.AppendLine($"{backpayLabel}: {enlistment.OwedBackpay}");
+                        _ = sb.AppendLine($"{backpayLabel}: {enlistment.OwedBackpay}");
                     }
 
-                    sb.AppendLine();
+                    _ = sb.AppendLine();
                     var xpSourcesText = new TextObject("{=records_xp_sources}XP Sources").ToString();
-                    sb.AppendLine($"— {xpSourcesText} —");
-                    sb.AppendLine();
-                    
+                    _ = sb.AppendLine($"— {xpSourcesText} —");
+                    _ = sb.AppendLine();
+
                     var xpBattlesText = new TextObject("{=records_xp_battles}Battles: XP for participating in combat").ToString();
                     var xpDutiesText = new TextObject("{=records_xp_duties}Duties: Daily XP for assigned tasks").ToString();
                     var xpActivitiesText = new TextObject("{=records_xp_activities}Activities: Skill XP from camp and lance activities").ToString();
                     var xpServiceText = new TextObject("{=records_xp_service}Service: Passive XP for time served").ToString();
-                    
-                    sb.AppendLine($"• {xpBattlesText}");
-                    sb.AppendLine($"• {xpDutiesText}");
-                    sb.AppendLine($"• {xpActivitiesText}");
-                    sb.AppendLine($"• {xpServiceText}");
-                    sb.AppendLine();
+
+                    _ = sb.AppendLine($"• {xpBattlesText}");
+                    _ = sb.AppendLine($"• {xpDutiesText}");
+                    _ = sb.AppendLine($"• {xpActivitiesText}");
+                    _ = sb.AppendLine($"• {xpServiceText}");
+                    _ = sb.AppendLine();
 
                     var thisTermText = new TextObject("{=records_this_term}This Term").ToString();
-                    sb.AppendLine($"— {thisTermText} —");
-                    sb.AppendLine();
-                    
+                    _ = sb.AppendLine($"— {thisTermText} —");
+                    _ = sb.AppendLine();
+
                     var battlesLabel = new TextObject("{=records_battles}Battles").ToString();
                     var killsLabel = new TextObject("{=records_kills}Kills").ToString();
-                    
-                    sb.AppendLine($"{battlesLabel}: {recordManager.CurrentTermBattles}");
-                    sb.AppendLine($"{killsLabel}: {recordManager.CurrentTermKills}");
-                    sb.AppendLine();
+
+                    _ = sb.AppendLine($"{battlesLabel}: {recordManager.CurrentTermBattles}");
+                    _ = sb.AppendLine($"{killsLabel}: {recordManager.CurrentTermKills}");
+                    _ = sb.AppendLine();
                 }
 
                 // List factions served
                 if (lifetime.FactionsServed is { Count: > 0 })
                 {
                     var factionsServedText = new TextObject("{=records_factions_served}Factions Served").ToString();
-                    sb.AppendLine($"— {factionsServedText} —");
-                    sb.AppendLine();
+                    _ = sb.AppendLine($"— {factionsServedText} —");
+                    _ = sb.AppendLine();
 
                     var termText = new TextObject("{=records_term}term").ToString();
                     var termsText = new TextObject("{=records_terms}terms").ToString();
                     var inProgressText = new TextObject("{=records_in_progress}in progress").ToString();
-                    
+
                     var allRecords = recordManager.GetAllRecords();
                     foreach (var factionId in lifetime.FactionsServed)
                     {
@@ -953,21 +953,21 @@ namespace Enlisted.Features.Camp
                             var terms = record.TermsCompleted > 0
                                 ? $"{record.TermsCompleted} {(record.TermsCompleted > 1 ? termsText : termText)}"
                                 : inProgressText;
-                            sb.AppendLine($"• {record.FactionDisplayName} ({terms})");
+                            _ = sb.AppendLine($"• {record.FactionDisplayName} ({terms})");
                         }
                     }
-                    sb.AppendLine();
+                    _ = sb.AppendLine();
                 }
 
                 var combatStatsText = new TextObject("{=records_combat_statistics}Combat Statistics").ToString();
-                sb.AppendLine($"— {combatStatsText} —");
-                sb.AppendLine();
-                
+                _ = sb.AppendLine($"— {combatStatsText} —");
+                _ = sb.AppendLine();
+
                 var totalBattlesLabel = new TextObject("{=records_total_battles}Total Battles").ToString();
                 var enemiesSlainLabel = new TextObject("{=records_enemies_slain}Enemies Slain").ToString();
-                
-                sb.AppendLine($"{totalBattlesLabel}: {lifetime.TotalBattlesFought}");
-                sb.AppendLine($"{enemiesSlainLabel}: {lifetime.LifetimeKills}");
+
+                _ = sb.AppendLine($"{totalBattlesLabel}: {lifetime.TotalBattlesFought}");
+                _ = sb.AppendLine($"{enemiesSlainLabel}: {lifetime.LifetimeKills}");
             }
 
             return sb.ToString();
@@ -1165,7 +1165,7 @@ namespace Enlisted.Features.Camp
             {
                 // On cooldown
                 var t = new TextObject("{=enl_retinue_option_request_cooldown}Request Reinforcements ({DAYS}d cooldown)");
-                t.SetTextVariable("DAYS", cooldownDays);
+                _ = t.SetTextVariable("DAYS", cooldownDays);
                 optionText = t.ToString();
             }
             else if (missing <= 0)
@@ -1177,9 +1177,9 @@ namespace Enlisted.Features.Camp
             {
                 // Available - show cost with lord name
                 var t = new TextObject("{=enl_retinue_option_request_cost}Request from {LORD} ({COST}{GOLD_ICON})");
-                t.SetTextVariable("LORD", lord.Name);
-                t.SetTextVariable("COST", cost);
-                t.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
+                _ = t.SetTextVariable("LORD", lord.Name);
+                _ = t.SetTextVariable("COST", cost);
+                _ = t.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
                 optionText = t.ToString();
             }
 
@@ -1212,72 +1212,72 @@ namespace Enlisted.Features.Camp
             var partyLimit = PartyBase.MainParty?.PartySizeLimit ?? 0;
             var currentMembers = PartyBase.MainParty?.NumberOfAllMembers ?? 0;
 
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_retinue_header_personal}â€” Personal Retinue â€”").ToString());
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_retinue_header_personal}â€” Personal Retinue â€”").ToString());
+            _ = sb.AppendLine();
 
             var rankLine = new TextObject("{=enl_retinue_line_rank}Rank: {RANK_NAME} (Tier {TIER})");
-            rankLine.SetTextVariable("RANK_NAME", rankName ?? string.Empty);
-            rankLine.SetTextVariable("TIER", tier);
-            sb.AppendLine(rankLine.ToString());
+            _ = rankLine.SetTextVariable("RANK_NAME", rankName ?? string.Empty);
+            _ = rankLine.SetTextVariable("TIER", tier);
+            _ = sb.AppendLine(rankLine.ToString());
 
             var limitLine = new TextObject("{=enl_retinue_line_command_limit}Command Limit: {UNIT_NAME}");
-            limitLine.SetTextVariable("UNIT_NAME", unitName ?? string.Empty);
-            sb.AppendLine(limitLine.ToString());
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_retinue_header_current_muster}â€” Current Muster â€”").ToString());
-            sb.AppendLine();
+            _ = limitLine.SetTextVariable("UNIT_NAME", unitName ?? string.Empty);
+            _ = sb.AppendLine(limitLine.ToString());
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_retinue_header_current_muster}â€” Current Muster â€”").ToString());
+            _ = sb.AppendLine();
 
             if (string.IsNullOrEmpty(selectedType))
             {
-                sb.AppendLine(new TextObject("{=enl_retinue_none_mustered}No soldiers mustered.").ToString());
-                sb.AppendLine(new TextObject("{=enl_retinue_select_type_prompt}Select a soldier type to begin.").ToString());
+                _ = sb.AppendLine(new TextObject("{=enl_retinue_none_mustered}No soldiers mustered.").ToString());
+                _ = sb.AppendLine(new TextObject("{=enl_retinue_select_type_prompt}Select a soldier type to begin.").ToString());
             }
             else
             {
                 var typeName = GetSoldierTypeName(selectedType, enlistment.CurrentLord?.Culture);
 
                 var typeLine = new TextObject("{=enl_retinue_line_type}Type: {TYPE_NAME}");
-                typeLine.SetTextVariable("TYPE_NAME", typeName ?? string.Empty);
-                sb.AppendLine(typeLine.ToString());
+                _ = typeLine.SetTextVariable("TYPE_NAME", typeName ?? string.Empty);
+                _ = sb.AppendLine(typeLine.ToString());
 
                 var soldiersLine = new TextObject("{=enl_retinue_line_soldiers}Soldiers: {CUR} / {MAX}");
-                soldiersLine.SetTextVariable("CUR", currentSoldiers);
-                soldiersLine.SetTextVariable("MAX", tierCapacity);
-                sb.AppendLine(soldiersLine.ToString());
+                _ = soldiersLine.SetTextVariable("CUR", currentSoldiers);
+                _ = soldiersLine.SetTextVariable("MAX", tierCapacity);
+                _ = sb.AppendLine(soldiersLine.ToString());
 
                 var upkeepLine = new TextObject("{=enl_retinue_line_upkeep}Daily Upkeep: {UPKEEP}{GOLD_ICON}");
-                upkeepLine.SetTextVariable("UPKEEP", dailyUpkeep);
-                upkeepLine.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
-                sb.AppendLine(upkeepLine.ToString());
+                _ = upkeepLine.SetTextVariable("UPKEEP", dailyUpkeep);
+                _ = upkeepLine.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
+                _ = sb.AppendLine(upkeepLine.ToString());
             }
 
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_retinue_header_party_capacity}â€” Party Capacity â€”").ToString());
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_retinue_header_party_capacity}â€” Party Capacity â€”").ToString());
+            _ = sb.AppendLine();
 
             var partyLimitLine = new TextObject("{=enl_retinue_line_party_limit}Party Limit: {LIMIT}");
-            partyLimitLine.SetTextVariable("LIMIT", partyLimit);
-            sb.AppendLine(partyLimitLine.ToString());
+            _ = partyLimitLine.SetTextVariable("LIMIT", partyLimit);
+            _ = sb.AppendLine(partyLimitLine.ToString());
 
             var partyMembersLine = new TextObject("{=enl_retinue_line_party_members}Current Members: {COUNT}");
-            partyMembersLine.SetTextVariable("COUNT", currentMembers);
-            sb.AppendLine(partyMembersLine.ToString());
+            _ = partyMembersLine.SetTextVariable("COUNT", currentMembers);
+            _ = sb.AppendLine(partyMembersLine.ToString());
 
             var partySpaceLine = new TextObject("{=enl_retinue_line_party_space}Available Space: {SPACE}");
-            partySpaceLine.SetTextVariable("SPACE", partySpace);
-            sb.AppendLine(partySpaceLine.ToString());
+            _ = partySpaceLine.SetTextVariable("SPACE", partySpace);
+            _ = sb.AppendLine(partySpaceLine.ToString());
 
             if (partySpace < tierCapacity - currentSoldiers)
             {
-                sb.AppendLine();
-                sb.AppendLine(new TextObject("{=enl_retinue_party_limits_retinue}Party size limits your retinue.").ToString());
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=enl_retinue_party_limits_retinue}Party size limits your retinue.").ToString());
             }
 
             // Add reinforcement status section
-            sb.AppendLine();
-            sb.AppendLine(new TextObject("{=enl_retinue_header_reinforcement}-- Reinforcement Status --").ToString());
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enl_retinue_header_reinforcement}-- Reinforcement Status --").ToString());
+            _ = sb.AppendLine();
 
             var state = manager?.State;
             if (state != null)
@@ -1288,13 +1288,13 @@ namespace Enlisted.Features.Camp
                 {
                     var outcomeText = state.LastBattleWon ? "Victory" : "Defeat";
                     var battleLine = new TextObject("{=enl_retinue_last_battle}Last battle: {OUTCOME} ({DAYS} days ago)");
-                    battleLine.SetTextVariable("OUTCOME", outcomeText);
-                    battleLine.SetTextVariable("DAYS", (int)daysSinceBattle);
-                    sb.AppendLine(battleLine.ToString());
+                    _ = battleLine.SetTextVariable("OUTCOME", outcomeText);
+                    _ = battleLine.SetTextVariable("DAYS", (int)daysSinceBattle);
+                    _ = sb.AppendLine(battleLine.ToString());
                 }
                 else
                 {
-                    sb.AppendLine(new TextObject("{=enl_retinue_no_battle}No recent battles").ToString());
+                    _ = sb.AppendLine(new TextObject("{=enl_retinue_no_battle}No recent battles").ToString());
                 }
 
                 // Show trickle status using the new helper method
@@ -1302,41 +1302,41 @@ namespace Enlisted.Features.Camp
 
                 if (isBlocked && contextDesc == "Morale recovering")
                 {
-                    sb.AppendLine(new TextObject("{=enl_retinue_delayed}Replacements delayed (morale recovering)").ToString());
+                    _ = sb.AppendLine(new TextObject("{=enl_retinue_delayed}Replacements delayed (morale recovering)").ToString());
                     if (daysUntilNext > 0)
                     {
                         var resumeLine = new TextObject("{=enl_retinue_resume}Resume in: {DAYS} days");
-                        resumeLine.SetTextVariable("DAYS", daysUntilNext);
-                        sb.AppendLine(resumeLine.ToString());
+                        _ = resumeLine.SetTextVariable("DAYS", daysUntilNext);
+                        _ = sb.AppendLine(resumeLine.ToString());
                     }
                 }
                 else if (currentSoldiers < tierCapacity)
                 {
                     var statusLine = new TextObject("{=enl_retinue_status}Status: {CONTEXT}");
-                    statusLine.SetTextVariable("CONTEXT", contextDesc);
-                    sb.AppendLine(statusLine.ToString());
+                    _ = statusLine.SetTextVariable("CONTEXT", contextDesc);
+                    _ = sb.AppendLine(statusLine.ToString());
 
                     if (daysUntilNext > 0)
                     {
                         var nextLine = new TextObject("{=enl_retinue_next_recruit}Next recruit expected: {DAYS} days");
-                        nextLine.SetTextVariable("DAYS", daysUntilNext);
-                        sb.AppendLine(nextLine.ToString());
+                        _ = nextLine.SetTextVariable("DAYS", daysUntilNext);
+                        _ = sb.AppendLine(nextLine.ToString());
                     }
                     else
                     {
-                        sb.AppendLine(new TextObject("{=enl_retinue_arriving}Recruit arriving soon").ToString());
+                        _ = sb.AppendLine(new TextObject("{=enl_retinue_arriving}Recruit arriving soon").ToString());
                     }
                 }
                 else
                 {
-                    sb.AppendLine(new TextObject("{=enl_retinue_at_capacity}Retinue at full capacity").ToString());
+                    _ = sb.AppendLine(new TextObject("{=enl_retinue_at_capacity}Retinue at full capacity").ToString());
                 }
 
                 // Show territory status
                 var territory = RetinueTrickleSystem.IsInFriendlyTerritory() ? "Friendly" : "Hostile/Neutral";
                 var territoryLine = new TextObject("{=enl_retinue_territory}Territory: {TERRITORY}");
-                territoryLine.SetTextVariable("TERRITORY", territory);
-                sb.AppendLine(territoryLine.ToString());
+                _ = territoryLine.SetTextVariable("TERRITORY", territory);
+                _ = sb.AppendLine(territoryLine.ToString());
             }
 
             return sb.ToString();
@@ -1440,14 +1440,14 @@ namespace Enlisted.Features.Camp
                 var playerGold = Hero.MainHero?.Gold ?? 0;
 
                 var sb = new StringBuilder();
-                sb.AppendLine();
-                sb.AppendLine("â€” Purchase Soldiers â€”");
-                sb.AppendLine();
-                sb.AppendLine("Select the type of soldiers to muster.");
-                sb.AppendLine();
-                sb.AppendLine($"Your Gold: {playerGold}{{GOLD_ICON}}");
-                sb.AppendLine();
-                sb.AppendLine("* Mounted troops fight on foot in naval battles.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("â€” Purchase Soldiers â€”");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Select the type of soldiers to muster.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"Your Gold: {playerGold}{{GOLD_ICON}}");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("* Mounted troops fight on foot in naval battles.");
 
                 MBTextManager.SetTextVariable("RETINUE_PURCHASE_TEXT", sb.ToString());
 
@@ -1546,8 +1546,8 @@ namespace Enlisted.Features.Camp
                 var formationDisplayName = GetFormationDisplayName(playerRetinueType);
                 var requestedDisplayName = GetFormationDisplayName(typeId);
                 var tooltip = new TextObject("{=ct_warn_formation_mismatch}As a {PLAYER_TYPE}, you can only command {PLAYER_TYPE} soldiers. You cannot lead {REQUESTED_TYPE}.");
-                tooltip.SetTextVariable("PLAYER_TYPE", formationDisplayName);
-                tooltip.SetTextVariable("REQUESTED_TYPE", requestedDisplayName);
+                _ = tooltip.SetTextVariable("PLAYER_TYPE", formationDisplayName);
+                _ = tooltip.SetTextVariable("REQUESTED_TYPE", requestedDisplayName);
                 args.Tooltip = tooltip;
                 return true;
             }
@@ -1558,7 +1558,7 @@ namespace Enlisted.Features.Camp
                 args.IsEnabled = false;
                 var factionName = culture.Name?.ToString() ?? "This faction";
                 var tooltip = new TextObject("{=ct_warn_faction_unavailable}{FACTION_NAME} does not field mounted archers.");
-                tooltip.SetTextVariable("FACTION_NAME", factionName);
+                _ = tooltip.SetTextVariable("FACTION_NAME", factionName);
                 args.Tooltip = tooltip;
                 return true;
             }
@@ -1571,7 +1571,7 @@ namespace Enlisted.Features.Camp
             {
                 args.IsEnabled = false;
                 var tooltip = new TextObject("{=ct_warn_cannot_afford}You cannot afford this ({COST} denars required).");
-                tooltip.SetTextVariable("COST", cost);
+                _ = tooltip.SetTextVariable("COST", cost);
                 args.Tooltip = tooltip;
                 return true;
             }
@@ -1669,10 +1669,10 @@ namespace Enlisted.Features.Camp
 
             var title = new TextObject("{=ct_purchase_confirm_title}Confirm Purchase");
             var message = new TextObject("{=ct_purchase_confirm_msg}Purchase {COUNT} {TYPE_NAME} for {COST} denars?\n\nDaily upkeep: {UPKEEP} denars");
-            message.SetTextVariable("COUNT", count);
-            message.SetTextVariable("TYPE_NAME", typeName);
-            message.SetTextVariable("COST", totalCost);
-            message.SetTextVariable("UPKEEP", count * 2);
+            _ = message.SetTextVariable("COUNT", count);
+            _ = message.SetTextVariable("TYPE_NAME", typeName);
+            _ = message.SetTextVariable("COST", totalCost);
+            _ = message.SetTextVariable("UPKEEP", count * 2);
 
             // pauseGameActiveState = false so dialogs don't freeze game time
             var pauseGameActiveState = ShouldPauseDuringCampInquiry();
@@ -1714,7 +1714,7 @@ namespace Enlisted.Features.Camp
                 ModLogger.Info(LogCategory, $"Purchased {actuallyAdded} {typeId} soldiers for {totalCost} gold");
 
                 var successMsg = new TextObject("{=ct_purchase_success}{COUNT} soldiers have been mustered to your retinue.");
-                successMsg.SetTextVariable("COUNT", actuallyAdded);
+                _ = successMsg.SetTextVariable("COUNT", actuallyAdded);
                 InformationManager.DisplayMessage(new InformationMessage(successMsg.ToString(), Colors.Green));
             }
             else
@@ -1742,7 +1742,7 @@ namespace Enlisted.Features.Camp
 
             var title = new TextObject("{=ct_type_change_title}Change Soldier Type");
             var message = new TextObject("{=ct_type_change_msg}You currently have {COUNT} soldiers. Changing type will dismiss them. Continue?");
-            message.SetTextVariable("COUNT", currentCount);
+            _ = message.SetTextVariable("COUNT", currentCount);
 
             // pauseGameActiveState = false so dialogs don't freeze game time
             var pauseGameActiveState = ShouldPauseDuringCampInquiry();
@@ -1839,14 +1839,14 @@ namespace Enlisted.Features.Camp
                 var currentCount = manager?.State?.TotalSoldiers ?? 0;
 
                 var sb = new StringBuilder();
-                sb.AppendLine();
-                sb.AppendLine("â€” Dismiss Soldiers â€”");
-                sb.AppendLine();
-                sb.AppendLine("Are you certain?");
-                sb.AppendLine();
-                sb.AppendLine($"Your {currentCount} soldiers will return to the army ranks.");
-                sb.AppendLine();
-                sb.AppendLine("This action cannot be undone.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("â€” Dismiss Soldiers â€”");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Are you certain?");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"Your {currentCount} soldiers will return to the army ranks.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("This action cannot be undone.");
 
                 MBTextManager.SetTextVariable("RETINUE_DISMISS_TEXT", sb.ToString());
                 ModLogger.Debug(LogCategory, "Dismiss menu initialized");
@@ -1904,7 +1904,7 @@ namespace Enlisted.Features.Camp
             {
                 args.IsEnabled = false;
                 var tooltip = new TextObject("{=ct_request_relation_low}Your lord will not spare soldiers for you. Improve your standing first (requires {REQ}+ relation).");
-                tooltip.SetTextVariable("REQ", RetinueManager.MinRelationForRequest);
+                _ = tooltip.SetTextVariable("REQ", RetinueManager.MinRelationForRequest);
                 args.Tooltip = tooltip;
                 args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
                 return true;
@@ -1916,7 +1916,7 @@ namespace Enlisted.Features.Camp
                 args.IsEnabled = false;
                 var days = manager.GetReinforcementRequestCooldownDays();
                 var tooltip = new TextObject("{=ct_request_cooldown}Request on cooldown: {DAYS} days remaining.");
-                tooltip.SetTextVariable("DAYS", days);
+                _ = tooltip.SetTextVariable("DAYS", days);
                 args.Tooltip = tooltip;
                 args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
                 return true;
@@ -1939,7 +1939,7 @@ namespace Enlisted.Features.Camp
             {
                 args.IsEnabled = false;
                 var tooltip = new TextObject("{=ct_warn_cannot_afford}You cannot afford this ({COST} denars required).");
-                tooltip.SetTextVariable("COST", cost);
+                _ = tooltip.SetTextVariable("COST", cost);
                 args.Tooltip = tooltip;
                 args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
                 return true;
@@ -2036,55 +2036,55 @@ namespace Enlisted.Features.Camp
                 var cooldownRemaining = manager?.GetReinforcementRequestCooldownDays() ?? 0;
 
                 var sb = new StringBuilder();
-                sb.AppendLine();
+                _ = sb.AppendLine();
                 var lordName = lord?.Name?.ToString() ?? "your lord";
-                sb.AppendLine($"-- Request Reinforcements from {lordName} --");
-                sb.AppendLine();
+                _ = sb.AppendLine($"-- Request Reinforcements from {lordName} --");
+                _ = sb.AppendLine();
 
                 // Relation-based dialogue
                 if (relation >= RetinueManager.HighRelationThreshold)
                 {
-                    sb.AppendLine($"\"{Hero.MainHero?.Name}, your men fought well. I can spare some from the reserves.\"");
-                    sb.AppendLine();
-                    sb.AppendLine("(Lord is pleased - reduced cost, 7-day cooldown)");
+                    _ = sb.AppendLine($"\"{Hero.MainHero?.Name}, your men fought well. I can spare some from the reserves.\"");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("(Lord is pleased - reduced cost, 7-day cooldown)");
                 }
                 else if (relation >= RetinueManager.MinRelationForRequest)
                 {
-                    sb.AppendLine("\"Reinforcements? I'll see what I can do. It won't be free.\"");
-                    sb.AppendLine();
-                    sb.AppendLine("(Standard terms - full cost, 14-day cooldown)");
+                    _ = sb.AppendLine("\"Reinforcements? I'll see what I can do. It won't be free.\"");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("(Standard terms - full cost, 14-day cooldown)");
                 }
                 else
                 {
-                    sb.AppendLine("\"You want soldiers? Prove your worth first.\"");
-                    sb.AppendLine();
-                    sb.AppendLine("(Relation too low - request unavailable)");
+                    _ = sb.AppendLine("\"You want soldiers? Prove your worth first.\"");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("(Relation too low - request unavailable)");
                 }
 
-                sb.AppendLine();
-                sb.AppendLine($"Missing Soldiers: {missing}");
-                sb.AppendLine($"Cost: {adjustedCost}{{GOLD_ICON}}");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"Missing Soldiers: {missing}");
+                _ = sb.AppendLine($"Cost: {adjustedCost}{{GOLD_ICON}}");
 
                 if (adjustedCost < baseCost)
                 {
-                    sb.AppendLine($"  (Reduced from {baseCost}{{GOLD_ICON}} due to lord's favor)");
+                    _ = sb.AppendLine($"  (Reduced from {baseCost}{{GOLD_ICON}} due to lord's favor)");
                 }
 
-                sb.AppendLine();
-                sb.AppendLine($"Your Gold: {playerGold}{{GOLD_ICON}}");
-                sb.AppendLine();
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"Your Gold: {playerGold}{{GOLD_ICON}}");
+                _ = sb.AppendLine();
 
-                sb.AppendLine(cooldownRemaining > 0 ? $"Cooldown: {cooldownRemaining} days remaining" : "Request available now");
+                _ = sb.AppendLine(cooldownRemaining > 0 ? $"Cooldown: {cooldownRemaining} days remaining" : "Request available now");
 
-                sb.AppendLine($"After request: {cooldownDays} day cooldown");
+                _ = sb.AppendLine($"After request: {cooldownDays} day cooldown");
 
                 MBTextManager.SetTextVariable("REQUISITION_MENU_TEXT", sb.ToString());
 
                 // Set confirm button text with gold icon
                 var confirmText = new TextObject("{=enl_camp_retinue_request_confirm}Request {COUNT} soldiers ({COST}{GOLD_ICON})");
-                confirmText.SetTextVariable("COUNT", missing);
-                confirmText.SetTextVariable("COST", adjustedCost);
-                confirmText.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
+                _ = confirmText.SetTextVariable("COUNT", missing);
+                _ = confirmText.SetTextVariable("COST", adjustedCost);
+                _ = confirmText.SetTextVariable("GOLD_ICON", "{GOLD_ICON}");
                 MBTextManager.SetTextVariable("REQUISITION_CONFIRM_TEXT", confirmText.ToString());
 
                 ModLogger.Debug(LogCategory, "Reinforcement request menu initialized");
@@ -2115,7 +2115,7 @@ namespace Enlisted.Features.Camp
             if (manager.TryRequestReinforcements(out var message))
             {
                 var successMsg = new TextObject("{=ct_request_success}{MESSAGE}");
-                successMsg.SetTextVariable("MESSAGE", message);
+                _ = successMsg.SetTextVariable("MESSAGE", message);
                 InformationManager.DisplayMessage(new InformationMessage(successMsg.ToString(), Colors.Green));
 
                 ModLogger.Info(LogCategory, $"Reinforcement request complete: {message}");
@@ -2204,27 +2204,27 @@ namespace Enlisted.Features.Camp
                 _cachedCompanions = manager?.GetAssignableCompanions() ?? new List<Hero>();
 
                 var sb = new StringBuilder();
-                sb.AppendLine();
+                _ = sb.AppendLine();
                 var companionsTitle = new TextObject("{=ct_companions_title}Companion Assignments").ToString();
-                sb.AppendLine($"— {companionsTitle} —");
-                sb.AppendLine();
-                
+                _ = sb.AppendLine($"— {companionsTitle} —");
+                _ = sb.AppendLine();
+
                 var stayBackInfo = new TextObject("{=ct_companions_stay_back_info}Companions set to 'Stay Back' will not spawn in battle").ToString();
                 var stayBackSafe = new TextObject("{=ct_companions_stay_back_safe}They remain safe, immune to death, wounds, or capture").ToString();
-                sb.AppendLine($"{stayBackInfo}.");
-                sb.AppendLine($"{stayBackSafe}.");
-                sb.AppendLine();
+                _ = sb.AppendLine($"{stayBackInfo}.");
+                _ = sb.AppendLine($"{stayBackSafe}.");
+                _ = sb.AppendLine();
 
                 if (_cachedCompanions.Count == 0 || manager == null)
                 {
                     var noCompanionsText = new TextObject("{=ct_companions_none}No companions in your command").ToString();
-                    sb.AppendLine($"{noCompanionsText}.");
+                    _ = sb.AppendLine($"{noCompanionsText}.");
                 }
                 else
                 {
                     var fightCount = manager.GetFightingCompanionCount();
                     var stayBackCount = manager.GetStayBackCompanionCount();
-                    sb.AppendLine($"Fighting: {fightCount}  |  Staying Back: {stayBackCount}");
+                    _ = sb.AppendLine($"Fighting: {fightCount}  |  Staying Back: {stayBackCount}");
                 }
 
                 MBTextManager.SetTextVariable("COMPANION_ASSIGNMENTS_TEXT", sb.ToString());
@@ -2292,8 +2292,8 @@ namespace Enlisted.Features.Camp
             var newStatus = manager.ShouldCompanionFight(companion) ? "Fight" : "Stay Back";
 
             var message = new TextObject("{=ct_companion_toggled}{COMPANION_NAME} set to: {STATUS}");
-            message.SetTextVariable("COMPANION_NAME", companion.Name);
-            message.SetTextVariable("STATUS", newStatus);
+            _ = message.SetTextVariable("COMPANION_NAME", companion.Name);
+            _ = message.SetTextVariable("STATUS", newStatus);
             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
             ModLogger.Info(LogCategory, $"Toggled {companion.Name} to {newStatus}");

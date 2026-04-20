@@ -117,11 +117,11 @@ namespace Enlisted.Features.Orders
             // Filter by sea state - exclude land-only orders when at sea
             var party = enlistment.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            var isAtSea = party != null && 
-                          party.CurrentSettlement == null && 
-                          party.BesiegedSettlement == null && 
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
                           party.IsCurrentlyAtSea;
-            
+
             if (isAtSea)
             {
                 eligibleOrders = eligibleOrders
@@ -207,7 +207,7 @@ namespace Enlisted.Features.Orders
             var contextKey = GetCurrentTravelContextKey(order);
 
             // Check if we have a variant for current context
-            if (order.ContextVariants.TryGetValue(contextKey, out var variant) && 
+            if (order.ContextVariants.TryGetValue(contextKey, out var variant) &&
                 !string.IsNullOrEmpty(variant.Title))
             {
                 return variant.Title;
@@ -238,7 +238,7 @@ namespace Enlisted.Features.Orders
             var contextKey = GetCurrentTravelContextKey(order);
 
             // Check if we have a variant for current context
-            if (order.ContextVariants.TryGetValue(contextKey, out var variant) && 
+            if (order.ContextVariants.TryGetValue(contextKey, out var variant) &&
                 !string.IsNullOrEmpty(variant.Description))
             {
                 return variant.Description;
@@ -257,7 +257,7 @@ namespace Enlisted.Features.Orders
             // Directly check party's current sea travel status for real-time accuracy
             var enlistment = EnlistmentBehavior.Instance;
             var party = enlistment?.CurrentLord?.PartyBelongedTo;
-            
+
             if (party == null || !order.ContextVariants.ContainsKey("sea"))
             {
                 return "land";
@@ -267,7 +267,7 @@ namespace Enlisted.Features.Orders
             // This prevents "Rigging Check" from appearing when on land
             if (party.CurrentSettlement != null || party.BesiegedSettlement != null)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Party in settlement or siege - forcing land context (IsCurrentlyAtSea={party.IsCurrentlyAtSea})");
                 return "land";
             }

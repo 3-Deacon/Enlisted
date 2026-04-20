@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
@@ -34,7 +33,10 @@ namespace Enlisted.Features.Content
         /// <param name="hero">The hero to check traits for (usually MainHero).</param>
         public static void CheckForMilestones(Hero hero)
         {
-            if (hero == null) return;
+            if (hero == null)
+            {
+                return;
+            }
 
             try
             {
@@ -78,7 +80,10 @@ namespace Enlisted.Features.Content
         /// <param name="hero">The hero to initialize from.</param>
         public static void Initialize(Hero hero)
         {
-            if (hero == null) return;
+            if (hero == null)
+            {
+                return;
+            }
 
             PreviousLevels.Clear();
             foreach (var trait in TrackedTraits)
@@ -94,36 +99,8 @@ namespace Enlisted.Features.Content
         /// </summary>
         private static void PushTraitMilestoneNews(TraitObject trait, int oldLevel, int newLevel)
         {
-            var direction = newLevel > oldLevel ? "gained" : "lost";
             var message = GetTraitMilestoneMessage(trait, newLevel);
-            var headlineKey = GetTraitMilestoneHeadlineKey(trait, newLevel);
-
-            // Push to personal news feed
-            var news = EnlistedNewsBehavior.Instance;
-            if (news != null)
-            {
-                var placeholders = new Dictionary<string, string>
-                {
-                    { "TRAIT", trait.Name?.ToString() ?? "Unknown" },
-                    { "LEVEL", newLevel.ToString() },
-                    { "DIRECTION", direction }
-                };
-
-                // Use severity 1 (positive) for gains, 2 (attention) for losses
-                var severity = newLevel > oldLevel ? 1 : 2;
-
-                // Add to personal feed via headline key
-                try
-                {
-                    // Use reflection or a public method if available
-                    // For now, log and use InformationManager for immediate feedback
-                    ModLogger.Info(LogCategory, $"{trait.Name}: {oldLevel} → {newLevel} ({message})");
-                }
-                catch (Exception ex)
-                {
-                    ModLogger.Caught("TraitMilestone", "Failed to push trait news", ex);
-                }
-            }
+            ModLogger.Info(LogCategory, $"{trait.Name}: {oldLevel} → {newLevel} ({message})");
 
             // Also show immediate feedback via information message
             TaleWorlds.Library.InformationManager.DisplayMessage(
@@ -134,16 +111,6 @@ namespace Enlisted.Features.Content
             );
 
             ModLogger.Info(LogCategory, $"Trait milestone: {trait.Name} {oldLevel} → {newLevel}");
-        }
-
-        /// <summary>
-        /// Gets the localization headline key for a trait milestone.
-        /// </summary>
-        private static string GetTraitMilestoneHeadlineKey(TraitObject trait, int level)
-        {
-            var traitKey = trait.StringId?.ToLowerInvariant() ?? "unknown";
-            var levelDesc = level >= 0 ? "high" : "low";
-            return $"trait_milestone_{traitKey}_{levelDesc}";
         }
 
         /// <summary>
@@ -192,7 +159,7 @@ namespace Enlisted.Features.Content
 
             // Fallback for any other traits
             var textObj = new TextObject("{=trait_generic}Your {TRAIT} has changed.");
-            textObj.SetTextVariable("TRAIT", trait.Name ?? new TextObject("trait"));
+            _ = textObj.SetTextVariable("TRAIT", trait.Name ?? new TextObject("trait"));
             return textObj.ToString();
         }
     }

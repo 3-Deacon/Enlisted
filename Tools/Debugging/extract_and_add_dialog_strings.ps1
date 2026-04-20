@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # Extract Dialog Strings and Add to XML
 # Extracts all {=string_id}text format strings from dialog code and adds them to enlisted_strings.xml
 
@@ -6,13 +8,13 @@ $dialogFile = "C:\Dev\Enlisted\Enlisted\src\Features\Conversations\Behaviors\Enl
 $xmlFile = "C:\Dev\Enlisted\Enlisted\ModuleData\Languages\enlisted_strings.xml"
 $backupFile = "C:\Dev\Enlisted\Enlisted\Debugging\enlisted_strings_backup_before_dialog_fix.xml"
 
-Write-Host "=== Extracting Dialog Strings ===" -ForegroundColor Cyan
-Write-Host ""
+Write-Status "=== Extracting Dialog Strings ===" -ForegroundColor Cyan
+Write-Status ""
 
 # Create backup
 Copy-Item $xmlFile $backupFile -Force
-Write-Host "Backup created: $backupFile" -ForegroundColor Green
-Write-Host ""
+Write-Status "Backup created: $backupFile" -ForegroundColor Green
+Write-Status ""
 
 # Read dialog code
 $dialogContent = Get-Content $dialogFile -Raw
@@ -38,8 +40,8 @@ foreach ($match in $matches) {
     }
 }
 
-Write-Host "Extracted $($dialogStrings.Count) dialog strings" -ForegroundColor Yellow
-Write-Host ""
+Write-Status "Extracted $($dialogStrings.Count) dialog strings" -ForegroundColor Yellow
+Write-Status ""
 
 # Read XML
 $xmlContent = Get-Content $xmlFile -Raw
@@ -52,11 +54,11 @@ foreach ($id in $dialogStrings.Keys | Sort-Object) {
     }
 }
 
-Write-Host "Found $($missingStrings.Count) missing strings in XML" -ForegroundColor Red
-Write-Host ""
+Write-Status "Found $($missingStrings.Count) missing strings in XML" -ForegroundColor Red
+Write-Status ""
 
 if ($missingStrings.Count -eq 0) {
-    Write-Host "No missing strings! XML is complete." -ForegroundColor Green
+    Write-Status "No missing strings! XML is complete." -ForegroundColor Green
     exit 0
 }
 
@@ -75,7 +77,7 @@ foreach ($id in $missingStrings.Keys | Sort-Object) {
 # Find insertion point (before </strings> closing tag)
 $insertionPoint = $xmlContent.LastIndexOf("</strings>")
 if ($insertionPoint -eq -1) {
-    Write-Host "ERROR: Could not find </strings> tag in XML file!" -ForegroundColor Red
+    Write-Status "ERROR: Could not find </strings> tag in XML file!" -ForegroundColor Red
     exit 1
 }
 
@@ -85,14 +87,14 @@ $updatedXml = $xmlContent.Insert($insertionPoint, $newEntries + "`n`n  ")
 # Save updated XML
 $updatedXml | Out-File -FilePath $xmlFile -Encoding UTF8 -NoNewline
 
-Write-Host "Added $($missingStrings.Count) dialog strings to XML" -ForegroundColor Green
-Write-Host ""
-Write-Host "Missing strings added:" -ForegroundColor Cyan
+Write-Status "Added $($missingStrings.Count) dialog strings to XML" -ForegroundColor Green
+Write-Status ""
+Write-Status "Missing strings added:" -ForegroundColor Cyan
 foreach ($id in $missingStrings.Keys | Sort-Object) {
-    Write-Host "  [+] $id" -ForegroundColor Gray
+    Write-Status "  [+] $id" -ForegroundColor Gray
 }
 
-Write-Host ""
-Write-Host "XML file updated successfully!" -ForegroundColor Green
-Write-Host "Backup: $backupFile" -ForegroundColor Yellow
+Write-Status ""
+Write-Status "XML file updated successfully!" -ForegroundColor Green
+Write-Status "Backup: $backupFile" -ForegroundColor Yellow
 

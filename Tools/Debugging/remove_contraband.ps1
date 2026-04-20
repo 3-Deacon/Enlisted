@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # PowerShell script to remove contraband system references
 $file = "src\Features\Enlistment\Behaviors\MusterMenuHandler.cs"
 $content = Get-Content $file -Raw
@@ -22,4 +24,4 @@ $content = $content -replace "\s+stageId == MusterBaggageMenuId \|\|`r?`n", ""
 # Write back
 Set-Content $file $content -NoNewline
 
-Write-Host "Phase 1 complete: Removed basic contraband references"
+Write-Status "Phase 1 complete: Removed basic contraband references"

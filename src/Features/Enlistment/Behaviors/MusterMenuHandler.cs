@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Enlisted.Features.Content;
@@ -10,10 +9,9 @@ using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
-using Enlisted.Features.Ranks.Behaviors;
-using Enlisted.Features.Identity;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Logistics;
+using Enlisted.Features.Ranks.Behaviors;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core.Config;
@@ -43,7 +41,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
         // Menu IDs for the 6 muster stages
         private const string MusterIntroMenuId = "enlisted_muster_intro";
         private const string MusterPayMenuId = "enlisted_muster_pay";
-        private const string MusterRecruitMenuId = "enlisted_muster_recruit";
         private const string MusterPromotionRecapMenuId = "enlisted_muster_promotion_recap";
         private const string MusterRetinueMenuId = "enlisted_muster_retinue";
         private const string MusterCompleteMenuId = "enlisted_muster_complete";
@@ -210,12 +207,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
         public override void SyncData(IDataStore dataStore)
         {
             // Persist muster-related flags for edge case handling
-            dataStore.SyncData("_musterPendingAfterCombat", ref _musterPendingAfterCombat);
-            dataStore.SyncData("_musterPendingAfterMenu", ref _musterPendingAfterMenu);
+            _ = dataStore.SyncData("_musterPendingAfterCombat", ref _musterPendingAfterCombat);
+            _ = dataStore.SyncData("_musterPendingAfterMenu", ref _musterPendingAfterMenu);
 
             // Muster session state persistence for mid-muster save/load
             var hasMusterInProgress = _currentMuster != null;
-            dataStore.SyncData("_hasMusterInProgress", ref hasMusterInProgress);
+            _ = dataStore.SyncData("_hasMusterInProgress", ref hasMusterInProgress);
 
             if (dataStore.IsSaving)
             {
@@ -234,17 +231,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var highScrutiny = _currentMuster.HighScrutinyWarning;
                     var visitQM = _currentMuster.VisitQMAfter;
 
-                    dataStore.SyncData("_muster_currentStage", ref currentStage);
-                    dataStore.SyncData("_muster_musterDay", ref musterDay);
-                    dataStore.SyncData("_muster_lastMusterDay", ref lastMusterDay);
-                    dataStore.SyncData("_muster_strategicContext", ref strategicContext);
-                    dataStore.SyncData("_muster_payReceived", ref payReceived);
-                    dataStore.SyncData("_muster_payOutcome", ref payOutcome);
-                    dataStore.SyncData("_muster_promotionOccurred", ref promotionOccurred);
-                    dataStore.SyncData("_muster_previousTier", ref previousTier);
-                    dataStore.SyncData("_muster_currentTier", ref currentTier);
-                    dataStore.SyncData("_muster_highScrutiny", ref highScrutiny);
-                    dataStore.SyncData("_muster_visitQM", ref visitQM);
+                    _ = dataStore.SyncData("_muster_currentStage", ref currentStage);
+                    _ = dataStore.SyncData("_muster_musterDay", ref musterDay);
+                    _ = dataStore.SyncData("_muster_lastMusterDay", ref lastMusterDay);
+                    _ = dataStore.SyncData("_muster_strategicContext", ref strategicContext);
+                    _ = dataStore.SyncData("_muster_payReceived", ref payReceived);
+                    _ = dataStore.SyncData("_muster_payOutcome", ref payOutcome);
+                    _ = dataStore.SyncData("_muster_promotionOccurred", ref promotionOccurred);
+                    _ = dataStore.SyncData("_muster_previousTier", ref previousTier);
+                    _ = dataStore.SyncData("_muster_currentTier", ref currentTier);
+                    _ = dataStore.SyncData("_muster_highScrutiny", ref highScrutiny);
+                    _ = dataStore.SyncData("_muster_visitQM", ref visitQM);
 
                     ModLogger.Info(LogCategory, $"Saved muster state at stage {currentStage}");
                 }
@@ -268,17 +265,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         var highScrutiny = false;
                         var visitQM = false;
 
-                        dataStore.SyncData("_muster_currentStage", ref currentStage);
-                        dataStore.SyncData("_muster_musterDay", ref musterDay);
-                        dataStore.SyncData("_muster_lastMusterDay", ref lastMusterDay);
-                        dataStore.SyncData("_muster_strategicContext", ref strategicContext);
-                        dataStore.SyncData("_muster_payReceived", ref payReceived);
-                        dataStore.SyncData("_muster_payOutcome", ref payOutcome);
-                        dataStore.SyncData("_muster_promotionOccurred", ref promotionOccurred);
-                        dataStore.SyncData("_muster_previousTier", ref previousTier);
-                        dataStore.SyncData("_muster_currentTier", ref currentTier);
-                        dataStore.SyncData("_muster_highScrutiny", ref highScrutiny);
-                        dataStore.SyncData("_muster_visitQM", ref visitQM);
+                        _ = dataStore.SyncData("_muster_currentStage", ref currentStage);
+                        _ = dataStore.SyncData("_muster_musterDay", ref musterDay);
+                        _ = dataStore.SyncData("_muster_lastMusterDay", ref lastMusterDay);
+                        _ = dataStore.SyncData("_muster_strategicContext", ref strategicContext);
+                        _ = dataStore.SyncData("_muster_payReceived", ref payReceived);
+                        _ = dataStore.SyncData("_muster_payOutcome", ref payOutcome);
+                        _ = dataStore.SyncData("_muster_promotionOccurred", ref promotionOccurred);
+                        _ = dataStore.SyncData("_muster_previousTier", ref previousTier);
+                        _ = dataStore.SyncData("_muster_currentTier", ref currentTier);
+                        _ = dataStore.SyncData("_muster_highScrutiny", ref highScrutiny);
+                        _ = dataStore.SyncData("_muster_visitQM", ref visitQM);
 
                         // Validate restored state
                         if (string.IsNullOrEmpty(currentStage) || !IsValidMusterStage(currentStage))
@@ -442,7 +439,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     args.Tooltip = new TextObject("{=muster_pay_iou_tt}Accept delayed payment. Wages remain owed. Paid at next muster.");
                     var enlistment = EnlistmentBehavior.Instance;
-                    if (enlistment == null) return false;
+                    if (enlistment == null)
+                    {
+                        return false;
+                    }
 
                     // Only available when lord cannot afford to pay
                     var totalOwed = enlistment.PendingMusterPay + enlistment.OwedBackpay;
@@ -635,7 +635,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
-                    
+
                     var enlistment = EnlistmentBehavior.Instance;
                     if (enlistment == null || !enlistment.IsEnlisted)
                     {
@@ -654,27 +654,28 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // Show why they can't retire yet
                         var daysServed = (int)enlistment.DaysServed;
                         var daysRemaining = 252 - daysServed;
-                        
+
                         var tooltip = new TextObject("{=muster_complete_retire_blocked_tt}Retirement requires 252 days of service. You have served {DAYS_SERVED} days ({DAYS_REMAINING} days remaining).");
-                        tooltip.SetTextVariable("DAYS_SERVED", daysServed);
-                        tooltip.SetTextVariable("DAYS_REMAINING", daysRemaining);
+                        _ = tooltip.SetTextVariable("DAYS_SERVED", daysServed);
+                        _ = tooltip.SetTextVariable("DAYS_REMAINING", daysRemaining);
                         args.Tooltip = tooltip;
                         args.IsEnabled = false;
                         return true;
                     }
                 },
-                _ =>
+                args =>
                 {
                     var enlistment = EnlistmentBehavior.Instance;
                     if (enlistment != null && enlistment.IsEnlisted)
                     {
-                        enlistment.RequestDischarge();
-                        
+                        _ = args;
+                        _ = enlistment.RequestDischarge();
+
                         if (_currentMuster != null)
                         {
                             _currentMuster.PayOutcome = "final_discharge";
                         }
-                        
+
                         FinalizePendingDischarge();
                     }
                     else
@@ -690,7 +691,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
-                    
+
                     var enlistment = EnlistmentBehavior.Instance;
                     if (enlistment == null || !enlistment.IsEnlisted)
                     {
@@ -699,9 +700,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     // Calculate expected discharge band and show in tooltip
                     var daysServed = (int)enlistment.DaysServed;
-                    var negativeRelation = enlistment.CurrentLord != null && 
+                    var negativeRelation = enlistment.CurrentLord != null &&
                                           Hero.MainHero.GetRelation(enlistment.CurrentLord) < 0;
-                    
+
                     // Determine expected discharge band
                     string band;
                     if (negativeRelation)
@@ -720,18 +721,18 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         band = "washout";
                     }
-                    
+
                     // Set tooltip based on expected discharge band
                     var tooltipText = band switch
                     {
-                        "heroic" or "veteran" => 
+                        "heroic" or "veteran" =>
                             "{=muster_complete_discharge_veteran_tt}Honorable discharge. Receive severance (3000g) and pension. +30 relation with lord.",
-                        "honorable" => 
+                        "honorable" =>
                             "{=muster_complete_discharge_honorable_tt}Honorable discharge. Receive severance (3000g) and pension. +10 relation with lord.",
-                        _ => 
+                        _ =>
                             "{=muster_complete_discharge_washout_tt}Early discharge (washout). No severance or pension. -10 relation. Gear confiscated."
                     };
-                    
+
                     args.Tooltip = new TextObject(tooltipText);
                     return true;
                 },
@@ -1000,7 +1001,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 // Check for high scrutiny warning
                 var scrutiny = EscalationManager.Instance?.State?.Scrutiny ?? 0;
-                if (scrutiny >= Escalation.EscalationThresholds.ScrutinyShakedown)
+                if (scrutiny >= EscalationThresholds.ScrutinyShakedown)
                 {
                     _currentMuster.HighScrutinyWarning = true;
                     ModLogger.Debug(LogCategory, $"High scrutiny warning enabled (scrutiny={scrutiny})");
@@ -1142,7 +1143,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Clear muster session state but keep retry flags
             _currentMuster = null;
-            
+
             // Set deferred flag for hourly retry instead of daily retry.
             // This is critical for multi-day sieges where daily retry keeps failing.
             _musterPendingAfterMenu = true;
@@ -1187,42 +1188,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
         #region Menu Init Handlers
-
-        /// <summary>
-        /// Safely switches to another muster stage with error handling.
-        /// If transition fails, jumps to muster complete or aborts.
-        /// </summary>
-        private void SafeSwitchToMenu(string menuId)
-        {
-            try
-            {
-                ModLogger.Debug(LogCategory, $"Switching to menu: {menuId}");
-                GameMenu.SwitchToMenu(menuId);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("MUSTER", "Stage transition failed", ex,
-                    ctx: LogCtx.Of("TargetMenu", menuId));
-                _currentMuster?.EncounteredErrors.Add($"Stage transition failed: {menuId}");
-
-                // Try to jump to complete stage if not already there
-                if (menuId != MusterCompleteMenuId)
-                {
-                    try
-                    {
-                        GameMenu.SwitchToMenu(MusterCompleteMenuId);
-                    }
-                    catch
-                    {
-                        AbortMusterWithFallback($"Failed to switch to {menuId} and complete stage");
-                    }
-                }
-                else
-                {
-                    AbortMusterWithFallback($"Failed to switch to complete stage");
-                }
-            }
-        }
 
         /// <summary>
         /// Wraps effect application in try-catch, logging errors but continuing muster.
@@ -1324,20 +1289,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _currentMuster?.EncounteredErrors.Add("Intro text generation failed");
 
                 var sb = new StringBuilder();
-                sb.AppendLine("The sergeants call the muster. Your company assembles in formation.");
-                sb.AppendLine();
-                sb.AppendLine("_____ YOUR SERVICE RECORD _____");
-                sb.AppendLine();
+                _ = sb.AppendLine("The sergeants call the muster. Your company assembles in formation.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("_____ YOUR SERVICE RECORD _____");
+                _ = sb.AppendLine();
 
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment != null)
                 {
-                    sb.AppendLine($"Rank: {GetRankName(enlistment.EnlistmentTier)} (Tier {enlistment.EnlistmentTier})");
-                    sb.AppendLine($"Days Served: {enlistment.DaysServed} days");
+                    _ = sb.AppendLine($"Rank: {GetRankName(enlistment.EnlistmentTier)} (Tier {enlistment.EnlistmentTier})");
+                    _ = sb.AppendLine($"Days Served: {enlistment.DaysServed} days");
                 }
                 else
                 {
-                    sb.AppendLine("Service record unavailable.");
+                    _ = sb.AppendLine("Service record unavailable.");
                 }
 
                 return sb.ToString();
@@ -1364,20 +1329,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var wagesOwedLabel = new TextObject("{=muster_wages_owed}WAGES OWED").ToString();
                 var denarsText = new TextObject("{=muster_denars}denars").ToString();
                 var payUnavailable = new TextObject("{=muster_pay_unavailable}Pay records unavailable").ToString();
-                
-                sb.AppendLine(payIntro);
-                sb.AppendLine();
-                sb.AppendLine($"_____ {payStatusHeader} _____");
-                sb.AppendLine();
+
+                _ = sb.AppendLine(payIntro);
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"_____ {payStatusHeader} _____");
+                _ = sb.AppendLine();
 
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment != null)
                 {
-                    sb.AppendLine($"{wagesOwedLabel}: {enlistment.PendingMusterPay} {denarsText}");
+                    _ = sb.AppendLine($"{wagesOwedLabel}: {enlistment.PendingMusterPay} {denarsText}");
                 }
                 else
                 {
-                    sb.AppendLine($"{payUnavailable}.");
+                    _ = sb.AppendLine($"{payUnavailable}.");
                 }
 
                 return sb.ToString();
@@ -1443,30 +1408,30 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // High scrutiny warning
                 if (_currentMuster?.HighScrutinyWarning == true)
                 {
-                    sb.AppendLine();
-                    sb.AppendLine("[WARNING] You are under heightened scrutiny. Your actions are being watched closely.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("[WARNING] You are under heightened scrutiny. Your actions are being watched closely.");
                 }
 
                 // Effects partially failed warning
                 if (_currentMuster?.EffectsPartiallyFailed == true)
                 {
-                    sb.AppendLine();
-                    sb.AppendLine("[WARNING] Some effects may not have applied correctly.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("[WARNING] Some effects may not have applied correctly.");
                 }
 
                 // Discharge threshold warning
                 if (_currentMuster?.DischargeThresholdReached == true)
                 {
-                    sb.AppendLine();
-                    sb.AppendLine("[DISCIPLINARY NOTICE] Your conduct will be reviewed by command.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("[DISCIPLINARY NOTICE] Your conduct will be reviewed by command.");
                 }
 
                 // Supply crisis warning
                 var supply = CompanySupplyManager.Instance?.TotalSupply ?? 100;
                 if (supply < 20)
                 {
-                    sb.AppendLine();
-                    sb.AppendLine("[CRITICAL SUPPLY] Quartermaster has locked all baggage access.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("[CRITICAL SUPPLY] Quartermaster has locked all baggage access.");
                 }
 
                 return sb.ToString();
@@ -1477,20 +1442,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _currentMuster?.EncounteredErrors.Add("Complete text generation failed");
 
                 var sb = new StringBuilder();
-                sb.AppendLine("Muster is dismissed. The sergeants release the company.");
-                sb.AppendLine();
-                sb.AppendLine("_____ MUSTER OUTCOMES _____");
-                sb.AppendLine();
+                _ = sb.AppendLine("Muster is dismissed. The sergeants release the company.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("_____ MUSTER OUTCOMES _____");
+                _ = sb.AppendLine();
 
                 if (_currentMuster != null)
                 {
                     var payLabel = new TextObject("{=muster_status_pay}Pay").ToString();
-                    sb.AppendLine($"{payLabel}: {_currentMuster.PayOutcome ?? "unknown"}");
+                    _ = sb.AppendLine($"{payLabel}: {_currentMuster.PayOutcome ?? "unknown"}");
                 }
                 else
                 {
                     var detailsUnavailable = new TextObject("{=muster_details_unavailable}Details unavailable").ToString();
-                    sb.AppendLine($"{detailsUnavailable}.");
+                    _ = sb.AppendLine($"{detailsUnavailable}.");
                 }
 
                 return sb.ToString();
@@ -1866,7 +1831,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         try
                         {
-                            enlistment.RequestDischarge();
+                            _ = enlistment.RequestDischarge();
 
                             if (_currentMuster != null)
                             {
@@ -2059,28 +2024,28 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // Create MusterOutcomeRecord for news feed BEFORE OnMusterComplete resets tracking
                     if (_currentMuster != null)
                     {
-                        SafeApplyEffect("CreateMusterRecord", () => CreateMusterOutcomeRecord());
+                        _ = SafeApplyEffect("CreateMusterRecord", () => CreateMusterOutcomeRecord());
                     }
 
                     // Mark muster complete (updates tier/XP tracking, resets XP sources)
-                    SafeApplyEffect("MusterComplete", () => enlistment.OnMusterComplete());
+                    _ = SafeApplyEffect("MusterComplete", () => enlistment.OnMusterComplete());
 
                     // Invalidate opportunity cache so IsMusterDay recalculates
-                    SafeApplyEffect("InvalidateOpportunityCache", () =>
+                    _ = SafeApplyEffect("InvalidateOpportunityCache", () =>
                     {
                         Camp.CampOpportunityGenerator.Instance?.InvalidateCache();
                         ModLogger.Debug(LogCategory, "Opportunity cache invalidated after muster");
                     });
 
                     // Refresh quartermaster stock (with null safety)
-                    SafeApplyEffect("QMStockRefresh", () =>
+                    _ = SafeApplyEffect("QMStockRefresh", () =>
                     {
                         QuartermasterManager.Instance?.RollStockAvailability();
                         ModLogger.Debug(LogCategory, "QM stock availability refreshed");
                     });
 
                     // Mark newly unlocked items in case promotion occurred this period
-                    SafeApplyEffect("QMUnlockedItems", () =>
+                    _ = SafeApplyEffect("QMUnlockedItems", () =>
                     {
                         QuartermasterManager.Instance?.UpdateNewlyUnlockedItems();
                     });
@@ -2363,27 +2328,27 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Strategic context flavor text
             var flavorText = BuildStrategicContextFlavor();
-            sb.AppendLine(flavorText);
-            sb.AppendLine();
+            _ = sb.AppendLine(flavorText);
+            _ = sb.AppendLine();
 
             // Service record section
-            sb.AppendLine("<span style=\"Header\">_____ YOUR SERVICE RECORD _____</span>");
-            sb.AppendLine();
-            sb.Append(BuildServiceRecord());
-            sb.AppendLine();
+            _ = sb.AppendLine("<span style=\"Header\">_____ YOUR SERVICE RECORD _____</span>");
+            _ = sb.AppendLine();
+            _ = sb.Append(BuildServiceRecord());
+            _ = sb.AppendLine();
 
             // Events since last muster section (includes order outcomes)
             var eventsText = BuildPeriodSummary();
             if (!string.IsNullOrEmpty(eventsText))
             {
-                sb.AppendLine("<span style=\"Header\">_____ EVENTS SINCE LAST MUSTER _____</span>");
-                sb.AppendLine();
-                sb.Append(eventsText);
-                sb.AppendLine();
+                _ = sb.AppendLine("<span style=\"Header\">_____ EVENTS SINCE LAST MUSTER _____</span>");
+                _ = sb.AppendLine();
+                _ = sb.Append(eventsText);
+                _ = sb.AppendLine();
             }
 
             // Status line
-            sb.Append(BuildStatusLine());
+            _ = sb.Append(BuildStatusLine());
 
             return sb.ToString();
         }
@@ -2420,11 +2385,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Rank and tier
             var tier = enlistment.EnlistmentTier;
             var rankName = GetRankName(tier);
-            sb.AppendLine($"<span style=\"Label\">RANK:</span> {rankName} (Tier {tier})");
+            _ = sb.AppendLine($"<span style=\"Label\">RANK:</span> {rankName} (Tier {tier})");
 
             // Days served
             var daysServed = enlistment.DaysServed;
-            sb.AppendLine($"<span style=\"Label\">DAYS SERVED:</span> {Math.Round(daysServed)} days");
+            _ = sb.AppendLine($"<span style=\"Label\">DAYS SERVED:</span> {Math.Round(daysServed)} days");
 
             // XP progress
             var currentXP = enlistment.EnlistmentXP;
@@ -2434,33 +2399,33 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var percentage = (int)((currentXP / (float)xpNeeded) * 100);
                 var nextRankName = GetRankName(tier + 1);
                 var xpColor = percentage >= 75 ? "Success" : percentage >= 40 ? "Warning" : "Default";
-                sb.AppendLine($"<span style=\"Label\">EXPERIENCE:</span> <span style=\"{xpColor}\">{currentXP:N0} / {xpNeeded:N0} XP ({percentage}% to {nextRankName})</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">EXPERIENCE:</span> <span style=\"{xpColor}\">{currentXP:N0} / {xpNeeded:N0} XP ({percentage}% to {nextRankName})</span>");
             }
             else
             {
                 // Max tier reached
-                sb.AppendLine($"<span style=\"Label\">EXPERIENCE:</span> <span style=\"Success\">{currentXP:N0} XP (Maximum rank achieved)</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">EXPERIENCE:</span> <span style=\"Success\">{currentXP:N0} XP (Maximum rank achieved)</span>");
             }
 
             // Health status
             var healthText = BuildHealthStatus();
             if (!string.IsNullOrEmpty(healthText))
             {
-                sb.AppendLine(healthText);
+                _ = sb.AppendLine(healthText);
             }
 
             // Baggage access
             var baggageAccess = BaggageTrainManager.Instance?.GetCurrentAccess() ?? BaggageAccessState.FullAccess;
             var baggageText = GetBaggageAccessText(baggageAccess);
             var baggageColor = baggageAccess == BaggageAccessState.FullAccess ? "Success" : "Warning";
-            sb.AppendLine($"<span style=\"Label\">BAGGAGE ACCESS:</span> <span style=\"{baggageColor}\">{baggageText}</span> (muster window)");
+            _ = sb.AppendLine($"<span style=\"Label\">BAGGAGE ACCESS:</span> <span style=\"{baggageColor}\">{baggageText}</span> (muster window)");
 
             // Period XP gain
             var periodXP = currentXP - enlistment.XPAtLastMuster;
             if (periodXP > 0)
             {
-                sb.AppendLine();
-                sb.AppendLine($"<span style=\"Label\">THIS PERIOD:</span> <span style=\"Success\">+{periodXP} XP</span> (battles, training, orders completed)");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"<span style=\"Label\">THIS PERIOD:</span> <span style=\"Success\">+{periodXP} XP</span> (battles, training, orders completed)");
             }
 
 
@@ -2536,7 +2501,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         headline = headline.Substring(0, 77) + "...";
                     }
 
-                    sb.AppendLine($"• {headline}");
+                    _ = sb.AppendLine($"• {headline}");
                     count++;
                 }
             }
@@ -2567,7 +2532,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var supplyLabel = new TextObject("{=muster_status_supply}Supply").ToString();
             var battlesLabel = new TextObject("{=muster_status_battles}Battles").ToString();
             var denarsText = new TextObject("{=muster_denars}denars").ToString();
-            
+
             return $"[{payLabel}: {pay:N0} {denarsText} | {supplyLabel}: {supply}% | {battlesLabel}: {battles}]";
         }
 
@@ -2586,60 +2551,60 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var backpayLabel = new TextObject("{=muster_backpay_outstanding}BACKPAY OUTSTANDING").ToString();
             var lordTreasuryLabel = new TextObject("{=muster_lord_treasury}LORD'S TREASURY").ToString();
             var denarsText = new TextObject("{=muster_denars}denars").ToString();
-            
-            sb.AppendLine(payIntro);
-            sb.AppendLine();
-            sb.AppendLine($"<span style=\"Header\">_____ {payStatusHeader} _____</span>");
-            sb.AppendLine();
+
+            _ = sb.AppendLine(payIntro);
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"<span style=\"Header\">_____ {payStatusHeader} _____</span>");
+            _ = sb.AppendLine();
 
             // Wages owed
             var wages = enlistment.PendingMusterPay;
             var wagesColor = wages > 0 ? "Success" : "Default";
-            sb.AppendLine($"<span style=\"Label\">{wagesOwedLabel}:</span>           <span style=\"{wagesColor}\">{wages:N0} {denarsText}</span>");
+            _ = sb.AppendLine($"<span style=\"Label\">{wagesOwedLabel}:</span>           <span style=\"{wagesColor}\">{wages:N0} {denarsText}</span>");
 
             // Backpay outstanding
             var backpay = enlistment.OwedBackpay;
             if (backpay > 0)
             {
-                sb.AppendLine($"<span style=\"Label\">{backpayLabel}:</span>  <span style=\"Warning\">{backpay:N0} {denarsText}</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">{backpayLabel}:</span>  <span style=\"Warning\">{backpay:N0} {denarsText}</span>");
             }
 
             // Lord's treasury status
             var lordGold = enlistment.EnlistedLord?.Gold ?? 0;
             var wealthStatus = GetLordWealthStatus(lordGold);
             var wealthColor = lordGold > 20000 ? "Success" : lordGold > 5000 ? "Warning" : "Alert";
-            sb.AppendLine($"<span style=\"Label\">{lordTreasuryLabel}:</span>      <span style=\"{wealthColor}\">{wealthStatus}</span>");
+            _ = sb.AppendLine($"<span style=\"Label\">{lordTreasuryLabel}:</span>      <span style=\"{wealthColor}\">{wealthStatus}</span>");
 
             // Special status indicators
             if (enlistment.IsOnProbation)
             {
                 var probationText = new TextObject("{=muster_probation_rate}[Probation Rate] - Wages reduced 50%").ToString();
-                sb.AppendLine();
-                sb.AppendLine($"<span style=\"Warning\">{probationText}</span>");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"<span style=\"Warning\">{probationText}</span>");
             }
 
             if (enlistment.EnlistedLord?.PartyBelongedTo?.Army != null)
             {
-                sb.AppendLine();
-                sb.AppendLine("<span style=\"Success\">[Army Bonus] - Wages +20%</span>");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("<span style=\"Success\">[Army Bonus] - Wages +20%</span>");
             }
 
             if (enlistment.PayTension >= 100)
             {
-                sb.AppendLine();
-                sb.AppendLine("<span style=\"Alert\">[MUTINY RISK] - Pay tension at maximum!</span>");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("<span style=\"Alert\">[MUTINY RISK] - Pay tension at maximum!</span>");
             }
             else if (enlistment.PayTension >= 60)
             {
-                sb.AppendLine();
-                sb.AppendLine($"<span style=\"Warning\">[Pay Tension: {enlistment.PayTension}/100] (High)</span>");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"<span style=\"Warning\">[Pay Tension: {enlistment.PayTension}/100] (High)</span>");
             }
 
             // Pending discharge note
             if (enlistment.IsPendingDischarge)
             {
-                sb.AppendLine();
-                sb.AppendLine("<span style=\"Warning\">[Final Muster] - Discharge processing</span>");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("<span style=\"Warning\">[Final Muster] - Discharge processing</span>");
             }
 
             return sb.ToString();
@@ -2692,93 +2657,93 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var currentRank = GetRankName(_currentMuster.CurrentTier);
             var daysSincePromotion = _currentMuster.MusterDay - _currentMuster.PromotionDay;
 
-            sb.AppendLine("The captain addresses the formation. Your promotion is formally");
-            sb.AppendLine("recognized before the assembled company.");
-            sb.AppendLine();
+            _ = sb.AppendLine("The captain addresses the formation. Your promotion is formally");
+            _ = sb.AppendLine("recognized before the assembled company.");
+            _ = sb.AppendLine();
 
             // Promotion announcement text
             if (daysSincePromotion == 0)
             {
-                sb.AppendLine($"\"Earlier today, this soldier was promoted to {currentRank}");
-                sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
+                _ = sb.AppendLine($"\"Earlier today, this soldier was promoted to {currentRank}");
+                _ = sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
             }
             else if (daysSincePromotion == 1)
             {
-                sb.AppendLine($"\"Yesterday, this soldier was promoted to {currentRank}");
-                sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
+                _ = sb.AppendLine($"\"Yesterday, this soldier was promoted to {currentRank}");
+                _ = sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
             }
             else
             {
-                sb.AppendLine($"\"On Day {_currentMuster.PromotionDay} of this campaign, this soldier was promoted to {currentRank}");
-                sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
+                _ = sb.AppendLine($"\"On Day {_currentMuster.PromotionDay} of this campaign, this soldier was promoted to {currentRank}");
+                _ = sb.AppendLine("for distinguished service. The rank has been earned and noted.\"");
             }
 
-            sb.AppendLine();
-            sb.AppendLine("The men salute. Your promotion is now part of the official record.");
-            sb.AppendLine();
-            sb.AppendLine("_____ PROMOTION DETAILS _____");
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("The men salute. Your promotion is now part of the official record.");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("_____ PROMOTION DETAILS _____");
+            _ = sb.AppendLine();
 
             // Promotion details
-            sb.AppendLine($"Promoted From:       {prevRank} (Tier {_currentMuster.PreviousTier})");
-            sb.AppendLine($"Current Rank:        {currentRank} (Tier {_currentMuster.CurrentTier})");
+            _ = sb.AppendLine($"Promoted From:       {prevRank} (Tier {_currentMuster.PreviousTier})");
+            _ = sb.AppendLine($"Current Rank:        {currentRank} (Tier {_currentMuster.CurrentTier})");
 
             if (daysSincePromotion == 0)
             {
-                sb.AppendLine($"Date of Promotion:   Day {_currentMuster.PromotionDay} (earlier today)");
+                _ = sb.AppendLine($"Date of Promotion:   Day {_currentMuster.PromotionDay} (earlier today)");
             }
             else
             {
-                sb.AppendLine($"Date of Promotion:   Day {_currentMuster.PromotionDay} ({daysSincePromotion} days ago)");
+                _ = sb.AppendLine($"Date of Promotion:   Day {_currentMuster.PromotionDay} ({daysSincePromotion} days ago)");
             }
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
 
             // Benefits unlocked at promotion
-            sb.AppendLine("Benefits Unlocked at Promotion:");
+            _ = sb.AppendLine("Benefits Unlocked at Promotion:");
 
             // Wage increase
             var prevWage = CalculateTierWage(_currentMuster.PreviousTier);
             var currentWage = CalculateTierWage(_currentMuster.CurrentTier);
-            sb.AppendLine($"• Wages increased: {prevWage} → {currentWage} denars/day");
+            _ = sb.AppendLine($"• Wages increased: {prevWage} → {currentWage} denars/day");
 
             // Equipment tier access
-            sb.AppendLine($"• Tier {_currentMuster.CurrentTier} equipment available from Quartermaster");
+            _ = sb.AppendLine($"• Tier {_currentMuster.CurrentTier} equipment available from Quartermaster");
 
             // Authority changes
             var authority = GetTierAuthority(_currentMuster.CurrentTier);
             if (!string.IsNullOrEmpty(authority))
             {
-                sb.AppendLine($"• New authority: {authority}");
+                _ = sb.AppendLine($"• New authority: {authority}");
             }
 
             // Enhanced reputation gains (T4+)
             if (_currentMuster.CurrentTier >= 4 && _currentMuster.PreviousTier < 4)
             {
-                sb.AppendLine("• Enhanced reputation gains from successful orders");
+                _ = sb.AppendLine("• Enhanced reputation gains from successful orders");
             }
 
             // Special benefits for specific tiers
             if (_currentMuster.CurrentTier >= 7)
             {
-                sb.AppendLine("• Officer rations (exempt from standard ration exchange)");
-                sb.AppendLine("• Daily baggage access during campaign");
+                _ = sb.AppendLine("• Officer rations (exempt from standard ration exchange)");
+                _ = sb.AppendLine("• Daily baggage access during campaign");
             }
 
             if (_currentMuster.CurrentTier == 7)
             {
-                sb.AppendLine($"• Commander's retinue granted: {RetinueManager.CommanderCapacity1} soldiers");
+                _ = sb.AppendLine($"• Commander's retinue granted: {RetinueManager.CommanderCapacity1} soldiers");
             }
             else if (_currentMuster.CurrentTier == 8)
             {
-                sb.AppendLine($"• Retinue capacity expanded to {RetinueManager.CommanderCapacity2} soldiers");
+                _ = sb.AppendLine($"• Retinue capacity expanded to {RetinueManager.CommanderCapacity2} soldiers");
             }
             else if (_currentMuster.CurrentTier == 9)
             {
-                sb.AppendLine($"• Retinue capacity expanded to {RetinueManager.CommanderCapacity3} soldiers");
+                _ = sb.AppendLine($"• Retinue capacity expanded to {RetinueManager.CommanderCapacity3} soldiers");
             }
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
 
             // New abilities unlocked (camp decisions, etc.)
             // For multi-tier promotions (e.g., T5→T7), show abilities from all gained tiers
@@ -2790,12 +2755,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (abilities.Count > 0)
             {
-                sb.AppendLine("New Abilities Unlocked:");
+                _ = sb.AppendLine("New Abilities Unlocked:");
                 foreach (var ability in abilities)
                 {
-                    sb.AppendLine($"• {ability}");
+                    _ = sb.AppendLine($"• {ability}");
                 }
-                sb.AppendLine();
+                _ = sb.AppendLine();
             }
 
             // Current XP progress to next rank
@@ -2812,26 +2777,26 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var xpToNext = nextTierThreshold - currentTierThreshold;
                 var percentage = xpToNext > 0 ? (int)((xpProgress / (float)xpToNext) * 100) : 0;
                 var nextRank = GetRankName(_currentMuster.CurrentTier + 1);
-                sb.AppendLine($"Current XP Progress: {xpProgress:N0} / {xpToNext:N0} XP to {nextRank} ({percentage}%)");
+                _ = sb.AppendLine($"Current XP Progress: {xpProgress:N0} / {xpToNext:N0} XP to {nextRank} ({percentage}%)");
             }
             else
             {
                 // Max tier reached
-                sb.AppendLine("Current XP Progress: Maximum rank achieved");
-                sb.AppendLine();
-                sb.AppendLine("You have reached the pinnacle of military service. No further");
-                sb.AppendLine("promotion is possible—your place in history is secured.");
+                _ = sb.AppendLine("Current XP Progress: Maximum rank achieved");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("You have reached the pinnacle of military service. No further");
+                _ = sb.AppendLine("promotion is possible—your place in history is secured.");
             }
 
-            sb.AppendLine();
-            sb.AppendLine("The promotion proving event occurred when you earned it. This is a");
-            sb.AppendLine("formal acknowledgment for your service record.");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("The promotion proving event occurred when you earned it. This is a");
+            _ = sb.AppendLine("formal acknowledgment for your service record.");
 
             // Reminder about visiting QM if new equipment available
             if (_currentMuster.CurrentTier < 9) // Not at max tier
             {
-                sb.AppendLine();
-                sb.AppendLine("Visit the Quartermaster to review newly unlocked equipment.");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Visit the Quartermaster to review newly unlocked equipment.");
             }
 
             return sb.ToString();
@@ -2921,7 +2886,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (retinueMgr == null || enlistment == null)
             {
-                sb.AppendLine("[Retinue system unavailable]");
+                _ = sb.AppendLine("[Retinue system unavailable]");
                 ModLogger.Warn(LogCategory, "BuildRetinueText: RetinueManager or EnlistmentBehavior unavailable");
                 return sb.ToString();
             }
@@ -2932,28 +2897,28 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Edge case: Just promoted to T7 but haven't formed retinue yet
                 if (enlistment.EnlistmentTier == 7)
                 {
-                    sb.AppendLine("You have been granted the authority to command a personal retinue.");
-                    sb.AppendLine();
-                    sb.AppendLine($"Retinue Capacity: 0 / {RetinueManager.CommanderCapacity1} soldiers");
-                    sb.AppendLine();
-                    sb.AppendLine("Visit your lord to select your retinue type and begin recruitment.");
+                    _ = sb.AppendLine("You have been granted the authority to command a personal retinue.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine($"Retinue Capacity: 0 / {RetinueManager.CommanderCapacity1} soldiers");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("Visit your lord to select your retinue type and begin recruitment.");
                 }
                 else
                 {
-                    sb.AppendLine("Your retinue has been lost. All soldiers have fallen.");
-                    sb.AppendLine();
-                    sb.AppendLine("Visit your lord to rebuild your retinue when ready.");
+                    _ = sb.AppendLine("Your retinue has been lost. All soldiers have fallen.");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine("Visit your lord to rebuild your retinue when ready.");
                 }
 
                 return sb.ToString();
             }
 
             // Standard retinue muster display
-            sb.AppendLine("Your soldiers form up for inspection. You walk the line, checking");
-            sb.AppendLine("each man's gear and bearing. They salute as you pass.");
-            sb.AppendLine();
-            sb.AppendLine("_____ RETINUE STRENGTH _____");
-            sb.AppendLine();
+            _ = sb.AppendLine("Your soldiers form up for inspection. You walk the line, checking");
+            _ = sb.AppendLine("each man's gear and bearing. They salute as you pass.");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("_____ RETINUE STRENGTH _____");
+            _ = sb.AppendLine();
 
             // Current strength vs capacity
             var capacity = RetinueManager.GetTierCapacity(enlistment.EnlistmentTier);
@@ -2965,25 +2930,25 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _currentMuster.RetinueCapacity = capacity;
             }
 
-            sb.AppendLine($"Current Strength:    {current} / {capacity} soldiers");
+            _ = sb.AppendLine($"Current Strength:    {current} / {capacity} soldiers");
 
             // Morale (based on RetinueLoyalty)
             var loyalty = state.RetinueLoyalty;
             var moraleDesc = GetMoraleDescription(loyalty);
             var moraleColor = loyalty < 50 ? "⚠️" : "";
-            sb.AppendLine($"Morale:              {moraleColor}{moraleDesc} ({loyalty})");
+            _ = sb.AppendLine($"Morale:              {moraleColor}{moraleDesc} ({loyalty})");
 
             // Equipment status (simplified for now)
             var equipmentStatus = GetEquipmentStatus(state);
-            sb.AppendLine($"Equipment:           {equipmentStatus}");
+            _ = sb.AppendLine($"Equipment:           {equipmentStatus}");
 
             // Experience (based on battles participated)
             var expDesc = GetExperienceDescription(state.BattlesParticipated);
-            sb.AppendLine($"Experience:          {expDesc} ({state.BattlesParticipated} battles)");
+            _ = sb.AppendLine($"Experience:          {expDesc} ({state.BattlesParticipated} battles)");
 
-            sb.AppendLine();
-            sb.AppendLine("_____ THIS PERIOD _____");
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("_____ THIS PERIOD _____");
+            _ = sb.AppendLine();
 
             // Query casualties from news feed
             var newsBehavior = EnlistedNewsBehavior.Instance;
@@ -3066,29 +3031,29 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     casualtyParts.Add($"{wounded} wounded");
                 }
-                sb.AppendLine($"Casualties:          {string.Join(", ", casualtyParts)}");
-                sb.AppendLine($"Recruits Added:      0");
-                sb.AppendLine($"Desertions:          0");
+                _ = sb.AppendLine($"Casualties:          {string.Join(", ", casualtyParts)}");
+                _ = sb.AppendLine($"Recruits Added:      0");
+                _ = sb.AppendLine($"Desertions:          0");
             }
             else
             {
-                sb.AppendLine("Casualties:          None");
-                sb.AppendLine($"Recruits Added:      0");
-                sb.AppendLine($"Desertions:          0");
-                sb.AppendLine();
-                sb.AppendLine("Your retinue stands ready. No losses this period.");
+                _ = sb.AppendLine("Casualties:          None");
+                _ = sb.AppendLine($"Recruits Added:      0");
+                _ = sb.AppendLine($"Desertions:          0");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Your retinue stands ready. No losses this period.");
             }
 
             // Show fallen soldiers with names
             if (fallenNames.Count > 0)
             {
-                sb.AppendLine();
-                sb.AppendLine("_____ FALLEN THIS PERIOD _____");
-                sb.AppendLine();
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("_____ FALLEN THIS PERIOD _____");
+                _ = sb.AppendLine();
 
                 foreach (var name in fallenNames)
                 {
-                    sb.AppendLine($"• {name} - Killed in battle");
+                    _ = sb.AppendLine($"• {name} - Killed in battle");
                 }
             }
 
@@ -3096,8 +3061,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var openings = capacity - current;
             if (openings > 0)
             {
-                sb.AppendLine();
-                sb.AppendLine($"[{openings} recruitment slot{(openings == 1 ? "" : "s")} available]");
+                _ = sb.AppendLine();
+                _ = sb.AppendLine($"[{openings} recruitment slot{(openings == 1 ? "" : "s")} available]");
             }
 
             return sb.ToString();
@@ -3153,36 +3118,36 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private string BuildMusterCompleteText()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("Muster is dismissed. The sergeants release the company.");
-            sb.AppendLine();
+            _ = sb.AppendLine("Muster is dismissed. The sergeants release the company.");
+            _ = sb.AppendLine();
 
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null || _currentMuster == null)
             {
-                sb.AppendLine("[Muster data unavailable]");
+                _ = sb.AppendLine("[Muster data unavailable]");
                 return sb.ToString();
             }
 
             // Section 1: Muster Outcomes
-            sb.AppendLine("<span style=\"Header\">_____ MUSTER OUTCOMES _____</span>");
-            sb.AppendLine();
+            _ = sb.AppendLine("<span style=\"Header\">_____ MUSTER OUTCOMES _____</span>");
+            _ = sb.AppendLine();
 
             BuildMusterOutcomesSection(sb, enlistment);
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
 
             // Section 2: Rank & Progression
-            sb.AppendLine("<span style=\"Header\">_____ RANK & PROGRESSION _____</span>");
-            sb.AppendLine();
+            _ = sb.AppendLine("<span style=\"Header\">_____ RANK & PROGRESSION _____</span>");
+            _ = sb.AppendLine();
 
             BuildRankProgressionSection(sb, enlistment);
 
-            sb.AppendLine();
+            _ = sb.AppendLine();
 
             // Section 3: Period Summary
             var periodDays = _currentMuster.MusterDay - _currentMuster.LastMusterDay;
-            sb.AppendLine($"<span style=\"Header\">_____ PERIOD SUMMARY ({periodDays} Days) _____</span>");
-            sb.AppendLine();
+            _ = sb.AppendLine($"<span style=\"Header\">_____ PERIOD SUMMARY ({periodDays} Days) _____</span>");
+            _ = sb.AppendLine();
 
             BuildPeriodSummarySection(sb, enlistment);
 
@@ -3204,7 +3169,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _ => "Unknown"
             };
             var payColor = _currentMuster.PayOutcome == "full" ? "Success" : _currentMuster.PayOutcome == "iou" ? "Alert" : "Warning";
-            sb.AppendLine($"<span style=\"Label\">PAY RECEIVED:</span>         <span style=\"{payColor}\">{payAmount} denars ({payType})</span>");
+            _ = sb.AppendLine($"<span style=\"Label\">PAY RECEIVED:</span>         <span style=\"{payColor}\">{payAmount} denars ({payType})</span>");
 
             // QM Deal Equipment (if applicable)
             if (_currentMuster.PayOutcome != null && _currentMuster.PayOutcome.StartsWith("qm_deal_success:"))
@@ -3215,7 +3180,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var itemId = parts[2];
                     var item = MBObjectManager.Instance.GetObject<ItemObject>(itemId);
                     var itemName = item?.Name?.ToString() ?? itemId;
-                    sb.AppendLine($"<span style=\"Label\">QM DEAL ITEM:</span>         <span style=\"Success\">{itemName}</span>");
+                    _ = sb.AppendLine($"<span style=\"Label\">QM DEAL ITEM:</span>         <span style=\"Success\">{itemName}</span>");
                 }
             }
 
@@ -3228,13 +3193,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _ => "Not processed"
             };
             var rationColor = _currentMuster.RationOutcome == "issued" ? "Success" : _currentMuster.RationOutcome == "none" ? "Alert" : "Default";
-            sb.AppendLine($"<span style=\"Label\">RATION ISSUED:</span>        <span style=\"{rationColor}\">{rationText}</span>");
+            _ = sb.AppendLine($"<span style=\"Label\">RATION ISSUED:</span>        <span style=\"{rationColor}\">{rationText}</span>");
 
             // Supply Status - use CompanyNeeds for proper fallback handling
             var supplyPct = EnlistmentBehavior.Instance?.CompanyNeeds?.Supplies ?? 60;
             var supplyStatus = supplyPct >= 50 ? "Adequate" : supplyPct >= 20 ? "Low" : "Critical";
             var supplyColor = supplyPct >= 50 ? "Success" : supplyPct >= 20 ? "Warning" : "Alert";
-            sb.AppendLine($"<span style=\"Label\">SUPPLY STATUS:</span>        <span style=\"{supplyColor}\">{supplyPct}% - {supplyStatus} condition</span>");
+            _ = sb.AppendLine($"<span style=\"Label\">SUPPLY STATUS:</span>        <span style=\"{supplyColor}\">{supplyPct}% - {supplyStatus} condition</span>");
         }
 
         private void BuildRankProgressionSection(StringBuilder sb, EnlistmentBehavior enlistment)
@@ -3242,7 +3207,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var currentTier = enlistment.EnlistmentTier;
             var rankName = enlistment.GetRankName(currentTier) ?? $"Tier {currentTier}";
 
-            sb.AppendLine($"<span style=\"Label\">CURRENT RANK:</span>         {rankName} (Tier {currentTier})");
+            _ = sb.AppendLine($"<span style=\"Label\">CURRENT RANK:</span>         {rankName} (Tier {currentTier})");
 
             // XP this period - calculate from current XP minus XP at last muster
             var currentXP = enlistment.EnlistmentXP;
@@ -3255,22 +3220,22 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (currentTier >= 9)
             {
-                sb.AppendLine($"<span style=\"Label\">XP THIS PERIOD:</span>       <span style=\"Success\">+{xpThisPeriod} XP</span>");
-                sb.AppendLine($"<span style=\"Label\">TOTAL EXPERIENCE:</span>     <span style=\"Success\">{currentXP} XP (Maximum Rank)</span>");
-                sb.AppendLine($"<span style=\"Label\">STATUS:</span>               <span style=\"Success\">Pinnacle of military service reached</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">XP THIS PERIOD:</span>       <span style=\"Success\">+{xpThisPeriod} XP</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">TOTAL EXPERIENCE:</span>     <span style=\"Success\">{currentXP} XP (Maximum Rank)</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">STATUS:</span>               <span style=\"Success\">Pinnacle of military service reached</span>");
             }
             else
             {
                 var xpPercent = xpForNextRank > 0 ? (int)((float)xpThisPeriod / (xpForNextRank - xpAtLastMuster) * 100) : 0;
                 var xpPeriodColor = xpThisPeriod > 0 ? "Success" : "Default";
-                sb.AppendLine($"<span style=\"Label\">XP THIS PERIOD:</span>       <span style=\"{xpPeriodColor}\">+{xpThisPeriod} XP ({xpPercent}%)</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">XP THIS PERIOD:</span>       <span style=\"{xpPeriodColor}\">+{xpThisPeriod} XP ({xpPercent}%)</span>");
 
                 var nextRankName = enlistment.GetRankName(currentTier + 1) ?? $"Tier {currentTier + 1}";
                 var progressPercent = xpForNextRank > 0 ? (int)((float)currentXP / xpForNextRank * 100) : 0;
                 var xpNeeded = Math.Max(0, xpForNextRank - currentXP);
 
                 var progressColor = progressPercent >= 75 ? "Success" : progressPercent >= 40 ? "Warning" : "Default";
-                sb.AppendLine($"<span style=\"Label\">TOTAL EXPERIENCE:</span>     <span style=\"{progressColor}\">{currentXP} / {xpForNextRank} XP to {nextRankName} ({progressPercent}%)</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">TOTAL EXPERIENCE:</span>     <span style=\"{progressColor}\">{currentXP} / {xpForNextRank} XP to {nextRankName} ({progressPercent}%)</span>");
 
                 // Estimate days to promotion based on XP rate
                 var periodDays = Math.Max(1, _currentMuster.MusterDay - _currentMuster.LastMusterDay);
@@ -3282,8 +3247,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             // XP Sources breakdown
-            sb.AppendLine();
-            sb.AppendLine("<span style=\"Label\">XP SOURCES THIS PERIOD:</span>");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("<span style=\"Label\">XP SOURCES THIS PERIOD:</span>");
 
             var xpSources = enlistment.GetXPSourcesThisPeriod();
             if (xpSources != null && xpSources.Count > 0)
@@ -3292,13 +3257,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 foreach (var source in topSources)
                 {
                     var sourceName = FormatXPSourceName(source.Key);
-                    sb.AppendLine($"• {sourceName}: <span style=\"Success\">+{source.Value} XP</span>");
+                    _ = sb.AppendLine($"• {sourceName}: <span style=\"Success\">+{source.Value} XP</span>");
                 }
             }
             else
             {
                 // Fallback: all XP from daily service
-                sb.AppendLine($"• Daily service: <span style=\"Success\">+{xpThisPeriod} XP</span>");
+                _ = sb.AppendLine($"• Daily service: <span style=\"Success\">+{xpThisPeriod} XP</span>");
             }
         }
 
@@ -3331,57 +3296,57 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var allReady = xpReady && daysReady && battlesReady && leaderRelReady && scrutinyReady;
 
             // Build the section
-            sb.AppendLine();
-            sb.AppendLine($"<span style=\"Header\">_____ NEXT RANK: {nextRankName.ToUpperInvariant()} (T{targetTier}) _____</span>");
-            sb.AppendLine();
+            _ = sb.AppendLine();
+            _ = sb.AppendLine($"<span style=\"Header\">_____ NEXT RANK: {nextRankName.ToUpperInvariant()} (T{targetTier}) _____</span>");
+            _ = sb.AppendLine();
 
             // Estimate display
             if (allReady)
             {
-                sb.AppendLine($"<span style=\"Label\">STATUS:</span>               <span style=\"Success\">All requirements met - promotion imminent!</span>");
+                _ = sb.AppendLine($"<span style=\"Label\">STATUS:</span>               <span style=\"Success\">All requirements met - promotion imminent!</span>");
             }
             else
             {
-                sb.AppendLine($"<span style=\"Label\">ESTIMATED:</span>            ~{estimatedDays} days at current pace");
+                _ = sb.AppendLine($"<span style=\"Label\">ESTIMATED:</span>            ~{estimatedDays} days at current pace");
             }
 
-            sb.AppendLine();
-            sb.AppendLine("<span style=\"Label\">REQUIREMENTS:</span>");
+            _ = sb.AppendLine();
+            _ = sb.AppendLine("<span style=\"Label\">REQUIREMENTS:</span>");
 
             // Experience
             var xpIcon = xpReady ? "✓" : "✗";
             var xpColor = xpReady ? "Success" : "Alert";
             var xpStatus = xpReady ? "(Ready)" : $"(Need +{requiredXp - currentXp})";
-            sb.AppendLine($"  <span style=\"{xpColor}\">{xpIcon}</span> Experience:      {currentXp:N0}/{requiredXp:N0} XP {xpStatus}");
+            _ = sb.AppendLine($"  <span style=\"{xpColor}\">{xpIcon}</span> Experience:      {currentXp:N0}/{requiredXp:N0} XP {xpStatus}");
 
             // Days in Rank
             var daysIcon = daysReady ? "✓" : "✗";
             var daysColor = daysReady ? "Success" : "Alert";
             var daysStatus = daysReady ? "(Ready)" : $"(Need +{req.DaysInRank - daysInRank} days)";
-            sb.AppendLine($"  <span style=\"{daysColor}\">{daysIcon}</span> Time in Rank:    {daysInRank}/{req.DaysInRank} days {daysStatus}");
+            _ = sb.AppendLine($"  <span style=\"{daysColor}\">{daysIcon}</span> Time in Rank:    {daysInRank}/{req.DaysInRank} days {daysStatus}");
 
             // Battles
             var battlesIcon = battlesReady ? "✓" : "✗";
             var battlesColor = battlesReady ? "Success" : "Alert";
             var battlesStatus = battlesReady ? "(Ready)" : $"(Need +{req.BattlesRequired - battles})";
-            sb.AppendLine($"  <span style=\"{battlesColor}\">{battlesIcon}</span> Battles Fought:  {battles}/{req.BattlesRequired} battles {battlesStatus}");
+            _ = sb.AppendLine($"  <span style=\"{battlesColor}\">{battlesIcon}</span> Battles Fought:  {battles}/{req.BattlesRequired} battles {battlesStatus}");
 
             // Leader Relation
             var leaderIcon = leaderRelReady ? "✓" : "✗";
             var leaderColor = leaderRelReady ? "Success" : "Alert";
             var leaderStatus = leaderRelReady ? "(Ready)" : $"(Need +{req.MinLeaderRelation - leaderRelation})";
-            sb.AppendLine($"  <span style=\"{leaderColor}\">{leaderIcon}</span> Leader Relation: {leaderRelation}/{req.MinLeaderRelation} {leaderStatus}");
+            _ = sb.AppendLine($"  <span style=\"{leaderColor}\">{leaderIcon}</span> Leader Relation: {leaderRelation}/{req.MinLeaderRelation} {leaderStatus}");
 
             // Scrutiny (lower is better, 0-100 scale)
             var scrutIcon = scrutinyReady ? "✓" : "✗";
             var scrutColor = scrutinyReady ? "Success" : "Alert";
             var scrutStatus = scrutinyReady ? "(Safe)" : "(Too high!)";
-            sb.AppendLine($"  <span style=\"{scrutColor}\">{scrutIcon}</span> Scrutiny:       {scrutiny}/{req.MaxScrutiny} max {scrutStatus}");
+            _ = sb.AppendLine($"  <span style=\"{scrutColor}\">{scrutIcon}</span> Scrutiny:       {scrutiny}/{req.MaxScrutiny} max {scrutStatus}");
 
             // Show blocker advice if not ready
             if (!allReady)
             {
-                sb.AppendLine();
+                _ = sb.AppendLine();
                 var blockers = new List<string>();
 
                 if (!xpReady)
@@ -3405,7 +3370,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     blockers.Add("Reduce scrutiny through good behavior and loyalty");
                 }
 
-                sb.AppendLine($"<span style=\"Warning\">BLOCKERS:</span> {string.Join("; ", blockers)}.");
+                _ = sb.AppendLine($"<span style=\"Warning\">BLOCKERS:</span> {string.Join("; ", blockers)}.");
             }
         }
 
@@ -3414,18 +3379,18 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Net Gold
             var goldGained = _currentMuster.PayReceived;
             var goldColor = goldGained > 0 ? "Success" : "Default";
-            sb.AppendLine($"<span style=\"Label\">NET GOLD:</span>            <span style=\"{goldColor}\">+{goldGained:N0} denars</span> ({goldGained} pay)");
+            _ = sb.AppendLine($"<span style=\"Label\">NET GOLD:</span>            <span style=\"{goldColor}\">+{goldGained:N0} denars</span> ({goldGained} pay)");
 
             // Reputation Changes
             // Note: We don't track reputation changes across the period currently,
             // so this is a placeholder for future enhancement
-            sb.AppendLine($"<span style=\"Label\">REPUTATION CHANGES:</span>  [Tracked in future update]");
+            _ = sb.AppendLine($"<span style=\"Label\">REPUTATION CHANGES:</span>  [Tracked in future update]");
 
             // Skills Improved
-            sb.AppendLine($"<span style=\"Label\">SKILLS IMPROVED:</span>     [Tracked in future update]");
+            _ = sb.AppendLine($"<span style=\"Label\">SKILLS IMPROVED:</span>     [Tracked in future update]");
 
             // Items Acquired
-            sb.AppendLine($"<span style=\"Label\">ITEMS ACQUIRED:</span>      [Tracked in future update]");
+            _ = sb.AppendLine($"<span style=\"Label\">ITEMS ACQUIRED:</span>      [Tracked in future update]");
 
             // Unit Status
             var currentTier = enlistment.EnlistmentTier;
@@ -3436,17 +3401,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
             if (currentTier >= 7 && retinueCount > 0)
             {
                 var casualtyColor = casualties == 0 ? "Success" : casualties < 5 ? "Warning" : "Alert";
-                sb.AppendLine($"<span style=\"Label\">UNIT STATUS:</span>         <span style=\"{casualtyColor}\">{casualties} casualties</span>, morale {moraleText}");
+                _ = sb.AppendLine($"<span style=\"Label\">UNIT STATUS:</span>         <span style=\"{casualtyColor}\">{casualties} casualties</span>, morale {moraleText}");
             }
             else
             {
-                sb.AppendLine($"<span style=\"Label\">UNIT STATUS:</span>         [No retinue under command]");
+                _ = sb.AppendLine($"<span style=\"Label\">UNIT STATUS:</span>         [No retinue under command]");
             }
 
             // Next Muster
             var paydayInterval = Mod.Core.Config.ConfigurationManager.LoadFinanceConfig()?.PaydayIntervalDays ?? 12;
             var nextMusterDay = _currentMuster.MusterDay + paydayInterval;
-            sb.AppendLine($"<span style=\"Label\">NEXT MUSTER:</span>         Day {nextMusterDay} ({paydayInterval} days)");
+            _ = sb.AppendLine($"<span style=\"Label\">NEXT MUSTER:</span>         Day {nextMusterDay} ({paydayInterval} days)");
         }
 
         private string GetRationItemName(EnlistmentBehavior enlistment)
@@ -3622,7 +3587,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// </summary>
         private void ShowDischargeOutcome(string dischargeBand, bool isRetirement, int daysServed, int pensionPerDay)
         {
-            var config = Enlisted.Mod.Core.Config.ConfigurationManager.LoadRetirementConfig();
+            var config = Mod.Core.Config.ConfigurationManager.LoadRetirementConfig();
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null)
             {
@@ -3631,7 +3596,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Determine discharge type text
             var dischargeType = isRetirement ? "Retirement" : "Discharge";
-            
+
             // Determine band description and rewards
             string bandText;
             string rewardsText;
@@ -3649,7 +3614,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     InformationManager.DisplayMessage(new InformationMessage($"{dischargeType} Complete: {bandText}", new Color(0.2f, 0.8f, 0.2f)));
                     InformationManager.DisplayMessage(new InformationMessage(rewardsText, new Color(0.8f, 0.8f, 0.2f)));
                     break;
-                
+
                 case "honorable":
                     bandText = "HONORABLE";
                     severance = config?.SeveranceHonorable ?? 3000;
@@ -3658,7 +3623,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     InformationManager.DisplayMessage(new InformationMessage($"{dischargeType} Complete: {bandText}", new Color(0.2f, 0.8f, 0.2f)));
                     InformationManager.DisplayMessage(new InformationMessage(rewardsText, new Color(0.8f, 0.8f, 0.2f)));
                     break;
-                
+
                 default: // washout
                     bandText = "WASHOUT";
                     InformationManager.DisplayMessage(new InformationMessage($"Discharge Complete: {bandText}", new Color(0.8f, 0.3f, 0.2f)));

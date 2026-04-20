@@ -1,7 +1,7 @@
-﻿using System;
-using TaleWorlds.CampaignSystem;
+using System;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Mod.Core.TimeControl
 {

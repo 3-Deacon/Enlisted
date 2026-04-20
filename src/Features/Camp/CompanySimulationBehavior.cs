@@ -9,7 +9,6 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.SaveSystem;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
@@ -74,11 +73,11 @@ namespace Enlisted.Features.Camp
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("sim_sickCount", ref _sickCount);
-                dataStore.SyncData("sim_missingCount", ref _missingCount);
-                dataStore.SyncData("sim_deadThisCampaign", ref _deadThisCampaign);
-                dataStore.SyncData("sim_lastTickWounded", ref _lastTickWounded);
-                dataStore.SyncData("sim_lastProcessedDay", ref _lastProcessedDay);
+                _ = dataStore.SyncData("sim_sickCount", ref _sickCount);
+                _ = dataStore.SyncData("sim_missingCount", ref _missingCount);
+                _ = dataStore.SyncData("sim_deadThisCampaign", ref _deadThisCampaign);
+                _ = dataStore.SyncData("sim_lastTickWounded", ref _lastTickWounded);
+                _ = dataStore.SyncData("sim_lastProcessedDay", ref _lastProcessedDay);
 
                 // Pressure tracking
                 int daysLowSupplies = _pressure?.DaysLowSupplies ?? 0;
@@ -89,12 +88,12 @@ namespace Enlisted.Features.Camp
                 int daysLowMorale = 0;
                 int daysLowRest = 0;
 
-                dataStore.SyncData("sim_daysLowSupplies", ref daysLowSupplies);
-                dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale); // Discarded
-                dataStore.SyncData("sim_daysLowRest", ref daysLowRest); // Discarded (Rest removed 2026-01-11)
-                dataStore.SyncData("sim_daysLowDiscipline", ref daysLowDiscipline);
-                dataStore.SyncData("sim_recentDesertions", ref recentDesertions);
-                dataStore.SyncData("sim_daysHighSickness", ref daysHighSickness);
+                _ = dataStore.SyncData("sim_daysLowSupplies", ref daysLowSupplies);
+                _ = dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale); // Discarded
+                _ = dataStore.SyncData("sim_daysLowRest", ref daysLowRest); // Discarded (Rest removed 2026-01-11)
+                _ = dataStore.SyncData("sim_daysLowDiscipline", ref daysLowDiscipline);
+                _ = dataStore.SyncData("sim_recentDesertions", ref recentDesertions);
+                _ = dataStore.SyncData("sim_daysHighSickness", ref daysHighSickness);
 
                 _pressure ??= new CompanyPressure();
                 _pressure.DaysLowSupplies = daysLowSupplies;
@@ -105,7 +104,7 @@ namespace Enlisted.Features.Camp
 
                 // Active flags as comma-separated string
                 string flagsStr = _activeFlags != null ? string.Join(",", _activeFlags) : "";
-                dataStore.SyncData("sim_activeFlags", ref flagsStr);
+                _ = dataStore.SyncData("sim_activeFlags", ref flagsStr);
                 _activeFlags = string.IsNullOrEmpty(flagsStr)
                     ? new HashSet<string>()
                     : new HashSet<string>(flagsStr.Split(','));
@@ -114,7 +113,7 @@ namespace Enlisted.Features.Camp
                 string cooldownsStr = _incidentCooldowns != null
                     ? string.Join(",", _incidentCooldowns.Select(kvp => $"{kvp.Key}:{kvp.Value}"))
                     : "";
-                dataStore.SyncData("sim_incidentCooldowns", ref cooldownsStr);
+                _ = dataStore.SyncData("sim_incidentCooldowns", ref cooldownsStr);
                 _incidentCooldowns = new Dictionary<string, int>();
                 if (!string.IsNullOrEmpty(cooldownsStr))
                 {
@@ -214,7 +213,7 @@ namespace Enlisted.Features.Camp
             var result = new SimulationDayResult();
 
             // Phase 1: Consumption (handled by existing CompanyNeedsManager)
-            ProcessConsumption(result);
+            ProcessConsumption();
 
             // Phase 2: Roster Updates (recovery, healing)
             ProcessRosterRecovery(result, party);
@@ -301,7 +300,7 @@ namespace Enlisted.Features.Camp
         }
 
         /// <summary>Phase 1: Consumption effects are tracked via existing CompanyNeedsManager.</summary>
-        private void ProcessConsumption(SimulationDayResult result)
+        private void ProcessConsumption()
         {
             // Company needs degradation is handled by CompanyNeedsManager.ProcessDailyDegradation
             // We just read the current values for threshold tracking
@@ -339,10 +338,20 @@ namespace Enlisted.Features.Camp
                     var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
                     if (needs != null)
                     {
-                        if (needs.Supplies > 70) recoveryChance += 0.05f;
-                        if (needs.Supplies < 30) recoveryChance -= 0.10f;
+                        if (needs.Supplies > 70)
+                        {
+                            recoveryChance += 0.05f;
+                        }
 
-                        if (needs.Supplies < 20) deathChance += 0.02f;
+                        if (needs.Supplies < 30)
+                        {
+                            recoveryChance -= 0.10f;
+                        }
+
+                        if (needs.Supplies < 20)
+                        {
+                            deathChance += 0.02f;
+                        }
                     }
 
                     float roll = MBRandom.RandomFloat;
@@ -426,7 +435,10 @@ namespace Enlisted.Features.Camp
 
             // Apply modifiers
             bool isMarching = party.IsMoving && party.CurrentSettlement == null;
-            if (isMarching) newInjured = (int)(newInjured * 1.3f);
+            if (isMarching)
+            {
+                newInjured = (int)(newInjured * 1.3f);
+            }
 
             if (newInjured > 0 && _roster.TotalRegulars > _roster.WoundedCount + newInjured)
             {
@@ -487,7 +499,7 @@ namespace Enlisted.Features.Camp
                     // Set flag if specified
                     if (!string.IsNullOrEmpty(incident.SetsFlag))
                     {
-                        _activeFlags.Add(incident.SetsFlag);
+                        _ = _activeFlags.Add(incident.SetsFlag);
                     }
 
                     // Set cooldown
@@ -600,8 +612,14 @@ namespace Enlisted.Features.Camp
             }
 
             // Track pressure days
-            if (needs.Supplies < 40) _pressure.DaysLowSupplies++;
-            else _pressure.DaysLowSupplies = 0;
+            if (needs.Supplies < 40)
+            {
+                _pressure.DaysLowSupplies++;
+            }
+            else
+            {
+                _pressure.DaysLowSupplies = 0;
+            }
 
             // Morale tracking removed (system no longer exists)
 
@@ -609,8 +627,14 @@ namespace Enlisted.Features.Camp
             if (_roster != null && _roster.TotalSoldiers > 0)
             {
                 float sicknessRate = (float)_sickCount / _roster.TotalSoldiers;
-                if (sicknessRate > 0.2f) _pressure.DaysHighSickness++;
-                else _pressure.DaysHighSickness = 0;
+                if (sicknessRate > 0.2f)
+                {
+                    _pressure.DaysHighSickness++;
+                }
+                else
+                {
+                    _pressure.DaysHighSickness = 0;
+                }
             }
 
             // Generate pulse news for threshold crossings
@@ -736,7 +760,11 @@ namespace Enlisted.Features.Camp
             // Deaths - always show (critical)
             foreach (var death in result.Deaths)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(death.NewsText, "critical", "roster");
                 newsCount++;
             }
@@ -744,7 +772,11 @@ namespace Enlisted.Features.Camp
             // Pulse events - notable/critical
             foreach (var pulse in result.PulseEvents)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(pulse.NewsText, pulse.Severity, "pulse");
                 newsCount++;
             }
@@ -752,7 +784,11 @@ namespace Enlisted.Features.Camp
             // Roster changes - notable
             foreach (var change in result.RosterChanges)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(change.NewsText, change.Severity, "roster");
                 newsCount++;
             }
@@ -760,7 +796,11 @@ namespace Enlisted.Features.Camp
             // Incidents - minor/flavor
             foreach (var incident in result.Incidents)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(incident.GetNewsText(), incident.Severity, "incident");
                 newsCount++;
             }
@@ -848,7 +888,7 @@ namespace Enlisted.Features.Camp
             }
             foreach (var key in keysToRemove)
             {
-                _incidentCooldowns.Remove(key);
+                _ = _incidentCooldowns.Remove(key);
             }
         }
 

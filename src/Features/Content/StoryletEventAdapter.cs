@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Activities;
@@ -82,7 +82,7 @@ namespace Enlisted.Features.Content
                 System.Threading.Interlocked.Increment(ref _instanceCounter);
 
             var options = eligibleChoices
-                .Select(c => BuildOption(syntheticId, c))
+                .Select(BuildOption)
                 .ToList();
 
             var evt = new EventDefinition
@@ -122,7 +122,7 @@ namespace Enlisted.Features.Content
                 return; // Not a storylet-sourced event; no-op.
             }
 
-            _pendingEffects.Remove(key);
+            _ = _pendingEffects.Remove(key);
 
             try
             {
@@ -137,7 +137,7 @@ namespace Enlisted.Features.Content
 
         // ---------- Helpers ----------
 
-        private static EventOption BuildOption(string syntheticEventId, Choice c)
+        private static EventOption BuildOption(Choice c)
         {
             return new EventOption
             {

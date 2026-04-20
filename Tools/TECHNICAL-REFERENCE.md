@@ -320,28 +320,38 @@ dotnet_diagnostic.IDE0079.severity = warning  # Remove unnecessary suppression
 - **XML files**: 2-space indentation (localization strings)
 - **Markdown**: Excluded from linting (`generated_code = true`)
 
-#### `qodana.yaml` - Qodana Static Analysis
+#### `ruff.toml` - Python Tooling Rules
 
-CI/CD pipeline configuration for automated code quality checks:
+Repository-local Ruff configuration for `Tools/**/*.py`:
 
-**Enforced Inspections (Blueprint Compliance):**
-- `RedundantUsingDirective` - Flags unused `using` statements
-- `RedundantNameQualifier` - Flags unnecessary namespace qualifiers (e.g., `System.String.Empty`)
-- `UnusedMember.Local` - Flags unused private methods/fields
-- `UnusedParameter.Local` - Flags unused method parameters
-- `ConvertToConstant.Local` - Suggests `const` instead of `readonly` where applicable
+**Active rule families:**
+- `E`, `F`, `W` - pycodestyle / Pyflakes correctness rules
+- `I` - import sorting
+- `UP` - safe `pyupgrade` rewrites
+- `B` - bug-prone patterns from flake8-bugbear
+- `SIM` - simplification rules
 
 **Excluded Paths:**
-- `**/*.md` - Markdown documentation files
-- `**/Tools/**` - Python/PowerShell development scripts
-- `**/Debugging/**` - Temporary analysis and debug reports
+- `Tools/Research/` - ad-hoc one-off analysis scripts
 
-**Documented Suppressions:**
-All suppressions include comments explaining why:
-- Harmony patches - Methods called dynamically by Harmony runtime
-- Gauntlet ViewModels - Properties bound by Gauntlet XML at runtime
-- Singleton patterns - Instance property getters used, setters internal
-- False positives - Documented case-by-case
+#### `PSScriptAnalyzerSettings.psd1` - PowerShell Tooling Rules
+
+Repository-local PSScriptAnalyzer configuration for `Tools/**/*.ps1`:
+
+**Active rule groups:**
+- Approved verbs (`PSUseApprovedVerbs`)
+- Comment help (`PSProvideCommentHelp`)
+- Formatting (`PSPlaceOpenBrace`, `PSPlaceCloseBrace`, `PSUseConsistentWhitespace`, `PSUseConsistentIndentation`)
+- Common scripting hazards (`PSAvoidUsingCmdletAliases`, `PSAvoidUsingInvokeExpression`, `PSAvoidUsingEmptyCatchBlock`, `PSUseDeclaredVarsMoreThanAssignments`)
+
+#### `Tools/Validation/lint_repo.ps1` - Unified Lint Entry Point
+
+Runs the active repo lint stack in one command:
+
+- `dotnet format ... whitespace` and `dotnet format ... style` for C# / `.editorconfig`
+- `python Tools/Validation/validate_content.py` for content/schema checks
+- `python -m ruff check|format --check Tools` for Python tooling
+- `Invoke-ScriptAnalyzer -Path Tools ...` for PowerShell tooling
 
 #### `Enlisted.sln.DotSettings` - ReSharper Settings
 
@@ -349,7 +359,7 @@ Solution-level ReSharper configuration:
 - Treats `*.md` files as generated code (disables markdown inspections)
 - Suppresses specific markdown warnings for documentation tables/links
 
-**Rule of Thumb:** Never suppress inspections without documented justification (see `qodana.yaml` for examples)
+**Rule of Thumb:** Never suppress inspections without documented justification in the active repo config.
 
 ---
 

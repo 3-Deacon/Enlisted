@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Enlisted.Features.Retinue.Data;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core.Logging;
 using Helpers;
 using TaleWorlds.CampaignSystem;
@@ -236,7 +236,6 @@ namespace Enlisted.Features.Retinue.Core
         public bool TryAddSoldiers(int count, string typeId, out int actuallyAdded, out string message)
         {
             actuallyAdded = 0;
-            message = string.Empty;
 
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null || !enlistment.IsEnlisted)
@@ -313,8 +312,8 @@ namespace Enlisted.Features.Retinue.Core
                     continue;
                 }
 
-                party.MemberRoster.AddToCounts(troop, 1);
-                _state.UpdateTroopCount(troop.StringId, 1);
+                _ = party.MemberRoster.AddToCounts(troop, 1);
+                _ = _state.UpdateTroopCount(troop.StringId, 1);
                 added++;
 
                 ModLogger.Debug(LogCategory, $"Added {troop.Name} to retinue");
@@ -325,7 +324,7 @@ namespace Enlisted.Features.Retinue.Core
             if (actuallyAdded < count)
             {
                 var t = new TextObject("{=enl_retinue_msg_party_limit_reached}Party limit reached. Only {COUNT} soldiers assigned.");
-                t.SetTextVariable("COUNT", actuallyAdded);
+                _ = t.SetTextVariable("COUNT", actuallyAdded);
                 message = t.ToString();
                 ModLogger.Info(LogCategory, message);
             }
@@ -374,7 +373,7 @@ namespace Enlisted.Features.Retinue.Core
 
                     if (toRemove > 0)
                     {
-                        main.MemberRoster.AddToCounts(character, -toRemove);
+                        _ = main.MemberRoster.AddToCounts(character, -toRemove);
                         totalCleared += toRemove;
                         ModLogger.Debug(LogCategory, $"Cleared {toRemove}x {character.Name}");
                     }
@@ -478,7 +477,7 @@ namespace Enlisted.Features.Retinue.Core
             if (enlistment.EnlistmentTier < CommanderTier1)
             {
                 var t = new TextObject("{=enl_retinue_reason_requires_commander_request}Requires Commander rank (Tier {REQ}) or higher.");
-                t.SetTextVariable("REQ", CommanderTier1);
+                _ = t.SetTextVariable("REQ", CommanderTier1);
                 reason = t.ToString();
                 return false;
             }
@@ -495,8 +494,8 @@ namespace Enlisted.Features.Retinue.Core
             if (relation < MinRelationForRequest)
             {
                 var t = new TextObject("{=enl_retinue_reason_relation_low}Your lord will not spare soldiers for you. Improve your standing first (requires {REQ}+ relation, have {HAVE}).");
-                t.SetTextVariable("REQ", MinRelationForRequest);
-                t.SetTextVariable("HAVE", relation);
+                _ = t.SetTextVariable("REQ", MinRelationForRequest);
+                _ = t.SetTextVariable("HAVE", relation);
                 reason = t.ToString();
                 return false;
             }
@@ -506,7 +505,7 @@ namespace Enlisted.Features.Retinue.Core
             {
                 var daysRemaining = _state.GetReinforcementRequestCooldownDays();
                 var t = new TextObject("{=enl_retinue_reason_request_cooldown}Reinforcement request on cooldown: {DAYS} days remaining.");
-                t.SetTextVariable("DAYS", daysRemaining);
+                _ = t.SetTextVariable("DAYS", daysRemaining);
                 reason = t.ToString();
                 return false;
             }
@@ -525,8 +524,8 @@ namespace Enlisted.Features.Retinue.Core
             if (playerGold < cost)
             {
                 var t = new TextObject("{=enl_retinue_reason_not_enough_gold_request}Not enough gold. Need {NEED} denars, have {HAVE}.");
-                t.SetTextVariable("NEED", cost);
-                t.SetTextVariable("HAVE", playerGold);
+                _ = t.SetTextVariable("NEED", cost);
+                _ = t.SetTextVariable("HAVE", playerGold);
                 reason = t.ToString();
                 return false;
             }
@@ -586,7 +585,7 @@ namespace Enlisted.Features.Retinue.Core
                 _state.ReinforcementRequestCooldownEnd = CampaignTime.Now + CampaignTime.Days(cooldownDays);
 
                 var t = new TextObject("{=enl_retinue_msg_reinforcements_arrived}{COUNT} soldiers have been assigned to your command.");
-                t.SetTextVariable("COUNT", actuallyAdded);
+                _ = t.SetTextVariable("COUNT", actuallyAdded);
                 message = t.ToString();
 
                 ModLogger.ActionResult(reqCategory, "ReinforcementRequest", true,
@@ -814,7 +813,7 @@ namespace Enlisted.Features.Retinue.Core
             if (enlistment.EnlistmentTier < CommanderTier1)
             {
                 var t = new TextObject("{=enl_retinue_reason_requires_commander_min}Requires Commander rank (Tier {REQ}) or higher.");
-                t.SetTextVariable("REQ", CommanderTier1);
+                _ = t.SetTextVariable("REQ", CommanderTier1);
                 reason = t.ToString();
                 return false;
             }
@@ -831,7 +830,7 @@ namespace Enlisted.Features.Retinue.Core
             {
                 var daysRemaining = _state.GetRequisitionCooldownDays();
                 var t = new TextObject("{=enl_retinue_reason_requisition_cooldown}Requisition on cooldown: {DAYS} days remaining.");
-                t.SetTextVariable("DAYS", daysRemaining);
+                _ = t.SetTextVariable("DAYS", daysRemaining);
                 reason = t.ToString();
                 return false;
             }
@@ -850,8 +849,8 @@ namespace Enlisted.Features.Retinue.Core
             if (playerGold < cost)
             {
                 var t = new TextObject("{=enl_retinue_reason_not_enough_gold}Not enough gold. Need {NEED} denars, have {HAVE}.");
-                t.SetTextVariable("NEED", cost);
-                t.SetTextVariable("HAVE", playerGold);
+                _ = t.SetTextVariable("NEED", cost);
+                _ = t.SetTextVariable("HAVE", playerGold);
                 reason = t.ToString();
                 return false;
             }

@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # PowerShell script to remove onboarding-related localization strings
 # Removes all <string id="ll_evt_*onboard*"> entries from enlisted_strings.xml
 
@@ -8,7 +10,7 @@ if (-not (Test-Path $xmlPath)) {
     exit 1
 }
 
-Write-Host "Reading $xmlPath..."
+Write-Status "Reading $xmlPath..."
 
 # Read all lines
 $lines = Get-Content $xmlPath
@@ -41,10 +43,10 @@ foreach ($line in $lines) {
     $outputLines += $line
 }
 
-Write-Host "Found and removed $removedCount onboarding strings"
+Write-Status "Found and removed $removedCount onboarding strings"
 
 if ($removedCount -eq 0) {
-    Write-Host "No onboarding strings found. File is already clean."
+    Write-Status "No onboarding strings found. File is already clean."
     exit 0
 }
 
@@ -52,5 +54,5 @@ if ($removedCount -eq 0) {
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllLines($xmlPath, $outputLines, $utf8NoBom)
 
-Write-Host "Successfully cleaned $xmlPath"
-Write-Host "Backup: Original file is in git history (git restore to undo)"
+Write-Status "Successfully cleaned $xmlPath"
+Write-Status "Backup: Original file is in git history (git restore to undo)"

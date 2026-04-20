@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using EnlistedConfig = Enlisted.Mod.Core.Config.ConfigurationManager;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Mod.Core.Logging;
@@ -8,6 +7,7 @@ using Newtonsoft.Json;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using EnlistedConfig = Enlisted.Mod.Core.Config.ConfigurationManager;
 
 namespace Enlisted.Features.Conditions
 {
@@ -67,17 +67,17 @@ namespace Enlisted.Features.Conditions
                 var underCare = _state.UnderMedicalCare;
                 var recoveryMult = _state.RecoveryRateModifier;
 
-                dataStore.SyncData("pc_injSeverity", ref injSeverity);
-                dataStore.SyncData("pc_injType", ref injType);
-                dataStore.SyncData("pc_injDays", ref injDays);
+                _ = dataStore.SyncData("pc_injSeverity", ref injSeverity);
+                _ = dataStore.SyncData("pc_injType", ref injType);
+                _ = dataStore.SyncData("pc_injDays", ref injDays);
 
-                dataStore.SyncData("pc_illSeverity", ref illSeverity);
-                dataStore.SyncData("pc_illType", ref illType);
-                dataStore.SyncData("pc_illDays", ref illDays);
+                _ = dataStore.SyncData("pc_illSeverity", ref illSeverity);
+                _ = dataStore.SyncData("pc_illType", ref illType);
+                _ = dataStore.SyncData("pc_illDays", ref illDays);
 
-                dataStore.SyncData("pc_exhaust", ref exhaustion);
-                dataStore.SyncData("pc_underCare", ref underCare);
-                dataStore.SyncData("pc_recoveryMult", ref recoveryMult);
+                _ = dataStore.SyncData("pc_exhaust", ref exhaustion);
+                _ = dataStore.SyncData("pc_underCare", ref underCare);
+                _ = dataStore.SyncData("pc_recoveryMult", ref recoveryMult);
 
                 if (dataStore.IsLoading)
                 {
@@ -98,17 +98,17 @@ namespace Enlisted.Features.Conditions
                     if ((_state.CurrentInjury != InjurySeverity.None && _state.InjuryDaysRemaining <= 0) ||
                         (_state.CurrentIllness != IllnessSeverity.None && _state.IllnessDaysRemaining <= 0))
                     {
-                        ModLogger.Warn(LogCategory, 
+                        ModLogger.Warn(LogCategory,
                             $"Detected stale condition data on load: Injury={_state.CurrentInjury}({_state.InjuryDaysRemaining}d), " +
                             $"Illness={_state.CurrentIllness}({_state.IllnessDaysRemaining}d). Normalizing...");
                     }
 
                     NormalizeState();
-                    
+
                     // Log loaded state for diagnostics
                     if (_state.HasAnyCondition)
                     {
-                        ModLogger.Info(LogCategory, 
+                        ModLogger.Info(LogCategory,
                             $"Loaded active conditions: Injury={_state.CurrentInjury}({_state.InjuryDaysRemaining}d), " +
                             $"Illness={_state.CurrentIllness}({_state.IllnessDaysRemaining}d)");
                     }
@@ -205,7 +205,7 @@ namespace Enlisted.Features.Conditions
 
             var recoveredAny = false;
             var recoveredFromIllness = false;
-            
+
             if (_state.InjuryDaysRemaining <= 0 && _state.CurrentInjury != InjurySeverity.None)
             {
                 recoveredAny = true;
@@ -249,7 +249,7 @@ namespace Enlisted.Features.Conditions
             }
 
             var maxHp = hero.CharacterObject.MaxHitPoints();
-            
+
             // Restore a portion of max HP based on previous severity
             var restoration = previousSeverity switch
             {
@@ -292,7 +292,7 @@ namespace Enlisted.Features.Conditions
                 var severityText = GetIllnessSeverityLabel(_state.CurrentIllness).ToString();
                 var daysText = _state.IllnessDaysRemaining == 1 ? "day" : "days";
                 var msg = $"Illness ({severityText}): {_state.IllnessDaysRemaining} {daysText} remaining.";
-                
+
                 InformationManager.DisplayMessage(new InformationMessage(msg, color));
             }
 
@@ -311,7 +311,7 @@ namespace Enlisted.Features.Conditions
                 var severityText = GetInjurySeverityLabel(_state.CurrentInjury).ToString();
                 var daysText = _state.InjuryDaysRemaining == 1 ? "day" : "days";
                 var msg = $"Injury ({severityText}): {_state.InjuryDaysRemaining} {daysText} remaining.";
-                
+
                 InformationManager.DisplayMessage(new InformationMessage(msg, color));
             }
         }
@@ -403,8 +403,8 @@ namespace Enlisted.Features.Conditions
             var label = GetInjuryLabel(_state.InjuryType);
             var severityText = GetInjurySeverityLabel(severity);
             var msg = new TextObject("{=cond_injury_gained}You suffered a {SEVERITY} injury: {INJURY}.");
-            msg.SetTextVariable("SEVERITY", severityText);
-            msg.SetTextVariable("INJURY", label);
+            _ = msg.SetTextVariable("SEVERITY", severityText);
+            _ = msg.SetTextVariable("INJURY", label);
 
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Red));
             ModLogger.Info(LogCategory, $"Injury applied ({severity} {injuryType}, days={days}, why={reason})");
@@ -457,8 +457,8 @@ namespace Enlisted.Features.Conditions
             var label = GetIllnessLabel(_state.IllnessType);
             var severityText = GetIllnessSeverityLabel(severity);
             var msg = new TextObject("{=cond_illness_gained}You fell ill ({SEVERITY}): {ILLNESS}.");
-            msg.SetTextVariable("SEVERITY", severityText);
-            msg.SetTextVariable("ILLNESS", label);
+            _ = msg.SetTextVariable("SEVERITY", severityText);
+            _ = msg.SetTextVariable("ILLNESS", label);
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Red));
             ModLogger.Info(LogCategory, $"Illness applied ({severity} {illnessType}, days={days}, why={reason})");
         }
@@ -495,7 +495,7 @@ namespace Enlisted.Features.Conditions
 
             var newHp = hero.HitPoints - reduction;
             hero.HitPoints = Math.Max(hpFloor, newHp);
-            
+
             ModLogger.Info(LogCategory, $"Illness HP reduction: -{reduction} HP (floor: {hpFloor}), new HP: {hero.HitPoints}");
         }
 

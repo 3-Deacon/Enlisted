@@ -1,10 +1,9 @@
 using System;
-using HarmonyLib;
-using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Party;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -16,7 +15,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
     /// the official party officer assignments.
     /// 
     /// </summary>
-    
+
     // Harmony Patch
     // Target: TaleWorlds.CampaignSystem.Party.MobileParty.EffectiveEngineer { get; }
     // Why: Make player the effective engineer when assigned to Siegewright's Aide duty for natural skill benefits
@@ -30,8 +29,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// Called by Harmony via reflection.
         /// </summary>
         [HarmonyPrefix]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-        public static bool Prefix(MobileParty __instance, ref Hero __result)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
+        public static bool Prefix(MobileParty __instance)
         {
             try
             {
@@ -45,15 +44,15 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true;
                 }
-                
+
                 // Guard: Verify all required objects exist
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true || 
-                    __instance == null || 
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true ||
+                    __instance == null ||
                     EnlistmentBehavior.Instance.CurrentLord?.PartyBelongedTo != __instance)
                 {
                     return true; // Use original behavior
                 }
-                
+
                 // Effective roles are determined by the chain of command and active orders.
                 return true; // Always use original behavior while system is being updated
             }
@@ -64,7 +63,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
         }
     }
-    
+
     // Harmony Patch
     // Target: TaleWorlds.CampaignSystem.Party.MobileParty.EffectiveScout { get; }
     // Why: Make player the effective scout when assigned to Pathfinder duty for natural skill benefits
@@ -78,8 +77,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// Called by Harmony via reflection.
         /// </summary>
         [HarmonyPrefix]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-        public static bool Prefix(MobileParty __instance, ref Hero __result)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
+        public static bool Prefix(MobileParty __instance)
         {
             try
             {
@@ -93,14 +92,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true;
                 }
-                
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true || 
-                    __instance == null || 
+
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true ||
+                    __instance == null ||
                     EnlistmentBehavior.Instance.CurrentLord?.PartyBelongedTo != __instance)
                 {
                     return true; // Use original behavior
                 }
-                
+
                 // Phase 1: EnlistedDutiesBehavior deleted - this patch is now inactive
                 return true; // Always use original behavior (patch disabled)
             }
@@ -111,7 +110,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
         }
     }
-    
+
     // Harmony Patch
     // Target: TaleWorlds.CampaignSystem.Party.MobileParty.EffectiveQuartermaster { get; }
     // Why: Make player the effective quartermaster when assigned to Provisioner duty for natural skill benefits
@@ -125,8 +124,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// Called by Harmony via reflection.
         /// </summary>
         [HarmonyPrefix]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-        public static bool Prefix(MobileParty __instance, ref Hero __result)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
+        public static bool Prefix(MobileParty __instance)
         {
             try
             {
@@ -140,14 +139,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true;
                 }
-                
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true || 
-                    __instance == null || 
+
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true ||
+                    __instance == null ||
                     EnlistmentBehavior.Instance.CurrentLord?.PartyBelongedTo != __instance)
                 {
                     return true; // Use original behavior
                 }
-                
+
                 // Phase 1: EnlistedDutiesBehavior deleted - this patch is now inactive
                 return true; // Always use original behavior (patch disabled)
             }
@@ -158,7 +157,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
         }
     }
-    
+
     // Harmony Patch
     // Target: TaleWorlds.CampaignSystem.Party.MobileParty.EffectiveSurgeon { get; }
     // Why: Make player the effective surgeon when assigned to Field Medic duty for natural skill benefits
@@ -172,8 +171,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// Called by Harmony via reflection.
         /// </summary>
         [HarmonyPrefix]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance and __result are special injected parameters")]
-        public static bool Prefix(MobileParty __instance, ref Hero __result)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
+        public static bool Prefix(MobileParty __instance)
         {
             try
             {
@@ -182,14 +181,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true;
                 }
-                
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true || 
-                    __instance == null || 
+
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true ||
+                    __instance == null ||
                     EnlistmentBehavior.Instance.CurrentLord?.PartyBelongedTo != __instance)
                 {
                     return true; // Use original behavior
                 }
-                
+
                 // Phase 1: EnlistedDutiesBehavior deleted - this patch is now inactive
                 return true; // Always use original behavior (patch disabled)
             }

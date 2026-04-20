@@ -128,8 +128,8 @@ namespace Enlisted.Features.Ranks.Behaviors
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("_lastPromotionCheck", ref _lastPromotionCheck);
-                dataStore.SyncData("_pendingPromotionTier", ref _pendingPromotionTier);
+                _ = dataStore.SyncData("_lastPromotionCheck", ref _lastPromotionCheck);
+                _ = dataStore.SyncData("_pendingPromotionTier", ref _pendingPromotionTier);
             });
         }
 
@@ -429,12 +429,12 @@ namespace Enlisted.Features.Ranks.Behaviors
                 // Get tier-specific localized title and message
                 var titleText = GetPromotionTitle(newTier);
                 var popupMessage = GetPromotionMessage(newTier);
-                popupMessage.SetTextVariable("PLAYER_NAME", playerName);
-                popupMessage.SetTextVariable("RANK", rankName);
+                _ = popupMessage.SetTextVariable("PLAYER_NAME", playerName);
+                _ = popupMessage.SetTextVariable("RANK", rankName);
 
                 // Show short notification in chat with rank variable
                 var chatMessage = GetPromotionChatMessage(newTier);
-                chatMessage.SetTextVariable("RANK", rankName);
+                _ = chatMessage.SetTextVariable("RANK", rankName);
                 InformationManager.DisplayMessage(new InformationMessage(chatMessage.ToString(), Colors.Green));
 
                 // Show quartermaster prompt after promotion.
@@ -504,7 +504,7 @@ namespace Enlisted.Features.Ranks.Behaviors
                 _ => new TextObject("{=promo_title_default}Promoted to {RANK}")
             };
 
-            title.SetTextVariable("RANK", rankName);
+            _ = title.SetTextVariable("RANK", rankName);
             return title;
         }
 

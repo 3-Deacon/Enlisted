@@ -21,14 +21,18 @@ def check_fallback_fields(obj: dict, context: str, bad: list) -> None:
         ("resultTextId", "resultText"),
         ("resultFailureTextId", "resultFailureText"),
     ]
-    
+
     for id_field, fallback_field in fallback_pairs:
         if id_field in obj:
             # ID field exists, check for fallback
             if fallback_field not in obj:
-                bad.append(("MISSING_FALLBACK", context, f"'{fallback_field}' missing for '{id_field}'"))
+                bad.append(
+                    ("MISSING_FALLBACK", context, f"'{fallback_field}' missing for '{id_field}'")
+                )
             elif not obj[fallback_field] or not str(obj[fallback_field]).strip():
-                bad.append(("EMPTY_FALLBACK", context, f"'{fallback_field}' is empty for '{id_field}'"))
+                bad.append(
+                    ("EMPTY_FALLBACK", context, f"'{fallback_field}' is empty for '{id_field}'")
+                )
 
 
 def main() -> int:
@@ -66,13 +70,18 @@ def main() -> int:
             category = e.get("category", "")
             has_abort = any(opt.get("abortsEnlistment") for opt in opts)
             is_onboarding = category == "onboarding" or e.get("timing", {}).get("oneTime")
-            
-            if len(opts) == 1:
-                bad.append(("BAD_OPT_COUNT", eid, len(opts), f))
-            elif len(opts) > 6:
+
+            if len(opts) == 1 or len(opts) > 6:
                 bad.append(("BAD_OPT_COUNT", eid, len(opts), f))
             elif len(opts) > 4 and not (is_onboarding or has_abort):
-                bad.append(("BAD_OPT_COUNT", eid, len(opts), f"(5-6 options only allowed for onboarding/abort events)"))
+                bad.append(
+                    (
+                        "BAD_OPT_COUNT",
+                        eid,
+                        len(opts),
+                        "(5-6 options only allowed for onboarding/abort events)",
+                    )
+                )
 
             for opt in opts:
                 opt_id = opt.get("id", "unknown")
@@ -99,5 +108,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
-

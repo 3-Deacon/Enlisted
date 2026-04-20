@@ -1,7 +1,7 @@
-using HarmonyLib;
-using TaleWorlds.CampaignSystem.Party;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -36,14 +36,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
             {
                 return;
             }
-            
+
             // Check if player is enlisted and actively serving (not on leave)
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment?.IsEnlisted != true || enlistment.IsOnLeave)
             {
                 return;
             }
-            
+
             // If the native code said we're waiting, override it
             // This allows time to flow and encounters to trigger immediately
             if (__result)

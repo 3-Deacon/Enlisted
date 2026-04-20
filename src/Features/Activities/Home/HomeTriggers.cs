@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
@@ -21,7 +21,7 @@ namespace Enlisted.Features.Activities.Home
             // --- Party / food ---
             TriggerRegistry.Register("party_food_lte_3_days", (_, _2) => PartyFoodDays() <= 3);
             TriggerRegistry.Register("party_food_lte_5_days", (_, _2) => PartyFoodDays() <= 5);
-            TriggerRegistry.Register("party_food_starving",   (_, _2) =>
+            TriggerRegistry.Register("party_food_starving", (_, _2) =>
             {
                 var p = Party();
                 return p != null && p.Food <= 0f;
@@ -34,7 +34,7 @@ namespace Enlisted.Features.Activities.Home
             TriggerRegistry.Register("lord_morale_gte_80", (_, _2) => LordMorale() >= 80f);
 
             // --- Lord condition ---
-            TriggerRegistry.Register("lord_is_wounded",      (_, _2) => Lord()?.IsWounded == true);
+            TriggerRegistry.Register("lord_is_wounded", (_, _2) => Lord()?.IsWounded == true);
             TriggerRegistry.Register("lord_is_disorganized", (_, _2) => Party()?.IsDisorganized == true);
             TriggerRegistry.Register("lord_at_home_settlement", (_, _2) =>
             {
@@ -44,7 +44,7 @@ namespace Enlisted.Features.Activities.Home
                 return current != null && lord.HomeSettlement != null
                     && current.StringId == lord.HomeSettlement.StringId;
             });
-            TriggerRegistry.Register("lord_has_spouse",   (_, _2) => Lord()?.Spouse != null);
+            TriggerRegistry.Register("lord_has_spouse", (_, _2) => Lord()?.Spouse != null);
             TriggerRegistry.Register("lord_has_children", (_, _2) =>
             {
                 var children = Lord()?.Children;
@@ -54,9 +54,9 @@ namespace Enlisted.Features.Activities.Home
             // --- Lord traits (mercy, valor, honor, calculating × positive/negative) ---
             // DefaultTraits.X resolves Campaign.Current.DefaultTraits, which is null at OnGameStart.
             // Pass a provider so the lookup happens at predicate-evaluation time.
-            RegisterTrait("mercy",      () => DefaultTraits.Mercy);
-            RegisterTrait("valor",      () => DefaultTraits.Valor);
-            RegisterTrait("honor",      () => DefaultTraits.Honor);
+            RegisterTrait("mercy", () => DefaultTraits.Mercy);
+            RegisterTrait("valor", () => DefaultTraits.Valor);
+            RegisterTrait("honor", () => DefaultTraits.Honor);
             RegisterTrait("calculating", () => DefaultTraits.Calculating);
 
             // --- Clan / kingdom ---
@@ -80,8 +80,8 @@ namespace Enlisted.Features.Activities.Home
             });
 
             // --- Settlement type ---
-            TriggerRegistry.Register("at_town",    (_, _2) => Settlement()?.IsTown    == true);
-            TriggerRegistry.Register("at_castle",  (_, _2) => Settlement()?.IsCastle  == true);
+            TriggerRegistry.Register("at_town", (_, _2) => Settlement()?.IsTown == true);
+            TriggerRegistry.Register("at_castle", (_, _2) => Settlement()?.IsCastle == true);
             TriggerRegistry.Register("at_village", (_, _2) => Settlement()?.IsVillage == true);
 
             // --- Settlement state ---
@@ -104,10 +104,10 @@ namespace Enlisted.Features.Activities.Home
             });
 
             // --- Time ---
-            TriggerRegistry.Register("is_night",   (_, _2) => CampaignTime.Now.IsNightTime);
-            TriggerRegistry.Register("is_autumn",  (_, _2) =>
+            TriggerRegistry.Register("is_night", (_, _2) => CampaignTime.Now.IsNightTime);
+            TriggerRegistry.Register("is_autumn", (_, _2) =>
                 CampaignTime.Now.GetSeasonOfYear == CampaignTime.Seasons.Autumn);
-            TriggerRegistry.Register("is_winter",  (_, _2) =>
+            TriggerRegistry.Register("is_winter", (_, _2) =>
                 CampaignTime.Now.GetSeasonOfYear == CampaignTime.Seasons.Winter);
 
             // --- Mod state ---

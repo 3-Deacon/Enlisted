@@ -25,7 +25,6 @@ namespace Enlisted.Features.Camp
     public class CampScheduleManager
     {
         private const string LogCategory = "CampSchedule";
-        private const string ConfigPath = "../../ModuleData/Enlisted/Config/camp_schedule.json";
 
         /// <summary>Singleton instance for external access.</summary>
         public static CampScheduleManager Instance { get; private set; }
@@ -37,9 +36,6 @@ namespace Enlisted.Features.Camp
         // Current phase schedule (cached for performance)
         private ScheduledPhase _currentSchedule;
         private DayPhase _currentCachedPhase = DayPhase.Night;
-
-        // Active deviations from baseline
-        private List<ScheduleDeviation> _activeDeviations = new List<ScheduleDeviation>();
 
         // Schedule boost multiplier for matching opportunities
         private float _scheduleBoostMultiplier = 1.3f;
@@ -127,7 +123,7 @@ namespace Enlisted.Features.Camp
             // Store override reference for processor
             schedule.OrchestratorOverride = orchestratorOverride;
 
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"Applied orchestrator override: {orchestratorOverride.ActivityName} ({orchestratorOverride.Reason})");
         }
 
@@ -146,12 +142,12 @@ namespace Enlisted.Features.Camp
 
             if (_currentSchedule.HasDeviation)
             {
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Schedule deviation for {newPhase}: {_currentSchedule.DeviationReason}");
             }
             else
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Normal schedule for {newPhase}: {_currentSchedule.Slot1Description}, {_currentSchedule.Slot2Description}");
             }
         }
@@ -167,7 +163,7 @@ namespace Enlisted.Features.Camp
             foreach (DayPhase phase in Enum.GetValues(typeof(DayPhase)))
             {
                 var schedule = GetScheduleForPhase(phase);
-                
+
                 forecasts.Add(new ScheduleForecast
                 {
                     Phase = phase,
@@ -384,7 +380,7 @@ namespace Enlisted.Features.Camp
                 {
                     schedule.Slot1Skipped = true;
                     schedule.Slot2Skipped = true;
-                    schedule.DeviationReason = situationConfig["description"]?.Value<string>() 
+                    schedule.DeviationReason = situationConfig["description"]?.Value<string>()
                         ?? $"{situation} conditions";
                 }
 
@@ -438,7 +434,7 @@ namespace Enlisted.Features.Camp
                 }
 
                 // Check siege conditions
-                if (world.LordIs == LordSituation.SiegeAttacking || 
+                if (world.LordIs == LordSituation.SiegeAttacking ||
                     world.LordIs == LordSituation.SiegeDefending)
                 {
                     var siege = pressureOverrides["siege"];

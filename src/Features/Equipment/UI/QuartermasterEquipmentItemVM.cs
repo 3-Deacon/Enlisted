@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.Util;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.Util;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -349,7 +349,7 @@ namespace Enlisted.Features.Equipment.UI
                 if (!_variant.CanAfford)
                 {
                     var msg = new TextObject("{=qm_cannot_afford}You can’t afford this. Cost: {COST} denars.");
-                    msg.SetTextVariable("COST", _variant.Cost);
+                    _ = msg.SetTextVariable("COST", _variant.Cost);
                     InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Red));
                     return;
                 }
@@ -378,8 +378,8 @@ namespace Enlisted.Features.Equipment.UI
                 if (_variant?.Item != null)
                 {
                     var msg = new TextObject("{=qm_ui_preview}Preview: {ITEM_NAME} - {COST} denars");
-                    msg.SetTextVariable("ITEM_NAME", _variant.Item.Name);
-                    msg.SetTextVariable("COST", _variant.Cost);
+                    _ = msg.SetTextVariable("ITEM_NAME", _variant.Item.Name);
+                    _ = msg.SetTextVariable("COST", _variant.Cost);
                     InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
                 }
                 else

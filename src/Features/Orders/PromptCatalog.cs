@@ -6,7 +6,6 @@ using Enlisted.Features.Orders.Models;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json;
-using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 
 namespace Enlisted.Features.Orders

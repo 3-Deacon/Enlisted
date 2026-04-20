@@ -4,7 +4,6 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Enlisted.Features.Content
 {
@@ -345,7 +344,7 @@ namespace Enlisted.Features.Content
             // This prevents sea events/decisions from appearing when on land in settlements
             if (party.CurrentSettlement != null || party.BesiegedSettlement != null)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Party in settlement or siege - land context (IsCurrentlyAtSea={party.IsCurrentlyAtSea})");
                 return TravelContext.Land;
             }

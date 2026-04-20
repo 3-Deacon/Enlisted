@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,7 +7,6 @@ using Enlisted.Features.Flags;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.Core;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.Content
@@ -85,9 +84,9 @@ namespace Enlisted.Features.Content
                 }
 
                 var upper = kv.Key.ToUpperInvariant();
-                textObj.SetTextVariable(upper + "_NAME", kv.Value.Name);
-                textObj.SetTextVariable(upper + "_OCCUPATION", kv.Value.Occupation.ToString());
-                textObj.SetTextVariable(upper + "_CULTURE", kv.Value.Culture?.Name ?? new TextObject(string.Empty));
+                _ = textObj.SetTextVariable(upper + "_NAME", kv.Value.Name);
+                _ = textObj.SetTextVariable(upper + "_OCCUPATION", kv.Value.Occupation.ToString());
+                _ = textObj.SetTextVariable(upper + "_CULTURE", kv.Value.Culture?.Name ?? new TextObject(string.Empty));
             }
 
             return textObj.ToString();

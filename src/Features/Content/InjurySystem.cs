@@ -5,7 +5,6 @@ using System.Linq;
 using Enlisted.Features.Conditions;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -22,7 +21,7 @@ namespace Enlisted.Features.Content
     {
         private const string LogCategory = "InjurySystem";
         private static string InjuriesPath => Path.Combine(ModulePaths.GetContentPath("Content"), "injuries.json");
-        
+
         private static List<InjuryDefinition> _injuries;
         private static bool _loaded;
 
@@ -169,7 +168,7 @@ namespace Enlisted.Features.Content
             var hpLoss = (int)Math.Ceiling(maxHp * (injury.HpPercentage / 100f));
             var oldHp = hero.HitPoints;
             var newHp = Math.Max(1, oldHp - hpLoss);
-            
+
             hero.HitPoints = newHp;
 
             // Select random narrative from available options
@@ -190,7 +189,7 @@ namespace Enlisted.Features.Content
                 $"{injury.DisplayName}: -{hpLoss} HP",
                 color));
 
-            ModLogger.Info(LogCategory, 
+            ModLogger.Info(LogCategory,
                 $"Applied injury '{injuryId}' ({injury.Severity}, {injury.HpPercentage}% = {hpLoss} HP) from {context}: {oldHp} -> {newHp}");
 
             return narrative;

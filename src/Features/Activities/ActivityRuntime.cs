@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Content;
@@ -49,8 +49,8 @@ namespace Enlisted.Features.Activities
         {
             try
             {
-                dataStore.SyncData("_active", ref _active);
-                dataStore.SyncData("_parkedChains", ref _parkedChains);
+                _ = dataStore.SyncData("_active", ref _active);
+                _ = dataStore.SyncData("_parkedChains", ref _parkedChains);
                 _active ??= new List<Activity>();
                 _parkedChains ??= new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             }
@@ -315,7 +315,7 @@ namespace Enlisted.Features.Activities
                 if (_activeChoicePhase?.activity == activity) { _activeChoicePhase = null; }
                 try { activity.Finish(ActivityEndReason.Completed); }
                 catch (Exception ex) { ModLogger.Caught("ACTIVITY", "Finish threw", ex); }
-                _active.Remove(activity);
+                _ = _active.Remove(activity);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -217,7 +217,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync kingdom feed as individual primitives (lists of complex types require manual handling)
                 _kingdomFeed ??= new List<DispatchItem>();
                 var kingdomCount = _kingdomFeed.Count;
-                dataStore.SyncData("en_news_kingdomCount", ref kingdomCount);
+                _ = dataStore.SyncData("en_news_kingdomCount", ref kingdomCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -240,7 +240,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync personal feed
                 _personalFeed ??= new List<DispatchItem>();
                 var personalCount = _personalFeed.Count;
-                dataStore.SyncData("en_news_personalCount", ref personalCount);
+                _ = dataStore.SyncData("en_news_personalCount", ref personalCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -261,7 +261,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Sync bulletin tracking
-                dataStore.SyncData("en_news_lastBulletinDay", ref _lastBulletinDayNumber);
+                _ = dataStore.SyncData("en_news_lastBulletinDay", ref _lastBulletinDayNumber);
 
                 // Sync Daily Brief (once-per-day RP digest)
                 // Ensure strings are never null before syncing (Bannerlord SyncData requires non-null refs)
@@ -269,25 +269,25 @@ namespace Enlisted.Features.Interface.Behaviors
                 _dailyBriefUnit ??= string.Empty;
                 _dailyBriefKingdom ??= string.Empty;
 
-                dataStore.SyncData("en_news_dailyBriefDay", ref _lastDailyBriefDayNumber);
-                dataStore.SyncData("en_news_dailyBriefCompany", ref _dailyBriefCompany);
-                dataStore.SyncData("en_news_dailyBriefUnit", ref _dailyBriefUnit);
-                dataStore.SyncData("en_news_dailyBriefKingdom", ref _dailyBriefKingdom);
+                _ = dataStore.SyncData("en_news_dailyBriefDay", ref _lastDailyBriefDayNumber);
+                _ = dataStore.SyncData("en_news_dailyBriefCompany", ref _dailyBriefCompany);
+                _ = dataStore.SyncData("en_news_dailyBriefUnit", ref _dailyBriefUnit);
+                _ = dataStore.SyncData("en_news_dailyBriefKingdom", ref _dailyBriefKingdom);
 
                 // Battle aftermath tracking for daily brief flavor
                 _lastPlayerBattleType ??= string.Empty;
-                dataStore.SyncData("en_news_lastBattleTime", ref _lastPlayerBattleTime);
-                dataStore.SyncData("en_news_lastBattleType", ref _lastPlayerBattleType);
-                dataStore.SyncData("en_news_lastBattleWon", ref _lastPlayerBattleWon);
+                _ = dataStore.SyncData("en_news_lastBattleTime", ref _lastPlayerBattleTime);
+                _ = dataStore.SyncData("en_news_lastBattleType", ref _lastPlayerBattleType);
+                _ = dataStore.SyncData("en_news_lastBattleWon", ref _lastPlayerBattleWon);
 
                 // "Since last muster" counters for camp news display
-                dataStore.SyncData("en_news_lostSinceMuster", ref _lostSinceLastMuster);
-                dataStore.SyncData("en_news_sickSinceMuster", ref _sickSinceLastMuster);
+                _ = dataStore.SyncData("en_news_lostSinceMuster", ref _lostSinceLastMuster);
+                _ = dataStore.SyncData("en_news_sickSinceMuster", ref _sickSinceLastMuster);
 
                 // Sync battle snapshots (for pyrrhic detection across save/load)
                 _battleSnapshots ??= new Dictionary<string, BattleSnapshot>();
                 var snapshotCount = _battleSnapshots.Count;
-                dataStore.SyncData("en_news_snapshotCount", ref snapshotCount);
+                _ = dataStore.SyncData("en_news_snapshotCount", ref snapshotCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -311,7 +311,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Sync army tracking state
-                dataStore.SyncData("en_news_lordHadArmy", ref _lordHadArmyYesterday);
+                _ = dataStore.SyncData("en_news_lordHadArmy", ref _lordHadArmyYesterday);
 
                 // Persisted camp news state (Daily Report archive + ledger).
                 _campNewsState ??= new CampNewsState();
@@ -320,7 +320,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync order outcomes tracking
                 _orderOutcomes ??= new List<OrderOutcomeRecord>();
                 var orderOutcomesCount = _orderOutcomes.Count;
-                dataStore.SyncData("en_news_orderOutcomesCount", ref orderOutcomesCount);
+                _ = dataStore.SyncData("en_news_orderOutcomesCount", ref orderOutcomesCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -342,7 +342,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync reputation changes tracking
                 _reputationChanges ??= new List<ReputationChangeRecord>();
                 var reputationChangesCount = _reputationChanges.Count;
-                dataStore.SyncData("en_news_reputationChangesCount", ref reputationChangesCount);
+                _ = dataStore.SyncData("en_news_reputationChangesCount", ref reputationChangesCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -364,7 +364,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync company need changes tracking
                 _companyNeedChanges ??= new List<CompanyNeedChangeRecord>();
                 var needChangesCount = _companyNeedChanges.Count;
-                dataStore.SyncData("en_news_needChangesCount", ref needChangesCount);
+                _ = dataStore.SyncData("en_news_needChangesCount", ref needChangesCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -386,7 +386,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync event outcomes tracking
                 _eventOutcomes ??= new List<EventOutcomeRecord>();
                 var eventOutcomesCount = _eventOutcomes.Count;
-                dataStore.SyncData("en_news_eventOutcomesCount", ref eventOutcomesCount);
+                _ = dataStore.SyncData("en_news_eventOutcomesCount", ref eventOutcomesCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -408,7 +408,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Sync pending events tracking
                 _pendingEvents ??= new List<PendingEventRecord>();
                 var pendingEventsCount = _pendingEvents.Count;
-                dataStore.SyncData("en_news_pendingEventsCount", ref pendingEventsCount);
+                _ = dataStore.SyncData("en_news_pendingEventsCount", ref pendingEventsCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -607,37 +607,37 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Build final output with three section headers
-                var sb = new System.Text.StringBuilder();
-                
+                var sb = new StringBuilder();
+
                 if (kingdomParts.Count > 0)
                 {
-                    sb.AppendLine("Kingdom Reports");
-                    sb.AppendLine();
-                    sb.AppendLine(string.Join(" ", kingdomParts));
+                    _ = sb.AppendLine("Kingdom Reports");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine(string.Join(" ", kingdomParts));
                 }
 
                 if (companyParts.Count > 0)
                 {
                     if (kingdomParts.Count > 0)
                     {
-                        sb.AppendLine();
-                        sb.AppendLine();
+                        _ = sb.AppendLine();
+                        _ = sb.AppendLine();
                     }
-                    sb.AppendLine("Company Reports");
-                    sb.AppendLine();
-                    sb.AppendLine(string.Join(" ", companyParts));
+                    _ = sb.AppendLine("Company Reports");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine(string.Join(" ", companyParts));
                 }
 
                 if (playerParts.Count > 0)
                 {
                     if (kingdomParts.Count > 0 || companyParts.Count > 0)
                     {
-                        sb.AppendLine();
-                        sb.AppendLine();
+                        _ = sb.AppendLine();
+                        _ = sb.AppendLine();
                     }
-                    sb.AppendLine("Your Status");
-                    sb.AppendLine();
-                    sb.AppendLine(string.Join(" ", playerParts));
+                    _ = sb.AppendLine("Your Status");
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine(string.Join(" ", playerParts));
                 }
 
                 var paragraph = sb.ToString().TrimEnd();
@@ -676,7 +676,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (lostCount >= 10)
                 {
                     var text = new TextObject("{=brief_casualties_heavy}The company has paid dearly — {COUNT} souls lost since last muster. The men speak in hushed tones and sleep comes hard.");
-                    text.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
+                    _ = text.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
                     return text.ToString();
                 }
 
@@ -686,12 +686,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (woundedCount >= 10)
                     {
                         var text = new TextObject("{=brief_casualties_moderate_wounded}Hard fighting has cost us {DEAD} dead and left {WOUNDED} nursing wounds. The surgeons work through the night.");
-                        text.SetTextVariable("DEAD", $"<span style=\"Alert\">{lostCount}</span>");
-                        text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
+                        _ = text.SetTextVariable("DEAD", $"<span style=\"Alert\">{lostCount}</span>");
+                        _ = text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
                         return text.ToString();
                     }
                     var text2 = new TextObject("{=brief_casualties_moderate}We've lost {COUNT} good soldiers since the last muster. Their names are spoken at the evening fire.");
-                    text2.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
+                    _ = text2.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
                     return text2.ToString();
                 }
 
@@ -701,18 +701,18 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (woundedCount >= 15)
                     {
                         var text = new TextObject("{=brief_casualties_few_manywounded}The wounded fill the medical tents, groaning through the night. {COUNT} didn't make it.");
-                        text.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
+                        _ = text.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
                         return text.ToString();
                     }
                     if (woundedCount >= 5)
                     {
                         var text = new TextObject("{=brief_casualties_few_somewounded}{DEAD} fallen, {WOUNDED} wounded — the cost of the march weighs on every man.");
-                        text.SetTextVariable("DEAD", $"<span style=\"Alert\">{lostCount}</span>");
-                        text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
+                        _ = text.SetTextVariable("DEAD", $"<span style=\"Alert\">{lostCount}</span>");
+                        _ = text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
                         return text.ToString();
                     }
                     var text2 = new TextObject("{=brief_casualties_few}{COUNT} soldiers have fallen since last muster.");
-                    text2.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
+                    _ = text2.SetTextVariable("COUNT", $"<span style=\"Alert\">{lostCount}</span>");
                     return text2.ToString();
                 }
 
@@ -722,7 +722,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (woundedCount >= 10)
                     {
                         var text = new TextObject("{=brief_casualties_one_manywounded}One of ours didn't make it. {WOUNDED} others nurse their wounds and pray they're luckier.");
-                        text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
+                        _ = text.SetTextVariable("WOUNDED", $"<span style=\"Warning\">{woundedCount}</span>");
                         return text.ToString();
                     }
                     return new TextObject("{=brief_casualties_one}One of ours didn't make it through. The lads are quiet today.").ToString();
@@ -732,19 +732,19 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (woundedCount >= 20)
                 {
                     var text = new TextObject("{=brief_wounded_many}The surgeons are overwhelmed — {COUNT} wounded fill the medical tents, and the air reeks of blood and poultices.");
-                    text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
+                    _ = text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
                     return text.ToString();
                 }
                 if (woundedCount >= 10)
                 {
                     var text = new TextObject("{=brief_wounded_moderate}{COUNT} soldiers recovering from their wounds. The company marches slower for it.");
-                    text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
+                    _ = text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
                     return text.ToString();
                 }
                 if (woundedCount >= 5)
                 {
                     var text = new TextObject("{=brief_wounded_few}A handful of wounded among us — {COUNT} in all, patched up and carrying on.");
-                    text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
+                    _ = text.SetTextVariable("COUNT", $"<span style=\"Warning\">{woundedCount}</span>");
                     return text.ToString();
                 }
 
@@ -779,7 +779,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 var hoursUntil = orderManager.GetHoursUntilIssue();
                 var text = new TextObject("{=forecast_strategic_orders}Expect strategic orders from command soon. (in {HOURS}h)");
-                text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
+                _ = text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
                 return $"<span style=\"Warning\">{text}</span>";
             }
             catch (Exception ex)
@@ -856,16 +856,16 @@ namespace Enlisted.Features.Interface.Behaviors
                         if (order.Mandatory)
                         {
                             var text = new TextObject("{=forecast_duty_imminent}Duty assignment coming in {HOURS}h: {TITLE}");
-                            text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
-                            text.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
+                            _ = text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
+                            _ = text.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
                             parts.Add($"<span style=\"Warning\">{text}</span>");
                         }
                         else
                         {
                             // For optional orders, phrase as opportunity
                             var text2 = new TextObject("{=forecast_order_imminent}Order opportunity coming in {HOURS}h: {TITLE}");
-                            text2.SetTextVariable("HOURS", $"{(int)hoursUntil}");
-                            text2.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
+                            _ = text2.SetTextVariable("HOURS", $"{(int)hoursUntil}");
+                            _ = text2.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
                             parts.Add($"<span style=\"Warning\">{text2}</span>");
                         }
                     }
@@ -888,7 +888,7 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             try
             {
-                var generator = Camp.CampOpportunityGenerator.Instance;
+                var generator = CampOpportunityGenerator.Instance;
                 if (generator == null)
                 {
                     return string.Empty;
@@ -909,19 +909,19 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (hoursUntil <= 1)
                 {
                     text = new TextObject("{=commitment_soon}You've committed to {ACTIVITY}. It's almost time.");
-                    text.SetTextVariable("ACTIVITY", activityName);
+                    _ = text.SetTextVariable("ACTIVITY", activityName);
                 }
                 else if (hoursUntil <= 6)
                 {
                     text = new TextObject("{=commitment_today}You've committed to {ACTIVITY} this {PHASE}.");
-                    text.SetTextVariable("ACTIVITY", activityName);
-                    text.SetTextVariable("PHASE", phase);
+                    _ = text.SetTextVariable("ACTIVITY", activityName);
+                    _ = text.SetTextVariable("PHASE", phase);
                 }
                 else
                 {
                     text = new TextObject("{=commitment_tomorrow}You've committed to {ACTIVITY} tomorrow at {PHASE}.");
-                    text.SetTextVariable("ACTIVITY", activityName);
-                    text.SetTextVariable("PHASE", phase);
+                    _ = text.SetTextVariable("ACTIVITY", activityName);
+                    _ = text.SetTextVariable("PHASE", phase);
                 }
 
                 return $"<span style=\"Link\">{text}</span>";
@@ -1007,7 +1007,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (loyalty < 40)
                 {
                     var line = new TextObject("{=brief_ret_low}Your {COUNT} retinue soldiers serve grudgingly. Morale is poor, and complaints circulate openly.");
-                    line.SetTextVariable("COUNT", soldierCount);
+                    _ = line.SetTextVariable("COUNT", soldierCount);
                     return line.ToString();
                 }
 
@@ -1016,14 +1016,14 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (veteranCount > 0)
                     {
                         var line = new TextObject("{=brief_ret_high_vets}Your retinue of {COUNT} stands loyal and eager. Your {VET_COUNT} named veterans speak well of you around the campfire.");
-                        line.SetTextVariable("COUNT", soldierCount);
-                        line.SetTextVariable("VET_COUNT", veteranCount);
+                        _ = line.SetTextVariable("COUNT", soldierCount);
+                        _ = line.SetTextVariable("VET_COUNT", veteranCount);
                         return line.ToString();
                     }
                     else
                     {
                         var line = new TextObject("{=brief_ret_high}Your retinue of {COUNT} soldiers stands ready and devoted. They trust your command.");
-                        line.SetTextVariable("COUNT", soldierCount);
+                        _ = line.SetTextVariable("COUNT", soldierCount);
                         return line.ToString();
                     }
                 }
@@ -1032,15 +1032,15 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (veteranCount > 0)
                 {
                     var line = new TextObject("{=brief_ret_vets}Among your {COUNT} retinue soldiers, {VET_COUNT} named veterans stand out as battle-hardened warriors.");
-                    line.SetTextVariable("COUNT", soldierCount);
-                    line.SetTextVariable("VET_COUNT", veteranCount);
+                    _ = line.SetTextVariable("COUNT", soldierCount);
+                    _ = line.SetTextVariable("VET_COUNT", veteranCount);
                     return line.ToString();
                 }
 
                 if (soldierCount >= capacity)
                 {
                     var line = new TextObject("{=brief_ret_full}Your retinue has reached its full complement of {COUNT} soldiers.");
-                    line.SetTextVariable("COUNT", soldierCount);
+                    _ = line.SetTextVariable("COUNT", soldierCount);
                     return line.ToString();
                 }
 
@@ -1073,7 +1073,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var currentAccess = baggageManager.GetCurrentAccess();
                 var enlistment = EnlistmentBehavior.Instance;
                 var lordParty = enlistment?.CurrentLord?.PartyBelongedTo;
-                
+
                 // BUGFIX: IsCurrentlyAtSea can incorrectly return true when docked at coastal settlements
                 // Only consider at-sea if not in a settlement and not besieging
                 var isAtSea = lordParty != null &&
@@ -1128,7 +1128,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     else
                     {
                         var line = new TextObject("{=brief_baggage_delayed}The wagons are stuck in the mud, {DAYS} days behind the column. The drivers curse and strain.");
-                        line.SetTextVariable("DAYS", delayDays);
+                        _ = line.SetTextVariable("DAYS", delayDays);
                         delayText = line.ToString();
                     }
                     return $"<span style=\"Warning\">{delayText}</span>";
@@ -1167,7 +1167,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                 return new TextObject("{=brief_baggage_temporary_sea}The ship has anchored. A few hours to access your belongings in the hold before we sail.").ToString();
                             }
                             var seaLine = new TextObject("{=brief_baggage_temporary_plural_sea}The ship has anchored. {HOURS} hours to access your belongings in the hold before we sail.");
-                            seaLine.SetTextVariable("HOURS", hoursRemaining);
+                            _ = seaLine.SetTextVariable("HOURS", hoursRemaining);
                             return seaLine.ToString();
                         }
                         else
@@ -1177,7 +1177,7 @@ namespace Enlisted.Features.Interface.Behaviors
                                 return new TextObject("{=brief_baggage_temporary}The wagons have halted nearby. A few hours to rummage through your belongings before they move on.").ToString();
                             }
                             var landLine = new TextObject("{=brief_baggage_temporary_plural}The wagons have halted nearby. {HOURS} hours to rummage through your belongings before they move on.");
-                            landLine.SetTextVariable("HOURS", hoursRemaining);
+                            _ = landLine.SetTextVariable("HOURS", hoursRemaining);
                             return landLine.ToString();
                         }
                     }
@@ -1330,7 +1330,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
 
             var lower = hint.ToLowerInvariant();
-            
+
             // Personal hints typically start with "Your" or "You"
             if (lower.StartsWith("your ") || lower.StartsWith("you ") || lower.StartsWith("you'"))
             {
@@ -1362,44 +1362,44 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 // Create TextObject and set all common variables
                 var textObject = new TextObject(hint);
-                
+
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment?.IsEnlisted == true)
                 {
                     // NCO names
                     var ncoFullName = enlistment.NcoFullName ?? "the Sergeant";
-                    textObject.SetTextVariable("SERGEANT", ncoFullName);
-                    textObject.SetTextVariable("SERGEANT_NAME", ncoFullName);
-                    textObject.SetTextVariable("NCO_NAME", ncoFullName);
-                    
+                    _ = textObject.SetTextVariable("SERGEANT", ncoFullName);
+                    _ = textObject.SetTextVariable("SERGEANT_NAME", ncoFullName);
+                    _ = textObject.SetTextVariable("NCO_NAME", ncoFullName);
+
                     // Soldier names (randomized for variety)
-                    textObject.SetTextVariable("SOLDIER_NAME", enlistment.GetRandomSoldierName());
-                    textObject.SetTextVariable("COMRADE_NAME", enlistment.GetRandomSoldierName());
-                    textObject.SetTextVariable("VETERAN_1_NAME", enlistment.GetRandomSoldierName());
-                    textObject.SetTextVariable("VETERAN_2_NAME", enlistment.GetRandomSoldierName());
-                    textObject.SetTextVariable("RECRUIT_NAME", enlistment.GetRandomSoldierName());
-                    
+                    _ = textObject.SetTextVariable("SOLDIER_NAME", enlistment.GetRandomSoldierName());
+                    _ = textObject.SetTextVariable("COMRADE_NAME", enlistment.GetRandomSoldierName());
+                    _ = textObject.SetTextVariable("VETERAN_1_NAME", enlistment.GetRandomSoldierName());
+                    _ = textObject.SetTextVariable("VETERAN_2_NAME", enlistment.GetRandomSoldierName());
+                    _ = textObject.SetTextVariable("RECRUIT_NAME", enlistment.GetRandomSoldierName());
+
                     // Officer names
-                    textObject.SetTextVariable("OFFICER_NAME", ncoFullName);
-                    
+                    _ = textObject.SetTextVariable("OFFICER_NAME", ncoFullName);
+
                     // Lord info
                     if (enlistment.EnlistedLord != null)
                     {
-                        textObject.SetTextVariable("LORD_NAME", enlistment.EnlistedLord.Name?.ToString() ?? "the Lord");
+                        _ = textObject.SetTextVariable("LORD_NAME", enlistment.EnlistedLord.Name?.ToString() ?? "the Lord");
                     }
-                    
+
                     // Settlement info
                     var party = enlistment.EnlistedLord?.PartyBelongedTo;
                     if (party?.CurrentSettlement != null)
                     {
-                        textObject.SetTextVariable("SETTLEMENT_NAME", party.CurrentSettlement.Name?.ToString() ?? "a settlement");
+                        _ = textObject.SetTextVariable("SETTLEMENT_NAME", party.CurrentSettlement.Name?.ToString() ?? "a settlement");
                     }
                     else
                     {
-                        textObject.SetTextVariable("SETTLEMENT_NAME", "home");
+                        _ = textObject.SetTextVariable("SETTLEMENT_NAME", "home");
                     }
                 }
-                
+
                 return textObject.ToString();
             }
             catch
@@ -1524,7 +1524,7 @@ namespace Enlisted.Features.Interface.Behaviors
                             // Clamp to minimum 1 to avoid negative or zero display
                             var daysSince = Math.Max(1, currentDay - pending.CreatedDay);
                             var text = new TextObject("{=brief_pending_repay_waiting}A comrade owes you coin. It's been {DAYS} days, and you're starting to wonder if he'll make good on it.");
-                            text.SetTextVariable("DAYS", daysSince);
+                            _ = text.SetTextVariable("DAYS", daysSince);
                             lines.Add(text.ToString());
                         }
                     }
@@ -1892,15 +1892,15 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 var sb = new StringBuilder();
-                sb.AppendLine();
-                sb.AppendLine(new TextObject("{=News_SectionHeader_Kingdom}--- Kingdom News ---").ToString());
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=News_SectionHeader_Kingdom}--- Kingdom News ---").ToString());
 
                 foreach (var item in recentItems)
                 {
                     var headline = FormatDispatchItem(item);
                     if (!string.IsNullOrEmpty(headline))
                     {
-                        sb.AppendLine($"- {headline}");
+                        _ = sb.AppendLine($"- {headline}");
                     }
                 }
 
@@ -1961,18 +1961,18 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 var sb = new StringBuilder();
-                sb.AppendLine(new TextObject("{=News_SectionHeader_Personal}--- Army Orders ---").ToString());
+                _ = sb.AppendLine(new TextObject("{=News_SectionHeader_Personal}--- Army Orders ---").ToString());
 
                 foreach (var item in recentItems)
                 {
                     var headline = FormatDispatchItem(item);
                     if (!string.IsNullOrEmpty(headline))
                     {
-                        sb.AppendLine($"- {headline}");
+                        _ = sb.AppendLine($"- {headline}");
                     }
                 }
 
-                sb.AppendLine(); // Extra line before camp activities
+                _ = sb.AppendLine(); // Extra line before camp activities
 
                 return sb.ToString();
             }
@@ -2085,7 +2085,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                         // Remove the expired outcome's feed entry
                         var storyKey = $"event:{currentOutcome.EventId}:{currentOutcome.DayNumber}";
-                        _personalFeed?.RemoveAll(item => item.StoryKey == storyKey);
+                        _ = (_personalFeed?.RemoveAll(item => item.StoryKey == storyKey));
 
                         // Promote next queued outcome if any
                         var nextQueuedOutcome = _eventOutcomes.FirstOrDefault(e => !e.IsCurrentlyShown && e.DayShown < 0);
@@ -2475,14 +2475,14 @@ namespace Enlisted.Features.Interface.Behaviors
                 var isAtWar = FactionManager.IsAtWarAgainstFaction(kingdom, null);
                 if (isAtWar)
                 {
-                    sb.Append(new TextObject("{=menu_kingdom_at_war}{KINGDOM} at war with {ENEMY}. Conflict continues.")
+                    _ = sb.Append(new TextObject("{=menu_kingdom_at_war}{KINGDOM} at war with {ENEMY}. Conflict continues.")
                         .SetTextVariable("KINGDOM", kingdom.Name?.ToString() ?? "Unknown")
                         .SetTextVariable("ENEMY", "enemies")
                         .ToString());
                 }
                 else
                 {
-                    sb.Append(new TextObject("{=menu_kingdom_peace}The realm is at peace.").ToString());
+                    _ = sb.Append(new TextObject("{=menu_kingdom_peace}The realm is at peace.").ToString());
                 }
 
                 // Check for ongoing sieges
@@ -2490,8 +2490,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (lord?.PartyBelongedTo?.SiegeEvent != null)
                 {
                     var settlement = lord.PartyBelongedTo.SiegeEvent.BesiegedSettlement;
-                    sb.Append(" ");
-                    sb.Append(new TextObject("{=menu_kingdom_siege}{KINGDOM} besieging {SETTLEMENT}.")
+                    _ = sb.Append(" ");
+                    _ = sb.Append(new TextObject("{=menu_kingdom_siege}{KINGDOM} besieging {SETTLEMENT}.")
                         .SetTextVariable("KINGDOM", kingdom.Name?.ToString() ?? "Unknown")
                         .SetTextVariable("SETTLEMENT", settlement?.Name?.ToString() ?? "Unknown")
                         .ToString());
@@ -2525,7 +2525,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Time-of-day flavor (simplified - use hour of day)
                 var currentHour = (int)CampaignTime.Now.CurrentHourInDay;
                 string timePhrase;
-                
+
                 if (currentHour >= 6 && currentHour < 12)
                 {
                     timePhrase = new TextObject("{=menu_camp_morning}Morning bustle. Camp coming alive.").ToString();
@@ -2543,15 +2543,15 @@ namespace Enlisted.Features.Interface.Behaviors
                     timePhrase = new TextObject("{=menu_camp_night}Night watch. Camp quiet.").ToString();
                 }
 
-                sb.Append(timePhrase);
+                _ = sb.Append(timePhrase);
 
                 // Add a second sentence about camp activities (simplified for now)
                 // Future: integrate with CampOpportunityGenerator for actual upcoming activities
                 var activityFlavor = GetCampActivityFlavor();
                 if (!string.IsNullOrEmpty(activityFlavor))
                 {
-                    sb.Append(" ");
-                    sb.Append(activityFlavor);
+                    _ = sb.Append(" ");
+                    _ = sb.Append(activityFlavor);
                 }
 
                 return sb.ToString();
@@ -2571,7 +2571,7 @@ namespace Enlisted.Features.Interface.Behaviors
             try
             {
                 // Use Orchestrator's pre-scheduled opportunities (the source of truth)
-                var orchestrator = Content.ContentOrchestrator.Instance;
+                var orchestrator = ContentOrchestrator.Instance;
                 if (orchestrator == null)
                 {
                     return string.Empty;
@@ -2586,7 +2586,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Return the first opportunity's hint or description as camp flavor
                 var firstOpp = scheduledOpps[0];
-                
+
                 // Prefer the narrative hint if available
                 if (!string.IsNullOrEmpty(firstOpp.NarrativeHint))
                 {
@@ -2605,10 +2605,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     return sourceOpp.Type switch
                     {
-                        Camp.Models.OpportunityType.Training => new TextObject("{=menu_camp_drilling}Veterans drilling by the wagons.").ToString(),
-                        Camp.Models.OpportunityType.Social => new TextObject("{=menu_camp_cards}Card game forming tonight by the fire.").ToString(),
-                        Camp.Models.OpportunityType.Economic => new TextObject("{=menu_camp_trading}Some trading happening in camp.").ToString(),
-                        Camp.Models.OpportunityType.Recovery => new TextObject("{=menu_camp_rest}A quiet moment in camp.").ToString(),
+                        OpportunityType.Training => new TextObject("{=menu_camp_drilling}Veterans drilling by the wagons.").ToString(),
+                        OpportunityType.Social => new TextObject("{=menu_camp_cards}Card game forming tonight by the fire.").ToString(),
+                        OpportunityType.Economic => new TextObject("{=menu_camp_trading}Some trading happening in camp.").ToString(),
+                        OpportunityType.Recovery => new TextObject("{=menu_camp_rest}A quiet moment in camp.").ToString(),
                         _ => string.Empty
                     };
                 }
@@ -2617,7 +2617,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
             catch (Exception ex)
             {
-                Mod.Core.Logging.ModLogger.Debug("News", $"GetCampActivityFlavor failed: {ex.Message}");
+                ModLogger.Debug("News", $"GetCampActivityFlavor failed: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -2630,10 +2630,10 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             try
             {
-                var worldSituation = Content.WorldStateAnalyzer.AnalyzeSituation();
+                var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
                 var sb = new StringBuilder();
 
-                sb.AppendLine("<span style=\"Header\">_____ CAMP STATUS _____</span>");
+                _ = sb.AppendLine("<span style=\"Header\">_____ CAMP STATUS _____</span>");
 
                 // Rhythm icon and activity level
                 var rhythmIcon = worldSituation.ExpectedActivity switch
@@ -2646,12 +2646,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 };
 
                 var activityName = worldSituation.ExpectedActivity.ToString();
-                sb.AppendLine($"{rhythmIcon} {activityName}");
-                sb.AppendLine();
+                _ = sb.AppendLine($"{rhythmIcon} {activityName}");
+                _ = sb.AppendLine();
 
                 // Narrative explaining the situation
                 var narrative = BuildOrchestratorNarrative(worldSituation);
-                sb.AppendLine(narrative);
+                _ = sb.AppendLine(narrative);
 
                 return sb.ToString();
             }
@@ -2677,7 +2677,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Siege operations
-                if (situation.LordIs == Content.Models.LordSituation.SiegeAttacking || 
+                if (situation.LordIs == Content.Models.LordSituation.SiegeAttacking ||
                     situation.LordIs == Content.Models.LordSituation.SiegeDefending)
                 {
                     return "Siege operations demand constant vigilance. Every hour brings new demands. " +
@@ -2685,7 +2685,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Campaign operations
-                if (situation.LordIs == Content.Models.LordSituation.WarActiveCampaign || 
+                if (situation.LordIs == Content.Models.LordSituation.WarActiveCampaign ||
                     situation.LordIs == Content.Models.LordSituation.WarMarching)
                 {
                     return "The army marches to war. Your sergeants manage the daily needs of soldiers on campaign.";
@@ -2761,8 +2761,16 @@ namespace Enlisted.Features.Interface.Behaviors
             var currentDay = (int)CampaignTime.Now.ToDays;
             var daysAgo = currentDay - dayNumber;
 
-            if (daysAgo == 0) return "today";
-            if (daysAgo == 1) return "yesterday";
+            if (daysAgo == 0)
+            {
+                return "today";
+            }
+
+            if (daysAgo == 1)
+            {
+                return "yesterday";
+            }
+
             return $"{daysAgo} days ago";
         }
 
@@ -2821,7 +2829,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Add to personal feed only if this outcome is currently shown
                 // Skip onboarding events (baggage check) as they're one-time setup that shouldn't clutter news
                 var isOnboarding = outcome.EventId != null && outcome.EventId.StartsWith("evt_bagcheck_", StringComparison.OrdinalIgnoreCase);
-                
+
                 if (outcome.IsCurrentlyShown && !isOnboarding)
                 {
                     // Build display text with narrative for immersive RP
@@ -2881,11 +2889,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         ? new TextObject("{=news_ret_casualties_killed}Your retinue lost {KILLED} soldier{KILLED_PLURAL}{CONTEXT}.")
                         : new TextObject("{=news_ret_casualties_wounded}Your retinue had {WOUNDED} soldier{WOUNDED_PLURAL} wounded{CONTEXT}.");
 
-                headline.SetTextVariable("KILLED", killed);
-                headline.SetTextVariable("WOUNDED", wounded);
-                headline.SetTextVariable("KILLED_PLURAL", killed == 1 ? "" : "s");
-                headline.SetTextVariable("WOUNDED_PLURAL", wounded == 1 ? "" : "s");
-                headline.SetTextVariable("CONTEXT", string.IsNullOrEmpty(battleContext) ? "" : $" in {battleContext}");
+                _ = headline.SetTextVariable("KILLED", killed);
+                _ = headline.SetTextVariable("WOUNDED", wounded);
+                _ = headline.SetTextVariable("KILLED_PLURAL", killed == 1 ? "" : "s");
+                _ = headline.SetTextVariable("WOUNDED_PLURAL", wounded == 1 ? "" : "s");
+                _ = headline.SetTextVariable("CONTEXT", string.IsNullOrEmpty(battleContext) ? "" : $" in {battleContext}");
 
                 var placeholders = new Dictionary<string, string>
                 {
@@ -2916,8 +2924,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 var headline = new TextObject("{=news_vet_emergence}{NAME} the {TRAIT} has distinguished themselves in your retinue.");
-                headline.SetTextVariable("NAME", veteranName);
-                headline.SetTextVariable("TRAIT", trait ?? "Steady");
+                _ = headline.SetTextVariable("NAME", veteranName);
+                _ = headline.SetTextVariable("TRAIT", trait ?? "Steady");
 
                 var placeholders = new Dictionary<string, string>
                 {
@@ -2950,9 +2958,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 var headline = battlesSurvived > 5
                     ? new TextObject("{=news_vet_death_legend}{NAME}, a legend of {BATTLES} battles and {KILLS} kills, has fallen.")
                     : new TextObject("{=news_vet_death}{NAME}, who served through {BATTLES} battles, has been slain.");
-                headline.SetTextVariable("NAME", veteranName);
-                headline.SetTextVariable("BATTLES", battlesSurvived);
-                headline.SetTextVariable("KILLS", kills);
+                _ = headline.SetTextVariable("NAME", veteranName);
+                _ = headline.SetTextVariable("BATTLES", battlesSurvived);
+                _ = headline.SetTextVariable("KILLS", kills);
 
                 var placeholders = new Dictionary<string, string>
                 {
@@ -3078,7 +3086,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 _pendingEvents ??= new List<PendingEventRecord>();
 
                 // Remove any existing pending event with the same chain ID
-                _pendingEvents.RemoveAll(p => p.ChainEventId == chainId);
+                _ = _pendingEvents.RemoveAll(p => p.ChainEventId == chainId);
 
                 var currentDay = (int)CampaignTime.Now.ToDays;
                 _pendingEvents.Add(new PendingEventRecord
@@ -3204,7 +3212,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var sb = new StringBuilder();
                 var currentDay = (int)CampaignTime.Now.ToDays;
                 var daysSince = currentDay - record.DayNumber;
-                sb.AppendLine($"Last Muster ({daysSince} days ago)");
+                _ = sb.AppendLine($"Last Muster ({daysSince} days ago)");
 
                 // Pay line
                 var payText = record.PayOutcome switch
@@ -3217,7 +3225,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     "side_deal" => $"Pay: {record.PayAmount} denars (side deal)",
                     _ => $"Pay: {record.PayOutcome}"
                 };
-                sb.AppendLine(payText);
+                _ = sb.AppendLine(payText);
 
                 // Ration line
                 var rationText = record.RationOutcome switch
@@ -3229,7 +3237,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     "commander_exempt" => "Rations: Not applicable (commander provision)",
                     _ => $"Rations: {record.RationOutcome}"
                 };
-                sb.AppendLine(rationText);
+                _ = sb.AppendLine(rationText);
 
                 // Supply status
                 var supplyStatus = record.SupplyLevel switch
@@ -3240,7 +3248,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     >= 30 => "low",
                     _ => "critical"
                 };
-                sb.AppendLine($"Supplies: {record.SupplyLevel}% ({supplyStatus})");
+                _ = sb.AppendLine($"Supplies: {record.SupplyLevel}% ({supplyStatus})");
 
                 // Unit status (only if there were losses or sick)
                 if (record.LostSinceLast > 0 || record.SickSinceLast > 0)
@@ -3254,7 +3262,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         unitParts.Add($"{record.SickSinceLast} sick");
                     }
-                    sb.AppendLine($"Unit: {string.Join(", ", unitParts)} since last muster");
+                    _ = sb.AppendLine($"Unit: {string.Join(", ", unitParts)} since last muster");
                 }
 
                 return sb.ToString().TrimEnd();
@@ -3351,7 +3359,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 if (replacementTarget.HeadlineKey != null) // Check if we found a valid target (struct has values)
                 {
-                    _personalFeed.Remove(replacementTarget);
+                    _ = _personalFeed.Remove(replacementTarget);
                     ModLogger.Debug(LogCategory, $"Replaced lower-severity news (sev {replacementTarget.Severity}) with new item (sev {severity})");
                 }
 
@@ -3489,7 +3497,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Build headline from outcome
                 string headline = outcome.GetNewsSummary();
-                
+
                 var dayNumber = (int)CampaignTime.Now.ToDays;
                 var storyKey = $"routine:{outcome.Phase}:{outcome.ActivityCategory}:{dayNumber}";
 
@@ -3520,7 +3528,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     _personalFeed.RemoveAt(0);
                 }
 
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Added routine outcome: {outcome.ActivityName} ({outcome.Outcome})");
             }
             catch (Exception ex)
@@ -4037,7 +4045,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (!string.IsNullOrEmpty(enemyLeader))
                     {
                         var text = new TextObject("{=brief_battle_enemy}The company is locked in battle against the forces of {ENEMY}. Steel clashes and war cries fill the air.");
-                        text.SetTextVariable("ENEMY", enemyLeader);
+                        _ = text.SetTextVariable("ENEMY", enemyLeader);
                         return text.ToString();
                     }
                     return new TextObject("{=brief_battle_generic}The company is engaged in battle. The clash of steel and shouts of men echo across the field.").ToString();
@@ -4053,11 +4061,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         if (isAttacker)
                         {
                             var text = new TextObject("{=brief_siege_attack}The siege of {SETTLEMENT} continues. Siege engines creak and groan as the engineers work through the night. The walls loom ahead, defiant.");
-                            text.SetTextVariable("SETTLEMENT", siegeTarget);
+                            _ = text.SetTextVariable("SETTLEMENT", siegeTarget);
                             return text.ToString();
                         }
                         var textDef = new TextObject("{=brief_siege_defend}The company holds {SETTLEMENT} against the besiegers. The enemy camps spread across the horizon, their fires burning through the night.");
-                        textDef.SetTextVariable("SETTLEMENT", siegeTarget);
+                        _ = textDef.SetTextVariable("SETTLEMENT", siegeTarget);
                         return textDef.ToString();
                     }
                     return new TextObject("{=brief_siege_generic}The company is committed to siege operations. The days blend together in a rhythm of labor and watchfulness.").ToString();
@@ -4072,23 +4080,23 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (settlement.IsTown)
                     {
                         var text = new TextObject("{=brief_rest_town}The company rests at {SETTLEMENT}. The sounds of the town drift into camp — merchants hawking wares, the clatter of cart wheels, the murmur of townsfolk going about their business.");
-                        text.SetTextVariable("SETTLEMENT", settlementName);
+                        _ = text.SetTextVariable("SETTLEMENT", settlementName);
                         return text.ToString();
                     }
                     if (settlement.IsCastle)
                     {
                         var text = new TextObject("{=brief_rest_castle}The company is garrisoned at {SETTLEMENT}. The castle walls provide welcome shelter, and the men take the chance to rest properly for once.");
-                        text.SetTextVariable("SETTLEMENT", settlementName);
+                        _ = text.SetTextVariable("SETTLEMENT", settlementName);
                         return text.ToString();
                     }
                     if (settlement.IsVillage)
                     {
                         var text = new TextObject("{=brief_rest_village}The company has made camp near {SETTLEMENT}. Smoke rises from village hearths, and the smell of cooking fires reminds you of simpler times.");
-                        text.SetTextVariable("SETTLEMENT", settlementName);
+                        _ = text.SetTextVariable("SETTLEMENT", settlementName);
                         return text.ToString();
                     }
                     var textGeneric = new TextObject("{=brief_rest_generic}The company is camped at {SETTLEMENT}.");
-                    textGeneric.SetTextVariable("SETTLEMENT", settlementName);
+                    _ = textGeneric.SetTextVariable("SETTLEMENT", settlementName);
                     return textGeneric.ToString();
                 }
 
@@ -4107,10 +4115,10 @@ namespace Enlisted.Features.Interface.Behaviors
                     var armySizeDesc = new TextObject(armySizeDescId).ToString();
 
                     var text = new TextObject("{=brief_march_army}{ARMY_DESC} marches under the banner of {LEADER}. {LORD}'s {SIZE} company moves with the column, one warband among many.");
-                    text.SetTextVariable("ARMY_DESC", armySizeDesc);
-                    text.SetTextVariable("LEADER", armyLeader);
-                    text.SetTextVariable("LORD", lordName);
-                    text.SetTextVariable("SIZE", sizeDesc);
+                    _ = text.SetTextVariable("ARMY_DESC", armySizeDesc);
+                    _ = text.SetTextVariable("LEADER", armyLeader);
+                    _ = text.SetTextVariable("LORD", lordName);
+                    _ = text.SetTextVariable("SIZE", sizeDesc);
                     return text.ToString();
                 }
 
@@ -4120,17 +4128,17 @@ namespace Enlisted.Features.Interface.Behaviors
                     var target = party.TargetSettlement.Name?.ToString() ?? new TextObject("{=brief_destination}destination").ToString();
                     var terrain = GetTerrainFlavor(party);
                     var text = new TextObject("{=brief_march_target}The company marches toward {TARGET}. {TERRAIN}");
-                    text.SetTextVariable("TARGET", target);
-                    text.SetTextVariable("TERRAIN", terrain);
+                    _ = text.SetTextVariable("TARGET", target);
+                    _ = text.SetTextVariable("TERRAIN", terrain);
                     return text.ToString();
                 }
 
                 // Default march
                 var defaultTerrain = GetTerrainFlavor(party);
                 var defaultText = new TextObject("{=brief_march_default}{LORD}'s {SIZE} company is on the move. {TERRAIN}");
-                defaultText.SetTextVariable("LORD", lordName);
-                defaultText.SetTextVariable("SIZE", sizeDesc);
-                defaultText.SetTextVariable("TERRAIN", defaultTerrain);
+                _ = defaultText.SetTextVariable("LORD", lordName);
+                _ = defaultText.SetTextVariable("SIZE", sizeDesc);
+                _ = defaultText.SetTextVariable("TERRAIN", defaultTerrain);
                 return defaultText.ToString();
             }
             catch
@@ -4367,7 +4375,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (warCount >= 2 && activeSieges > 0)
                 {
                     var text = new TextObject("{=brief_realm_multifront}{KINGDOM} fights on multiple fronts. Siege engines stand ready, and the roads are thick with soldiers marching to war.");
-                    text.SetTextVariable("KINGDOM", kingdomName);
+                    _ = text.SetTextVariable("KINGDOM", kingdomName);
                     return text.ToString();
                 }
 
@@ -4375,7 +4383,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (warCount >= 2)
                 {
                     var text = new TextObject("{=brief_realm_manywars}{KINGDOM} is pressed on all sides. Lords ride hard between campaigns, and the levies are called up again and again.");
-                    text.SetTextVariable("KINGDOM", kingdomName);
+                    _ = text.SetTextVariable("KINGDOM", kingdomName);
                     return text.ToString();
                 }
 
@@ -4386,7 +4394,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var enemyName = enemyKingdom?.Name?.ToString() ?? new TextObject("{=brief_the_enemy}the enemy").ToString();
 
                     var text = new TextObject("{=brief_realm_war_siege}The war with {ENEMY} grinds on. Castle walls are contested, and the outcome hangs in the balance.");
-                    text.SetTextVariable("ENEMY", enemyName);
+                    _ = text.SetTextVariable("ENEMY", enemyName);
                     return text.ToString();
                 }
 
@@ -4397,8 +4405,8 @@ namespace Enlisted.Features.Interface.Behaviors
                     var enemyName = enemyKingdom?.Name?.ToString() ?? new TextObject("{=brief_the_enemy}the enemy").ToString();
 
                     var text = new TextObject("{=brief_realm_war}The banners of {KINGDOM} march against {ENEMY}. Scouts bring word of enemy movements, and the lords sharpen their blades.");
-                    text.SetTextVariable("KINGDOM", kingdomName);
-                    text.SetTextVariable("ENEMY", enemyName);
+                    _ = text.SetTextVariable("KINGDOM", kingdomName);
+                    _ = text.SetTextVariable("ENEMY", enemyName);
                     return text.ToString();
                 }
 
@@ -4481,7 +4489,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (attackerFaction != playerKingdom && defenderFaction != playerKingdom)
                 {
                     // Clean up any orphaned snapshot
-                    _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
+                    _ = _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
                     return;
                 }
 
@@ -4492,7 +4500,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (isAttackerBandit || isDefenderBandit)
                 {
                     // Don't report bandit skirmishes - they're too minor for kingdom news
-                    _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
+                    _ = _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
                     return;
                 }
 
@@ -4511,18 +4519,18 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     // Inconclusive battle
                     AddBattleNews(mapEvent, "News_Inconclusive", null);
-                    _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
+                    _ = _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
                     return;
                 }
 
                 // Get snapshot for pyrrhic detection
-                _battleSnapshots.TryGetValue(mapEvent.GetHashCode().ToString(), out var snapshot);
+                _ = _battleSnapshots.TryGetValue(mapEvent.GetHashCode().ToString(), out var snapshot);
                 var classification = ClassifyBattle(mapEvent, snapshot, winnerSide.Value);
 
                 AddBattleNews(mapEvent, classification, winnerSide.Value);
 
                 // Clean up snapshot
-                _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
+                _ = _battleSnapshots.Remove(mapEvent.GetHashCode().ToString());
 
                 // Check for player participation (Personal feed)
                 CheckPlayerBattleParticipation(mapEvent, winnerSide.Value);
@@ -5169,8 +5177,8 @@ namespace Enlisted.Features.Interface.Behaviors
             string storyKey = null,
             int minDisplayDays = 1,
             int severity = 0,
-            Enlisted.Features.Content.StoryTier tier = Enlisted.Features.Content.StoryTier.Log,
-            HashSet<Enlisted.Features.Content.StoryBeat> beats = null,
+            StoryTier tier = StoryTier.Log,
+            HashSet<StoryBeat> beats = null,
             string body = null)
         {
             if (!IsEnlisted())
@@ -5242,7 +5250,7 @@ namespace Enlisted.Features.Interface.Behaviors
             int minDisplayDays)
         {
             AddPersonalDispatch(category, headlineKey, placeholderValues, storyKey, severity, minDisplayDays,
-                tier: Enlisted.Features.Content.StoryTier.Log,
+                tier: StoryTier.Log,
                 beats: null,
                 body: null);
         }
@@ -5261,8 +5269,8 @@ namespace Enlisted.Features.Interface.Behaviors
             string storyKey,
             int severity,
             int minDisplayDays,
-            Enlisted.Features.Content.StoryTier tier,
-            HashSet<Enlisted.Features.Content.StoryBeat> beats,
+            StoryTier tier,
+            HashSet<StoryBeat> beats,
             string body)
         {
             if (string.IsNullOrEmpty(headlineKey))
@@ -5325,7 +5333,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     foreach (var kvp in item.PlaceholderValues)
                     {
-                        textObj.SetTextVariable(kvp.Key, kvp.Value);
+                        _ = textObj.SetTextVariable(kvp.Key, kvp.Value);
                     }
                 }
 
@@ -5428,19 +5436,19 @@ namespace Enlisted.Features.Interface.Behaviors
             var firstShownDay = item.FirstShownDay;
             var severity = item.Severity;
 
-            dataStore.SyncData($"{prefix}_day", ref dayCreated);
-            dataStore.SyncData($"{prefix}_cat", ref category);
-            dataStore.SyncData($"{prefix}_key", ref headlineKey);
-            dataStore.SyncData($"{prefix}_story", ref storyKey);
-            dataStore.SyncData($"{prefix}_type", ref type);
-            dataStore.SyncData($"{prefix}_conf", ref confidence);
-            dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
-            dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
-            dataStore.SyncData($"{prefix}_severity", ref severity);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayCreated);
+            _ = dataStore.SyncData($"{prefix}_cat", ref category);
+            _ = dataStore.SyncData($"{prefix}_key", ref headlineKey);
+            _ = dataStore.SyncData($"{prefix}_story", ref storyKey);
+            _ = dataStore.SyncData($"{prefix}_type", ref type);
+            _ = dataStore.SyncData($"{prefix}_conf", ref confidence);
+            _ = dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
+            _ = dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
+            _ = dataStore.SyncData($"{prefix}_severity", ref severity);
 
             // Save placeholder values as a count + individual key-value pairs
             var placeholderCount = item.PlaceholderValues?.Count ?? 0;
-            dataStore.SyncData($"{prefix}_phCount", ref placeholderCount);
+            _ = dataStore.SyncData($"{prefix}_phCount", ref placeholderCount);
 
             if (item.PlaceholderValues != null)
             {
@@ -5449,8 +5457,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var phKey = placeholderList[i].Key;
                     var phVal = placeholderList[i].Value ?? string.Empty;
-                    dataStore.SyncData($"{prefix}_ph_{i}_k", ref phKey);
-                    dataStore.SyncData($"{prefix}_ph_{i}_v", ref phVal);
+                    _ = dataStore.SyncData($"{prefix}_ph_{i}_k", ref phKey);
+                    _ = dataStore.SyncData($"{prefix}_ph_{i}_v", ref phVal);
                 }
             }
 
@@ -5458,23 +5466,23 @@ namespace Enlisted.Features.Interface.Behaviors
             // Tier is serialized as int for backward-compat with pre-PR-c saves (missing
             // key loads as 0 = StoryTier.Log, which is the correct legacy default).
             var tier = (int)item.Tier;
-            dataStore.SyncData($"{prefix}_tier", ref tier);
+            _ = dataStore.SyncData($"{prefix}_tier", ref tier);
 
             // Body: empty string acts as "null" sentinel (SyncData doesn't round-trip null strings reliably).
             var body = item.Body ?? string.Empty;
-            dataStore.SyncData($"{prefix}_body", ref body);
+            _ = dataStore.SyncData($"{prefix}_body", ref body);
 
             // Beats: serialize count + per-index enum values. Missing count key loads as 0,
             // matching the "legacy dispatch with no typed beats" semantic.
             var beatCount = item.Beats?.Count ?? 0;
-            dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
+            _ = dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
             if (item.Beats != null)
             {
-                var beatList = new List<Enlisted.Features.Content.StoryBeat>(item.Beats);
+                var beatList = new List<StoryBeat>(item.Beats);
                 for (var i = 0; i < beatList.Count; i++)
                 {
                     var beatInt = (int)beatList[i];
-                    dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
+                    _ = dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
                 }
             }
         }
@@ -5494,27 +5502,27 @@ namespace Enlisted.Features.Interface.Behaviors
             var firstShownDay = -1;
             var severity = 0;
 
-            dataStore.SyncData($"{prefix}_day", ref dayCreated);
-            dataStore.SyncData($"{prefix}_cat", ref category);
-            dataStore.SyncData($"{prefix}_key", ref headlineKey);
-            dataStore.SyncData($"{prefix}_story", ref storyKey);
-            dataStore.SyncData($"{prefix}_type", ref type);
-            dataStore.SyncData($"{prefix}_conf", ref confidence);
-            dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
-            dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
-            dataStore.SyncData($"{prefix}_severity", ref severity);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayCreated);
+            _ = dataStore.SyncData($"{prefix}_cat", ref category);
+            _ = dataStore.SyncData($"{prefix}_key", ref headlineKey);
+            _ = dataStore.SyncData($"{prefix}_story", ref storyKey);
+            _ = dataStore.SyncData($"{prefix}_type", ref type);
+            _ = dataStore.SyncData($"{prefix}_conf", ref confidence);
+            _ = dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
+            _ = dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
+            _ = dataStore.SyncData($"{prefix}_severity", ref severity);
 
             // Load placeholder values
             var placeholderCount = 0;
-            dataStore.SyncData($"{prefix}_phCount", ref placeholderCount);
+            _ = dataStore.SyncData($"{prefix}_phCount", ref placeholderCount);
 
             var placeholders = new Dictionary<string, string>();
             for (var i = 0; i < placeholderCount; i++)
             {
                 var phKey = string.Empty;
                 var phVal = string.Empty;
-                dataStore.SyncData($"{prefix}_ph_{i}_k", ref phKey);
-                dataStore.SyncData($"{prefix}_ph_{i}_v", ref phVal);
+                _ = dataStore.SyncData($"{prefix}_ph_{i}_k", ref phKey);
+                _ = dataStore.SyncData($"{prefix}_ph_{i}_v", ref phVal);
                 if (!string.IsNullOrEmpty(phKey))
                 {
                     placeholders[phKey] = phVal;
@@ -5538,26 +5546,26 @@ namespace Enlisted.Features.Interface.Behaviors
             // Tier/Body/Beats typed fields.
             // Default values ensure pre-PR-c saves produce Tier=Log, Beats=null, Body=null.
             var tier = 0;  // 0 = StoryTier.Log
-            dataStore.SyncData($"{prefix}_tier", ref tier);
+            _ = dataStore.SyncData($"{prefix}_tier", ref tier);
 
             var body = string.Empty;
-            dataStore.SyncData($"{prefix}_body", ref body);
+            _ = dataStore.SyncData($"{prefix}_body", ref body);
 
             var beatCount = 0;
-            dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
-            HashSet<Enlisted.Features.Content.StoryBeat> beats = null;
+            _ = dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
+            HashSet<StoryBeat> beats = null;
             if (beatCount > 0)
             {
-                beats = new HashSet<Enlisted.Features.Content.StoryBeat>();
+                beats = new HashSet<StoryBeat>();
                 for (var i = 0; i < beatCount; i++)
                 {
                     var beatInt = 0;
-                    dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
-                    beats.Add((Enlisted.Features.Content.StoryBeat)beatInt);
+                    _ = dataStore.SyncData($"{prefix}_beat_{i}", ref beatInt);
+                    _ = beats.Add((StoryBeat)beatInt);
                 }
             }
 
-            item.Tier = (Enlisted.Features.Content.StoryTier)tier;
+            item.Tier = (StoryTier)tier;
             item.Beats = beats;
             item.Body = string.IsNullOrEmpty(body) ? null : body;
 
@@ -5573,9 +5581,9 @@ namespace Enlisted.Features.Interface.Behaviors
             var attackerStrength = snapshot.AttackerInitialStrength;
             var defenderStrength = snapshot.DefenderInitialStrength;
 
-            dataStore.SyncData($"{prefix}_id", ref mapEventId);
-            dataStore.SyncData($"{prefix}_atk", ref attackerStrength);
-            dataStore.SyncData($"{prefix}_def", ref defenderStrength);
+            _ = dataStore.SyncData($"{prefix}_id", ref mapEventId);
+            _ = dataStore.SyncData($"{prefix}_atk", ref attackerStrength);
+            _ = dataStore.SyncData($"{prefix}_def", ref defenderStrength);
         }
 
         /// <summary>
@@ -5587,9 +5595,9 @@ namespace Enlisted.Features.Interface.Behaviors
             var attackerStrength = 0;
             var defenderStrength = 0;
 
-            dataStore.SyncData($"{prefix}_id", ref mapEventId);
-            dataStore.SyncData($"{prefix}_atk", ref attackerStrength);
-            dataStore.SyncData($"{prefix}_def", ref defenderStrength);
+            _ = dataStore.SyncData($"{prefix}_id", ref mapEventId);
+            _ = dataStore.SyncData($"{prefix}_atk", ref attackerStrength);
+            _ = dataStore.SyncData($"{prefix}_def", ref defenderStrength);
 
             return new BattleSnapshot
             {
@@ -5611,12 +5619,12 @@ namespace Enlisted.Features.Interface.Behaviors
             var issuer = record.Issuer ?? string.Empty;
             var dayNumber = record.DayNumber;
 
-            dataStore.SyncData($"{prefix}_title", ref orderTitle);
-            dataStore.SyncData($"{prefix}_success", ref success);
-            dataStore.SyncData($"{prefix}_brief", ref briefSummary);
-            dataStore.SyncData($"{prefix}_detail", ref detailedSummary);
-            dataStore.SyncData($"{prefix}_issuer", ref issuer);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_title", ref orderTitle);
+            _ = dataStore.SyncData($"{prefix}_success", ref success);
+            _ = dataStore.SyncData($"{prefix}_brief", ref briefSummary);
+            _ = dataStore.SyncData($"{prefix}_detail", ref detailedSummary);
+            _ = dataStore.SyncData($"{prefix}_issuer", ref issuer);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
         }
 
         /// <summary>
@@ -5631,12 +5639,12 @@ namespace Enlisted.Features.Interface.Behaviors
             var issuer = string.Empty;
             var dayNumber = 0;
 
-            dataStore.SyncData($"{prefix}_title", ref orderTitle);
-            dataStore.SyncData($"{prefix}_success", ref success);
-            dataStore.SyncData($"{prefix}_brief", ref briefSummary);
-            dataStore.SyncData($"{prefix}_detail", ref detailedSummary);
-            dataStore.SyncData($"{prefix}_issuer", ref issuer);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_title", ref orderTitle);
+            _ = dataStore.SyncData($"{prefix}_success", ref success);
+            _ = dataStore.SyncData($"{prefix}_brief", ref briefSummary);
+            _ = dataStore.SyncData($"{prefix}_detail", ref detailedSummary);
+            _ = dataStore.SyncData($"{prefix}_issuer", ref issuer);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
 
             return new OrderOutcomeRecord
             {
@@ -5660,11 +5668,11 @@ namespace Enlisted.Features.Interface.Behaviors
             var message = record.Message ?? string.Empty;
             var dayNumber = record.DayNumber;
 
-            dataStore.SyncData($"{prefix}_target", ref target);
-            dataStore.SyncData($"{prefix}_delta", ref delta);
-            dataStore.SyncData($"{prefix}_newVal", ref newValue);
-            dataStore.SyncData($"{prefix}_msg", ref message);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_target", ref target);
+            _ = dataStore.SyncData($"{prefix}_delta", ref delta);
+            _ = dataStore.SyncData($"{prefix}_newVal", ref newValue);
+            _ = dataStore.SyncData($"{prefix}_msg", ref message);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
         }
 
         /// <summary>
@@ -5678,11 +5686,11 @@ namespace Enlisted.Features.Interface.Behaviors
             var message = string.Empty;
             var dayNumber = 0;
 
-            dataStore.SyncData($"{prefix}_target", ref target);
-            dataStore.SyncData($"{prefix}_delta", ref delta);
-            dataStore.SyncData($"{prefix}_newVal", ref newValue);
-            dataStore.SyncData($"{prefix}_msg", ref message);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_target", ref target);
+            _ = dataStore.SyncData($"{prefix}_delta", ref delta);
+            _ = dataStore.SyncData($"{prefix}_newVal", ref newValue);
+            _ = dataStore.SyncData($"{prefix}_msg", ref message);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
 
             return new ReputationChangeRecord
             {
@@ -5706,12 +5714,12 @@ namespace Enlisted.Features.Interface.Behaviors
             var message = record.Message ?? string.Empty;
             var dayNumber = record.DayNumber;
 
-            dataStore.SyncData($"{prefix}_need", ref need);
-            dataStore.SyncData($"{prefix}_delta", ref delta);
-            dataStore.SyncData($"{prefix}_oldVal", ref oldValue);
-            dataStore.SyncData($"{prefix}_newVal", ref newValue);
-            dataStore.SyncData($"{prefix}_msg", ref message);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_need", ref need);
+            _ = dataStore.SyncData($"{prefix}_delta", ref delta);
+            _ = dataStore.SyncData($"{prefix}_oldVal", ref oldValue);
+            _ = dataStore.SyncData($"{prefix}_newVal", ref newValue);
+            _ = dataStore.SyncData($"{prefix}_msg", ref message);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
         }
 
         /// <summary>
@@ -5726,12 +5734,12 @@ namespace Enlisted.Features.Interface.Behaviors
             var message = string.Empty;
             var dayNumber = 0;
 
-            dataStore.SyncData($"{prefix}_need", ref need);
-            dataStore.SyncData($"{prefix}_delta", ref delta);
-            dataStore.SyncData($"{prefix}_oldVal", ref oldValue);
-            dataStore.SyncData($"{prefix}_newVal", ref newValue);
-            dataStore.SyncData($"{prefix}_msg", ref message);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_need", ref need);
+            _ = dataStore.SyncData($"{prefix}_delta", ref delta);
+            _ = dataStore.SyncData($"{prefix}_oldVal", ref oldValue);
+            _ = dataStore.SyncData($"{prefix}_newVal", ref newValue);
+            _ = dataStore.SyncData($"{prefix}_msg", ref message);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
 
             return new CompanyNeedChangeRecord
             {
@@ -5758,18 +5766,18 @@ namespace Enlisted.Features.Interface.Behaviors
             var isCurrentlyShown = record.IsCurrentlyShown;
             var dayShown = record.DayShown;
 
-            dataStore.SyncData($"{prefix}_eventId", ref eventId);
-            dataStore.SyncData($"{prefix}_title", ref eventTitle);
-            dataStore.SyncData($"{prefix}_option", ref optionChosen);
-            dataStore.SyncData($"{prefix}_summary", ref outcomeSummary);
-            dataStore.SyncData($"{prefix}_narrative", ref resultNarrative);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
-            dataStore.SyncData($"{prefix}_isShown", ref isCurrentlyShown);
-            dataStore.SyncData($"{prefix}_dayShown", ref dayShown);
+            _ = dataStore.SyncData($"{prefix}_eventId", ref eventId);
+            _ = dataStore.SyncData($"{prefix}_title", ref eventTitle);
+            _ = dataStore.SyncData($"{prefix}_option", ref optionChosen);
+            _ = dataStore.SyncData($"{prefix}_summary", ref outcomeSummary);
+            _ = dataStore.SyncData($"{prefix}_narrative", ref resultNarrative);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_isShown", ref isCurrentlyShown);
+            _ = dataStore.SyncData($"{prefix}_dayShown", ref dayShown);
 
             // Save effects dictionary as key-value pairs
             var effectsCount = record.EffectsApplied?.Count ?? 0;
-            dataStore.SyncData($"{prefix}_effectsCount", ref effectsCount);
+            _ = dataStore.SyncData($"{prefix}_effectsCount", ref effectsCount);
 
             if (record.EffectsApplied != null)
             {
@@ -5778,8 +5786,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var key = kvp.Key;
                     var value = kvp.Value;
-                    dataStore.SyncData($"{prefix}_eff_{i}_k", ref key);
-                    dataStore.SyncData($"{prefix}_eff_{i}_v", ref value);
+                    _ = dataStore.SyncData($"{prefix}_eff_{i}_k", ref key);
+                    _ = dataStore.SyncData($"{prefix}_eff_{i}_v", ref value);
                     i++;
                 }
             }
@@ -5799,26 +5807,26 @@ namespace Enlisted.Features.Interface.Behaviors
             var isCurrentlyShown = false;
             var dayShown = -1;
 
-            dataStore.SyncData($"{prefix}_eventId", ref eventId);
-            dataStore.SyncData($"{prefix}_title", ref eventTitle);
-            dataStore.SyncData($"{prefix}_option", ref optionChosen);
-            dataStore.SyncData($"{prefix}_summary", ref outcomeSummary);
-            dataStore.SyncData($"{prefix}_narrative", ref resultNarrative);
-            dataStore.SyncData($"{prefix}_day", ref dayNumber);
-            dataStore.SyncData($"{prefix}_isShown", ref isCurrentlyShown);
-            dataStore.SyncData($"{prefix}_dayShown", ref dayShown);
+            _ = dataStore.SyncData($"{prefix}_eventId", ref eventId);
+            _ = dataStore.SyncData($"{prefix}_title", ref eventTitle);
+            _ = dataStore.SyncData($"{prefix}_option", ref optionChosen);
+            _ = dataStore.SyncData($"{prefix}_summary", ref outcomeSummary);
+            _ = dataStore.SyncData($"{prefix}_narrative", ref resultNarrative);
+            _ = dataStore.SyncData($"{prefix}_day", ref dayNumber);
+            _ = dataStore.SyncData($"{prefix}_isShown", ref isCurrentlyShown);
+            _ = dataStore.SyncData($"{prefix}_dayShown", ref dayShown);
 
             // Load effects dictionary
             var effectsCount = 0;
-            dataStore.SyncData($"{prefix}_effectsCount", ref effectsCount);
+            _ = dataStore.SyncData($"{prefix}_effectsCount", ref effectsCount);
 
             var effects = new Dictionary<string, int>();
             for (var i = 0; i < effectsCount; i++)
             {
                 var key = string.Empty;
                 var value = 0;
-                dataStore.SyncData($"{prefix}_eff_{i}_k", ref key);
-                dataStore.SyncData($"{prefix}_eff_{i}_v", ref value);
+                _ = dataStore.SyncData($"{prefix}_eff_{i}_k", ref key);
+                _ = dataStore.SyncData($"{prefix}_eff_{i}_v", ref value);
                 if (!string.IsNullOrEmpty(key))
                 {
                     effects[key] = value;
@@ -5850,11 +5858,11 @@ namespace Enlisted.Features.Interface.Behaviors
             var scheduledDay = record.ScheduledDay;
             var createdDay = record.CreatedDay;
 
-            dataStore.SyncData($"{prefix}_sourceId", ref sourceEventId);
-            dataStore.SyncData($"{prefix}_chainId", ref chainEventId);
-            dataStore.SyncData($"{prefix}_hint", ref contextHint);
-            dataStore.SyncData($"{prefix}_scheduled", ref scheduledDay);
-            dataStore.SyncData($"{prefix}_created", ref createdDay);
+            _ = dataStore.SyncData($"{prefix}_sourceId", ref sourceEventId);
+            _ = dataStore.SyncData($"{prefix}_chainId", ref chainEventId);
+            _ = dataStore.SyncData($"{prefix}_hint", ref contextHint);
+            _ = dataStore.SyncData($"{prefix}_scheduled", ref scheduledDay);
+            _ = dataStore.SyncData($"{prefix}_created", ref createdDay);
         }
 
         /// <summary>
@@ -5868,11 +5876,11 @@ namespace Enlisted.Features.Interface.Behaviors
             var scheduledDay = 0;
             var createdDay = 0;
 
-            dataStore.SyncData($"{prefix}_sourceId", ref sourceEventId);
-            dataStore.SyncData($"{prefix}_chainId", ref chainEventId);
-            dataStore.SyncData($"{prefix}_hint", ref contextHint);
-            dataStore.SyncData($"{prefix}_scheduled", ref scheduledDay);
-            dataStore.SyncData($"{prefix}_created", ref createdDay);
+            _ = dataStore.SyncData($"{prefix}_sourceId", ref sourceEventId);
+            _ = dataStore.SyncData($"{prefix}_chainId", ref chainEventId);
+            _ = dataStore.SyncData($"{prefix}_hint", ref contextHint);
+            _ = dataStore.SyncData($"{prefix}_scheduled", ref scheduledDay);
+            _ = dataStore.SyncData($"{prefix}_created", ref createdDay);
 
             return new PendingEventRecord
             {
@@ -5953,7 +5961,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// 0 (Log) is the default for dispatches created through legacy paths that don't
         /// yet set this field; treat those as non-headline.
         /// </summary>
-        public Enlisted.Features.Content.StoryTier Tier { get; set; }
+        public StoryTier Tier { get; set; }
 
         /// <summary>
         /// World-beat set the originating StoryCandidate carried. Downstream consumers
@@ -5961,7 +5969,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// matching HeadlineKey or Category. Empty or null means "unknown beats," which
         /// preserves backward-compatibility with dispatches created before PR-c.
         /// </summary>
-        public HashSet<Enlisted.Features.Content.StoryBeat> Beats { get; set; }
+        public HashSet<StoryBeat> Beats { get; set; }
 
         /// <summary>
         /// Rendered body text from the originating StoryCandidate.RenderedBody. Previously
@@ -5975,7 +5983,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// to filter for "headline" items. Source of truth for "is this a headline?" in
         /// PR-c and beyond.
         /// </summary>
-        public bool IsHeadline => Tier == Enlisted.Features.Content.StoryTier.Headline;
+        public bool IsHeadline => Tier == StoryTier.Headline;
 
         public bool Equals(DispatchItem other)
         {
@@ -5993,7 +6001,7 @@ namespace Enlisted.Features.Interface.Behaviors
                    BeatsEqual(Beats, other.Beats);
         }
 
-        private static bool BeatsEqual(HashSet<Enlisted.Features.Content.StoryBeat> a, HashSet<Enlisted.Features.Content.StoryBeat> b)
+        private static bool BeatsEqual(HashSet<StoryBeat> a, HashSet<StoryBeat> b)
         {
             if (a == null && b == null) { return true; }
             if (a == null || b == null) { return false; }

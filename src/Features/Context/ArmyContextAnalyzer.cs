@@ -20,7 +20,7 @@ namespace Enlisted.Features.Context
     public static class ArmyContextAnalyzer
     {
         private const string LogCategory = "Context";
-        
+
         private static JObject _strategicConfig;
         private static bool _configLoaded;
 
@@ -101,6 +101,7 @@ namespace Enlisted.Features.Context
         /// </summary>
         public static LordOrderPriority GetObjectivePriority(LordObjective objective, MobileParty army)
         {
+            _ = army;
             switch (objective)
             {
                 case LordObjective.PreparingBattle:
@@ -163,7 +164,7 @@ namespace Enlisted.Features.Context
             try
             {
                 var configPath = ModulePaths.GetConfigPath("strategic_context_config.json");
-                
+
                 if (!File.Exists(configPath))
                 {
                     ModLogger.Surfaced("CONTEXT", "Strategic context config not found - army analysis unavailable", null);
@@ -175,7 +176,7 @@ namespace Enlisted.Features.Context
                 var json = File.ReadAllText(configPath);
                 _strategicConfig = JObject.Parse(json);
                 _configLoaded = true;
-                
+
                 ModLogger.Info(LogCategory, "Strategic context configuration loaded successfully");
             }
             catch (Exception ex)
@@ -223,7 +224,7 @@ namespace Enlisted.Features.Context
                 {
                     return "balanced";
                 }
-                
+
                 return "offensive";
             }
             catch (Exception ex)
@@ -253,7 +254,7 @@ namespace Enlisted.Features.Context
 
                 // Military strength (active lords and total troops)
                 var activeLords = kingdom.AliveLords.Count(h => h.IsAlive && !h.IsDisabled && h.PartyBelongedTo != null);
-                var totalTroops = kingdom.Armies.Sum(a => a.TotalManCount) + 
+                var totalTroops = kingdom.Armies.Sum(a => a.TotalManCount) +
                                   kingdom.AliveLords.Where(h => h.PartyBelongedTo != null).Sum(h => h.PartyBelongedTo.MemberRoster.TotalManCount);
                 var militaryScore = MathF.Min(1.0f, (activeLords / 20f) * 0.5f + (totalTroops / 5000f) * 0.5f);
 
@@ -262,8 +263,8 @@ namespace Enlisted.Features.Context
                 var economicScore = MathF.Min(1.0f, avgGold / 100000f);
 
                 // Weighted combination
-                var strengthScore = (territoryScore * territoryWeight) + 
-                                      (militaryScore * militaryWeight) + 
+                var strengthScore = (territoryScore * territoryWeight) +
+                                      (militaryScore * militaryWeight) +
                                       (economicScore * economicWeight);
 
                 return MathF.Max(0f, strengthScore);
@@ -306,7 +307,7 @@ namespace Enlisted.Features.Context
                 }
 
                 // Check winter camp (winter season + stationary)
-                if (CampaignTime.Now.GetSeasonOfYear == CampaignTime.Seasons.Winter && 
+                if (CampaignTime.Now.GetSeasonOfYear == CampaignTime.Seasons.Winter &&
                     party.CurrentSettlement is not null)
                 {
                     return "winter_camp";
@@ -393,7 +394,7 @@ namespace Enlisted.Features.Context
                 }
 
                 // Border settlement bonus (has neighbors from different factions)
-                var isBorder = settlement.BoundVillages.Any(v => 
+                var isBorder = settlement.BoundVillages.Any(v =>
                     v.Settlement.OwnerClan?.MapFaction != settlement.OwnerClan?.MapFaction);
                 if (isBorder)
                 {
@@ -538,7 +539,7 @@ namespace Enlisted.Features.Context
             {
                 return false;
             }
-            
+
             return Kingdom.All.Any(k => k != faction && FactionManager.IsAtWarAgainstFaction(faction, k));
         }
 
@@ -603,7 +604,7 @@ namespace Enlisted.Features.Context
                     nearestSettlement = settlement;
                 }
             }
-            return nearestSettlement != null && nearestSettlement.MapFaction != null && 
+            return nearestSettlement != null && nearestSettlement.MapFaction != null &&
                    party.MapFaction != null &&
                    FactionManager.IsAtWarAgainstFaction(party.MapFaction, nearestSettlement.MapFaction);
         }

@@ -20,6 +20,9 @@ python Tools/Validation/validate_content.py
 # Sync localization strings
 python Tools/Validation/sync_event_strings.py
 
+# Run repo lint stack (.editorconfig + content validators + Ruff + PSScriptAnalyzer)
+./Tools/Validation/lint_repo.ps1
+
 # Upload to Steam Workshop
 ./Tools/Steam/upload.ps1
 
@@ -132,7 +135,7 @@ Use `ChainContinuation = true` for player-opted continuations (promotions, bag c
 
 ### 11. Content authoring — route through the storylet backbone
 
-Content is authored as **storylets** (`ModuleData/Enlisted/Storylets/*.json`), not as legacy `EventDefinition` JSON. State lives in `QualityStore` (typed numeric, global or per-hero) and `FlagStore` (named booleans with expiry). Durable player engagements are `Activity` subclasses with phases and intent-biased storylet pools. Effects are either named scripted effects from `ModuleData/Enlisted/Effects/scripted_effects.json` (preferred — the seed catalog has 22 entries) or registered primitives (`quality_add`, `set_flag`, `give_gold`, etc.). Triggers are named C# predicates resolved by `TriggerRegistry`. Spec: [docs/superpowers/specs/2026-04-19-storylet-backbone-design.md](docs/superpowers/specs/2026-04-19-storylet-backbone-design.md).
+Content is authored as **storylets** (`ModuleData/Enlisted/Storylets/*.json`), not as legacy `EventDefinition` JSON. State lives in `QualityStore` (typed numeric, global or per-hero) and `FlagStore` (named booleans with expiry). Durable player engagements are `Activity` subclasses with phases and intent-biased storylet pools. Effects are either named scripted effects from `ModuleData/Enlisted/Effects/scripted_effects.json` (preferred — the seed catalog has 22 entries) or registered primitives (`quality_add`, `set_flag`, `give_gold`, etc.). Triggers are named C# predicates resolved by `TriggerRegistry`. Reference: [docs/Features/Content/storylet-backbone.md](docs/Features/Content/storylet-backbone.md) (living doc — seed catalogs, trigger/slot/primitive lists, save-definer offsets, pitfalls).
 
 **Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) claim class offsets **45-60**. Grep the definer before claiming an offset — collisions corrupt saves silently.
 
@@ -163,6 +166,38 @@ if (!PlayerEncounter.InsideSettlement) PlayerEncounter.Finish();
 // Centralized manager for reputation/needs changes
 EscalationManager.Instance.ModifyReputation(ReputationType.Soldier, 5, "reason");
 ```
+
+---
+
+## AI Maintainability Priorities
+
+Repo-local rules win over generic style defaults. Run the lint stack — it
+encodes everything below that's machine-checkable.
+
+Lint config — single source of truth per language:
+
+- `.editorconfig` — C# / JSON / XML formatting and Roslyn diagnostics
+- `ruff.toml` — `Tools/**/*.py`
+- `PSScriptAnalyzerSettings.psd1` — `Tools/**/*.ps1`
+- `Tools/Validation/lint_repo.ps1` — runs the full stack end-to-end
+
+Repo-specific rules generic AI defaults won't catch:
+
+- **Don't reformat unrelated lines** just because a different style is valid.
+  Match surrounding code; let `.editorconfig` drive.
+- **Don't invent a new manager / store / catalog / behavior / runtime** without
+  checking whether one already exists for that responsibility. Grep first.
+- **Don't bundle refactor + behavior change + content migration in one patch**
+  unless the task explicitly requires that bundle. Smallest stable surface
+  first.
+- **When a change crosses C# + content boundaries** (loader + JSON, validator
+  + schema), update both sides together — never leave authored data ahead of
+  the code that consumes it.
+- **Use `nameof(...)`** for member/type names — not for player-facing text,
+  localization fallbacks, or authored content IDs.
+- **Route player/dev-visible failures through `ModLogger`** (Surfaced /
+  Caught / Expected — see Code Standards above). Catch only what you can
+  actually handle.
 
 ---
 
@@ -215,7 +250,7 @@ Link, don't duplicate — open these for depth:
 | Validation tool reference | [Tools/README.md](Tools/README.md) |
 | Writing style (voice, tone) | [docs/Features/Content/writing-style-guide.md](docs/Features/Content/writing-style-guide.md) |
 | Error code registry (auto-generated) | [docs/error-codes.md](docs/error-codes.md) |
-| Storylet backbone (content layer, Spec 0) | [docs/superpowers/specs/2026-04-19-storylet-backbone-design.md](docs/superpowers/specs/2026-04-19-storylet-backbone-design.md) |
+| Storylet backbone (content layer, Spec 0) | [docs/Features/Content/storylet-backbone.md](docs/Features/Content/storylet-backbone.md) — living reference |
 | Event pacing (delivery layer) | [docs/superpowers/specs/2026-04-18-event-pacing-design.md](docs/superpowers/specs/2026-04-18-event-pacing-design.md) |
 
 ---
@@ -257,6 +292,11 @@ Link, don't duplicate — open these for depth:
     (classes) and 82-83 (enums) are Spec 0. Offsets 45-60 are reserved for
     concrete `Activity` subclasses across surface specs 1-5 — see Critical
     Rule #11.
+16. Authoring a scripted effect (in `ModuleData/Enlisted/Effects/scripted_effects.json`)
+    whose body references another scripted effect that eventually references it
+    back. `EffectExecutor` caps expansion at depth 8 and logs
+    `Expected("EFFECT", "scripted_depth_limit", ...)` — the chain no-ops at the
+    cap, but a cyclic catalog is a JSON bug worth surfacing in the session log.
 
 Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 

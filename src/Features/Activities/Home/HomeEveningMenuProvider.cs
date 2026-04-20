@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -49,7 +49,7 @@ namespace Enlisted.Features.Activities.Home
                 PhaseId = "evening",
                 CurrentContext = "settlement"
             };
-            home.OnPlayerChoice(intent, Enlisted.Features.Activities.ActivityContext.FromCurrent());
+            home.OnPlayerChoice(intent, ActivityContext.FromCurrent());
 
             var picked = PickStorylet(home, intent, ctx);
             if (picked == null)
@@ -134,12 +134,12 @@ namespace Enlisted.Features.Activities.Home
         {
             switch (intent)
             {
-                case "unwind":     return "Drink with the squad";
+                case "unwind": return "Drink with the squad";
                 case "train_hard": return "Drill until blisters";
-                case "brood":      return "Sit alone with your thoughts";
-                case "commune":    return "Seek out the lord";
-                case "scheme":     return "Slip away quietly";
-                default:           return intent;
+                case "brood": return "Sit alone with your thoughts";
+                case "commune": return "Seek out the lord";
+                case "scheme": return "Slip away quietly";
+                default: return intent;
             }
         }
     }

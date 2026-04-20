@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using Enlisted.Mod.Core.Logging;
 namespace Enlisted.Mod.Core.Triggers
 {
     /// <summary>
@@ -19,7 +19,6 @@ namespace Enlisted.Mod.Core.Triggers
     /// </summary>
     public sealed class CampaignTriggerTrackerBehavior : CampaignBehaviorBase
     {
-        private const string LogCategory = "Triggers";
 
         /// <summary>
         /// Singleton access for lightweight, shared trigger state.
@@ -71,19 +70,19 @@ namespace Enlisted.Mod.Core.Triggers
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
                 // Settlements
-                dataStore.SyncData("tr_lastSettlementEnteredTime", ref _lastSettlementEnteredTime);
-                dataStore.SyncData("tr_lastSettlementEnteredId", ref _lastSettlementEnteredId);
-                dataStore.SyncData("tr_lastSettlementLeftTime", ref _lastSettlementLeftTime);
-                dataStore.SyncData("tr_lastSettlementLeftId", ref _lastSettlementLeftId);
+                _ = dataStore.SyncData("tr_lastSettlementEnteredTime", ref _lastSettlementEnteredTime);
+                _ = dataStore.SyncData("tr_lastSettlementEnteredId", ref _lastSettlementEnteredId);
+                _ = dataStore.SyncData("tr_lastSettlementLeftTime", ref _lastSettlementLeftTime);
+                _ = dataStore.SyncData("tr_lastSettlementLeftId", ref _lastSettlementLeftId);
 
-                dataStore.SyncData("tr_lastTownEnteredTime", ref _lastTownEnteredTime);
-                dataStore.SyncData("tr_lastCastleEnteredTime", ref _lastCastleEnteredTime);
-                dataStore.SyncData("tr_lastVillageEnteredTime", ref _lastVillageEnteredTime);
+                _ = dataStore.SyncData("tr_lastTownEnteredTime", ref _lastTownEnteredTime);
+                _ = dataStore.SyncData("tr_lastCastleEnteredTime", ref _lastCastleEnteredTime);
+                _ = dataStore.SyncData("tr_lastVillageEnteredTime", ref _lastVillageEnteredTime);
 
                 // Battles / map events
-                dataStore.SyncData("tr_lastMapEventStartedTime", ref _lastMapEventStartedTime);
-                dataStore.SyncData("tr_lastMapEventEndedTime", ref _lastMapEventEndedTime);
-                dataStore.SyncData("tr_lastMapEventType", ref _lastMapEventType);
+                _ = dataStore.SyncData("tr_lastMapEventStartedTime", ref _lastMapEventStartedTime);
+                _ = dataStore.SyncData("tr_lastMapEventEndedTime", ref _lastMapEventEndedTime);
+                _ = dataStore.SyncData("tr_lastMapEventType", ref _lastMapEventType);
             });
         }
 

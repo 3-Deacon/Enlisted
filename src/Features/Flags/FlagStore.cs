@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.ObjectSystem;
@@ -100,7 +100,7 @@ namespace Enlisted.Features.Flags
             {
                 return;
             }
-            GlobalFlags.Remove(flag);
+            _ = GlobalFlags.Remove(flag);
         }
 
         public void ClearForHero(Hero hero, string flag)
@@ -111,7 +111,7 @@ namespace Enlisted.Features.Flags
             }
             if (HeroFlags.TryGetValue(hero.Id, out var map))
             {
-                map.Remove(flag);
+                _ = map.Remove(flag);
             }
         }
 
@@ -134,11 +134,15 @@ namespace Enlisted.Features.Flags
         /// <summary>Sweep expired entries. Called by FlagBehavior on hourly tick.</summary>
         public void PurgeExpired(CampaignTime now)
         {
-            PurgeExpiredIn(GlobalFlags, now);
-            foreach (var kv in HeroFlags) PurgeExpiredIn(kv.Value, now);
+            _ = now;
+            PurgeExpiredIn(GlobalFlags);
+            foreach (var kv in HeroFlags)
+            {
+                PurgeExpiredIn(kv.Value);
+            }
         }
 
-        private static void PurgeExpiredIn(Dictionary<string, CampaignTime> map, CampaignTime now)
+        private static void PurgeExpiredIn(Dictionary<string, CampaignTime> map)
         {
             List<string> toRemove = null;
             foreach (var kv in map)
@@ -154,7 +158,7 @@ namespace Enlisted.Features.Flags
             }
             foreach (var k in toRemove)
             {
-                map.Remove(k);
+                _ = map.Remove(k);
             }
         }
 
@@ -175,7 +179,7 @@ namespace Enlisted.Features.Flags
             }
             foreach (var id in toRemove)
             {
-                HeroFlags.Remove(id);
+                _ = HeroFlags.Remove(id);
             }
         }
     }

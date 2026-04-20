@@ -89,7 +89,7 @@ namespace Enlisted.Features.Content
             }
 
             ModLogger.Debug(LogCategory, $"CheckAvailability: {decision.Id}");
-            
+
             var enlistment = EnlistmentBehavior.Instance;
             var escalation = EscalationManager.Instance;
 
@@ -151,7 +151,7 @@ namespace Enlisted.Features.Content
             {
                 if (escalation.State.IsEventOnCooldown(decision.Id, cooldownDays))
                 {
-                    escalation.State.EventLastFired.TryGetValue(decision.Id, out var lastFired);
+                    _ = escalation.State.EventLastFired.TryGetValue(decision.Id, out var lastFired);
                     var daysSince = (CampaignTime.Now - lastFired).ToDays;
                     var daysRemaining = (int)Math.Ceiling(cooldownDays - daysSince);
                     result.IsAvailable = false;
@@ -209,9 +209,9 @@ namespace Enlisted.Features.Content
             {
                 var party = enlistment?.CurrentLord?.PartyBelongedTo;
                 // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-                var isAtSea = party != null && 
-                              party.CurrentSettlement == null && 
-                              party.BesiegedSettlement == null && 
+                var isAtSea = party != null &&
+                              party.CurrentSettlement == null &&
+                              party.BesiegedSettlement == null &&
                               party.IsCurrentlyAtSea;
 
                 // Check if decision requires being NOT at sea (land-only)
@@ -242,15 +242,15 @@ namespace Enlisted.Features.Content
                     ModLogger.Debug(LogCategory, "Baggage access blocked: bag check pending");
                     return result;
                 }
-                
+
                 var baggageManager = Logistics.BaggageTrainManager.Instance;
                 if (baggageManager != null)
                 {
                     var accessState = baggageManager.GetCurrentAccess();
-                    
+
                     // Only show decision when baggage is actually accessible
                     // (FullAccess or TemporaryAccess, but not NoAccess or Locked)
-                    if (accessState == Logistics.BaggageAccessState.NoAccess || 
+                    if (accessState == Logistics.BaggageAccessState.NoAccess ||
                         accessState == Logistics.BaggageAccessState.Locked)
                     {
                         result.IsAvailable = false;
@@ -259,7 +259,7 @@ namespace Enlisted.Features.Content
                         ModLogger.Debug(LogCategory, $"Baggage access blocked: state={accessState}");
                         return result;
                     }
-                    
+
                     ModLogger.Debug(LogCategory, $"Baggage access available: state={accessState}");
                 }
             }

@@ -65,8 +65,8 @@ namespace Enlisted.Features.Content
         /// Creates a need-based override for a critical company condition.
         /// </summary>
         public static OrchestratorOverride CreateNeedBased(
-            string category, 
-            string name, 
+            string category,
+            string name,
             string reason,
             string addressesNeed,
             DayPhase[] phases = null)
@@ -88,8 +88,8 @@ namespace Enlisted.Features.Content
         /// Creates a variety injection to break up routine.
         /// </summary>
         public static OrchestratorOverride CreateVariety(
-            string category, 
-            string name, 
+            string category,
+            string name,
             string description,
             DayPhase preferredPhase)
         {

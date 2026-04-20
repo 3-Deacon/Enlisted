@@ -91,9 +91,9 @@ namespace Enlisted.Features.Escalation
                 var lordRep = _state.LordReputation;
                 var medical = _state.MedicalRisk;
 
-                dataStore.SyncData("esc_scrutiny", ref scrutiny);
-                dataStore.SyncData("esc_lordRep", ref lordRep);
-                dataStore.SyncData("esc_medical", ref medical);
+                _ = dataStore.SyncData("esc_scrutiny", ref scrutiny);
+                _ = dataStore.SyncData("esc_lordRep", ref lordRep);
+                _ = dataStore.SyncData("esc_medical", ref medical);
 
                 // Timestamps for decay logic
                 var lastScrutinyRaised = _state.LastScrutinyRaisedTime;
@@ -101,33 +101,33 @@ namespace Enlisted.Features.Escalation
                 var lastMedicalDecay = _state.LastMedicalRiskDecayTime;
                 var lastThresholdEvent = _state.LastThresholdEventTime;
 
-                dataStore.SyncData("esc_lastScrutinyRaised", ref lastScrutinyRaised);
-                dataStore.SyncData("esc_lastScrutinyDecay", ref lastScrutinyDecay);
-                dataStore.SyncData("esc_lastMedicalDecay", ref lastMedicalDecay);
-                dataStore.SyncData("esc_lastThresholdEvent", ref lastThresholdEvent);
+                _ = dataStore.SyncData("esc_lastScrutinyRaised", ref lastScrutinyRaised);
+                _ = dataStore.SyncData("esc_lastScrutinyDecay", ref lastScrutinyDecay);
+                _ = dataStore.SyncData("esc_lastMedicalDecay", ref lastMedicalDecay);
+                _ = dataStore.SyncData("esc_lastThresholdEvent", ref lastThresholdEvent);
 
                 // Pending threshold event
                 var pendingThreshold = _state.PendingThresholdStoryId ?? string.Empty;
-                dataStore.SyncData("esc_pendingThreshold", ref pendingThreshold);
+                _ = dataStore.SyncData("esc_pendingThreshold", ref pendingThreshold);
 
                 // Per-threshold cooldown map
-                var thresholdKeys = (_state.ThresholdStoryLastFired ?? Enumerable.Empty<System.Collections.Generic.KeyValuePair<string, CampaignTime>>())
+                var thresholdKeys = (_state.ThresholdStoryLastFired ?? Enumerable.Empty<KeyValuePair<string, CampaignTime>>())
                     .Select(k => k.Key)
                     .ToList();
                 var thresholdCount = thresholdKeys.Count;
-                dataStore.SyncData("esc_thresholdCount", ref thresholdCount);
+                _ = dataStore.SyncData("esc_thresholdCount", ref thresholdCount);
 
                 // Event cooldown map (same pattern as threshold cooldowns)
-                var eventKeys = (_state.EventLastFired ?? Enumerable.Empty<System.Collections.Generic.KeyValuePair<string, CampaignTime>>())
+                var eventKeys = (_state.EventLastFired ?? Enumerable.Empty<KeyValuePair<string, CampaignTime>>())
                     .Select(k => k.Key)
                     .ToList();
                 var eventCooldownCount = eventKeys.Count;
-                dataStore.SyncData("esc_eventCooldownCount", ref eventCooldownCount);
+                _ = dataStore.SyncData("esc_eventCooldownCount", ref eventCooldownCount);
 
                 // One-time events fired
                 var oneTimeKeys = (_state.OneTimeEventsFired ?? Enumerable.Empty<string>()).ToList();
                 var oneTimeCount = oneTimeKeys.Count;
-                dataStore.SyncData("esc_oneTimeCount", ref oneTimeCount);
+                _ = dataStore.SyncData("esc_oneTimeCount", ref oneTimeCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -146,8 +146,8 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = string.Empty;
                         var time = CampaignTime.Zero;
-                        dataStore.SyncData($"esc_threshold_{i}_id", ref key);
-                        dataStore.SyncData($"esc_threshold_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_threshold_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_threshold_{i}_time", ref time);
                         if (!string.IsNullOrWhiteSpace(key))
                         {
                             _state.ThresholdStoryLastFired[key] = time;
@@ -160,8 +160,8 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = string.Empty;
                         var time = CampaignTime.Zero;
-                        dataStore.SyncData($"esc_event_{i}_id", ref key);
-                        dataStore.SyncData($"esc_event_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_event_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_event_{i}_time", ref time);
                         if (!string.IsNullOrWhiteSpace(key))
                         {
                             _state.EventLastFired[key] = time;
@@ -173,10 +173,10 @@ namespace Enlisted.Features.Escalation
                     for (var i = 0; i < oneTimeCount; i++)
                     {
                         var eventId = string.Empty;
-                        dataStore.SyncData($"esc_onetime_{i}", ref eventId);
+                        _ = dataStore.SyncData($"esc_onetime_{i}", ref eventId);
                         if (!string.IsNullOrWhiteSpace(eventId))
                         {
-                            _state.OneTimeEventsFired.Add(eventId);
+                            _ = _state.OneTimeEventsFired.Add(eventId);
                         }
                     }
 
@@ -190,8 +190,8 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = thresholdKeys[i];
                         var time = _state.ThresholdStoryLastFired.TryGetValue(key, out var t) ? t : CampaignTime.Zero;
-                        dataStore.SyncData($"esc_threshold_{i}_id", ref key);
-                        dataStore.SyncData($"esc_threshold_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_threshold_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_threshold_{i}_time", ref time);
                     }
 
                     // Save event cooldown map
@@ -200,8 +200,8 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = eventKeys[i];
                         var time = _state.EventLastFired.TryGetValue(key, out var t) ? t : CampaignTime.Zero;
-                        dataStore.SyncData($"esc_event_{i}_id", ref key);
-                        dataStore.SyncData($"esc_event_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_event_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_event_{i}_time", ref time);
                     }
 
                     // Save one-time events set
@@ -209,7 +209,7 @@ namespace Enlisted.Features.Escalation
                     for (var i = 0; i < oneTimeKeys.Count; i++)
                     {
                         var eventId = oneTimeKeys[i];
-                        dataStore.SyncData($"esc_onetime_{i}", ref eventId);
+                        _ = dataStore.SyncData($"esc_onetime_{i}", ref eventId);
                     }
                 }
 
@@ -221,19 +221,19 @@ namespace Enlisted.Features.Escalation
                 var autoEventWeekNum = _state.AutoEventWeekNumber;
                 var isQuietDay = _state.IsQuietDay;
 
-                dataStore.SyncData("esc_lastAutoEvent", ref lastAutoEvent);
-                dataStore.SyncData("esc_autoEventsToday", ref autoEventsToday);
-                dataStore.SyncData("esc_autoEventDayNum", ref autoEventDayNum);
-                dataStore.SyncData("esc_autoEventsWeek", ref autoEventsWeek);
-                dataStore.SyncData("esc_autoEventWeekNum", ref autoEventWeekNum);
-                dataStore.SyncData("esc_isQuietDay", ref isQuietDay);
+                _ = dataStore.SyncData("esc_lastAutoEvent", ref lastAutoEvent);
+                _ = dataStore.SyncData("esc_autoEventsToday", ref autoEventsToday);
+                _ = dataStore.SyncData("esc_autoEventDayNum", ref autoEventDayNum);
+                _ = dataStore.SyncData("esc_autoEventsWeek", ref autoEventsWeek);
+                _ = dataStore.SyncData("esc_autoEventWeekNum", ref autoEventWeekNum);
+                _ = dataStore.SyncData("esc_isQuietDay", ref isQuietDay);
 
                 // Category cooldown map (tracks last fired time per category)
-                var categoryKeys = (_state.CategoryLastFired ?? Enumerable.Empty<System.Collections.Generic.KeyValuePair<string, CampaignTime>>())
+                var categoryKeys = (_state.CategoryLastFired ?? Enumerable.Empty<KeyValuePair<string, CampaignTime>>())
                     .Select(k => k.Key)
                     .ToList();
                 var categoryCount = categoryKeys.Count;
-                dataStore.SyncData("esc_categoryCooldownCount", ref categoryCount);
+                _ = dataStore.SyncData("esc_categoryCooldownCount", ref categoryCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -250,8 +250,8 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = string.Empty;
                         var time = CampaignTime.Zero;
-                        dataStore.SyncData($"esc_category_{i}_id", ref key);
-                        dataStore.SyncData($"esc_category_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_category_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_category_{i}_time", ref time);
                         if (!string.IsNullOrWhiteSpace(key))
                         {
                             _state.CategoryLastFired[key] = time;
@@ -266,14 +266,14 @@ namespace Enlisted.Features.Escalation
                     {
                         var key = categoryKeys[i];
                         var time = _state.CategoryLastFired[key];
-                        dataStore.SyncData($"esc_category_{i}_id", ref key);
-                        dataStore.SyncData($"esc_category_{i}_time", ref time);
+                        _ = dataStore.SyncData($"esc_category_{i}_id", ref key);
+                        _ = dataStore.SyncData($"esc_category_{i}_time", ref time);
                     }
                 }
 
                 // Declined promotion tracking
                 var declinedCount = _declinedPromotions.Count;
-                dataStore.SyncData("esc_declinedPromotionsCount", ref declinedCount);
+                _ = dataStore.SyncData("esc_declinedPromotionsCount", ref declinedCount);
 
                 if (dataStore.IsLoading)
                 {
@@ -281,10 +281,10 @@ namespace Enlisted.Features.Escalation
                     for (var i = 0; i < declinedCount; i++)
                     {
                         var tier = 0;
-                        dataStore.SyncData($"esc_declinedPromo_{i}", ref tier);
+                        _ = dataStore.SyncData($"esc_declinedPromo_{i}", ref tier);
                         if (tier > 0)
                         {
-                            _declinedPromotions.Add(tier);
+                            _ = _declinedPromotions.Add(tier);
                         }
                     }
                 }
@@ -295,7 +295,7 @@ namespace Enlisted.Features.Escalation
                     for (var i = 0; i < tiers.Count; i++)
                     {
                         var tier = tiers[i];
-                        dataStore.SyncData($"esc_declinedPromo_{i}", ref tier);
+                        _ = dataStore.SyncData($"esc_declinedPromo_{i}", ref tier);
                     }
                 }
             });
@@ -441,12 +441,12 @@ namespace Enlisted.Features.Escalation
             }
 
             LogTrackChange("Scrutiny", oldValue, _state.Scrutiny, reason);
-            CheckThresholdCrossing("Scrutiny", oldValue, _state.Scrutiny, new[] { 
-                EscalationThresholds.ScrutinyWarning, 
-                EscalationThresholds.ScrutinyShakedown, 
-                EscalationThresholds.ScrutinyAudit, 
+            CheckThresholdCrossing("Scrutiny", oldValue, _state.Scrutiny, new[] {
+                EscalationThresholds.ScrutinyWarning,
+                EscalationThresholds.ScrutinyShakedown,
+                EscalationThresholds.ScrutinyAudit,
                 EscalationThresholds.ScrutinyExposed,
-                EscalationThresholds.ScrutinyCritical 
+                EscalationThresholds.ScrutinyCritical
             });
 
             // Show UI notification for scrutiny changes (only when increasing - "attention" from authorities)
@@ -457,8 +457,8 @@ namespace Enlisted.Features.Escalation
                     ? TaleWorlds.Library.Colors.Red
                     : TaleWorlds.Library.Colors.Yellow;
                 var msg = new TextObject("{=esc_scrutiny_changed}Scrutiny increased (+{DELTA}) - Status: {STATUS}");
-                msg.SetTextVariable("DELTA", delta);
-                msg.SetTextVariable("STATUS", statusText);
+                _ = msg.SetTextVariable("DELTA", delta);
+                _ = msg.SetTextVariable("STATUS", statusText);
                 TaleWorlds.Library.InformationManager.DisplayMessage(
                     new TaleWorlds.Library.InformationMessage(msg.ToString(), color));
             }
@@ -666,49 +666,6 @@ namespace Enlisted.Features.Escalation
             return updatedValue != value;
         }
 
-        private static bool TryDecayTowardZero(
-            int value,
-            CampaignTime lastDecayTime,
-            int intervalDays,
-            int amount,
-            int min,
-            int max,
-            CampaignTime now,
-            out int updatedValue,
-            out CampaignTime updatedLastDecayTime)
-        {
-            updatedValue = value;
-            updatedLastDecayTime = lastDecayTime;
-
-            if (value == 0)
-            {
-                return false;
-            }
-
-            if (intervalDays <= 0)
-            {
-                return false;
-            }
-
-            var sinceLastDecay = lastDecayTime == CampaignTime.Zero ? float.MaxValue : (now.ToDays - lastDecayTime.ToDays);
-            if (sinceLastDecay < intervalDays)
-            {
-                return false;
-            }
-
-            if (value > 0)
-            {
-                updatedValue = Clamp(value - amount, min, max);
-            }
-            else
-            {
-                updatedValue = Clamp(value + amount, min, max);
-            }
-
-            updatedLastDecayTime = now;
-            return updatedValue != value;
-        }
-
         #endregion
 
         #region Readable status labels (for UI)
@@ -752,7 +709,7 @@ namespace Enlisted.Features.Escalation
             }
 
             var rep = CharacterRelationManager.GetHeroRelation(Hero.MainHero, enlistment.EnlistedLord);
-            
+
             if (rep >= 80)
             {
                 return "Celebrated";
@@ -816,7 +773,7 @@ namespace Enlisted.Features.Escalation
         /// </summary>
         public void RecordDeclinedPromotion(int tier)
         {
-            _declinedPromotions.Add(tier);
+            _ = _declinedPromotions.Add(tier);
             ModLogger.Info(LogCategory, $"Recorded declined promotion to tier {tier}");
         }
 
@@ -981,8 +938,10 @@ namespace Enlisted.Features.Escalation
         /// <summary>
         /// Generates a contextual message for lord reputation changes based on magnitude.
         /// </summary>
-        private static string GetReputationChangeMessage(string target, int delta, int _)
+        private static string GetReputationChangeMessage(string ignoredTarget, int delta, int ignoredValue)
         {
+            _ = ignoredTarget;
+            _ = ignoredValue;
             if (delta >= 20)
             {
                 return "Your lord took special notice of your recent performance";

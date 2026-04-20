@@ -1,9 +1,9 @@
-using HarmonyLib;
-using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Party;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Party;
 
 // ReSharper disable UnusedType.Global - Harmony patches are applied via attributes, not direct code references
 // ReSharper disable UnusedMember.Local - Harmony Prefix/Postfix methods are invoked via reflection
@@ -93,18 +93,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch("TaleWorlds.CampaignSystem.CampaignBehaviors.LordConversationsCampaignBehavior", "conversation_player_let_prisoner_go_on_condition")]
         public static class BlockReleasePrisonerConversationPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __result is a special injected parameter")]
-            private static void Postfix(ref bool __result)
-            {
-                if (__result && ShouldBlockPrisonerActions())
-                {
-                    var prisonerName = Hero.OneToOneConversationHero?.Name?.ToString() ?? "unknown";
-                    ModLogger.Debug(
-                        "PrisonerAction",
-                        $"Blocked release option for {prisonerName} - enlisted soldiers cannot release prisoners");
-                    __result = false;
-                }
-            }
         }
 
         /// <summary>
@@ -116,12 +104,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyPatch("TaleWorlds.CampaignSystem.CampaignBehaviors.LordConversationsCampaignBehavior", "conversation_player_is_leaving_enemy_prisoner_on_condition")]
         public static class BlockLeavePrisonerConversationPatch
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __result is a special injected parameter")]
-            private static void Postfix()
-            {
-                // This one we don't block - it's just leaving the conversation, not releasing
-                // The prisoner stays imprisoned. Only block actual release actions.
-            }
         }
 
         #endregion

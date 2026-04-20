@@ -47,6 +47,11 @@ dotnet_diagnostic.IDE0001.severity = warning  # Simplify name (remove redundant 
 dotnet_diagnostic.IDE0002.severity = warning  # Simplify member access (remove redundant this/base)
 dotnet_diagnostic.CS8019.severity = warning   # Unnecessary using directive
 dotnet_diagnostic.IDE0079.severity = warning  # Remove unnecessary suppression
+dotnet_diagnostic.IDE0051.severity = warning  # Remove unused private members
+dotnet_diagnostic.IDE0052.severity = warning  # Remove unread private members
+dotnet_diagnostic.IDE0058.severity = warning  # Remove unused expression values
+dotnet_diagnostic.IDE0059.severity = warning  # Remove unnecessary assignments
+dotnet_diagnostic.IDE0060.severity = warning  # Remove unused parameters
 csharp_style_unused_value_expression_statement_preference = discard_variable:suggestion
 csharp_style_unused_value_assignment_preference = discard_variable:suggestion
 

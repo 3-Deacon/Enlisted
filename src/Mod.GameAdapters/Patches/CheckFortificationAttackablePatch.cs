@@ -1,9 +1,5 @@
 using HarmonyLib;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
-using TaleWorlds.CampaignSystem.Encounters;
-using TaleWorlds.CampaignSystem.GameMenus;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -22,38 +18,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [HarmonyPatch(typeof(EncounterGameMenuBehavior), "CheckFortificationAttackableHonorably")]
     public static class CheckFortificationAttackablePatch
     {
-        /// <summary>
-        /// Prefix that guards against null EncounterSettlement before vanilla code tries to access it.
-        /// When settlement context is missing, we disable the option and skip the vanilla method entirely.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", 
-            Justification = "Called by Harmony via reflection")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", 
-            Justification = "Harmony convention: parameter names must match original method")]
-        private static bool Prefix(MenuCallbackArgs args)
-        {
-            // Skip when the mod is inactive; only protect when Enlisted systems are running
-            if (!EnlistedActivation.IsActive)
-            {
-                return true; // allow vanilla logic untouched
-            }
-
-            // Guard against vanilla null reference bug when EncounterSettlement is null
-            // This happens when PlayerEncounter is finished right as the menu refreshes
-            if (PlayerEncounter.EncounterSettlement == null)
-            {
-                // Disable the besiege option since we have no settlement to evaluate
-                // This is safer than leaving it enabled during the transient null window
-                args.IsEnabled = false;
-                
-                ModLogger.Debug("EncounterPatch", 
-                    "Guarded null EncounterSettlement in CheckFortificationAttackableHonorably - disabled besiege option");
-                
-                return false; // Skip vanilla method to prevent NullReferenceException
-            }
-
-            return true; // Settlement exists, let vanilla method run normally
-        }
     }
 }
 

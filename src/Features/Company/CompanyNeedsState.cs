@@ -14,7 +14,7 @@ namespace Enlisted.Features.Company
     {
         /// <summary>Combat readiness (0-100)</summary>
         public int Readiness { get; set; } = 60;
-        
+
         /// <summary>
         /// Supplies level (0-100). Uses CompanySupplyManager for unified logistics tracking
         /// including rations, ammunition, repairs, and camp supplies. Falls back to stored
@@ -25,7 +25,7 @@ namespace Enlisted.Features.Company
             get => CompanySupplyManager.Instance?.TotalSupply ?? _suppliesFallback;
             set => _suppliesFallback = (int)MathF.Clamp(value, 0, 100);
         }
-        
+
         /// <summary>
         /// Fallback supplies value used when CompanySupplyManager is not active.
         /// </summary>
@@ -57,7 +57,7 @@ namespace Enlisted.Features.Company
         public void SetNeed(CompanyNeed need, int value)
         {
             value = (int)MathF.Clamp(value, 0, 100);
-            
+
             switch (need)
             {
                 case CompanyNeed.Readiness:
@@ -84,7 +84,7 @@ namespace Enlisted.Features.Company
         public string GetNeedStatus(CompanyNeed need)
         {
             var value = GetNeed(need);
-            
+
             if (value >= ExcellentThreshold)
             {
                 return "Excellent";
@@ -120,7 +120,7 @@ namespace Enlisted.Features.Company
         {
             var minValue = 100;
             var criticalNeed = CompanyNeed.Readiness;
-            
+
             foreach (CompanyNeed need in Enum.GetValues(typeof(CompanyNeed)))
             {
                 var value = GetNeed(need);
@@ -130,7 +130,7 @@ namespace Enlisted.Features.Company
                     criticalNeed = need;
                 }
             }
-            
+
             return criticalNeed;
         }
 

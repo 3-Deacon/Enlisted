@@ -2,27 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Enlisted.Features.Combat.Behaviors;
-using Enlisted.Features.Retinue.Core;
-using Enlisted.Features.Retinue.Systems;
 using Enlisted.Features.Camp;
-using Enlisted.Features.Conversations.Behaviors;
+using Enlisted.Features.Combat.Behaviors;
+using Enlisted.Features.Conditions;
 using Enlisted.Features.Content;
-using Enlisted.Features.Escalation;
+using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.UI;
+using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
-using Enlisted.Features.Logistics;
 using Enlisted.Features.Interface;
 using Enlisted.Features.Interface.Behaviors;
-using Enlisted.Features.Conditions;
+using Enlisted.Features.Logistics;
 using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Features.Ranks.Behaviors;
+using Enlisted.Features.Retinue.Core;
+using Enlisted.Features.Retinue.Systems;
+using Enlisted.Mod.Core;
 // Phase 1: Assignments, Lances, Schedule systems deleted
 using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Triggers;
 using Enlisted.Mod.GameAdapters.Patches;
 using HarmonyLib;
@@ -225,7 +225,7 @@ namespace Enlisted.Mod.Entry
 
                         try
                         {
-                            _harmony.CreateClassProcessor(type).Patch();
+                            _ = _harmony.CreateClassProcessor(type).Patch();
                             enabledCount++;
                         }
                         catch (Exception patchEx)
@@ -307,14 +307,14 @@ namespace Enlisted.Mod.Entry
 
                     // Read Director pacing knobs (event_density, speed_downshift_on_modal) from enlisted_config.json.
                     // Safe to load here: ModulePaths is ready and the Director hasn't emitted anything yet.
-                    Enlisted.Features.Content.DensitySettings.Load();
+                    DensitySettings.Load();
 
                     // Initialize injury system with varied severity definitions for narrative-driven injuries
-                    Enlisted.Features.Content.InjurySystem.Initialize();
+                    InjurySystem.Initialize();
 
                     // Register engine-state predicates used by home-surface storylets. Predicates read
                     // live Bannerlord state at evaluation time; no campaign objects are required at registration.
-                    Enlisted.Features.Activities.Home.HomeTriggers.Register();
+                    Features.Activities.Home.HomeTriggers.Register();
 
                     // Save/load diagnostics: two marker behaviors registered first/last so we can log
                     // user-friendly "Saving..." / "Save finished" and "Loading..." / "Load finished" lines.
@@ -322,27 +322,27 @@ namespace Enlisted.Mod.Entry
 
                     // Debug hotkeys: polls Ctrl+Shift+H/E/B/T on TickEvent and dispatches to
                     // DebugToolsBehavior smoke helpers for the Home surface. No persisted state.
-                    campaignStarter.AddBehavior(new Enlisted.Debugging.Behaviors.DebugHotkeysBehavior());
+                    campaignStarter.AddBehavior(new Debugging.Behaviors.DebugHotkeysBehavior());
 
                     // Flag store: global + hero-scoped named booleans with optional expiry; used by storylet
                     // prereq checks and arc progress markers. Registers before all feature behaviors so flags
                     // are available during their OnSessionLaunched / OnGameLoaded handlers.
-                    campaignStarter.AddBehavior(new Enlisted.Features.Flags.FlagBehavior());
+                    campaignStarter.AddBehavior(new Features.Flags.FlagBehavior());
 
                     // Quality store: typed numeric state with read-through proxies over native TaleWorlds APIs.
                     // Registered after FlagBehavior (qualities may read flags during init) and before
                     // StoryDirector (Director will consult qualities when evaluating candidates).
-                    campaignStarter.AddBehavior(new Enlisted.Features.Qualities.QualityBehavior());
+                    campaignStarter.AddBehavior(new Features.Qualities.QualityBehavior());
 
                     // Activity runtime: singleton host for Banner-Kings-style stateful ticking activities.
                     // Registered after QualityBehavior (activities may read qualities on tick) and before
                     // StoryDirector (ActivityRuntime emits candidates via StoryDirector.EmitCandidate).
-                    campaignStarter.AddBehavior(new Enlisted.Features.Activities.ActivityRuntime());
+                    campaignStarter.AddBehavior(new Features.Activities.ActivityRuntime());
 
                     // Home surface lifecycle: starts HomeActivity when the enlisted lord's party enters a
                     // friendly fief (town, castle, or village) and emits departure_imminent on leave.
                     // Registered immediately after ActivityRuntime so Start() resolves activity types correctly.
-                    campaignStarter.AddBehavior(new Enlisted.Features.Activities.Home.HomeActivityStarter());
+                    campaignStarter.AddBehavior(new Features.Activities.Home.HomeActivityStarter());
 
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
@@ -363,7 +363,7 @@ namespace Enlisted.Mod.Entry
                     // Menu system: provides the main enlisted status menu and duty/profession selection interface.
                     // Handles menu state transitions, battle detection, and settlement access.
                     campaignStarter.AddBehavior(new EnlistedMenuBehavior());
-                    
+
                     // Combat log: custom scrollable combat log widget that displays messages on the right side
                     // of the campaign map while enlisted, suppressing the native bottom-left log.
                     campaignStarter.AddBehavior(new EnlistedCombatLogBehavior());
@@ -623,90 +623,5 @@ namespace Enlisted.Mod.Entry
     [HarmonyPatch(typeof(Campaign), "Tick")]
     public static class NextFrameDispatcherPatch
     {
-        private static bool _deferredPatchesApplied;
-
-        /// <summary>
-        ///     Called after Campaign.Tick() completes each frame.
-        ///     Processes any actions that were deferred to avoid timing conflicts during game state transitions.
-        ///     Also applies deferred patches on first tick (after character creation is complete).
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local",
-            Justification = "Called by Harmony via [HarmonyPatch] postfix")]
-        private static void Postfix()
-        {
-            // Apply deferred patches only after the campaign is *fully* ready.
-            // On some platforms (notably Proton/Linux), Campaign.Tick can run during character creation,
-            // and touching certain menu/localization-heavy types at that time can crash the game.
-            if (!_deferredPatchesApplied && CampaignSafetyGuard.IsCampaignReady)
-            {
-                try
-                {
-                    _deferredPatchesApplied = true;
-                    var harmony = new Harmony("com.enlisted.mod.deferred");
-
-                    // Apply manual patches
-                    HidePartyNamePlatePatch.ApplyManualPatches(harmony);
-
-                    // Apply patches that target types with early static initialization.
-                    // These fail on Proton/Linux if applied during OnSubModuleLoad because
-                    // their target classes call GameTexts.FindText() in static field initializers.
-                    // By deferring until the campaign is ready, the localization system is fully initialized.
-                    // Each patch is wrapped individually so one failure doesn't block others.
-                    ApplyDeferredPatch(harmony, typeof(ArmyCohesionExclusionPatch));
-                    ApplyDeferredPatch(harmony, typeof(CheckFortificationAttackablePatch));
-                    ApplyDeferredPatch(harmony, typeof(SettlementOutsideLeaveButtonPatch));
-                    ApplyDeferredPatch(harmony, typeof(JoinEncounterAutoSelectPatch));
-                    ApplyDeferredPatch(harmony, typeof(EncounterAbandonArmyBlockPatch));
-                    ApplyDeferredPatch(harmony, typeof(EncounterAbandonArmyBlockPatch2));
-                    ApplyDeferredPatch(harmony, typeof(EncounterLeaveSuppressionPatch));
-                    ApplyDeferredPatch(harmony, typeof(EncounterCaptureEnemySuppressionPatch));
-                    // EncounterVictoryAutoClosePatch REMOVED - it was intercepting ALL menu activations
-                    // including native siege menus. GenericStateMenuPatch already handles battle-over
-                    // encounter suppression, and CleanupPostEncounterState clears stale state.
-                    ApplyDeferredPatch(harmony, typeof(CombatLogConversationPatch.MapConversationEndPatch));
-
-                    // Apply Naval DLC patches that use reflection to find types.
-                    // These must be deferred because Naval DLC types aren't available during OnSubModuleLoad.
-                    RaftStateSuppressionPatch.TryApplyPatch(harmony);
-                    RaftStateSuppressionPatch.TryApplyOnPartyLeftArmyPatch(harmony);
-                    NavalMobilePartyVisualUpdateEntityPositionCrashGuardPatch.TryApplyPatch(harmony);
-
-                    ModLogger.Info("Bootstrap", "Deferred patches applied (campaign ready)");
-
-                    // Update conflict diagnostics with deferred patch info
-                    // This appends to the existing conflict log so users can see all patches
-                    ModConflictDiagnostics.RefreshDeferredPatches(harmony);
-                }
-                catch (Exception ex)
-                {
-                    // Hard safety: never allow a failure during deferred patch application to crash the game.
-                    // If something goes wrong here, we'll run without deferred patches.
-                    ModLogger.Caught("Bootstrap", "Unexpected error applying deferred patches", ex);
-                }
-            }
-
-            NextFrameDispatcher.ProcessNextFrame();
-        }
-
-        /// <summary>
-        /// Applies a deferred patch with detailed error logging.
-        /// Isolates failures so one broken patch doesn't block others.
-        /// </summary>
-        private static void ApplyDeferredPatch(Harmony harmony, Type patchType)
-        {
-            try
-            {
-                harmony.CreateClassProcessor(patchType).Patch();
-                ModLogger.Info("Bootstrap", $"Applied deferred patch: {patchType.Name}");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
-                if (ex.InnerException != null)
-                {
-                    ModLogger.Caught("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
-                }
-            }
-        }
     }
 }

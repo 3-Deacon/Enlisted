@@ -12,6 +12,15 @@ Everything below is **Claude-specific** and layers on top of AGENTS.md. Read AGE
 
 ---
 
+## Current project status (2026-04-20)
+
+- **Spec 0 (Storylet Backbone)** — ✅ shipped (`45b38bf`).
+- **Spec 1 (Enlisted Home Surface)** — ✅ shipped on `development` (commits `fc93285` → `0390fdf`). Living reference: [docs/Features/Content/home-surface.md](docs/Features/Content/home-surface.md).
+- **Spec 2 (Orders Surface)** — design + 60-task plan committed (`015128b` → `04e51fc`); awaiting execution kickoff.
+- **Specs 3–5** — Land/Sea, Promotion+Muster, Quartermaster — not yet started; offsets 48-60 reserved.
+
+---
+
 ## Context7 MCP Library IDs
 
 For third-party library docs, use the Context7 MCP with these IDs:
@@ -83,7 +92,7 @@ Match the task to the right skill:
 
 ### Project conventions
 
-- **Storylet loc-keys use inline `{=key}Fallback`** (in `title` / `setup` / `options[].text` / `options[].tooltip`), NOT the legacy Event schema's separate `titleId`+`title` pairs. `sync_event_strings.py` scans both schemas as of commit `7c32d53`; if you author new storylets, run the sync tool and integrate the generated XML into `ModuleData/Languages/enlisted_strings.xml`. The game falls back to the inline text when a key is missing from XML (zero runtime impact), so missing keys only affect translators.
+- **Storylet loc-keys use inline `{=key}Fallback`** (in `title` / `setup` / `options[].text` / `options[].tooltip`), NOT the legacy Event schema's separate `titleId`+`title` pairs. `sync_event_strings.py` scans both schemas; run it after authoring and integrate the generated XML into `ModuleData/Languages/enlisted_strings.xml`. The game falls back to inline text when a key is missing from XML (zero runtime impact), so missing keys only affect translators.
 - **`ModLogger.Surfaced` / `Caught` / `Expected`** need string *literals at the call site* for category + summary. `generate_error_codes.py`'s scanner doesn't follow `private const string Cat = "X"` and will reject the call. Write `ModLogger.Surfaced("CATEGORY", "summary literal", ex)` at every call site, not a shared const.
 - Regenerate the error-code registry after adding or changing any `ModLogger.Surfaced` call sites: `/c/Python313/python.exe Tools/Validation/generate_error_codes.py`. This rewrites `docs/error-codes.md` — don't hand-edit.
 - **`HashSet<T>` is not a saveable container in TW v1.3.13.** `TaleWorlds.SaveSystem.ContainerType` only knows `List / Queue / Dictionary / Array / CustomList / CustomReadOnlyList` — `IsContainer` falls through for `HashSet<T>`, leaving both `SaveId`s null and crashing `ContainerSaveId.CalculateStringId` during `Module.Initialize()` (before mod logs exist). Use `List<T>` with runtime dedup, or serialize-to-CSV + rebuild on load (see `CompanySimulationBehavior._activeFlags`). If the game crashes before the session log writes a single line, check the native stack in `C:\ProgramData\Mount and Blade II Bannerlord\logs\watchdog_log_<pid>.txt`.
@@ -92,9 +101,3 @@ Match the task to the right skill:
 - **`Enlisted.csproj` `AfterBuild` target needs explicit entries per `ModuleData/Enlisted/*/` subdir.** Adding a new content directory requires three additions: an `<XxxData Include="ModuleData\Enlisted\Xxx\*.json"/>` ItemGroup, a matching `<MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Xxx"/>` inside `AfterBuild`, and a `<Copy SourceFiles="@(XxxData)" DestinationFolder="...\Xxx\"/>` step. Missing any of the three = content silently not deployed to the game install. Runtime loaders log `Expected("XXX", "no_xxx_dir", "directory not found: ...")` at info level, so the failure is easy to miss. Pattern at `Enlisted.csproj:614-671` (ItemGroups) and `:728-745` (AfterBuild).
 - **`CampaignGameStarter.AddGameMenuOption(..., index)` is positional `List.Insert`, NOT priority sort.** Decompile: `TaleWorlds.CampaignSystem.GameMenus/GameMenu.cs:147-156`. Registering N options all at the same `index` inserts them in reverse visual order and splices them around any later options that claim a lower index. Use unique indices per option (e.g. `9 + i` in a loop), and give each "trailing" option (Camp, Visit Settlement) an index past the maximum of any preallocated slot bank above it.
 
----
-
-## Help and feedback
-
-- `/help` — Get help with Claude Code
-- Feedback: <https://github.com/anthropics/claude-code/issues>

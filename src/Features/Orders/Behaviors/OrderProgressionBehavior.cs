@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Content;
@@ -6,7 +5,6 @@ using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Orders.Models;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.SaveSystem;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 
@@ -70,11 +68,11 @@ namespace Enlisted.Features.Orders.Behaviors
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("orderProg_lastHour", ref _lastProcessedHour);
-                dataStore.SyncData("orderProg_lastDay", ref _lastProcessedDay);
-                
+                _ = dataStore.SyncData("orderProg_lastHour", ref _lastProcessedHour);
+                _ = dataStore.SyncData("orderProg_lastDay", ref _lastProcessedDay);
+
                 // Serialize phase recaps list for duty log persistence
-                dataStore.SyncData("orderProg_phaseRecaps", ref _phaseRecaps);
+                _ = dataStore.SyncData("orderProg_phaseRecaps", ref _phaseRecaps);
             });
         }
 
@@ -178,7 +176,7 @@ namespace Enlisted.Features.Orders.Behaviors
         /// Attempts to select an order event based on world state and activity level.
         /// Returns the selected event if roll succeeds, null otherwise.
         /// </summary>
-        private EventDefinition TryGetOrderEvent(Models.Order order, bool isHighSlot)
+        private EventDefinition TryGetOrderEvent(Order order, bool isHighSlot)
         {
             // Get world situation from orchestrator
             var worldSituation = ContentOrchestrator.Instance?.GetCurrentWorldSituation();
@@ -318,7 +316,7 @@ namespace Enlisted.Features.Orders.Behaviors
                     StoryKey = eventDef.Id
                 });
 
-                _recentlyFiredEvents.Add(eventDef.Id);
+                _ = _recentlyFiredEvents.Add(eventDef.Id);
                 GlobalEventPacer.RecordAutoEvent(eventDef.Id, eventDef.Category);
                 ModLogger.Info(LogCategory, $"Routed order event through Director: {eventDef.Id}");
                 return;
@@ -332,7 +330,7 @@ namespace Enlisted.Features.Orders.Behaviors
             }
 
             deliveryManager.QueueEvent(eventDef);
-            _recentlyFiredEvents.Add(eventDef.Id);
+            _ = _recentlyFiredEvents.Add(eventDef.Id);
             GlobalEventPacer.RecordAutoEvent(eventDef.Id, eventDef.Category);
             ModLogger.Info(LogCategory, $"Fired order event (Director unavailable): {eventDef.Id}");
         }
@@ -456,11 +454,11 @@ namespace Enlisted.Features.Orders.Behaviors
         /// Creates tension even when no event fires. 
         /// Naval-aware: uses ship-appropriate text when at sea.
         /// </summary>
-        private string GetForeshadowingText(DayPhase phase, string orderId)
+        private string GetForeshadowingText(DayPhase _, string orderId)
         {
             // Check if we're at sea (Warsails DLC)
             var worldSituation = ContentOrchestrator.Instance?.GetCurrentWorldSituation();
-            var isAtSea = worldSituation?.TravelContext == Content.Models.TravelContext.Sea;
+            var isAtSea = worldSituation?.TravelContext == TravelContext.Sea;
 
             // Different foreshadowing based on order type, phase, and travel context
             var foreshadowing = (orderId, isAtSea) switch
@@ -545,7 +543,7 @@ namespace Enlisted.Features.Orders.Behaviors
         {
             // Check if we're at sea (Warsails DLC)
             var worldSituation = ContentOrchestrator.Instance?.GetCurrentWorldSituation();
-            var isAtSea = worldSituation?.TravelContext == Content.Models.TravelContext.Sea;
+            var isAtSea = worldSituation?.TravelContext == TravelContext.Sea;
 
             if (isAtSea)
             {
@@ -572,7 +570,7 @@ namespace Enlisted.Features.Orders.Behaviors
         /// <summary>
         /// Calculates which day of the order we're on (1-based).
         /// </summary>
-        private int CalculateOrderDay(Models.Order order)
+        private int CalculateOrderDay(Order order)
         {
             var hoursSinceStart = (CampaignTime.Now - order.IssuedTime).ToHours;
             return (int)(hoursSinceStart / 24) + 1;
@@ -581,7 +579,7 @@ namespace Enlisted.Features.Orders.Behaviors
         /// <summary>
         /// Calculates which phase number within the order (1-based).
         /// </summary>
-        private int CalculatePhaseNumber(Models.Order order)
+        private int CalculatePhaseNumber(Order order)
         {
             var hoursSinceStart = (CampaignTime.Now - order.IssuedTime).ToHours;
             return ((int)hoursSinceStart / 6) + 1; // 4 phases per day (6 hours each)

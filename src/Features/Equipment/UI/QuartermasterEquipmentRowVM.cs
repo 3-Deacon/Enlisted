@@ -12,7 +12,7 @@ namespace Enlisted.Features.Equipment.UI
     {
         [DataSourceProperty]
         public MBBindingList<QuartermasterEquipmentItemVm> Cards { get; private set; }
-        
+
         /// <summary>
         /// Initialize equipment row with a list of equipment card ViewModels.
         /// </summary>

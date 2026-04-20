@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -63,7 +63,7 @@ namespace Enlisted.Features.Qualities
 
         public QualityDefinition GetDefinition(string id)
         {
-            _defsById.TryGetValue(id ?? string.Empty, out var def);
+            _ = _defsById.TryGetValue(id ?? string.Empty, out var def);
             return def;
         }
 

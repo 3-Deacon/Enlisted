@@ -51,8 +51,8 @@ namespace Enlisted.Features.Orders.Behaviors
             // On load, _currentOrder will be null and a new order will be issued
             // on the next eligible daily tick. This avoids save system issues with
             // complex Order objects that lack SaveableProperty attributes.
-            dataStore.SyncData("_lastOrderTime", ref _lastOrderTime);
-            dataStore.SyncData("_declineCount", ref _declineCount);
+            _ = dataStore.SyncData("_lastOrderTime", ref _lastOrderTime);
+            _ = dataStore.SyncData("_declineCount", ref _declineCount);
 
             // Clear any stale order reference on load to ensure clean state
             if (dataStore.IsLoading)
@@ -115,9 +115,9 @@ namespace Enlisted.Features.Orders.Behaviors
             var enlistment = EnlistmentBehavior.Instance;
             var party = enlistment?.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            var isAtSea = party != null && 
-                          party.CurrentSettlement == null && 
-                          party.BesiegedSettlement == null && 
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
                           party.IsCurrentlyAtSea;
             if (!isAtSea)
             {
@@ -175,16 +175,16 @@ namespace Enlisted.Features.Orders.Behaviors
             var enlistment = EnlistmentBehavior.Instance;
             var party = enlistment?.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            var currentlyAtSea = party != null && 
-                                 party.CurrentSettlement == null && 
-                                 party.BesiegedSettlement == null && 
+            var currentlyAtSea = party != null &&
+                                 party.CurrentSettlement == null &&
+                                 party.BesiegedSettlement == null &&
                                  party.IsCurrentlyAtSea;
 
             // Detect transition
             if (currentlyAtSea != _lastKnownSeaState)
             {
                 var transitionType = currentlyAtSea ? "land → sea" : "sea → land";
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Travel context transition detected ({transitionType}) while order active: {_currentOrder.Id}");
 
                 // Update tracked state
@@ -192,8 +192,8 @@ namespace Enlisted.Features.Orders.Behaviors
 
                 // Refresh UI so the order display updates with the correct variant
                 Interface.Behaviors.EnlistedMenuBehavior.Instance?.RefreshEnlistedStatusMenuUi();
-                
-                ModLogger.Info(LogCategory, 
+
+                ModLogger.Info(LogCategory,
                     $"Order display refreshed for context change: {OrderCatalog.GetDisplayTitle(_currentOrder)}");
             }
         }
@@ -250,7 +250,7 @@ namespace Enlisted.Features.Orders.Behaviors
         private void TryIssueOrder()
         {
             // Phase 4: Check with orchestrator before issuing
-            if (!(Content.ContentOrchestrator.Instance?.CanIssueOrderNow() ?? true))
+            if (!(ContentOrchestrator.Instance?.CanIssueOrderNow() ?? true))
             {
                 ModLogger.Debug(LogCategory, "Order issuance blocked by ContentOrchestrator timing");
                 return;
@@ -282,7 +282,7 @@ namespace Enlisted.Features.Orders.Behaviors
         {
             // Calculate issue time (4-8 hours from now)
             var hoursUntilIssue = MBRandom.RandomFloatRanged(4f, 8f);
-            
+
             _currentOrder = order;
             _currentOrder.State = OrderState.Imminent;
             _currentOrder.ImminentTime = CampaignTime.Now;
@@ -295,12 +295,12 @@ namespace Enlisted.Features.Orders.Behaviors
             var enlistment = EnlistmentBehavior.Instance;
             var party = enlistment?.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            _lastKnownSeaState = party != null && 
-                                 party.CurrentSettlement == null && 
-                                 party.BesiegedSettlement == null && 
+            _lastKnownSeaState = party != null &&
+                                 party.CurrentSettlement == null &&
+                                 party.BesiegedSettlement == null &&
                                  party.IsCurrentlyAtSea;
 
-            ModLogger.Info(LogCategory, 
+            ModLogger.Info(LogCategory,
                 $"Order imminent: {order.Title} from {order.Issuer} (will issue in {hoursUntilIssue:F1} hours)");
 
             // Refresh the enlisted status menu so the [IMMINENT] marker appears immediately
@@ -319,7 +319,7 @@ namespace Enlisted.Features.Orders.Behaviors
             }
 
             // Check for IMMINENT → PENDING transition
-            if (_currentOrder.State == OrderState.Imminent && 
+            if (_currentOrder.State == OrderState.Imminent &&
                 CampaignTime.Now >= _currentOrder.IssueTime)
             {
                 TransitionToPending(_currentOrder);
@@ -333,7 +333,7 @@ namespace Enlisted.Features.Orders.Behaviors
         private void TransitionToPending(Order order)
         {
             order.State = OrderState.Pending;
-            
+
             // Ensure IssuedTime is set (critical for UI display and order duration tracking)
             if (order.IssuedTime.ToHours < 1.0)
             {
@@ -444,39 +444,6 @@ namespace Enlisted.Features.Orders.Behaviors
             _currentOrder = null;
             _orderAccepted = false;
             _lastKnownSeaState = false; // Reset sea state tracking
-        }
-
-        /// <summary>
-        /// Executes the order, determining success, failure, or critical failure based on skills and traits.
-        /// Critical failure occurs when the roll is exceptionally bad (below 15% of success threshold).
-        /// </summary>
-        private void ExecuteOrder(Order order)
-        {
-            var result = EvaluateOrderResult(order);
-
-            var outcome = result switch
-            {
-                OrderResult.Success => order.Consequences.Success,
-                OrderResult.CriticalFailure => order.Consequences.CriticalFailure ?? order.Consequences.Failure,
-                _ => order.Consequences.Failure
-            };
-
-            ApplyOrderOutcome(outcome);
-
-            var resultName = result switch
-            {
-                OrderResult.Success => "succeeded",
-                OrderResult.CriticalFailure => "critically failed",
-                _ => "failed"
-            };
-            ModLogger.Info(LogCategory, $"Order {resultName}: {order.Title}");
-
-            // Report to news system
-            var success = result == OrderResult.Success;
-            ReportOrderOutcome(order, success, outcome);
-
-            // Order results now shown in Recent Activities instead of popup to reduce UI interruption
-            // ShowOrderResult(order, success, outcome);
         }
 
         /// <summary>
@@ -658,91 +625,6 @@ namespace Enlisted.Features.Orders.Behaviors
                     => "The wounded fared worse under your care. Some wounds you cannot heal.",
                 _ => "You failed in your duty. The sergeant's glare promises consequences."
             };
-        }
-
-        /// <summary>
-        /// Evaluates order outcome based on player skills and traits.
-        /// Base 60% success chance, modified by skill/trait levels relative to requirements.
-        /// Critical failure threshold is 15% of the failure zone (very bad roll when already failing).
-        /// </summary>
-        private OrderResult EvaluateOrderResult(Order order)
-        {
-            var successChance = 0.6f;
-
-            var hero = Hero.MainHero;
-
-            // Check skill requirements
-            if (order.Requirements?.MinSkills != null)
-            {
-                foreach (var skillReq in order.Requirements.MinSkills)
-                {
-                    var skill = GetSkillByName(skillReq.Key);
-                    if (skill == null)
-                    {
-                        continue;
-                    }
-
-                    var playerSkill = hero.GetSkillValue(skill);
-                    var required = skillReq.Value;
-
-                    // +1% per skill point above requirement, -2% per point below
-                    if (playerSkill >= required)
-                    {
-                        successChance += (playerSkill - required) * 0.01f;
-                    }
-                    else
-                    {
-                        successChance -= (required - playerSkill) * 0.02f;
-                    }
-                }
-            }
-
-            // Check trait requirements
-            if (order.Requirements?.MinTraits != null)
-            {
-                foreach (var traitReq in order.Requirements.MinTraits)
-                {
-                    var trait = GetTraitByName(traitReq.Key);
-                    if (trait == null)
-                    {
-                        continue;
-                    }
-
-                    var playerTrait = hero.GetTraitLevel(trait);
-                    var required = traitReq.Value;
-
-                    // +2% per trait level above requirement, -3% per level below
-                    if (playerTrait >= required)
-                    {
-                        successChance += (playerTrait - required) * 0.02f;
-                    }
-                    else
-                    {
-                        successChance -= (required - playerTrait) * 0.03f;
-                    }
-                }
-            }
-
-            // Clamp to 10-95% range
-            successChance = MathF.Clamp(successChance, 0.1f, 0.95f);
-
-            var roll = MBRandom.RandomFloat;
-            if (roll < successChance)
-            {
-                return OrderResult.Success;
-            }
-
-            // Failed. Check if critical failure (bottom 15% of failure zone).
-            // Critical failure threshold = 15% of (1 - successChance)
-            var failureZone = 1f - successChance;
-            var criticalThreshold = successChance + (failureZone * 0.85f);
-
-            if (roll >= criticalThreshold)
-            {
-                return OrderResult.CriticalFailure;
-            }
-
-            return OrderResult.Failure;
         }
 
         /// <summary>
@@ -1002,7 +884,7 @@ namespace Enlisted.Features.Orders.Behaviors
 
                     if (currentIndex + troopCount > targetIndex)
                     {
-                        roster.AddToCounts(element.Character, -1);
+                        _ = roster.AddToCounts(element.Character, -1);
                         killed++;
                         break;
                     }
@@ -1039,7 +921,7 @@ namespace Enlisted.Features.Orders.Behaviors
             var warningTitle = new TextObject("{=orders_warning_insubordination_title}Warning: Insubordination").ToString();
             var warningText = new TextObject("{=orders_warning_insubordination_text}Your repeated refusal of orders has not gone unnoticed. Continued insubordination may result in discharge from service.").ToString();
             var understoodText = new TextObject("{=orders_understood}Understood").ToString();
-            
+
             // Intentional bypass of StoryDirector — this warning fires once per decline-count
             // threshold and is self-paced by its trigger condition. Routing through Director
             // would require observational-modal support (InteractiveEvent == null + tier == Modal),
@@ -1212,7 +1094,7 @@ namespace Enlisted.Features.Orders.Behaviors
             }
 
             var outcome = success ? _currentOrder.Consequences.Success : _currentOrder.Consequences.Failure;
-            
+
             ApplyOrderOutcome(outcome);
 
             ModLogger.Info(LogCategory, $"Order completed: {_currentOrder.Title} (Success: {success})");
@@ -1374,10 +1256,10 @@ namespace Enlisted.Features.Orders.Behaviors
                 {
                     case CompanyNeed.Supplies:
                         return "Supplies replenished";
-                case CompanyNeed.Readiness:
-                    return "Unit readiness improving";
-                default:
-                    return $"{needStr} improved";
+                    case CompanyNeed.Readiness:
+                        return "Unit readiness improving";
+                    default:
+                        return $"{needStr} improved";
                 }
             }
 

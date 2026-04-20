@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.ObjectSystem;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.Behaviors
 {

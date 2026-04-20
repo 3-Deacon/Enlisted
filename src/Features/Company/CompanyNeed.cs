@@ -7,11 +7,11 @@ namespace Enlisted.Features.Company
     /// </summary>
     public enum CompanyNeed
     {
-    /// <summary>Combat readiness and training level (0-100)</summary>
-    Readiness,
-    
-    /// <summary>Food, water, and supplies (0-100)</summary>
-    Supplies
+        /// <summary>Combat readiness and training level (0-100)</summary>
+        Readiness,
+
+        /// <summary>Food, water, and supplies (0-100)</summary>
+        Supplies
     }
 }
 

@@ -12,8 +12,8 @@
 2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
 3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
 4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the three-tier API (`Surfaced` / `Caught` / `Expected`). Error codes auto-generate into [docs/error-codes.md](error-codes.md); don't hand-edit.
-5. **Never suppress ReSharper warnings** without documented justification
-6. **Run validation** before committing: `python Tools/Validation/validate_content.py`
+5. **Never suppress ReSharper or repo lint warnings** without documented justification
+6. **Run the repo lint stack** before committing: `.\Tools\Validation\lint_repo.ps1`
 7. **Check if features exist** by searching codebase first — never hallucinate
 
 ---
@@ -26,8 +26,8 @@
 | **Steam Workshop upload** | `Tools/Steam/WORKSHOP_UPLOAD.md` | VDF char limits, run `.\Tools\Steam\upload.ps1` in interactive PS |
 | **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, JSON schema |
 | **Understand a feature** | `docs/Features/Core/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
-| **Code quality issues** | `.editorconfig`, `qodana.yaml` | ReSharper settings in .sln.DotSettings |
-| **Validation errors** | `Tools/README.md` | Run `python Tools/Validation/validate_content.py` |
+| **Code quality issues** | `.editorconfig`, `ruff.toml`, `PSScriptAnalyzerSettings.psd1`, `Tools/Validation/lint_repo.ps1` | ReSharper settings in .sln.DotSettings |
+| **Validation errors** | `Tools/README.md` | Run `.\Tools\Validation\lint_repo.ps1` for full repo checks or `python Tools/Validation/validate_content.py` for content-only checks |
 | **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.3.13 specific, don't use online docs |
 | **Opportunity/orchestration** | `docs/ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md` | Commitment model, phase scheduling |
 
@@ -35,6 +35,7 @@
 
 ```powershell
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64     # Build mod
+.\Tools\Validation\lint_repo.ps1                      # Full repo lint stack
 python Tools/Validation/validate_content.py           # Validate content
 .\Tools\Steam\upload.ps1                              # Upload to Workshop (interactive PS only!)
 python Tools/Validation/sync_event_strings.py         # Sync localization
@@ -47,7 +48,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 3. **New C# Files:** Manually add to `Enlisted.csproj` → run validator
 4. **Logging:** Use `ModLogger` — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API
 5. **Opportunity Model:** Each opportunity once/day, commitment = click future to schedule, click current to fire
-6. **Code Quality:** Follow ReSharper, don't suppress without reason
+6. **Code Quality:** Follow ReSharper and the repo lint stack, don't suppress without reason
 
 ## 📁 KEY PATHS
 
@@ -227,17 +228,23 @@ dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 2. **[Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)** - ReSharper inspection settings and suppressions
    - Disables markdown linting (docs are excluded from code analysis)
 
-3. **[qodana.yaml](../qodana.yaml)** - Qodana static analysis configuration
-   - **Actively enforces**: RedundantUsingDirective, RedundantNameQualifier, UnusedMember.Local, UnusedParameter.Local
-   - Excludes: Markdown files, `Tools/` scripts, `Debugging/` reports
-   - Documents all inspection suppressions with reasons (Harmony patches, Gauntlet bindings, singletons)
+3. **[ruff.toml](../ruff.toml)** - Python lint/format configuration for `Tools/**/*.py`
+   - Enforces imports, common errors, bug-prone patterns, safe upgrades, and simplifications
+   - Excludes ad-hoc `Tools/Research/`
+
+4. **[PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1)** - PowerShell script analysis configuration
+   - Enforces approved verbs, comment help, consistent indentation/whitespace, and common scripting pitfalls
+
+5. **[Tools/Validation/lint_repo.ps1](../Tools/Validation/lint_repo.ps1)** - Unified lint entry point
+   - Runs `.editorconfig`-backed C# checks via `dotnet format`
+   - Runs content validation, Ruff, and PSScriptAnalyzer in one command
 
 ### General Rules
 
 - **Braces required** on all `if`, `for`, `while`, `foreach` (even single-line)
 - **No unused code** - remove unused imports, variables, methods
 - **Comments describe current behavior** (no "Phase X added..." framing)
-- **Follow ReSharper/Qodana** - fix warnings, don't suppress without reason
+- **Follow ReSharper and repo lint output** - fix warnings, don't suppress without reason
 
 ### JSON Content Rules
 
@@ -316,7 +323,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 
 ### Code Quality
 
-- [ ] Read [.editorconfig](../.editorconfig), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings), [qodana.yaml](../qodana.yaml)
+- [ ] Read [.editorconfig](../.editorconfig), [ruff.toml](../ruff.toml), [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
 - [ ] All ReSharper/Rider warnings addressed
 - [ ] No unused imports, variables, or methods
 - [ ] Braces used for all control statements
@@ -341,7 +348,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 - [ ] Order events include skillXp in effects
 - [ ] New C# files added to .csproj (validator will catch this)
 - [ ] No rogue files in root directory
-- [ ] Validation passes: `python Tools/Validation/validate_content.py`
+- [ ] Repo lint passes: `.\Tools\Validation\lint_repo.ps1`
 
 ---
 
@@ -404,7 +411,7 @@ These mistakes cause real problems. Avoid them.
 **Solution:**
 
 1. Run `python Tools/Validation/sync_event_strings.py`
-2. Run `python Tools/Validation/validate_content.py` before committing
+2. Run `.\Tools\Validation\lint_repo.ps1` before committing
 
 ### 10. Missing SaveableTypeDefiner Registration
 

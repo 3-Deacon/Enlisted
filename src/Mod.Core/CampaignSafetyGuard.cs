@@ -1,7 +1,7 @@
 using System;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.Core
 {
@@ -28,7 +28,7 @@ namespace Enlisted.Mod.Core
                     {
                         return false;
                     }
-                    
+
                     // Try to access Hero.MainHero - this can throw during character creation
                     try
                     {
@@ -42,7 +42,7 @@ namespace Enlisted.Mod.Core
                     {
                         return false;
                     }
-                    
+
                     // Try to access MobileParty.MainParty - can also throw
                     try
                     {
@@ -56,7 +56,7 @@ namespace Enlisted.Mod.Core
                     {
                         return false;
                     }
-                    
+
                     // Try to access Clan.PlayerClan
                     try
                     {
@@ -70,7 +70,7 @@ namespace Enlisted.Mod.Core
                     {
                         return false;
                     }
-                    
+
                     return true;
                 }
                 catch (Exception ex)
@@ -81,7 +81,7 @@ namespace Enlisted.Mod.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Minimal check - only verifies Campaign.Current exists.
         /// Use when you don't need full hero/party access.
@@ -100,7 +100,7 @@ namespace Enlisted.Mod.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Safely gets Hero.MainHero, returning null if not available.
         /// </summary>
@@ -123,7 +123,7 @@ namespace Enlisted.Mod.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Safely gets MobileParty.MainParty, returning null if not available.
         /// </summary>
@@ -146,7 +146,7 @@ namespace Enlisted.Mod.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Safely gets Clan.PlayerClan, returning null if not available.
         /// </summary>

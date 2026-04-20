@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Enlisted.Mod.Core.Logging;
@@ -88,9 +88,9 @@ namespace Enlisted.Features.Content
                 eff.Params[prop.Name] = prop.Value.Type switch
                 {
                     JTokenType.Integer => (object)(long)prop.Value,
-                    JTokenType.Float   => (object)(double)prop.Value,
+                    JTokenType.Float => (object)(double)prop.Value,
                     JTokenType.Boolean => (object)(bool)prop.Value,
-                    _                  => (object)(string)prop.Value
+                    _ => (object)(string)prop.Value
                 };
             }
             return eff;

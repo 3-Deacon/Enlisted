@@ -7,9 +7,7 @@ using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Escalation;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.SaveSystem;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
@@ -146,20 +144,20 @@ namespace Enlisted.Features.Content
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
                 // Save/load behavior tracking data
-                dataStore.SyncData("orchestrator_behaviorCounts", ref _behaviorCounts);
-                dataStore.SyncData("orchestrator_contentEngagement", ref _contentEngagement);
+                _ = dataStore.SyncData("orchestrator_behaviorCounts", ref _behaviorCounts);
+                _ = dataStore.SyncData("orchestrator_contentEngagement", ref _contentEngagement);
 
                 // Sync last phase as int
                 int lastPhaseInt = (int)_lastPhase;
-                dataStore.SyncData("orchestrator_lastPhase", ref lastPhaseInt);
+                _ = dataStore.SyncData("orchestrator_lastPhase", ref lastPhaseInt);
                 _lastPhase = (DayPhase)lastPhaseInt;
 
                 // Medical orchestration tracking (Phase 6H)
-                dataStore.SyncData("orchestrator_lastMedicalCheckDay", ref _lastMedicalCheckDay);
-                dataStore.SyncData("orchestrator_consecutiveHighMedicalDays", ref _consecutiveHighMedicalPressureDays);
-                dataStore.SyncData("orchestrator_medicalOpportunityQueued", ref _medicalOpportunityQueuedToday);
-                dataStore.SyncData("orchestrator_emergencyForced", ref _emergencyOpportunityForced);
-                dataStore.SyncData("orchestrator_lastIllnessDay", ref _lastIllnessOnsetDay);
+                _ = dataStore.SyncData("orchestrator_lastMedicalCheckDay", ref _lastMedicalCheckDay);
+                _ = dataStore.SyncData("orchestrator_consecutiveHighMedicalDays", ref _consecutiveHighMedicalPressureDays);
+                _ = dataStore.SyncData("orchestrator_medicalOpportunityQueued", ref _medicalOpportunityQueuedToday);
+                _ = dataStore.SyncData("orchestrator_emergencyForced", ref _emergencyOpportunityForced);
+                _ = dataStore.SyncData("orchestrator_lastIllnessDay", ref _lastIllnessOnsetDay);
 
                 // After loading, restore PlayerBehaviorTracker state
                 if (dataStore.IsLoading)
@@ -217,7 +215,7 @@ namespace Enlisted.Features.Content
             FireCommittedOpportunities(newPhase);
 
             // Notify camp life systems to refresh for new phase
-            Camp.CampOpportunityGenerator.Instance?.OnPhaseChanged(newPhase);
+            CampOpportunityGenerator.Instance?.OnPhaseChanged(newPhase);
         }
 
         /// <summary>
@@ -308,7 +306,7 @@ namespace Enlisted.Features.Content
                     // Record engagement
                     if (opp.SourceOpportunity != null)
                     {
-                        Camp.CampOpportunityGenerator.Instance?.RecordEngagement(
+                        CampOpportunityGenerator.Instance?.RecordEngagement(
                             opp.OpportunityId, opp.SourceOpportunity.Type);
                     }
                 }
@@ -356,20 +354,20 @@ namespace Enlisted.Features.Content
 
                 // Generate forecasts for UI (Main Menu NOW and AHEAD sections)
                 // This ensures forecast data is fresh for when player opens menu
-                GenerateForecastData(worldSituation);
+                GenerateForecastData();
 
                 // Schedule opportunities for the day (Orchestrator Unification)
                 // This pre-schedules opportunities 24 hours ahead so they don't disappear mid-session
                 ScheduleOpportunities();
 
                 // Update camp opportunities availability (legacy - can be deprecated after Phase 3)
-                RefreshCampOpportunities(worldSituation);
+                RefreshCampOpportunities();
 
                 // Update baggage simulation context (world-state-aware probabilities)
                 RefreshBaggageSimulation(worldSituation);
 
                 // Check medical pressure and trigger illness events / opportunities (Phase 6H)
-                CheckMedicalPressure(worldSituation);
+                CheckMedicalPressure();
 
                 // Debug logging (only appears when Debug level is enabled for this category)
                 ModLogger.Debug(LogCategory, $"Orchestrator active: Activity={activityLevel}, Phase={worldSituation.CurrentPhase}");
@@ -384,80 +382,21 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Tests content selection with fitness scoring and logs comparisons.
-        /// Logs what WOULD be selected without affecting the live system.
-        /// Debug-level logging only - not shown to end users.
-        /// </summary>
-        private void TestContentSelection(WorldSituation worldSituation)
-        {
-            // All diagnostic logging is at Debug level to avoid spamming end-user logs
-            if (!ModLogger.IsEnabled(LogCategory, LogLevel.Debug))
-            {
-                return; // Skip expensive selection tests if Debug logging is disabled
-            }
-
-            ModLogger.Debug(LogCategory, "=== Content Selection Test ===");
-
-            // Select with OLD system (no world situation)
-            var oldSelection = EventSelector.SelectEvent(null);
-            if (oldSelection != null)
-            {
-                ModLogger.Debug(LogCategory, $"OLD system would select: {oldSelection.Id} (category: {oldSelection.Category})");
-            }
-            else
-            {
-                ModLogger.Debug(LogCategory, "OLD system: No eligible events");
-            }
-
-            // Select with NEW system (with world situation and fitness scoring)
-            var newSelection = EventSelector.SelectEvent(worldSituation);
-            if (newSelection != null)
-            {
-                ModLogger.Debug(LogCategory, $"NEW system would select: {newSelection.Id} (category: {newSelection.Category})");
-
-                // Log fitness reasoning
-                var playerPrefs = PlayerBehaviorTracker.GetPreferences();
-                ModLogger.Debug(LogCategory,
-                    $"Player preferences: Combat={playerPrefs.CombatVsSocial:F2}, Risky={playerPrefs.RiskyVsSafe:F2}, Loyal={playerPrefs.LoyalVsSelfServing:F2} (from {playerPrefs.TotalChoicesMade} choices)");
-            }
-            else
-            {
-                ModLogger.Debug(LogCategory, "NEW system: No eligible events");
-            }
-
-            // Compare selections
-            if (oldSelection != null && newSelection != null)
-            {
-                if (oldSelection.Id == newSelection.Id)
-                {
-                    ModLogger.Debug(LogCategory, "✓ Both systems selected same event");
-                }
-                else
-                {
-                    ModLogger.Debug(LogCategory, $"✗ Systems differ: OLD={oldSelection.Id}, NEW={newSelection.Id}");
-                    ModLogger.Debug(LogCategory, $"Difference reason: Fitness scoring adjusted weights based on activity={worldSituation.ExpectedActivity}");
-                }
-            }
-
-            ModLogger.Debug(LogCategory, "=== End Selection Test ===");
-        }
-
-        /// <summary>
         /// Generates forecast data for UI display.
         /// Forecasts include player status (duty, health), upcoming events, and company state.
         /// ForecastGenerator.BuildPlayerStatus() is called by UI on-demand using this data.
         /// </summary>
-        private void GenerateForecastData(WorldSituation worldSituation)
+        private void GenerateForecastData()
         {
             // Forecast data is cached in various systems for UI consumption:
             // - OrderManager tracks current/upcoming orders
             // - CompanySimulationBehavior tracks needs/pressure
             // - EscalationManager tracks tension levels
             // - CampOpportunityGenerator tracks commitments
-            
+
             // The daily tick ensures all these systems have current data
             // UI calls ForecastGenerator.BuildPlayerStatus() which reads from these systems
-            
+
             ModLogger.Debug(LogCategory, "Forecast data ready for UI");
         }
 
@@ -465,12 +404,12 @@ namespace Enlisted.Features.Content
         /// Refreshes available camp opportunities based on world state.
         /// CampOpportunityGenerator filters opportunities by phase, context, and eligibility.
         /// </summary>
-        private void RefreshCampOpportunities(WorldSituation worldSituation)
+        private void RefreshCampOpportunities()
         {
             // Camp opportunities refresh automatically on phase changes via OnPhaseChanged()
             // This daily tick can trigger additional logic for opportunity planning
-            
-            var opportunityGen = Camp.CampOpportunityGenerator.Instance;
+
+            var opportunityGen = CampOpportunityGenerator.Instance;
             if (opportunityGen != null)
             {
                 // Opportunities are pre-scheduled by the Orchestrator at daily tick
@@ -495,11 +434,11 @@ namespace Enlisted.Features.Content
             {
                 // Calculate current probabilities for diagnostics
                 var probs = baggageManager.CalculateEventProbabilities(worldSituation);
-                
+
                 // The probabilities will be used automatically when BaggageTrainManager
                 // checks for events - no need to pass them explicitly
-                
-                ModLogger.Debug(LogCategory, 
+
+                ModLogger.Debug(LogCategory,
                     $"Baggage simulation updated: CatchUp={probs.CaughtUpChance}%, " +
                     $"Delay={probs.DelayChance}%, Raid={probs.RaidChance}% " +
                     $"(Activity={worldSituation.ExpectedActivity})");
@@ -508,21 +447,6 @@ namespace Enlisted.Features.Content
             {
                 ModLogger.Caught("ORCHESTRATOR", "Error refreshing baggage simulation", ex);
             }
-        }
-
-        /// <summary>
-        /// Determines realistic event frequency based on world situation and pressure.
-        /// Used for diagnostic analysis when orchestrator is disabled.
-        /// </summary>
-        private float DetermineRealisticFrequency(WorldSituation situation, SimulationPressure pressure)
-        {
-            // Start with base frequency from world analysis
-            var baseFrequency = situation.RealisticEventFrequency;
-
-            // Apply pressure modifier
-            var pressureModifier = pressure.GetFrequencyModifier();
-
-            return baseFrequency * pressureModifier;
         }
 
         /// <summary>
@@ -539,25 +463,11 @@ namespace Enlisted.Features.Content
         /// </summary>
         private void SetQuietDayFromWorldState(WorldSituation situation)
         {
-            bool isQuiet = false;
-
-            // Defeated/Captured = always quiet (recovery/imprisonment)
-            if (situation.LordIs == LordSituation.Defeated || situation.LordIs == LordSituation.Captured)
-            {
-                isQuiet = true;
-            }
-            // Peacetime garrison = potentially quiet (low activity)
-            else if (situation.LordIs == LordSituation.PeacetimeGarrison)
-            {
-                // Use a small chance for quiet days in garrison (10%)
-                var roll = TaleWorlds.Core.MBRandom.RandomFloat;
-                isQuiet = roll < 0.10f;
-            }
-            // Campaign/Siege/War = never quiet (high activity)
-            else
-            {
-                isQuiet = false;
-            }
+            var isQuiet =
+                situation.LordIs == LordSituation.Defeated ||
+                situation.LordIs == LordSituation.Captured ||
+                (situation.LordIs == LordSituation.PeacetimeGarrison &&
+                 TaleWorlds.Core.MBRandom.RandomFloat < 0.10f);
 
             GlobalEventPacer.SetQuietDay(isQuiet);
 
@@ -669,7 +579,7 @@ namespace Enlisted.Features.Content
         /// Called from OnDailyTick when orchestrator is active.
         /// Triggers illness onset events based on medical risk levels and queues medical opportunities.
         /// </summary>
-        private void CheckMedicalPressure(WorldSituation worldSituation)
+        private void CheckMedicalPressure()
         {
             var currentDay = (int)CampaignTime.Now.ToDays;
 
@@ -704,7 +614,7 @@ namespace Enlisted.Features.Content
             QueueMedicalOpportunities(medicalAnalysis, pressureLevel);
 
             // Check for illness onset event triggers
-            CheckIllnessOnsetTriggers(medicalAnalysis, pressureLevel);
+            CheckIllnessOnsetTriggers(medicalAnalysis);
         }
 
         /// <summary>
@@ -713,7 +623,7 @@ namespace Enlisted.Features.Content
         /// </summary>
         private void QueueMedicalOpportunities(MedicalPressureAnalysis pressure, MedicalPressureLevel level)
         {
-            var opportunityGen = Camp.CampOpportunityGenerator.Instance;
+            var opportunityGen = CampOpportunityGenerator.Instance;
             if (opportunityGen == null)
             {
                 return;
@@ -770,7 +680,7 @@ namespace Enlisted.Features.Content
         /// Events are triggered through EventDeliveryManager for popup delivery.
         /// Includes 7-day cooldown and sophisticated probability calculation.
         /// </summary>
-        private void CheckIllnessOnsetTriggers(MedicalPressureAnalysis pressure, MedicalPressureLevel level)
+        private void CheckIllnessOnsetTriggers(MedicalPressureAnalysis pressure)
         {
             // Don't trigger illness onset if player already has condition
             if (pressure.HasCondition)
@@ -793,14 +703,14 @@ namespace Enlisted.Features.Content
 
             // Calculate probability with modifiers
             var baseChance = pressure.MedicalRisk * 0.05f; // 5% per risk level (15-25% base)
-            
+
             // Season modifier - winter increases illness risk
             var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
             // TODO: Add season detection when WorldStateAnalyzer has GetSeason()
             // For now, skip season modifier
-            
+
             // Siege modifier - cramped conditions increase illness
-            if (worldSituation.LordIs == LordSituation.SiegeAttacking || 
+            if (worldSituation.LordIs == LordSituation.SiegeAttacking ||
                 worldSituation.LordIs == LordSituation.SiegeDefending)
             {
                 baseChance += 0.12f; // +12% during siege
@@ -812,7 +722,7 @@ namespace Enlisted.Features.Content
             // Cap probability at 50%
             baseChance = Math.Min(baseChance, 0.50f);
 
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"Illness onset chance: {baseChance * 100:F1}% (Risk={pressure.MedicalRisk}, ConsecDays={_consecutiveHighMedicalPressureDays})");
 
             // Roll for illness onset
@@ -824,9 +734,9 @@ namespace Enlisted.Features.Content
             // Determine context for maritime vs land illness events
             var party = EnlistmentBehavior.Instance?.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            var isAtSea = party != null && 
-                          party.CurrentSettlement == null && 
-                          party.BesiegedSettlement == null && 
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
                           party.IsCurrentlyAtSea;
             var contextSuffix = isAtSea ? "_sea" : "";
 
@@ -931,32 +841,32 @@ namespace Enlisted.Features.Content
             {
                 _scheduledOpportunities = new Dictionary<DayPhase, List<ScheduledOpportunity>>();
             }
-            
+
             _scheduledTomorrowOpportunities = new Dictionary<DayPhase, List<ScheduledOpportunity>>();
             _scheduledDay = currentDay;
 
             // Get current world situation for prediction
             var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
-            ModLogger.Info(LogCategory, 
+            ModLogger.Info(LogCategory,
                 $"Context: {worldSituation.LordIs}, Activity={worldSituation.ExpectedActivity}, Phase={worldSituation.CurrentDayPhase}");
 
             // Track ALL scheduled opportunities across phases to prevent duplicates
             // Each opportunity should only appear ONCE per day (in one phase)
             var alreadyScheduledIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            
+
             // Include IDs from promoted tomorrow schedule in already-scheduled set
             foreach (var kvp in _scheduledOpportunities)
             {
                 foreach (var opp in kvp.Value)
                 {
-                    alreadyScheduledIds.Add(opp.OpportunityId);
+                    _ = alreadyScheduledIds.Add(opp.OpportunityId);
                 }
             }
 
             // Get current phase to determine which phases have already passed
             // This prevents past-phase opportunities from appearing when schedule is generated mid-day
             var currentPhase = worldSituation.CurrentDayPhase;
-            
+
             // Schedule for each phase (today)
             int totalScheduled = 0;
             int totalGuaranteed = 0;
@@ -975,9 +885,9 @@ namespace Enlisted.Features.Content
                         continue;
                     }
                 }
-                
+
                 var scheduled = SchedulePhaseOpportunities(phase, worldSituation, alreadyScheduledIds);
-                
+
                 // If this phase has already passed today, mark all opportunities as consumed immediately
                 // This handles mid-day schedule regeneration (e.g., after save/load)
                 // Phase order: Dawn(0) -> Midday(1) -> Dusk(2) -> Night(3)
@@ -989,10 +899,10 @@ namespace Enlisted.Features.Content
                         opp.Consumed = true;
                     }
                     skippedPastPhase += scheduled.Count;
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"  {phase}: {scheduled.Count} opportunities marked consumed (phase already passed)");
                 }
-                
+
                 _scheduledOpportunities[phase] = scheduled;
 
                 if (scheduled.Count > 0 && !isPastPhase)
@@ -1001,10 +911,10 @@ namespace Enlisted.Features.Content
                     totalScheduled += scheduled.Count;
                     totalGuaranteed += guaranteed;
 
-                    var oppList = string.Join(", ", scheduled.Select(s => 
+                    var oppList = string.Join(", ", scheduled.Select(s =>
                         s.SourceOpportunity?.Immediate == true ? $"{s.OpportunityId}*" : s.OpportunityId));
-                    
-                    ModLogger.Info(LogCategory, 
+
+                    ModLogger.Info(LogCategory,
                         $"  {phase}: {scheduled.Count} opportunities ({guaranteed} guaranteed) → [{oppList}]");
                 }
                 else if (!isPastPhase)
@@ -1012,10 +922,10 @@ namespace Enlisted.Features.Content
                     ModLogger.Debug(LogCategory, $"  {phase}: 0 opportunities (budget=0 or no candidates)");
                 }
             }
-            
+
             if (skippedPastPhase > 0)
             {
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"  (Skipped {skippedPastPhase} past-phase opportunities - schedule generated at {currentPhase})");
             }
 
@@ -1023,7 +933,7 @@ namespace Enlisted.Features.Content
             // earlier phases to maintain a rolling 24-hour visibility window per design spec.
             int tomorrowScheduled = ScheduleTomorrowOpportunities(currentPhase, worldSituation, alreadyScheduledIds);
 
-            ModLogger.Info(LogCategory, 
+            ModLogger.Info(LogCategory,
                 $"Schedule complete: {totalScheduled} today + {tomorrowScheduled} tomorrow ({totalGuaranteed} guaranteed)");
             ModLogger.Info(LogCategory, "══════════════════════════════════");
         }
@@ -1088,7 +998,7 @@ namespace Enlisted.Features.Content
 
             if (tomorrowScheduled == 0)
             {
-                ModLogger.Warn(LogCategory, 
+                ModLogger.Warn(LogCategory,
                     $"[W-ORCH-005] Tomorrow scheduling returned 0 opportunities at {currentPhase} - check budget/candidates");
             }
 
@@ -1122,7 +1032,7 @@ namespace Enlisted.Features.Content
                 .Where(c => !alreadyScheduledIds.Contains(c.Id))
                 .ToList();
 
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"  {phase} candidates: {availableCandidates.Count} available ({candidates.Count - availableCandidates.Count} already scheduled)");
 
             // Get budget for this phase based on world situation
@@ -1138,7 +1048,7 @@ namespace Enlisted.Features.Content
                     .Take(budget)
                     .ToList();
 
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"  {phase} fitness selection (budget={budget}): " +
                     $"{string.Join(", ", topCandidates.Select(c => $"{c.Id}({c.FitnessScore:F0})"))}");
 
@@ -1155,9 +1065,9 @@ namespace Enlisted.Features.Content
                         SourceOpportunity = c,
                         Consumed = false
                     });
-                    
+
                     // Track this opportunity to prevent duplicates in later phases
-                    alreadyScheduledIds.Add(c.Id);
+                    _ = alreadyScheduledIds.Add(c.Id);
                 }
             }
             else if (budget == 0)
@@ -1177,19 +1087,6 @@ namespace Enlisted.Features.Content
             // Use the generator's phase-specific method which generates candidates AS IF it were the target phase
             // This is critical: GenerateCampLife() uses the CURRENT phase, but we need candidates for ALL phases
             return generator.GenerateCandidatesForPhase(phase);
-        }
-
-        /// <summary>
-        /// Checks if an opportunity is valid for a specific phase.
-        /// </summary>
-        private bool IsOpportunityValidForPhase(CampOpportunity opportunity, DayPhase phase)
-        {
-            if (opportunity.ValidPhases == null || opportunity.ValidPhases.Count == 0)
-            {
-                return true; // No phase restriction
-            }
-
-            return opportunity.ValidPhases.Contains(phase.ToString());
         }
 
         /// <summary>
@@ -1274,7 +1171,7 @@ namespace Enlisted.Features.Content
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment != null && enlistment.DaysServed < 3)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"GetCurrentPhaseOpportunities: Blocked (grace period, day {enlistment.DaysServed}/3)");
                 return new List<ScheduledOpportunity>();
             }
@@ -1283,13 +1180,13 @@ namespace Enlisted.Features.Content
             ScheduleOpportunities();
 
             var currentPhase = WorldStateAnalyzer.GetCurrentDayPhase();
-            
+
             // Diagnostic: log what phases we have scheduled
             if (_scheduledOpportunities != null)
             {
-                var phaseInfo = string.Join(", ", _scheduledOpportunities.Select(kvp => 
+                var phaseInfo = string.Join(", ", _scheduledOpportunities.Select(kvp =>
                     $"{kvp.Key}:{kvp.Value.Count(o => !o.Consumed)}"));
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"GetCurrentPhaseOpportunities: Looking for {currentPhase}, available phases: [{phaseInfo}]");
             }
 
@@ -1308,12 +1205,12 @@ namespace Enlisted.Features.Content
 
             if (consumed > 0)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"GetCurrentPhaseOpportunities: {available.Count} available for {currentPhase} ({consumed} consumed)");
             }
             else if (available.Count > 0)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"GetCurrentPhaseOpportunities: {available.Count} available for {currentPhase}");
             }
 
@@ -1425,13 +1322,13 @@ namespace Enlisted.Features.Content
             // Search today's schedule
             foreach (var phaseEntry in _scheduledOpportunities)
             {
-                var opp = phaseEntry.Value.FirstOrDefault(o => 
-                    o.TargetDecisionId != null && 
+                var opp = phaseEntry.Value.FirstOrDefault(o =>
+                    o.TargetDecisionId != null &&
                     o.TargetDecisionId.Equals(decisionId, StringComparison.OrdinalIgnoreCase));
                 if (opp != null)
                 {
                     opp.Consumed = true;
-                    ModLogger.Info(LogCategory, 
+                    ModLogger.Info(LogCategory,
                         $"✓ Opportunity consumed by decisionId: {decisionId} (opportunityId={opp.OpportunityId}, phase={phaseEntry.Key})");
 
                     // Also record in CampOpportunityGenerator for history tracking
@@ -1439,7 +1336,7 @@ namespace Enlisted.Features.Content
                     if (generator != null && opp.SourceOpportunity != null)
                     {
                         generator.RecordEngagement(opp.OpportunityId, opp.SourceOpportunity.Type);
-                        ModLogger.Debug(LogCategory, 
+                        ModLogger.Debug(LogCategory,
                             $"  Recorded engagement for learning system (type={opp.SourceOpportunity.Type})");
                     }
 
@@ -1452,13 +1349,13 @@ namespace Enlisted.Features.Content
             {
                 foreach (var phaseEntry in _scheduledTomorrowOpportunities)
                 {
-                    var opp = phaseEntry.Value.FirstOrDefault(o => 
-                        o.TargetDecisionId != null && 
+                    var opp = phaseEntry.Value.FirstOrDefault(o =>
+                        o.TargetDecisionId != null &&
                         o.TargetDecisionId.Equals(decisionId, StringComparison.OrdinalIgnoreCase));
                     if (opp != null)
                     {
                         opp.Consumed = true;
-                        ModLogger.Info(LogCategory, 
+                        ModLogger.Info(LogCategory,
                             $"✓ Opportunity consumed by decisionId: {decisionId} (tomorrow, opportunityId={opp.OpportunityId}, phase={phaseEntry.Key})");
                         return;
                     }
@@ -1466,7 +1363,7 @@ namespace Enlisted.Features.Content
             }
 
             // Not found - this is expected for non-opportunity decisions (logistics, etc.)
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"ConsumeOpportunityByDecisionId({decisionId}): No matching opportunity in schedule (may be non-opportunity decision)");
         }
 
@@ -1664,7 +1561,7 @@ namespace Enlisted.Features.Content
             if (_scheduledOpportunities == null)
             {
                 ModLogger.Debug(LogCategory, "GetUpcomingHints: No schedule, falling back to generator");
-                
+
                 // Fall back to generator's hints if scheduling hasn't run yet
                 var generator = CampOpportunityGenerator.Instance;
                 if (generator != null)
@@ -1674,7 +1571,7 @@ namespace Enlisted.Features.Content
                     {
                         ModLogger.Debug(LogCategory, $"GetUpcomingHints: {hints.Count} hints from generator fallback");
                     }
-                    
+
                     foreach (var hint in hints)
                     {
                         yield return hint;
@@ -1703,7 +1600,7 @@ namespace Enlisted.Features.Content
                             hintCount++;
                             if (hintCount >= 2) // Limit to 2 hints as per spec
                             {
-                                ModLogger.Debug(LogCategory, 
+                                ModLogger.Debug(LogCategory,
                                     $"GetUpcomingHints: {hintCount} hints provided: [{string.Join(", ", hintsGenerated)}]");
                                 yield break;
                             }
@@ -1714,12 +1611,12 @@ namespace Enlisted.Features.Content
 
             if (hintCount > 0)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"GetUpcomingHints: {hintCount} hints provided: [{string.Join(", ", hintsGenerated)}]");
             }
             else
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"GetUpcomingHints: No hints (checking phases: {string.Join(", ", phasesToCheck)})");
             }
         }
@@ -1783,7 +1680,7 @@ namespace Enlisted.Features.Content
             {
                 _currentOverride = needOverride;
                 _currentOverridePhase = phase;
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Need-based override activated: {needOverride.ActivityName} ({needOverride.Reason})");
                 return needOverride;
             }
@@ -1798,7 +1695,7 @@ namespace Enlisted.Features.Content
                     _currentOverridePhase = phase;
                     _lastVarietyInjectionDay = (int)CampaignTime.Now.ToDays;
                     _varietyInjectionsThisWeek++;
-                    ModLogger.Info(LogCategory, 
+                    ModLogger.Info(LogCategory,
                         $"Variety injection activated: {varietyOverride.ActivityName}");
                     return varietyOverride;
                 }
@@ -1859,10 +1756,10 @@ namespace Enlisted.Features.Content
 
                     // Get the need value
                     int needValue = GetNeedValue(needs, needName);
-                    
+
                     // Check comparison
-                    bool triggered = comparison == "lessThan" 
-                        ? needValue < threshold 
+                    bool triggered = comparison == "lessThan"
+                        ? needValue < threshold
                         : needValue > threshold;
 
                     if (!triggered)
@@ -1946,7 +1843,7 @@ namespace Enlisted.Features.Content
                 }
             }
 
-            if (worldSituation.LordIs == LordSituation.SiegeAttacking || 
+            if (worldSituation.LordIs == LordSituation.SiegeAttacking ||
                 worldSituation.LordIs == LordSituation.SiegeDefending)
             {
                 var settings = _overrideConfig?["varietySettings"];
@@ -1975,7 +1872,7 @@ namespace Enlisted.Features.Content
             // Check minimum days between injections
             var minDays = _overrideConfig?["varietySettings"]?["minDaysBetweenInjections"]?.Value<int>() ?? 3;
             var daysSinceLastInjection = currentDay - _lastVarietyInjectionDay;
-            
+
             if (daysSinceLastInjection < minDays)
             {
                 return false;
@@ -1983,7 +1880,7 @@ namespace Enlisted.Features.Content
 
             // Check if we should roll for injection
             var maxDays = _overrideConfig?["varietySettings"]?["maxDaysBetweenInjections"]?.Value<int>() ?? 5;
-            
+
             // After max days, always inject
             if (daysSinceLastInjection >= maxDays)
             {
@@ -1993,7 +1890,7 @@ namespace Enlisted.Features.Content
             // Between min and max, use probability
             var injectionChance = _overrideConfig?["varietySettings"]?["injectionChancePerDay"]?.Value<float>() ?? 0.35f;
             var roll = TaleWorlds.Core.MBRandom.RandomFloat;
-            
+
             return roll < injectionChance;
         }
 
@@ -2048,7 +1945,7 @@ namespace Enlisted.Features.Content
                 // Weighted random selection
                 var roll = TaleWorlds.Core.MBRandom.RandomInt(totalWeight);
                 int cumulative = 0;
-                
+
                 foreach (var (id, config, weight) in eligible)
                 {
                     cumulative += weight;

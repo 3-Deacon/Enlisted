@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Enlisted.Features.Camp.Models;
-using Enlisted.Features.Company;
 using Enlisted.Features.Conditions;
 using Enlisted.Features.Content;
 using Enlisted.Features.Content.Models;
@@ -12,7 +11,6 @@ using Enlisted.Features.Escalation;
 using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Features.Ranks;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.SaveSystem;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
@@ -49,12 +47,12 @@ namespace Enlisted.Features.Camp
         // Cached opportunities for current phase
         private List<CampOpportunity> _cachedOpportunities;
         private DayPhase _cachePhase = DayPhase.Night;
-        
+
         // Promotion reputation pressure (cached per generation cycle for performance)
         private bool _cachedNeedsReputation = false;
         private int _cachedReputationGap = 0;
         private bool _hasShownPromotionRepNotice = false;
-        
+
         // Track previous phase for routine processing
         private DayPhase _previousPhase = DayPhase.Night;
         private bool _hasProcessedFirstPhase;
@@ -142,7 +140,7 @@ namespace Enlisted.Features.Camp
                 }
                 finally
                 {
-                    _commitments.RemoveCommitment(commitment.OpportunityId);
+                    _ = _commitments.RemoveCommitment(commitment.OpportunityId);
                 }
             }
         }
@@ -266,8 +264,8 @@ namespace Enlisted.Features.Camp
 
             // Show confirmation message
             var message = new TextObject("{=enlisted_commitment_scheduled}You've made plans for {ACTIVITY} at {PHASE}.");
-            message.SetTextVariable("ACTIVITY", opportunity.TitleFallback ?? opportunity.Id);
-            message.SetTextVariable("PHASE", phaseText);
+            _ = message.SetTextVariable("ACTIVITY", opportunity.TitleFallback ?? opportunity.Id);
+            _ = message.SetTextVariable("PHASE", phaseText);
             InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Cyan));
         }
 
@@ -282,7 +280,7 @@ namespace Enlisted.Features.Camp
                 return;
             }
 
-            _commitments.RemoveCommitment(opportunityId);
+            _ = _commitments.RemoveCommitment(opportunityId);
 
             // Clear cache to force menu refresh
             _cachedOpportunities = null;
@@ -344,14 +342,14 @@ namespace Enlisted.Features.Camp
                 var timesEngaged = _history.TimesEngaged;
                 var timesIgnored = _history.TimesIgnored;
 
-                dataStore.SyncData("camp_lastPresented", ref lastPresented);
-                dataStore.SyncData("camp_timesSeen", ref timesSeen);
-                dataStore.SyncData("camp_timesEngaged", ref timesEngaged);
-                dataStore.SyncData("camp_timesIgnored", ref timesIgnored);
+                _ = dataStore.SyncData("camp_lastPresented", ref lastPresented);
+                _ = dataStore.SyncData("camp_timesSeen", ref timesSeen);
+                _ = dataStore.SyncData("camp_timesEngaged", ref timesEngaged);
+                _ = dataStore.SyncData("camp_timesIgnored", ref timesIgnored);
 
                 // Serialize commitments (new multi-commitment format)
                 var commitmentCount = dataStore.IsSaving ? _commitments.Commitments.Count : 0;
-                dataStore.SyncData("camp_commitmentCount", ref commitmentCount);
+                _ = dataStore.SyncData("camp_commitmentCount", ref commitmentCount);
 
                 // Serialize each commitment
                 if (dataStore.IsSaving)
@@ -367,13 +365,13 @@ namespace Enlisted.Features.Camp
                         var commitTime = c.CommitTimeHours;
                         var display = c.DisplayText ?? "";
 
-                        dataStore.SyncData($"camp_commit_{i}_oppId", ref oppId);
-                        dataStore.SyncData($"camp_commit_{i}_decId", ref decId);
-                        dataStore.SyncData($"camp_commit_{i}_title", ref title);
-                        dataStore.SyncData($"camp_commit_{i}_phase", ref phase);
-                        dataStore.SyncData($"camp_commit_{i}_day", ref day);
-                        dataStore.SyncData($"camp_commit_{i}_time", ref commitTime);
-                        dataStore.SyncData($"camp_commit_{i}_display", ref display);
+                        _ = dataStore.SyncData($"camp_commit_{i}_oppId", ref oppId);
+                        _ = dataStore.SyncData($"camp_commit_{i}_decId", ref decId);
+                        _ = dataStore.SyncData($"camp_commit_{i}_title", ref title);
+                        _ = dataStore.SyncData($"camp_commit_{i}_phase", ref phase);
+                        _ = dataStore.SyncData($"camp_commit_{i}_day", ref day);
+                        _ = dataStore.SyncData($"camp_commit_{i}_time", ref commitTime);
+                        _ = dataStore.SyncData($"camp_commit_{i}_display", ref display);
                     }
                 }
 
@@ -381,9 +379,9 @@ namespace Enlisted.Features.Camp
                 var legacyId = "";
                 var legacyTime = 0f;
                 var legacyText = "";
-                dataStore.SyncData("camp_commitmentId", ref legacyId);
-                dataStore.SyncData("camp_commitmentTime", ref legacyTime);
-                dataStore.SyncData("camp_commitmentText", ref legacyText);
+                _ = dataStore.SyncData("camp_commitmentId", ref legacyId);
+                _ = dataStore.SyncData("camp_commitmentTime", ref legacyTime);
+                _ = dataStore.SyncData("camp_commitmentText", ref legacyText);
 
                 // Serialize learning system data (opportunity engagement tracking)
                 var oppPresented = dataStore.IsSaving
@@ -393,8 +391,8 @@ namespace Enlisted.Features.Camp
                     ? PlayerBehaviorTracker.GetOpportunityEngagedForSave()
                     : new Dictionary<string, int>();
 
-                dataStore.SyncData("camp_oppPresented", ref oppPresented);
-                dataStore.SyncData("camp_oppEngaged", ref oppEngaged);
+                _ = dataStore.SyncData("camp_oppPresented", ref oppPresented);
+                _ = dataStore.SyncData("camp_oppEngaged", ref oppEngaged);
 
                 if (dataStore.IsLoading)
                 {
@@ -421,13 +419,13 @@ namespace Enlisted.Features.Camp
                         var commitTime = 0f;
                         var display = "";
 
-                        dataStore.SyncData($"camp_commit_{i}_oppId", ref oppId);
-                        dataStore.SyncData($"camp_commit_{i}_decId", ref decId);
-                        dataStore.SyncData($"camp_commit_{i}_title", ref title);
-                        dataStore.SyncData($"camp_commit_{i}_phase", ref phase);
-                        dataStore.SyncData($"camp_commit_{i}_day", ref day);
-                        dataStore.SyncData($"camp_commit_{i}_time", ref commitTime);
-                        dataStore.SyncData($"camp_commit_{i}_display", ref display);
+                        _ = dataStore.SyncData($"camp_commit_{i}_oppId", ref oppId);
+                        _ = dataStore.SyncData($"camp_commit_{i}_decId", ref decId);
+                        _ = dataStore.SyncData($"camp_commit_{i}_title", ref title);
+                        _ = dataStore.SyncData($"camp_commit_{i}_phase", ref phase);
+                        _ = dataStore.SyncData($"camp_commit_{i}_day", ref day);
+                        _ = dataStore.SyncData($"camp_commit_{i}_time", ref commitTime);
+                        _ = dataStore.SyncData($"camp_commit_{i}_display", ref display);
 
                         if (!string.IsNullOrEmpty(oppId))
                         {
@@ -500,7 +498,7 @@ namespace Enlisted.Features.Camp
             {
                 ModLogger.Surfaced("CAMPLIFE", "Opportunity definitions not yet loaded - loading now (this is normal on first access after load)");
                 LoadOpportunityDefinitions();
-                
+
                 // Diagnostic: warn if still no definitions after loading
                 if (_opportunityDefinitions.Count == 0)
                 {
@@ -553,7 +551,7 @@ namespace Enlisted.Features.Camp
             }
 
             // Generate candidates
-            var candidates = GenerateCandidates(worldSituation, campContext, playerPrefs);
+            var candidates = GenerateCandidates(campContext);
             ModLogger.Info(LogCategory, $"Generated {candidates.Count} candidates from {_opportunityDefinitions.Count} total definitions");
 
             // Diagnostic: warn if no candidates despite having definitions and budget
@@ -568,7 +566,7 @@ namespace Enlisted.Features.Camp
             if (_cachedNeedsReputation && _cachedReputationGap > 0 && !_hasShownPromotionRepNotice)
             {
                 _hasShownPromotionRepNotice = true;
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Promotion reputation pressure: boosting rep-granting opportunities (need {_cachedReputationGap} more soldier rep)");
             }
 
@@ -657,17 +655,17 @@ namespace Enlisted.Features.Camp
             {
                 ProcessCompletedPhaseRoutine(_previousPhase);
             }
-            
+
             // Track for next transition
             _previousPhase = newPhase;
             _hasProcessedFirstPhase = true;
-            
+
             // Invalidate opportunity cache
             _cachedOpportunities = null;
-            
+
             // Update the schedule manager for the new phase
             CampScheduleManager.Instance?.OnPhaseChanged(newPhase);
-            
+
             ModLogger.Debug(LogCategory, $"Phase changed to {newPhase}, cache invalidated");
         }
 
@@ -678,12 +676,12 @@ namespace Enlisted.Features.Camp
         public void InvalidateCache()
         {
             _cachedOpportunities = null;
-            
+
             // Reset promotion reputation pressure cache (will recalculate on next generation)
             _cachedNeedsReputation = false;
             _cachedReputationGap = 0;
             _hasShownPromotionRepNotice = false;
-            
+
             ModLogger.Debug(LogCategory, "Opportunity cache manually invalidated");
         }
 
@@ -721,10 +719,10 @@ namespace Enlisted.Features.Camp
 
             // Process routine and get outcomes
             var outcomes = CampRoutineProcessor.ProcessPhaseTransition(completedPhase, schedule);
-            
+
             if (outcomes.Count > 0)
             {
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Processed {outcomes.Count} routine activities for {completedPhase}");
             }
         }
@@ -748,15 +746,15 @@ namespace Enlisted.Features.Camp
             // Muster cycle position: calculate from LastMusterDay
             int currentDay = (int)CampaignTime.Now.ToDays;
             int lastMusterDay = enlistment?.LastMusterDay ?? 0;
-            
+
             // If lastMusterDay is 0 (uninitialized), treat as if muster just happened
             if (lastMusterDay == 0)
             {
                 lastMusterDay = currentDay;
             }
-            
+
             context.DaysSinceLastMuster = currentDay - lastMusterDay;
-            
+
             // IsMusterDay should only be true when the MUSTER MENU is actively being shown,
             // not just because it's been 12 days. The muster system handles its own timing.
             // Block opportunities only during active muster sequence (detected by menu state).
@@ -909,26 +907,19 @@ namespace Enlisted.Features.Camp
             var actualPhase = campContext.DayPhase;
             campContext.DayPhase = targetPhase; // Override to target phase
 
-            // Get world situation
-            var worldSituation = ContentOrchestrator.Instance?.GetCurrentWorldSituation()
-                ?? WorldStateAnalyzer.AnalyzeSituation();
-
-            // Get player preferences
-            var playerPrefs = PlayerBehaviorTracker.GetPreferences();
-
             // Generate candidates for the target phase (no budget limiting - orchestrator handles that)
-            var candidates = GenerateCandidates(worldSituation, campContext, playerPrefs);
-            
-            ModLogger.Debug(LogCategory, 
+            var candidates = GenerateCandidates(campContext);
+
+            ModLogger.Debug(LogCategory,
                 $"GenerateCandidatesForPhase({targetPhase}): {candidates.Count} candidates (actual phase was {actualPhase})");
-            
+
             return candidates;
         }
 
         /// <summary>
         /// Generates candidate opportunities based on current context.
         /// </summary>
-        private List<CampOpportunity> GenerateCandidates(WorldSituation world, CampContext camp, PlayerPreferences prefs)
+        private List<CampOpportunity> GenerateCandidates(CampContext camp)
         {
             var candidates = new List<CampOpportunity>();
             var tier = EnlistmentBehavior.Instance?.EnlistmentTier ?? 1;
@@ -967,17 +958,17 @@ namespace Enlisted.Features.Camp
                 var enlistment = EnlistmentBehavior.Instance;
                 var party = enlistment?.CurrentLord?.PartyBelongedTo;
                 // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-                var isAtSea = party != null && 
-                              party.CurrentSettlement == null && 
-                              party.BesiegedSettlement == null && 
+                var isAtSea = party != null &&
+                              party.CurrentSettlement == null &&
+                              party.BesiegedSettlement == null &&
                               party.IsCurrentlyAtSea;
-                
+
                 if (opp.NotAtSea && isAtSea)
                 {
                     IncrementFilterCount(filterCounts, "at_sea");
                     continue; // Land-only opportunity but party is at sea
                 }
-                
+
                 if (opp.AtSea && !isAtSea)
                 {
                     IncrementFilterCount(filterCounts, "on_land");
@@ -1049,7 +1040,7 @@ namespace Enlisted.Features.Camp
                     if (baggageManager != null)
                     {
                         var accessState = baggageManager.GetCurrentAccess();
-                        if (accessState != Logistics.BaggageAccessState.FullAccess && 
+                        if (accessState != Logistics.BaggageAccessState.FullAccess &&
                             accessState != Logistics.BaggageAccessState.TemporaryAccess)
                         {
                             IncrementFilterCount(filterCounts, "no_baggage_access");
@@ -1099,7 +1090,7 @@ namespace Enlisted.Features.Camp
         /// <summary>
         /// Calculates fitness score for an opportunity using all 4 intelligence layers plus schedule awareness.
         /// </summary>
-        private float CalculateFitness(CampOpportunity opp, WorldSituation world, CampContext camp, 
+        private float CalculateFitness(CampOpportunity opp, WorldSituation world, CampContext camp,
             PlayerPreferences prefs, OpportunityHistory history)
         {
             float score = opp.BaseFitness;
@@ -1145,13 +1136,13 @@ namespace Enlisted.Features.Camp
             {
                 // Apply schedule boost multiplier
                 float boostedScore = currentScore * scheduleManager.ScheduleBoostMultiplier;
-                
+
                 // Mark the opportunity as scheduled for UI display
                 opp.IsScheduled = true;
-                
-                ModLogger.Debug(LogCategory, 
+
+                ModLogger.Debug(LogCategory,
                     $"Schedule boost applied to {opp.Id}: {currentScore:F1} -> {boostedScore:F1}");
-                
+
                 return boostedScore;
             }
 
@@ -1169,7 +1160,7 @@ namespace Enlisted.Features.Camp
             }
 
             // Social is odd during siege
-            if (opp.Type == OpportunityType.Social && 
+            if (opp.Type == OpportunityType.Social &&
                 (world.LordIs == LordSituation.SiegeAttacking || world.LordIs == LordSituation.SiegeDefending))
             {
                 mod -= 20f;
@@ -1262,7 +1253,7 @@ namespace Enlisted.Features.Camp
             {
                 // Identify opportunities that grant soldier reputation
                 bool grantsReputation = IsReputationGrantingOpportunity(opp.TargetDecisionId);
-                
+
                 if (grantsReputation)
                 {
                     // Scale boost based on reputation gap
@@ -1284,7 +1275,7 @@ namespace Enlisted.Features.Camp
                     repBoost = ApplyPromotionPhaseBoost(opp, camp.DayPhase, repBoost);
 
                     mod += repBoost;
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"Promotion reputation boost: +{repBoost:F0} for {opp.Id} (target: {opp.TargetDecisionId}, gap: {_cachedReputationGap}, phase: {camp.DayPhase})");
                 }
             }
@@ -1300,7 +1291,7 @@ namespace Enlisted.Features.Camp
         {
             // Phase-appropriate activities get a 40% bonus to the rep boost
             // This ensures we boost activities that fit the schedule (training at dawn, social at dusk)
-            
+
             switch (phase)
             {
                 case DayPhase.Dawn:
@@ -1310,7 +1301,7 @@ namespace Enlisted.Features.Camp
                         return baseBoost * 1.4f;
                     }
                     // Helping wounded/mentoring also fits dawn routine
-                    if (opp.TargetDecisionId == "dec_help_wounded" || 
+                    if (opp.TargetDecisionId == "dec_help_wounded" ||
                         opp.TargetDecisionId == "dec_mentor_recruit")
                     {
                         return baseBoost * 1.3f;
@@ -1532,8 +1523,8 @@ namespace Enlisted.Features.Camp
 
             // Lord reputation modifier (trusted soldiers get away with more - now uses native relation)
             var enlistment = EnlistmentBehavior.Instance;
-            var reputation = enlistment?.EnlistedLord != null 
-                ? CharacterRelationManager.GetHeroRelation(Hero.MainHero, enlistment.EnlistedLord) 
+            var reputation = enlistment?.EnlistedLord != null
+                ? CharacterRelationManager.GetHeroRelation(Hero.MainHero, enlistment.EnlistedLord)
                 : 0;
             if (reputation > 30)
             {
@@ -1612,7 +1603,7 @@ namespace Enlisted.Features.Camp
             // Set NCO title based on culture
             var cultureId = EnlistmentBehavior.Instance?.EnlistedLord?.Culture?.StringId ?? "empire";
             var ncoTitle = RankHelper.GetNCOTitle(cultureId);
-            message.SetTextVariable("NCO_TITLE", ncoTitle);
+            _ = message.SetTextVariable("NCO_TITLE", ncoTitle);
 
             // Intentional bypass of StoryDirector — fires on detection check; self-paced by
             // the underlying detection probability and scrutiny state. Observational-modal

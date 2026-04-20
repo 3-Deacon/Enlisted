@@ -22,6 +22,7 @@ namespace Enlisted.Mod.Core.Util
 
         public UsedImplicitlyAttribute(string reason)
         {
+            _ = reason;
             // Reason parameter accepted for documentation purposes but not stored
         }
     }

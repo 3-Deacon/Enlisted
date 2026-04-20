@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.InputSystem;
