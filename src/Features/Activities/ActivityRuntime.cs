@@ -326,6 +326,22 @@ namespace Enlisted.Features.Activities
             AdvancePhase(activity);
         }
 
+        /// <summary>
+        /// Advance the activity to the next phase without the time-duration gate in
+        /// <see cref="TryAdvancePhase"/> or the PlayerChoice precondition in
+        /// <see cref="ResolvePlayerChoice"/>. Intended for debug helpers that need to
+        /// step across Auto phases instantly (e.g. jumping past Arrive/Settle to Evening
+        /// for Task 21 acceptance smoke). Runs the same OnPhaseExit / OnPhaseEnter /
+        /// parked-chain-consume / finalization as the private AdvancePhase so a
+        /// force-skip leaves the runtime in a state identical to natural advancement.
+        /// Not save-visible; caller owns when to invoke.
+        /// </summary>
+        public void ForceAdvancePhase(Activity activity)
+        {
+            if (activity == null) { return; }
+            AdvancePhase(activity);
+        }
+
         private void TryAdvancePhase(Activity a)
         {
             var phase = a.CurrentPhase;

@@ -650,7 +650,27 @@
     <!-- Content (Injuries and other dynamic content) -->
     <ContentData Include="ModuleData\Enlisted\Content\*.json"/>
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <!-- Activities (Spec 1 Home and future surface-spec activity type definitions) -->
+    <ActivitiesData Include="ModuleData\Enlisted\Activities\*.json"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Scripted effects (Spec 0 storylet backbone — named reusable effect catalogs) -->
+    <EffectsData Include="ModuleData\Enlisted\Effects\*.json"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Storylets (Spec 0 storylet backbone — surface-spec authored pool files) -->
+    <StoryletsData Include="ModuleData\Enlisted\Storylets\*.json"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Qualities (Spec 0 storylet backbone — typed numeric quality definitions) -->
+    <QualitiesData Include="ModuleData\Enlisted\Qualities\*.json"/>
+  </ItemGroup>
+
   <!-- ========================================================================
        DOCUMENTATION & PROJECT FILES
        ======================================================================== -->
@@ -720,6 +740,10 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Orders"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Orders\order_events"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Content"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Activities"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Effects"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Storylets"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Qualities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Languages"/>
     
     <!-- COPY MODULE CONFIGURATION -->
@@ -734,6 +758,10 @@
     <Copy SourceFiles="@(OrderEventsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Orders\order_events\"/>
     <Copy SourceFiles="@(DialogueData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Dialogue\"/>
     <Copy SourceFiles="@(ContentData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Content\"/>
+    <Copy SourceFiles="@(ActivitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Activities\"/>
+    <Copy SourceFiles="@(EffectsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Effects\"/>
+    <Copy SourceFiles="@(StoryletsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Storylets\"/>
+    <Copy SourceFiles="@(QualitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Qualities\"/>
     
     <!-- COPY LOCALIZATION FILES (XML) -->
     <Copy SourceFiles="ModuleData\Languages\enlisted_strings.xml" DestinationFolder="$(OutputPath)..\..\ModuleData\Languages\"/>

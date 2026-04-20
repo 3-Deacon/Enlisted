@@ -228,9 +228,9 @@ Save registration:
 
 ---
 
-## What Phase E will add
+## Phase E (shipped)
 
-- **Debug hotkeys** in `DebugToolsBehavior.cs` — `Ctrl+Shift+H` force-start, `Ctrl+Shift+E` advance-to-evening, `Ctrl+Shift+B` advance-to-break-camp, `Ctrl+Shift+T` dump trigger eval table.
+- **Debug hotkeys** in `DebugToolsBehavior.cs` — `Ctrl+Shift+H` force-start, `Ctrl+Shift+E` advance-to-evening (via `ActivityRuntime.ForceAdvancePhase`, skips Arrive/Settle time gates), `Ctrl+Shift+B` advance-to-break-camp, `Ctrl+Shift+Y` dump trigger eval table. `T` was rebound after an in-game overlay collision; audit against `DebugHotKeyCategory` (decompile `TaleWorlds.Engine.InputSystem/DebugHotKeyCategory.cs`) confirmed `Y` is clean across every modifier combo.
 - **`validate_content.py` Phase 12 extensions** — activity pool-reference check, `chain.when` parse check.
 - **Acceptance smoke** — 8 in-game scenarios (arrive/settle fire, evening slots + Modal, party-identity gate, save/load, chain park, no OrchestratorOverride regression).
 

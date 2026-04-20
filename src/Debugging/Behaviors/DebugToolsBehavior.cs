@@ -359,9 +359,14 @@ namespace Enlisted.Debugging.Behaviors
         }
 
         /// <summary>
-        /// Fast-forwards the active HomeActivity to the "evening" phase by resolving any
-        /// PlayerChoice phases that sit before it. Auto phases advance on time in ActivityRuntime,
-        /// so they can't be force-resolved — this only helps past PlayerChoice gates.
+        /// Fast-forwards the active HomeActivity to the "evening" phase regardless of phase
+        /// delivery type. Calls <see cref="ActivityRuntime.ForceAdvancePhase"/>, which runs
+        /// the full OnPhaseExit / OnPhaseEnter / parked-chain-consume lifecycle on each step,
+        /// so the resulting state is indistinguishable from natural advancement — only the
+        /// time-duration gate and the PlayerChoice precondition are bypassed. Loop capped
+        /// at <see cref="AdvanceMaxSteps"/> for belt-and-suspenders protection against a
+        /// malformed phase list; Home has four phases, so the cap is never reached in
+        /// practice.
         /// </summary>
         public static void AdvanceHomeToEvening()
         {
@@ -373,18 +378,20 @@ namespace Enlisted.Debugging.Behaviors
                     "[DEBUG] No HomeActivity active — press Ctrl+Shift+H first."));
                 return;
             }
-            var safety = 0;
+            var steps = 0;
             while (home.CurrentPhase != null
                    && home.CurrentPhase.Id != "evening"
-                   && safety++ < 16)
+                   && steps++ < AdvanceMaxSteps)
             {
-                runtime.ResolvePlayerChoice(home);
+                runtime.ForceAdvancePhase(home);
             }
             var phaseId = home.CurrentPhase?.Id ?? "(ended)";
             InformationManager.DisplayMessage(new InformationMessage(
                 $"[DEBUG] Home phase now: {phaseId}"));
-            SessionDiagnostics.LogEvent("Debug", "AdvanceHomeToEvening", $"phase={phaseId}");
+            SessionDiagnostics.LogEvent("Debug", "AdvanceHomeToEvening", $"phase={phaseId},steps={steps}");
         }
+
+        private const int AdvanceMaxSteps = 16;
 
         /// <summary>
         /// Emits the "departure_imminent" beat on the active HomeActivity, which skips the
