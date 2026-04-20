@@ -1158,8 +1158,10 @@ namespace Enlisted.Features.Interface.Behaviors
             }
 
             // Evening intent slots - visible only when HomeActivity is in the evening phase.
-            // Priority 9 so Evening appears above the camp_hub (priority 10) during its phase,
-            // matching the decisions-slot pattern at priorities 4-8.
+            // Indices 9..13 (one per slot) so Evening sits above camp_hub (index 14) during its
+            // phase, matching the decisions-slot pattern at 4..8. GameMenu.AddOption uses
+            // positional insertion, not priority sorting, so every slot needs a unique index —
+            // registering all five at a shared index would splice them around later items.
             for (var i = 0; i < 5; i++)
             {
                 var slotIndex = i;
@@ -1182,10 +1184,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         Enlisted.Features.Activities.Home.HomeEveningMenuProvider.OnSlotSelected(slotIndex);
                     },
-                    false, 9);
+                    false, 9 + i);
             }
 
-            // 3. Camp hub - priority 10 to appear after all decision slots (4-8)
+            // 3. Camp hub - index 14 to appear after decision slots (4-8) and evening slots (9-13).
+            // GameMenu.AddOption is positional insertion, not priority sorting: if 5 evening
+            // slots were to register at 9+i, Camp at 10 would splice in between them. We give
+            // Camp a position past the entire evening block.
             starter.AddGameMenuOption("enlisted_status", "enlisted_camp_hub",
                 "{=enlisted_camp}Camp",
                 args =>
@@ -1199,7 +1204,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     GameMenu.SwitchToMenu(CampHubMenuId);
                 },
-                false, 10);
+                false, 14);
 
             // Debug tools (QA only): grant gold/XP - at very bottom
             // DISABLED FOR PRODUCTION - change to true in settings.json to enable for testing
@@ -1260,7 +1265,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     return true;
                 },
                 OnVisitTownSelected,
-                false, 11);
+                false, 15);
 
             // NOTE: Duties, Medical Attention, and Service Records are all accessed via Camp Hub.
             // Keeping the main menu lean - only essential/frequent actions here.
