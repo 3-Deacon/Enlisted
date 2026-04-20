@@ -28,6 +28,12 @@ namespace Enlisted.Features.Content
         private static readonly Dictionary<string, PendingEffectEntry> _pendingEffects =
             new Dictionary<string, PendingEffectEntry>(StringComparer.Ordinal);
 
+        // Monotonic suffix for synthetic event IDs — prevents registry collisions when
+        // the same storylet fires twice before the first modal has been drained (rare
+        // in practice because of pacing gates, but a real race if two BuildModal calls
+        // interleave). Interlocked is defensive; campaign tick is single-threaded today.
+        private static int _instanceCounter;
+
         /// <summary>
         /// Pending effect entry stored per (eventId + ":" + choiceId) key.
         /// </summary>
@@ -69,8 +75,11 @@ namespace Enlisted.Features.Content
                 });
             }
 
-            // Synthetic ID — unique per storylet invocation so the pending registry key is stable.
-            var syntheticId = "storylet_" + s.Id;
+            // Synthetic ID — unique PER INVOCATION (monotonic suffix) so the pending
+            // registry key is stable even if the same storylet fires twice before the
+            // first modal drains.
+            var syntheticId = "storylet_" + s.Id + "_" +
+                System.Threading.Interlocked.Increment(ref _instanceCounter);
 
             var options = eligibleChoices
                 .Select(c => BuildOption(syntheticId, c))
@@ -81,6 +90,8 @@ namespace Enlisted.Features.Content
                 Id = syntheticId,
                 TitleFallback = s.Title ?? string.Empty,
                 SetupFallback = s.Setup ?? string.Empty,
+                // Sentinel category — EventDeliveryManager does not branch on "storylet",
+                // but future code should not assume legacy semantics for this category.
                 Category = "storylet",
                 Options = options
             };
@@ -121,27 +132,6 @@ namespace Enlisted.Features.Content
             catch (Exception ex)
             {
                 ModLogger.Surfaced(LogCategory, "DrainPendingEffects failed", ex);
-            }
-        }
-
-        /// <summary>
-        /// Removes all pending entries for the given event ID. Called if the event is
-        /// cancelled or dismissed without a selection.
-        /// </summary>
-        public static void DiscardPendingEffects(string eventId)
-        {
-            if (string.IsNullOrEmpty(eventId))
-            {
-                return;
-            }
-
-            var keysToRemove = _pendingEffects.Keys
-                .Where(k => k.StartsWith(eventId + ":", StringComparison.Ordinal))
-                .ToList();
-
-            foreach (var k in keysToRemove)
-            {
-                _pendingEffects.Remove(k);
             }
         }
 
@@ -212,7 +202,13 @@ namespace Enlisted.Features.Content
             }
 
             var parts = when.Split('.');
-            return parts.Length == 2 ? (parts[0], parts[1]) : (fallbackTypeId, fallbackPhaseId);
+            if (parts.Length != 2)
+            {
+                ModLogger.Expected(LogCategory, "chain_when_malformed",
+                    "chain.when must be '{typeId}.{phaseId}' — falling back to owner");
+                return (fallbackTypeId, fallbackPhaseId);
+            }
+            return (parts[0], parts[1]);
         }
 
         private static string MakeKey(string eventId, string choiceId)
