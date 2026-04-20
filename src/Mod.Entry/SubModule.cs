@@ -312,6 +312,10 @@ namespace Enlisted.Mod.Entry
                     // Initialize injury system with varied severity definitions for narrative-driven injuries
                     Enlisted.Features.Content.InjurySystem.Initialize();
 
+                    // Register engine-state predicates used by home-surface storylets. Predicates read
+                    // live Bannerlord state at evaluation time; no campaign objects are required at registration.
+                    Enlisted.Features.Activities.Home.HomeTriggers.Register();
+
                     // Save/load diagnostics: two marker behaviors registered first/last so we can log
                     // user-friendly "Saving..." / "Save finished" and "Loading..." / "Load finished" lines.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.Begin));

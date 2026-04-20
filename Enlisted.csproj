@@ -391,6 +391,7 @@
 
     <!-- Home Activities (explicit - wildcard above is non-recursive) -->
     <Compile Include="src\Features\Activities\Home\HomeActivity.cs" />
+    <Compile Include="src\Features\Activities\Home\HomeTriggers.cs" />
     
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
