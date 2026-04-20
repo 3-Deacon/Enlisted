@@ -482,6 +482,7 @@
     <Compile Include="src\Features\Content\ScriptedEffectRegistry.cs"/>
     <Compile Include="src\Features\Content\StoryletCatalog.cs"/>
     <Compile Include="src\Features\Content\TriggerRegistry.cs"/>
+    <Compile Include="src\Features\Content\StoryletEventAdapter.cs"/>
 
     <!-- ====================================================================
          ORDERS SYSTEM (Chain of Command)
