@@ -24,6 +24,24 @@ namespace Enlisted.Features.Qualities
         public Dictionary<MBGUID, Dictionary<string, QualityValue>> HeroValues { get; set; } =
             new Dictionary<MBGUID, Dictionary<string, QualityValue>>();
 
+        /// <summary>
+        /// Re-seats null dictionary fields with empty instances. Save data produced before
+        /// these fields existed deserializes the container with those properties left null —
+        /// field initializers don't run on deserialization paths that skip the ctor. Call this
+        /// right after SyncData and on load before any read or decay pass.
+        /// </summary>
+        public void EnsureInitialized()
+        {
+            if (GlobalValues == null)
+            {
+                GlobalValues = new Dictionary<string, QualityValue>(StringComparer.OrdinalIgnoreCase);
+            }
+            if (HeroValues == null)
+            {
+                HeroValues = new Dictionary<MBGUID, Dictionary<string, QualityValue>>();
+            }
+        }
+
         [NonSerialized]
         private Dictionary<string, QualityDefinition> _defsById =
             new Dictionary<string, QualityDefinition>(StringComparer.OrdinalIgnoreCase);

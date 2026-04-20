@@ -25,6 +25,7 @@ namespace Enlisted.Features.Flags
                 {
                     _store = new FlagStore();
                 }
+                _store.EnsureInitialized();
                 FlagStore.SetInstance(_store);
             }
             catch (Exception ex)
@@ -37,12 +38,21 @@ namespace Enlisted.Features.Flags
 
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
+            _store.EnsureInitialized();
             FlagStore.SetInstance(_store);
         }
 
         private void OnGameLoaded(CampaignGameStarter starter)
         {
-            _store.PurgeMissingHeroes();
+            try
+            {
+                _store.EnsureInitialized();
+                _store.PurgeMissingHeroes();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("FLAGS", "FlagStore load-time purge failed", ex);
+            }
             FlagStore.SetInstance(_store);
         }
 

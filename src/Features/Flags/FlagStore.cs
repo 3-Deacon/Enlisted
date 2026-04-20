@@ -23,6 +23,24 @@ namespace Enlisted.Features.Flags
 
         internal static void SetInstance(FlagStore instance) => Instance = instance;
 
+        /// <summary>
+        /// Re-seats null dictionary fields with empty instances. Save data produced before
+        /// either field existed deserializes the container with those properties left as null —
+        /// field initializers don't run on deserialization paths that skip the ctor. Call this
+        /// right after SyncData and again on load before any read or purge.
+        /// </summary>
+        public void EnsureInitialized()
+        {
+            if (GlobalFlags == null)
+            {
+                GlobalFlags = new Dictionary<string, CampaignTime>(StringComparer.OrdinalIgnoreCase);
+            }
+            if (HeroFlags == null)
+            {
+                HeroFlags = new Dictionary<MBGUID, Dictionary<string, CampaignTime>>();
+            }
+        }
+
         public bool Has(string flag)
         {
             if (string.IsNullOrEmpty(flag))

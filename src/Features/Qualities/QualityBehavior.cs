@@ -29,6 +29,7 @@ namespace Enlisted.Features.Qualities
             {
                 dataStore.SyncData("_qualityStore", ref _store);
                 _store = _store ?? new QualityStore();
+                _store.EnsureInitialized();
                 QualityStore.SetInstance(_store);
             }
             catch (Exception ex)
@@ -41,6 +42,7 @@ namespace Enlisted.Features.Qualities
 
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
+            _store.EnsureInitialized();
             QualityStore.SetInstance(_store);
             Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
             Enlisted.Features.Content.StoryletCatalog.LoadAll();
@@ -49,6 +51,7 @@ namespace Enlisted.Features.Qualities
 
         private void OnGameLoaded(CampaignGameStarter starter)
         {
+            _store.EnsureInitialized();
             QualityStore.SetInstance(_store);
             Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
             Enlisted.Features.Content.StoryletCatalog.LoadAll();
