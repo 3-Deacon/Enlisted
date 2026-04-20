@@ -21,6 +21,13 @@ namespace Enlisted.Features.Activities
         public CampaignTime EndsAt { get; set; } = CampaignTime.Zero;
         public Dictionary<string, int> PhaseQuality { get; set; } = new Dictionary<string, int>();
 
+        /// <summary>
+        /// The in-game hour at which the last Auto-phase storylet fired, used to honour
+        /// <see cref="Phase.FireIntervalHours"/>. -1 means "never fired in this phase".
+        /// Generic: any Auto phase on any Activity subclass can use interval pacing.
+        /// </summary>
+        public int LastAutoFireHour { get; set; } = -1;
+
         // Non-serialized runtime cache — resolved from ActivityTypeDefinition on load.
         [NonSerialized] private List<Phase> _cachedPhases;
         public List<Phase> Phases

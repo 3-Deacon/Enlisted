@@ -26,6 +26,15 @@ namespace Enlisted.Features.Activities
         private Dictionary<string, List<string>> _parkedChains =
             new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
+        // Set when the current active activity enters a PlayerChoice phase; menu providers
+        // query this to decide when their slot-bank options are visible.
+        private (Activity activity, Phase phase)? _activeChoicePhase;
+
+        public (Activity activity, Phase phase)? GetActiveChoicePhase() => _activeChoicePhase;
+
+        public T FindActive<T>() where T : Activity =>
+            _active.OfType<T>().FirstOrDefault();
+
         public IReadOnlyList<Activity> ActiveActivities => _active;
 
         public override void RegisterEvents()
@@ -90,6 +99,10 @@ namespace Enlisted.Features.Activities
             if (activity.CurrentPhase != null)
             {
                 activity.OnPhaseEnter(activity.CurrentPhase);
+                if (activity.CurrentPhase.Delivery == PhaseDelivery.PlayerChoice)
+                {
+                    _activeChoicePhase = (activity, activity.CurrentPhase);
+                }
             }
             _active.Add(activity);
             ConsumeParkedChains(activity);
@@ -192,6 +205,20 @@ namespace Enlisted.Features.Activities
                 return;
             }
 
+            // Interval gate: phases with FireIntervalHours > 0 fire at most every N
+            // in-game hours. LastAutoFireHour lives on Activity base (Option C) so any
+            // subclass gets interval pacing without a cast.
+            if (phase.FireIntervalHours > 0)
+            {
+                var currentHour = (int)CampaignTime.Now.ToHours;
+                if (a.LastAutoFireHour >= 0
+                    && currentHour - a.LastAutoFireHour < phase.FireIntervalHours)
+                {
+                    return;
+                }
+                a.LastAutoFireHour = currentHour;
+            }
+
             var ctx = new StoryletContext
             {
                 ActivityTypeId = a.TypeId,
@@ -246,6 +273,42 @@ namespace Enlisted.Features.Activities
             }
         }
 
+        private void AdvancePhase(Activity activity)
+        {
+            if (activity == null) { return; }
+            var oldPhase = activity.CurrentPhase;
+            activity.OnPhaseExit(oldPhase);
+            activity.CurrentPhaseIndex++;
+            activity.LastAutoFireHour = -1;
+            var newPhase = activity.CurrentPhase;
+            if (newPhase != null)
+            {
+                activity.OnPhaseEnter(newPhase);
+                if (newPhase.Delivery == PhaseDelivery.PlayerChoice)
+                {
+                    _activeChoicePhase = (activity, newPhase);
+                }
+                else if (_activeChoicePhase?.activity == activity)
+                {
+                    _activeChoicePhase = null;
+                }
+                ConsumeParkedChains(activity);
+            }
+            else
+            {
+                if (_activeChoicePhase?.activity == activity) { _activeChoicePhase = null; }
+                activity.Finish(ActivityEndReason.Completed);
+                _active.Remove(activity);
+            }
+        }
+
+        public void ResolvePlayerChoice(Activity activity)
+        {
+            if (activity == null) { return; }
+            if (_activeChoicePhase?.activity != activity) { return; }
+            AdvancePhase(activity);
+        }
+
         private void TryAdvancePhase(Activity a)
         {
             var phase = a.CurrentPhase;
@@ -263,17 +326,7 @@ namespace Enlisted.Features.Activities
             {
                 return;
             }
-
-            a.OnPhaseExit(phase);
-            a.CurrentPhaseIndex++;
-            if (a.CurrentPhaseIndex >= a.Phases.Count)
-            {
-                a.Finish(ActivityEndReason.Completed);
-                _active.Remove(a);
-                return;
-            }
-            a.OnPhaseEnter(a.CurrentPhase);
-            ConsumeParkedChains(a);
+            AdvancePhase(a);
         }
 
         private static string DeriveContext()
