@@ -1,6 +1,7 @@
 ﻿using System;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Party;
@@ -153,8 +154,9 @@ namespace Enlisted.Features.Activities.Home
             {
                 return p.GetNumDaysForFoodToLast();
             }
-            catch
+            catch (Exception ex)
             {
+                ModLogger.Caught("HOME", "food_days_threw", ex);
                 return int.MaxValue;
             }
         }
