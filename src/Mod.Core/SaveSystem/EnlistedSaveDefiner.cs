@@ -61,6 +61,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddClassDefinition(typeof(Enlisted.Features.Flags.FlagStore), 43);
             AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityStore), 40);
             AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityValue), 41);
+
+            // Activity subsystem (Spec 0) — concrete subclasses claim offsets 45-60 in surface specs
+            AddClassDefinition(typeof(Enlisted.Features.Activities.Activity), 44);
         }
 
         /// <summary>
@@ -92,6 +95,9 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Storylet backbone enums (Spec 0)
             AddEnumDefinition(typeof(Enlisted.Features.Qualities.QualityScope), 82);
+
+            // Activity subsystem enums (Spec 0)
+            AddEnumDefinition(typeof(Enlisted.Features.Activities.ActivityEndReason), 83);
         }
 
         /// <summary>
@@ -123,6 +129,10 @@ namespace Enlisted.Mod.Core.SaveSystem
             ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
             ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>));
             ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>>));
+
+            // Activity subsystem containers (Spec 0)
+            ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Activities.Activity>));
+            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>));
         }
     }
 }

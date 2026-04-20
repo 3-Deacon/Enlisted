@@ -326,6 +326,11 @@ namespace Enlisted.Mod.Entry
                     // StoryDirector (Director will consult qualities when evaluating candidates).
                     campaignStarter.AddBehavior(new Enlisted.Features.Qualities.QualityBehavior());
 
+                    // Activity runtime: singleton host for Banner-Kings-style stateful ticking activities.
+                    // Registered after QualityBehavior (activities may read qualities on tick) and before
+                    // StoryDirector (ActivityRuntime emits candidates via StoryDirector.EmitCandidate).
+                    campaignStarter.AddBehavior(new Enlisted.Features.Activities.ActivityRuntime());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
