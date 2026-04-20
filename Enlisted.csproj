@@ -392,6 +392,7 @@
     <!-- Home Activities (explicit - wildcard above is non-recursive) -->
     <Compile Include="src\Features\Activities\Home\HomeActivity.cs" />
     <Compile Include="src\Features\Activities\Home\HomeActivityStarter.cs" />
+    <Compile Include="src\Features\Activities\Home\HomeEveningMenuProvider.cs" />
     <Compile Include="src\Features\Activities\Home\HomeTriggers.cs" />
     
     <!-- ====================================================================

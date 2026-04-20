@@ -111,6 +111,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-FORMATIONASSIGNMENT-3e61 | Error during lord attach | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:688 |
 | E-FORMATIONASSIGNMENT-aac4 | Error teleporting player to formation | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:887 |
 
+## HOME-EVENING
+
+| Code | Summary | Source |
+|---|---|---|
+| E-HOME-EVENING-5e40 | No eligible storylet at fire | src/Features/Activities/Home/HomeEveningMenuProvider.cs:58 |
+
 ## HOME-START
 
 | Code | Summary | Source |
