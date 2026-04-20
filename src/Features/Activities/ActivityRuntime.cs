@@ -79,7 +79,8 @@ namespace Enlisted.Features.Activities
             // Restore _activeChoicePhase from the resolved state. _activeChoicePhase is
             // a runtime-only cache (nullable tuple, not serialized) — without this
             // restore, a save taken mid-PlayerChoice phase would surface a hidden
-            // menu slot-bank until the next phase transition.
+            // menu slot-bank until the next phase transition. break on first match:
+            // only one PlayerChoice phase is active at a time by design.
             foreach (var a in _active)
             {
                 var phase = a.CurrentPhase;
@@ -290,13 +291,15 @@ namespace Enlisted.Features.Activities
         {
             if (activity == null) { return; }
             var oldPhase = activity.CurrentPhase;
-            activity.OnPhaseExit(oldPhase);
+            try { activity.OnPhaseExit(oldPhase); }
+            catch (Exception ex) { ModLogger.Caught("ACTIVITY", "OnPhaseExit threw", ex); }
             activity.CurrentPhaseIndex++;
             activity.LastAutoFireHour = -1;
             var newPhase = activity.CurrentPhase;
             if (newPhase != null)
             {
-                activity.OnPhaseEnter(newPhase);
+                try { activity.OnPhaseEnter(newPhase); }
+                catch (Exception ex) { ModLogger.Caught("ACTIVITY", "OnPhaseEnter threw", ex); }
                 if (newPhase.Delivery == PhaseDelivery.PlayerChoice)
                 {
                     _activeChoicePhase = (activity, newPhase);
@@ -310,7 +313,8 @@ namespace Enlisted.Features.Activities
             else
             {
                 if (_activeChoicePhase?.activity == activity) { _activeChoicePhase = null; }
-                activity.Finish(ActivityEndReason.Completed);
+                try { activity.Finish(ActivityEndReason.Completed); }
+                catch (Exception ex) { ModLogger.Caught("ACTIVITY", "Finish threw", ex); }
                 _active.Remove(activity);
             }
         }
