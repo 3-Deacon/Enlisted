@@ -535,6 +535,11 @@ namespace Enlisted.Features.Content
             // Apply flag changes
             ApplyFlagChanges(option);
 
+            // Spec 1 bridge: EventDefinitions sourced from a Storylet (see StoryletEventAdapter)
+            // carry empty Option.Effects; their EffectDecl list is stored in a pending registry
+            // keyed by (eventId, optionId). Drain it here so the effects actually fire.
+            StoryletEventAdapter.DrainPendingEffects(_currentEvent?.Id, option.Id);
+
             // Handle enlistment abort (used by bag check)
             if (option.AbortsEnlistment)
             {
