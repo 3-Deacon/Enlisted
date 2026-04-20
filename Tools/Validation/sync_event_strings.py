@@ -94,6 +94,72 @@ def extract_strings_from_event(event: dict) -> Dict[str, str]:
     return strings
 
 
+def extract_strings_from_storylet(storylet: dict) -> Dict[str, str]:
+    """Extract all localizable strings from a storylet definition.
+
+    Parses the inline {=key}Fallback pattern used in the storylet backbone.
+    Fields scanned: title, setup, options[].text, options[].tooltip.
+    """
+    strings = {}
+    pattern = re.compile(r'^\{=([^}]+)\}(.*)$', re.DOTALL)
+
+    for field in ("title", "setup"):
+        value = storylet.get(field, "")
+        if isinstance(value, str) and value.startswith("{="):
+            m = pattern.match(value)
+            if m:
+                strings[m.group(1)] = m.group(2)
+
+    for opt in storylet.get("options", []):
+        for field in ("text", "tooltip"):
+            value = opt.get(field, "")
+            if isinstance(value, str) and value.startswith("{="):
+                m = pattern.match(value)
+                if m:
+                    strings[m.group(1)] = m.group(2)
+
+    return strings
+
+
+def scan_storylet_files(storylets_dir: Path, verbose: bool = False) -> Tuple[Dict[str, Dict], List[str]]:
+    """Scan all JSON storylet files and extract inline {=key}Fallback strings.
+
+    Returns (all_strings, missing_fallbacks) — same shape as scan_event_files.
+    missing_fallbacks is always empty because the {=key}X pattern enforces a
+    fallback by construction.
+    """
+    all_strings: Dict[str, Dict] = {}
+    missing_fallbacks: List[str] = []
+
+    for json_file in storylets_dir.glob("*.json"):
+        try:
+            with open(json_file, 'r', encoding='utf-8-sig') as f:
+                content = f.read()
+
+            try:
+                data = json.loads(content)
+            except json.JSONDecodeError:
+                content = re.sub(r',(\s*[}\]])', r'\1', content)
+                try:
+                    data = json.loads(content)
+                except json.JSONDecodeError as e:
+                    if verbose:
+                        print(f"  Skipping {json_file.name}: {e}")
+                    continue
+
+            for storylet in data.get("storylets", []):
+                storylet_id = storylet.get("id", "unknown")
+                strings = extract_strings_from_storylet(storylet)
+                if strings:
+                    all_strings[storylet_id] = strings
+
+        except Exception as e:
+            if verbose:
+                print(f"  Skipping {json_file.name}: {e}")
+
+    return all_strings, missing_fallbacks
+
+
 def load_existing_xml_strings(xml_file: Path) -> Set[str]:
     """Load all existing string IDs from XML file"""
     if not xml_file.exists():
@@ -225,6 +291,14 @@ def main():
         all_strings.update(order_strings)
         missing_fallbacks.extend(order_fallbacks)
     
+    # Scan storylet files
+    storylets_dir = Path("ModuleData/Enlisted/Storylets")
+    if storylets_dir.exists():
+        print("Scanning storylet files...")
+        storylet_strings, storylet_fallbacks = scan_storylet_files(storylets_dir, args.verbose)
+        all_strings.update(storylet_strings)
+        missing_fallbacks.extend(storylet_fallbacks)
+
     # Count total strings
     total_string_count = sum(len(strings) for strings in all_strings.values())
     print(f"Found {len(all_strings)} events with {total_string_count} localizable strings")
