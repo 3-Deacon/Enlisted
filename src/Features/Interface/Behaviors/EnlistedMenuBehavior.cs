@@ -1157,6 +1157,33 @@ namespace Enlisted.Features.Interface.Behaviors
                     false, 4 + i);
             }
 
+            // Evening intent slots - visible only when HomeActivity is in the evening phase.
+            // Priority 9 so Evening appears above the camp_hub (priority 10) during its phase,
+            // matching the decisions-slot pattern at priorities 4-8.
+            for (var i = 0; i < 5; i++)
+            {
+                var slotIndex = i;
+                starter.AddGameMenuOption("enlisted_status", $"enlisted_evening_intent_slot_{i}",
+                    $"{{EVENING_SLOT_{i}_TEXT}}",
+                    args =>
+                    {
+                        if (!Enlisted.Features.Activities.Home.HomeEveningMenuProvider
+                                .IsSlotActive(slotIndex, out var label, out var tooltip))
+                        {
+                            return false;
+                        }
+                        MBTextManager.SetTextVariable($"EVENING_SLOT_{slotIndex}_TEXT", label.ToString(), false);
+                        args.Tooltip = tooltip;
+                        args.IsEnabled = true;
+                        return true;
+                    },
+                    _ =>
+                    {
+                        Enlisted.Features.Activities.Home.HomeEveningMenuProvider.OnSlotSelected(slotIndex);
+                    },
+                    false, 9);
+            }
+
             // 3. Camp hub - priority 10 to appear after all decision slots (4-8)
             starter.AddGameMenuOption("enlisted_status", "enlisted_camp_hub",
                 "{=enlisted_camp}Camp",
