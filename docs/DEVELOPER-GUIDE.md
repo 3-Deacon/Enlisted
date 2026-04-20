@@ -2,7 +2,7 @@
 
 **Summary:** Quick reference for building, modifying, and extending the Enlisted mod. Covers setup, structure, common tasks, and integration patterns.
 
-**Last Updated:** 2026-01-01  
+**Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — new folders under `src/Features/`: Qualities, Flags, Activities. Content authoring now routes through storylets per AGENTS.md Critical Rule #11.)  
 **Target Game:** Bannerlord v1.3.13  
 **Related Docs:** [BLUEPRINT.md](BLUEPRINT.md), [Reference/native-apis.md](Reference/native-apis.md)
 

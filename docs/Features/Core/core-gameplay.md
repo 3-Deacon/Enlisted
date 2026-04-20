@@ -3,7 +3,7 @@
 **Summary:** Comprehensive overview of the Enlisted mod's core gameplay loop covering enlistment, orders from chain of command, emergent identity through traits and reputation, and the native game menu interface. This is the main entry point for understanding how all systems fit together in the enlisted soldier experience.
 
 **Status:** ✅ Current  
-**Last Updated:** 2025-12-23  
+**Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities, Flags, Activities are now first-class state primitives; surface specs 1-5 will author content against them.)  
 **Related Docs:** [Enlistment](enlistment.md), [Order Progression System](order-progression-system.md), [Identity System](../Identity/identity-system.md), [Camp Simulation System](../Campaign/camp-simulation-system.md)
 
 ---

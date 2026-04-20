@@ -2,7 +2,9 @@
 
 **Summary:** The unified content system manages all narrative content (events, decisions, orders, map incidents) through a world-state driven orchestration pipeline. The Content Orchestrator analyzes your lord's situation and coordinates content delivery to match military reality: garrison duty is quiet, campaigns are busy, sieges are intense. All content uses JSON definitions, XML localization, requirement checking, and native Bannerlord effect integration.
 
-**Status:** ✅ **IMPLEMENTED** - ContentOrchestrator with phase-aware scheduling, commitment model, OrderProgressionBehavior, 84 order events active  
+> **LEGACY NOTICE (2026-04-19).** The pre-Spec-0 content surface described below — `EventDefinition`, `EventCatalog`, `DecisionCatalog`, `ContentOrchestrator`, `CampOpportunity` — is **scheduled for replacement** by surface specs 1-5. The replacement substrate (storylets, qualities, flags, activities) shipped as Spec 0 on 2026-04-19. New narrative work should target the new vocabulary, **not** the types documented below. See [2026-04-19-storylet-backbone-design.md](../../superpowers/specs/2026-04-19-storylet-backbone-design.md) for the replacement architecture and its deletion list (§15) identifying which legacy files disappear per surface spec.
+
+**Status:** ✅ **IMPLEMENTED (legacy — see notice above)** - ContentOrchestrator with phase-aware scheduling, commitment model, OrderProgressionBehavior, 84 order events active  
 **Last Updated:** 2026-01-04 (Bug fix: Order events now check notAtSea requirements)  
 **Implementation:** `src/Features/Content/ContentOrchestrator.cs`, `src/Features/Orders/Behaviors/OrderProgressionBehavior.cs`, `src/Features/Content/WorldStateAnalyzer.cs`, `src/Features/Camp/CampOpportunityGenerator.cs`  
 **Related Docs:** [Content Index](content-index.md), [Training System](../Combat/training-system.md), [Order Progression System](../Core/order-progression-system.md), [Camp Simulation System](../Campaign/camp-simulation-system.md), [Event System Schemas](event-system-schemas.md), [Orchestrator Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)

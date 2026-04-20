@@ -1,6 +1,6 @@
 # Enlisted - Project Blueprint
 
-**Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-01-04 (Battle side army race conditions fixed. 3-day grace period removed.)
+**Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities/Flags/Activities/Storylets runtime + seed catalogs + validate_content.py Phase 12.)
 
 ---
 
@@ -54,8 +54,10 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | Path | Purpose |
 | --- | --- |
 | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | **Runtime mod logs** (ModLogger output, error codes) |
-| `src/Features/` | All gameplay code (Enlistment, Orders, Content, Combat, Equipment, etc.) |
+| `src/Features/` | All gameplay code (Enlistment, Orders, Content, Combat, Equipment, Qualities, Flags, Activities) |
+| `src/Features/Qualities/` · `Flags/` · `Activities/` | Storylet Backbone runtime (Spec 0, 2026-04-19) — QualityStore (typed numeric state, stored + read-through), FlagStore (named booleans + expiry), ActivityRuntime (stateful phased activities) |
 | `ModuleData/Enlisted/` | JSON config, events, orders, decisions |
+| `ModuleData/Enlisted/Storylets/` · `Qualities/` · `Effects/` | Storylet Backbone content dirs — storylet definitions (populated by surface specs 1-5), quality_defs.json, scripted_effects.json |
 | `ModuleData/Languages/enlisted_strings.xml` | All localized strings |
 | `Tools/Steam/` | Workshop upload scripts and VDF |
 | `Tools/Validation/` | Content validators |

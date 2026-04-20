@@ -80,7 +80,8 @@
 | **Equipment Upgrades** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Equipment Upgrade System |
 | **Event System (JSON)** | [event-system-schemas.md](Features/Content/event-system-schemas.md) | — |
 | **Writing RP Text (Style)** | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Voice, tone, vocabulary, opportunity hints for Bannerlord flavor |
-| **Fatigue System** | [camp-fatigue.md](Features/Core/camp-fatigue.md) | — |
+| **Storylet Backbone (Spec 0)** | [2026-04-19-storylet-backbone-design.md](superpowers/specs/2026-04-19-storylet-backbone-design.md) | Storylets, Qualities, Flags, Activities, Scopes, Chains, Scripted Effects — content layer beneath StoryDirector |
+| **Event Pacing (delivery)** | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) | StoryDirector tier selection + pacing floors; the delivery half that Spec 0's content feeds |
 | **First Meeting (QM)** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Quartermaster NPC |
 | **Food & Rations** | [provisions-rations-system.md](Features/Equipment/provisions-rations-system.md) | — |
 | **Battle AI** | [battle-ai-plan.md](Features/Combat/battle-ai-plan.md) | Native AI analysis, Orchestrator proposal |
@@ -130,13 +131,12 @@
 | [core-gameplay.md](Features/Core/core-gameplay.md) | Complete gameplay overview covering all major systems and how they interact | ✅ Current |
 | [enlistment.md](Features/Core/enlistment.md) | Enlistment system: joining process, lord selection, initial rank assignment, contract terms | ✅ Current |
 | [order-progression-system.md](Features/Core/order-progression-system.md) | Multi-day order execution: phase progression (4/day), slot events during duty, consequence accumulation, order forecasting with imminent warnings. 17 orders with 84 order events active. | ✅ Implemented |
-| [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, discipline score), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
+| [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, scrutiny cap), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
 | [pay-system.md](Features/Core/pay-system.md) | Wages and payment: 12-day muster cycle, rank-based pay scales, wage modifiers (performance, reputation, lord wealth), pay tension (mutiny risk), deductions (fines, missing gear) | ✅ Current |
 | [muster-system.md](Features/Core/muster-system.md) | Muster System: 6-stage GameMenu sequence for pay day ceremonies, rank progression display, period summary (12-day recap), event integration (recruit), comprehensive reporting (combat/training/orders/XP breakdown), pay options, promotion recap, retinue muster (T7+), direct Quartermaster access | ✅ Current |
 | [company-events.md](Features/Core/company-events.md) | Company-wide events: march events, camp life events, morale events, supply events | ✅ Current |
 | [retinue-system.md](Features/Core/retinue-system.md) | Commander's retinue (T7+ officers): formation selection (player chooses retinue troops), context-aware trickle (1-3 troops per battle), relation-based reinforcements, loyalty tracking, 11 narrative events (character development), 6 post-battle incidents (heroism/casualties), 4 camp decisions (discipline/rewards), named veterans (persistent characters) | ✅ Current |
 | [companion-management.md](Features/Core/companion-management.md) | Companion integration: how companions work with enlisted systems, role assignments, special interactions | ✅ Current |
-| [camp-fatigue.md](Features/Core/camp-fatigue.md) | Rest and fatigue: fatigue accumulation (marching, fighting), rest recovery (camp actions), fatigue effects on performance | ✅ Current |
 | [onboarding-discharge-system.md](Features/Core/onboarding-discharge-system.md) | Onboarding (initial training, orientation, first conversations) and discharge (equipment reclamation, final pay settlement, retirement options) | ✅ Current |
 
 ### Equipment & Logistics
