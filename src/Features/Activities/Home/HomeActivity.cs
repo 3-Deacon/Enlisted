@@ -10,7 +10,7 @@ namespace Enlisted.Features.Activities.Home
     /// Concrete Activity for "lord's party parked at a friendly settlement."
     /// Four phases: arrive (auto, 1h), settle (auto, 2h fire interval, 4h window),
     /// evening (player_choice, once per in-game night), break_camp (auto, fires on departure beat).
-    /// Registered in EnlistedSaveDefiner at offset 45 (Task 7).
+    /// Registered in EnlistedSaveDefiner at offset 45.
     /// </summary>
     public sealed class HomeActivity : Activity
     {
