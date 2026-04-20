@@ -58,17 +58,31 @@ Match the task to the right skill:
 
 ## Session-Specific Guidance
 
+### Shell & PATH
+
 - Shell is bash on Windows — use Unix paths (`/dev/null`, forward slashes), not `NUL` or backslashes
+- The bash here is a thin shim — `cat`, `head`, `tail`, `grep`, `file`, `which` are not on PATH. Use the Grep / Read / Write tools instead of shell equivalents
+- `dotnet`, `git`, `python` aren't on PATH by default. Prepend: `export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"`. Python is at `/c/Python313/python.exe`
+
+### Build & commit
+
+- AGENTS.md's build form `/p:Platform=x64` trips bash's argument parser when the config has a space. From bash use: `dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64`
+- Multi-line commit messages: no `cat` heredoc here. Write the message to a temp file (e.g. `/c/Users/<you>/commit.txt`) and pass with `git commit -F <file>`
+- Another AI session may be editing files concurrently. Stage with `git add <path>`, never `git add -A` — in-flight edits belong to the other session and don't belong in your commit
+
+### File handling
+
+- Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. For **newly created** files, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>` exactly once. **Known bug:** the script prepends a UTF-8 BOM unconditionally, so a second run on the same file creates a double-BOM defect. For **edits** to existing `.cs` files, rely on `.gitattributes` at commit time — don't run the script.
+- **`Enlisted.csproj` wildcards are NON-RECURSIVE.** `<Compile Include="src\Features\Activities\*.cs"/>` (line 390) and similar patterns only match files directly in the named directory — they do NOT match subfolders. A file at `src\Features\Activities\Home\Foo.cs` needs an explicit `<Compile Include>` line even though `Activities\*.cs` exists. Before creating a new `.cs` file, grep `Enlisted.csproj` for a wildcard that covers your exact directory (not a parent).
+
+### Claude workflow
+
 - For broad codebase exploration (>3 searches), spawn an `Explore` subagent rather than searching directly
 - Parallelize independent Agent / tool calls; serialize only when one result feeds the next
 - If the user needs to run an interactive command, suggest the `!` prefix so output lands in-context
-- Another AI session may be editing files concurrently. Stage with `git add <path>`, never `git add -A` — in-flight edits belong to the other session and don't belong in your commit
-- The bash here is a thin shim — `cat`, `head`, `tail`, `grep`, `file`, `which` are not on PATH. Use the Grep / Read / Write tools instead of shell equivalents
-- `dotnet`, `git`, `python` aren't on PATH by default. Prepend: `export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"`. Python is at `/c/Python313/python.exe`
-- AGENTS.md's build form `/p:Platform=x64` trips bash's argument parser when the config has a space. From bash use: `dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64`
-- Multi-line commit messages: no `cat` heredoc here. Write the message to a temp file (e.g. `/c/Users/<you>/commit.txt`) and pass with `git commit -F <file>`
-- Write tool creates LF-only files; `.gitattributes` enforces CRLF on `.cs` / `.csproj` / `.sln` / `.ps1`. For **newly created** files, run `powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path <file>`. **Known bug:** the script prepends a UTF-8 BOM unconditionally, so running it on files that already have a BOM creates a double-BOM defect (surfaced during the PR-c review, 2026-04-19). For **edits** to existing `.cs` files, rely on `.gitattributes` CRLF enforcement at commit time — don't re-run the script.
-- **`Enlisted.csproj` uses wildcards for some dirs** — e.g. `<Compile Include="src\Features\Activities\*.cs"/>` (line 390) and similar. New `.cs` files in wildcard-covered folders compile automatically — no csproj edit needed. Before adding a `<Compile Include>` line for a new file, grep `Enlisted.csproj` for an existing wildcard covering your directory.
+
+### Project conventions
+
 - **`ModLogger.Surfaced` / `Caught` / `Expected`** need string *literals at the call site* for category + summary. `generate_error_codes.py`'s scanner doesn't follow `private const string Cat = "X"` and will reject the call. Write `ModLogger.Surfaced("CATEGORY", "summary literal", ex)` at every call site, not a shared const.
 - Regenerate the error-code registry after adding or changing any `ModLogger.Surfaced` call sites: `/c/Python313/python.exe Tools/Validation/generate_error_codes.py`. This rewrites `docs/error-codes.md` — don't hand-edit.
 
