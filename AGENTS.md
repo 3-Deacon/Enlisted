@@ -130,6 +130,12 @@ StoryDirector.Instance?.EmitCandidate(new StoryCandidate
 
 Use `ChainContinuation = true` for player-opted continuations (promotions, bag checks, chain events) so the in-game floor + category cooldown don't defer them (60s wall-clock still applies). Spec: [docs/superpowers/specs/2026-04-18-event-pacing-design.md](docs/superpowers/specs/2026-04-18-event-pacing-design.md).
 
+### 11. Content authoring — route through the storylet backbone
+
+Content is authored as **storylets** (`ModuleData/Enlisted/Storylets/*.json`), not as legacy `EventDefinition` JSON. State lives in `QualityStore` (typed numeric, global or per-hero) and `FlagStore` (named booleans with expiry). Durable player engagements are `Activity` subclasses with phases and intent-biased storylet pools. Effects are either named scripted effects from `ModuleData/Enlisted/Effects/scripted_effects.json` (preferred — the seed catalog has 22 entries) or registered primitives (`quality_add`, `set_flag`, `give_gold`, etc.). Triggers are named C# predicates resolved by `TriggerRegistry`. Spec: [docs/superpowers/specs/2026-04-19-storylet-backbone-design.md](docs/superpowers/specs/2026-04-19-storylet-backbone-design.md).
+
+**Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) claim class offsets **45-60**. Grep the definer before claiming an offset — collisions corrupt saves silently.
+
 ---
 
 ## Code Standards
@@ -175,7 +181,10 @@ Tools/Validation/      Validators (run before commit)
 
 - `Enlistment/` — Service state, retirement
 - `Orders/` — Mission directives
-- `Content/` — Events, decisions, narrative, StoryDirector (pacing gate)
+- `Content/` — Events, decisions, narrative, StoryDirector (pacing gate), storylets + triggers + effects + slots + scripted effects (Spec 0 backbone)
+- `Qualities/` — Typed numeric state (scrutiny, supplies, readiness, loyalty, lord_relation, rank_xp). Stored + read-through kinds. Single home; decays on daily tick
+- `Flags/` — Named boolean state, global + hero-scoped, with expiry
+- `Activities/` — Stateful ticking activities with intent-biased phase pools; Banner-Kings Feast pattern; ActivityRuntime hosts
 - `Escalation/` — Reputation, scrutiny/discipline
 - `Company/` — Readiness, supply needs
 - `Equipment/` — Quartermaster, gear
@@ -206,6 +215,8 @@ Link, don't duplicate — open these for depth:
 | Validation tool reference | [Tools/README.md](Tools/README.md) |
 | Writing style (voice, tone) | [docs/Features/Content/writing-style-guide.md](docs/Features/Content/writing-style-guide.md) |
 | Error code registry (auto-generated) | [docs/error-codes.md](docs/error-codes.md) |
+| Storylet backbone (content layer, Spec 0) | [docs/superpowers/specs/2026-04-19-storylet-backbone-design.md](docs/superpowers/specs/2026-04-19-storylet-backbone-design.md) |
+| Event pacing (delivery layer) | [docs/superpowers/specs/2026-04-18-event-pacing-design.md](docs/superpowers/specs/2026-04-18-event-pacing-design.md) |
 
 ---
 
@@ -233,6 +244,19 @@ Link, don't duplicate — open these for depth:
     migrated caller, (b) the debug tool at `src/Debugging/Behaviors/DebugToolsBehavior.cs:141`,
     and (c) the Director's own internal `Route()`. Everything else must use
     `StoryDirector.Instance?.EmitCandidate(...)` — see Critical Rule #10.
+13. Writing to a read-only quality (`rank`, `days_in_rank`, `days_enlisted`)
+    from a storylet effect. `validate_content.py` Phase 12 blocks this at
+    build time. Rank advancement routes through `EnlistmentBehavior.SetTier`
+    as the outcome of a promotion-ceremony chain, not a raw quality write.
+14. Inventing a new scripted-effect id without adding it to
+    `ModuleData/Enlisted/Effects/scripted_effects.json`. Phase 12 blocks
+    unknown `apply` values. Prefer reusing the seed catalog (`rank_xp_minor`,
+    `lord_relation_up_*`, `scrutiny_down_*`, etc.) over minting one-off names.
+15. Claiming a `SaveableTypeDefiner` offset without grepping
+    `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` first. Offsets 40-44
+    (classes) and 82-83 (enums) are Spec 0. Offsets 45-60 are reserved for
+    concrete `Activity` subclasses across surface specs 1-5 — see Critical
+    Rule #11.
 
 Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 
