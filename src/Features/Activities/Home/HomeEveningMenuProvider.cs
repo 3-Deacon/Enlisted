@@ -3,7 +3,6 @@ using System.Linq;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
-using TaleWorlds.CampaignSystem;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.Activities.Home
@@ -29,10 +28,10 @@ namespace Enlisted.Features.Activities.Home
             if (active.Value.phase.Id != "evening") { return false; }
 
             var intent = Intents[slotIndex];
-            var eligible = CountEligibleForIntent(home, intent);
+            var eligible = AnyEligibleForIntent(home, intent);
             label = new TextObject("{=home_evening_" + intent + "_label}" + DefaultLabel(intent));
-            tooltip = BuildTooltip(intent, eligible > 0);
-            return eligible > 0;
+            tooltip = BuildTooltip(intent, eligible);
+            return eligible;
         }
 
         public static void OnSlotSelected(int slotIndex)
@@ -74,9 +73,9 @@ namespace Enlisted.Features.Activities.Home
             runtime.ResolvePlayerChoice(home);
         }
 
-        private static int CountEligibleForIntent(HomeActivity home, string intent)
+        private static bool AnyEligibleForIntent(HomeActivity home, string intent)
         {
-            if (home?.CurrentPhase?.Pool == null) { return 0; }
+            if (home?.CurrentPhase?.Pool == null) { return false; }
             var ctx = new StoryletContext
             {
                 ActivityTypeId = home.TypeId,
@@ -84,14 +83,13 @@ namespace Enlisted.Features.Activities.Home
                 CurrentContext = "settlement"
             };
             var prefix = "home_evening_" + intent + "_";
-            var count = 0;
             foreach (var id in home.CurrentPhase.Pool)
             {
                 if (id == null || !id.StartsWith(prefix)) { continue; }
                 var s = StoryletCatalog.GetById(id);
-                if (s != null && s.IsEligible(ctx)) { count++; }
+                if (s != null && s.IsEligible(ctx)) { return true; }
             }
-            return count;
+            return false;
         }
 
         private static Storylet PickStorylet(HomeActivity home, string intent, StoryletContext ctx)
