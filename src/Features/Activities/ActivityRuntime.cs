@@ -56,7 +56,7 @@ namespace Enlisted.Features.Activities
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
             Instance = this;
-            // ActivityTypeDefinition JSON loading is a surface-spec concern. Spec 0 leaves _types empty.
+            ActivityTypeCatalog.LoadAll();
         }
 
         private void OnGameLoaded(CampaignGameStarter starter)
