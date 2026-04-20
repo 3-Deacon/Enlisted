@@ -131,7 +131,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Surfaced(LogCategory, "DrainPendingEffects failed", ex);
+                ModLogger.Surfaced("STORYLET-ADAPT", "DrainPendingEffects failed", ex);
             }
         }
 
