@@ -43,7 +43,7 @@ namespace Enlisted.Features.Qualities
         {
             QualityStore.SetInstance(_store);
             Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
-            // StoryletCatalog.LoadAll();         // Task 9.2 wires this
+            Enlisted.Features.Content.StoryletCatalog.LoadAll();
             RegisterDefinitions();
         }
 
@@ -51,7 +51,7 @@ namespace Enlisted.Features.Qualities
         {
             QualityStore.SetInstance(_store);
             Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
-            // StoryletCatalog.LoadAll();         // Task 9.2 wires this
+            Enlisted.Features.Content.StoryletCatalog.LoadAll();
             RegisterDefinitions();
         }
 
