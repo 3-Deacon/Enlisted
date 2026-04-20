@@ -10,7 +10,7 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-19-enlisted-home-surface-design.md](../specs/2026-04-19-enlisted-home-surface-design.md) (commits `133a147` + `46272c1` on `development`).
 
-**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + save registration + triggers + starter) complete 2026-04-20 on `development` (commits `e4b6806` → `a48983c`). Phase C (Tasks 10–12: menu integration + smoke) complete 2026-04-20 on `development` (commits `18b4021` → `19391a4`, includes two bug-fix commits for latent Phase B/0 issues discovered on first boot — `0ff3a2d` unsupported `HashSet<StoryBeat>` container, `19391a4` eager `DefaultTraits` lookup at `OnGameStart`). Phase D (Tasks 13–18: content authoring) and Phase E (Tasks 19–21: debug/validator/acceptance) not yet started.
+**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + save registration + triggers + starter) complete 2026-04-20 on `development` (commits `e4b6806` → `a48983c`). Phase C (Tasks 10–12: menu integration + smoke) complete 2026-04-20 on `development` (commits `18b4021` → `19391a4`, includes two bug-fix commits for latent Phase B/0 issues discovered on first boot — `0ff3a2d` unsupported `HashSet<StoryBeat>` container, `19391a4` eager `DefaultTraits` lookup at `OnGameStart`). Phase D (Tasks 13–18: content authoring) complete 2026-04-20 on `development` (commits `8b96294` → `d9bcf8b`). Phase E (Tasks 19–21: debug/validator/acceptance) not yet started.
 
 ---
 

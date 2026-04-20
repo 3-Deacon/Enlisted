@@ -109,7 +109,7 @@ python Tools/Validation/validate_content.py > Tools/Debugging/validation_report.
 | :--- | :--- |
 | `validate_content.py` | Comprehensive validator (content, project structure, .csproj, C# TextObject refs) |
 | `analyze_validation.py` | Parse validation reports into prioritized, actionable summaries |
-| `sync_event_strings.py` | Extract string IDs from JSON and sync to XML localization |
+| `sync_event_strings.py` | Extract string IDs from JSON and sync to XML localization. Scans two schemas: legacy Event schema (Events/, Decisions/, Orders/ — separate `titleId`+`title` pairs) and storylet inline `{=key}Fallback` (Storylets/ — embedded in `title`/`setup`/`options[].text`/`options[].tooltip` fields). Missing XML entries don't break the game (fallback text is used), but they must exist for translators. |
 | **`VALIDATION_BASELINE.md`** | **Expected validation state - 299 warnings (31 acceptable + 268 C# strings to fix)** |
 | `validate_events.py` | Legacy event validator (use `validate_content.py` instead) |
 | `migrate_schema_v1_to_v2.py` | Convert old schema v1 events to current v2 format |
