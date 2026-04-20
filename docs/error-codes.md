@@ -60,6 +60,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-DIALOGMANAGER-3528 | EnlistmentBehavior.Instance became null before deferred enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4913 |
 | E-DIALOGMANAGER-f44a | EnlistmentBehavior.Instance is null during enlistment | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:4894 |
 
+## EFFECT
+
+| Code | Summary | Source |
+|---|---|---|
+| E-EFFECT-68b7 | Failed to load scripted-effects file | src/Features/Content/ScriptedEffectRegistry.cs:59 |
+
 ## ENLISTEDDIALOGMANAGER
 
 | Code | Summary | Source |
@@ -211,6 +217,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-RETIREMENT-14b8 | Error applying subsequent re-enlistment bonuses | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:8991 |
 | E-RETIREMENT-973e | Error finalizing discharge | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:5441 |
 | E-RETIREMENT-da8e | Error applying relation bonuses | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:8917 |
+
+## STORYLET
+
+| Code | Summary | Source |
+|---|---|---|
+| E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:53 |
 
 ## TROOPSELECTION
 

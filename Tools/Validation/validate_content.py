@@ -22,6 +22,7 @@ Validation Phases:
     Phase 9.5: Camp schedule descriptions (meaningful phase text)
     Phase 10: Error-code registry sync (generate_error_codes.py --check)
     Phase 11: ModLogger.Error retirement gate (no Error calls in src/)
+    Phase 12: Storylet reference validation (effect ids, quality ids, read-only guard)
 """
 
 import argparse
@@ -1624,6 +1625,267 @@ def validate_error_code_registry(ctx: ValidationContext):
 
 
 # ============================================================================
+# Phase 12: Storylet Reference Validation
+# ============================================================================
+
+# Read-through quality ids registered in QualityBehavior.RegisterDefinitions
+# that are NOT stored in quality_defs.json (they proxy live game state).
+_READ_THROUGH_QUALITY_IDS: Set[str] = {
+    "rank_xp", "days_in_rank", "battles_survived",
+    "rank", "days_enlisted", "lord_relation",
+}
+
+# Subset of read-throughs that storylets MUST NOT write (they have no setter).
+_READ_ONLY_QUALITY_IDS: Set[str] = {"rank", "days_in_rank", "days_enlisted"}
+
+# Primitive effect ids understood by EffectExecutor.
+_PRIMITIVE_EFFECT_IDS: Set[str] = {
+    "quality_add", "quality_add_for_hero", "quality_set",
+    "set_flag", "clear_flag", "set_flag_on_hero",
+    "trait_xp", "skill_xp", "give_gold", "give_item",
+}
+
+# Primitives that take a 'quality' parameter.
+_QUALITY_WRITING_PRIMITIVES: Set[str] = {
+    "quality_add", "quality_add_for_hero", "quality_set",
+}
+
+
+def _load_quality_ids(repo_root: Path, ctx: ValidationContext) -> Set[str]:
+    """Load valid quality ids from quality_defs.json union read-through ids."""
+    defs_path = repo_root / "ModuleData" / "Enlisted" / "Qualities" / "quality_defs.json"
+    quality_ids: Set[str] = set(_READ_THROUGH_QUALITY_IDS)
+    if not defs_path.exists():
+        ctx.add_issue(
+            "warning", "storylet-refs",
+            "quality_defs.json not found; quality id cross-check skipped.",
+            str(defs_path),
+        )
+        return quality_ids
+    try:
+        with open(defs_path, encoding="utf-8-sig") as f:
+            data = json.load(f)
+        for entry in data.get("qualities", []):
+            qid = entry.get("id", "")
+            if qid:
+                quality_ids.add(qid)
+        print(f"  Loaded {len(data.get('qualities', []))} quality definitions "
+              f"from quality_defs.json (+{len(_READ_THROUGH_QUALITY_IDS)} read-throughs).")
+    except Exception as ex:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"Failed to parse quality_defs.json: {ex}",
+            str(defs_path),
+        )
+    return quality_ids
+
+
+def _load_scripted_effect_ids(repo_root: Path, ctx: ValidationContext,
+                              quality_ids: Set[str]) -> Set[str]:
+    """Load the set of top-level effect keys from scripted_effects.json.
+
+    Also validates that every quality_add / quality_add_for_hero / quality_set
+    inside an effect body references a known quality id.
+    """
+    effects_path = repo_root / "ModuleData" / "Enlisted" / "Effects" / "scripted_effects.json"
+    scripted_ids: Set[str] = set()
+    if not effects_path.exists():
+        ctx.add_issue(
+            "warning", "storylet-refs",
+            "scripted_effects.json not found; scripted-effect id cross-check skipped.",
+            str(effects_path),
+        )
+        return scripted_ids
+    try:
+        with open(effects_path, encoding="utf-8-sig") as f:
+            data = json.load(f)
+        effects_map = data.get("effects", {})
+        for effect_key, body in effects_map.items():
+            scripted_ids.add(effect_key)
+            if not isinstance(body, list):
+                continue
+            for step in body:
+                if not isinstance(step, dict):
+                    continue
+                apply_id = step.get("apply", "")
+                if apply_id in _QUALITY_WRITING_PRIMITIVES:
+                    qid = step.get("quality", "")
+                    if not qid:
+                        ctx.add_issue(
+                            "error", "storylet-refs",
+                            f"scripted_effects.json: effect '{effect_key}' step '{apply_id}' "
+                            f"missing 'quality' parameter.",
+                            str(effects_path),
+                        )
+                    elif qid not in quality_ids:
+                        ctx.add_issue(
+                            "error", "storylet-refs",
+                            f"scripted_effects.json: effect '{effect_key}' step '{apply_id}' "
+                            f"references unknown quality id '{qid}'.",
+                            str(effects_path),
+                        )
+                    elif qid in _READ_ONLY_QUALITY_IDS and apply_id != "quality_set":
+                        # quality_set is fine for read-only; add/for_hero are not.
+                        if apply_id in ("quality_add", "quality_add_for_hero"):
+                            ctx.add_issue(
+                                "error", "storylet-refs",
+                                f"scripted_effects.json: effect '{effect_key}' step '{apply_id}' "
+                                f"writes to read-only quality '{qid}'.",
+                                str(effects_path),
+                            )
+        print(f"  Loaded {len(scripted_ids)} scripted effect ids from scripted_effects.json.")
+    except Exception as ex:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"Failed to parse scripted_effects.json: {ex}",
+            str(effects_path),
+        )
+    return scripted_ids
+
+
+def _check_effect_apply(apply_id: str, step: dict, storylet_id: str,
+                        file_path: str, field_path: str,
+                        valid_effect_ids: Set[str], quality_ids: Set[str],
+                        ctx: ValidationContext):
+    """Validate a single .apply value within a storylet effect step."""
+    if apply_id not in valid_effect_ids:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"[{field_path}] unknown effect id '{apply_id}'. "
+            f"Must be a scripted-effect key or a primitive id.",
+            file_path, storylet_id,
+        )
+        return
+
+    if apply_id in _QUALITY_WRITING_PRIMITIVES:
+        qid = step.get("quality", "")
+        if not qid:
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"[{field_path}] '{apply_id}' missing 'quality' parameter.",
+                file_path, storylet_id,
+            )
+            return
+        if qid not in quality_ids:
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"[{field_path}] '{apply_id}' references unknown quality id '{qid}'.",
+                file_path, storylet_id,
+            )
+        if apply_id in ("quality_add", "quality_add_for_hero") and qid in _READ_ONLY_QUALITY_IDS:
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"[{field_path}] '{apply_id}' writes to read-only quality '{qid}' "
+                f"(rank, days_in_rank, days_enlisted cannot be written by storylets).",
+                file_path, storylet_id,
+            )
+
+
+def _walk_effect_list(effects: Any, storylet_id: str, file_path: str,
+                      field_path: str, valid_effect_ids: Set[str],
+                      quality_ids: Set[str], ctx: ValidationContext):
+    """Walk a list of effect dicts and validate each .apply value."""
+    if not isinstance(effects, list):
+        return
+    for i, step in enumerate(effects):
+        if not isinstance(step, dict):
+            continue
+        apply_id = step.get("apply", "")
+        if not apply_id:
+            ctx.add_issue(
+                "warning", "storylet-refs",
+                f"[{field_path}[{i}]] effect step missing 'apply' key.",
+                file_path, storylet_id,
+            )
+            continue
+        _check_effect_apply(
+            apply_id, step, storylet_id, file_path,
+            f"{field_path}[{i}]", valid_effect_ids, quality_ids, ctx,
+        )
+
+
+def _validate_storylet_file(file_path: str, valid_effect_ids: Set[str],
+                             quality_ids: Set[str], ctx: ValidationContext):
+    """Validate effect references in a single storylet JSON file."""
+    try:
+        with open(file_path, encoding="utf-8-sig") as f:
+            data = json.load(f)
+    except Exception as ex:
+        ctx.add_issue("error", "storylet-refs", f"Failed to parse storylet file: {ex}", file_path)
+        return
+
+    storylets = data if isinstance(data, list) else data.get("storylets", [data] if isinstance(data, dict) else [])
+    if not isinstance(storylets, list):
+        storylets = [storylets]
+
+    for storylet in storylets:
+        if not isinstance(storylet, dict):
+            continue
+        sid = storylet.get("id", Path(file_path).stem)
+
+        # immediate[*].apply
+        _walk_effect_list(
+            storylet.get("immediate", []),
+            sid, file_path, "immediate", valid_effect_ids, quality_ids, ctx,
+        )
+
+        # options[*].effects / effectsSuccess / effectsFailure
+        for opt_idx, option in enumerate(storylet.get("options", [])):
+            if not isinstance(option, dict):
+                continue
+            opt_id = option.get("id", f"option_{opt_idx}")
+            for field in ("effects", "effectsSuccess", "effectsFailure"):
+                _walk_effect_list(
+                    option.get(field, []),
+                    sid, file_path, f"options[{opt_id}].{field}",
+                    valid_effect_ids, quality_ids, ctx,
+                )
+
+
+def validate_storylet_references(ctx: ValidationContext):
+    """Phase 12: Cross-check storylet effect references against quality and
+    scripted-effect registries.
+
+    Checks:
+    - Every .apply value must be a known scripted-effect id or primitive id.
+    - quality_add / quality_add_for_hero / quality_set must target a registered quality.
+    - quality_add / quality_add_for_hero must not target a read-only quality
+      (rank, days_in_rank, days_enlisted).
+    - scripted_effects.json bodies are also cross-checked against quality ids.
+    """
+    print("[Phase 12] Validating storylet effect references...")
+    repo_root = Path(__file__).parent.parent.parent
+
+    quality_ids = _load_quality_ids(repo_root, ctx)
+    scripted_ids = _load_scripted_effect_ids(repo_root, ctx, quality_ids)
+
+    valid_effect_ids = scripted_ids | _PRIMITIVE_EFFECT_IDS
+
+    storylet_dir = repo_root / "ModuleData" / "Enlisted" / "Storylets"
+    if not storylet_dir.exists():
+        ctx.add_issue(
+            "warning", "storylet-refs",
+            "ModuleData/Enlisted/Storylets/ directory not found; no storylets to check.",
+            str(storylet_dir),
+        )
+        print("  OK: Storylets/ directory absent — no storylets to validate.")
+        return
+
+    storylet_files = sorted(storylet_dir.rglob("*.json"))
+    if not storylet_files:
+        print("  OK: no storylet files found (Spec 0 — directory is empty).")
+        return
+
+    print(f"  Checking {len(storylet_files)} storylet file(s)...")
+    for sf in storylet_files:
+        _validate_storylet_file(str(sf), valid_effect_ids, quality_ids, ctx)
+
+    errors_before = sum(1 for i in ctx.issues if i.severity == "error" and i.category == "storylet-refs")
+    if errors_before == 0:
+        print(f"  OK: all {len(storylet_files)} storylet file(s) passed reference checks.")
+
+
+# ============================================================================
 # Main Validation Pipeline
 # ============================================================================
 
@@ -1747,6 +2009,9 @@ def main():
 
     # Phase 11: ModLogger.Error retirement gate
     validate_no_modlogger_error_calls(ctx)
+
+    # Phase 12: Storylet reference validation
+    validate_storylet_references(ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
