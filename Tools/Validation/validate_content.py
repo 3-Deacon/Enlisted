@@ -1804,9 +1804,172 @@ def _walk_effect_list(effects: Any, storylet_id: str, file_path: str,
         )
 
 
+def _collect_storylet_ids(storylet_files: List[Path], ctx: ValidationContext) -> Set[str]:
+    """Pre-pass: gather the set of all declared storylet ids across Storylets/*.json.
+
+    Pool entries in ActivityTypeDefinition JSON must reference a storylet id from
+    this set (Spec 1 Phase E, Task 20).
+    """
+    storylet_ids: Set[str] = set()
+    for sf in storylet_files:
+        try:
+            with open(sf, encoding="utf-8-sig") as f:
+                data = json.load(f)
+        except Exception:
+            # Parse failures are reported by _validate_storylet_file on the main walk.
+            continue
+        storylets = data if isinstance(data, list) else data.get("storylets", [data] if isinstance(data, dict) else [])
+        if not isinstance(storylets, list):
+            storylets = [storylets]
+        for storylet in storylets:
+            if not isinstance(storylet, dict):
+                continue
+            sid = storylet.get("id", "")
+            if sid:
+                storylet_ids.add(sid)
+    return storylet_ids
+
+
+def _load_activity_types(repo_root: Path, all_storylet_ids: Set[str],
+                         ctx: ValidationContext) -> Dict[str, Set[str]]:
+    """Load ModuleData/Enlisted/Activities/*.json — validate phase shapes + pool refs.
+
+    Returns a Dict[activity_type_id, Set[phase_id]] used by the chain.when check.
+    (Spec 1 Phase E, Task 20.)
+    """
+    activity_type_phases: Dict[str, Set[str]] = {}
+    activities_dir = repo_root / "ModuleData" / "Enlisted" / "Activities"
+    if not activities_dir.is_dir():
+        print("  OK: Activities/ directory absent — no activity types to validate.")
+        return activity_type_phases
+
+    activity_files = sorted(p for p in activities_dir.iterdir() if p.suffix == ".json")
+    if not activity_files:
+        print("  OK: no activity files found.")
+        return activity_type_phases
+
+    total_phases = 0
+    for path in activity_files:
+        try:
+            with open(path, encoding="utf-8-sig") as f:
+                doc = json.load(f)
+        except Exception as ex:
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"Failed to parse activity file: {ex}",
+                str(path),
+            )
+            continue
+
+        type_id = doc.get("id", path.stem) if isinstance(doc, dict) else path.stem
+        phases = doc.get("phases", []) if isinstance(doc, dict) else []
+        if not isinstance(phases, list):
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"Activity '{type_id}': 'phases' must be an array.",
+                str(path), type_id,
+            )
+            continue
+
+        phase_ids: Set[str] = set()
+        for phase in phases:
+            if not isinstance(phase, dict):
+                continue
+            phase_id = phase.get("id", "")
+            if not phase_id:
+                ctx.add_issue(
+                    "error", "storylet-refs",
+                    f"Activity '{type_id}': phase missing 'id'.",
+                    str(path), type_id,
+                )
+                continue
+            phase_ids.add(phase_id)
+
+            delivery = phase.get("delivery", "auto")
+            if delivery not in ("auto", "player_choice"):
+                ctx.add_issue(
+                    "error", "storylet-refs",
+                    f"Activity '{type_id}' phase '{phase_id}': invalid delivery "
+                    f"'{delivery}' (must be 'auto' or 'player_choice').",
+                    str(path), type_id,
+                )
+
+            pool = phase.get("pool", [])
+            if not isinstance(pool, list):
+                ctx.add_issue(
+                    "error", "storylet-refs",
+                    f"Activity '{type_id}' phase '{phase_id}': 'pool' must be an array.",
+                    str(path), type_id,
+                )
+                continue
+            for storylet_id in pool:
+                if not isinstance(storylet_id, str):
+                    ctx.add_issue(
+                        "error", "storylet-refs",
+                        f"Activity '{type_id}' phase '{phase_id}': pool entries must be strings.",
+                        str(path), type_id,
+                    )
+                    continue
+                if storylet_id not in all_storylet_ids:
+                    ctx.add_issue(
+                        "error", "storylet-refs",
+                        f"Activity '{type_id}' phase '{phase_id}': pool references "
+                        f"unknown storylet '{storylet_id}'.",
+                        str(path), type_id,
+                    )
+
+        if type_id in activity_type_phases:
+            ctx.add_issue(
+                "error", "storylet-refs",
+                f"Duplicate activity type id '{type_id}' across Activities/*.json.",
+                str(path), type_id,
+            )
+        activity_type_phases[type_id] = phase_ids
+        total_phases += len(phase_ids)
+
+    plural_types = "type" if len(activity_type_phases) == 1 else "types"
+    plural_phases = "phase" if total_phases == 1 else "phases"
+    print(f"  Loaded {len(activity_type_phases)} activity {plural_types} "
+          f"with {total_phases} {plural_phases}.")
+    return activity_type_phases
+
+
+def _check_chain_when(when: str, storylet_id: str, opt_id: str, file_path: str,
+                      activity_type_phases: Dict[str, Set[str]],
+                      ctx: ValidationContext):
+    """Validate a single `chain.when` string is a known `{typeId}.{phaseId}` pair."""
+    parts = when.split(".")
+    if len(parts) != 2 or not parts[0] or not parts[1]:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"options[{opt_id}].chain.when malformed '{when}' "
+            f"(expected '<activity_type>.<phase_id>').",
+            file_path, storylet_id,
+        )
+        return
+    type_id, phase_id = parts
+    if type_id not in activity_type_phases:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"options[{opt_id}].chain.when references unknown activity type '{type_id}' "
+            f"(in '{when}').",
+            file_path, storylet_id,
+        )
+        return
+    if phase_id not in activity_type_phases[type_id]:
+        ctx.add_issue(
+            "error", "storylet-refs",
+            f"options[{opt_id}].chain.when references unknown phase "
+            f"'{type_id}.{phase_id}'.",
+            file_path, storylet_id,
+        )
+
+
 def _validate_storylet_file(file_path: str, valid_effect_ids: Set[str],
-                             quality_ids: Set[str], ctx: ValidationContext):
-    """Validate effect references in a single storylet JSON file."""
+                             quality_ids: Set[str],
+                             activity_type_phases: Dict[str, Set[str]],
+                             ctx: ValidationContext):
+    """Validate effect references + chain.when shapes in a single storylet JSON file."""
     try:
         with open(file_path, encoding="utf-8-sig") as f:
             data = json.load(f)
@@ -1829,7 +1992,7 @@ def _validate_storylet_file(file_path: str, valid_effect_ids: Set[str],
             sid, file_path, "immediate", valid_effect_ids, quality_ids, ctx,
         )
 
-        # options[*].effects / effectsSuccess / effectsFailure
+        # options[*].effects / effectsSuccess / effectsFailure + chain.when
         for opt_idx, option in enumerate(storylet.get("options", [])):
             if not isinstance(option, dict):
                 continue
@@ -1840,11 +2003,20 @@ def _validate_storylet_file(file_path: str, valid_effect_ids: Set[str],
                     sid, file_path, f"options[{opt_id}].{field}",
                     valid_effect_ids, quality_ids, ctx,
                 )
+            chain = option.get("chain")
+            if isinstance(chain, dict):
+                when = chain.get("when", "")
+                if when:
+                    _check_chain_when(
+                        when, sid, opt_id, file_path,
+                        activity_type_phases, ctx,
+                    )
 
 
 def validate_storylet_references(ctx: ValidationContext):
     """Phase 12: Cross-check storylet effect references against quality and
-    scripted-effect registries.
+    scripted-effect registries, and validate ActivityTypeDefinition pools +
+    chain.when references.
 
     Checks:
     - Every .apply value must be a known scripted-effect id or primitive id.
@@ -1852,6 +2024,10 @@ def validate_storylet_references(ctx: ValidationContext):
     - quality_add / quality_add_for_hero must not target a read-only quality
       (rank, days_in_rank, days_enlisted).
     - scripted_effects.json bodies are also cross-checked against quality ids.
+    - ActivityTypeDefinition JSON: every phase.pool entry must resolve to a real
+      storylet id; phase.delivery must be 'auto' or 'player_choice'.
+    - options[*].chain.when must parse to '<activity_type>.<phase_id>' referencing
+      a known activity type and phase.
     """
     print("[Phase 12] Validating storylet effect references...")
     repo_root = Path(__file__).parent.parent.parent
@@ -1876,9 +2052,22 @@ def validate_storylet_references(ctx: ValidationContext):
         print("  OK: no storylet files found (Spec 0 — directory is empty).")
         return
 
-    print(f"  Checking {len(storylet_files)} storylet file(s)...")
+    # Pre-pass: gather storylet ids for activity pool validation.
+    all_storylet_ids = _collect_storylet_ids(storylet_files, ctx)
+    print(f"  Indexed {len(all_storylet_ids)} storylet id(s) across "
+          f"{len(storylet_files)} file(s).")
+
+    # Activities must load before the storylet walk — chain.when depends on
+    # the activity_type_phases map.
+    activity_type_phases = _load_activity_types(repo_root, all_storylet_ids, ctx)
+
+    print(f"  Checking {len(storylet_files)} storylet file(s) "
+          f"(effect refs + chain.when)...")
     for sf in storylet_files:
-        _validate_storylet_file(str(sf), valid_effect_ids, quality_ids, ctx)
+        _validate_storylet_file(
+            str(sf), valid_effect_ids, quality_ids,
+            activity_type_phases, ctx,
+        )
 
     errors_before = sum(1 for i in ctx.issues if i.severity == "error" and i.category == "storylet-refs")
     if errors_before == 0:
