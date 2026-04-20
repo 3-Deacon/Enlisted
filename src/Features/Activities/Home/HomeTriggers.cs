@@ -138,12 +138,10 @@ namespace Enlisted.Features.Activities.Home
         // Returns the settlement the lord's party is currently at, or null.
         private static Settlement Settlement() => Party()?.CurrentSettlement;
 
-        // Returns the lord party's morale, or float.MinValue when the party is unavailable.
-        private static float LordMorale()
-        {
-            var p = Party();
-            return p != null ? p.Morale : float.MinValue;
-        }
+        // Returns the lord party's morale, or null when the party is unavailable.
+        // Nullable-return semantics mean `_lte` and `_gte` comparisons on null evaluate to false,
+        // so all morale predicates correctly abstain when no lord is enlisted.
+        private static float? LordMorale() => Party()?.Morale;
 
         // Returns the number of days of food remaining in the lord's party.
         // Returns int.MaxValue when the party is unavailable or the calculation throws.
