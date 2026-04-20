@@ -479,6 +479,18 @@ These mistakes cause real problems. Avoid them.
 3. Example from grace period system: Only register lord for tracking if `_enlistedLord.IsAlive` is true
 4. Dead heroes cannot be displayed on the map tracker, so skipping them is correct behavior
 
+### 19. Calling `EventDeliveryManager.Instance.QueueEvent` Directly
+
+**Problem:** Calling `EventDeliveryManager.Instance.QueueEvent(evt)` directly bypasses StoryDirector pacing (no floor, no cooldown, no deferral). The only legitimate direct-call sites are (a) Director-null fallbacks inside a migrated caller, (b) the debug tool at `src/Debugging/Behaviors/DebugToolsBehavior.cs:141`, and (c) the Director's own internal `Route()`. Everything else must use `StoryDirector.Instance?.EmitCandidate(...)` — see Critical Rule #10.
+
+**Solution:** Route all modal event delivery through `StoryDirector.Instance?.EmitCandidate(...)`.
+
+### 20. Authoring New Content as Legacy `EventDefinition` JSON
+
+**Problem:** Authoring new content as legacy `EventDefinition` JSON instead of as storylets. Storylets are the canonical target as of Spec 0 (2026-04-19); `EventDefinition` content still loads at runtime but is not the target for new authoring.
+
+**Solution:** Author new content as storylets in `ModuleData/Enlisted/Storylets/*.json`. See [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md).
+
 ---
 
 ## Dependencies
@@ -541,97 +553,7 @@ For deployment instructions, see [Tools/Steam/WORKSHOP_UPLOAD.md](../Tools/Steam
 
 ## Deprecated Systems
 
-**Systems marked for future removal but kept for backwards compatibility.**
-
-These systems have been logically removed from the mod but retain minimal code to:
-
-1. **Load old save files** without errors
-2. **Maintain serialization compatibility** during the deprecation period
-3. **Prevent save corruption** from missing data keys
-
-### Morale System (Deprecated: 2026-01-11)
-
-**Status:** Functionally removed, backwards-compatible save loading only  
-**Reason:** Redundant with existing systems (discipline, rest, supply provide sufficient depth)  
-**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
-
-**Remaining Code (for compatibility):**
-
-- `CompanyNeed.Morale` enum value (never set, always 0)
-- Serialization keys in save/load methods (load old values, discard them)
-- Old config fields loaded but ignored (e.g., `sim_daysLowMorale`)
-
-**What Was Removed:**
-
-- All morale tracking, calculation, and display logic
-- Morale effects from events, orders, and incidents
-- Morale-based decision logic (desertions, crisis triggers)
-- UI display of morale status and changes
-- Database schema references
-
-**Full Removal Checklist** (after safe removal date):
-
-- [ ] Remove `Morale` from `CompanyNeed` enum
-- [ ] Remove morale serialization keys from all `SyncData()` methods
-- [ ] Remove morale load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampLifeBehavior`
-- [ ] Remove backwards-compatibility comments
-- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
-- [ ] Test with old save files (should still load, morale just ignored)
-
-**Files with Deprecation Code:**
-
-- `src/Features/Company/CompanyNeed.cs` (enum value)
-- `src/Features/Company/CompanyNeedsState.cs` (serialization)
-- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
-- `src/Features/Camp/CampLifeBehavior.cs` (morale shock load)
-- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
-
-### Company Rest System (Deprecated: 2026-01-11)
-
-**Status:** Functionally removed, backwards-compatible save loading only  
-**Reason:** Redundant with Player Fatigue system (0-24 budget). Company Rest was a 0-100 metric that degraded but provided no gameplay function.  
-**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
-
-**IMPORTANT:** Player Fatigue remains fully functional - this deprecation only affects the unused Company-wide Rest metric.
-
-**Remaining Code (for compatibility):**
-
-- `CompanyNeed.Rest` enum value (never set, always 0)
-- Serialization keys in save/load methods (load old values, discard them)
-- Old config fields loaded but ignored (e.g., `lowRestDays`, "exhausted" schedule override)
-
-**What Was Removed:**
-
-- All Company Rest tracking, degradation, and calculation logic
-- Company Rest effects from events, incidents, and routine outcomes
-- "Exhausted" schedule override and orchestrator override
-- Rest pressure tracking (`DaysLowRest`, `exhausted` conditions)
-- Strategic context Rest predictions
-- UI display of Company Rest status
-
-**Full Removal Checklist** (after safe removal date):
-
-- [ ] Remove `Rest` from `CompanyNeed` enum
-- [ ] Remove rest serialization keys from all `SyncData()` methods
-- [ ] Remove rest load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampScheduleManager`
-- [ ] Remove "exhausted" override from `orchestrator_overrides.json`
-- [ ] Remove `lowRestDays` from `simulation_config.json`
-- [ ] Remove Rest predictions from `strategic_context_config.json`
-- [ ] Remove backwards-compatibility comments
-- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
-- [ ] Test with old save files (should still load, rest just ignored)
-
-**Files with Deprecation Code:**
-
-- `src/Features/Company/CompanyNeed.cs` (enum value)
-- `src/Features/Company/CompanyNeedsState.cs` (serialization)
-- `src/Features/Camp/CampScheduleManager.cs` (exhausted override load)
-- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
-- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
-- `ModuleData/Enlisted/Config/camp_schedule.json` ("exhausted" skippedWhen/boostedWhen)
-- `ModuleData/Enlisted/Config/orchestrator_overrides.json` ("exhausted" need-based override)
-- `ModuleData/Enlisted/Config/simulation_config.json` (lowRestDays, Rest incident effects)
-- `ModuleData/Enlisted/Config/strategic_context_config.json` (Rest predictions)
+The Morale System and Company Rest System were removed 2026-01-11 (redundant with discipline/rest/supply and Player Fatigue respectively). Save-load compat shims remain across ~25 files in `src/Features/Camp/`, `src/Features/Enlistment/`, `src/Features/Company/`. Full code removal deferred — grep `Morale` or `CompanyNeed.Rest` if you need to locate the remnants.
 
 ---
 
