@@ -335,6 +335,11 @@ namespace Enlisted.Mod.Entry
                     // StoryDirector (ActivityRuntime emits candidates via StoryDirector.EmitCandidate).
                     campaignStarter.AddBehavior(new Enlisted.Features.Activities.ActivityRuntime());
 
+                    // Home surface lifecycle: starts HomeActivity when the enlisted lord's party enters a
+                    // friendly fief (town, castle, or village) and emits departure_imminent on leave.
+                    // Registered immediately after ActivityRuntime so Start() resolves activity types correctly.
+                    campaignStarter.AddBehavior(new Enlisted.Features.Activities.Home.HomeActivityStarter());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
