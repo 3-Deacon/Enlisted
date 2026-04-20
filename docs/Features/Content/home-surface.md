@@ -1,6 +1,6 @@
 # Enlisted Home Surface — Reference
 
-**Status:** Live. This is the authoritative day-to-day reference for the shipped "enlisted home" surface (Spec 1, Phases A–D complete). Phase E (debug hotkeys + validator extension + acceptance smoke) is the only outstanding piece.
+**Status:** Live. Authoritative day-to-day reference for the shipped "enlisted home" surface. Spec 1 is implementation-complete as of 2026-04-20 (full commit trail `fc93285` → `0390fdf`, all five phases landed).
 
 **For design rationale / problem framing:** see the frozen design spec at [`../../superpowers/specs/2026-04-19-enlisted-home-surface-design.md`](../../superpowers/specs/2026-04-19-enlisted-home-surface-design.md).
 
