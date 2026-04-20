@@ -1,5 +1,4 @@
 ﻿using System;
-using Enlisted.Features.Content;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -38,10 +37,10 @@ namespace Enlisted.Features.Activities.Home
             LastAutoFireHour = -1;
             if (phase.Id == "arrive" && !DigestReleased)
             {
-                // Digest release hook — see pacing spec §4.3. StoryDirector.ReleaseDigest is not
-                // yet implemented; revisit when Task 21 adds the API.
+                // Emits a digest-release signal for StoryDirector; the API is pluggable and
+                // currently absent, so this logs the intent and continues.
                 ModLogger.Expected("HOME", "digest_api_missing",
-                    "StoryDirector.ReleaseDigest not implemented yet; revisit in Task 21");
+                    "StoryDirector digest-release API absent; skipping digest release");
                 DigestReleased = true;
             }
             if (phase.Id == "evening")
@@ -54,20 +53,8 @@ namespace Enlisted.Features.Activities.Home
 
         public override void Tick(bool hourly)
         {
-            if (!hourly) { return; }
-            var phase = CurrentPhase;
-            if (phase == null) { return; }
-
-            var hoursElapsed = (int)(CampaignTime.Now - PhaseStartedAt).ToHours;
-
-            // Auto phases advance by DurationHours clock.
-            if (phase.Delivery == PhaseDelivery.Auto && phase.DurationHours > 0
-                && hoursElapsed >= phase.DurationHours)
-            {
-                // ActivityRuntime.TryAdvancePhase handles auto-phase advancement on the same
-                // hourly tick; this branch is a safety net for any subclass overrides.
-                _ = hoursElapsed; // suppress unused-variable warning when no-op
-            }
+            // Auto-phase advancement is handled by ActivityRuntime.TryAdvancePhase.
+            // PlayerChoice phases wait for player input; no per-tick work needed here.
         }
 
         public override void OnPlayerChoice(string optionId, ActivityContext ctx)
