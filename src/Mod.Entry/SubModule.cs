@@ -321,6 +321,11 @@ namespace Enlisted.Mod.Entry
                     // are available during their OnSessionLaunched / OnGameLoaded handlers.
                     campaignStarter.AddBehavior(new Enlisted.Features.Flags.FlagBehavior());
 
+                    // Quality store: typed numeric state with read-through proxies over native TaleWorlds APIs.
+                    // Registered after FlagBehavior (qualities may read flags during init) and before
+                    // StoryDirector (Director will consult qualities when evaluating candidates).
+                    campaignStarter.AddBehavior(new Enlisted.Features.Qualities.QualityBehavior());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
