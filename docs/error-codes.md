@@ -7,6 +7,12 @@ changes will be overwritten on the next run.
 For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 [error-codes-archive.md](error-codes-archive.md).
 
+## ACTIVITY
+
+| Code | Summary | Source |
+|---|---|---|
+| E-ACTIVITY-d0bb | Failed to load activity type | src/Features/Activities/ActivityTypeCatalog.cs:53 |
+
 ## BAGGAGE
 
 | Code | Summary | Source |
@@ -223,6 +229,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | Code | Summary | Source |
 |---|---|---|
 | E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:53 |
+
+## STORYLET-ADAPT
+
+| Code | Summary | Source |
+|---|---|---|
+| E-STORYLET-ADAPT-9219 | DrainPendingEffects failed | src/Features/Content/StoryletEventAdapter.cs:134 |
 
 ## TROOPSELECTION
 

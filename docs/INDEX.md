@@ -80,7 +80,8 @@
 | **Equipment Upgrades** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Equipment Upgrade System |
 | **Event System (JSON)** | [event-system-schemas.md](Features/Content/event-system-schemas.md) | — |
 | **Writing RP Text (Style)** | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Voice, tone, vocabulary, opportunity hints for Bannerlord flavor |
-| **Storylet Backbone (Spec 0)** | [2026-04-19-storylet-backbone-design.md](superpowers/specs/2026-04-19-storylet-backbone-design.md) | Storylets, Qualities, Flags, Activities, Scopes, Chains, Scripted Effects — content layer beneath StoryDirector |
+| **Storylet Backbone (Spec 0)** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | Storylets, Qualities, Flags, Activities, Scopes, Chains, Scripted Effects — content layer beneath StoryDirector (living reference; design spec retired) |
+| **Enlisted Home Surface (Spec 1)** ⚠️ Phase A complete | [design](superpowers/specs/2026-04-19-enlisted-home-surface-design.md) / [plan](superpowers/plans/2026-04-19-enlisted-home-surface.md) | Four-phase HomeActivity (Arrive/Settle/Evening/Break Camp) with five player-choice intents. Phase A (generic substrate: ActivityTypeCatalog, StoryletEventAdapter, PhaseDelivery.PlayerChoice runtime) complete on `development` (commits `fc93285`→`24b7e50`). Phase B–E (HomeActivity class + 50 storylets) not yet started. |
 | **Event Pacing (delivery)** | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) | StoryDirector tier selection + pacing floors; the delivery half that Spec 0's content feeds |
 | **First Meeting (QM)** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Quartermaster NPC |
 | **Food & Rations** | [provisions-rations-system.md](Features/Equipment/provisions-rations-system.md) | — |

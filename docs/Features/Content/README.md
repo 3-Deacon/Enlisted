@@ -20,7 +20,8 @@
 
 | Document | Topic | Status |
 |----------|-------|--------|
-| [content-system-architecture.md](content-system-architecture.md) | World-state driven orchestration, ContentOrchestrator pipeline, JSON/XML architecture, native Bannerlord integration, **error codes & diagnostics** | ✅ Implemented |
+| [storylet-backbone.md](storylet-backbone.md) | Spec 0 living reference: vocabulary, quality/flag registries, trigger + slot + primitive catalogs, scripted-effect seed list, save-definer offsets, chain semantics, pitfalls | ✅ Live |
+| [content-system-architecture.md](content-system-architecture.md) | Legacy pre-Spec-0 surface — ContentOrchestrator, EventDefinition, DecisionCatalog, CampOpportunity. Scheduled for replacement by surface specs 1–5 | ⚠️ Legacy |
 | [event-system-schemas.md](event-system-schemas.md) | Authoritative JSON schemas for events, decisions, orders, camp routines with parsing rules and validation | ✅ Current |
 | [writing-style-guide.md](writing-style-guide.md) | Writing standards: military voice/tone, vocabulary, text structure, dynamic tokens, tooltip formatting | ✅ Current |
 | [injury-system.md](injury-system.md) | Unified medical condition system: injuries, illnesses, medical risk escalation, context-aware treatment, recovery | ✅ Implemented |

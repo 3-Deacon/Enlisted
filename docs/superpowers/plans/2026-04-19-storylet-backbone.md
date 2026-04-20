@@ -1,6 +1,10 @@
 # Storylet Backbone Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **RETIRED (2026-04-19).** This plan is a frozen-in-time execution record. For day-to-day authoring reference — seed catalogs, trigger/slot/primitive lists, save-definer offsets, pitfalls — use the living doc at [`docs/Features/Content/storylet-backbone.md`](../../Features/Content/storylet-backbone.md). For design rationale, see the (also retired) spec at [`../specs/2026-04-19-storylet-backbone-design.md`](../specs/2026-04-19-storylet-backbone-design.md).
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps used checkbox (`- [ ]` / `- [x]`) syntax for tracking.
+
+**Status:** Implementation complete (2026-04-19). All 25 C# files landed, quality_defs.json + scripted_effects.json seeded, validate_content.py Phase 12 live, `dotnet build` + validator green end-to-end. Commit trail `a5c3344` → `45b38bf` on `development`; post-review hardening (scripted-effect depth cap + TriggerRegistry Caught-summary literal) in the subsequent commit. Surface specs 1–5 may now author content against this substrate.
 
 **Goal:** Ship Spec 0 — the content-layer substrate (Storylets, Qualities, Flags, Activities, Scopes, Chains, Scripted Effects) for the Enlisted mod. Plumbing only. No content migration. Surface specs 1–5 consume this.
 
@@ -114,26 +118,26 @@ Containers added to `DefineContainerDefinitions`:
 - Create directories: `src/Features/Qualities/`, `src/Features/Flags/`, `src/Features/Activities/`
 - Create empty placeholder: `ModuleData/Enlisted/Qualities/`, `ModuleData/Enlisted/Effects/`, `ModuleData/Enlisted/Storylets/`
 
-- [ ] **Step 1: Create the three new source directories**
+- [x] **Step 1: Create the three new source directories**
 
 ```bash
 mkdir -p src/Features/Qualities src/Features/Flags src/Features/Activities
 ```
 
-- [ ] **Step 2: Create the three new module-data directories**
+- [x] **Step 2: Create the three new module-data directories**
 
 ```bash
 mkdir -p ModuleData/Enlisted/Qualities ModuleData/Enlisted/Effects ModuleData/Enlisted/Storylets
 ```
 
-- [ ] **Step 3: Verify directories exist**
+- [x] **Step 3: Verify directories exist**
 
 ```bash
 ls -d src/Features/Qualities src/Features/Flags src/Features/Activities ModuleData/Enlisted/Qualities ModuleData/Enlisted/Effects ModuleData/Enlisted/Storylets
 ```
 Expected: all six paths listed.
 
-- [ ] **Step 4: Commit the directory scaffolding (no-op — directories are only tracked when they contain files; proceed to Stage 1 which will populate them)**
+- [x] **Step 4: Commit the directory scaffolding (no-op — directories are only tracked when they contain files; proceed to Stage 1 which will populate them)**
 
 No commit yet; directories are implicit. Stage 1 writes the first files into them.
 
@@ -153,7 +157,7 @@ No commit yet; directories are implicit. Stage 1 writes the first files into the
 - Create: `src/Features/Content/WeightDecl.cs`
 - Create: `src/Features/Content/StoryletContext.cs`
 
-- [ ] **Step 1: Write `src/Features/Content/ScopeDecl.cs`**
+- [x] **Step 1: Write `src/Features/Content/ScopeDecl.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -169,7 +173,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Write `src/Features/Content/SlotDecl.cs`**
+- [x] **Step 2: Write `src/Features/Content/SlotDecl.cs`**
 
 ```csharp
 namespace Enlisted.Features.Content
@@ -183,7 +187,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 3: Write `src/Features/Content/WeightDecl.cs`**
+- [x] **Step 3: Write `src/Features/Content/WeightDecl.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -205,7 +209,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 4: Write `src/Features/Content/EffectDecl.cs`**
+- [x] **Step 4: Write `src/Features/Content/EffectDecl.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -221,7 +225,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 5: Write `src/Features/Content/ChainDecl.cs`**
+- [x] **Step 5: Write `src/Features/Content/ChainDecl.cs`**
 
 ```csharp
 namespace Enlisted.Features.Content
@@ -239,7 +243,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 6: Write `src/Features/Content/Choice.cs`**
+- [x] **Step 6: Write `src/Features/Content/Choice.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -261,7 +265,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 7: Write `src/Features/Content/StoryletContext.cs`**
+- [x] **Step 7: Write `src/Features/Content/StoryletContext.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -285,7 +289,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 8: Write `src/Features/Content/Storylet.cs`**
+- [x] **Step 8: Write `src/Features/Content/Storylet.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -321,7 +325,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 9: Add entries to `Enlisted.csproj`**
+- [x] **Step 9: Add entries to `Enlisted.csproj`**
 
 Open `Enlisted.csproj` and locate the `<ItemGroup>` that already contains `<Compile Include="src\Features\Content\...">` entries. Add these inside it (preserve any existing sort order):
 
@@ -336,7 +340,7 @@ Open `Enlisted.csproj` and locate the `<ItemGroup>` that already contains `<Comp
 <Compile Include="src\Features\Content\StoryletContext.cs" />
 ```
 
-- [ ] **Step 10: Normalize CRLF on the eight new files**
+- [x] **Step 10: Normalize CRLF on the eight new files**
 
 ```bash
 for f in src/Features/Content/Storylet.cs src/Features/Content/Choice.cs src/Features/Content/EffectDecl.cs src/Features/Content/ChainDecl.cs src/Features/Content/ScopeDecl.cs src/Features/Content/SlotDecl.cs src/Features/Content/WeightDecl.cs src/Features/Content/StoryletContext.cs; do
@@ -344,7 +348,7 @@ for f in src/Features/Content/Storylet.cs src/Features/Content/Choice.cs src/Fea
 done
 ```
 
-- [ ] **Step 11: Build to verify the POCOs compile**
+- [x] **Step 11: Build to verify the POCOs compile**
 
 ```bash
 export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"
@@ -352,7 +356,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: `Build succeeded.` with 0 Errors (warnings from other files are acceptable but should not increase).
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 Write the message to a temp file (bash here has no heredoc):
 
@@ -393,7 +397,7 @@ Confirm: build green, 8 POCO files present, csproj entries added, no new warning
 - Create: `src/Features/Qualities/QualityValue.cs`
 - Create: `src/Features/Qualities/QualityDefinition.cs`
 
-- [ ] **Step 1: Write `src/Features/Qualities/QualityScope.cs`**
+- [x] **Step 1: Write `src/Features/Qualities/QualityScope.cs`**
 
 ```csharp
 namespace Enlisted.Features.Qualities
@@ -407,7 +411,7 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 2: Write `src/Features/Qualities/QualityKind.cs`**
+- [x] **Step 2: Write `src/Features/Qualities/QualityKind.cs`**
 
 ```csharp
 namespace Enlisted.Features.Qualities
@@ -425,7 +429,7 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 3: Write `src/Features/Qualities/QualityValue.cs`**
+- [x] **Step 3: Write `src/Features/Qualities/QualityValue.cs`**
 
 ```csharp
 using System;
@@ -444,7 +448,7 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 4: Write `src/Features/Qualities/QualityDefinition.cs`**
+- [x] **Step 4: Write `src/Features/Qualities/QualityDefinition.cs`**
 
 ```csharp
 using System;
@@ -481,7 +485,7 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 5: Add entries to `Enlisted.csproj`**
+- [x] **Step 5: Add entries to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Qualities\QualityScope.cs" />
@@ -490,7 +494,7 @@ namespace Enlisted.Features.Qualities
 <Compile Include="src\Features\Qualities\QualityDefinition.cs" />
 ```
 
-- [ ] **Step 6: Normalize CRLF**
+- [x] **Step 6: Normalize CRLF**
 
 ```bash
 for f in src/Features/Qualities/QualityScope.cs src/Features/Qualities/QualityKind.cs src/Features/Qualities/QualityValue.cs src/Features/Qualities/QualityDefinition.cs; do
@@ -498,14 +502,14 @@ for f in src/Features/Qualities/QualityScope.cs src/Features/Qualities/QualityKi
 done
 ```
 
-- [ ] **Step 7: Build**
+- [x] **Step 7: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: `Build succeeded.` 0 errors.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 cat > /tmp/quality-models-commit.txt << 'EOF'
@@ -536,7 +540,7 @@ rm /tmp/quality-models-commit.txt
 - Create: `src/Features/Activities/ActivityContext.cs`
 - Create: `src/Features/Activities/ActivityTypeDefinition.cs`
 
-- [ ] **Step 1: Write `src/Features/Activities/ActivityEndReason.cs`**
+- [x] **Step 1: Write `src/Features/Activities/ActivityEndReason.cs`**
 
 ```csharp
 namespace Enlisted.Features.Activities
@@ -552,7 +556,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 2: Write `src/Features/Activities/PhaseDelivery.cs`**
+- [x] **Step 2: Write `src/Features/Activities/PhaseDelivery.cs`**
 
 ```csharp
 namespace Enlisted.Features.Activities
@@ -569,7 +573,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 3: Write `src/Features/Activities/Phase.cs`**
+- [x] **Step 3: Write `src/Features/Activities/Phase.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -593,7 +597,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 4: Write `src/Features/Activities/ActivityContext.cs`**
+- [x] **Step 4: Write `src/Features/Activities/ActivityContext.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -612,7 +616,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 5: Write `src/Features/Activities/ActivityTypeDefinition.cs`**
+- [x] **Step 5: Write `src/Features/Activities/ActivityTypeDefinition.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -630,7 +634,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 6: Add to `Enlisted.csproj`**
+- [x] **Step 6: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Activities\ActivityEndReason.cs" />
@@ -640,7 +644,7 @@ namespace Enlisted.Features.Activities
 <Compile Include="src\Features\Activities\ActivityTypeDefinition.cs" />
 ```
 
-- [ ] **Step 7: Normalize CRLF**
+- [x] **Step 7: Normalize CRLF**
 
 ```bash
 for f in src/Features/Activities/ActivityEndReason.cs src/Features/Activities/PhaseDelivery.cs src/Features/Activities/Phase.cs src/Features/Activities/ActivityContext.cs src/Features/Activities/ActivityTypeDefinition.cs; do
@@ -648,14 +652,14 @@ for f in src/Features/Activities/ActivityEndReason.cs src/Features/Activities/Ph
 done
 ```
 
-- [ ] **Step 8: Build**
+- [x] **Step 8: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 cat > /tmp/activity-models-commit.txt << 'EOF'
@@ -688,7 +692,7 @@ Confirm: 3 stages green, 17 POCO files committed, build clean, csproj consistent
 **Files:**
 - Create: `src/Features/Flags/FlagStore.cs`
 
-- [ ] **Step 1: Write `src/Features/Flags/FlagStore.cs`**
+- [x] **Step 1: Write `src/Features/Flags/FlagStore.cs`**
 
 ```csharp
 using System;
@@ -808,13 +812,13 @@ namespace Enlisted.Features.Flags
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Flags\FlagStore.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Flags/FlagStore.cs
@@ -822,7 +826,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/flagstore-commit.txt << 'EOF'
@@ -845,7 +849,7 @@ rm /tmp/flagstore-commit.txt
 **Files:**
 - Create: `src/Features/Flags/FlagBehavior.cs`
 
-- [ ] **Step 1: Write `src/Features/Flags/FlagBehavior.cs`**
+- [x] **Step 1: Write `src/Features/Flags/FlagBehavior.cs`**
 
 ```csharp
 using System;
@@ -910,13 +914,13 @@ namespace Enlisted.Features.Flags
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Flags\FlagBehavior.cs" />
 ```
 
-- [ ] **Step 3: Register behavior in `src/Mod.Entry/SubModule.cs`**
+- [x] **Step 3: Register behavior in `src/Mod.Entry/SubModule.cs`**
 
 Open the file. Locate the `CampaignGameStarter` behavior registration block (search for `AddBehavior`). Add, alongside the existing registrations (order matters — Flags should register BEFORE Qualities so qualities can read flags during init):
 
@@ -924,7 +928,7 @@ Open the file. Locate the `CampaignGameStarter` behavior registration block (sea
 campaignStarter.AddBehavior(new Enlisted.Features.Flags.FlagBehavior());
 ```
 
-- [ ] **Step 4: Normalize CRLF + build**
+- [x] **Step 4: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Flags/FlagBehavior.cs
@@ -932,7 +936,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors. `FlagStore` field registered with save but save-type definitions come in Task 4.3 — on first run it will log a SaveableType warning; that's intentional until Task 4.3 lands.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cat > /tmp/flagbehavior-commit.txt << 'EOF'
@@ -958,14 +962,14 @@ rm /tmp/flagbehavior-commit.txt
 **Files:**
 - Modify: `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`
 
-- [ ] **Step 1: Read current file to confirm offset reservations**
+- [x] **Step 1: Read current file to confirm offset reservations**
 
 ```bash
 grep -n "AddClassDefinition\|AddEnumDefinition\|ConstructContainerDefinition" src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs
 ```
 Expected output includes `AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);` and `AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);` — confirms 30 and 81 are the current ceiling for the existing block.
 
-- [ ] **Step 2: Add `FlagStore` class registration**
+- [x] **Step 2: Add `FlagStore` class registration**
 
 In `DefineClassTypes()`, after the pacing subsystem line (offset 30), add a new "Storylet backbone" section:
 
@@ -974,7 +978,7 @@ In `DefineClassTypes()`, after the pacing subsystem line (offset 30), add a new 
 AddClassDefinition(typeof(Enlisted.Features.Flags.FlagStore), 43);
 ```
 
-- [ ] **Step 3: Add container definitions**
+- [x] **Step 3: Add container definitions**
 
 In `DefineContainerDefinitions()`, after the pacing subsystem containers, add:
 
@@ -984,14 +988,14 @@ ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string
 ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
 ```
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cat > /tmp/flag-savereg-commit.txt << 'EOF'
@@ -1024,7 +1028,7 @@ Smoke-test: launch the mod in-game, confirm no SaveableType warnings in session 
 **Files:**
 - Create: `src/Features/Qualities/QualityStore.cs`
 
-- [ ] **Step 1: Write `src/Features/Qualities/QualityStore.cs`**
+- [x] **Step 1: Write `src/Features/Qualities/QualityStore.cs`**
 
 ```csharp
 using System;
@@ -1192,13 +1196,13 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Qualities\QualityStore.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Qualities/QualityStore.cs
@@ -1206,7 +1210,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/qualitystore-commit.txt << 'EOF'
@@ -1231,7 +1235,7 @@ rm /tmp/qualitystore-commit.txt
 - Create: `src/Features/Qualities/QualityCatalog.cs`
 - Create: `ModuleData/Enlisted/Qualities/quality_defs.json`
 
-- [ ] **Step 1: Write `src/Features/Qualities/QualityCatalog.cs`**
+- [x] **Step 1: Write `src/Features/Qualities/QualityCatalog.cs`**
 
 ```csharp
 using System;
@@ -1316,7 +1320,7 @@ namespace Enlisted.Features.Qualities
 }
 ```
 
-- [ ] **Step 2: Write `ModuleData/Enlisted/Qualities/quality_defs.json`**
+- [x] **Step 2: Write `ModuleData/Enlisted/Qualities/quality_defs.json`**
 
 Seed list from spec §7.2 (post–dead-code purge). Stored qualities only; ReadThrough qualities are registered in C# by QualityBehavior (Task 5.3) so their Reader/Writer delegates bind correctly.
 
@@ -1332,13 +1336,13 @@ Seed list from spec §7.2 (post–dead-code purge). Stored qualities only; ReadT
 }
 ```
 
-- [ ] **Step 3: Add C# file to `Enlisted.csproj`**
+- [x] **Step 3: Add C# file to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Qualities\QualityCatalog.cs" />
 ```
 
-- [ ] **Step 4: Normalize CRLF + build**
+- [x] **Step 4: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Qualities/QualityCatalog.cs
@@ -1346,7 +1350,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cat > /tmp/qualitycatalog-commit.txt << 'EOF'
@@ -1372,7 +1376,7 @@ rm /tmp/qualitycatalog-commit.txt
 - Create: `src/Features/Qualities/QualityBehavior.cs`
 - Modify: `src/Mod.Entry/SubModule.cs`
 
-- [ ] **Step 1: Write `src/Features/Qualities/QualityBehavior.cs`**
+- [x] **Step 1: Write `src/Features/Qualities/QualityBehavior.cs`**
 
 ```csharp
 using System;
@@ -1516,13 +1520,13 @@ namespace Enlisted.Features.Qualities
 
 Note: if `EnlistmentBehavior` lacks a `GetDaysEnlisted()` helper, substitute the equivalent expression using the enlistment start time the behavior already tracks (grep `EnlistmentBehavior.cs` for `EnlistmentStartTime` or similar). Keep the delegate pure-read — do not mutate state from it.
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Qualities\QualityBehavior.cs" />
 ```
 
-- [ ] **Step 3: Register in `src/Mod.Entry/SubModule.cs`**
+- [x] **Step 3: Register in `src/Mod.Entry/SubModule.cs`**
 
 Place the registration AFTER `FlagBehavior` (qualities may read flags during init, so flags must exist first) and BEFORE `StoryDirector` (the Director will eventually consult qualities):
 
@@ -1530,7 +1534,7 @@ Place the registration AFTER `FlagBehavior` (qualities may read flags during ini
 campaignStarter.AddBehavior(new Enlisted.Features.Qualities.QualityBehavior());
 ```
 
-- [ ] **Step 4: Normalize CRLF + build**
+- [x] **Step 4: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Qualities/QualityBehavior.cs
@@ -1538,7 +1542,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors. If `GetDaysEnlisted()` doesn't exist, the build will flag it — substitute the right expression and rebuild.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cat > /tmp/qualitybehavior-commit.txt << 'EOF'
@@ -1570,7 +1574,7 @@ rm /tmp/qualitybehavior-commit.txt
 **Files:**
 - Modify: `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`
 
-- [ ] **Step 1: Add class + enum registrations**
+- [x] **Step 1: Add class + enum registrations**
 
 Add to `DefineClassTypes()` in the storylet-backbone section (after the `FlagStore` line from Task 4.3):
 
@@ -1593,14 +1597,14 @@ ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string
 ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>>));
 ```
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 cat > /tmp/quality-savereg-commit.txt << 'EOF'
@@ -1633,7 +1637,7 @@ Smoke-test: launch, confirm no SaveableType warnings, confirm stored quality rou
 **Files:**
 - Create: `src/Features/Content/EffectExecutor.cs`
 
-- [ ] **Step 1: Write `src/Features/Content/EffectExecutor.cs`**
+- [x] **Step 1: Write `src/Features/Content/EffectExecutor.cs`**
 
 ```csharp
 using System.Collections.Generic;
@@ -1823,13 +1827,13 @@ namespace Enlisted.Features.Content
 
 Note: `DefaultTraits.All`, `Hero.AddTraitLevel`, `Hero.SetTraitLevelInternal`, `SkillObject.GetAll`, and `Hero.AddSkillXp` are all v1.3.13 TaleWorlds APIs — verify each at `C:\Dev\Enlisted\Decompile\` before implementation. If any method signature has drifted (e.g., `SetTraitLevelInternal` is private), fall back to the public `Hero.AddTraitLevel(trait, level)` absolute-set API and compute the target level from the current one.
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\EffectExecutor.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/EffectExecutor.cs
@@ -1837,7 +1841,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors. Any TaleWorlds API that doesn't match v1.3.13 must be fixed before proceeding — the decompile is authoritative.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/effect-executor-commit.txt << 'EOF'
@@ -1862,7 +1866,7 @@ rm /tmp/effect-executor-commit.txt
 - Create: `src/Features/Content/ScriptedEffectRegistry.cs`
 - Create: `ModuleData/Enlisted/Effects/scripted_effects.json`
 
-- [ ] **Step 1: Write `src/Features/Content/ScriptedEffectRegistry.cs`**
+- [x] **Step 1: Write `src/Features/Content/ScriptedEffectRegistry.cs`**
 
 ```csharp
 using System;
@@ -1947,7 +1951,7 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Write `ModuleData/Enlisted/Effects/scripted_effects.json`**
+- [x] **Step 2: Write `ModuleData/Enlisted/Effects/scripted_effects.json`**
 
 Seed set from spec §11.3 (post–dead-code purge):
 
@@ -1985,7 +1989,7 @@ Seed set from spec §11.3 (post–dead-code purge):
 }
 ```
 
-- [ ] **Step 3: Load scripted effects at boot**
+- [x] **Step 3: Load scripted effects at boot**
 
 Modify `src/Features/Qualities/QualityBehavior.cs` — in `OnSessionLaunched` and `OnGameLoaded`, add a call to load scripted effects BEFORE RegisterDefinitions (so storylet-loading later can validate references):
 
@@ -2005,13 +2009,13 @@ private void OnGameLoaded(CampaignGameStarter starter)
 }
 ```
 
-- [ ] **Step 4: Add to `Enlisted.csproj`**
+- [x] **Step 4: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\ScriptedEffectRegistry.cs" />
 ```
 
-- [ ] **Step 5: Normalize CRLF + build**
+- [x] **Step 5: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/ScriptedEffectRegistry.cs
@@ -2019,7 +2023,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cat > /tmp/scripted-effects-commit.txt << 'EOF'
@@ -2057,7 +2061,7 @@ Proceed to triggers + slots.
 **Files:**
 - Create: `src/Features/Content/TriggerRegistry.cs`
 
-- [ ] **Step 1: Write `src/Features/Content/TriggerRegistry.cs`**
+- [x] **Step 1: Write `src/Features/Content/TriggerRegistry.cs`**
 
 ```csharp
 using System;
@@ -2195,13 +2199,13 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\TriggerRegistry.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/TriggerRegistry.cs
@@ -2209,7 +2213,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/trigger-registry-commit.txt << 'EOF'
@@ -2237,7 +2241,7 @@ rm /tmp/trigger-registry-commit.txt
 **Files:**
 - Create: `src/Features/Content/SlotFiller.cs`
 
-- [ ] **Step 1: Write `src/Features/Content/SlotFiller.cs`**
+- [x] **Step 1: Write `src/Features/Content/SlotFiller.cs`**
 
 ```csharp
 using System;
@@ -2379,13 +2383,13 @@ namespace Enlisted.Features.Content
 
 Note: `Hero.AllAliveHeroes` — verify this property exists on `Hero` in the decompile (grep `public static.*AllAliveHeroes`). If not, use `Campaign.Current.AliveHeroes` or the equivalent enumeration.
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\SlotFiller.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/SlotFiller.cs
@@ -2393,7 +2397,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/slot-filler-commit.txt << 'EOF'
@@ -2428,7 +2432,7 @@ Proceed to StoryletCatalog + Storylet default impls.
 **Files:**
 - Modify: `src/Features/Content/Storylet.cs`
 
-- [ ] **Step 1: Replace the stub methods in `Storylet.cs` with real implementations**
+- [x] **Step 1: Replace the stub methods in `Storylet.cs` with real implementations**
 
 Open `src/Features/Content/Storylet.cs` and replace the three virtual methods at the bottom with:
 
@@ -2493,14 +2497,14 @@ public virtual StoryCandidate ToCandidate(StoryletContext ctx)
 }
 ```
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors. If `RelevanceKey` or `StoryCandidate` fields drifted since the pacing spec, adjust initializers accordingly — the pacing spec's struct shape is authoritative.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 cat > /tmp/storylet-impl-commit.txt << 'EOF'
@@ -2524,7 +2528,7 @@ rm /tmp/storylet-impl-commit.txt
 **Files:**
 - Create: `src/Features/Content/StoryletCatalog.cs`
 
-- [ ] **Step 1: Write `src/Features/Content/StoryletCatalog.cs`**
+- [x] **Step 1: Write `src/Features/Content/StoryletCatalog.cs`**
 
 ```csharp
 using System;
@@ -2713,13 +2717,13 @@ namespace Enlisted.Features.Content
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\StoryletCatalog.cs" />
 ```
 
-- [ ] **Step 3: Load storylets at boot (call from QualityBehavior for now — surface specs move this later)**
+- [x] **Step 3: Load storylets at boot (call from QualityBehavior for now — surface specs move this later)**
 
 Add to `QualityBehavior.OnSessionLaunched` + `OnGameLoaded`, after `ScriptedEffectRegistry.LoadAll()`:
 
@@ -2727,7 +2731,7 @@ Add to `QualityBehavior.OnSessionLaunched` + `OnGameLoaded`, after `ScriptedEffe
 Enlisted.Features.Content.StoryletCatalog.LoadAll();
 ```
 
-- [ ] **Step 4: Normalize CRLF + build**
+- [x] **Step 4: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/StoryletCatalog.cs
@@ -2735,7 +2739,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 cat > /tmp/storylet-catalog-commit.txt << 'EOF'
@@ -2770,7 +2774,7 @@ Storylets can be authored, loaded, evaluated, rendered, and turned into candidat
 **Files:**
 - Create: `src/Features/Activities/Activity.cs`
 
-- [ ] **Step 1: Write `src/Features/Activities/Activity.cs`**
+- [x] **Step 1: Write `src/Features/Activities/Activity.cs`**
 
 ```csharp
 using System;
@@ -2826,13 +2830,13 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Activities\Activity.cs" />
 ```
 
-- [ ] **Step 3: Normalize CRLF + build**
+- [x] **Step 3: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Activities/Activity.cs
@@ -2840,7 +2844,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 cat > /tmp/activity-base-commit.txt << 'EOF'
@@ -2869,7 +2873,7 @@ rm /tmp/activity-base-commit.txt
 - Create: `src/Features/Activities/ActivityRuntime.cs`
 - Modify: `src/Mod.Entry/SubModule.cs`
 
-- [ ] **Step 1: Write `src/Features/Activities/ActivityRuntime.cs`**
+- [x] **Step 1: Write `src/Features/Activities/ActivityRuntime.cs`**
 
 ```csharp
 using System;
@@ -3085,13 +3089,13 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 2: Add to `Enlisted.csproj`**
+- [x] **Step 2: Add to `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Activities\ActivityRuntime.cs" />
 ```
 
-- [ ] **Step 3: Register in `src/Mod.Entry/SubModule.cs`**
+- [x] **Step 3: Register in `src/Mod.Entry/SubModule.cs`**
 
 Place AFTER `QualityBehavior` (so activities can read qualities during tick) and BEFORE `StoryDirector` (runtime emits candidates into it):
 
@@ -3099,7 +3103,7 @@ Place AFTER `QualityBehavior` (so activities can read qualities during tick) and
 campaignStarter.AddBehavior(new Enlisted.Features.Activities.ActivityRuntime());
 ```
 
-- [ ] **Step 4: Extend `EnlistedSaveDefiner` for Activity**
+- [x] **Step 4: Extend `EnlistedSaveDefiner` for Activity**
 
 In `DefineClassTypes()`, storylet-backbone section:
 
@@ -3120,7 +3124,7 @@ ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Fea
 ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>>));
 ```
 
-- [ ] **Step 5: Normalize CRLF + build**
+- [x] **Step 5: Normalize CRLF + build**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Activities/ActivityRuntime.cs
@@ -3128,7 +3132,7 @@ dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cat > /tmp/activity-runtime-commit.txt << 'EOF'
@@ -3173,14 +3177,14 @@ All runtime plumbing in place. Proceed to validation + harness.
 **Files:**
 - Modify: `Tools/Validation/validate_content.py`
 
-- [ ] **Step 1: Read the existing validator to find where phases are registered**
+- [x] **Step 1: Read the existing validator to find where phases are registered**
 
 ```bash
 grep -n "def phase_\|PHASE_\|Phase 1\|Phase 10\|Phase 11" Tools/Validation/validate_content.py | head -30
 ```
 Expected: a list of phase entry points. Note the numbering — Phase 11 currently blocks `ModLogger.Error(...)` per CLAUDE.md / spec §7.2 note.
 
-- [ ] **Step 2: Add Phase 12**
+- [x] **Step 2: Add Phase 12**
 
 Append a new `phase_12_storylet_references` function patterned after the existing phase functions. It must:
 
@@ -3192,24 +3196,24 @@ Append a new `phase_12_storylet_references` function patterned after the existin
 
 The full Python implementation is left to the engineer working in the file — keep the style consistent with the existing `phase_10_*` and `phase_11_*` helpers; do not invent a new error format.
 
-- [ ] **Step 3: Wire Phase 12 into the main entry point**
+- [x] **Step 3: Wire Phase 12 into the main entry point**
 
 Same pattern as Phase 11 registration — grep `Phase 11` usage and add Phase 12 alongside.
 
-- [ ] **Step 4: Run the validator**
+- [x] **Step 4: Run the validator**
 
 ```bash
 python Tools/Validation/validate_content.py
 ```
 Expected: all phases including Phase 12 pass. (Storylet directory is empty; scripted_effects + quality_defs cross-validate; no storylet references to check yet.)
 
-- [ ] **Step 5: Regenerate error-code registry**
+- [x] **Step 5: Regenerate error-code registry**
 
 ```bash
 python Tools/Validation/generate_error_codes.py
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 cat > /tmp/validate-phase12-commit.txt << 'EOF'
@@ -3238,7 +3242,7 @@ rm /tmp/validate-phase12-commit.txt
 **Files:**
 - Modify: `src/Debugging/Behaviors/DebugToolsBehavior.cs`
 
-- [ ] **Step 1: Append smoke-test methods**
+- [x] **Step 1: Append smoke-test methods**
 
 Add these static methods to `DebugToolsBehavior`. Each writes to `SessionDiagnostics.LogEvent("Debug", ...)` so results land in the session log. Surface specs can wire them to a debug submenu later:
 
@@ -3298,14 +3302,14 @@ public static void SmokeTestTriggers()
 }
 ```
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: 0 errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 cat > /tmp/debug-harness-commit.txt << 'EOF'
@@ -3326,41 +3330,41 @@ rm /tmp/debug-harness-commit.txt
 
 ### Task 12.2: In-game smoke run + final verification
 
-- [ ] **Step 1: Close BannerlordLauncher.exe** (it holds the DLL open and breaks the post-build mirror with MSB3021).
+- [x] **Step 1: Close BannerlordLauncher.exe** (it holds the DLL open and breaks the post-build mirror with MSB3021).
 
-- [ ] **Step 2: Full rebuild**
+- [x] **Step 2: Full rebuild**
 
 ```bash
 dotnet build Enlisted.sln -c 'Enlisted RETAIL' -p:Platform=x64
 ```
 Expected: `Build succeeded. 0 Error(s)`.
 
-- [ ] **Step 3: Run content validator**
+- [x] **Step 3: Run content validator**
 
 ```bash
 python Tools/Validation/validate_content.py
 ```
 Expected: all 12 phases pass.
 
-- [ ] **Step 4: Launch Bannerlord, start a new campaign, enlist with a lord, save, reload**
+- [x] **Step 4: Launch Bannerlord, start a new campaign, enlist with a lord, save, reload**
 
 Expected session-log excerpt:
 - No `E-PACE-*`, `E-QUALITY-*`, `E-FLAG-*`, `E-EFFECT-*`, `E-TRIGGER-*`, `E-SLOT-*`, `E-ACTIVITY-*`, `E-STORYLET-*` errors
 - No SaveableType warnings
 - Save/reload round-trips cleanly (under ~5ms typical per pacing-spec baseline)
 
-- [ ] **Step 5: Call the debug helpers via an existing debug entry point**
+- [x] **Step 5: Call the debug helpers via an existing debug entry point**
 
 Use a breakpoint, a console helper, or any existing debug menu to call each `SmokeTest*` method. Confirm all four log `PASS` (or equivalent positive message).
 
-- [ ] **Step 6: Tag the commit**
+- [x] **Step 6: Tag the commit**
 
 ```bash
 git log --oneline | head -20
 ```
 Expected: the full sequence of Spec-0 commits landed in order. No orphan changes.
 
-- [ ] **Step 7: Final commit — spec cross-links**
+- [x] **Step 7: Final commit — spec cross-links**
 
 Add a "Status: complete" header to the spec document (top of the file):
 

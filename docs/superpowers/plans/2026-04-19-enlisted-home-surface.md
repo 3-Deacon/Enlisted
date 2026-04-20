@@ -10,6 +10,8 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-19-enlisted-home-surface-design.md](../specs/2026-04-19-enlisted-home-surface-design.md) (commits `133a147` + `46272c1` on `development`).
 
+**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` branch (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + triggers + starter + save registration) not yet started.
+
 ---
 
 ## Conventions used in every task
@@ -90,7 +92,7 @@ Each task is independent where possible. Phase order is strict; within a phase s
 **Files:**
 - Modify: `src/Features/Activities/Phase.cs`
 
-- [ ] **Step 1: Add the field**
+- [x] **Step 1: Add the field**
 
 Edit `src/Features/Activities/Phase.cs`. After the `DurationHours` property, add `FireIntervalHours`:
 
@@ -107,7 +109,7 @@ public sealed class Phase
 }
 ```
 
-- [ ] **Step 2: Confirm JSON loader picks it up (likely a no-op)**
+- [x] **Step 2: Confirm JSON loader picks it up (likely a no-op)**
 
 Grep `src/Features/Activities/ActivityTypeDefinition.cs` for `duration_hours` or `JObject`-based phase parsing.
 
@@ -115,7 +117,7 @@ Grep `src/Features/Activities/ActivityTypeDefinition.cs` for `duration_hours` or
 
 **If phase JSON parsing does NOT exist there** (expected case): leave the file untouched. The `fire_interval_hours` → `Phase.FireIntervalHours` wire-up lives in Task 3's new `ActivityTypeCatalog` JSON loader (Task 3 Step 1 already includes that line). No action required here.
 
-- [ ] **Step 3: Build — must pass**
+- [x] **Step 3: Build — must pass**
 
 Run:
 
@@ -125,7 +127,7 @@ dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
 
 Expected: `Build succeeded. 0 Error(s)`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/Features/Activities/Phase.cs src/Features/Activities/ActivityTypeDefinition.cs
@@ -143,7 +145,7 @@ git commit -F /c/Users/coola/commit.txt
 **Files:**
 - Modify: `src/Features/Activities/Activity.cs`
 
-- [ ] **Step 1: Add virtual methods with empty defaults**
+- [x] **Step 1: Add virtual methods with empty defaults**
 
 Edit `src/Features/Activities/Activity.cs`. After the abstract method declarations (just below `Finish(...)`), add:
 
@@ -159,7 +161,7 @@ public virtual void OnPlayerChoice(string optionId, ActivityContext ctx) { }
 public virtual void OnBeat(string beatId, ActivityContext ctx) { }
 ```
 
-- [ ] **Step 2: Build**
+- [x] **Step 2: Build**
 
 ```bash
 dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
@@ -167,7 +169,7 @@ dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
 
 Expected: `Build succeeded. 0 Error(s)`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/Features/Activities/Activity.cs
@@ -186,7 +188,7 @@ git commit -F /c/Users/coola/commit.txt
 - Modify: `Enlisted.csproj` (register new file)
 - Modify: `src/Features/Activities/ActivityRuntime.cs` (call `LoadAll()` from `OnSessionLaunched`)
 
-- [ ] **Step 1: Write the catalog loader**
+- [x] **Step 1: Write the catalog loader**
 
 Create `src/Features/Activities/ActivityTypeCatalog.cs`:
 
@@ -298,7 +300,7 @@ namespace Enlisted.Features.Activities
 }
 ```
 
-- [ ] **Step 2: Register the new file in `Enlisted.csproj`**
+- [x] **Step 2: Register the new file in `Enlisted.csproj`**
 
 Open `Enlisted.csproj`. Locate the `<ItemGroup>` containing `<Compile Include="src\Features\Activities\ActivityRuntime.cs" />`. Add alongside (alphabetical order or nearby):
 
@@ -306,7 +308,7 @@ Open `Enlisted.csproj`. Locate the `<ItemGroup>` containing `<Compile Include="s
 <Compile Include="src\Features\Activities\ActivityTypeCatalog.cs" />
 ```
 
-- [ ] **Step 3: Call `LoadAll()` from `ActivityRuntime.OnSessionLaunched`**
+- [x] **Step 3: Call `LoadAll()` from `ActivityRuntime.OnSessionLaunched`**
 
 Edit `src/Features/Activities/ActivityRuntime.cs`. Locate `OnSessionLaunched`:
 
@@ -328,13 +330,13 @@ private void OnSessionLaunched(CampaignGameStarter starter)
 }
 ```
 
-- [ ] **Step 4: Normalize CRLF for the new file**
+- [x] **Step 4: Normalize CRLF for the new file**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Activities/ActivityTypeCatalog.cs
 ```
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 ```bash
 export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"
@@ -343,7 +345,7 @@ dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
 
 Expected: `Build succeeded. 0 Error(s)`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/Features/Activities/ActivityTypeCatalog.cs src/Features/Activities/ActivityRuntime.cs Enlisted.csproj
@@ -361,7 +363,7 @@ git commit -F /c/Users/coola/commit.txt
 - Create: `src/Features/Content/StoryletEventAdapter.cs`
 - Modify: `Enlisted.csproj`
 
-- [ ] **Step 1: Verify the `InteractiveEvent` wrapper constructor signature**
+- [x] **Step 1: Verify the `InteractiveEvent` wrapper constructor signature**
 
 Grep for the mod's `InteractiveEvent` class:
 
@@ -372,7 +374,7 @@ Search for `class InteractiveEvent` in `src/`. Open the file. Note the construct
 
 **Do not proceed until the signature is confirmed.** If the shape differs from the skeleton below, adapt the `return new InteractiveEvent(...)` line accordingly.
 
-- [ ] **Step 2: Write the adapter**
+- [x] **Step 2: Write the adapter**
 
 Create `src/Features/Content/StoryletEventAdapter.cs`:
 
@@ -477,19 +479,19 @@ namespace Enlisted.Features.Content
 
 Note: the Step 1 signature verification is critical. If the mod's `InteractiveEvent` wrapper constructor differs, adapt the final `return new InteractiveEvent(...)` line before continuing.
 
-- [ ] **Step 3: Register in `Enlisted.csproj`**
+- [x] **Step 3: Register in `Enlisted.csproj`**
 
 ```xml
 <Compile Include="src\Features\Content\StoryletEventAdapter.cs" />
 ```
 
-- [ ] **Step 4: Normalize CRLF**
+- [x] **Step 4: Normalize CRLF**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Content/StoryletEventAdapter.cs
 ```
 
-- [ ] **Step 5: Build**
+- [x] **Step 5: Build**
 
 ```bash
 dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
@@ -499,7 +501,7 @@ Expected: `Build succeeded. 0 Error(s)`.
 
 If the build fails on the `InteractiveEvent` constructor call, re-do Step 1 verification and adjust.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/Features/Content/StoryletEventAdapter.cs Enlisted.csproj
@@ -516,7 +518,7 @@ git commit -F /c/Users/coola/commit.txt
 **Files:**
 - Modify: `src/Features/Activities/ActivityRuntime.cs`
 
-- [ ] **Step 1: Add the fields + accessors**
+- [x] **Step 1: Add the fields + accessors**
 
 Edit `src/Features/Activities/ActivityRuntime.cs`. Near the other private fields (around line 20-28), add:
 
@@ -531,11 +533,11 @@ public T FindActive<T>() where T : Activity =>
     _active.OfType<T>().FirstOrDefault();
 ```
 
-- [ ] **Step 2: Gate `TryFireAutoPhaseStorylet` to `Auto` only**
+- [x] **Step 2: Gate `TryFireAutoPhaseStorylet` to `Auto` only**
 
 Already gated — the method checks `phase.Delivery != PhaseDelivery.Auto` and returns (Activity.cs inspection confirmed this). Leave it.
 
-- [ ] **Step 2b: Honour `FireIntervalHours` in the auto-fire path**
+- [x] **Step 2b: Honour `FireIntervalHours` in the auto-fire path**
 
 Without this, `Phase.FireIntervalHours > 0` is silently ignored — the `settle` phase fires every tick instead of every N in-game hours.
 
@@ -569,7 +571,7 @@ private void TryFireAutoPhaseStorylet(Activity a)
 
 If Activity subclasses beyond `HomeActivity` need the same pacing (Specs 2-5), promote `LastAutoFireHour` onto `Activity` base as a `[SaveableProperty]` when they land — don't generalize prematurely in Spec 1. For now the cast-to-`HomeActivity` is acceptable.
 
-- [ ] **Step 3: Hook phase entry for PlayerChoice**
+- [x] **Step 3: Hook phase entry for PlayerChoice**
 
 Find `Start(Activity activity, ActivityContext ctx)` (around line 80). After `activity.OnPhaseEnter(activity.CurrentPhase)`, add:
 
@@ -593,7 +595,7 @@ public void Start(Activity activity, ActivityContext ctx)
 }
 ```
 
-- [ ] **Step 4: Add `AdvancePhase` helper + `ResolvePlayerChoice`**
+- [x] **Step 4: Add `AdvancePhase` helper + `ResolvePlayerChoice`**
 
 If `AdvancePhase` already exists (grep for it in `ActivityRuntime.cs`), skip to defining `ResolvePlayerChoice`. Otherwise add both. Place them after `ConsumeParkedChains`:
 
@@ -636,7 +638,7 @@ public void ResolvePlayerChoice(Activity activity)
 
 If the existing `TryAdvancePhase(Activity)` method (called from `OnHourlyTick`) exists, verify it calls `AdvancePhase` (extract the body if needed so both code paths share it). The key invariant: whenever a phase transitions, `_activeChoicePhase` gets set or cleared correctly.
 
-- [ ] **Step 5: Build + commit**
+- [x] **Step 5: Build + commit**
 
 ```bash
 dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
