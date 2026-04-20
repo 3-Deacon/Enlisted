@@ -62,6 +62,11 @@ namespace Enlisted.Features.Activities
             var def = new ActivityTypeDefinition
             {
                 Id = (string)root["id"] ?? string.Empty,
+                DisplayName = (string)root["display_name"] ?? string.Empty,
+                ValidIntents = (root["valid_intents"] as JArray)?
+                    .Select(t => (string)t)
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .ToList() ?? new List<string>(),
                 Phases = new List<Phase>()
             };
             var phases = root["phases"] as JArray;

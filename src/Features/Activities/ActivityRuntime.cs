@@ -62,6 +62,7 @@ namespace Enlisted.Features.Activities
         private void OnGameLoaded(CampaignGameStarter starter)
         {
             Instance = this;
+            ActivityTypeCatalog.LoadAll();
             foreach (var a in _active)
             {
                 a.ResolvePhasesFromType(_types);
