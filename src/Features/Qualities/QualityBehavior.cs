@@ -42,7 +42,7 @@ namespace Enlisted.Features.Qualities
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
             QualityStore.SetInstance(_store);
-            // ScriptedEffectRegistry.LoadAll(); // Task 6.2 wires this
+            Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
             // StoryletCatalog.LoadAll();         // Task 9.2 wires this
             RegisterDefinitions();
         }
@@ -50,7 +50,7 @@ namespace Enlisted.Features.Qualities
         private void OnGameLoaded(CampaignGameStarter starter)
         {
             QualityStore.SetInstance(_store);
-            // ScriptedEffectRegistry.LoadAll(); // Task 6.2 wires this
+            Enlisted.Features.Content.ScriptedEffectRegistry.LoadAll();
             // StoryletCatalog.LoadAll();         // Task 9.2 wires this
             RegisterDefinitions();
         }
