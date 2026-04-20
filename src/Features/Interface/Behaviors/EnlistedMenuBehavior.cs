@@ -1163,6 +1163,7 @@ namespace Enlisted.Features.Interface.Behaviors
             for (var i = 0; i < 5; i++)
             {
                 var slotIndex = i;
+                var textKey = "EVENING_SLOT_" + i + "_TEXT";
                 starter.AddGameMenuOption("enlisted_status", $"enlisted_evening_intent_slot_{i}",
                     $"{{EVENING_SLOT_{i}_TEXT}}",
                     args =>
@@ -1172,7 +1173,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         {
                             return false;
                         }
-                        MBTextManager.SetTextVariable($"EVENING_SLOT_{slotIndex}_TEXT", label.ToString(), false);
+                        MBTextManager.SetTextVariable(textKey, label.ToString(), false);
                         args.Tooltip = tooltip;
                         args.IsEnabled = true;
                         return true;
