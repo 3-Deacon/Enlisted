@@ -59,6 +59,8 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Storylet backbone (Spec 0)
             AddClassDefinition(typeof(Enlisted.Features.Flags.FlagStore), 43);
+            AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityStore), 40);
+            AddClassDefinition(typeof(Enlisted.Features.Qualities.QualityValue), 41);
         }
 
         /// <summary>
@@ -87,6 +89,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Pacing subsystem enums
             AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
             AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
+
+            // Storylet backbone enums (Spec 0)
+            AddEnumDefinition(typeof(Enlisted.Features.Qualities.QualityScope), 82);
         }
 
         /// <summary>
@@ -116,6 +121,8 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Storylet backbone containers (Spec 0)
             ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>));
             ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
+            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>));
+            ConstructContainerDefinition(typeof(System.Collections.Generic.Dictionary<TaleWorlds.ObjectSystem.MBGUID, System.Collections.Generic.Dictionary<string, Enlisted.Features.Qualities.QualityValue>>));
         }
     }
 }
