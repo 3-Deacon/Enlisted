@@ -1644,6 +1644,11 @@ namespace Enlisted.Features.Activities.Orders
 
             ModLogger.Info("DUTYPROFILE", $"profile_changed: {oldProfile} → {newProfile}");
 
+            // profile_changed beats route through StoryDirector as Modal events —
+            // those are paced by StoryDirector itself (5-day in-game + 60s wall-clock
+            // + per-category cooldown per AGENTS.md #10). NO OrdersNewsFeedThrottle
+            // gate here; the modal pathway is the right one for "the lord's context
+            // just changed" — that IS the foreground.
             // Transition-storylet dispatch handled by NamedOrderArcRuntime on a beat (Task 14).
             activity.OnBeat("profile_changed", new ActivityContext
             {
@@ -2178,35 +2183,88 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ---
 
-## Task 15: Create `DailyDriftApplicator` (registered, disabled in Phase A)
+## Task 15: Create `DailyDriftApplicator` with summary pattern (Phase A: accumulator only)
 
 **Files:**
 - Create: `src/Features/Activities/Orders/DailyDriftApplicator.cs`
+- Modify: `src/Features/Activities/Orders/OrderActivity.cs` (add `DriftPendingXp` dict)
 - Modify: `Enlisted.csproj`
 - Modify: `src/SubModule.cs`
 
-- [ ] **Step 1: Create the applicator file (Phase A: registered but no-op)**
+Per Spec 2 §17 R10 + the native investigation: drift uses the summary pattern (`CharacterRelationCampaignBehavior.cs:43-79` precedent — accumulate silently, surface ONE summary entry). No "fire one floor storylet per game day" — that breaks under fast-forward. Instead: every game day, accumulate XP into a per-skill dict on `OrderActivity`. A separate flush path (gated by `OrdersNewsFeedThrottle`) drains the accumulator and emits one summary news-feed entry whenever the throttle next allows.
+
+- [ ] **Step 1: Add `DriftPendingXp` field to `OrderActivity`**
+
+Edit `src/Features/Activities/Orders/OrderActivity.cs` (created Task 8). Add field:
+
+```csharp
+public Dictionary<string, int> DriftPendingXp { get; set; } = new Dictionary<string, int>();
+```
+
+Update `EnsureInitialized()`:
+
+```csharp
+public void EnsureInitialized()
+{
+    PendingProfileMatches ??= new Dictionary<string, int>();
+    DriftPendingXp ??= new Dictionary<string, int>();
+    if (ActiveNamedOrder != null)
+    {
+        ActiveNamedOrder.AccumulatedOutcomes ??= new Dictionary<string, float>();
+    }
+}
+```
+
+- [ ] **Step 2: Create the applicator file (Phase A: accumulator + flush, no storylet content yet)**
 
 Create `src/Features/Activities/Orders/DailyDriftApplicator.cs`:
 
 ```csharp
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.Core;
+using TaleWorlds.ObjectSystem;
 
 namespace Enlisted.Features.Activities.Orders
 {
     /// <summary>
-    /// Daily skill-XP drift. Phase A: registered but no-op (no floor storylets
-    /// authored yet). Phase B Task 26+ enables once floor.json content lands.
+    /// Daily skill-XP drift via the summary pattern. Each game day adds XP
+    /// to OrderActivity.DriftPendingXp. The hourly flush path drains the
+    /// accumulator and emits ONE summary news-feed entry — but only when
+    /// OrdersNewsFeedThrottle.TryClaim() returns true (default 20s wall-clock
+    /// floor + suppression above 4x speed).
+    ///
+    /// Effect: at 1x the player sees a steady trickle of "the past few days
+    /// you've drilled..." entries; at 4x they see one every ~30 real seconds;
+    /// at 16x they see nothing (pure background, lord-state Modals only).
     /// </summary>
     public sealed class DailyDriftApplicator : CampaignBehaviorBase
     {
+        // Per-profile / per-class skill weights — same shape used by ambient
+        // storylets via class_affinity, but here computed in C# since drift is
+        // algorithmic, not authored.
+        private static readonly Dictionary<string, string[]> ProfileHeavy = new Dictionary<string, string[]>
+        {
+            { DutyProfileIds.Garrisoned, new[] { "OneHanded", "Polearm", "Athletics", "Charm", "Steward" } },
+            { DutyProfileIds.Marching,   new[] { "Athletics", "Riding", "Scouting", "Tactics" } },
+            { DutyProfileIds.Besieging,  new[] { "Engineering", "Crossbow", "Bow", "Athletics" } },
+            { DutyProfileIds.Raiding,    new[] { "Athletics", "Roguery", "OneHanded", "Riding" } },
+            { DutyProfileIds.Escorting,  new[] { "Tactics", "Leadership", "Riding" } },
+            { DutyProfileIds.Wandering,  new[] { "Scouting", "Trade", "Roguery" } },
+            { DutyProfileIds.Imprisoned, new[] { "Roguery", "Charm" } }
+        };
+
         public override void RegisterEvents()
         {
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
+            CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
         }
 
         public override void SyncData(IDataStore dataStore) { }
@@ -2218,16 +2276,72 @@ namespace Enlisted.Features.Activities.Orders
                 if (EnlistmentBehavior.Instance?.IsEnlisted != true) { return; }
                 var activity = OrderActivity.Instance;
                 if (activity == null) { return; }
+                activity.EnsureInitialized();
 
-                // Phase A: log only. Phase B Task wires the floor-storylet selection.
-                ModLogger.Expected("DRIFT", "phaseA_disabled",
-                    $"DailyDriftApplicator no-op pending Phase B content. profile={activity.CurrentDutyProfile} class={activity.CachedCombatClass}");
+                if (!ProfileHeavy.TryGetValue(activity.CurrentDutyProfile, out var heavy)) { return; }
+
+                // Pick 2-3 skills weighted toward profile-heavy
+                var pickCount = activity.CurrentDutyProfile == DutyProfileIds.Imprisoned ? 1 : 2;
+                for (int i = 0; i < pickCount; i++)
+                {
+                    var skillId = heavy[MBRandom.RandomInt(heavy.Length)];
+                    var amount = MBRandom.RandomInt(5, 16);  // 5-15 XP per skill per day
+                    if (!activity.DriftPendingXp.ContainsKey(skillId)) { activity.DriftPendingXp[skillId] = 0; }
+                    activity.DriftPendingXp[skillId] += amount;
+
+                    // Apply XP immediately (silent — no notification yet; the summary handles UI)
+                    var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+                    if (skill != null) { Hero.MainHero.HeroDeveloper.AddSkillXp(skill, amount); }
+                }
             }
             catch (Exception ex) { ModLogger.Caught("DRIFT", "OnDailyTick threw", ex); }
+        }
+
+        private void OnHourlyTick()
+        {
+            try
+            {
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true) { return; }
+                var activity = OrderActivity.Instance;
+                if (activity?.DriftPendingXp == null || activity.DriftPendingXp.Count == 0) { return; }
+
+                // Throttle check — if we can't emit, accumulator keeps growing; player
+                // sees a denser summary on the next allowed slot. No queue pile-up.
+                if (!OrdersNewsFeedThrottle.TryClaim()) { return; }
+
+                FlushSummary(activity);
+            }
+            catch (Exception ex) { ModLogger.Caught("DRIFT", "OnHourlyTick flush threw", ex); }
+        }
+
+        private static void FlushSummary(OrderActivity activity)
+        {
+            var pieces = activity.DriftPendingXp
+                .OrderByDescending(kv => kv.Value)
+                .Take(4)
+                .Select(kv => $"{kv.Key} +{kv.Value}");
+            var summary = "Past few days: " + string.Join(", ", pieces) + " XP.";
+
+            // Emit at NewsFeed tier through StoryDirector (no Modal — drift is background).
+            StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "orders.drift.summary",
+                CategoryId = "orders.drift",
+                ProposedTier = StoryTier.NewsFeed,
+                EmittedAt = CampaignTime.Now,
+                RenderedTitle = "Service notes",
+                RenderedBody = summary,
+                StoryKey = "orders_drift_summary"
+            });
+
+            activity.DriftPendingXp.Clear();
+            ModLogger.Info("DRIFT", $"Flushed summary: {summary}");
         }
     }
 }
 ```
+
+(`StoryCandidate` field names — `RenderedTitle`/`RenderedBody`/`SourceId`/`CategoryId`/`ProposedTier`/`EmittedAt`/`StoryKey` — match the AGENTS.md Critical Rule #10 example. Adapt to the actual API surface if names differ.)
 
 - [ ] **Step 2: Normalize CRLF + register in csproj + SubModule**
 
@@ -2264,6 +2378,93 @@ Spec 2 §5. Daily-tick subscriber that will award profile + class
 weighted skill XP via floor storylets. Phase A ships the registration
 and tick subscription so the wiring is in place; the actual floor-
 storylet selection lands in Phase B once content is authored.
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+```
+
+---
+
+## Task 15a: Create `OrdersNewsFeedThrottle` (wall-clock pre-filter for non-modal emissions)
+
+**Files:**
+- Create: `src/Features/Activities/Orders/OrdersNewsFeedThrottle.cs`
+- Modify: `Enlisted.csproj`
+
+Per Spec 2 §5 + §17 R10. Native investigation confirmed Bannerlord has no global throttle and no fast-forward suppression; Spec 0's `StoryDirector` paces Modal events but non-modal NewsFeed entries pass through unthrottled. This is Spec 2's wall-clock pre-filter for its own non-modal emissions only.
+
+- [ ] **Step 1: Create the file**
+
+```csharp
+using System;
+using TaleWorlds.CampaignSystem;
+
+namespace Enlisted.Features.Activities.Orders
+{
+    /// <summary>
+    /// Single-category wall-clock floor on Spec 2's non-modal StoryDirector
+    /// emissions (ambient profile storylets + daily drift summaries). Modal
+    /// emissions bypass — StoryDirector already paces them per AGENTS.md
+    /// Critical Rule #10 (5-day in-game + 60s wall-clock + per-category).
+    ///
+    /// Drop on overflow; no queueing. At Campaign.SpeedUpMultiplier > 4f
+    /// the player has explicitly chosen ludicrous-speed (mod-enabled): we
+    /// suppress non-modals entirely so they only see Modal interrupts.
+    /// </summary>
+    internal static class OrdersNewsFeedThrottle
+    {
+        private static readonly TimeSpan FLOOR = TimeSpan.FromSeconds(20);
+        private static DateTime _lastEmit = DateTime.MinValue;
+
+        public static bool TryClaim()
+        {
+            try
+            {
+                var speed = Campaign.Current?.SpeedUpMultiplier ?? 1f;
+                if (speed > 4f) { return false; }
+
+                var now = DateTime.UtcNow;
+                if (now - _lastEmit < FLOOR) { return false; }
+                _lastEmit = now;
+                return true;
+            }
+            catch { return false; }
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Normalize CRLF + register**
+
+```bash
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/Activities/Orders/OrdersNewsFeedThrottle.cs
+```
+
+```xml
+<Compile Include="src\Features\Activities\Orders\OrdersNewsFeedThrottle.cs" />
+```
+
+- [ ] **Step 3: Build + commit**
+
+```bash
+dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
+git add src/Features/Activities/Orders/OrdersNewsFeedThrottle.cs Enlisted.csproj
+git commit -F /c/Users/coola/commit_msg.txt
+```
+
+Commit message:
+```
+feat(orders): create OrdersNewsFeedThrottle wall-clock pre-filter
+
+Spec 2 §5 + §17 R10. 20-second wall-clock floor on Spec 2's non-
+modal StoryDirector emissions; suppression above 4x speed. Drop
+on overflow, no queueing. Modal emissions bypass entirely
+(StoryDirector already paces them per AGENTS.md Critical Rule
+#10).
+
+Native investigation confirmed Bannerlord has no global throttle
+and no fast-forward suppression; this is Spec 2's narrow gap-fill
+for the non-modal NewsFeed pathway. Sole consumers: DutyProfile-
+Behavior (Task 12) and DailyDriftApplicator (Task 15 / 43).
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ```
@@ -4106,76 +4307,45 @@ dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
 
 Expected: 0 errors, all Spec 2 validators (Phase 13–17) pass.
 
-- [ ] **Step 2: Enable `DailyDriftApplicator` with floor-storylet selection**
+- [ ] **Step 2: Wire ambient profile-storylet emission through `OrdersNewsFeedThrottle`**
 
-Edit `src/Features/Activities/Orders/DailyDriftApplicator.cs` (created in Task 15). Replace the Phase A no-op body with profile-aware floor-storylet firing:
+In `src/Features/Activities/Orders/DutyProfileBehavior.cs` (created Task 12), the hourly tick may opportunistically emit one ambient profile storylet from the current profile pool to the news feed. **Per Spec 2 §17 R10**, this emission must check `OrdersNewsFeedThrottle.TryClaim()` first. Find the ambient-emit site (likely a small helper at the bottom of `OnHourlyTick` or in `NamedOrderArcRuntime` for the base `on_duty` phase ticking — wherever a profile-pool storylet is selected to fire as NewsFeed) and wrap:
 
 ```csharp
-private void OnDailyTick()
+if (!OrdersNewsFeedThrottle.TryClaim())
 {
-    try
-    {
-        if (EnlistmentBehavior.Instance?.IsEnlisted != true) { return; }
-        var activity = OrderActivity.Instance;
-        if (activity == null) { return; }
-
-        // Pick a floor storylet matching the current profile.
-        var profile = activity.CurrentDutyProfile;
-        var combatClass = activity.CachedCombatClass;
-        var poolPrefix = $"floor_{profile}_";
-
-        var candidates = StoryletCatalog.Instance?.All()
-            .Where(s => s.Id.StartsWith(poolPrefix, StringComparison.OrdinalIgnoreCase))
-            .ToList() ?? new List<Storylet>();
-
-        if (candidates.Count == 0)
-        {
-            ModLogger.Expected("DRIFT", "no_floor_for_profile", $"floor_{profile}_* pool empty; daily drift skipped");
-            return;
-        }
-
-        var pick = candidates[MBRandom.RandomInt(candidates.Count)];
-
-        // Fire as a non-modal news-feed entry via StoryDirector with
-        // ChainContinuation + tier=NewsFeed (Spec 0).
-        StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-        {
-            SourceId = $"orders.drift.{profile}",
-            CategoryId = "orders.drift",
-            ProposedTier = StoryTier.NewsFeed,
-            Beats = { /* none */ },
-            Relevance = new RelevanceKey { TouchesEnlistedLord = false },
-            EmittedAt = CampaignTime.Now,
-            StoryKey = pick.Id
-        });
-    }
-    catch (Exception ex) { ModLogger.Caught("DRIFT", "OnDailyTick threw", ex); }
+    ModLogger.Expected("DRIFT", "ambient_throttled", $"ambient {pickedStoryletId} dropped by wall-clock throttle");
+    return;
 }
+StoryDirector.Instance?.EmitCandidate(new StoryCandidate { /* ... */ });
 ```
 
-(Until floor storylets are authored in Phase D Task 53, this will log `no_floor_for_profile` daily — that's expected. Phase D Task 53 authors the content.)
+(Modal emissions — `profile_changed` beats, named-order accepts, transitions, crossroads, lord-state — bypass entirely; StoryDirector paces them.)
 
-- [ ] **Step 3: Build + commit the Drift wiring**
+- [ ] **Step 3: Build + commit the throttle wiring**
 
 ```bash
 dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
-git add src/Features/Activities/Orders/DailyDriftApplicator.cs
+git add src/Features/Activities/Orders/DutyProfileBehavior.cs
 git commit -F /c/Users/coola/commit_msg.txt
 ```
 
 Commit message:
 ```
-feat(orders): enable DailyDriftApplicator profile-aware selection
+feat(orders): gate ambient news-feed emissions on OrdersNewsFeedThrottle
 
-Spec 2 §5. Phase B end-of-phase wiring. Picks one storylet per
-day from floor_<profile>_* and emits at NewsFeed tier via
-StoryDirector. Floor storylet content lands in Phase D Task 53;
-until then the applicator logs no_floor_for_profile.
+Spec 2 §17 R10. Drops ambient profile-storylet entries that
+arrive faster than the 20s wall-clock floor or while speed > 4x.
+Modal beats (profile_changed, named-order accept, transitions)
+bypass — StoryDirector already paces them.
+
+Daily drift summaries (Task 15's flush path) already throttled
+since Task 15 itself.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ```
 
-- [ ] **Step 4: Launch + smoke — full Phase B verification**
+- [ ] **Step 4: Launch + smoke — full Phase B verification + fast-forward soak**
 
 Close BannerlordLauncher, launch the game, start a fresh campaign. Enlist with a lord. Run the campaign for 14+ in-game days at fast speed. Watch the session log + news feed.
 
@@ -4187,6 +4357,7 @@ Verify:
 - **Transition storylet** fires on a profile change mid-arc (e.g. accept Guard Post in `garrisoned`, then have the lord march out — `transition_garrisoned_to_marching_mid_guard_post` should fire as a Modal)
 - **All 18 skills receive XP** over the 14 days — open the character sheet and confirm skill XP gains across at least 12 of the 18 skills
 - **Save/load mid-arc** — accept a named order, advance to mid-phase, save, exit to main menu, reload. Verify the named order is still active (`OrderDisplayHelper.GetCurrent() != null`) and the mid-arc phase resumes ticking
+- **Fast-forward soak (Spec 2 §17 R10).** Set time to 4× and run for 30 real seconds. Verify the news feed receives **≤ 5 entries** total (not 20+); verify daily-drift summaries fire on the throttled cadence ("Past few days: ..."), not as 5 individual per-day entries; verify Modal interrupts (named-order accept, profile_changed if it fires) still fire correctly. Then crank to 16× (if any speed-mod is installed) and run 30 real seconds — verify zero ambient + zero drift entries (suppression active) but Modal interrupts still surface.
 
 If any of these fail, fix in a follow-up task before declaring Phase B complete.
 
@@ -4918,6 +5089,8 @@ Run all seven scenarios end-to-end. Mark each scenario PASS / FAIL with a one-li
 - [ ] **Scenario F — Lord killed.** Force-kill the lord (debug or natural). Verify: `lord_killed_farewell` Modal fires; `StopEnlist("lord_killed", honorable: true)` runs; `prior_service_*` flags emitted; OrderActivity torn down.
 
 - [ ] **Scenario G — Cross-enlistment continuity.** Discharge from a Vlandian lord at T5 with `committed_path = ranger`. Re-enlist with a Khuzait lord at T1. Verify: previous `prior_service_culture_vlandia`, `prior_service_rank_5`, `prior_service_path_ranger` flags persist on player hero. Veteran-flavored storylets (if authored in Task 55-56) fire under the new lord.
+
+- [ ] **Scenario H — Long-run fast-forward soak (Spec 2 §17 R10).** Enlist; set time to 4× and let the game run **untouched for 5 real minutes** (≈ 50 in-game days at 4×). PASS criteria: (a) news feed received roughly 12-18 entries over the 5 minutes — *not* hundreds; (b) drift summaries dominate the news feed (the "Past few days: ..." pattern), individual ambient entries are sparse; (c) any Modal interrupts that occurred (named-order accepts, profile transitions, crossroads if a tier-up landed) all surfaced correctly and were readable; (d) skill XP accumulated correctly across the 50 in-game days (open character sheet, verify per-skill totals match what the drift summaries reported); (e) no crashes; (f) no log spam. Then crank speed to 16× (if a speed mod is installed) and run another 5 minutes — verify ambient + drift go silent (only Modals surface), skill XP still accumulates correctly via the silent-apply path. **This is the canonical "shouldn't be annoying" verification**: if Scenario H passes, the wall-clock pacing layer is doing its job.
 
 - [ ] **Step 2: Document results**
 
