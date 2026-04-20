@@ -1,7 +1,7 @@
 # Storylet Backbone — Design Spec
 
 **Date:** 2026-04-19
-**Status:** Draft — awaiting designer review.
+**Status:** Implementation complete (2026-04-19). All 25 C# files landed, quality_defs.json + scripted_effects.json seeded, validate_content.py Phase 12 live, `dotnet build` + validator green end-to-end. Surface specs 1–5 may now author content against this substrate. Implementation plan at [docs/superpowers/plans/2026-04-19-storylet-backbone.md](../plans/2026-04-19-storylet-backbone.md); commit trail `a5c3344` → `45b38bf` on `development`.
 **Scope:** Establish the **content layer** beneath `StoryDirector`: storylets, qualities, flags, activities, scopes, chains, scripted effects. Ground the mod's narrative vocabulary in established industry patterns (Failbetter QBN, CK3 events + activities, Banner Kings code-first hybrid, Viking Conquest Freelancer context segregation, Disco Elysium skill voices, Wildermyth slot-filling). **No migration.** Every surface refactor that follows (Enlisted Home, Orders, Land/Sea, Promotion+Muster, Quartermaster) deletes its legacy JSON/C# and ships clean against this spec.
 
 This is **Spec 0** in a 6-spec cycle:
