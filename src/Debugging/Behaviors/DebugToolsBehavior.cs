@@ -252,6 +252,82 @@ namespace Enlisted.Debugging.Behaviors
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
             SessionDiagnostics.LogEvent("Debug", "DebugPrintQueue", $"count={count}, ids=[{idList}]");
         }
+
+        /// <summary>
+        /// Smoke-tests QualityStore: reads scrutiny, adds +5, reads again, reads rank_xp and
+        /// lord_relation (read-through), then reverts the +5. Logs the round-trip result.
+        /// </summary>
+        public static void SmokeTestQualities()
+        {
+            var store = Enlisted.Features.Qualities.QualityStore.Instance;
+            if (store == null)
+            {
+                SessionDiagnostics.LogEvent("Debug", "SmokeTestQualities", "FAIL: QualityStore.Instance null");
+                return;
+            }
+
+            var before = store.Get("scrutiny");
+            store.Add("scrutiny", 5, "smoke-test");
+            var after = store.Get("scrutiny");
+            var rankXp = store.Get("rank_xp");
+            var lordRel = store.Get("lord_relation");
+            SessionDiagnostics.LogEvent("Debug", "SmokeTestQualities",
+                $"scrutiny {before}->{after} (+5), rank_xp={rankXp} (read-through), lord_relation={lordRel}");
+            store.Add("scrutiny", -5, "smoke-test-revert");
+        }
+
+        /// <summary>
+        /// Smoke-tests FlagStore: sets a flag with a 1-day expiry, checks Has, clears, logs PASS/FAIL.
+        /// </summary>
+        public static void SmokeTestFlags()
+        {
+            var store = Enlisted.Features.Flags.FlagStore.Instance;
+            if (store == null)
+            {
+                SessionDiagnostics.LogEvent("Debug", "SmokeTestFlags", "FAIL: FlagStore.Instance null");
+                return;
+            }
+
+            store.Set("smoke_test_flag", TaleWorlds.CampaignSystem.CampaignTime.DaysFromNow(1));
+            var hasIt = store.Has("smoke_test_flag");
+            store.Clear("smoke_test_flag");
+            SessionDiagnostics.LogEvent("Debug", "SmokeTestFlags",
+                hasIt ? "PASS: set+has+clear round-trip" : "FAIL: set immediately missing");
+        }
+
+        /// <summary>
+        /// Smoke-tests ScriptedEffectRegistry: counts all registered IDs and logs the total.
+        /// Expected: 23 effects from the seed catalog.
+        /// </summary>
+        public static void SmokeTestScriptedEffects()
+        {
+            var ids = Enlisted.Features.Content.ScriptedEffectRegistry.AllIds;
+            var count = 0;
+            foreach (var _ in ids)
+            {
+                count++;
+            }
+
+            SessionDiagnostics.LogEvent("Debug", "SmokeTestScriptedEffects",
+                $"registry loaded {count} scripted effects (expected 23 from seed catalog)");
+        }
+
+        /// <summary>
+        /// Smoke-tests TriggerRegistry: evaluates context:land (true) and context:sea (false)
+        /// against a StoryletContext with CurrentContext="land". Logs PASS/FAIL.
+        /// </summary>
+        public static void SmokeTestTriggers()
+        {
+            var ctx = new Enlisted.Features.Content.StoryletContext { CurrentContext = "land" };
+            var trueTriggers = new System.Collections.Generic.List<string> { "context:land" };
+            var falseTriggers = new System.Collections.Generic.List<string> { "context:sea" };
+            var okTrue = Enlisted.Features.Content.TriggerRegistry.Evaluate(trueTriggers, ctx);
+            var okFalse = !Enlisted.Features.Content.TriggerRegistry.Evaluate(falseTriggers, ctx);
+            SessionDiagnostics.LogEvent("Debug", "SmokeTestTriggers",
+                okTrue && okFalse
+                    ? "PASS: context:land true, context:sea false while on land"
+                    : $"FAIL: trueOK={okTrue} falseOK={okFalse}");
+        }
     }
 }
 
