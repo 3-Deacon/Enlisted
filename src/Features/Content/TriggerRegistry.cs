@@ -29,6 +29,10 @@ namespace Enlisted.Features.Content
             _predicates[name] = predicate;
         }
 
+        /// <summary>Returns all registered predicate names. Read-only snapshot of the
+        /// keys collection — exposed for diagnostics (e.g. debug dump hotkey).</summary>
+        public static IEnumerable<string> AllRegisteredNames() => _predicates.Keys;
+
         public static bool Evaluate(IList<string> triggers, StoryletContext ctx)
         {
             if (triggers == null || triggers.Count == 0) return true;
@@ -61,7 +65,8 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("TRIGGER", "Trigger threw: " + name, ex);
+                ModLogger.Caught("TRIGGER", "Trigger predicate threw",
+                    ex, new Dictionary<string, object> { { "name", name } });
                 return false;
             }
         }

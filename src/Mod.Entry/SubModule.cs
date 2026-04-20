@@ -320,6 +320,10 @@ namespace Enlisted.Mod.Entry
                     // user-friendly "Saving..." / "Save finished" and "Loading..." / "Load finished" lines.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.Begin));
 
+                    // Debug hotkeys: polls Ctrl+Shift+H/E/B/T on TickEvent and dispatches to
+                    // DebugToolsBehavior smoke helpers for the Home surface. No persisted state.
+                    campaignStarter.AddBehavior(new Enlisted.Debugging.Behaviors.DebugHotkeysBehavior());
+
                     // Flag store: global + hero-scoped named booleans with optional expiry; used by storylet
                     // prereq checks and arc progress markers. Registers before all feature behaviors so flags
                     // are available during their OnSessionLaunched / OnGameLoaded handlers.

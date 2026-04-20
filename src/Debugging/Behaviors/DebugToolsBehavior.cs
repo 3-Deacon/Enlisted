@@ -328,6 +328,118 @@ namespace Enlisted.Debugging.Behaviors
                     ? "PASS: context:land true, context:sea false while on land"
                     : $"FAIL: trueOK={okTrue} falseOK={okFalse}");
         }
+
+        // ---------- Spec 1 smoke helpers — Home surface ----------
+
+        /// <summary>
+        /// Force-starts a HomeActivity bypassing the natural settlement-entry trigger.
+        /// No-op if one is already active. Intent defaults to "brood" for a deterministic phase pool.
+        /// </summary>
+        public static void ForceStartHomeActivity()
+        {
+            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
+            if (runtime == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    "[DEBUG] ActivityRuntime not available."));
+                return;
+            }
+            if (runtime.FindActive<Enlisted.Features.Activities.Home.HomeActivity>() != null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    "[DEBUG] HomeActivity already active."));
+                return;
+            }
+            var ctx = Enlisted.Features.Activities.ActivityContext.FromCurrent();
+            var activity = new Enlisted.Features.Activities.Home.HomeActivity { Intent = "brood" };
+            runtime.Start(activity, ctx);
+            InformationManager.DisplayMessage(new InformationMessage(
+                "[DEBUG] HomeActivity force-started."));
+            SessionDiagnostics.LogEvent("Debug", "ForceStartHomeActivity", "intent=brood");
+        }
+
+        /// <summary>
+        /// Fast-forwards the active HomeActivity to the "evening" phase by resolving any
+        /// PlayerChoice phases that sit before it. Auto phases advance on time in ActivityRuntime,
+        /// so they can't be force-resolved — this only helps past PlayerChoice gates.
+        /// </summary>
+        public static void AdvanceHomeToEvening()
+        {
+            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
+            var home = runtime?.FindActive<Enlisted.Features.Activities.Home.HomeActivity>();
+            if (home == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    "[DEBUG] No HomeActivity active — press Ctrl+Shift+H first."));
+                return;
+            }
+            var safety = 0;
+            while (home.CurrentPhase != null
+                   && home.CurrentPhase.Id != "evening"
+                   && safety++ < 16)
+            {
+                runtime.ResolvePlayerChoice(home);
+            }
+            var phaseId = home.CurrentPhase?.Id ?? "(ended)";
+            InformationManager.DisplayMessage(new InformationMessage(
+                $"[DEBUG] Home phase now: {phaseId}"));
+            SessionDiagnostics.LogEvent("Debug", "AdvanceHomeToEvening", $"phase={phaseId}");
+        }
+
+        /// <summary>
+        /// Emits the "departure_imminent" beat on the active HomeActivity, which skips the
+        /// activity forward to the break_camp phase without waiting for a real settlement-leave event.
+        /// </summary>
+        public static void AdvanceHomeToBreakCamp()
+        {
+            var runtime = Enlisted.Features.Activities.ActivityRuntime.Instance;
+            var home = runtime?.FindActive<Enlisted.Features.Activities.Home.HomeActivity>();
+            if (home == null)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    "[DEBUG] No HomeActivity active — press Ctrl+Shift+H first."));
+                return;
+            }
+            home.OnBeat("departure_imminent",
+                Enlisted.Features.Activities.ActivityContext.FromCurrent());
+            var phaseId = home.CurrentPhase?.Id ?? "(ended)";
+            InformationManager.DisplayMessage(new InformationMessage(
+                $"[DEBUG] Home advanced to Break Camp (phase={phaseId})."));
+            SessionDiagnostics.LogEvent("Debug", "AdvanceHomeToBreakCamp", $"phase={phaseId}");
+        }
+
+        /// <summary>
+        /// Dumps a name->bool table of Home-surface-relevant triggers evaluated against a
+        /// synthetic StoryletContext(ActivityTypeId="home_activity", CurrentContext="settlement")
+        /// to the session log via ModLogger.Expected. Useful for diagnosing why a storylet
+        /// refuses to fire.
+        /// </summary>
+        public static void DumpTriggerEvalTable()
+        {
+            var ctx = new Enlisted.Features.Content.StoryletContext
+            {
+                ActivityTypeId = "home_activity",
+                CurrentContext = "settlement"
+            };
+            var log = new System.Text.StringBuilder();
+            log.AppendLine("[DEBUG] HomeTriggers eval dump:");
+            foreach (var name in Enlisted.Features.Content.TriggerRegistry.AllRegisteredNames())
+            {
+                if (!name.StartsWith("home_") && !name.StartsWith("lord_") && !name.StartsWith("party_")
+                    && !name.StartsWith("settlement_") && !name.StartsWith("kingdom_")
+                    && !name.StartsWith("is_") && !name.StartsWith("at_")
+                    && !name.StartsWith("days_enlisted") && !name.StartsWith("rank_")
+                    && !name.StartsWith("enlisted_"))
+                {
+                    continue;
+                }
+                var val = Enlisted.Features.Content.TriggerRegistry.EvaluateOne(name, ctx);
+                log.Append("  ").Append(name).Append(" = ").AppendLine(val.ToString());
+            }
+            ModLogger.Expected("HOME-DEBUG", "trigger_dump", log.ToString());
+            InformationManager.DisplayMessage(new InformationMessage(
+                "[DEBUG] Trigger eval table written to session log."));
+        }
     }
 }
 

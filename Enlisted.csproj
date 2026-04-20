@@ -227,6 +227,7 @@
     
     <!-- Debugging Tools -->
     <Compile Include="src\Debugging\Behaviors\DebugToolsBehavior.cs"/>
+    <Compile Include="src\Debugging\Behaviors\DebugHotkeysBehavior.cs"/>
     
     <!-- ====================================================================
          CORE FEATURES - Enlistment & Identity
