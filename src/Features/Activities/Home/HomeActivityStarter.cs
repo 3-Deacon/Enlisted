@@ -6,7 +6,6 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.Library;
 
 namespace Enlisted.Features.Activities.Home
 {
@@ -121,8 +120,9 @@ namespace Enlisted.Features.Activities.Home
 
         /// <summary>
         /// Selects an initial intent for the HomeActivity using weighted random selection.
-        /// Weights are adjusted by the lord's traits, service type, and current circumstances.
-        /// Falls back to "unwind" if all weights sum to zero.
+        /// Weights are adjusted by the lord's wounds, party morale, traits, service type, and
+        /// home-settlement arrival. Falls back to "unwind" if all weights sum to zero. The
+        /// evening-phase player choice can override this later via HomeActivity.OnPlayerChoice.
         /// </summary>
         private static string PickInitialIntent(Hero lord, Settlement settlement)
         {
@@ -132,29 +132,37 @@ namespace Enlisted.Features.Activities.Home
             float communeWeight = 0f;
             float schemeWeight = 0f;
 
-            // Brood: lord is wounded or player hero is at low HP.
-            if (lord.IsWounded || (Hero.MainHero != null && Hero.MainHero.IsWounded))
+            // Brood: lord is wounded.
+            if (lord.IsWounded)
             {
-                broodWeight += 1.0f;
+                broodWeight += 3.0f;
+            }
+
+            // Low party morale pulls toward brood and unwind in equal measure.
+            var party = lord.PartyBelongedTo;
+            if (party != null && party.Morale < 40f)
+            {
+                broodWeight += 2.0f;
+                unwindWeight += 2.0f;
             }
 
             // Train hard: lord has the Valor trait.
             if (lord.GetTraitLevel(DefaultTraits.Valor) >= 1)
             {
-                trainHardWeight += 1.0f;
+                trainHardWeight += 2.0f;
             }
 
             // Scheme: lord is a mercenary and has the Calculating trait.
             if (lord.Clan?.IsUnderMercenaryService == true
                 && lord.GetTraitLevel(DefaultTraits.Calculating) >= 1)
             {
-                schemeWeight += 1.0f;
+                schemeWeight += 2.0f;
             }
 
             // Commune: arriving at the lord's home settlement while they have a spouse.
             if (lord.HomeSettlement == settlement && lord.Spouse != null)
             {
-                communeWeight += 1.0f;
+                communeWeight += 3.0f;
             }
 
             var total = unwindWeight + trainHardWeight + broodWeight + communeWeight + schemeWeight;
