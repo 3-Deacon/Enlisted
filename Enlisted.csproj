@@ -416,6 +416,7 @@
     <Compile Include="src\Features\Qualities\QualityValue.cs"/>
     <Compile Include="src\Features\Qualities\QualityDefinition.cs"/>
     <Compile Include="src\Features\Qualities\QualityStore.cs" />
+    <Compile Include="src\Features\Qualities\QualityCatalog.cs" />
 
     <!-- ====================================================================
          CONTENT DELIVERY SYSTEM (Events, Decisions, Orchestration)

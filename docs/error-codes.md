@@ -174,6 +174,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-PAY-56f4 | Error resolving smuggle discharge | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:5499 |
 
+## QUALITY
+
+| Code | Summary | Source |
+|---|---|---|
+| E-QUALITY-6370 | Failed to load quality definition file | src/Features/Qualities/QualityCatalog.cs:46 |
+
 ## QUARTERMASTER
 
 | Code | Summary | Source |
