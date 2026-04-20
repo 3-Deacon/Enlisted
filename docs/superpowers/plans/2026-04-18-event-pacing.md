@@ -1,5 +1,7 @@
 # Event Pacing Redesign — Implementation Plan (v2)
 
+> **RETIRED (2026-04-18).** This plan is a frozen-in-time execution record. `StoryDirector.EmitCandidate(...)` with in-game + wall-clock + per-category pacing shipped 2026-04-18 (Phase 3 complete). For the current call pattern and usage rules, see AGENTS.md Critical Rule #10. For design rationale, see the (also frozen) spec at [`../specs/2026-04-18-event-pacing-design.md`](../specs/2026-04-18-event-pacing-design.md). A companion verification plan lives at [`2026-04-18-event-pacing-verification.md`](2026-04-18-event-pacing-verification.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 ---

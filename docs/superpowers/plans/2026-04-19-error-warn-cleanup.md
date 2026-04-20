@@ -1,5 +1,7 @@
 # Error / Warn Cleanup Implementation Plan
 
+> **RETIRED (2026-04-19).** This plan is a frozen-in-time execution record. The `ModLogger.Error(...)` public API was retired 2026-04-19; `validate_content.py` Phase 11 now enforces its absence in `src/`. For the current logging API, see AGENTS.md "Code Standards" + CLAUDE.md. For design rationale, see the (also frozen) spec at [`../specs/2026-04-19-error-warn-cleanup-design.md`](../specs/2026-04-19-error-warn-cleanup-design.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Drop `ModLogger.Error(...)` from the public API by reclassifying all 363 call sites into `Surfaced` / `Caught` / `Expected`, retain `ModLogger.Warn(...)` as the legitimate log-only primitive, and add a permanent `validate_content.py` Phase 11 gate that prevents `Error` from being reintroduced.

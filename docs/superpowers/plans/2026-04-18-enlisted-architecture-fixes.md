@@ -1,5 +1,7 @@
 # Enlisted Architecture Fixes Implementation Plan
 
+> **RETIRED (2026-04-18).** This plan is a frozen-in-time execution record. For design rationale, see the (also frozen) spec at [`../specs/2026-04-18-enlisted-architecture-fixes-design.md`](../specs/2026-04-18-enlisted-architecture-fixes-design.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement the four Tier A + B architectural fixes from the 2026-04-18 design spec: `EnlistedTimeScope` for the three synchronous Gauntlet overlays, `QuartermasterPartyResolver` for scene-correctness, `docs/error-codes.md` registry, and the `Occupation.Soldier` pitfall documentation.
