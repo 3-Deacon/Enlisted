@@ -479,6 +479,7 @@
     <Compile Include="src\Features\Content\TraitMilestoneTracker.cs"/>
     <Compile Include="src\Features\Content\EffectExecutor.cs"/>
     <Compile Include="src\Features\Content\ScriptedEffectRegistry.cs"/>
+    <Compile Include="src\Features\Content\TriggerRegistry.cs"/>
 
     <!-- ====================================================================
          ORDERS SYSTEM (Chain of Command)
