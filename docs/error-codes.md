@@ -111,6 +111,13 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-FORMATIONASSIGNMENT-3e61 | Error during lord attach | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:688 |
 | E-FORMATIONASSIGNMENT-aac4 | Error teleporting player to formation | src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:887 |
 
+## HOME-START
+
+| Code | Summary | Source |
+|---|---|---|
+| E-HOME-START-348a | Failed to start HomeActivity | src/Features/Activities/Home/HomeActivityStarter.cs:56 |
+| E-HOME-START-5528 | Failed to emit departure_imminent beat | src/Features/Activities/Home/HomeActivityStarter.cs:86 |
+
 ## INTERFACE
 
 | Code | Summary | Source |
