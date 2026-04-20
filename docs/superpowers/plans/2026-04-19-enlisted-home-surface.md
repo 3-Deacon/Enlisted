@@ -107,23 +107,13 @@ public sealed class Phase
 }
 ```
 
-- [ ] **Step 2: Confirm JSON loader picks it up**
+- [ ] **Step 2: Confirm JSON loader picks it up (likely a no-op)**
 
-Grep for Phase JSON parsing:
+Grep `src/Features/Activities/ActivityTypeDefinition.cs` for `duration_hours` or `JObject`-based phase parsing.
 
-```bash
-export PATH="/c/Program Files/Git/cmd:$PATH"
-# Grep tool preferred; this is a reminder of the symbol
-```
+**If phase JSON parsing exists there** (unlikely — checked during plan-writing and it was a plain POCO): add `FireIntervalHours = (int?)phaseObj["fire_interval_hours"] ?? 0,` inside the existing phase parse loop.
 
-Open `src/Features/Activities/ActivityTypeDefinition.cs` (existing). Locate the phase parsing block (should read `duration_hours`). Add `fire_interval_hours`:
-
-```csharp
-// Inside the phase parse loop, after reading duration_hours:
-FireIntervalHours = (int?)phaseObj["fire_interval_hours"] ?? 0,
-```
-
-If `ActivityTypeDefinition.cs` uses hard-coded `new Phase { ... }` init lists for an internal default type, leave those untouched; they'll pick up the default `0`.
+**If phase JSON parsing does NOT exist there** (expected case): leave the file untouched. The `fire_interval_hours` → `Phase.FireIntervalHours` wire-up lives in Task 3's new `ActivityTypeCatalog` JSON loader (Task 3 Step 1 already includes that line). No action required here.
 
 - [ ] **Step 3: Build — must pass**
 
@@ -544,6 +534,40 @@ public T FindActive<T>() where T : Activity =>
 - [ ] **Step 2: Gate `TryFireAutoPhaseStorylet` to `Auto` only**
 
 Already gated — the method checks `phase.Delivery != PhaseDelivery.Auto` and returns (Activity.cs inspection confirmed this). Leave it.
+
+- [ ] **Step 2b: Honour `FireIntervalHours` in the auto-fire path**
+
+Without this, `Phase.FireIntervalHours > 0` is silently ignored — the `settle` phase fires every tick instead of every N in-game hours.
+
+In `ActivityRuntime.cs`, track the last auto-fire hour on `Activity` (`HomeActivity.LastAutoFireHour` already declared in Task 6's `[SaveableProperty(5)]`). The auto-fire check reads it:
+
+```csharp
+private void TryFireAutoPhaseStorylet(Activity a)
+{
+    var phase = a.CurrentPhase;
+    if (phase == null || phase.Delivery != PhaseDelivery.Auto) { return; }
+    if (phase.Pool == null || phase.Pool.Count == 0) { return; }
+
+    // Interval gate: skip if we've fired within the last FireIntervalHours.
+    if (phase.FireIntervalHours > 0)
+    {
+        var currentHour = (int)CampaignTime.Now.ToHours;
+        if (a is Enlisted.Features.Activities.Home.HomeActivity home)
+        {
+            if (home.LastAutoFireHour >= 0
+                && currentHour - home.LastAutoFireHour < phase.FireIntervalHours)
+            {
+                return;
+            }
+            home.LastAutoFireHour = currentHour;
+        }
+    }
+
+    // ... existing weighted-pick body follows unchanged ...
+}
+```
+
+If Activity subclasses beyond `HomeActivity` need the same pacing (Specs 2-5), promote `LastAutoFireHour` onto `Activity` base as a `[SaveableProperty]` when they land — don't generalize prematurely in Spec 1. For now the cast-to-`HomeActivity` is acceptable.
 
 - [ ] **Step 3: Hook phase entry for PlayerChoice**
 
