@@ -76,6 +76,19 @@ namespace Enlisted.Features.Activities
             {
                 a.ResolvePhasesFromType(_types);
             }
+            // Restore _activeChoicePhase from the resolved state. _activeChoicePhase is
+            // a runtime-only cache (nullable tuple, not serialized) — without this
+            // restore, a save taken mid-PlayerChoice phase would surface a hidden
+            // menu slot-bank until the next phase transition.
+            foreach (var a in _active)
+            {
+                var phase = a.CurrentPhase;
+                if (phase != null && phase.Delivery == PhaseDelivery.PlayerChoice)
+                {
+                    _activeChoicePhase = (a, phase);
+                    break;
+                }
+            }
         }
 
         public void RegisterType(ActivityTypeDefinition def)
