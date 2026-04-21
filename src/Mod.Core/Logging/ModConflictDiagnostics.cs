@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -219,6 +220,86 @@ namespace Enlisted.Mod.Core.Logging
                     }
                 }
                 catch { catalogStatus.Add(("Orders", 0, "ERROR")); }
+
+                // Storylet Catalog (Spec 0 backbone)
+                try
+                {
+                    var storyletType = Type.GetType("Enlisted.Features.Content.StoryletCatalog, Enlisted");
+                    if (storyletType != null)
+                    {
+                        var allIdsProp = storyletType.GetProperty("AllIds", BindingFlags.Public | BindingFlags.Static);
+                        var allIds = allIdsProp?.GetValue(null) as IEnumerable;
+                        var count = allIds?.Cast<object>().Count() ?? 0;
+                        catalogStatus.Add(("Storylets", count, count > 0 ? "OK" : "EMPTY"));
+                    }
+                }
+                catch { catalogStatus.Add(("Storylets", 0, "ERROR")); }
+
+                // Trigger Registry (Spec 0 backbone)
+                try
+                {
+                    var triggerType = Type.GetType("Enlisted.Features.Content.TriggerRegistry, Enlisted");
+                    if (triggerType != null)
+                    {
+                        var namesMethod = triggerType.GetMethod("AllRegisteredNames", BindingFlags.Public | BindingFlags.Static);
+                        var names = namesMethod?.Invoke(null, null) as IEnumerable;
+                        var count = names?.Cast<object>().Count() ?? 0;
+                        catalogStatus.Add(("Triggers", count, count > 0 ? "OK" : "EMPTY"));
+                    }
+                }
+                catch { catalogStatus.Add(("Triggers", 0, "ERROR")); }
+
+                // Scripted Effect Registry (Spec 0 backbone)
+                try
+                {
+                    var effectType = Type.GetType("Enlisted.Features.Content.ScriptedEffectRegistry, Enlisted");
+                    if (effectType != null)
+                    {
+                        var allIdsProp = effectType.GetProperty("AllIds", BindingFlags.Public | BindingFlags.Static);
+                        var allIds = allIdsProp?.GetValue(null) as IEnumerable;
+                        var count = allIds?.Cast<object>().Count() ?? 0;
+                        catalogStatus.Add(("Scripted Effects", count, count > 0 ? "OK" : "EMPTY"));
+                    }
+                }
+                catch { catalogStatus.Add(("Scripted Effects", 0, "ERROR")); }
+
+                // Quality Store (runtime instance — only meaningful after QualityBehavior registers)
+                try
+                {
+                    var qualityType = Type.GetType("Enlisted.Features.Qualities.QualityStore, Enlisted");
+                    if (qualityType != null)
+                    {
+                        var instanceProp = qualityType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                        var instance = instanceProp?.GetValue(null);
+                        if (instance != null)
+                        {
+                            var globalValuesProp = qualityType.GetProperty("GlobalValues");
+                            var globalValues = globalValuesProp?.GetValue(instance) as IDictionary;
+                            var count = globalValues?.Count ?? 0;
+                            catalogStatus.Add(("Quality Values", count, count >= 0 ? "OK" : "EMPTY"));
+                        }
+                    }
+                }
+                catch { catalogStatus.Add(("Quality Values", 0, "ERROR")); }
+
+                // Flag Store (runtime instance — only meaningful after FlagBehavior registers)
+                try
+                {
+                    var flagType = Type.GetType("Enlisted.Features.Flags.FlagStore, Enlisted");
+                    if (flagType != null)
+                    {
+                        var instanceProp = flagType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
+                        var instance = instanceProp?.GetValue(null);
+                        if (instance != null)
+                        {
+                            var globalFlagsProp = flagType.GetProperty("GlobalFlags");
+                            var globalFlags = globalFlagsProp?.GetValue(instance) as IDictionary;
+                            var count = globalFlags?.Count ?? 0;
+                            catalogStatus.Add(("Global Flags", count, "OK"));
+                        }
+                    }
+                }
+                catch { catalogStatus.Add(("Global Flags", 0, "ERROR")); }
 
                 // Print catalog status
                 WriteLine("  Catalog               Items    Status");
