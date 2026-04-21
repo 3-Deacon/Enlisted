@@ -40,9 +40,9 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | Code | Summary | Source |
 |---|---|---|
 | E-CAMPLIFE-0311 | Failed to parse camp_opportunities.json — decisions won't appear in menu. Check JSON syntax. | src/Features/Camp/CampOpportunityGenerator.cs:1810 |
-| E-CAMPLIFE-2336 | No opportunity definitions found — check camp_opportunities.json exists and has valid content. Decisions won't appear in the accordion menu. | src/Features/Camp/CampOpportunityGenerator.cs:505 |
-| E-CAMPLIFE-537e | Opportunity definitions not yet loaded - loading now (this is normal on first access after load) | src/Features/Camp/CampOpportunityGenerator.cs:499 |
-| E-CAMPLIFE-7476 | No candidates passed filtering — check tier/context requirements in camp_opportunities.json match current state. | src/Features/Camp/CampOpportunityGenerator.cs:560 |
+| E-CAMPLIFE-2336 | No opportunity definitions found — check camp_opportunities.json exists and has valid content. Decisions won't appear in the accordion menu. | src/Features/Camp/CampOpportunityGenerator.cs:506 |
+| E-CAMPLIFE-537e | Opportunity definitions not yet loaded - loading now (this is normal on first access after load) | src/Features/Camp/CampOpportunityGenerator.cs:500 |
+| E-CAMPLIFE-7476 | No candidates passed filtering — check tier/context requirements in camp_opportunities.json match current state. | src/Features/Camp/CampOpportunityGenerator.cs:561 |
 | E-CAMPLIFE-7b2d | No opportunities array found in camp_opportunities.json — file may be corrupt or invalid. Decisions won't appear in menu. | src/Features/Camp/CampOpportunityGenerator.cs:1788 |
 | E-CAMPLIFE-803c | camp_opportunities.json not found — decisions won't appear in menu. Verify mod installation is complete. | src/Features/Camp/CampOpportunityGenerator.cs:1775 |
 

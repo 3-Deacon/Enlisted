@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Conditions;
 using Enlisted.Features.Content;
@@ -1586,10 +1587,9 @@ namespace Enlisted.Features.Camp
                 bool orderImpacted = MBRandom.RandomFloat < consequences.OrderFailureRisk;
                 if (orderImpacted && escalation != null)
                 {
-                    var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-                    if (currentOrder != null)
+                    if (OrderDisplayHelper.IsOrderActive())
                     {
-                        ModLogger.Info(LogCategory, $"Order {currentOrder.Id} impacted by absence - extra scrutiny penalty");
+                        ModLogger.Info(LogCategory, "Active order impacted by absence - extra scrutiny penalty");
                         // Add extra scrutiny as consequence for potentially failing the order
                         escalation.ModifyScrutiny(10, "Order compromised by absence"); // Scale to 0-100
                     }
