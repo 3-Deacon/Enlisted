@@ -8,6 +8,7 @@
 
 # Use the default high-reasoning coding profile for this project.
 model = "gpt-5.4"
+model_context_window = 1050000
 model_reasoning_effort = "high"
 model_verbosity = "medium"
 
