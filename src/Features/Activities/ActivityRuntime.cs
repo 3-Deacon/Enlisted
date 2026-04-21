@@ -122,6 +122,28 @@ namespace Enlisted.Features.Activities
             ConsumeParkedChains(activity);
         }
 
+        /// <summary>Ends an active activity with the given reason, calling its Finish and removing it from the runtime.</summary>
+        public void Stop(Activity activity, ActivityEndReason reason)
+        {
+            if (activity == null)
+            {
+                return;
+            }
+            try
+            {
+                activity.Finish(reason);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ACTIVITY", "Activity.Finish threw during Stop", ex);
+            }
+            if (_activeChoicePhase?.activity == activity)
+            {
+                _activeChoicePhase = null;
+            }
+            _ = _active.Remove(activity);
+        }
+
         public void ParkChain(string activityTypeId, string phaseId, string storyletId)
         {
             if (string.IsNullOrEmpty(activityTypeId) || string.IsNullOrEmpty(phaseId) || string.IsNullOrEmpty(storyletId))

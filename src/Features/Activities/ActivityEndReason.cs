@@ -6,6 +6,7 @@ namespace Enlisted.Features.Activities
         Completed,
         PlayerCancelled,
         Interrupted,
-        InvalidStateAfterLoad
+        InvalidStateAfterLoad,
+        Discharged
     }
 }

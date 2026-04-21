@@ -143,6 +143,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-INTERFACE-f0bd | Failed to toggle decisions accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4961 |
 | E-INTERFACE-f8a1 | Failed to select decision slot | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5375 |
 
+## LORDSTATE
+
+| Code | Summary | Source |
+|---|---|---|
+| E-LORDSTATE-ba7c | lord killed; service ended | src/Features/Activities/Orders/LordStateListener.cs:82 |
+
 ## MUSTER
 
 | Code | Summary | Source |
