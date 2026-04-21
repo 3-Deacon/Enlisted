@@ -259,6 +259,7 @@
     <!-- Interface Utilities -->
     <Compile Include="src\Features\Interface\Utils\EncyclopediaLinkFormatter.cs"/>
     <Compile Include="src\Features\Interface\Utils\FactionLinkColorizer.cs"/>
+    <Compile Include="src\Features\Interface\Utils\CombatLogUiStateStore.cs"/>
     
     <!-- Daily Report & Camp News -->
     <Compile Include="src\Features\Interface\News\Models\DailyReportModels.cs"/>
