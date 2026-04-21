@@ -58,17 +58,21 @@ namespace Enlisted.Features.Activities.Orders
                 {
                     var skillId = heavy[MBRandom.RandomInt(heavy.Length)];
                     var amount = MBRandom.RandomInt(5, 16);
+
+                    var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+                    if (skill == null)
+                    {
+                        ModLogger.Expected("DRIFT", "unknown_skill_id", $"ProfileHeavy references unknown SkillObject: '{skillId}'");
+                        continue;
+                    }
+
                     if (!activity.DriftPendingXp.ContainsKey(skillId))
                     {
                         activity.DriftPendingXp[skillId] = 0;
                     }
                     activity.DriftPendingXp[skillId] += amount;
 
-                    var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
-                    if (skill != null)
-                    {
-                        Hero.MainHero.HeroDeveloper.AddSkillXp(skill, amount, shouldNotify: false);
-                    }
+                    Hero.MainHero.HeroDeveloper.AddSkillXp(skill, amount, shouldNotify: false);
                 }
             }
             catch (Exception ex)
