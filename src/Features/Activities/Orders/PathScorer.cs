@@ -1,14 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Qualities;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.Core;
 
 namespace Enlisted.Features.Activities.Orders
 {
-    /// <summary>Accumulates per-path specialization scores from intent picks (+3 each) and major skill-XP gains (+1 per >=50 XP event). Maps skill StringIds and intent ids to one of five paths (ranger / enforcer / support / diplomat / rogue) and writes the score to a path_{name}_score quality capped at 100.</summary>
+    /// <summary>Accumulates per-path specialization scores from intent picks (+3 each) and skill level-ups on the main hero (+change per level, where change is the skill-level delta supplied by HeroGainedSkill). Maps skill StringIds and intent ids to one of five paths (ranger / enforcer / support / diplomat / rogue) and writes the score to a path_{name}_score quality clamped to [0, 100].</summary>
     public sealed class PathScorer : CampaignBehaviorBase
     {
         private static readonly Dictionary<string, string> SkillToPath = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -39,10 +40,10 @@ namespace Enlisted.Features.Activities.Orders
 
         public override void RegisterEvents()
         {
-            // Static events persist across Campaign teardown; guard against duplicate
+            CampaignEvents.HeroGainedSkill.AddNonSerializedListener(this, OnHeroGainedSkill);
+
+            // Static event persists across Campaign teardown; guard against duplicate
             // subscription when RegisterEvents is re-invoked on save/load cycles.
-            EnlistmentBehavior.OnXPGained -= OnXPGained;
-            EnlistmentBehavior.OnXPGained += OnXPGained;
             EnlistmentBehavior.OnTierChanged -= OnTierChanged;
             EnlistmentBehavior.OnTierChanged += OnTierChanged;
         }
@@ -62,28 +63,23 @@ namespace Enlisted.Features.Activities.Orders
             BumpPath(path, 3, "intent_pick");
         }
 
-        private static void OnXPGained(int amount, string source)
+        private void OnHeroGainedSkill(Hero hero, SkillObject skill, int change, bool shouldNotify)
         {
             try
             {
-                if (amount < 50)
+                if (hero != Hero.MainHero || skill == null || change <= 0)
                 {
                     return;
                 }
-                var skill = ExtractSkillFromSource(source);
-                if (string.IsNullOrEmpty(skill))
+                if (!SkillToPath.TryGetValue(skill.StringId, out var path))
                 {
                     return;
                 }
-                if (!SkillToPath.TryGetValue(skill, out var path))
-                {
-                    return;
-                }
-                BumpPath(path, 1, "xp_gain");
+                BumpPath(path, change, "skill_level");
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("PATH", "OnXPGained threw", ex);
+                ModLogger.Caught("PATH", "OnHeroGainedSkill threw", ex);
             }
         }
 
@@ -111,31 +107,6 @@ namespace Enlisted.Features.Activities.Orders
             {
                 ModLogger.Caught("PATH", "BumpPath threw", ex);
             }
-        }
-
-        private static string ExtractSkillFromSource(string source)
-        {
-            if (string.IsNullOrEmpty(source))
-            {
-                return null;
-            }
-            var tokens = source.Split(new[] { ':', '_', '-', ' ', '.' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var token in tokens)
-            {
-                if (SkillToPath.ContainsKey(token))
-                {
-                    return token;
-                }
-            }
-            for (int i = 0; i < tokens.Length - 1; i++)
-            {
-                var joined = tokens[i] + tokens[i + 1];
-                if (SkillToPath.ContainsKey(joined))
-                {
-                    return joined;
-                }
-            }
-            return null;
         }
     }
 }
