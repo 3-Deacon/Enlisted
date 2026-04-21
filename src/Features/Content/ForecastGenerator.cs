@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Conditions;
 using Enlisted.Features.Content.Models;
@@ -58,19 +59,14 @@ namespace Enlisted.Features.Content
             var hero = Hero.MainHero;
             var sb = new StringBuilder();
 
-            // Duty Status - simplified to just check if order exists
-            var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-            if (currentOrder != null)
+            // Duty Status
+            var display = OrderDisplayHelper.GetCurrent();
+            if (display != null)
             {
-                var orderDisplayTitle = Orders.OrderCatalog.GetDisplayTitle(currentOrder);
-                if (string.IsNullOrEmpty(orderDisplayTitle))
-                {
-                    orderDisplayTitle = "Orders";
-                }
-                _ = sb.Append(new TextObject("{=menu_you_on_duty}On duty - {ORDER_NAME}, day {DAY} of {TOTAL}.")
-                    .SetTextVariable("ORDER_NAME", orderDisplayTitle)
-                    .SetTextVariable("DAY", "1")
-                    .SetTextVariable("TOTAL", "3")
+                _ = sb.Append(new TextObject("{=menu_you_on_duty_hours}On duty - {ORDER_NAME}, hour {ELAPSED} of {TOTAL}.")
+                    .SetTextVariable("ORDER_NAME", display.Title)
+                    .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
+                    .SetTextVariable("TOTAL", display.HoursTotal.ToString())
                     .ToString());
             }
             else
@@ -193,8 +189,7 @@ namespace Enlisted.Features.Content
 
             // === ORDER/EVENT FORECASTS ===
             // Check for pending orders (no active order means one might be coming)
-            var orderManager = OrderManager.Instance;
-            if (orderManager != null && orderManager.GetCurrentOrder() == null)
+            if (!OrderDisplayHelper.IsOrderActive())
             {
                 // Player is off-duty, hint that orders may be coming
                 var ncoTitle = RankHelper.GetNCOTitle(cultureId);

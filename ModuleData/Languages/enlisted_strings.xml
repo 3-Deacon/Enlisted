@@ -448,6 +448,7 @@
     
     
     <string id="menu_you_on_duty" text="On duty - {ORDER_NAME}, day {DAY} of {TOTAL}." />
+    <string id="menu_you_on_duty_hours" text="On duty - {ORDER_NAME}, hour {ELAPSED} of {TOTAL}." />
     <string id="menu_you_off_duty" text="You're off duty and well-rested." />
     <string id="menu_you_wounded" text="You're wounded - movement impaired. Off duty until you recover." />
     <string id="menu_you_commitment_soon" text="The lads are expecting you shortly." />
