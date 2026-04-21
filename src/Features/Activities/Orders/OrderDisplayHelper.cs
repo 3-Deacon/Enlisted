@@ -1,11 +1,12 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using Enlisted.Features.Content;
+using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Features.Activities.Orders
 {
     /// <summary>
-    ///     Resolves display metadata for the player's active named order from
-    ///     OrderActivity.ActiveNamedOrder plus the backing storylet in StoryletCatalog.
-    ///     Consumed by menu/news/forecast/camp call sites that previously read OrderManager.
+    ///     Resolves display metadata for the player's active named order.
+    ///     Returns null when no named order is active; call sites should treat null
+    ///     as "show no-order state."
     /// </summary>
     public static class OrderDisplayHelper
     {
@@ -23,7 +24,7 @@ namespace Enlisted.Features.Activities.Orders
             var state = activity?.ActiveNamedOrder;
             if (state == null) { return null; }
 
-            var storylet = Enlisted.Features.Content.StoryletCatalog.GetById(state.OrderStoryletId);
+            var storylet = StoryletCatalog.GetById(state.OrderStoryletId);
             var title = storylet?.Title;
             if (string.IsNullOrEmpty(title)) { title = storylet?.Id ?? "Order"; }
             var totalHours = storylet?.Arc?.DurationHours ?? 0;

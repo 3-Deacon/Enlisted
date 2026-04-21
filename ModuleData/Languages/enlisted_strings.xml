@@ -2444,6 +2444,7 @@
     <string id="enlisted_orders_tooltip_imminent_detail" text="Order will be issued in {HOURS} hour(s). Advance warning for preparation." />
     <string id="enlisted_orders_tooltip_pending" text="You have a pending order from {ISSUER}." />
     <string id="enlisted_orders_tooltip_none" text="No active orders at this time." />
+    <string id="enlisted_orders_tooltip_active" text="You have an active order: {TITLE} ({ELAPSED}/{TOTAL} hours)." />
 
     
     
