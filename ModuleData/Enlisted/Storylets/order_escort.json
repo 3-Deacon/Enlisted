@@ -1,0 +1,403 @@
+{
+  "storylets": [
+    {
+      "id": "order_escort_accept",
+      "title": "{=order_escort_accept_title}An escort assignment",
+      "setup": "{=order_escort_accept_setup}A merchant in a fine coat waits at your lord's tent — his wagon needs safer passage than his own purse can afford. Your lord is willing to lend a soldier. The sergeant asks how you intend to play it.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:3"],
+      "arc": {
+        "duration_hours": 14,
+        "phases": [
+          {
+            "id": "escort_mid",
+            "duration_hours": 12,
+            "pool_prefix": "order_escort_mid_",
+            "fire_interval_hours": 3,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_accept_diligent_text}Tight formation. Eyes wide.",
+          "tooltip": "{=order_escort_accept_diligent_tt}Diligent escort. Solid XP; lord notices.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_sociable",
+          "text": "{=order_escort_accept_sociable_text}Ride alongside. Make conversation.",
+          "tooltip": "{=order_escort_accept_sociable_tt}Sociable. Charm XP; contact earned.",
+          "effects": [
+            { "apply": "start_arc", "intent": "sociable" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_escort_accept_slack_text}Plod along. Get it over with.",
+          "tooltip": "{=order_escort_accept_slack_tt}Slack escort. Scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_escort_accept_scheme_text}A fat purse rides in that wagon.",
+          "tooltip": "{=order_escort_accept_scheme_tt}Scheme escort. High risk/reward.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_accept_decline_text}Decline. Let another ride.",
+          "tooltip": "{=order_escort_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_mid_river_ford",
+      "title": "{=order_escort_mid_river_ford_title}A cold ford",
+      "setup": "{=order_escort_mid_river_ford_setup}The road drops to a river-ford. The merchant balks at the water — it is waist-deep and the wagon axle will not like it. You will have to coax both.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "sociable": 1.1,
+        "slack": 0.7,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "careful_crossing",
+          "text": "{=order_escort_mid_river_ford_careful_text}Lead the wagon through slow.",
+          "tooltip": "{=order_escort_mid_river_ford_careful_tt}Careful. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        },
+        {
+          "id": "hurry_across",
+          "text": "{=order_escort_mid_river_ford_hurry_text}Drive it. Keep the wheels turning.",
+          "tooltip": "{=order_escort_mid_river_ford_hurry_tt}Risky. Small scrutiny; faster.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_mid_bandit_scouts",
+      "title": "{=order_escort_mid_bandit_scouts_title}Eyes in the tree-line",
+      "setup": "{=order_escort_mid_bandit_scouts_setup}A flash of movement in the pines — two men on foot, or three. They do not want to be seen. They did not mean for you to see them.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "sociable": 0.8,
+        "slack": 0.6,
+        "scheme": 1.1
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "draw_weapon",
+          "text": "{=order_escort_mid_bandit_scouts_draw_text}Show steel. Make yourselves expensive.",
+          "tooltip": "{=order_escort_mid_bandit_scouts_draw_tt}Deter. Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 }
+          ]
+        },
+        {
+          "id": "hope_they_pass",
+          "text": "{=order_escort_mid_bandit_scouts_hope_text}Keep moving. Pretend you saw nothing.",
+          "tooltip": "{=order_escort_mid_bandit_scouts_hope_tt}Gamble. Scrutiny if wrong.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_mid_merchant_talk",
+      "title": "{=order_escort_mid_merchant_talk_title}The merchant's tongue",
+      "setup": "{=order_escort_mid_merchant_talk_setup}The merchant rides close and talks the miles away — grain prices, his son's schooling, a lord in the south who owes him coin. He is lonely. He is also well-connected.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 0.9,
+        "sociable": 1.5,
+        "slack": 1.1,
+        "scheme": 1.3
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "engage_him",
+          "text": "{=order_escort_mid_merchant_talk_engage_text}Listen well. Ask the right questions.",
+          "tooltip": "{=order_escort_mid_merchant_talk_engage_tt}Charm + Trade XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Trade", "amount": 15 }
+          ]
+        },
+        {
+          "id": "grunt_along",
+          "text": "{=order_escort_mid_merchant_talk_grunt_text}Grunt and watch the road.",
+          "tooltip": "{=order_escort_mid_merchant_talk_grunt_tt}Professional silence. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_mid_wagon_trouble",
+      "title": "{=order_escort_mid_wagon_trouble_title}A cracked spoke",
+      "setup": "{=order_escort_mid_wagon_trouble_setup}The wagon shudders and lists — a spoke has split. The merchant curses, the driver sweats. You can help fix it or you can stand aside.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "sociable": 1.2,
+        "slack": 0.5,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "lend_a_hand",
+          "text": "{=order_escort_mid_wagon_trouble_help_text}Dismount. Help with the spoke.",
+          "tooltip": "{=order_escort_mid_wagon_trouble_help_tt}Engineering XP + small credit.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 },
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "stand_guard",
+          "text": "{=order_escort_mid_wagon_trouble_guard_text}Stand watch. Let them work.",
+          "tooltip": "{=order_escort_mid_wagon_trouble_guard_tt}Proper. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_mid_purse_offer",
+      "title": "{=order_escort_mid_purse_offer_title}A quiet offer",
+      "setup": "{=order_escort_mid_purse_offer_setup}At the next halt the merchant draws you aside. A bonus, he says, for a man who makes sure the wagon arrives smooth — and certain quantities of silver remain his alone. He watches your face for the answer.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 6,
+      "intent_affinity": {
+        "diligent": 0.8,
+        "sociable": 1.1,
+        "slack": 1.0,
+        "scheme": 1.6
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "take_bonus",
+          "text": "{=order_escort_mid_purse_offer_take_text}Accept quietly. Keep the count.",
+          "tooltip": "{=order_escort_mid_purse_offer_take_tt}+50 gold. Small scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 50 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "refuse_gift",
+          "text": "{=order_escort_mid_purse_offer_refuse_text}Refuse. The pay is my lord's, not yours.",
+          "tooltip": "{=order_escort_mid_purse_offer_refuse_tt}Clean. Rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_resolve_diligent",
+      "title": "{=order_escort_resolve_diligent_title}Delivered whole",
+      "setup": "{=order_escort_resolve_diligent_setup}The wagon rolls into the market square unmolested. The merchant presses a small purse into your hand and asks your name for his ledger. Your lord will hear of a soldier who does the work.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "sociable": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_escort_resolve_diligent_done_text}Tip your helmet. Ride back.",
+          "tooltip": "{=order_escort_resolve_diligent_done_tt}Moderate XP + relation + small gold.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 2 },
+            { "apply": "give_gold", "amount": 50 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_resolve_sociable",
+      "title": "{=order_escort_resolve_sociable_title}A contact made",
+      "setup": "{=order_escort_resolve_sociable_setup}You part the merchant at his gate with a promise of tea when next you pass through. He is the sort who remembers a name — and he has the sort of friends who move grain and coin. A small network has opened.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_escort_resolve_sociable_done_text}Shake his hand. Mean it.",
+          "tooltip": "{=order_escort_resolve_sociable_done_tt}Charm + Trade XP, small gold.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Trade", "amount": 25 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "give_gold", "amount": 30 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_resolve_slack",
+      "title": "{=order_escort_resolve_slack_title}Late and sullen",
+      "setup": "{=order_escort_resolve_slack_setup}You coaxed the wagon in hours after dusk, the merchant glaring the whole way. He will write to your lord. The letter will not be kind.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_escort_resolve_slack_absorb_text}Take the glare. Ride on.",
+          "tooltip": "{=order_escort_resolve_slack_absorb_tt}Moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_resolve_scheme",
+      "title": "{=order_escort_resolve_scheme_title}Silver in the hollow",
+      "setup": "{=order_escort_resolve_scheme_setup}A coin or two rode home in your saddlebag that was never meant for your lord's coffer. The wagon is delivered, the merchant satisfied, and your purse is a little heavier. If anyone was counting.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "quiet_profit",
+          "text": "{=order_escort_resolve_scheme_quiet_text}A good day, for a soldier.",
+          "tooltip": "{=order_escort_resolve_scheme_quiet_tt}Gold + roguery XP, small scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 100 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "noticed",
+          "text": "{=order_escort_resolve_scheme_noticed_text}A driver counted wrong twice. Pay him off.",
+          "tooltip": "{=order_escort_resolve_scheme_noticed_tt}Lose gold; moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "give_gold", "amount": -80 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

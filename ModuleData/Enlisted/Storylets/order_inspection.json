@@ -1,0 +1,409 @@
+{
+  "storylets": [
+    {
+      "id": "order_inspection_accept",
+      "title": "{=order_inspection_accept_title}Garrison inspection",
+      "setup": "{=order_inspection_accept_setup}A visiting dignitary is due — a seneschal, a bishop, a cousin of the king. The castle garrison is to be drawn up in order, boots lined, spears polished, pretence of readiness flawless. Your lord gives you the run of the duty detail. How are you running it?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:5"],
+      "profile_requires": ["garrisoned"],
+      "arc": {
+        "duration_hours": 8,
+        "phases": [
+          {
+            "id": "inspection_mid",
+            "duration_hours": 6,
+            "pool_prefix": "order_inspection_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "inspection_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_inspection_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_inspection_accept_diligent_text}Drill the garrison until it gleams.",
+          "tooltip": "{=order_inspection_accept_diligent_tt}Diligent. Leadership XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_sociable",
+          "text": "{=order_inspection_accept_sociable_text}Work the visiting staff. Be remembered well.",
+          "tooltip": "{=order_inspection_accept_sociable_tt}Sociable. Charm + Leadership.",
+          "effects": [
+            { "apply": "start_arc", "intent": "sociable" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_inspection_accept_slack_text}Dust the barracks. Hope for the best.",
+          "tooltip": "{=order_inspection_accept_slack_tt}Slack. Scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_inspection_accept_scheme_text}A visiting lord might have a use for a man like you.",
+          "tooltip": "{=order_inspection_accept_scheme_tt}Scheme. Side channels.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_inspection_accept_decline_text}Duck the detail.",
+          "tooltip": "{=order_inspection_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "scrutiny_up_moderate" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_mid_boot_line",
+      "title": "{=order_inspection_mid_boot_line_title}The line of boots",
+      "setup": "{=order_inspection_mid_boot_line_setup}Twenty pairs of boots are set outside twenty pallets in various states of disrepair. Some polished, some neglected, one pair wholly missing. The quartermaster curses somewhere down the corridor.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "sociable": 1.0,
+        "slack": 0.5,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "drill_them",
+          "text": "{=order_inspection_mid_boot_line_drill_text}Get them polishing. Help the missing pair.",
+          "tooltip": "{=order_inspection_mid_boot_line_drill_tt}Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 25 }
+          ]
+        },
+        {
+          "id": "fake_the_line",
+          "text": "{=order_inspection_mid_boot_line_fake_text}Hide the worst pair. Hope no one squats.",
+          "tooltip": "{=order_inspection_mid_boot_line_fake_tt}Scrutiny if caught.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_mid_green_recruit",
+      "title": "{=order_inspection_mid_green_recruit_title}The green recruit",
+      "setup": "{=order_inspection_mid_green_recruit_setup}One of the young ones cannot stand still in his kit — his hands shake, his helm sits crooked, his hauberk hangs wrong on his shoulders. He is about to be stood in the front rank.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "sociable": 1.4,
+        "slack": 0.7,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "steady_him",
+          "text": "{=order_inspection_mid_green_recruit_steady_text}A quiet word. Square his helm.",
+          "tooltip": "{=order_inspection_mid_green_recruit_steady_tt}Leadership + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 }
+          ]
+        },
+        {
+          "id": "swap_him",
+          "text": "{=order_inspection_mid_green_recruit_swap_text}Move him to the back rank.",
+          "tooltip": "{=order_inspection_mid_green_recruit_swap_tt}Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_mid_visiting_captain",
+      "title": "{=order_inspection_mid_visiting_captain_title}The dignitary's captain",
+      "setup": "{=order_inspection_mid_visiting_captain_setup}A grizzled captain from the visiting retinue walks the line ahead of his master. His eyes miss nothing. He catches yours a moment and makes a calculation you cannot read.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 5,
+      "intent_affinity": {
+        "diligent": 1.1,
+        "sociable": 1.5,
+        "slack": 0.7,
+        "scheme": 1.6
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "pay_respect",
+          "text": "{=order_inspection_mid_visiting_captain_respect_text}Correct nod. A word of courtesy.",
+          "tooltip": "{=order_inspection_mid_visiting_captain_respect_tt}Charm + Leadership.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        },
+        {
+          "id": "work_him",
+          "text": "{=order_inspection_mid_visiting_captain_work_text}A longer conversation, quietly.",
+          "tooltip": "{=order_inspection_mid_visiting_captain_work_tt}Roguery + Charm; small scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_mid_rusted_spear",
+      "title": "{=order_inspection_mid_rusted_spear_title}A rusted spear",
+      "setup": "{=order_inspection_mid_rusted_spear_setup}One of the spears in the central rack is badly pitted — red rust, bloom of neglect. It is yours to account for. The dignitary is half an hour out.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "sociable": 1.0,
+        "slack": 0.8,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "polish_it",
+          "text": "{=order_inspection_mid_rusted_spear_polish_text}Oil, stone, rag. Half an hour is enough.",
+          "tooltip": "{=order_inspection_mid_rusted_spear_polish_tt}Polearm XP + Steward.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        },
+        {
+          "id": "swap_spear",
+          "text": "{=order_inspection_mid_rusted_spear_swap_text}Steal a clean one from another rack.",
+          "tooltip": "{=order_inspection_mid_rusted_spear_swap_tt}Scrutiny if noticed.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_mid_dignitary_offer",
+      "title": "{=order_inspection_mid_dignitary_offer_title}A quiet offer",
+      "setup": "{=order_inspection_mid_dignitary_offer_setup}As the dignitary passes he pauses near you. A soft word. A mention of men of quality who look for new service. A name and a town, should you find yourself free in a season. Your lord is twelve paces away.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 8,
+      "intent_affinity": {
+        "diligent": 0.9,
+        "sociable": 1.3,
+        "slack": 0.8,
+        "scheme": 1.7
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "take_name",
+          "text": "{=order_inspection_mid_dignitary_offer_take_text}Bow. Remember the town.",
+          "tooltip": "{=order_inspection_mid_dignitary_offer_take_tt}Roguery + Charm; scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "decline_softly",
+          "text": "{=order_inspection_mid_dignitary_offer_decline_text}Bow. Say nothing.",
+          "tooltip": "{=order_inspection_mid_dignitary_offer_decline_tt}Loyal. Relation up + rank XP.",
+          "effects": [
+            { "apply": "lord_relation_up_small" },
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_resolve_diligent",
+      "title": "{=order_inspection_resolve_diligent_title}Inspection passed",
+      "setup": "{=order_inspection_resolve_diligent_setup}The dignitary moves on satisfied. Your lord watched him leave and then looked, briefly, at you. A word may follow. It will not be a loud word. It will be worth more than a loud one.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "sociable": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_inspection_resolve_diligent_done_text}Stand down the line.",
+          "tooltip": "{=order_inspection_resolve_diligent_done_tt}Leadership + relation + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 40 },
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_resolve_sociable",
+      "title": "{=order_inspection_resolve_sociable_title}Names in the right ears",
+      "setup": "{=order_inspection_resolve_sociable_setup}You spent the day at the elbow of the visiting staff, taking names and giving yours. The inspection passed. You have made yourself visible in a way your lord does not quite own. Useful — perhaps dangerous.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_inspection_resolve_sociable_done_text}Find a cup. Write down the names.",
+          "tooltip": "{=order_inspection_resolve_sociable_done_tt}Charm + Leadership + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 40 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 25 },
+            { "apply": "rank_xp_moderate" },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_resolve_slack",
+      "title": "{=order_inspection_resolve_slack_title}The dignitary frowned",
+      "setup": "{=order_inspection_resolve_slack_setup}A boot was missing. A spear pitted red. The dignitary said nothing in the moment — which is worse than a scold. Your lord was beside him. Both of them saw.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_inspection_resolve_slack_absorb_text}Drop your eyes. Stand down.",
+          "tooltip": "{=order_inspection_resolve_slack_absorb_tt}Heavy scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_inspection_resolve_scheme",
+      "title": "{=order_inspection_resolve_scheme_title}A card in the coat",
+      "setup": "{=order_inspection_resolve_scheme_setup}The visiting captain's name is folded in your jerkin, along with a town and a month. Inspection passed — your lord was pleased. Only you know about the slip of paper. Only you know yet.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "quiet_future",
+          "text": "{=order_inspection_resolve_scheme_future_text}Keep it close. A door, for later.",
+          "tooltip": "{=order_inspection_resolve_scheme_future_tt}Roguery + Charm; small scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "spotted_by_sergeant",
+          "text": "{=order_inspection_resolve_scheme_spotted_text}A sergeant saw you take the paper. Pay him off.",
+          "tooltip": "{=order_inspection_resolve_scheme_spotted_tt}Lose gold; scrutiny + relation hit.",
+          "effects": [
+            { "apply": "give_gold", "amount": -80 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

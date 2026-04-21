@@ -1,0 +1,408 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_accept",
+      "title": "{=order_scout_accept_title}Scout ahead",
+      "setup": "{=order_scout_accept_setup}Your lord points at a line on the map and wants eyes past the ridge before the column reaches it. A rider with nerve. You tighten the girth.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:4"],
+      "class_affinity": {
+        "Cavalry": 1.5,
+        "HorseArcher": 1.6,
+        "Ranged": 1.1
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_accept_diligent_text}Ride wide. Come back with a map.",
+          "tooltip": "{=order_scout_accept_diligent_tt}Diligent scout. Solid XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_scout_accept_train_hard_text}Push the horse. Cover every track.",
+          "tooltip": "{=order_scout_accept_train_hard_tt}Train hard. Riding + Scouting XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_scout_accept_slack_text}Short loop. Report nothing.",
+          "tooltip": "{=order_scout_accept_slack_tt}Slack scout. Scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_scout_accept_scheme_text}Eyes for what your lord wants — and what you want.",
+          "tooltip": "{=order_scout_accept_scheme_tt}Scheme scout. Side-jobs available.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_accept_decline_text}Beg off — bad horse, bad shoulder, bad weather.",
+          "tooltip": "{=order_scout_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_mid_high_ridge",
+      "title": "{=order_scout_mid_high_ridge_title}From the ridge",
+      "setup": "{=order_scout_mid_high_ridge_setup}You crest the rise. The land opens out — a road, a line of smoke, a distant crossroads. Everything the column will need to know lies in the next ten minutes of looking.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.2,
+        "slack": 0.6,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "study_ground",
+          "text": "{=order_scout_mid_high_ridge_study_text}Take the time. Read the land.",
+          "tooltip": "{=order_scout_mid_high_ridge_study_tt}Scouting + Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 }
+          ]
+        },
+        {
+          "id": "quick_glance",
+          "text": "{=order_scout_mid_high_ridge_quick_text}A long look. Ride on.",
+          "tooltip": "{=order_scout_mid_high_ridge_quick_tt}Minor scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_mid_enemy_tracks",
+      "title": "{=order_scout_mid_enemy_tracks_title}Fresh tracks",
+      "setup": "{=order_scout_mid_enemy_tracks_setup}Hoofprints on the soft earth — a band of horse, perhaps a dozen, heading east. The prints are not old. You can follow for firmer intelligence or note the direction and ride back.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 1.3,
+        "slack": 0.5,
+        "scheme": 1.1
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "trail_them",
+          "text": "{=order_scout_mid_enemy_tracks_trail_text}Follow at distance. Count heads.",
+          "tooltip": "{=order_scout_mid_enemy_tracks_trail_tt}Scouting + Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 }
+          ]
+        },
+        {
+          "id": "note_direction",
+          "text": "{=order_scout_mid_enemy_tracks_note_text}Note the bearing. Ride back safe.",
+          "tooltip": "{=order_scout_mid_enemy_tracks_note_tt}Cautious. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_mid_spent_horse",
+      "title": "{=order_scout_mid_spent_horse_title}A tired mount",
+      "setup": "{=order_scout_mid_spent_horse_setup}The mare is blowing hard, her neck slick. You can press her further — she will give it, if asked — or you can rest her and lose an hour.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 1.5,
+        "slack": 0.8,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "push_her",
+          "text": "{=order_scout_mid_spent_horse_push_text}Press on. She will hold.",
+          "tooltip": "{=order_scout_mid_spent_horse_push_tt}Hard ride. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 30 }
+          ]
+        },
+        {
+          "id": "rest_her",
+          "text": "{=order_scout_mid_spent_horse_rest_text}Walk a mile. Let her cool.",
+          "tooltip": "{=order_scout_mid_spent_horse_rest_tt}Prudent. Small scrutiny; kinder ride.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_mid_village_informant",
+      "title": "{=order_scout_mid_village_informant_title}A village by the road",
+      "setup": "{=order_scout_mid_village_informant_setup}A crossroads hamlet offers a well, a hearth, and — if you spend a coin — a man who will tell you what has passed on the road this week. The intelligence would be yours alone if you want it so.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 0.9,
+        "train_hard": 0.8,
+        "slack": 1.1,
+        "scheme": 1.6
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "buy_intel",
+          "text": "{=order_scout_mid_village_informant_buy_text}A silver for a name and a direction.",
+          "tooltip": "{=order_scout_mid_village_informant_buy_tt}-10 gold. Scouting + Roguery XP.",
+          "effects": [
+            { "apply": "give_gold", "amount": -10 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 }
+          ]
+        },
+        {
+          "id": "ride_past",
+          "text": "{=order_scout_mid_village_informant_past_text}Ride past. No stops.",
+          "tooltip": "{=order_scout_mid_village_informant_past_tt}Disciplined. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_mid_ambush_hint",
+      "title": "{=order_scout_mid_ambush_hint_title}Quiet birds",
+      "setup": "{=order_scout_mid_ambush_hint_setup}The birds on this stretch are silent when they should be calling. Your back prickles. The ambush is either already set or you are imagining it. You cannot tell which before committing.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 5,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.2,
+        "slack": 0.4,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "skirt_around",
+          "text": "{=order_scout_mid_ambush_hint_skirt_text}Leave the road. Loop through the brush.",
+          "tooltip": "{=order_scout_mid_ambush_hint_skirt_tt}Cautious. Scouting + Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 }
+          ]
+        },
+        {
+          "id": "ride_through",
+          "text": "{=order_scout_mid_ambush_hint_through_text}Ride through. Imagination, probably.",
+          "tooltip": "{=order_scout_mid_ambush_hint_through_tt}Risky. Small scrutiny.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_resolve_diligent",
+      "title": "{=order_scout_resolve_diligent_title}The map, drawn",
+      "setup": "{=order_scout_resolve_diligent_setup}You ride in at dusk with a cleanly-drawn map and a head full of bearings. Your lord listens, asks one or two sharp questions, and nods when your answers fit. This is the work he wanted.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_scout_resolve_diligent_done_text}Hand over the report. Unsaddle.",
+          "tooltip": "{=order_scout_resolve_diligent_done_tt}Moderate XP + relation + scouting.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 2 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_resolve_train_hard",
+      "title": "{=order_scout_resolve_train_hard_title}Hard-ridden",
+      "setup": "{=order_scout_resolve_train_hard_setup}You pushed the horse and yourself past comfort. The scout was fast — faster than caution — and your thighs are chafed raw. The lessons sit in you now.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_scout_resolve_train_hard_done_text}Water the horse. Water yourself.",
+          "tooltip": "{=order_scout_resolve_train_hard_done_tt}Large Riding + Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 45 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 30 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_resolve_slack",
+      "title": "{=order_scout_resolve_slack_title}Thin report",
+      "setup": "{=order_scout_resolve_slack_setup}Your lord reads your scout notes and says little. Little is worse than loud. He knows the country better than you do, and he can see where you did not ride.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_scout_resolve_slack_absorb_text}Dip your chin. Ride out.",
+          "tooltip": "{=order_scout_resolve_slack_absorb_tt}Moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_resolve_scheme",
+      "title": "{=order_scout_resolve_scheme_title}Intelligence, held back",
+      "setup": "{=order_scout_resolve_scheme_setup}You rode farther than asked, saw more than you said, and kept half of it in your head for a buyer you have not yet met. Dangerous coin — but coin nonetheless. And the scout report is tidy enough to pass.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "hold_back",
+          "text": "{=order_scout_resolve_scheme_hold_text}Sell the rest later. Quietly.",
+          "tooltip": "{=order_scout_resolve_scheme_hold_tt}Gold + Roguery XP; moderate scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 140 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 35 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "found_out",
+          "text": "{=order_scout_resolve_scheme_found_text}A captain in another column heard your name. Pay him off.",
+          "tooltip": "{=order_scout_resolve_scheme_found_tt}Lose gold; moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "give_gold", "amount": -120 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}
