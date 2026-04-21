@@ -102,6 +102,30 @@ namespace Enlisted.Features.Content
                 case "give_item":
                     DoGiveItem(eff);
                     break;
+                case "grant_attribute_level":
+                    DoGrantAttributeLevel(eff);
+                    break;
+                case "grant_focus_point":
+                    DoGrantFocusPoint(eff);
+                    break;
+                case "grant_renown":
+                    DoGrantRenown(eff);
+                    break;
+                case "grant_skill_level":
+                    DoGrantSkillLevel(eff);
+                    break;
+                case "grant_unspent_attribute":
+                    DoGrantUnspentAttribute(eff);
+                    break;
+                case "grant_unspent_focus":
+                    DoGrantUnspentFocus(eff);
+                    break;
+                case "relation_change":
+                    DoRelationChange(eff, ctx);
+                    break;
+                case "set_trait_level":
+                    DoSetTraitLevel(eff);
+                    break;
                 default:
                     ModLogger.Expected("EFFECT", "unknown_primitive_" + eff.Apply, "Unknown effect primitive: " + eff.Apply);
                     break;
@@ -279,6 +303,200 @@ namespace Enlisted.Features.Content
             }
 
             _ = (PartyBase.MainParty?.ItemRoster?.AddToCounts(item, count));
+        }
+
+        private static void DoGrantSkillLevel(EffectDecl eff)
+        {
+            var skillId = GetStr(eff, "skill");
+            var amount = GetInt(eff, "amount");
+            if (string.IsNullOrEmpty(skillId) || amount == 0)
+            {
+                return;
+            }
+
+            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            if (skill == null)
+            {
+                ModLogger.Expected("EFFECT", "skill_not_found", $"grant_skill_level: skill='{skillId}' not in catalog");
+                return;
+            }
+
+            try
+            {
+                Hero.MainHero?.HeroDeveloper.ChangeSkillLevel(skill, amount);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_skill_level threw", ex);
+            }
+        }
+
+        private static void DoGrantFocusPoint(EffectDecl eff)
+        {
+            var skillId = GetStr(eff, "skill");
+            var amount = GetInt(eff, "amount");
+            if (string.IsNullOrEmpty(skillId) || amount == 0)
+            {
+                return;
+            }
+
+            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            if (skill == null)
+            {
+                ModLogger.Expected("EFFECT", "skill_not_found", $"grant_focus_point: skill='{skillId}' not in catalog");
+                return;
+            }
+
+            try
+            {
+                // checkUnspentFocusPoints: false — this is a reward grant, not spending from the pool.
+                Hero.MainHero?.HeroDeveloper.AddFocus(skill, amount, checkUnspentFocusPoints: false);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_focus_point threw", ex);
+            }
+        }
+
+        private static void DoGrantUnspentFocus(EffectDecl eff)
+        {
+            var amount = GetInt(eff, "amount");
+            if (amount == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Hero.MainHero != null)
+                {
+                    Hero.MainHero.HeroDeveloper.UnspentFocusPoints += amount;
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_unspent_focus threw", ex);
+            }
+        }
+
+        private static void DoGrantAttributeLevel(EffectDecl eff)
+        {
+            var attrId = GetStr(eff, "attribute");
+            var amount = GetInt(eff, "amount");
+            if (string.IsNullOrEmpty(attrId) || amount == 0)
+            {
+                return;
+            }
+
+            var attr = MBObjectManager.Instance.GetObject<CharacterAttribute>(attrId);
+            if (attr == null)
+            {
+                ModLogger.Expected("EFFECT", "attribute_not_found", $"grant_attribute_level: attribute='{attrId}' not in catalog");
+                return;
+            }
+
+            try
+            {
+                // checkUnspentPoints: false — this is a reward grant, not spending from the pool.
+                Hero.MainHero?.HeroDeveloper.AddAttribute(attr, amount, checkUnspentPoints: false);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_attribute_level threw", ex);
+            }
+        }
+
+        private static void DoGrantUnspentAttribute(EffectDecl eff)
+        {
+            var amount = GetInt(eff, "amount");
+            if (amount == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Hero.MainHero != null)
+                {
+                    Hero.MainHero.HeroDeveloper.UnspentAttributePoints += amount;
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_unspent_attribute threw", ex);
+            }
+        }
+
+        private static void DoSetTraitLevel(EffectDecl eff)
+        {
+            var traitId = GetStr(eff, "trait");
+            var level = GetInt(eff, "level");
+            if (string.IsNullOrEmpty(traitId))
+            {
+                return;
+            }
+
+            var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
+            if (trait == null)
+            {
+                ModLogger.Expected("EFFECT", "trait_not_found", $"set_trait_level: trait='{traitId}' not in catalog");
+                return;
+            }
+
+            try
+            {
+                Hero.MainHero?.SetTraitLevel(trait, level);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "set_trait_level threw", ex);
+            }
+        }
+
+        private static void DoGrantRenown(EffectDecl eff)
+        {
+            var amount = GetInt(eff, "amount");
+            if (amount == 0)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Hero.MainHero != null)
+                {
+                    GainRenownAction.Apply(Hero.MainHero, (float)amount);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_renown threw", ex);
+            }
+        }
+
+        private static void DoRelationChange(EffectDecl eff, StoryletContext ctx)
+        {
+            var slotName = GetStr(eff, "target_slot");
+            var delta = GetInt(eff, "delta");
+            if (string.IsNullOrEmpty(slotName) || delta == 0)
+            {
+                return;
+            }
+
+            if (ctx == null || ctx.ResolvedSlots == null || !ctx.ResolvedSlots.TryGetValue(slotName, out var hero) || hero == null)
+            {
+                ModLogger.Expected("EFFECT", "relation_target_unresolved", $"relation_change: slot='{slotName}' not resolved on storylet");
+                return;
+            }
+
+            try
+            {
+                ChangeRelationAction.ApplyPlayerRelation(hero, delta);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "relation_change threw", ex);
+            }
         }
 
         private static string GetStr(EffectDecl eff, string key)
