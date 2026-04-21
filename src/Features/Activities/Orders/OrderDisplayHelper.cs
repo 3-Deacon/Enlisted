@@ -40,5 +40,19 @@ namespace Enlisted.Features.Activities.Orders
         }
 
         public static bool IsOrderActive() => OrderActivity.Instance?.ActiveNamedOrder != null;
+
+        /// <summary>
+        ///     Returns hours elapsed since the active named order started. Returns 0 when no order is active.
+        ///     Clamps to 24 if the computed delta is negative or exceeds 30 days — guards against
+        ///     clock-skew and uninitialized StartedAt on partial deserialization.
+        /// </summary>
+        public static double GetHoursSinceStarted()
+        {
+            var state = OrderActivity.Instance?.ActiveNamedOrder;
+            if (state == null) { return 0; }
+            var hours = (CampaignTime.Now - state.StartedAt).ToHours;
+            if (hours < 0 || hours > 720) { return 24; }
+            return hours;
+        }
     }
 }

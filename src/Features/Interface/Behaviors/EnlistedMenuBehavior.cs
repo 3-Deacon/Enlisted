@@ -998,7 +998,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 false, 1);
 
             // 1b. Active order row (visible only when an order is active and the accordion is expanded).
-            // Shows [NEW] when the order id differs from the last-seen id; [ASSIGNED] otherwise.
+            // Header already shows [NEW] when the order is unseen; row shows only the order title.
             starter.AddGameMenuOption("enlisted_status", "enlisted_active_order",
                 "{ACTIVE_ORDER_TEXT}",
                 args =>
@@ -1009,17 +1009,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         return false;
                     }
 
-                    var currentId = OrderActivity.Instance?.ActiveNamedOrder?.OrderStoryletId ?? string.Empty;
-                    var phaseLabel = string.IsNullOrEmpty(_ordersLastSeenOrderId) ||
-                                     !string.Equals(_ordersLastSeenOrderId, currentId, StringComparison.OrdinalIgnoreCase)
-                        ? "<span style=\"Link\">[NEW]</span>"
-                        : "<span style=\"Link\">[ASSIGNED]</span>";
-
                     args.optionLeaveType = GameMenuOption.LeaveType.Mission;
                     args.IsEnabled = true;
                     args.Tooltip = new TextObject("{=enlisted_orders_tooltip_active_row}Click to view order details.");
 
-                    var row = $"    {phaseLabel} {display.Title}";
+                    var row = $"    {display.Title}";
                     MBTextManager.SetTextVariable("ACTIVE_ORDER_TEXT", row);
 
                     return true;
@@ -2098,7 +2092,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var display = OrderDisplayHelper.GetCurrent();
                     var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
-                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
+                    var hoursSinceIssued = OrderDisplayHelper.GetHoursSinceStarted();
 
                     if (hoursSinceIssued < 6)
                     {
@@ -2357,7 +2351,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     var display = OrderDisplayHelper.GetCurrent();
                     var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
-                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
+                    var hoursSinceIssued = OrderDisplayHelper.GetHoursSinceStarted();
 
                     // Estimate remaining time based on typical order duration (24-72h)
                     var hoursRemaining = Math.Max(0, 24 - (int)hoursSinceIssued);
@@ -3530,13 +3524,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var display = OrderDisplayHelper.GetCurrent();
                     var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
 
-                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
-
-                    // Cap to reasonable duration (30 days max) to guard against clock-skew anomalies
-                    if (hoursSinceIssued > 720) // 30 days
-                    {
-                        hoursSinceIssued = 24; // Default to 1 day
-                    }
+                    var hoursSinceIssued = OrderDisplayHelper.GetHoursSinceStarted();
 
                     if (hoursSinceIssued < 6)
                     {
@@ -3544,7 +3532,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     }
                     else if (hoursSinceIssued < 24)
                     {
-                        var hoursRemaining = mainHero?.IsWounded == true ? "unknown" : "unknown";
                         sentences.Add($"<span style=\"Link\">On duty:</span> {orderTitle}, {(int)hoursSinceIssued} hours in. The day wears on.");
                     }
                     else

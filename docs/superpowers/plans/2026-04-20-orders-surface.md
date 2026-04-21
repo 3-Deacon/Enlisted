@@ -2921,7 +2921,7 @@ An audit found 6 remaining `OrderManager.Instance` sites after Task 18. 5 are di
 
 - [x] **Step 2: Replace each site**
 
-Each site reads `OrderActivity.Instance?.ActiveNamedOrder` for state and `OrderDisplayHelper.GetCurrent()` for display title. Time-since-started uses `NamedOrderState.StartedAt`. The new model has no Imminent/Mandatory/Pending/Assigned states — named orders are either active or not, so imminent-branch logic is dropped throughout. The `BuildBriefPlayerForecast` helper (called from Sites B and D) was made parameterless, with `OrderManager.Instance` moved inside it to service the remaining `IsOrderImminent()` path.
+Each site reads `OrderActivity.Instance?.ActiveNamedOrder` for state and `OrderDisplayHelper.GetCurrent()` for display title. Time-since-started uses `NamedOrderState.StartedAt`. The new model has no Imminent/Mandatory/Pending/Assigned states — named orders are either active or not, so imminent-branch logic is dropped throughout. `BuildBriefPlayerForecast` is parameterless and reads only `CampOpportunityGenerator` and `WorldStateAnalyzer`; the imminent branch and its `IsOrderImminent()` / `OrderManager.Instance` references were deleted in commit `9994b39`.
 
 - [x] **Step 3: Build + validator**
 
