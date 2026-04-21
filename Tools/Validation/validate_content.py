@@ -2748,6 +2748,95 @@ def validate_event_file(file_path: str, ctx: ValidationContext, localization_ids
         validate_consistency(event, file_path, ctx)
 
 
+def _load_all_storylets(ctx: ValidationContext) -> list[dict]:
+    """Load every storylet JSON and return the flattened list of storylet dicts."""
+    repo_root = Path(__file__).parent.parent.parent
+    storylet_dir = repo_root / "ModuleData" / "Enlisted" / "Storylets"
+    if not storylet_dir.exists():
+        return []
+    storylets: list[dict] = []
+    for sf in sorted(storylet_dir.rglob("*.json")):
+        try:
+            with open(sf, encoding="utf-8-sig") as f:
+                data = json.load(f)
+        except Exception as e:
+            ctx.add_issue(
+                "error", "storylet-load", f"Failed to parse {sf.name}: {e}", str(sf)
+            )
+            continue
+        if isinstance(data, dict) and isinstance(data.get("storylets"), list):
+            storylets.extend(s for s in data["storylets"] if isinstance(s, dict))
+        elif isinstance(data, list):
+            storylets.extend(s for s in data if isinstance(s, dict))
+        elif isinstance(data, dict):
+            storylets.append(data)
+    return storylets
+
+
+def phase14_arc_integrity(storylets: list[dict], ctx: ValidationContext) -> None:
+    """Spec 2 §14. Arc-tagged storylets must have valid duration, phases, and pool refs."""
+    print("[Phase 14] Validating named-order arc integrity...")
+    storylet_ids = {s.get("id") for s in storylets if s.get("id")}
+    errors_before = sum(1 for i in ctx.issues if i.category == "arc-integrity")
+
+    for s in storylets:
+        arc = s.get("arc")
+        if not arc:
+            continue
+        sid = s.get("id", "<unknown>")
+        if arc.get("duration_hours", 0) <= 0:
+            ctx.add_issue(
+                "error", "arc-integrity",
+                f"storylet '{sid}' arc.duration_hours must be > 0", sid,
+            )
+        phases = arc.get("phases", [])
+        if not phases:
+            ctx.add_issue(
+                "error", "arc-integrity",
+                f"storylet '{sid}' arc.phases is empty", sid,
+            )
+        for ph in phases:
+            prefix = ph.get("pool_prefix", "")
+            if not prefix:
+                ctx.add_issue(
+                    "error", "arc-integrity",
+                    f"storylet '{sid}' phase '{ph.get('id')}' missing pool_prefix", sid,
+                )
+                continue
+            if not any(other_id.startswith(prefix) for other_id in storylet_ids):
+                ctx.add_issue(
+                    "error", "arc-integrity",
+                    f"storylet '{sid}' phase pool_prefix '{prefix}' has no matching storylets",
+                    sid,
+                )
+        interrupt_id = arc.get("on_transition_interrupt_storylet", "")
+        if interrupt_id and interrupt_id not in storylet_ids:
+            ctx.add_issue(
+                "error", "arc-integrity",
+                f"storylet '{sid}' references unknown interrupt storylet '{interrupt_id}'",
+                sid,
+            )
+
+    # start_arc effect must only appear on arc-tagged storylets.
+    for s in storylets:
+        if s.get("arc"):
+            continue
+        sid = s.get("id", "<unknown>")
+        for opt in s.get("options", []):
+            for eff in opt.get("effects", []):
+                if not isinstance(eff, dict):
+                    continue
+                if "start_arc" in eff or eff.get("apply") == "start_arc":
+                    ctx.add_issue(
+                        "error", "arc-integrity",
+                        f"storylet '{sid}' uses start_arc but has no arc block", sid,
+                    )
+
+    errors_after = sum(1 for i in ctx.issues if i.category == "arc-integrity")
+    if errors_after == errors_before:
+        print(f"  OK: {sum(1 for s in storylets if s.get('arc'))} arc-tagged storylet(s) passed.")
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -2839,6 +2928,10 @@ def main():
 
     # Phase 12: Storylet reference validation
     validate_storylet_references(ctx)
+
+    # Phases 14-17: Spec 2 Orders Surface validators (load storylets once, reuse).
+    storylets_for_validation = _load_all_storylets(ctx)
+    phase14_arc_integrity(storylets_for_validation, ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
