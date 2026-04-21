@@ -512,9 +512,9 @@ namespace Enlisted.Mod.Entry
                     EncounterGuard.Initialize();
                     ModLogger.Info("Bootstrap", "Military service behaviors registered successfully");
 
-                    // Log registered behaviors for conflict diagnostics by querying the live
-                    // CampaignBehaviorManager — no hand-maintained list to drift.
-                    ModConflictDiagnostics.LogRegisteredBehaviors();
+                    // Log registered behaviors for conflict diagnostics — enumerate the starter's
+                    // collection directly, before the engine transfers it to CampaignBehaviorManager.
+                    ModConflictDiagnostics.LogRegisteredBehaviors(campaignStarter.CampaignBehaviors);
                 }
             }
             catch (Exception ex)

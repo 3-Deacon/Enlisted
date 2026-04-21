@@ -116,10 +116,10 @@ namespace Enlisted.Mod.Core.Logging
         }
 
         /// <summary>
-        ///     Logs registered campaign behaviors for troubleshooting by querying the live
-        ///     CampaignBehaviorManager. Call this from OnGameStart after all behaviors are registered.
+        ///     Logs the campaign behaviors registered in the starter for troubleshooting.
+        ///     Call this from OnGameStart immediately after all AddBehavior calls complete.
         /// </summary>
-        public static void LogRegisteredBehaviors()
+        public static void LogRegisteredBehaviors(ICollection<CampaignBehaviorBase> behaviors)
         {
             if (string.IsNullOrWhiteSpace(_conflictLogPath))
             {
@@ -128,7 +128,7 @@ namespace Enlisted.Mod.Core.Logging
 
             try
             {
-                var behaviorTypes = Campaign.Current?.GetCampaignBehaviors<CampaignBehaviorBase>()
+                var behaviorTypes = behaviors
                     ?.Select(b => b.GetType().Name)
                     .OrderBy(n => n)
                     .ToList() ?? new List<string>();
