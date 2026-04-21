@@ -22,7 +22,15 @@
                 HeightSizePolicy="StretchToParent"
                 Sprite="BlankWhiteSquare_9"
                 Color="#08111BCC"
-                DoNotAcceptEvents="true" />
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowSolidBackground" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#08111B66"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowDimBackground" />
 
         <Widget WidthSizePolicy="StretchToParent"
                 HeightSizePolicy="StretchToParent"
@@ -32,7 +40,19 @@
                 MarginRight="1"
                 MarginTop="1"
                 MarginBottom="1"
-                DoNotAcceptEvents="true" />
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowSolidBackground" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#C89C4A10"
+                MarginLeft="1"
+                MarginRight="1"
+                MarginTop="1"
+                MarginBottom="1"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowDimBackground" />
 
         <Widget Id="ResizeFrameWidget"
                 DoNotAcceptEvents="true"
@@ -61,7 +81,15 @@
                     HeightSizePolicy="StretchToParent"
                     Sprite="BlankWhiteSquare_9"
                     Color="#162433EE"
-                    DoNotAcceptEvents="true" />
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowSolidBackground" />
+
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#16243388"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowDimBackground" />
 
             <RichTextWidget WidthSizePolicy="CoverChildren"
                             HeightSizePolicy="CoverChildren"
@@ -71,6 +99,27 @@
                             Brush="SPGeneral.MediumText"
                             Brush.FontSize="16"
                             Text="@HeaderText" />
+
+            <ButtonWidget Id="BackgroundModeButton"
+                          WidthSizePolicy="Fixed"
+                          HeightSizePolicy="Fixed"
+                          SuggestedWidth="34"
+                          SuggestedHeight="22"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          MarginRight="4"
+                          Brush="ButtonBrush1"
+                          Command.Click="ExecuteCycleBackgroundMode">
+              <Children>
+                <RichTextWidget WidthSizePolicy="CoverChildren"
+                                HeightSizePolicy="CoverChildren"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Brush="SPGeneral.MediumText"
+                                Brush.FontSize="12"
+                                Text="@BackgroundButtonText" />
+              </Children>
+            </ButtonWidget>
           </Children>
         </Widget>
 
@@ -89,7 +138,15 @@
                     HeightSizePolicy="StretchToParent"
                     Sprite="BlankWhiteSquare_9"
                     Color="#0C182480"
-                    DoNotAcceptEvents="true" />
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowSolidBackground" />
+
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#0C182438"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowDimBackground" />
 
             <ScrollablePanel Id="ScrollablePanel"
                              DoNotAcceptEvents="false"

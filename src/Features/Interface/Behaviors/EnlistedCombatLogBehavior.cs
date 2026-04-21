@@ -164,6 +164,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var uiState = CombatLogUiStateStore.Load();
                 _dataSource.RestoreExpandedSize(uiState.ExpandedWidth, uiState.ExpandedHeight);
                 _dataSource.RestorePlacement(uiState.OffsetX, uiState.OffsetY);
+                _dataSource.RestoreBackgroundMode(uiState.BackgroundMode);
                 _scrollablePanel = rootWidget.FindChild("ScrollablePanel", true) as ScrollablePanel;
                 if (_scrollablePanel != null && _scrollablePanel.VerticalScrollbar != null)
                 {
@@ -542,7 +543,7 @@ namespace Enlisted.Features.Interface.Behaviors
             committedWidth = CombatLogUiStateStore.ClampWidth(committedWidth, Screen.RealScreenResolutionWidth);
             committedHeight = CombatLogUiStateStore.ClampHeight(committedHeight, Screen.RealScreenResolutionHeight);
             _dataSource.CommitExpandedSize(committedWidth, committedHeight);
-            CombatLogUiStateStore.Save(committedWidth, committedHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY);
+            CombatLogUiStateStore.Save(committedWidth, committedHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY, _dataSource.GetBackgroundMode());
             _dataSource.OnUserInteraction();
             _isResizing = false;
         }
@@ -580,7 +581,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 return;
             }
 
-            CombatLogUiStateStore.Save(_dataSource.ContainerWidth, _dataSource.ContainerHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY);
+            CombatLogUiStateStore.Save(_dataSource.ContainerWidth, _dataSource.ContainerHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY, _dataSource.GetBackgroundMode());
             _dataSource.OnUserInteraction();
             _isDragging = false;
         }

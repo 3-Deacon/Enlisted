@@ -14,6 +14,8 @@ namespace Enlisted.Features.Interface.Utils
         public float OffsetX { get; set; }
 
         public float OffsetY { get; set; }
+
+        public int BackgroundMode { get; set; }
     }
 
     public static class CombatLogUiStateStore
@@ -66,7 +68,7 @@ namespace Enlisted.Features.Interface.Utils
             }
         }
 
-        public static void Save(float width, float height, float offsetX, float offsetY)
+        public static void Save(float width, float height, float offsetX, float offsetY, int backgroundMode)
         {
             try
             {
@@ -77,7 +79,8 @@ namespace Enlisted.Features.Interface.Utils
                     ExpandedWidth = width,
                     ExpandedHeight = height,
                     OffsetX = offsetX,
-                    OffsetY = offsetY
+                    OffsetY = offsetY,
+                    BackgroundMode = backgroundMode
                 };
 
                 File.WriteAllText(StorePath, JsonConvert.SerializeObject(state, Formatting.Indented));
@@ -128,6 +131,11 @@ namespace Enlisted.Features.Interface.Utils
             float minOffset = -DefaultMargin;
             float maxOffset = viewportHeight - panelHeight - DefaultMargin;
             return Math.Max(minOffset, Math.Min(offsetY, maxOffset));
+        }
+
+        public static int ClampBackgroundMode(int backgroundMode)
+        {
+            return Math.Max(0, Math.Min(backgroundMode, 2));
         }
     }
 
