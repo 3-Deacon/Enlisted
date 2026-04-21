@@ -317,7 +317,7 @@ namespace Enlisted.Features.Content
             var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
-                ModLogger.Expected("EFFECT", "skill_not_found", $"grant_skill_level: skill='{skillId}' not in catalog");
+                ModLogger.Expected("EFFECT", "grant_skill_level_skill_not_found", $"grant_skill_level: skill='{skillId}' not in catalog");
                 return;
             }
 
@@ -343,7 +343,7 @@ namespace Enlisted.Features.Content
             var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
-                ModLogger.Expected("EFFECT", "skill_not_found", $"grant_focus_point: skill='{skillId}' not in catalog");
+                ModLogger.Expected("EFFECT", "grant_focus_point_skill_not_found", $"grant_focus_point: skill='{skillId}' not in catalog");
                 return;
             }
 
