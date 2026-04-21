@@ -2837,6 +2837,24 @@ def phase14_arc_integrity(storylets: list[dict], ctx: ValidationContext) -> None
         print(f"  OK: {sum(1 for s in storylets if s.get('arc'))} arc-tagged storylet(s) passed.")
 
 
+def phase15_path_crossroads(storylets: list[dict], ctx: ValidationContext) -> None:
+    """Spec 2 §14. Phase C content; assert completeness when crossroads.json exists."""
+    print("[Phase 15] Validating path crossroads completeness...")
+    PATHS = ["ranger", "enforcer", "support", "diplomat", "rogue"]
+    BANDS = ["t3_to_t4", "t5_to_t6", "t7_to_t8"]
+    storylet_ids = {s.get("id") for s in storylets if s.get("id")}
+    have_any_crossroads = any(sid.startswith("crossroads_") for sid in storylet_ids)
+    if not have_any_crossroads:
+        print("  OK: no crossroads_* storylets yet (Phase B); skipping completeness check.")
+        return
+    expected = {f"crossroads_{p}_{b}" for p in PATHS for b in BANDS}
+    missing = expected - storylet_ids
+    for m in sorted(missing):
+        ctx.add_issue("error", "crossroads", f"missing crossroads storylet '{m}'", m)
+    if not missing:
+        print(f"  OK: all {len(expected)} crossroads storylets present.")
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -2932,6 +2950,7 @@ def main():
     # Phases 14-17: Spec 2 Orders Surface validators (load storylets once, reuse).
     storylets_for_validation = _load_all_storylets(ctx)
     phase14_arc_integrity(storylets_for_validation, ctx)
+    phase15_path_crossroads(storylets_for_validation, ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
