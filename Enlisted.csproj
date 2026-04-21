@@ -399,6 +399,7 @@
 
     <!-- Orders Activities (explicit - wildcard above is non-recursive) -->
     <Compile Include="src\Features\Activities\Orders\CombatClassResolver.cs" />
+    <Compile Include="src\Features\Activities\Orders\DutyProfileId.cs" />
     <Compile Include="src\Features\Activities\Orders\NamedOrderState.cs" />
     <Compile Include="src\Features\Activities\Orders\OrderActivity.cs" />
     
