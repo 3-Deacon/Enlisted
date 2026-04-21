@@ -51,13 +51,13 @@ namespace Enlisted.Features.Activities.Orders
                 var observed = DutyProfileSelector.Resolve(lordParty);
                 var committed = orderActivity.CurrentDutyProfile;
 
-                bool hardBypass = ShouldBypassHysteresis(orderActivity, lordParty);
-
-                if (observed == committed && !hardBypass)
+                if (observed == committed)
                 {
                     orderActivity.PendingProfileMatches.Clear();
                     return;
                 }
+
+                bool hardBypass = ShouldBypassHysteresis(orderActivity, lordParty);
 
                 if (!hardBypass)
                 {
@@ -99,6 +99,7 @@ namespace Enlisted.Features.Activities.Orders
 
         private void CommitTransition(OrderActivity activity, string oldProfile, string newProfile)
         {
+            // Profile mutation commits unconditionally; only the beat dispatch is throttled.
             activity.CurrentDutyProfile = newProfile;
             activity.PendingProfileMatches.Clear();
 
@@ -123,7 +124,7 @@ namespace Enlisted.Features.Activities.Orders
             });
         }
 
-        /// <summary>Sets the profile unconditionally and clears any pending hysteresis samples.</summary>
+        /// <summary>Sets the profile unconditionally, clears any pending hysteresis samples, and does not fire a profile_changed beat.</summary>
         public void ForceProfile(string profileId)
         {
             var activity = OrderActivity.Instance;
