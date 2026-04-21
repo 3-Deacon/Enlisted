@@ -8335,6 +8335,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
         public static event Action<int, string> OnXPGained;
 
         /// <summary>
+        ///     Fired when EnlistmentTier changes via promotion or demotion.
+        ///     Spec 2 PathScorer subscribes for crossroads firing; Spec 4 will subscribe for promotion ceremony.
+        ///     Params: oldTier, newTier.
+        /// </summary>
+        public static event Action<int, int> OnTierChanged;
+
+        /// <summary>
         ///     Flag indicating the player chose to keep their retinue troops on retirement.
         ///     Set by dialog, checked by RetinueLifecycleHandler and ServiceRecordManager,
         ///     then reset after processing. Troops become regular party members.
@@ -9626,6 +9633,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     ModLogger.Caught("ENLISTMENT", "Failed to grant commander retinue on tier change", ex);
                 }
+            }
+
+            try
+            {
+                OnTierChanged?.Invoke(previousTier, tier);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ENLISTMENT", "OnTierChanged listener threw", ex);
             }
         }
 
