@@ -2945,45 +2945,73 @@ git commit -F /c/Users/coola/commit_msg.txt
 
 ---
 
-## Task 20: Migrate `EnlistedNewsBehavior.cs:768` + `:4204`
+## Task 20: Migrate `EnlistedNewsBehavior.cs` — 4 sites (expanded)
 
 **Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs` (two sites)
+- Modify: `src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs` (four sites)
 
-- [ ] **Step 1: Read both call sites**
+Audit found 4 `OrderManager.Instance` reads, not the originally estimated 2. Three are
+Imminent-specific forecast lines whose premise (a pre-issue "coming soon" state) no longer
+exists in the new model. One is an Active-order display that migrates cleanly.
 
-`:768` reads order events log; `:4204` reads order completion outcomes for daily report.
+- [x] **Site 1: `BuildKingdomForecastLine` (~line 764)**
 
-- [ ] **Step 2: Determine the migration target**
+Entire method was Imminent-specific (strategic-order coming-soon forecast). Stubbed to
+`return string.Empty;` — strategic-order cues arrive via StoryDirector Modal events.
+Orphan loc-key `{=forecast_strategic_orders}` left in strings XML; pruned at Phase B
+cleanup (Task 43).
 
-Per Spec 2 §13.1:
-- `:768` → StoryDirector news-feed accordion (already populated by ambient + transition storylets — read from there instead)
-- `:4204` → scripted-effect log entries written by `EffectExecutor` (same news-feed source)
+- [x] **Site 2: `BuildCompanyForecastLine` (~line 796)**
 
-Both sites stop reading from `OrderManager` entirely and instead query the news-feed entries the StoryDirector / EffectExecutor already produce. If the news-feed has no public read API today, add a minimal `EnlistedNewsBehavior.GetRecentEntries(int sinceHourTick) → IEnumerable<NewsEntry>` accessor and consume it from both sites.
+Same pattern at company scope. Stubbed to `return string.Empty;`. Orphan loc-key
+`{=forecast_order_imminent}` (company variant) left; pruned at Task 43.
 
-- [ ] **Step 3: Build + smoke**
+- [x] **Site 3: `BuildPlayerForecastLine` (~line 833)**
+
+Two concerns: scheduled commitments (kept) + imminent orders (dropped). Rewritten to
+return `BuildCommitmentLine()` only. Orphan loc-keys `{=forecast_duty_imminent}` and
+`{=forecast_order_imminent}` (player branch) left; pruned at Task 43.
+
+- [x] **Site 4: `BuildDailyUnitLine` Priority-0 branch (~line 4212)**
+
+Migrated `OrderManager.Instance` + `OrderCatalog.GetDisplayTitle(currentOrder)` to
+`OrderDisplayHelper.IsOrderActive()` + `OrderDisplayHelper.GetCurrent().Title`. Added
+`using Enlisted.Features.Activities.Orders;` directive.
+
+- [x] **Build + validate + error-codes regen**
+
+Build succeeded (0 warnings, 0 errors). `validate_content.py` passes with warnings.
+Error-codes registry regenerated.
+
+- [x] **Commit**
 
 ```bash
-dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
-```
-
-Smoke: open the news feed and the daily report, verify both render. Without authored content, both will be sparse — that's expected.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs
+git add src/Features/Interface/Behaviors/EnlistedNewsBehavior.cs \
+        docs/superpowers/plans/2026-04-20-orders-surface.md \
+        docs/error-codes.md
 git commit -F /c/Users/coola/commit_msg.txt
 ```
 
 Commit message:
 ```
-refactor(news): migrate order-event reads to StoryDirector news-feed
+refactor(news): migrate order-state reads in EnlistedNewsBehavior
 
-Spec 2 §13.1 sites 4/5 of 8. News feed and daily report now read
-StoryDirector / EffectExecutor entries directly — the old order-
-event log is no longer the source of truth.
+Spec 2 §13.1 sites 7-10 of 11 (expanded). Audit found 4
+OrderManager.Instance reads in the file, not 2. Migration:
+
+- BuildKingdomForecastLine: stub to empty string. Imminent
+  strategic-order forecasts have no equivalent in the new model;
+  storylet Modal events handle strategic-order cues.
+- BuildCompanyForecastLine: stub to empty string. Same rationale
+  at company scope.
+- BuildPlayerForecastLine: drop the imminent-orders branch; keep
+  the scheduled-commitments branch (unrelated to orders).
+- BuildDailyUnitLine: Priority-0 active-order branch migrated
+  to OrderDisplayHelper.IsOrderActive() + GetCurrent().Title.
+
+Three loc-keys (forecast_strategic_orders, forecast_duty_imminent,
+forecast_order_imminent) are now orphan; pruned at Phase B
+cleanup.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ```

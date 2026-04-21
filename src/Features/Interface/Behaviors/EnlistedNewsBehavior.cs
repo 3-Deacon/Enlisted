@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Conditions;
@@ -758,120 +759,33 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Builds a forecast line for Kingdom Reports section.
-        /// Shows strategic orders that are imminent (4-8 hours).
+        /// Kingdom-level forecast line. Empty in the storylet-driven model —
+        /// strategic-order cues arrive via StoryDirector Modal events, not a pre-issue forecast.
         /// </summary>
         private string BuildKingdomForecastLine()
         {
-            try
-            {
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                if (orderManager == null || !orderManager.IsOrderImminent())
-                {
-                    return string.Empty;
-                }
-
-                var order = orderManager.GetCurrentOrder();
-                if (order == null || !order.Tags.Contains("strategic"))
-                {
-                    return string.Empty;
-                }
-
-                var hoursUntil = orderManager.GetHoursUntilIssue();
-                var text = new TextObject("{=forecast_strategic_orders}Expect strategic orders from command soon. (in {HOURS}h)");
-                _ = text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
-                return $"<span style=\"Warning\">{text}</span>";
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug(LogCategory, $"Error building kingdom forecast: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>
-        /// Builds a forecast line for Company Reports section.
-        /// Shows company-level orders that are imminent (4-8 hours).
+        /// Company-level forecast line. Empty in the storylet-driven model —
+        /// company-order cues arrive via StoryDirector Modal events, not a pre-issue forecast.
         /// </summary>
         private string BuildCompanyForecastLine()
         {
-            try
-            {
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                if (orderManager == null || !orderManager.IsOrderImminent())
-                {
-                    return string.Empty;
-                }
-
-                var order = orderManager.GetCurrentOrder();
-                if (order == null || order.Tags.Contains("strategic"))
-                {
-                    // Strategic orders show in Kingdom section, not Company section
-                    return string.Empty;
-                }
-
-                var forecastText = orderManager.GetImminentWarningText();
-                if (string.IsNullOrWhiteSpace(forecastText))
-                {
-                    return string.Empty;
-                }
-
-                var hoursUntil = orderManager.GetHoursUntilIssue();
-                return $"<span style=\"Warning\">{forecastText} (in {(int)hoursUntil}h)</span>";
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug(LogCategory, $"Error building company forecast: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>
-        /// Builds a forecast line for Your Status section.
-        /// Shows player-specific duty forecast (imminent orders) and scheduled commitments.
+        /// Player forecast line. Surfaces scheduled commitments; order forecasts are
+        /// handled by storylet Modal events in the new model.
         /// </summary>
         private string BuildPlayerForecastLine()
         {
             try
             {
-                var parts = new List<string>();
-
-                // Check for scheduled commitments first (player's plans)
                 var commitmentLine = BuildCommitmentLine();
-                if (!string.IsNullOrWhiteSpace(commitmentLine))
-                {
-                    parts.Add(commitmentLine);
-                }
-
-                // Then check for imminent orders
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                if (orderManager != null && orderManager.IsOrderImminent())
-                {
-                    var order = orderManager.GetCurrentOrder();
-                    if (order != null)
-                    {
-                        var hoursUntil = orderManager.GetHoursUntilIssue();
-
-                        // For mandatory orders, phrase as upcoming duty
-                        if (order.Mandatory)
-                        {
-                            var text = new TextObject("{=forecast_duty_imminent}Duty assignment coming in {HOURS}h: {TITLE}");
-                            _ = text.SetTextVariable("HOURS", $"{(int)hoursUntil}");
-                            _ = text.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
-                            parts.Add($"<span style=\"Warning\">{text}</span>");
-                        }
-                        else
-                        {
-                            // For optional orders, phrase as opportunity
-                            var text2 = new TextObject("{=forecast_order_imminent}Order opportunity coming in {HOURS}h: {TITLE}");
-                            _ = text2.SetTextVariable("HOURS", $"{(int)hoursUntil}");
-                            _ = text2.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(order));
-                            parts.Add($"<span style=\"Warning\">{text2}</span>");
-                        }
-                    }
-                }
-
-                return string.Join(" ", parts);
+                return string.IsNullOrWhiteSpace(commitmentLine) ? string.Empty : commitmentLine;
             }
             catch (Exception ex)
             {
@@ -4209,14 +4123,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 var tierKey = GetTierKey(tier);
 
                 // Priority 0: Active order (on duty)
-                var orderManager = Orders.Behaviors.OrderManager.Instance;
-                if (orderManager != null && orderManager.IsOrderActive())
+                if (OrderDisplayHelper.IsOrderActive())
                 {
-                    var currentOrder = orderManager.GetCurrentOrder();
-                    if (currentOrder != null)
+                    var display = OrderDisplayHelper.GetCurrent();
+                    if (display != null)
                     {
-                        // Show that player is currently on duty
-                        return $"On duty: {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}.";
+                        return $"On duty: {display.Title}.";
                     }
                 }
 
