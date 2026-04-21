@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
@@ -1256,46 +1257,7 @@ namespace Enlisted.Features.Combat.Behaviors
         /// </summary>
         private FormationClass DetectFormationFromEquipment()
         {
-            try
-            {
-                var hero = Hero.MainHero;
-                if (hero?.CharacterObject == null)
-                {
-                    return FormationClass.Infantry;
-                }
-
-                var character = hero.CharacterObject;
-
-                // Horse + ranged weapon = Horse Archer formation
-                if (character.IsRanged && character.IsMounted)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Horse Archer (mounted + ranged)");
-                    return FormationClass.HorseArcher;
-                }
-
-                // Horse equipped = Cavalry formation
-                if (character.IsMounted)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Cavalry (mounted)");
-                    return FormationClass.Cavalry;
-                }
-
-                // Ranged weapon (bow, crossbow, throwing) = Ranged formation
-                if (character.IsRanged)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Ranged (bow/crossbow/throwing)");
-                    return FormationClass.Ranged;
-                }
-
-                // Default to infantry (melee weapons or no weapons)
-                ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Infantry (default)");
-                return FormationClass.Infantry;
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("FORMATIONASSIGNMENT", "Error detecting formation from equipment", ex);
-                return FormationClass.Infantry;
-            }
+            return CombatClassResolver.Resolve(Hero.MainHero);
         }
 
         /// <summary>
