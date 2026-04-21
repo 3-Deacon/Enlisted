@@ -10,7 +10,7 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-20-orders-surface-design.md](../specs/2026-04-20-orders-surface-design.md) (commits `015128b` + `5d7e311` on `development`).
 
-**Status:** Phase A (Tasks 1-17) complete 2026-04-21 on `development` (commits `2f64137` → `b8039cf`). Phase B §13.1 consumer migrations complete — 13 OrderManager.Instance sites migrated across 5 files, 1 deferred (Task 19f ShowOrdersMenu, imperative, pending named-order archetypes in Tasks 34-35). Phase B content authoring + validators + old-subsystem deletion not yet started.
+**Status:** Phase A (Tasks 1-17) complete 2026-04-21 on `development` (commits `2f64137` → `b8039cf`). Phase B §13.1 consumer migrations complete — 14 OrderManager.Instance sites migrated across 5 files. Task 19f (ShowOrdersMenu) now a read-only details card from `OrderDisplayHelper.GetCurrent()`; no remaining `OrderManager.Instance` reads in `src/` outside the deprecated `src/Features/Orders/` subtree. Phase B content authoring + validators + old-subsystem deletion not yet started.
 
 **Known API corrections discovered during execution:** see [§ API corrections appendix](#api-corrections-appendix) at the bottom of this file. The plan's task bodies were written against assumed v1.3.13 APIs; several diverged from the actual decompile and were adapted in the shipped implementation. Future task implementers should verify against `../Decompile/` first.
 
@@ -2943,6 +2943,41 @@ git commit -F /c/Users/coola/commit_msg.txt
 ```
 
 **Site F (ShowOrdersMenu at ~line 5297) is deferred to Task 19f.** It uses imperative/mutating fields (`Issuer`, `Requirements.MinSkills`, `Requirements.MinTraits`) and accept/decline callbacks with no clean equivalent in `OrderActivity` until the storylet Modal flow lands in Tasks 34-35.
+
+---
+
+## Task 19f: Neutralize `ShowOrdersMenu` click handler
+
+**Files:**
+- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs` (ShowOrdersMenu method + 1 doc comment + 1 using)
+- Modify: `ModuleData/Languages/enlisted_strings.xml` (4 new keys)
+- Regenerate: `docs/error-codes.md`
+
+Converts the last remaining `OrderManager.Instance` consumer in `src/` (outside the deprecated `src/Features/Orders/` subtree) from an imperative accept/decline dialog into a read-only details card. The new model has no accept/decline — named orders start via the storylet Modal flow (Tasks 34-35) and run to completion via the arc.
+
+The outer accordion row at `EnlistedMenuBehavior.cs:1002-1022` is already gated on `OrderDisplayHelper.GetCurrent() != null`, so the dialog is entered only when a named order is active. That made the old "no active orders" branch inside `ShowOrdersMenu` dead code in practice — dropped along with Accept/Decline and the decline-confirm chain.
+
+- [x] **Step 1: Read + rewrite ShowOrdersMenu**
+
+Replaced the method body (previously 116 lines) with a ~35-line read-only details dialog built from `OrderDisplayHelper.GetCurrent()`. Fields displayed: Title (plain first line), Intent (when non-empty), Progress (hours elapsed of total, when total > 0). Single "Close" button; no state mutation, no refresh call.
+
+- [x] **Step 2: Remove stale using + doc-comment reference**
+
+Dropped `using Enlisted.Features.Orders.Behaviors;` (OrderManager was the only import from that namespace after the rewrite). Rewrote the `RefreshEnlistedStatusMenuUi` doc comment to describe current behavior without the specific `OrderManager` name reference (which becomes fiction once Task 42 deletes the old subsystem).
+
+- [x] **Step 3: Add 4 new loc-keys**
+
+Added `{=enlisted_orders_details_title}`, `{=enlisted_orders_details_intent}`, `{=enlisted_orders_details_progress}`, `{=enlisted_orders_details_close}` to `enlisted_strings.xml` adjacent to the existing `enlisted_orders_tooltip_*` entries.
+
+Orphaned loc-keys (left in XML per Task 20 precedent, pruned at Task 43): `orders_title`, `orders_none_available`, `orders_continue`, `orders_active_title`, `orders_accept`, `orders_decline`, `orders_decline_confirm_title`, `orders_decline_confirm_text`, `orders_yes_decline`, `orders_cancel`.
+
+- [x] **Step 4: Build + validator + error-codes regen**
+
+Build clean (0 warnings, 0 errors). Validator passes with warnings. Error-codes registry regenerated.
+
+- [x] **Step 5: Commit**
+
+**Smoke-test caveat:** `OrderDisplayHelper.GetCurrent()` returns null until named-order archetypes author storylets that land in `ActiveNamedOrder` (Tasks 34-35). Until then the outer row never renders → the dialog is unreachable in-game. Code path is statically verified; live smoke deferred to Phase B content authoring.
 
 ---
 

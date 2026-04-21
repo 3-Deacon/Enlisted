@@ -13,7 +13,6 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Logistics;
-using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
@@ -4758,8 +4757,9 @@ namespace Enlisted.Features.Interface.Behaviors
 
         /// <summary>
         /// Refreshes the enlisted status menu UI to reflect current state changes.
-        /// This is public so other systems (like OrderManager) can trigger menu updates
-        /// when orders are issued, ensuring the accordion auto-expands for new orders.
+        /// Public entry point so other behaviors can trigger a menu refresh when
+        /// underlying state changes (e.g., a new order arrives and the accordion
+        /// should auto-expand).
         /// </summary>
         public void RefreshEnlistedStatusMenuUi()
         {
@@ -5264,117 +5264,53 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Shows the orders menu with current order status and accept/decline options.
+        /// Shows a read-only details dialog for the currently active named order.
+        /// The outer accordion row is gated on an active order, so this method is
+        /// only reachable when a named order is in flight; the internal null guard
+        /// is defensive against races between row render and click handler.
+        /// Named orders run to completion via the storylet arc — there is no
+        /// accept/decline surface in the new model.
         /// </summary>
         private void ShowOrdersMenu()
         {
             try
             {
-                var orderManager = OrderManager.Instance;
-                var currentOrder = orderManager?.GetCurrentOrder();
-
-                if (currentOrder == null)
+                var display = OrderDisplayHelper.GetCurrent();
+                if (display == null)
                 {
-                    // No active order
-                    var ordersTitle = new TextObject("{=orders_title}Orders").ToString();
-                    var noOrdersText = new TextObject("{=orders_none_available}No active orders at this time. Check back later.").ToString();
-                    var continueText = new TextObject("{=orders_continue}Continue").ToString();
-
-                    InformationManager.ShowInquiry(new InquiryData(
-                        titleText: ordersTitle,
-                        text: noOrdersText,
-                        isAffirmativeOptionShown: true,
-                        isNegativeOptionShown: false,
-                        affirmativeText: continueText,
-                        negativeText: null,
-                        affirmativeAction: null,
-                        negativeAction: null
-                    ), true);
                     return;
                 }
 
-                // Build order display text
                 var sb = new StringBuilder();
-                _ = sb.AppendLine($"ORDER FROM: {currentOrder.Issuer}");
-                _ = sb.AppendLine();
-                _ = sb.AppendLine($"TITLE: {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}");
-                _ = sb.AppendLine();
-                _ = sb.AppendLine($"OBJECTIVE:");
-                _ = sb.AppendLine(Orders.OrderCatalog.GetDisplayDescription(currentOrder));
-                _ = sb.AppendLine();
+                _ = sb.AppendLine(display.Title);
 
-                // Show requirements if any
-                if (currentOrder.Requirements != null)
+                if (!string.IsNullOrEmpty(display.Intent))
                 {
-                    if (currentOrder.Requirements.MinSkills != null && currentOrder.Requirements.MinSkills.Count > 0)
-                    {
-                        _ = sb.AppendLine("Required Skills:");
-                        foreach (var skill in currentOrder.Requirements.MinSkills)
-                        {
-                            _ = sb.AppendLine($"  • {skill.Key}: {skill.Value}");
-                        }
-                        _ = sb.AppendLine();
-                    }
-
-                    if (currentOrder.Requirements.MinTraits != null && currentOrder.Requirements.MinTraits.Count > 0)
-                    {
-                        _ = sb.AppendLine("Required Traits:");
-                        foreach (var trait in currentOrder.Requirements.MinTraits)
-                        {
-                            _ = sb.AppendLine($"  • {trait.Key}: {trait.Value}");
-                        }
-                        _ = sb.AppendLine();
-                    }
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_intent}Intent: {INTENT}")
+                        .SetTextVariable("INTENT", display.Intent).ToString());
                 }
 
-                var daysAgo = (int)(CampaignTime.Now - currentOrder.IssuedTime).ToDays;
-                string timeStr = daysAgo == 0 ? "today" : daysAgo == 1 ? "yesterday" : $"{daysAgo} days ago";
-                _ = sb.AppendLine($"Issued: {timeStr}");
-                _ = sb.AppendLine($"Declines: {orderManager.GetDeclineCount()}");
+                if (display.HoursTotal > 0)
+                {
+                    _ = sb.AppendLine();
+                    _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_progress}Progress: {ELAPSED} of {TOTAL} hours")
+                        .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
+                        .SetTextVariable("TOTAL", display.HoursTotal.ToString()).ToString());
+                }
 
-                var activeOrderTitle = new TextObject("{=orders_active_title}Active Order").ToString();
-                var acceptText = new TextObject("{=orders_accept}Accept Order").ToString();
-                var declineText = new TextObject("{=orders_decline}Decline Order").ToString();
+                var title = new TextObject("{=enlisted_orders_details_title}Order Details").ToString();
+                var closeText = new TextObject("{=enlisted_orders_details_close}Close").ToString();
 
                 InformationManager.ShowInquiry(new InquiryData(
-                    titleText: activeOrderTitle,
+                    titleText: title,
                     text: sb.ToString(),
                     isAffirmativeOptionShown: true,
-                    isNegativeOptionShown: true,
-                    affirmativeText: acceptText,
-                    negativeText: declineText,
-                    affirmativeAction: () =>
-                    {
-                        orderManager.AcceptOrder();
-                        _ordersCollapsed = true;
-                        _menuNeedsRefresh = true;
-                        RefreshEnlistedStatusMenuUi();
-                    },
-                    negativeAction: () =>
-                    {
-                        // Show decline confirmation
-                        var declineConfirmTitle = new TextObject("{=orders_decline_confirm_title}Decline Order?").ToString();
-                        var declineConfirmText = new TextObject("{=orders_decline_confirm_text}Declining orders damages your reputation with your superiors. Continue?").ToString();
-                        var yesDeclineText = new TextObject("{=orders_yes_decline}Yes, Decline").ToString();
-                        var cancelText = new TextObject("{=orders_cancel}Cancel").ToString();
-
-                        InformationManager.ShowInquiry(new InquiryData(
-                            titleText: declineConfirmTitle,
-                            text: declineConfirmText,
-                            isAffirmativeOptionShown: true,
-                            isNegativeOptionShown: true,
-                            affirmativeText: yesDeclineText,
-                            negativeText: cancelText,
-                            affirmativeAction: () =>
-                            {
-                                orderManager.DeclineOrder();
-                                _ordersCollapsed = true;
-                                _menuNeedsRefresh = true;
-                                RefreshEnlistedStatusMenuUi();
-                            },
-                            negativeAction: null
-                        ), true);
-                    }
+                    isNegativeOptionShown: false,
+                    affirmativeText: closeText,
+                    negativeText: null,
+                    affirmativeAction: null,
+                    negativeAction: null
                 ), true);
             }
             catch (Exception ex)

@@ -2447,9 +2447,13 @@
     <string id="enlisted_orders_tooltip_none" text="No active orders at this time." />
     <string id="enlisted_orders_tooltip_active" text="You have an active order: {TITLE} ({ELAPSED}/{TOTAL} hours)." />
     <string id="enlisted_orders_tooltip_active_row" text="Click to view order details." />
+    <string id="enlisted_orders_details_title" text="Order Details" />
+    <string id="enlisted_orders_details_intent" text="Intent: {INTENT}" />
+    <string id="enlisted_orders_details_progress" text="Progress: {ELAPSED} of {TOTAL} hours" />
+    <string id="enlisted_orders_details_close" text="Close" />
 
-    
-    
+
+
     
     <string id="enlisted_commitment_scheduled" text="You've made plans for {ACTIVITY} at {PHASE}." />
     <string id="commitment_scheduled" text="Scheduled for {PHASE}." />
