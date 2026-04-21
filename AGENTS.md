@@ -1,4 +1,4 @@
-# Enlisted - Bannerlord v1.3.13 Mod
+# Enlisted - Bannerlord Mod
 
 C# mod transforming Mount & Blade II: Bannerlord into a soldier career simulator. Player enlists with a lord, follows orders, earns wages, progresses through 9 ranks. 245+ narrative content pieces, data-driven via JSON + XML.
 
@@ -34,10 +34,11 @@ python Tools/Validation/sync_event_strings.py
 
 ## Critical Rules (Will Break Mod)
 
-### 1. Target Bannerlord v1.3.13
+### 1. Verify every TaleWorlds API against `../Decompile/`
 
-- NEVER assume APIs from later versions
-- ALWAYS verify APIs against `../Decompile/` (sibling of repo root, external to git; regenerate via `Tools/Decompile-Bannerlord.bat`). NOT online docs.
+- The decompile is the only authoritative reference for the Bannerlord API surface the user has installed. It's a sibling of the repo root, external to git, regenerated via `Tools/Decompile-Bannerlord.bat` from the local install.
+- NEVER use online docs, Context7, or training knowledge for TaleWorlds APIs — they drift across patches.
+- If the user upgrades Bannerlord, regenerate the decompile before verifying APIs for new work.
 
 ### 2. New C# Files Must Be Registered in .csproj
 
@@ -209,7 +210,7 @@ ModuleData/Enlisted/   JSON events, orders, decisions
 ModuleData/Languages/  enlisted_strings.xml (localization)
 docs/                  All documentation (see docs/INDEX.md)
 Tools/Validation/      Validators (run before commit)
-../Decompile/          Bannerlord v1.3.13 API — AUTHORITATIVE (external to repo, regenerate with Tools/Decompile-Bannerlord.bat)
+../Decompile/          Bannerlord API reference — AUTHORITATIVE (external to repo, regenerate from local install with Tools/Decompile-Bannerlord.bat)
 ```
 
 ### Key Feature Folders
@@ -228,7 +229,7 @@ Tools/Validation/      Validators (run before commit)
 
 ## Pre-Commit Checklist
 
-- [ ] APIs verified against `Decompile/` (v1.3.13)
+- [ ] APIs verified against `../Decompile/` (regenerate if the install has been patched since last run)
 - [ ] New C# files added to `Enlisted.csproj`
 - [ ] JSON field order correct (fallback after ID)
 - [ ] Tooltips on all event options (<80 chars)
