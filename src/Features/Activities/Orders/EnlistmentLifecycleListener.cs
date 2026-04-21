@@ -15,14 +15,57 @@ namespace Enlisted.Features.Activities.Orders
         public override void RegisterEvents()
         {
             CampaignEvents.OnClanChangedKingdomEvent.AddNonSerializedListener(this, OnClanChangedKingdom);
+            CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunchedStartIfEnlisted);
 
-            // Static event persists across Campaign teardown; guard against duplicate
+            // Static events persist across Campaign teardown; guard against duplicate
             // subscription when RegisterEvents is re-invoked on save/load cycles.
+            EnlistmentBehavior.OnEnlisted -= OnEnlistedStartActivity;
+            EnlistmentBehavior.OnEnlisted += OnEnlistedStartActivity;
             EnlistmentBehavior.OnEnlistmentEnded -= OnEnlistmentEnded;
             EnlistmentBehavior.OnEnlistmentEnded += OnEnlistmentEnded;
         }
 
         public override void SyncData(IDataStore dataStore) { }
+
+        private void OnSessionLaunchedStartIfEnlisted(CampaignGameStarter starter)
+        {
+            try
+            {
+                if (EnlistmentBehavior.Instance?.IsEnlisted == true)
+                {
+                    StartOrderActivityIfNeeded();
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("LORDSTATE", "OnSessionLaunchedStartIfEnlisted threw", ex);
+            }
+        }
+
+        private static void OnEnlistedStartActivity(Hero lord)
+        {
+            try
+            {
+                StartOrderActivityIfNeeded();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("LORDSTATE", "OnEnlistedStartActivity threw", ex);
+            }
+        }
+
+        private static void StartOrderActivityIfNeeded()
+        {
+            if (OrderActivity.Instance != null)
+            {
+                return;
+            }
+
+            var activity = new OrderActivity();
+            var ctx = ActivityContext.FromCurrent();
+            ActivityRuntime.Instance?.Start(activity, ctx);
+            ModLogger.Info("LORDSTATE", "OrderActivity started");
+        }
 
         private void OnClanChangedKingdom(Clan clan, Kingdom oldKingdom, Kingdom newKingdom, ChangeKingdomAction.ChangeKingdomActionDetail detail, bool showNotification)
         {
