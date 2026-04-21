@@ -39,6 +39,14 @@ namespace Enlisted.Features.Activities.Orders
                 };
 
                 BuildAndSeatPhases(activity, sourceStorylet);
+                // Advance to the first arc phase (baseCount in the combined list) so the
+                // arc starts ticking immediately rather than waiting out the base phase
+                // duration. Reseat the time anchors so TryAdvancePhase's elapsed math
+                // starts from the splice moment.
+                var baseCount = (activity.Phases?.Count ?? 0) - sourceStorylet.Arc.Phases.Count;
+                activity.CurrentPhaseIndex = Math.Max(0, baseCount);
+                activity.StartedAt = CampaignTime.Now;
+                activity.LastAutoFireHour = -1;
                 ModLogger.Info("ARC", $"spliced {sourceStorylet.Id} (intent={intent})");
             }
             catch (Exception ex)
@@ -47,6 +55,7 @@ namespace Enlisted.Features.Activities.Orders
             }
         }
 
+        /// <summary>Resets the activity's Phases to the base type-def phases and sets CurrentPhaseIndex to 0, dropping the player back to the start of the duty-profile flow when the arc resolves or is cancelled.</summary>
         public static void UnspliceArc()
         {
             try

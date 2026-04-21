@@ -60,6 +60,7 @@ namespace Enlisted.Features.Activities.Home
                 return;
             }
 
+            ctx.SourceStorylet = picked;
             EffectExecutor.Apply(picked.Immediate, ctx);
             var evt = StoryletEventAdapter.BuildModal(picked, ctx, home);
             var candidate = picked.ToCandidate(ctx);

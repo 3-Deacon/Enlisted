@@ -76,7 +76,7 @@ namespace Enlisted.Features.Activities
             {
                 a.ResolvePhasesFromType(_types);
             }
-            // Spec 2: OrderActivity instances need to re-splice their active named-order
+            // OrderActivity instances need to re-splice their active named-order
             // arc phases after load — Activity._cachedPhases is [NonSerialized], so without
             // this, spliced phases evaporate on reload.
             foreach (var a in _active)
