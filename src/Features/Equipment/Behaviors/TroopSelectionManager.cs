@@ -475,6 +475,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
         }
 
+        /// <inheritdoc cref="CultureTroopTreeHelper.BuildCultureTroopTree(CultureObject)"/>
         private List<CharacterObject> BuildCultureTroopTree(CultureObject culture)
         {
             return CultureTroopTreeHelper.BuildCultureTroopTree(culture);
