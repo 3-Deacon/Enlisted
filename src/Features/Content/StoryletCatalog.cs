@@ -43,6 +43,7 @@ namespace Enlisted.Features.Content
                         var s = Parse(item);
                         if (s == null || string.IsNullOrEmpty(s.Id))
                         {
+                            ModLogger.Expected("STORYLET", "bad_storylet_item", $"storylet item with null/empty id in {Path.GetFileName(file)}");
                             continue;
                         }
                         _byId[s.Id] = s;
@@ -53,6 +54,13 @@ namespace Enlisted.Features.Content
                     ModLogger.Surfaced("STORYLET", "Failed to load storylet file", ex,
                         new Dictionary<string, object> { ["file"] = file });
                 }
+            }
+
+            var fileCount = Directory.Exists(dir) ? Directory.GetFiles(dir, "*.json").Length : 0;
+            ModLogger.Info("STORYLET", $"StoryletCatalog loaded {_byId.Count} storylets from {fileCount} files");
+            if (fileCount > 0 && _byId.Count == 0)
+            {
+                ModLogger.Surfaced("STORYLET", "StoryletCatalog loaded 0 storylets despite JSON files present — check parser or JSON schema", null);
             }
         }
 

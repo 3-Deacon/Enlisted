@@ -41,52 +41,58 @@ namespace Enlisted.Features.Content
             var eventsLoaded = 0;
             var migrationWarnings = 0;
 
-            // Load from Events directory
-            var eventsPath = GetEventsBasePath();
-            if (!string.IsNullOrEmpty(eventsPath) && Directory.Exists(eventsPath))
+            try
             {
-                var (eventsFiles, eventsCount, eventsWarnings) = LoadFromDirectory(eventsPath, "Events");
-                filesLoaded += eventsFiles;
-                eventsLoaded += eventsCount;
-                migrationWarnings += eventsWarnings;
-            }
-            else
-            {
-                ModLogger.Warn(LogCategory, $"Events directory not found: {eventsPath}");
-            }
+                // Load from Events directory
+                var eventsPath = GetEventsBasePath();
+                if (!string.IsNullOrEmpty(eventsPath) && Directory.Exists(eventsPath))
+                {
+                    var (eventsFiles, eventsCount, eventsWarnings) = LoadFromDirectory(eventsPath, "Events");
+                    filesLoaded += eventsFiles;
+                    eventsLoaded += eventsCount;
+                    migrationWarnings += eventsWarnings;
+                }
+                else
+                {
+                    ModLogger.Warn(LogCategory, $"Events directory not found: {eventsPath}");
+                }
 
-            // Load from Decisions directory
-            var decisionsPath = GetDecisionsBasePath();
-            if (!string.IsNullOrEmpty(decisionsPath) && Directory.Exists(decisionsPath))
-            {
-                var (decisionsFiles, decisionsCount, decisionsWarnings) = LoadFromDirectory(decisionsPath, "Decisions");
-                filesLoaded += decisionsFiles;
-                eventsLoaded += decisionsCount;
-                migrationWarnings += decisionsWarnings;
-            }
-            else
-            {
-                ModLogger.Warn(LogCategory, $"Decisions directory not found: {decisionsPath}");
-            }
+                // Load from Decisions directory
+                var decisionsPath = GetDecisionsBasePath();
+                if (!string.IsNullOrEmpty(decisionsPath) && Directory.Exists(decisionsPath))
+                {
+                    var (decisionsFiles, decisionsCount, decisionsWarnings) = LoadFromDirectory(decisionsPath, "Decisions");
+                    filesLoaded += decisionsFiles;
+                    eventsLoaded += decisionsCount;
+                    migrationWarnings += decisionsWarnings;
+                }
+                else
+                {
+                    ModLogger.Warn(LogCategory, $"Decisions directory not found: {decisionsPath}");
+                }
 
-            // Load from Order Events directory (for Order Progression System)
-            var orderEventsPath = GetOrderEventsBasePath();
-            if (!string.IsNullOrEmpty(orderEventsPath) && Directory.Exists(orderEventsPath))
-            {
-                var (orderFiles, orderCount, orderWarnings) = LoadFromDirectory(orderEventsPath, "OrderEvents");
-                filesLoaded += orderFiles;
-                eventsLoaded += orderCount;
-                migrationWarnings += orderWarnings;
-            }
-            else
-            {
-                ModLogger.Warn(LogCategory, $"Order events directory not found: {orderEventsPath} - order phase events will not fire");
-            }
+                // Load from Order Events directory (for Order Progression System)
+                var orderEventsPath = GetOrderEventsBasePath();
+                if (!string.IsNullOrEmpty(orderEventsPath) && Directory.Exists(orderEventsPath))
+                {
+                    var (orderFiles, orderCount, orderWarnings) = LoadFromDirectory(orderEventsPath, "OrderEvents");
+                    filesLoaded += orderFiles;
+                    eventsLoaded += orderCount;
+                    migrationWarnings += orderWarnings;
+                }
+                else
+                {
+                    ModLogger.Warn(LogCategory, $"Order events directory not found: {orderEventsPath} - order phase events will not fire");
+                }
 
-            _initialized = true;
-
-            var warningMsg = migrationWarnings > 0 ? $" ({migrationWarnings} migration warnings)" : "";
-            ModLogger.Info(LogCategory, $"Loaded {eventsLoaded} events from {filesLoaded} files{warningMsg}");
+                var warningMsg = migrationWarnings > 0 ? $" ({migrationWarnings} migration warnings)" : "";
+                ModLogger.Info(LogCategory, $"Loaded {eventsLoaded} events from {filesLoaded} files{warningMsg}");
+                _initialized = true;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("EVENTCATALOG", "EventCatalog.Initialize failed during file load — catalog will be empty and retry on next access", ex);
+            }
         }
 
         /// <summary>

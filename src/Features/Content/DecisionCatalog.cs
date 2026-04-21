@@ -102,6 +102,11 @@ namespace Enlisted.Features.Content
             ModLogger.Info(LogCategory, $"Loaded {AllDecisions.Count} decisions " +
                 $"({PlayerInitiatedDecisions.Count} player-initiated, {AutomaticDecisions.Count} automatic)");
 
+            if (AllDecisions.Count == 0 && EventCatalog.EventCount == 0)
+            {
+                ModLogger.Surfaced("DECISIONCATALOG", "DecisionCatalog loaded 0 decisions AND EventCatalog has 0 events — upstream failure", null);
+            }
+
             // Log section breakdown
             foreach (var kvp in DecisionsBySection)
             {

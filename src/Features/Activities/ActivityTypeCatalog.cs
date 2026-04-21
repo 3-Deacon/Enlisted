@@ -33,6 +33,7 @@ namespace Enlisted.Features.Activities
                 return;
             }
 
+            var registered = 0;
             foreach (var file in Directory.GetFiles(dir, "*.json"))
             {
                 try
@@ -47,12 +48,20 @@ namespace Enlisted.Features.Activities
                         continue;
                     }
                     runtime.RegisterType(def);
+                    registered++;
                 }
                 catch (Exception ex)
                 {
                     ModLogger.Surfaced("ACTIVITY", "Failed to load activity type",
                         ex, new Dictionary<string, object> { ["file"] = file });
                 }
+            }
+
+            var fileCount = Directory.Exists(dir) ? Directory.GetFiles(dir, "*.json").Length : 0;
+            ModLogger.Info("ACTIVITY", $"ActivityTypeCatalog loaded {registered} types from {fileCount} files");
+            if (fileCount > 0 && registered == 0)
+            {
+                ModLogger.Surfaced("ACTIVITY", "ActivityTypeCatalog registered 0 types despite JSON files present", null);
             }
         }
 

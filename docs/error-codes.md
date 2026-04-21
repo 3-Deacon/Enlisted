@@ -11,7 +11,8 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-ACTIVITY-d0bb | Failed to load activity type | src/Features/Activities/ActivityTypeCatalog.cs:53 |
+| E-ACTIVITY-6383 | ActivityTypeCatalog registered 0 types despite JSON files present | src/Features/Activities/ActivityTypeCatalog.cs:64 |
+| E-ACTIVITY-d0bb | Failed to load activity type | src/Features/Activities/ActivityTypeCatalog.cs:55 |
 
 ## BAGGAGE
 
@@ -58,6 +59,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-CONTEXT-47ff | Strategic context config not found - army analysis unavailable | src/Features/Context/ArmyContextAnalyzer.cs:170 |
 
+## DECISIONCATALOG
+
+| Code | Summary | Source |
+|---|---|---|
+| E-DECISIONCATALOG-c6fb | DecisionCatalog loaded 0 decisions AND EventCatalog has 0 events — upstream failure | src/Features/Content/DecisionCatalog.cs:107 |
+
 ## DIALOGMANAGER
 
 | Code | Summary | Source |
@@ -102,6 +109,12 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | Code | Summary | Source |
 |---|---|---|
 | E-EQUIPMENT-4e07 | Gear handling on discharge failed | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:5534 |
+
+## EVENTCATALOG
+
+| Code | Summary | Source |
+|---|---|---|
+| E-EVENTCATALOG-a291 | EventCatalog.Initialize failed during file load — catalog will be empty and retry on next access | src/Features/Content/EventCatalog.cs:94 |
 
 ## FORMATIONASSIGNMENT
 
@@ -231,7 +244,8 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:53 |
+| E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:54 |
+| E-STORYLET-d94d | StoryletCatalog loaded 0 storylets despite JSON files present — check parser or JSON schema | src/Features/Content/StoryletCatalog.cs:63 |
 
 ## STORYLET-ADAPT
 
