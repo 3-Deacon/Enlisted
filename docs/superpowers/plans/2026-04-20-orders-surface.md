@@ -162,7 +162,7 @@ src/Debugging/Behaviors/DebugToolsBehavior.cs                       -- Spec 2 sm
 
 **Phase B (Tasks 18–43): Content migration + consumer rewire.** Migrate the 8 `OrderManager.Instance` consumer call sites to read from `OrderActivity`. Author all profile + named-order + transition storylets. Implement Phase 13–17 validators. Delete old Orders code. Smoke verifies daily drift, named-order arc completion, transition storylets, all 18 skills receive XP.
 
-**Phase C (Tasks 44–52): Path system + crossroads.** Wire `PathScorer` to intent / XP / tier events. Author crossroads storylets. Wire `committed_path` + `prior_service_*` emission. Smoke verifies crossroads fire correctly with score-based path leader detection.
+**Phase C (Tasks 44–52): Path system + crossroads.** PathScorer's intent / skill-level / tier subscriptions are already wired in Phase A (Tasks 14 + 16 + `aa745dc`). Phase C authors the crossroads storylets, wires `committed_path` + `prior_service_*` emission, and replaces `PathScorer.OnTierChanged`'s log-only body with a crossroads dispatcher. Smoke verifies crossroads fire correctly with score-based path leader detection.
 
 **Phase D (Tasks 53–60): Polish, save-load & playtest.** Floor storylets, lord-state edge cases, culture / lord-trait variant overlays, debug hotkeys, save-load arc reconstruction test, final playtest scenarios A–G, verification doc.
 
@@ -4417,66 +4417,30 @@ Update the plan's `**Status:**` line.
 
 ## Phase C — Path system + crossroads
 
-## Task 44: Wire `PathScorer` to intent picks
+## Task 44: Wire `PathScorer` to intent picks ✅ shipped as part of Task 16
 
-**Files:**
-- Modify: `src/Features/Activities/Orders/NamedOrderArcRuntime.cs` (call PathScorer.OnIntentPicked)
-
-- [ ] **Step 1: Add the call in `SpliceArc`**
-
-In `NamedOrderArcRuntime.SpliceArc` (created Task 14), after constructing the `NamedOrderState`, call:
-
-```csharp
-PathScorer.OnIntentPicked(intent);
-```
-
-- [ ] **Step 2: Build + smoke**
-
-```bash
-dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
-```
-
-Smoke: enlist, accept a few named orders with different intents, open the dev console / debug menu and verify `path_<intent_path>_score` quality increments by 3 per accept. (Spec 2 debug hotkey added in Task 57 will surface path scores; for Phase C smoke, log them via a temporary `ModLogger.Info` line in PathScorer.OnIntentPicked.)
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add src/Features/Activities/Orders/NamedOrderArcRuntime.cs
-git commit -F /c/Users/coola/commit_msg.txt
-```
-
-Commit message:
-```
-feat(orders): wire intent picks to PathScorer
-
-Spec 2 §9. Each named-order accept calls PathScorer.OnIntentPicked
-which bumps the matching path's score by 3. Combined with Task 16's
-OnXPGained subscription (≥50 XP → +1 to matching path), path
-accumulation is fully wired by end of Task 44.
-
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-```
+The originally-planned Task 44 work — adding `PathScorer.OnIntentPicked(intent)` inside `NamedOrderArcRuntime.SpliceArc` — was folded into Task 16 implementation (commit `b798265`). `NamedOrderArcRuntime.SpliceArc` already calls `PathScorer.OnIntentPicked(intent)` immediately after the arc splice info-log. No additional work for Phase C.
 
 ---
 
-## Task 45: Verify `OnXPGained` subscription is firing path bumps
+## Task 45: Verify `HeroGainedSkill` subscription is firing path bumps
 
 **Files:**
 - No code changes; verification only.
 
 - [ ] **Step 1: Enable temporary path-score logging**
 
-Add a `ModLogger.Info` line in `PathScorer.BumpPath` to log every increment with the path id and new total. (Remove in Task 57 once debug hotkey provides a cleaner inspection surface.)
+Add a `ModLogger.Info` line in `PathScorer.BumpPath` to log every increment with the path id, amount, and new total. (Remove in Task 57 once debug hotkey provides a cleaner inspection surface.)
 
 - [ ] **Step 2: Smoke — 7 in-game days**
 
-Enlist, run for 7 days at fast speed (no manual intent picks needed — let ambient skill XP from profile storylets accumulate). Verify session log shows `PATH BumpPath` entries as Tasks 27-32's profile storylets award skill XP that maps to paths.
+Enlist, run for 7 days at fast speed (no manual intent picks needed — let ambient skill XP from profile storylets and daily drift accumulate). Verify session log shows `PATH BumpPath` entries whenever a skill crosses a level boundary on the main hero.
 
 - [ ] **Step 3: Verify path-score distribution**
 
-After 7 days, expect `path_*_score` qualities to show non-zero values across multiple paths (proportional to which skills the player accumulated XP in). E.g. a `garrisoned`-heavy player might show high `path_enforcer_score` from OneHanded/Athletics gains, moderate `path_diplomat_score` from Charm gains, low `path_rogue_score` from sparse Roguery gains.
+After 7 days, expect `path_*_score` qualities to show non-zero values across multiple paths (proportional to which skills the player gained levels in). E.g. a `garrisoned`-heavy player might show high `path_enforcer_score` from OneHanded/Athletics level-ups, moderate `path_diplomat_score` from Charm level-ups, low `path_rogue_score` from sparse Roguery level-ups.
 
-If no path scores increment: `OnXPGained` is not firing or `ExtractSkillFromSource` is not parsing the source string. Debug accordingly.
+If no path scores increment: check that `CampaignEvents.HeroGainedSkill` is firing at all (ModLogger.Info inside `OnHeroGainedSkill` before the MainHero filter), then that the MainHero filter isn't rejecting legitimate events, then that `skill.StringId` matches an entry in the `SkillToPath` dictionary. The `HeroGainedSkill` event fires on skill LEVEL change (not per-XP-event), so events are sparse early in a career and dense during active training.
 
 - [ ] **Step 4: No commit (verification-only). Remove the temporary `ModLogger.Info` from `BumpPath` in Task 57.**
 
