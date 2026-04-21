@@ -997,81 +997,30 @@ namespace Enlisted.Features.Interface.Behaviors
                 ToggleOrdersAccordion,
                 false, 1);
 
-            // 1b. Active order row (visible only when expanded and an order exists).
-            // For imminent orders, show as greyed out with [IMMINENT] tag (not yet issued).
-            // For mandatory orders (already assigned), show as greyed out with [ASSIGNED] tag.
-            // For optional orders, player clicks to view details and Accept/Decline.
+            // 1b. Active order row (visible only when an order is active and the accordion is expanded).
+            // Shows [NEW] when the order id differs from the last-seen id; [ASSIGNED] otherwise.
             starter.AddGameMenuOption("enlisted_status", "enlisted_active_order",
                 "{ACTIVE_ORDER_TEXT}",
                 args =>
                 {
-                    var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-                    if (currentOrder == null || _ordersCollapsed)
+                    var display = OrderDisplayHelper.GetCurrent();
+                    if (display == null || _ordersCollapsed)
                     {
                         return false;
                     }
 
-                    var isActive = OrderManager.Instance?.IsOrderActive() ?? false;
-                    var isImminent = currentOrder.State == Orders.Models.OrderState.Imminent;
+                    var currentId = OrderActivity.Instance?.ActiveNamedOrder?.OrderStoryletId ?? string.Empty;
+                    var phaseLabel = string.IsNullOrEmpty(_ordersLastSeenOrderId) ||
+                                     !string.Equals(_ordersLastSeenOrderId, currentId, StringComparison.OrdinalIgnoreCase)
+                        ? "<span style=\"Link\">[NEW]</span>"
+                        : "<span style=\"Link\">[ASSIGNED]</span>";
 
-                    // For imminent/mandatory/active orders, disable the option (greyed out)
-                    if (isImminent || currentOrder.Mandatory || isActive)
-                    {
-                        args.optionLeaveType = GameMenuOption.LeaveType.WaitQuest;
-                        args.IsEnabled = false;
-                    }
-                    else
-                    {
-                        args.optionLeaveType = GameMenuOption.LeaveType.Mission;
-                    }
+                    args.optionLeaveType = GameMenuOption.LeaveType.Mission;
+                    args.IsEnabled = true;
+                    args.Tooltip = new TextObject("{=enlisted_orders_tooltip_active_row}Click to view order details.");
 
-                    // Show phase/state of the order on the left, followed by the title
-                    string phaseLabel;
-                    if (isImminent)
-                    {
-                        var hoursUntil = (int)(currentOrder.IssueTime - CampaignTime.Now).ToHours;
-                        phaseLabel = $"<span style=\"Warning\">[SCHEDULED - {hoursUntil}h]</span>";
-                    }
-                    else if (currentOrder.Mandatory || isActive)
-                    {
-                        phaseLabel = "<span style=\"Link\">[ASSIGNED]</span>";
-                    }
-                    else
-                    {
-                        var daysAgo = (int)(CampaignTime.Now - currentOrder.IssuedTime).ToDays;
-                        if (daysAgo == 0)
-                        {
-                            phaseLabel = "<span style=\"Link\">[NEW]</span>";
-                        }
-                        else
-                        {
-                            phaseLabel = "<span style=\"Link\">[ASSIGNED]</span>";
-                        }
-                    }
-
-                    var row = $"    {phaseLabel} {Orders.OrderCatalog.GetDisplayTitle(currentOrder)}";
-
+                    var row = $"    {phaseLabel} {display.Title}";
                     MBTextManager.SetTextVariable("ACTIVE_ORDER_TEXT", row);
-
-                    // Different tooltip based on state
-                    if (isImminent)
-                    {
-                        var hoursUntil = (int)(currentOrder.IssueTime - CampaignTime.Now).ToHours;
-                        args.Tooltip = new TextObject("{=enlisted_orders_tooltip_imminent_detail}Order will be issued in {HOURS} hour(s). Advance warning for preparation.");
-                        _ = args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
-                    }
-                    else if (currentOrder.Mandatory)
-                    {
-                        args.Tooltip = new TextObject("Mandatory duty assignment. Already in progress.");
-                    }
-                    else if (isActive)
-                    {
-                        args.Tooltip = new TextObject("Order in progress. Check Recent Activity for updates.");
-                    }
-                    else
-                    {
-                        args.Tooltip = new TextObject("View the order details and respond.");
-                    }
 
                     return true;
                 },
@@ -2142,18 +2091,14 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var parts = new List<string>();
                 var mainHero = Hero.MainHero;
-                var orderManager = OrderManager.Instance;
-                var currentOrder = orderManager?.GetCurrentOrder();
+                var orderState = OrderActivity.Instance?.ActiveNamedOrder;
 
                 // Current duty
-                if (currentOrder != null)
+                if (orderState != null)
                 {
-                    var orderTitle = Orders.OrderCatalog.GetDisplayTitle(currentOrder);
-                    if (string.IsNullOrEmpty(orderTitle))
-                    {
-                        orderTitle = "duty";
-                    }
-                    var hoursSinceIssued = (CampaignTime.Now - currentOrder.IssuedTime).ToHours;
+                    var display = OrderDisplayHelper.GetCurrent();
+                    var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
+                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
 
                     if (hoursSinceIssued < 6)
                     {
@@ -2249,7 +2194,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Player forecast (upcoming commitments, expected orders)
-                var forecast = BuildBriefPlayerForecast(orderManager);
+                var forecast = BuildBriefPlayerForecast();
                 if (!string.IsNullOrWhiteSpace(forecast))
                 {
                     parts.Add(forecast);
@@ -2383,7 +2328,6 @@ namespace Enlisted.Features.Interface.Behaviors
             try
             {
                 var parts = new List<string>();
-                var orderManager = OrderManager.Instance;
                 var scheduleManager = CampScheduleManager.Instance;
                 var opportunityGenerator = CampOpportunityGenerator.Instance;
 
@@ -2408,13 +2352,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Current order status and forecast
-                var currentOrder = orderManager?.GetCurrentOrder();
-                if (currentOrder != null)
+                var orderState = OrderActivity.Instance?.ActiveNamedOrder;
+                if (orderState != null)
                 {
-                    var orderTitle = currentOrder.Title ?? "duty";
-                    var hoursSinceIssued = currentOrder.IssuedTime != default
-                        ? (CampaignTime.Now - currentOrder.IssuedTime).ToHours
-                        : 0;
+                    var display = OrderDisplayHelper.GetCurrent();
+                    var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
+                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
 
                     // Estimate remaining time based on typical order duration (24-72h)
                     var hoursRemaining = Math.Max(0, 24 - (int)hoursSinceIssued);
@@ -2431,16 +2374,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     {
                         var completingSoonText = new TextObject("{=status_completing_soon}completing soon").ToString();
                         parts.Add($"{currentDutyText}: <span style=\"Link\">{orderTitle}</span> ({completingSoonText}).");
-                    }
-                }
-                else if (orderManager?.IsOrderImminent() == true)
-                {
-                    var forecastText = orderManager.GetImminentWarningText();
-                    var hoursUntil = orderManager.GetHoursUntilIssue();
-                    if (!string.IsNullOrWhiteSpace(forecastText))
-                    {
-                        var ordersExpectedText = new TextObject("{=status_orders_expected}Orders expected").ToString();
-                        parts.Add($"<span style=\"Warning\">{ordersExpectedText}:</span> {forecastText} (in {(int)hoursUntil}h).");
                     }
                 }
                 else
@@ -2902,7 +2835,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// Builds a compact player forecast sentence for the main menu player status section.
         /// Shows upcoming commitments, expected orders, or activity level hints in natural flowing text.
         /// </summary>
-        private static string BuildBriefPlayerForecast(OrderManager orderManager)
+        private static string BuildBriefPlayerForecast()
         {
             try
             {
@@ -2924,6 +2857,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // Check for imminent orders
+                var orderManager = OrderManager.Instance;
                 if (orderManager?.IsOrderImminent() == true)
                 {
                     var forecastText = orderManager.GetImminentWarningText();
@@ -3585,8 +3519,7 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var sentences = new List<string>();
                 var mainHero = Hero.MainHero;
-                var orderManager = OrderManager.Instance;
-                var currentOrder = orderManager?.GetCurrentOrder();
+                var orderState = OrderActivity.Instance?.ActiveNamedOrder;
                 var lord = enlistment?.CurrentLord;
                 var lordParty = lord?.PartyBelongedTo;
                 var companyNeeds = enlistment?.CompanyNeeds;
@@ -3604,29 +3537,17 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Build flowing NOW + AHEAD narrative combining present state with forecast hints
 
                 // Opening: Current duty state with world-state-aware forecast
-                if (currentOrder != null)
+                if (orderState != null)
                 {
-                    var orderTitle = Orders.OrderCatalog.GetDisplayTitle(currentOrder);
-                    if (string.IsNullOrEmpty(orderTitle))
-                    {
-                        orderTitle = "duty";
-                    }
+                    var display = OrderDisplayHelper.GetCurrent();
+                    var orderTitle = string.IsNullOrEmpty(display?.Title) ? "duty" : display.Title;
 
-                    // Safety check: ensure IssuedTime is valid (not default/zero)
-                    // Orders created/loaded without proper initialization may have unset IssuedTime
-                    var issuedTime = currentOrder.IssuedTime;
-                    if (issuedTime.ToHours < 1.0)
-                    {
-                        // IssuedTime not set properly - use IssueTime or current time as fallback
-                        issuedTime = currentOrder.IssueTime.ToHours >= 1.0 ? currentOrder.IssueTime : CampaignTime.Now;
-                    }
+                    var hoursSinceIssued = (CampaignTime.Now - orderState.StartedAt).ToHours;
 
-                    var hoursSinceIssued = (CampaignTime.Now - issuedTime).ToHours;
-
-                    // Additional safety: cap to reasonable duration (30 days max)
+                    // Cap to reasonable duration (30 days max) to guard against clock-skew anomalies
                     if (hoursSinceIssued > 720) // 30 days
                     {
-                        hoursSinceIssued = 24; // Default to 1 day if something's wrong
+                        hoursSinceIssued = 24; // Default to 1 day
                     }
 
                     if (hoursSinceIssued < 6)
@@ -3742,7 +3663,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // AHEAD: What's coming up for the player (scheduled activities, expected orders)
-                var playerForecast = BuildBriefPlayerForecast(orderManager);
+                var playerForecast = BuildBriefPlayerForecast();
                 if (!string.IsNullOrWhiteSpace(playerForecast) && sentences.Count < 5)
                 {
                     sentences.Add(playerForecast);
@@ -4887,8 +4808,7 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             try
             {
-                var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-                if (currentOrder == null)
+                if (!OrderDisplayHelper.IsOrderActive())
                 {
                     _ordersCollapsed = true;
                     return;

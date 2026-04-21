@@ -2902,42 +2902,46 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ---
 
-## Task 19: Migrate `EnlistedMenuBehavior.cs:2167` + `:2408`
+## Task 19: Migrate 5 display/state sites in `EnlistedMenuBehavior.cs`
 
 **Files:**
-- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs` (two sites)
+- Modify: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs` (5 sites — A through E)
+- Modify: `ModuleData/Languages/enlisted_strings.xml` (add `enlisted_orders_tooltip_active_row`)
+- Regenerate: `docs/error-codes.md` (line shifts under Surfaced calls)
 
-- [ ] **Step 1: Read both call sites**
+An audit found 6 remaining `OrderManager.Instance` sites after Task 18. 5 are display/state and covered here; 1 is imperative (deferred — see Site F note below).
 
-`:2167` likely renders headlines / news rows; `:2408` likely renders status text. Read both blocks (~30 lines around each).
+- [x] **Step 1: Read all 5 sites**
 
-- [ ] **Step 2: Replace each `OrderManager.Instance` read**
+- Site A: `~1004-1079` — `enlisted_active_order` accordion row (condition + tooltip + label)
+- Site B: `~2088-2203` — `BuildPlayerPersonalStatus` Fresh/On duty/Still on duty block
+- Site C: `~2381-2465` — `BuildUpcomingSection` current-order forecast line
+- Site D: `~3515-3668` — `BuildPlayerNarrativeParagraph` current-duty opening sentence
+- Site E: `~4886-4912` — `ToggleOrdersAccordion` null-check guard
 
-For each site, swap to `OrderDisplayHelper.GetCurrent()` (for title/progress) or `OrderDisplayHelper.IsOrderActive()` (for boolean visibility checks). The exact replacement depends on what the original code did with the result — apply the rule: **if the old code read `Order.Title` use `Display.Title`; if `Order.Id` use `OrderActivity.Instance.ActiveNamedOrder.OrderStoryletId`; if `IsOrderActive` use `OrderDisplayHelper.IsOrderActive()`.**
+- [x] **Step 2: Replace each site**
 
-- [ ] **Step 3: Build + smoke**
+Each site reads `OrderActivity.Instance?.ActiveNamedOrder` for state and `OrderDisplayHelper.GetCurrent()` for display title. Time-since-started uses `NamedOrderState.StartedAt`. The new model has no Imminent/Mandatory/Pending/Assigned states — named orders are either active or not, so imminent-branch logic is dropped throughout. The `BuildBriefPlayerForecast` helper (called from Sites B and D) was made parameterless, with `OrderManager.Instance` moved inside it to service the remaining `IsOrderImminent()` path.
+
+- [x] **Step 3: Build + validator**
 
 ```bash
 dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64
+/c/Python313/python.exe Tools/Validation/validate_content.py
+/c/Python313/python.exe Tools/Validation/generate_error_codes.py
 ```
 
-Smoke: open the headlines menu and the status menu while enlisted, verify both render without error. Strings will be empty until named-order content is authored — that's expected.
-
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
-git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs
+git add src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs \
+        ModuleData/Languages/enlisted_strings.xml \
+        docs/superpowers/plans/2026-04-20-orders-surface.md \
+        docs/error-codes.md
 git commit -F /c/Users/coola/commit_msg.txt
 ```
 
-Commit message:
-```
-refactor(menu): migrate headlines + status reads to OrderActivity
-
-Spec 2 §13.1 sites 2/3 of 8. Same pattern as Task 18.
-
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-```
+**Site F (ShowOrdersMenu at ~line 5297) is deferred to Task 19f.** It uses imperative/mutating fields (`Issuer`, `Requirements.MinSkills`, `Requirements.MinTraits`) and accept/decline callbacks with no clean equivalent in `OrderActivity` until the storylet Modal flow lands in Tasks 34-35.
 
 ---
 
