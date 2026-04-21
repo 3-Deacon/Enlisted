@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 // Removed: using Enlisted.Features.Camp.UI.Bulletin; (old Bulletin UI deleted)
 using Enlisted.Debugging.Behaviors;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Content;
@@ -952,48 +953,38 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.WaitQuest;
 
-                    var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-                    if (currentOrder == null)
+                    var current = OrderDisplayHelper.GetCurrent();
+                    var isNewOrder = false;
+
+                    if (current == null)
                     {
                         _ordersCollapsed = true;
                         _ordersLastSeenOrderId = string.Empty;
                     }
                     else
                     {
-                        var currentId = currentOrder.Id ?? string.Empty;
-                        var isNewOrder = string.IsNullOrEmpty(_ordersLastSeenOrderId) ||
-                                         !string.Equals(_ordersLastSeenOrderId, currentId, StringComparison.OrdinalIgnoreCase);
+                        var currentId = OrderActivity.Instance?.ActiveNamedOrder?.OrderStoryletId ?? string.Empty;
+                        isNewOrder = string.IsNullOrEmpty(_ordersLastSeenOrderId) ||
+                                     !string.Equals(_ordersLastSeenOrderId, currentId, StringComparison.OrdinalIgnoreCase);
                         if (isNewOrder)
                         {
                             _ordersLastSeenOrderId = currentId;
-                            _ordersCollapsed = false; // Auto-expand when the order changes
+                            _ordersCollapsed = false;
                         }
                     }
 
                     var headerText = "<span style=\"Link\">ORDERS</span>";
-                    if (currentOrder != null)
+                    if (current != null)
                     {
-                        // Show different markers based on order state
-                        if (currentOrder.State == Orders.Models.OrderState.Imminent)
+                        if (isNewOrder)
                         {
-                            headerText += " <span style=\"Warning\">[IMMINENT]</span>";
-                            var hoursUntil = (int)(currentOrder.IssueTime - CampaignTime.Now).ToHours;
-                            args.Tooltip = new TextObject("{=enlisted_orders_tooltip_imminent}Orders will be issued in {HOURS} hour(s): {TITLE}");
-                            _ = args.Tooltip.SetTextVariable("HOURS", hoursUntil.ToString());
-                            _ = args.Tooltip.SetTextVariable("TITLE", Orders.OrderCatalog.GetDisplayTitle(currentOrder));
+                            headerText += " <span style=\"Link\">[NEW]</span>";
                         }
-                        else if (currentOrder.State == Orders.Models.OrderState.Pending ||
-                                 currentOrder.State == Orders.Models.OrderState.Active)
-                        {
-                            var daysAgo = (int)(CampaignTime.Now - currentOrder.IssuedTime).ToDays;
-                            if (daysAgo == 0 && currentOrder.State == Orders.Models.OrderState.Pending)
-                            {
-                                headerText += " <span style=\"Link\">[NEW]</span>";
-                            }
 
-                            args.Tooltip = new TextObject("{=enlisted_orders_tooltip_pending}You have a pending order from {ISSUER}.");
-                            _ = args.Tooltip.SetTextVariable("ISSUER", currentOrder.Issuer);
-                        }
+                        args.Tooltip = new TextObject("{=enlisted_orders_tooltip_active}You have an active order: {TITLE} ({ELAPSED}/{TOTAL} hours).");
+                        _ = args.Tooltip.SetTextVariable("TITLE", current.Title);
+                        _ = args.Tooltip.SetTextVariable("ELAPSED", current.HoursElapsed.ToString());
+                        _ = args.Tooltip.SetTextVariable("TOTAL", current.HoursTotal.ToString());
                     }
                     else
                     {

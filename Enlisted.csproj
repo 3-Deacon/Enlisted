@@ -407,6 +407,7 @@
     <Compile Include="src\Features\Activities\Orders\NamedOrderArcRuntime.cs" />
     <Compile Include="src\Features\Activities\Orders\NamedOrderState.cs" />
     <Compile Include="src\Features\Activities\Orders\OrderActivity.cs" />
+    <Compile Include="src\Features\Activities\Orders\OrderDisplayHelper.cs" />
     <Compile Include="src\Features\Activities\Orders\OrdersNewsFeedThrottle.cs" />
     <Compile Include="src\Features\Activities\Orders\PathScorer.cs" />
 
