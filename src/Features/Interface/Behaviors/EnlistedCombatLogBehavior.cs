@@ -6,8 +6,10 @@ using Enlisted.Features.Interface.ViewModels;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.Engine;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
+using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
 
@@ -27,15 +29,18 @@ namespace Enlisted.Features.Interface.Behaviors
         private GauntletMovieIdentifier _movie;
         private ScrollablePanel _scrollablePanel;
         private ListPanel _messagesListPanel;
+        private Widget _resizeHandleWidget;
         private ScreenBase _ownerScreen; // The screen we added our layer to
         private bool _isInitialized;
         private bool _isLayerActive;
         private bool _wasInConversation;
-        private bool _wasArmyManagementOpen;
-        private bool _wasRepositionedUp;
+        private bool _isResizing;
         private float _lastScrollPosition;
         private float _timeSinceLastManualScroll;
         private bool _shouldAutoScroll = true;
+        private Vec2 _resizeStartMousePosition;
+        private float _resizeStartWidth;
+        private float _resizeStartHeight;
         private const float AutoScrollResumeDelay = 6f;
 
         public EnlistedCombatLogBehavior()
@@ -86,43 +91,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 _dataSource.UpdateVisibility();
             }
 
-            // Detect if party screen, army management, or inventory is open and adjust positioning
-            // Only reposition for Gauntlet UI screens that have panels at the bottom,
-            // not for text-based GameMenus (like enlisted_status) which don't obstruct the log
-            if (_dataSource != null)
-            {
-                // Check if party screen is open by checking active game state
-                bool isPartyScreenOpen = Game.Current?.GameStateManager?.ActiveState is TaleWorlds.CampaignSystem.GameState.PartyState;
-
-                // Check if party bar is extended
-                bool isBarExtended = IsBarExtended();
-
-                // Check if army overlay roster panel is expanded
-                bool isArmyOverlayExtended = IsArmyOverlayExtended();
-
-                // Combine both checks
-                bool anyBarExtended = isBarExtended || isArmyOverlayExtended;
-
-                // Info log when bar state changes
-                if (anyBarExtended != _wasArmyManagementOpen)
-                {
-                    ModLogger.Info("Interface", $"Bottom bar extended state changed: {_wasArmyManagementOpen} -> {anyBarExtended} (party bar={isBarExtended}, armyOverlay={isArmyOverlayExtended})");
-                    _wasArmyManagementOpen = anyBarExtended;
-                }
-
-                // Update positioning if either panel is open
-                bool shouldRepositionUp = isPartyScreenOpen || anyBarExtended;
-                if (shouldRepositionUp != _wasRepositionedUp)
-                {
-                    ModLogger.Info("Interface", $"Combat log repositioning: {_wasRepositionedUp} -> {shouldRepositionUp} (party={isPartyScreenOpen}, bars={anyBarExtended})");
-                    _wasRepositionedUp = shouldRepositionUp;
-                }
-                UpdatePositioning(shouldRepositionUp);
-            }
-            else
-            {
-                ModLogger.LogOnce("combat_log_null_datasource", "Interface", "_dataSource is null - repositioning code not running", LogLevel.Debug);
-            }
+            HandleResize();
 
             // Handle manual scroll detection and auto-scroll behavior
             if (_scrollablePanel != null && _scrollablePanel.VerticalScrollbar != null)
@@ -186,6 +155,8 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Get reference to ScrollablePanel widget for manual scroll control
                 var rootWidget = _movie.Movie.RootWidget;
+                var uiState = CombatLogUiStateStore.Load();
+                _dataSource.RestoreExpandedSize(uiState.ExpandedWidth, uiState.ExpandedHeight);
                 _scrollablePanel = rootWidget.FindChild("ScrollablePanel", true) as ScrollablePanel;
                 if (_scrollablePanel != null && _scrollablePanel.VerticalScrollbar != null)
                 {
@@ -197,6 +168,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 // Get reference to the messages ListPanel to subscribe to link clicks
                 _messagesListPanel = rootWidget.FindChild("InnerPanel", true) as ListPanel;
+                _resizeHandleWidget = rootWidget.FindChild("ResizeHandle", true);
 
                 // Subscribe to ViewModel Messages collection changes to handle new message widgets
                 _dataSource.Messages.ListChanged += OnMessagesListChanged;
@@ -360,15 +332,6 @@ namespace Enlisted.Features.Interface.Behaviors
             // This respects the user's manual scroll and the 6-second pause delay
         }
 
-        /// <summary>
-        /// Updates positioning to avoid menu overlap (party screen, inventory, etc.).
-        /// Automatically called each tick based on MapScreen.IsInMenu detection.
-        /// </summary>
-        public void UpdatePositioning(bool isMenuOpen)
-        {
-            _dataSource?.UpdatePositioning(isMenuOpen);
-        }
-
         private void OnGameOver()
         {
             CleanUp();
@@ -525,90 +488,55 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-        /// <summary>
-        /// Checks if the party bar (bottom-left/right panel) is currently extended.
-        /// This tracks the expand/collapse state of bottom UI panels.
-        /// </summary>
-        private bool IsBarExtended()
+        private void HandleResize()
         {
-            try
+            if (_dataSource == null || !_dataSource.IsExpanded || _resizeHandleWidget == null)
             {
-                var mapScreen = ScreenManager.TopScreen;
-                if (mapScreen == null)
-                {
-                    return false;
-                }
-
-                var prop = mapScreen.GetType().GetProperty("IsBarExtended");
-                if (prop == null)
-                {
-                    return false;
-                }
-
-                return (bool)prop.GetValue(mapScreen);
+                return;
             }
-            catch (Exception ex)
+
+            bool isHovered = _resizeHandleWidget.EventManager?.HoveredView == _resizeHandleWidget;
+            if (!_isResizing && isHovered && Input.IsKeyPressed(InputKey.LeftMouseButton))
             {
-                ModLogger.Caught("Interface", $"Failed to check bar extended state: {ex.Message}", ex);
-                return false;
+                _isResizing = true;
+                _resizeStartMousePosition = Input.MousePositionPixel;
+                _resizeStartWidth = _dataSource.ContainerWidth;
+                _resizeStartHeight = _dataSource.ContainerHeight;
+                _dataSource.BeginResizePreview();
+                _dataSource.OnUserInteraction();
+                return;
             }
-        }
 
-        /// <summary>
-        /// Checks if the army overlay panel is currently visible on screen.
-        /// The overlay shows when player is in an army and displays party portraits,
-        /// food, cohesion, and troop counts on the right side of the map screen.
-        /// Returns true if the overlay exists and has a valid ViewModel.
-        /// </summary>
-        private bool IsArmyOverlayExtended()
-        {
-            try
+            if (!_isResizing)
             {
-                var mapScreen = ScreenManager.TopScreen;
-                if (mapScreen == null)
-                {
-                    return false;
-                }
-
-                // Get the _armyOverlay MapView field - search up the inheritance chain
-                FieldInfo armyOverlayField = null;
-                var type = mapScreen.GetType();
-                int searchDepth = 0;
-                while (type != null && armyOverlayField == null && searchDepth < 10)
-                {
-                    armyOverlayField = type.GetField("_armyOverlay", BindingFlags.NonPublic | BindingFlags.Instance);
-                    type = type.BaseType;
-                    searchDepth++;
-                }
-
-                if (armyOverlayField == null)
-                {
-                    return false;
-                }
-
-                var armyOverlay = armyOverlayField.GetValue(mapScreen);
-                if (armyOverlay == null)
-                {
-                    return false; // Not in army
-                }
-
-                // Check if the ViewModel exists (indicates overlay is active)
-                var dataSourceField = armyOverlay.GetType().GetField("_overlayDataSource", BindingFlags.NonPublic | BindingFlags.Instance);
-                if (dataSourceField == null)
-                {
-                    return false;
-                }
-
-                var viewModel = dataSourceField.GetValue(armyOverlay);
-
-                // The army overlay is visible when both armyOverlay and viewModel exist
-                return viewModel != null;
+                return;
             }
-            catch (Exception ex)
+
+            if (Input.IsKeyDown(InputKey.LeftMouseButton))
             {
-                ModLogger.Caught("Interface", $"Failed to check army overlay state: {ex.Message}", ex);
-                return false;
+                Vec2 delta = Input.MousePositionPixel - _resizeStartMousePosition;
+                float width = CombatLogUiStateStore.ClampWidth(_resizeStartWidth - delta.X, Screen.RealScreenResolutionWidth);
+                float height = CombatLogUiStateStore.ClampHeight(_resizeStartHeight + delta.Y, Screen.RealScreenResolutionHeight);
+                _dataSource.UpdateResizePreview(width, height);
+                _dataSource.OnUserInteraction();
+                return;
             }
+
+            float committedWidth = _dataSource.ResizePreviewWidth;
+            float committedHeight = _dataSource.ResizePreviewHeight;
+
+            if (committedWidth <= 0f || committedHeight <= 0f)
+            {
+                committedWidth = _dataSource.ContainerWidth;
+                committedHeight = _dataSource.ContainerHeight;
+            }
+
+            committedWidth = CombatLogUiStateStore.ClampWidth(committedWidth, Screen.RealScreenResolutionWidth);
+            committedHeight = CombatLogUiStateStore.ClampHeight(committedHeight, Screen.RealScreenResolutionHeight);
+            _dataSource.CommitExpandedSize(committedWidth, committedHeight);
+            CombatLogUiStateStore.Save(committedWidth, committedHeight);
+            _dataSource.OnUserInteraction();
+            _isResizing = false;
         }
 
         private void CleanUp()
@@ -621,6 +549,8 @@ namespace Enlisted.Features.Interface.Behaviors
                     _scrollablePanel.OnScroll -= OnUserScroll;
                     _scrollablePanel = null;
                 }
+                _resizeHandleWidget = null;
+                _isResizing = false;
 
                 // Unsubscribe from message list events
                 if (_dataSource != null)
