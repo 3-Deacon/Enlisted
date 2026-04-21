@@ -99,14 +99,4 @@ namespace Enlisted.Features.Activities.Orders
             }
         }
     }
-
-    // TODO Task 14: Delete this stub and replace with a real NamedOrderArcRuntime.cs
-    // in its own file under Enlisted.Features.Activities.Orders. This stub exists
-    // solely to make Phase A (Tasks 1-9) build self-contained.
-    internal static class NamedOrderArcRuntime
-    {
-        public static void RebuildSplicedPhasesOnLoad(OrderActivity activity, Storylet storylet)
-        {
-        }
-    }
 }

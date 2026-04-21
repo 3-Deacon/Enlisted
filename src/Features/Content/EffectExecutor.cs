@@ -555,11 +555,14 @@ namespace Enlisted.Features.Content
         {
             try
             {
-                // Task 14: wire to NamedOrderArcRuntime.SpliceArc(ctx) when runtime lands.
-                var activityRef = ctx != null
-                    ? $"{ctx.ActivityTypeId}/{ctx.PhaseId}"
-                    : "<null>";
-                ModLogger.Expected("EFFECT", "start_arc_pre_runtime", $"start_arc stub on activity '{activityRef}'");
+                var sourceStorylet = ctx?.SourceStorylet;
+                if (sourceStorylet == null)
+                {
+                    ModLogger.Expected("EFFECT", "start_arc_no_storylet", "start_arc with no SourceStorylet on context");
+                    return;
+                }
+                var intent = GetStr(eff, "intent");
+                Enlisted.Features.Activities.Orders.NamedOrderArcRuntime.SpliceArc(sourceStorylet, intent);
             }
             catch (Exception ex)
             {
@@ -571,8 +574,7 @@ namespace Enlisted.Features.Content
         {
             try
             {
-                // Task 14: wire to NamedOrderArcRuntime.UnspliceArc() when runtime lands.
-                ModLogger.Expected("EFFECT", "clear_arc_pre_runtime", "clear_active_named_order stub");
+                Enlisted.Features.Activities.Orders.NamedOrderArcRuntime.UnspliceArc();
             }
             catch (Exception ex)
             {

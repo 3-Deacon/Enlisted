@@ -237,7 +237,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-STORYLET-ADAPT-9219 | DrainPendingEffects failed | src/Features/Content/StoryletEventAdapter.cs:134 |
+| E-STORYLET-ADAPT-9219 | DrainPendingEffects failed | src/Features/Content/StoryletEventAdapter.cs:135 |
 
 ## TROOPSELECTION
 

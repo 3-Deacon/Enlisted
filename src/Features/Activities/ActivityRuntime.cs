@@ -76,6 +76,16 @@ namespace Enlisted.Features.Activities
             {
                 a.ResolvePhasesFromType(_types);
             }
+            // Spec 2: OrderActivity instances need to re-splice their active named-order
+            // arc phases after load — Activity._cachedPhases is [NonSerialized], so without
+            // this, spliced phases evaporate on reload.
+            foreach (var a in _active)
+            {
+                if (a is Enlisted.Features.Activities.Orders.OrderActivity oa)
+                {
+                    oa.ReconstructArcOnLoad();
+                }
+            }
             // Restore _activeChoicePhase from the resolved state. _activeChoicePhase is
             // a runtime-only cache (nullable tuple, not serialized) — without this
             // restore, a save taken mid-PlayerChoice phase would surface a hidden
@@ -99,6 +109,12 @@ namespace Enlisted.Features.Activities
                 return;
             }
             _types[def.Id] = def;
+        }
+
+        /// <summary>Returns the registered activity type definitions keyed by type id. Callers must treat this as read-only — mutations corrupt activity phase resolution.</summary>
+        public IDictionary<string, ActivityTypeDefinition> GetTypes()
+        {
+            return _types;
         }
 
         public void Start(Activity activity, ActivityContext ctx)

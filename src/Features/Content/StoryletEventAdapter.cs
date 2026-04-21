@@ -98,6 +98,7 @@ namespace Enlisted.Features.Content
 
             // Register Spec 0 effects in the pending store so they can be drained after
             // the player picks an option (EventDeliveryManager.OnOptionSelected hook).
+            ctx.SourceStorylet = s;
             RegisterPendingEffects(syntheticId, eligibleChoices, ctx, owner);
 
             return evt;

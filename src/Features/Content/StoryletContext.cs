@@ -15,5 +15,8 @@ namespace Enlisted.Features.Content
         public string ActivityTypeId { get; set; } = string.Empty;
         public string PhaseId { get; set; } = string.Empty;
         public CampaignTime EvaluatedAt { get; set; } = CampaignTime.Now;
+
+        /// <summary>The storylet whose effects are being applied. Populated by the caller that iterates option effects (StoryletEventAdapter). Null for non-storylet effect applications.</summary>
+        public Storylet SourceStorylet { get; set; }
     }
 }

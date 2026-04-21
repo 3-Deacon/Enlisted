@@ -403,6 +403,7 @@
     <Compile Include="src\Features\Activities\Orders\DutyProfileId.cs" />
     <Compile Include="src\Features\Activities\Orders\DutyProfileSelector.cs" />
     <Compile Include="src\Features\Activities\Orders\EnlistmentLifecycleListener.cs" />
+    <Compile Include="src\Features\Activities\Orders\NamedOrderArcRuntime.cs" />
     <Compile Include="src\Features\Activities\Orders\NamedOrderState.cs" />
     <Compile Include="src\Features\Activities\Orders\OrderActivity.cs" />
     
