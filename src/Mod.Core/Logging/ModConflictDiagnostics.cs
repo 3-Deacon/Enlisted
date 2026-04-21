@@ -128,18 +128,20 @@ namespace Enlisted.Mod.Core.Logging
 
             try
             {
-                var behaviorTypes = behaviors
-                    ?.Select(b => b.GetType().Name)
+                var ourBehaviors = (behaviors ?? Array.Empty<CampaignBehaviorBase>())
+                    .Where(b => b?.GetType().Namespace?.StartsWith("Enlisted", StringComparison.Ordinal) == true)
+                    .Select(b => b.GetType().Name)
                     .OrderBy(n => n)
-                    .ToList() ?? new List<string>();
+                    .ToList();
 
                 WriteLine();
-                WriteLine("-- REGISTERED CAMPAIGN BEHAVIORS --");
+                WriteLine("-- REGISTERED ENLISTED BEHAVIORS --");
                 WriteLine();
-                WriteLine($"  Total: {behaviorTypes.Count} behaviors");
+                WriteLine($"  Total: {ourBehaviors.Count} Enlisted behaviors");
+                WriteLine($"  (Native TaleWorlds behaviors omitted — filter by Enlisted.* namespace.)");
                 WriteLine();
 
-                foreach (var name in behaviorTypes)
+                foreach (var name in ourBehaviors)
                 {
                     WriteLine($"    {name}");
                 }
