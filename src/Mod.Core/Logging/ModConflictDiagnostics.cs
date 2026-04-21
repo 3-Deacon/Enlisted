@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using Enlisted.Mod.Core.Util;
 using HarmonyLib;
+using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Mod.Core.Logging
 {
@@ -114,11 +115,10 @@ namespace Enlisted.Mod.Core.Logging
         }
 
         /// <summary>
-        ///     Logs registered campaign behaviors for troubleshooting.
-        ///     Call this from OnGameStart after all behaviors are registered.
+        ///     Logs registered campaign behaviors for troubleshooting by querying the live
+        ///     CampaignBehaviorManager. Call this from OnGameStart after all behaviors are registered.
         /// </summary>
-        /// <param name="behaviorNames">List of behavior type names that were registered</param>
-        public static void LogRegisteredBehaviors(IEnumerable<string> behaviorNames)
+        public static void LogRegisteredBehaviors()
         {
             if (string.IsNullOrWhiteSpace(_conflictLogPath))
             {
@@ -127,15 +127,18 @@ namespace Enlisted.Mod.Core.Logging
 
             try
             {
-                var behaviors = behaviorNames?.ToList() ?? new List<string>();
+                var behaviorTypes = Campaign.Current?.GetCampaignBehaviors<CampaignBehaviorBase>()
+                    ?.Select(b => b.GetType().Name)
+                    .OrderBy(n => n)
+                    .ToList() ?? new List<string>();
 
                 WriteLine();
                 WriteLine("-- REGISTERED CAMPAIGN BEHAVIORS --");
                 WriteLine();
-                WriteLine($"  Total: {behaviors.Count} behaviors");
+                WriteLine($"  Total: {behaviorTypes.Count} behaviors");
                 WriteLine();
 
-                foreach (var name in behaviors.OrderBy(n => n))
+                foreach (var name in behaviorTypes)
                 {
                     WriteLine($"    {name}");
                 }

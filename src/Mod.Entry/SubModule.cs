@@ -512,45 +512,9 @@ namespace Enlisted.Mod.Entry
                     EncounterGuard.Initialize();
                     ModLogger.Info("Bootstrap", "Military service behaviors registered successfully");
 
-                    // Log registered behaviors for conflict diagnostics
-                    // This helps troubleshoot issues by showing exactly what was registered
-                    // NOTE: Use classic collection initializer (ReSharper can choke on newer collection expressions).
-                    ModConflictDiagnostics.LogRegisteredBehaviors(new List<string>
-                    {
-                        nameof(SaveLoadDiagnosticsMarkerBehavior),
-                        nameof(EnlistmentBehavior),
-                        nameof(EnlistedIncidentsBehavior),
-                        nameof(MusterMenuHandler),
-                        nameof(EnlistedDialogManager),
-                        nameof(EnlistedMenuBehavior),
-                        nameof(EnlistedCombatLogBehavior),
-                        "EnlistedStatusManager",
-                        nameof(TroopSelectionManager),
-                        nameof(EquipmentManager),
-                        nameof(PromotionBehavior),
-                        nameof(QuartermasterManager),
-                        nameof(QuartermasterEquipmentSelectorBehavior),
-                        nameof(CampaignTriggerTrackerBehavior),
-                        nameof(PlayerConditionBehavior),
-                        // Lance Life Event behaviors deleted in Phase 1 refactor
-                        nameof(EnlistedEncounterBehavior),
-                        nameof(ServiceRecordManager),
-                        nameof(CampMenuHandler),
-                        nameof(CampLifeBehavior),
-                        nameof(CompanySimulationBehavior),
-                        nameof(CampOpportunityGenerator),
-                        nameof(EscalationManager),
-                        nameof(EventDeliveryManager),
-                        nameof(ContentOrchestrator),
-                        nameof(OrderManager),
-                        nameof(OrderProgressionBehavior),
-                        nameof(EnlistedNewsBehavior),
-                        nameof(MainMenuNewsCache),
-                        nameof(RetinueTrickleSystem),
-                        nameof(RetinueLifecycleHandler),
-                        nameof(RetinueCasualtyTracker),
-                        nameof(CompanionAssignmentManager)
-                    });
+                    // Log registered behaviors for conflict diagnostics by querying the live
+                    // CampaignBehaviorManager — no hand-maintained list to drift.
+                    ModConflictDiagnostics.LogRegisteredBehaviors();
                 }
             }
             catch (Exception ex)
