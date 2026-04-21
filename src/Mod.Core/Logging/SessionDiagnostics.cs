@@ -11,10 +11,24 @@ namespace Enlisted.Mod.Core.Logging
     /// </summary>
     public static class SessionDiagnostics
     {
-        /// <summary>
-        ///     Mod version for diagnostics. Update this when releasing new versions.
-        /// </summary>
-        public const string ModVersion = "0.6.0";
+        /// <summary>Mod version read from the assembly at runtime (primary source: Properties/AssemblyInfo.cs).</summary>
+        public static string ModVersion => _modVersionCache ?? (_modVersionCache = ResolveModVersion());
+
+        private static string _modVersionCache;
+
+        private static string ResolveModVersion()
+        {
+            try
+            {
+                var asm = typeof(SessionDiagnostics).Assembly;
+                var version = asm.GetName().Version;
+                return version != null ? version.ToString() : "unknown";
+            }
+            catch
+            {
+                return "unknown";
+            }
+        }
 
         public const string TargetGameVersion = "1.3.13";
         private static bool _hasLoggedStartup;
@@ -36,7 +50,7 @@ namespace Enlisted.Mod.Core.Logging
             var sb = new StringBuilder();
             _ = sb.AppendLine("=== ENLISTED MOD SESSION START ===");
             _ = sb.AppendLine($"Mod Version: {ModVersion}");
-            _ = sb.AppendLine($"Target Game Version: {TargetGameVersion}");
+            _ = sb.AppendLine($"Minimum Required Game Version: {TargetGameVersion}");
             _ = sb.AppendLine($"Session Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             _ = sb.AppendLine($".NET Runtime: {Environment.Version}");
             _ = sb.AppendLine("===================================");

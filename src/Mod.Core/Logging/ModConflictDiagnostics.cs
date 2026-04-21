@@ -525,9 +525,9 @@ namespace Enlisted.Mod.Core.Logging
             var modVersion = SessionDiagnostics.ModVersion;
             var targetVersion = SessionDiagnostics.TargetGameVersion;
 
-            WriteLine($"  Game Version:       {gameVersion}");
-            WriteLine($"  Enlisted Version:   {modVersion}");
-            WriteLine($"  Target Game:        {targetVersion}");
+            WriteLine($"  Game Version:            {gameVersion}");
+            WriteLine($"  Enlisted Version:        {modVersion}");
+            WriteLine($"  Minimum Required Game:   {targetVersion}");
             WriteLine($"  CLR Version:        {Environment.Version}");
             WriteLine($"  OS:                 {Environment.OSVersion}");
             WriteLine($"  64-bit Process:     {Environment.Is64BitProcess}");
