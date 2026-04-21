@@ -2,7 +2,6 @@
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
-using TaleWorlds.Library;
 
 namespace Enlisted.Features.Activities.Orders
 {
