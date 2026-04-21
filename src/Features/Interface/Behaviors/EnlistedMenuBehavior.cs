@@ -2856,18 +2856,6 @@ namespace Enlisted.Features.Interface.Behaviors
                     return $"<span style=\"Link\">{activity} comes at {phase}.</span>";
                 }
 
-                // Check for imminent orders
-                var orderManager = OrderManager.Instance;
-                if (orderManager?.IsOrderImminent() == true)
-                {
-                    var forecastText = orderManager.GetImminentWarningText();
-                    var hoursUntil = orderManager.GetHoursUntilIssue();
-                    if (!string.IsNullOrWhiteSpace(forecastText) && hoursUntil < 12)
-                    {
-                        return $"<span style=\"Warning\">{forecastText} — word travels fast.</span>";
-                    }
-                }
-
                 // Check world state for activity level hints - factual military context
                 var worldState = WorldStateAnalyzer.AnalyzeSituation();
                 if (worldState.ExpectedActivity == ActivityLevel.Intense)
