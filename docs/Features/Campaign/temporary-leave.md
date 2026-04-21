@@ -3,7 +3,7 @@
 **Summary:** The temporary leave system allows enlisted soldiers to suspend active service temporarily while preserving rank and progression. Players can request leave to handle clan business, return to the world map, and later rejoin their original lord or transfer to a different commander.
 
 **Status:** ✅ Current  
-**Last Updated:** 2025-12-22  
+**Last Updated:** 2026-04-21  
 **Related Docs:** [Enlistment](../Core/enlistment.md), [Core Gameplay](../Core/core-gameplay.md)
 
 ---
@@ -46,7 +46,7 @@ Approval is generally granted unless the unit is in a high-tempo situation (e.g.
 
 Once on leave:
 -   **Visibility**: Your party becomes visible and active on the campaign map.
--   **Lord Tracking**: Your enlisted lord is automatically marked on the map so you can locate them to return to duty.
+-   **Lord Tracking**: Your enlisted lord is automatically marked with a custom campaign marker so you can locate them to return to duty. The marker uses the lord's banner and follows their current party/settlement position on an hourly cadence, with immediate refresh when they enter or leave settlements.
 -   **Movement**: You can move freely, trade, and engage in encounters as a vanilla mercenary/lord.
 -   **Persistence**: Your rank, XP, reputation, and service record are frozen and preserved.
 -   **Restrictions**: You cannot join other factions or enlist with foreign lords while on leave from your current post.
@@ -57,7 +57,7 @@ Once on leave:
 
 To resume your duties, you must find and speak with your lord.
 -   Selecting "Reporting for duty" immediately restores your enlisted state.
--   The tracking marker on your lord is removed.
+-   The custom campaign marker on your lord is removed.
 -   Your party is hidden, and you resume following the lord's army.
 
 ---

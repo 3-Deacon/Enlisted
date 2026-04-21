@@ -3,7 +3,7 @@
 **Summary:** The enlistment system manages how players join a lord's service, progress through 9 military ranks (T1-T9), and leave through discharge or desertion. Covers deep technical details of enlistment mechanics, invisible party management, XP progression, wage calculation, baggage handling, grace periods, and service records for re-enlistment.
 
 **Status:** ✅ Current  
-**Last Updated:** 2026-01-04 (Bug Fix: Grace period crash when lord dies - visual tracker now checks IsAlive before registration)
+**Last Updated:** 2026-04-21 (Grace/leave lord tracking now uses an explicit campaign marker alongside the legacy tracker)
 **Related Docs:** [Core Gameplay](core-gameplay.md), [Onboarding & Discharge](onboarding-discharge-system.md), [Pay System](pay-system.md), [Promotion System](promotion-system.md)
 
 > **Note:** For high-level gameplay overview, see `core-gameplay.md`. This document provides technical implementation details.
@@ -187,6 +187,7 @@ When the enlisted lord dies or is captured, a **14-day grace period** begins (co
 - Can re-enlist with any lord in the same kingdom to resume service seamlessly
 - No relationship penalties
 - Kingdom membership is NOT lost during the 14 days
+- The departed commander's current position is surfaced with a custom campaign marker that follows the lord's party/settlement position on hourly refresh plus settlement enter/leave updates
 
 **Grace Period Options:**
 1. **Transfer Service**: Talk to another lord in same kingdom → full tier/XP/reputation preservation, no discharge recorded
@@ -304,7 +305,10 @@ Level 10 Player, Returning (Deserter):
 - Courier baggage arrival during grace period: deferred until re-enlistment
 - Player captured during grace period: grace timer continues
 - Grace expires during player captivity: deserter penalties applied on release
-- **Lord dies (not captured)**: Visual tracker only registers lord if alive, preventing crash when attempting to re-enlist
+- **Lord dies (not captured)**: Tracking only registers living lords, preventing crashes when attempting to surface the lord for grace transfer or re-enlistment
+
+**Leave Tracking Note:**
+- Temporary leave uses the same custom lord-marker behavior as grace transfers: the player becomes visible on the map, and the enlisted lord keeps an explicit campaign marker until the player reports back or the leave state ends
 
 **Promotion Edge Cases:**
 - Declining a promotion requires manual request from NCO to receive it later

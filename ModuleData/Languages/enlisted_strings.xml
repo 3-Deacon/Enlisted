@@ -256,6 +256,7 @@
     <string id="Enlisted_Message_RejoinedKingdom" text="You have rejoined {KINGDOM}. Your grace period has been cleared." />
     <string id="Enlisted_Term_YourKingdom" text="your kingdom" />
     <string id="Enlisted_Message_ServiceEndedGrace" text="Your service has ended. You have {DAYS} days to find another lord in {KINGDOM} before you are branded a deserter." />
+    <string id="Enlisted_GraceLordMarker" text="{LORD_NAME}'s command" />
     <string id="Enlisted_Message_BrandedDeserter" text="You have been branded a deserter. Your relationship with {KINGDOM} has suffered." />
     <string id="Enlisted_Message_DesertedFromKingdom" text="You have deserted from {KINGDOM}. You are now branded a deserter and your relations have suffered." />
     <string id="Enlisted_Term_TheArmy" text="the army" />

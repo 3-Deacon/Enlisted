@@ -236,6 +236,7 @@
     <!-- Enlistment System -->
     <Compile Include="src\Features\Enlistment\Behaviors\EnlistmentBehavior.cs"/>
     <Compile Include="src\Features\Enlistment\Behaviors\EncounterGuard.cs"/>
+    <Compile Include="src\Features\Enlistment\Core\GraceLordMarkerRefreshPolicy.cs"/>
     <Compile Include="src\Features\Enlistment\Core\ProgressionConfig.cs"/>
     <Compile Include="src\Features\Enlistment\Behaviors\EnlistedIncidentsBehavior.cs"/>
     <Compile Include="src\Features\Enlistment\Behaviors\MusterMenuHandler.cs"/>

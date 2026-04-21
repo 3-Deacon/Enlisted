@@ -6,6 +6,7 @@ using Enlisted.Features.Combat.Behaviors;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Enlistment.Core;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
 using Enlisted.Features.Interface.Behaviors;
@@ -22,6 +23,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.GameMenus;
+using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
@@ -93,6 +95,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
     public sealed class EnlistmentBehavior : CampaignBehaviorBase
     {
         private const string SaveKeyPrefix = "Enlisted.EnlistmentBehavior.";
+        private const string GraceLordMarkerQuestId = "enlisted_grace_lord_marker";
+        private const double GraceLordMarkerDistanceThreshold = 5d;
 
         private static string Key(string legacyKey) => $"{SaveKeyPrefix}{legacyKey}";
 
@@ -312,6 +316,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private int _savedGraceTier = -1;
         private string _savedGraceTroopId;
         private int _savedGraceXP;
+        private GraceLordMarkerSnapshot? _lastGraceLordMarkerSnapshot;
 
         // Grace period tracking for lord transfers
 
@@ -3732,6 +3737,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _ = message.SetTextVariable("DAYS", graceDays);
                 _ = message.SetTextVariable("KINGDOM", kingdom.Name);
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
+                EnsureGraceLordMarker(forceRefresh: true, "start_grace_period");
 
                 // Fire event for other mods
                 OnGracePeriodStarted?.Invoke();
@@ -3829,6 +3835,123 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
         }
 
+        private void EnsureGraceLordMarker(bool forceRefresh, string reason)
+        {
+            try
+            {
+                var mapMarkerManager = Campaign.Current?.MapMarkerManager;
+                if (mapMarkerManager == null)
+                {
+                    return;
+                }
+
+                var markerScope = GraceLordMarkerRefreshPolicy.GetScope(_isOnLeave, IsInDesertionGracePeriod);
+                var trackedLord = markerScope == LordMarkerScope.Leave ? _enlistedLord : _savedGraceLord;
+                if (markerScope == LordMarkerScope.None || trackedLord == null || !trackedLord.IsAlive)
+                {
+                    RemoveGraceLordMarker();
+                    return;
+                }
+
+                if (!TryBuildGraceLordMarkerData(trackedLord, out var snapshot, out var position, out var banner,
+                        out var label))
+                {
+                    RemoveGraceLordMarker();
+                    return;
+                }
+
+                if (!forceRefresh &&
+                    !GraceLordMarkerRefreshPolicy.ShouldRefresh(_lastGraceLordMarkerSnapshot, snapshot,
+                        GraceLordMarkerDistanceThreshold))
+                {
+                    return;
+                }
+
+                mapMarkerManager.RemoveAllMapMarkersByQuestId(GraceLordMarkerQuestId);
+                _ = mapMarkerManager.CreateMapMarker(banner, label, position, true, GraceLordMarkerQuestId);
+                _lastGraceLordMarkerSnapshot = snapshot;
+                ModLogger.Info("Tracker", $"Updated grace lord marker ({reason})");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("TRACKER", "Failed to update grace lord marker", ex);
+            }
+        }
+
+        private void RemoveGraceLordMarker()
+        {
+            try
+            {
+                Campaign.Current?.MapMarkerManager?.RemoveAllMapMarkersByQuestId(GraceLordMarkerQuestId);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("TRACKER", "Failed to remove grace lord marker", ex);
+            }
+            finally
+            {
+                _lastGraceLordMarkerSnapshot = null;
+            }
+        }
+
+        private static bool TryBuildGraceLordMarkerData(
+            Hero lord,
+            out GraceLordMarkerSnapshot snapshot,
+            out Vec3 position,
+            out Banner banner,
+            out TextObject label)
+        {
+            snapshot = default;
+            position = Vec3.Zero;
+            banner = null;
+            label = null;
+
+            if (lord == null || !lord.IsAlive)
+            {
+                return false;
+            }
+
+            var mapPoint = lord.GetMapPoint();
+            if (mapPoint == null)
+            {
+                return false;
+            }
+
+            var campaignPosition = mapPoint.Position;
+            if (!campaignPosition.IsValid())
+            {
+                return false;
+            }
+
+            var anchorKey = GetGraceLordMarkerAnchorKey(lord, mapPoint);
+            banner = lord.ClanBanner;
+            if (string.IsNullOrWhiteSpace(anchorKey) || banner == null)
+            {
+                return false;
+            }
+
+            snapshot = new GraceLordMarkerSnapshot(anchorKey, campaignPosition.X, campaignPosition.Y);
+            position = campaignPosition.AsVec3();
+            label = new TextObject("{=Enlisted_GraceLordMarker}{LORD_NAME}'s command");
+            _ = label.SetTextVariable("LORD_NAME", lord.Name);
+            return true;
+        }
+
+        private static string GetGraceLordMarkerAnchorKey(Hero lord, IMapPoint mapPoint)
+        {
+            if (mapPoint is Settlement settlement)
+            {
+                return $"settlement:{settlement.StringId}";
+            }
+
+            if (mapPoint is MobileParty mobileParty)
+            {
+                return $"party:{mobileParty.StringId}";
+            }
+
+            return $"hero:{lord.StringId}";
+        }
+
         /// <summary>
         ///     Clear desertion grace period state.
         ///     Called when grace period expires (after penalties) or when player rejoins.
@@ -3837,6 +3960,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             _pendingDesertionKingdom = null;
             _desertionGracePeriodEnd = CampaignTime.Zero;
+            RemoveGraceLordMarker();
 
             // BUG FIX: Only unregister living lords from the visual tracker
             // Dead heroes may cause crashes when the tracker tries to access them
@@ -4062,6 +4186,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         ModLogger.Info("Tracker", "Forced Lord party to be visible (was hidden) - Hourly Check");
                     }
                 }
+
+                EnsureGraceLordMarker(forceRefresh: false, "hourly_tick");
             }
             else if (IsInDesertionGracePeriod && _savedGraceLord != null && _savedGraceLord.IsAlive)
             {
@@ -4070,6 +4196,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     Campaign.Current.VisualTrackerManager.RegisterObject(_savedGraceLord);
                     ModLogger.Info("Tracker", "Re-applied map tracker for grace period lord (was missing)");
                 }
+
+                EnsureGraceLordMarker(forceRefresh: false, "hourly_tick");
+            }
+            else if (_lastGraceLordMarkerSnapshot.HasValue)
+            {
+                RemoveGraceLordMarker();
             }
 
             // Fallback: ensure non-enlisted players stay visible and active in case the realtime tick misses an edge
@@ -6674,6 +6806,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
                         }
                     });
+                }
+
+                if (_isOnLeave || IsInDesertionGracePeriod)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "post_load");
+                }
+                else if (_lastGraceLordMarkerSnapshot.HasValue)
+                {
+                    RemoveGraceLordMarker();
                 }
             }
             catch (Exception ex)
@@ -11181,6 +11322,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (_enlistedLord != null)
                 {
                     Campaign.Current.VisualTrackerManager.RegisterObject(_enlistedLord);
+                    EnsureGraceLordMarker(forceRefresh: true, "start_leave");
                     var trackerMsg =
                         new TextObject("{=Enlisted_Message_LordTracked}Your lord has been marked on the map.");
                     InformationManager.DisplayMessage(new InformationMessage(trackerMsg.ToString()));
@@ -11213,6 +11355,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     Campaign.Current.VisualTrackerManager.RemoveTrackedObject(_enlistedLord);
                 }
+
+                RemoveGraceLordMarker();
 
                 // Clear leave state and start cooldown before next leave
                 _isOnLeave = false;
@@ -11658,6 +11802,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                if (_isOnLeave && hero == _enlistedLord)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_entered");
+                }
+
+                if (IsInDesertionGracePeriod && hero == _savedGraceLord)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_entered");
+                }
+
                 // CRITICAL: Skip all processing when player is a prisoner
                 // The native PlayerCaptivity system handles everything during captivity
                 // Interfering with party state or menus while captured causes crashes
@@ -11844,6 +11998,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                if (_isOnLeave && party == _enlistedLord?.PartyBelongedTo)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_left");
+                }
+
+                if (IsInDesertionGracePeriod && party == _savedGraceLord?.PartyBelongedTo)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_left");
+                }
+
                 if (!IsEnlisted || _isOnLeave)
                 {
                     return;
