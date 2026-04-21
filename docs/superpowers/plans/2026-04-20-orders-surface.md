@@ -3229,6 +3229,8 @@ If any of these regressed, the migration broke a semantic in one of Tasks 18-23.
 
 ## Task 25: Author `duty_profiles.json`
 
+**Status:** ✅ shipped — `85d8b35`. The Spec 1 `<ActivitiesData Include="ModuleData\Enlisted\Activities\*.json"/>` wildcard + matching AfterBuild `Copy` step already covered the new file; no csproj edit was needed. Build deployed `duty_profiles.json` to the install on first build, validator passed on the same run.
+
 **Files:**
 - Create: `ModuleData/Enlisted/Activities/duty_profiles.json`
 - Modify: `Enlisted.csproj` (add ItemGroup + AfterBuild copy if `Activities/` deploy isn't already wired for new files)
@@ -3298,6 +3300,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
 
 ## Task 26: Author `loot_pools.json` + create `LootPoolResolver`
+
+**Status:** ✅ shipped — `90bef6a`. See [§ API corrections appendix](#task-26--lootpoolresolver-api-corrections) — `ModulePaths.GetContentPath` (not `GetContentRoot`), JSON `"categories"` values parse as `ItemObject.ItemTypeEnum` (not `ItemCategory.StringId`), `(int)item.Tier` cast required (`item.Tier` is `ItemTiers` enum), and the Phase A stub is a dedicated method `DoGrantRandomItemFromPool` (not an inline switch case).
 
 **Files:**
 - Create: `ModuleData/Enlisted/Loot/loot_pools.json`
@@ -5364,4 +5368,20 @@ The handler method can be `static` or `instance` — `-=` matches by method grou
 - **Save-compat.** No existing save references id 735084 because the game never successfully launched with Task 10's registration in place.
 - **Convention tightened.** CLAUDE.md now documents the "never re-register a TaleWorlds built-in type" pitfall. Future save-definer additions must grep `../Decompile/TaleWorlds.Core/TaleWorlds.Core/SaveableCoreTypeDefiner.cs` and `../Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem/SaveableCampaignTypeDefiner.cs` before registering any TW Type.
 - **Offset 84 retired.** Intentionally unused in the Enlisted definer's 46-60 range. The removal-site comment explains why. If a future Spec needs an enum offset, claim 86+ (next available).
+
+### Task 25 — `<ActivitiesData>` wildcard already covers new files
+
+- **Plan prescribed (Step 2):** confirm the `<ActivitiesData>` ItemGroup in `Enlisted.csproj` is a wildcard (`Include="ModuleData\Enlisted\Activities\*.json"`) — if not, add MakeDir + Copy triplet.
+- **Actual:** the Spec 1 entry at `Enlisted.csproj:671` is already a wildcard, and the matching `<Copy SourceFiles="@(ActivitiesData)" ...>` at line 776 + `<MakeDir Directories=".../Activities"/>` at line 758 were also pre-existing. No csproj edit was needed for the `duty_profiles.json` drop.
+- **Applied fix.** Created the JSON only; first build deployed it via the existing AfterBuild Copy step.
+- **Takeaway for later profile content (Tasks 27-32).** The six duty-pool storylet files (`duty_garrisoned.json`, `duty_marching.json`, etc.) target `ModuleData/Enlisted/Storylets/*.json`, which is a different ItemGroup (`<StoryletsData>` at the same neighborhood). Verify that wildcard before those tasks, but expect it to already be wildcarded for the same Spec 1 reason.
+
+### Task 26 — LootPoolResolver API corrections
+
+- **`ModulePaths.GetContentRoot` doesn't exist.** Plan prescribed `ModulePaths.GetContentRoot("Loot")`; actual API is `public static string GetContentPath(string subFolder)` at `src/Mod.Core/Util/ModulePaths.cs:103`. Returns the directory; caller joins with the filename via `Path.Combine`. Same shape every other catalog loader uses (`StoryletCatalog`, `QualityCatalog`, `ActivityTypeCatalog`). Applied `var dir = ModulePaths.GetContentPath("Loot"); var file = Path.Combine(dir, "loot_pools.json");` with an empty-dir Expected-log guard.
+- **`ItemCategory.StringId` filter check resolves zero items silently.** Plan's JSON `"categories": ["HeadArmor", "Polearm", "Goods", ...]` values are `ItemObject.ItemTypeEnum` member names (verified at `../Decompile/TaleWorlds.Core/TaleWorlds.Core/ItemObject.cs:24-53`), not `ItemCategory` StringIds (which are trade-goods categorization keys like `"crossbow1"` / `"horse_pack"` / `"leather_armor"`). Plan's `def.Categories.Contains(element.Item.ItemCategory.StringId, ...)` would have silently zero-matched every faction_troop_tree pool; the resolver's `pool_no_match` Expected-log would have looked like a benign miss rather than a broken filter. **Applied fix:** parse JSON values at `ParsePool`-time via `Enum.TryParse<ItemObject.ItemTypeEnum>` into a typed `HashSet<ItemTypeEnum>`, and compare against `item.ItemType` (the property at `ItemObject.cs:220`, wraps the public field `ItemObject.Type` at `:72`). Unrecognized JSON entries (typo'd enum names) are silently dropped by `TryParse` — a future validator phase could warn on these.
+- **`item.Tier` is the `ItemTiers` enum, not int.** `ItemObject.Tier` has type `ItemTiers` (enum defined alongside `ItemTypeEnum` at `ItemObject.cs:55-64`: `Tier1 ... Tier6, NumTiers`). Plan's `item.Tier < def.TierMin || item.Tier > def.TierMax` doesn't compile — enum-vs-int operator mismatch. Applied `(int)item.Tier` cast on the comparison side; kept `def.TierMin` / `def.TierMax` as plain ints sourced from the JSON `tier_range` array.
+- **`DoGrantRandomItemFromPool` is already a dedicated method, not an inline switch case.** Plan's Step 3 replacement snippet was shaped as a `case "grant_random_item_from_pool": { ... } break;` body. The Phase A stub from Task 6 at `src/Features/Content/EffectExecutor.cs:541-552` is a standalone `private static void DoGrantRandomItemFromPool(EffectDecl eff)` method that the dispatch switch delegates to via `DoGrantRandomItemFromPool(eff)`. Applied: replaced the method body, kept the existing missing-pool_id early-exit (`Expected("EFFECT", "grant_random_item_pool_id_missing", ...)`), dropped the stub's `grant_random_item_pre_phaseB` probe log, added `using Enlisted.Features.Activities.Orders;` at the top of the file.
+- **`PartyBase.MainParty?.ItemRoster?.AddToCounts` null-chain + discard idiom.** Matched the existing EffectExecutor grant_item pattern at `:317` / `:533`: `_ = (PartyBase.MainParty?.ItemRoster?.AddToCounts(item, count));` — null-conditional chain protects against a null main-party during early boot or cutscene transitions, `_ =` discards the returned `int` (vanilla signature returns slot index, unused by this caller).
+- **Error-codes registry regen.** The edits to `EffectExecutor.cs` shortened `DoGrantRandomItemFromPool` by 2 lines (removed blank line + comment + the `grant_random_item_pre_phaseB` log). `EffectExecutor.cs` has zero `ModLogger.Surfaced` calls (grep-verified), so no registry shifts were produced by this edit. The new `LootPoolResolver.cs` adds only `Caught` + `Expected` calls (logs-only, not registered). Regen was run defensively and confirmed zero diff to `docs/error-codes.md`.
 
