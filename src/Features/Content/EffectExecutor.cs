@@ -126,6 +126,18 @@ namespace Enlisted.Features.Content
                 case "set_trait_level":
                     DoSetTraitLevel(eff);
                     break;
+                case "grant_item":
+                    DoGrantItem(eff);
+                    break;
+                case "grant_random_item_from_pool":
+                    DoGrantRandomItemFromPool(eff);
+                    break;
+                case "start_arc":
+                    DoStartArc(eff, ctx);
+                    break;
+                case "clear_active_named_order":
+                    DoClearActiveNamedOrder(eff);
+                    break;
                 default:
                     ModLogger.Expected("EFFECT", "unknown_primitive_" + eff.Apply, "Unknown effect primitive: " + eff.Apply);
                     break;
@@ -496,6 +508,75 @@ namespace Enlisted.Features.Content
             catch (Exception ex)
             {
                 ModLogger.Caught("EFFECT", "relation_change threw", ex);
+            }
+        }
+
+        private static void DoGrantItem(EffectDecl eff)
+        {
+            var itemId = GetStr(eff, "item_id");
+            var countRaw = GetInt(eff, "count");
+            var count = countRaw > 0 ? countRaw : 1;
+            if (string.IsNullOrEmpty(itemId))
+            {
+                return;
+            }
+
+            var item = MBObjectManager.Instance.GetObject<ItemObject>(itemId);
+            if (item == null)
+            {
+                ModLogger.Expected("EFFECT", "grant_item_not_found", $"grant_item: item_id='{itemId}' not in catalog");
+                return;
+            }
+
+            try
+            {
+                _ = (PartyBase.MainParty?.ItemRoster?.AddToCounts(item, count));
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "grant_item threw", ex);
+            }
+        }
+
+        private static void DoGrantRandomItemFromPool(EffectDecl eff)
+        {
+            var poolId = GetStr(eff, "pool_id");
+            if (string.IsNullOrEmpty(poolId))
+            {
+                ModLogger.Expected("EFFECT", "grant_random_item_pool_id_missing", "grant_random_item_from_pool: pool_id required");
+                return;
+            }
+
+            // Task 26: wire to LootPoolResolver.ResolveAndGrant(poolId, ctx) when authored content lands.
+            ModLogger.Expected("EFFECT", "grant_random_item_pre_phaseB", $"grant_random_item_from_pool stub: pool='{poolId}'");
+        }
+
+        private static void DoStartArc(EffectDecl eff, StoryletContext ctx)
+        {
+            try
+            {
+                // Task 14: wire to NamedOrderArcRuntime.SpliceArc(ctx) when runtime lands.
+                var activityRef = ctx != null
+                    ? $"{ctx.ActivityTypeId}/{ctx.PhaseId}"
+                    : "<null>";
+                ModLogger.Expected("EFFECT", "start_arc_pre_runtime", $"start_arc stub on activity '{activityRef}'");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "start_arc threw", ex);
+            }
+        }
+
+        private static void DoClearActiveNamedOrder(EffectDecl eff)
+        {
+            try
+            {
+                // Task 14: wire to NamedOrderArcRuntime.UnspliceArc() when runtime lands.
+                ModLogger.Expected("EFFECT", "clear_arc_pre_runtime", "clear_active_named_order stub");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EFFECT", "clear_active_named_order threw", ex);
             }
         }
 
