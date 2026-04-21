@@ -8335,9 +8335,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         public static event Action<int, string> OnXPGained;
 
         /// <summary>
-        ///     Fired when EnlistmentTier changes via promotion or demotion.
-        ///     Spec 2 PathScorer subscribes for crossroads firing; Spec 4 will subscribe for promotion ceremony.
-        ///     Params: oldTier, newTier.
+        ///     Fired when EnlistmentTier changes. Params: previousTier, newTier.
         /// </summary>
         public static event Action<int, int> OnTierChanged;
 
