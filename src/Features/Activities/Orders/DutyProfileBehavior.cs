@@ -13,8 +13,10 @@ namespace Enlisted.Features.Activities.Orders
     {
         private const int HYSTERESIS_THRESHOLD = 2;
         private const int MIN_HOURS_BETWEEN_TRANSITION_BEATS = 4;
+        private const int HEARTBEAT_INTERVAL_HOURS = 6;
 
         private int _lastTransitionBeatHourTick = int.MinValue;
+        private int _lastHeartbeatHourTick = int.MinValue;
 
         public override void RegisterEvents()
         {
@@ -30,6 +32,8 @@ namespace Enlisted.Features.Activities.Orders
         {
             try
             {
+                LogHeartbeatIfDue();
+
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment == null || !enlistment.IsEnlisted)
                 {
@@ -77,6 +81,43 @@ namespace Enlisted.Features.Activities.Orders
             catch (Exception ex)
             {
                 ModLogger.Caught("DUTYPROFILE", "OnHourlyTick threw", ex);
+            }
+        }
+
+        private void LogHeartbeatIfDue()
+        {
+            try
+            {
+                var nowHour = (int)CampaignTime.Now.ToHours;
+                if (nowHour - _lastHeartbeatHourTick < HEARTBEAT_INTERVAL_HOURS)
+                {
+                    return;
+                }
+                _lastHeartbeatHourTick = nowHour;
+
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment == null || !enlistment.IsEnlisted)
+                {
+                    ModLogger.Info("DUTYPROFILE", $"heartbeat: not_enlisted (hour {nowHour})");
+                    return;
+                }
+
+                var orderActivity = OrderActivity.Instance;
+                var lordParty = enlistment.EnlistedLord?.PartyBelongedTo;
+                if (orderActivity == null || lordParty == null)
+                {
+                    ModLogger.Info("DUTYPROFILE", $"heartbeat: enlisted but no_activity_or_lord_party (activity={orderActivity != null}, lordParty={lordParty != null})");
+                    return;
+                }
+
+                var observed = DutyProfileSelector.Resolve(lordParty);
+                var committed = orderActivity.CurrentDutyProfile;
+                var pending = orderActivity.PendingProfileMatches?.Count ?? 0;
+                ModLogger.Info("DUTYPROFILE", $"heartbeat: observed={observed} committed={committed} pending_count={pending}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTYPROFILE", "heartbeat threw", ex);
             }
         }
 

@@ -25,6 +25,9 @@ namespace Enlisted.Features.Activities.Orders
             { DutyProfileIds.Imprisoned, new[] { "Roguery", "Charm" } }
         };
 
+        private int _lastHourlyHeartbeatTick = int.MinValue;
+        private const int HOURLY_HEARTBEAT_INTERVAL = 12;
+
         public override void RegisterEvents()
         {
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
@@ -37,22 +40,29 @@ namespace Enlisted.Features.Activities.Orders
         {
             try
             {
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true)
+                var isEnlisted = EnlistmentBehavior.Instance?.IsEnlisted == true;
+                var activity = OrderActivity.Instance;
+                var profile = activity?.CurrentDutyProfile ?? "none";
+
+                if (!isEnlisted)
                 {
+                    ModLogger.Info("DRIFT", $"daily_tick: not_enlisted — skipping");
                     return;
                 }
-                var activity = OrderActivity.Instance;
                 if (activity == null)
                 {
+                    ModLogger.Info("DRIFT", $"daily_tick: no_activity — skipping");
                     return;
                 }
                 activity.EnsureInitialized();
 
                 if (!ProfileHeavy.TryGetValue(activity.CurrentDutyProfile, out var heavy))
                 {
+                    ModLogger.Info("DRIFT", $"daily_tick: profile={profile} not in ProfileHeavy — skipping");
                     return;
                 }
 
+                var appliedSkills = new List<string>();
                 var pickCount = activity.CurrentDutyProfile == DutyProfileIds.Imprisoned ? 1 : 2;
                 for (int i = 0; i < pickCount; i++)
                 {
@@ -71,9 +81,12 @@ namespace Enlisted.Features.Activities.Orders
                         activity.DriftPendingXp[skillId] = 0;
                     }
                     activity.DriftPendingXp[skillId] += amount;
+                    appliedSkills.Add($"{skillId}+{amount}");
 
                     Hero.MainHero.HeroDeveloper.AddSkillXp(skill, amount, shouldNotify: false);
                 }
+
+                ModLogger.Info("DRIFT", $"daily_tick: profile={profile} applied=[{string.Join(",", appliedSkills)}] pending_total={activity.DriftPendingXp.Count}");
             }
             catch (Exception ex)
             {
@@ -85,11 +98,21 @@ namespace Enlisted.Features.Activities.Orders
         {
             try
             {
+                var nowHour = (int)CampaignTime.Now.ToHours;
+                var activity = OrderActivity.Instance;
+                var pendingCount = activity?.DriftPendingXp?.Count ?? 0;
+                var speed = Campaign.Current?.SpeedUpMultiplier ?? 1f;
+
+                if (nowHour - _lastHourlyHeartbeatTick >= HOURLY_HEARTBEAT_INTERVAL)
+                {
+                    _lastHourlyHeartbeatTick = nowHour;
+                    ModLogger.Info("DRIFT", $"hourly_heartbeat: enlisted={EnlistmentBehavior.Instance?.IsEnlisted == true} pending_count={pendingCount} speed={speed:F1}x");
+                }
+
                 if (EnlistmentBehavior.Instance?.IsEnlisted != true)
                 {
                     return;
                 }
-                var activity = OrderActivity.Instance;
                 if (activity?.DriftPendingXp == null || activity.DriftPendingXp.Count == 0)
                 {
                     return;

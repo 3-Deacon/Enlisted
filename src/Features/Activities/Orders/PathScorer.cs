@@ -46,9 +46,31 @@ namespace Enlisted.Features.Activities.Orders
             // subscription when RegisterEvents is re-invoked on save/load cycles.
             EnlistmentBehavior.OnTierChanged -= OnTierChanged;
             EnlistmentBehavior.OnTierChanged += OnTierChanged;
+
+            // One-shot session-start heartbeat: snapshot current path scores so smoke
+            // tests confirm the behavior is registered even when no skill XP accrues.
+            CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunchedHeartbeat);
         }
 
         public override void SyncData(IDataStore dataStore) { }
+
+        private void OnSessionLaunchedHeartbeat(CampaignGameStarter _)
+        {
+            try
+            {
+                var store = QualityStore.Instance;
+                var ranger = store?.Get("path_ranger_score") ?? 0;
+                var enforcer = store?.Get("path_enforcer_score") ?? 0;
+                var support = store?.Get("path_support_score") ?? 0;
+                var diplomat = store?.Get("path_diplomat_score") ?? 0;
+                var rogue = store?.Get("path_rogue_score") ?? 0;
+                ModLogger.Info("PATH", $"session_heartbeat: ranger={ranger} enforcer={enforcer} support={support} diplomat={diplomat} rogue={rogue}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("PATH", "session heartbeat threw", ex);
+            }
+        }
 
         public static void OnIntentPicked(string intent)
         {
