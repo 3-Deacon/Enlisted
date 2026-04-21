@@ -3,7 +3,8 @@
 namespace Enlisted.Features.Content
 {
     /// <summary>
-    /// Declarative arc schema parsed from storylet JSON.
+    /// Declarative arc schema parsed from storylet JSON. DurationHours must be > 0
+    /// for the arc to splice — zero is treated as unconfigured.
     /// </summary>
     public sealed class ArcSpec
     {
@@ -13,7 +14,8 @@ namespace Enlisted.Features.Content
     }
 
     /// <summary>
-    /// Single phase within a declarative arc schema.
+    /// Single phase within a declarative arc schema. DurationHours and FireIntervalHours
+    /// must be > 0 for the phase to schedule storylet emissions.
     /// </summary>
     public sealed class ArcPhaseSpec
     {

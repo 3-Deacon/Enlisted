@@ -38,10 +38,14 @@ namespace Enlisted.Features.Content
 
         /// <summary>Hard culture gate (lord's culture). Empty = no gate.</summary>
         public List<string> RequiresCulture { get; set; } = new List<string>();
+
+        /// <summary>Hard culture exclusion (lord's culture). Empty = no exclusion.</summary>
         public List<string> ExcludesCulture { get; set; } = new List<string>();
 
         /// <summary>Hard lord-trait gate (trait StringId, e.g. "Mercy", "Valor"). Empty = no gate.</summary>
         public List<string> RequiresLordTrait { get; set; } = new List<string>();
+
+        /// <summary>Hard lord-trait exclusion. Empty = no exclusion.</summary>
         public List<string> ExcludesLordTrait { get; set; } = new List<string>();
 
         /// <summary>Named-order arc declaration. Null on non-arc storylets.</summary>

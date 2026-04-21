@@ -86,14 +86,14 @@ namespace Enlisted.Features.Content
             s.Trigger = ParseStringList(obj["trigger"] as JArray);
             s.Immediate = ParseEffectList(obj["immediate"] as JArray);
             s.Options = ParseChoices(obj["options"] as JArray);
-            s.ProfileRequires = (obj["profile_requires"]?.ToObject<List<string>>()) ?? new List<string>();
-            s.ClassAffinity   = (obj["class_affinity"]?.ToObject<Dictionary<string, float>>()) ?? new Dictionary<string, float>();
-            s.IntentAffinity  = (obj["intent_affinity"]?.ToObject<Dictionary<string, float>>()) ?? new Dictionary<string, float>();
-            s.RequiresCombatClass = (obj["requires_combat_class"]?.ToObject<List<string>>()) ?? new List<string>();
-            s.RequiresCulture     = (obj["requires_culture"]?.ToObject<List<string>>()) ?? new List<string>();
-            s.ExcludesCulture     = (obj["excludes_culture"]?.ToObject<List<string>>()) ?? new List<string>();
-            s.RequiresLordTrait   = (obj["requires_lord_trait"]?.ToObject<List<string>>()) ?? new List<string>();
-            s.ExcludesLordTrait   = (obj["excludes_lord_trait"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.ProfileRequires     = ParseStringList(obj["profile_requires"] as JArray);
+            s.ClassAffinity       = ParseFloatDict(obj["class_affinity"] as JObject);
+            s.IntentAffinity      = ParseFloatDict(obj["intent_affinity"] as JObject);
+            s.RequiresCombatClass = ParseStringList(obj["requires_combat_class"] as JArray);
+            s.RequiresCulture     = ParseStringList(obj["requires_culture"] as JArray);
+            s.ExcludesCulture     = ParseStringList(obj["excludes_culture"] as JArray);
+            s.RequiresLordTrait   = ParseStringList(obj["requires_lord_trait"] as JArray);
+            s.ExcludesLordTrait   = ParseStringList(obj["excludes_lord_trait"] as JArray);
             s.Arc = ParseArc(obj["arc"] as JObject);
             return s;
         }
@@ -163,6 +163,20 @@ namespace Enlisted.Features.Content
                 list.Add((string)item);
             }
             return list;
+        }
+
+        private static Dictionary<string, float> ParseFloatDict(JObject obj)
+        {
+            var dict = new Dictionary<string, float>();
+            if (obj == null)
+            {
+                return dict;
+            }
+            foreach (var prop in obj.Properties())
+            {
+                dict[prop.Name] = (float?)prop.Value ?? 1.0f;
+            }
+            return dict;
         }
 
         private static List<EffectDecl> ParseEffectList(JArray arr)
