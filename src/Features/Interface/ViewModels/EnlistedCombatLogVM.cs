@@ -1,5 +1,7 @@
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Interface.Utils;
 using Enlisted.Mod.Core.Logging;
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
 
 namespace Enlisted.Features.Interface.ViewModels
@@ -16,9 +18,20 @@ namespace Enlisted.Features.Interface.ViewModels
         private const float InactivityFadeDelay = 10f; // Fade after 10 seconds of inactivity
         private const float DimmedAlpha = 0.35f; // Dimmed opacity
         private const float FullAlpha = 1.0f; // Full opacity
+        public const float CompactWidth = 500f;
+        public const float CompactHeight = 340f;
 
         private bool _isVisible;
-        private float _positionYOffset;
+        private float _containerWidth;
+        private float _containerHeight;
+        private float _expandedWidth;
+        private float _expandedHeight;
+        private float _resizePreviewWidth;
+        private float _resizePreviewHeight;
+        private bool _showResizeFrame;
+        private float _panelOffsetX;
+        private float _panelOffsetY;
+        private int _backgroundMode;
         private float _containerAlpha;
         private float _timeSinceLastActivity;
         private MBBindingList<CombatLogMessageVM> _messages;
@@ -26,8 +39,10 @@ namespace Enlisted.Features.Interface.ViewModels
         public EnlistedCombatLogVM()
         {
             Messages = new MBBindingList<CombatLogMessageVM>();
+            _expandedWidth = CombatLogUiStateStore.DefaultExpandedWidth;
+            _expandedHeight = CombatLogUiStateStore.DefaultExpandedHeight;
             UpdateVisibility();
-            PositionYOffset = -100f; // Lowered further to be compact
+            ApplyCurrentSize();
             ContainerAlpha = FullAlpha; // Start at full opacity
             _timeSinceLastActivity = 0f;
         }
@@ -66,23 +81,121 @@ namespace Enlisted.Features.Interface.ViewModels
             }
         }
 
-        /// <summary>
-        /// Y-axis offset for positioning when army menu is open.
-        /// Shifts the log up to avoid overlap.
-        /// </summary>
         [DataSourceProperty]
-        public float PositionYOffset
+        public float ContainerWidth
         {
-            get => _positionYOffset;
+            get => _containerWidth;
             set
             {
-                if (_positionYOffset != value)
+                if (_containerWidth != value)
                 {
-                    _positionYOffset = value;
-                    OnPropertyChangedWithValue(value, nameof(PositionYOffset));
+                    _containerWidth = value;
+                    OnPropertyChangedWithValue(value, nameof(ContainerWidth));
                 }
             }
         }
+
+        [DataSourceProperty]
+        public float ContainerHeight
+        {
+            get => _containerHeight;
+            set
+            {
+                if (_containerHeight != value)
+                {
+                    _containerHeight = value;
+                    OnPropertyChangedWithValue(value, nameof(ContainerHeight));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public float ResizePreviewWidth
+        {
+            get => _resizePreviewWidth;
+            set
+            {
+                if (_resizePreviewWidth != value)
+                {
+                    _resizePreviewWidth = value;
+                    OnPropertyChangedWithValue(value, nameof(ResizePreviewWidth));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public float ResizePreviewHeight
+        {
+            get => _resizePreviewHeight;
+            set
+            {
+                if (_resizePreviewHeight != value)
+                {
+                    _resizePreviewHeight = value;
+                    OnPropertyChangedWithValue(value, nameof(ResizePreviewHeight));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowResizeFrame
+        {
+            get => _showResizeFrame;
+            set
+            {
+                if (_showResizeFrame != value)
+                {
+                    _showResizeFrame = value;
+                    OnPropertyChangedWithValue(value, nameof(ShowResizeFrame));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowResizeHandle => true;
+
+        [DataSourceProperty]
+        public float PanelOffsetX
+        {
+            get => _panelOffsetX;
+            set
+            {
+                if (_panelOffsetX != value)
+                {
+                    _panelOffsetX = value;
+                    OnPropertyChangedWithValue(value, nameof(PanelOffsetX));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public float PanelOffsetY
+        {
+            get => _panelOffsetY;
+            set
+            {
+                if (_panelOffsetY != value)
+                {
+                    _panelOffsetY = value;
+                    OnPropertyChangedWithValue(value, nameof(PanelOffsetY));
+                }
+            }
+        }
+
+        [DataSourceProperty]
+        public bool ShowSolidBackground => _backgroundMode == 0;
+
+        [DataSourceProperty]
+        public bool ShowDimBackground => _backgroundMode == 1;
+
+        [DataSourceProperty]
+        public bool ShowTextOnlyBackground => _backgroundMode == 2;
+
+        [DataSourceProperty]
+        public string BackgroundButtonText => "BG";
+
+        [DataSourceProperty]
+        public string HeaderText => "Campaign Log";
 
         /// <summary>
         /// Overall opacity of the combat log container.
@@ -192,15 +305,76 @@ namespace Enlisted.Features.Interface.ViewModels
             IsVisible = isEnlisted && !isInMission;
         }
 
-        /// <summary>
-        /// Updates Y-axis positioning to avoid menu overlap.
-        /// Moves up when menus open, returns to original compact position when closed.
-        /// </summary>
-        public void UpdatePositioning(bool isMenuOpen)
+        public void RestoreExpandedSize(float width, float height)
         {
-            // Original position: -100f (compact, bottom-right)
-            // Menu open: -280f (moved up to avoid party screen overlap)
-            PositionYOffset = isMenuOpen ? -280f : -100f;
+            _expandedWidth = CombatLogUiStateStore.ClampWidth(width, Screen.RealScreenResolutionWidth);
+            _expandedHeight = CombatLogUiStateStore.ClampHeight(height, Screen.RealScreenResolutionHeight);
+            ApplyCurrentSize();
+        }
+
+        public void RestorePlacement(float offsetX, float offsetY)
+        {
+            PanelOffsetX = CombatLogUiStateStore.ClampOffsetX(offsetX, ContainerWidth, Screen.RealScreenResolutionWidth);
+            PanelOffsetY = CombatLogUiStateStore.ClampOffsetY(offsetY, ContainerHeight, Screen.RealScreenResolutionHeight);
+        }
+
+        public void RestoreBackgroundMode(int backgroundMode)
+        {
+            _backgroundMode = CombatLogUiStateStore.ClampBackgroundMode(backgroundMode);
+            OnPropertyChangedWithValue(ShowSolidBackground, nameof(ShowSolidBackground));
+            OnPropertyChangedWithValue(ShowDimBackground, nameof(ShowDimBackground));
+            OnPropertyChangedWithValue(ShowTextOnlyBackground, nameof(ShowTextOnlyBackground));
+        }
+
+        public int GetBackgroundMode()
+        {
+            return _backgroundMode;
+        }
+
+        public void ExecuteCycleBackgroundMode()
+        {
+            RestoreBackgroundMode((_backgroundMode + 1) % 3);
+            CombatLogUiStateStore.Save(ContainerWidth, ContainerHeight, PanelOffsetX, PanelOffsetY, _backgroundMode);
+            OnUserInteraction();
+        }
+
+        public void BeginResizePreview()
+        {
+            ShowResizeFrame = true;
+            ResizePreviewWidth = ContainerWidth;
+            ResizePreviewHeight = ContainerHeight;
+        }
+
+        public void UpdateResizePreview(float width, float height)
+        {
+            float clampedWidth = CombatLogUiStateStore.ClampWidth(width, Screen.RealScreenResolutionWidth);
+            float clampedHeight = CombatLogUiStateStore.ClampHeight(height, Screen.RealScreenResolutionHeight);
+
+            ResizePreviewWidth = clampedWidth;
+            ResizePreviewHeight = clampedHeight;
+            ShowResizeFrame = true;
+        }
+
+        public void CommitExpandedSize(float width, float height)
+        {
+            _expandedWidth = CombatLogUiStateStore.ClampWidth(width, Screen.RealScreenResolutionWidth);
+            _expandedHeight = CombatLogUiStateStore.ClampHeight(height, Screen.RealScreenResolutionHeight);
+            ShowResizeFrame = false;
+            ApplyCurrentSize();
+            PanelOffsetX = CombatLogUiStateStore.ClampOffsetX(PanelOffsetX, ContainerWidth, Screen.RealScreenResolutionWidth);
+            PanelOffsetY = CombatLogUiStateStore.ClampOffsetY(PanelOffsetY, ContainerHeight, Screen.RealScreenResolutionHeight);
+        }
+
+        public void CancelResizePreview()
+        {
+            ShowResizeFrame = false;
+            ApplyCurrentSize();
+        }
+
+        private void ApplyCurrentSize()
+        {
+            ContainerWidth = _expandedWidth;
+            ContainerHeight = _expandedHeight;
         }
 
         /// <summary>

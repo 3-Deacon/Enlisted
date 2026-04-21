@@ -10,12 +10,17 @@ namespace Enlisted.Features.Interface.Utils
         public float ExpandedWidth { get; set; } = CombatLogUiStateStore.DefaultExpandedWidth;
 
         public float ExpandedHeight { get; set; } = CombatLogUiStateStore.DefaultExpandedHeight;
+
+        public float OffsetX { get; set; }
+
+        public float OffsetY { get; set; }
     }
 
     public static class CombatLogUiStateStore
     {
         private const string FileName = "combat_log_ui_state.json";
         private const float ScreenEdgePadding = 80f;
+        private const float DefaultMargin = 30f;
 
         public const float DefaultExpandedWidth = 640f;
         public const float DefaultExpandedHeight = 420f;
@@ -61,7 +66,7 @@ namespace Enlisted.Features.Interface.Utils
             }
         }
 
-        public static void Save(float width, float height)
+        public static void Save(float width, float height, float offsetX, float offsetY)
         {
             try
             {
@@ -70,7 +75,9 @@ namespace Enlisted.Features.Interface.Utils
                 var state = new CombatLogUiState
                 {
                     ExpandedWidth = width,
-                    ExpandedHeight = height
+                    ExpandedHeight = height,
+                    OffsetX = offsetX,
+                    OffsetY = offsetY
                 };
 
                 File.WriteAllText(StorePath, JsonConvert.SerializeObject(state, Formatting.Indented));
@@ -97,6 +104,30 @@ namespace Enlisted.Features.Interface.Utils
                 : Math.Max(MinExpandedHeight, height);
 
             return Math.Max(MinExpandedHeight, Math.Min(height, maxHeight));
+        }
+
+        public static float ClampOffsetX(float offsetX, float panelWidth, float viewportWidth)
+        {
+            if (viewportWidth <= 0f || panelWidth <= 0f)
+            {
+                return offsetX;
+            }
+
+            float maxOffset = DefaultMargin;
+            float minOffset = panelWidth + DefaultMargin - viewportWidth;
+            return Math.Max(minOffset, Math.Min(offsetX, maxOffset));
+        }
+
+        public static float ClampOffsetY(float offsetY, float panelHeight, float viewportHeight)
+        {
+            if (viewportHeight <= 0f || panelHeight <= 0f)
+            {
+                return offsetY;
+            }
+
+            float minOffset = -DefaultMargin;
+            float maxOffset = viewportHeight - panelHeight - DefaultMargin;
+            return Math.Max(minOffset, Math.Min(offsetY, maxOffset));
         }
     }
 

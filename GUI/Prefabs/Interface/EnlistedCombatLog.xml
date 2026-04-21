@@ -10,6 +10,8 @@
             VerticalAlignment="Top"
             MarginRight="30"
             MarginTop="30"
+            PositionXOffset="@PanelOffsetX"
+            PositionYOffset="@PanelOffsetY"
             IsVisible="@IsVisible"
             AlphaFactor="@ContainerAlpha"
             Command.HoverBegin="OnUserInteraction"
@@ -19,7 +21,17 @@
         <Widget WidthSizePolicy="StretchToParent"
                 HeightSizePolicy="StretchToParent"
                 Sprite="BlankWhiteSquare_9"
-                Color="#00000022"
+                Color="#08111BCC"
+                DoNotAcceptEvents="true" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#C89C4A22"
+                MarginLeft="1"
+                MarginRight="1"
+                MarginTop="1"
+                MarginBottom="1"
                 DoNotAcceptEvents="true" />
 
         <Widget Id="ResizeFrameWidget"
@@ -45,33 +57,20 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top">
           <Children>
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#162433EE"
+                    DoNotAcceptEvents="true" />
+
             <RichTextWidget WidthSizePolicy="CoverChildren"
                             HeightSizePolicy="CoverChildren"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
+                            MarginLeft="8"
                             Brush="SPGeneral.MediumText"
                             Brush.FontSize="16"
                             Text="@HeaderText" />
-
-            <ButtonWidget Id="ExpandButton"
-                          WidthSizePolicy="Fixed"
-                          HeightSizePolicy="Fixed"
-                          SuggestedWidth="42"
-                          SuggestedHeight="24"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Center"
-                          Brush="ButtonBrush1"
-                          Command.Click="ExecuteToggleExpanded">
-              <Children>
-                <RichTextWidget WidthSizePolicy="CoverChildren"
-                                HeightSizePolicy="CoverChildren"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Brush="SPGeneral.MediumText"
-                                Brush.FontSize="14"
-                                Text="@ExpandButtonText" />
-              </Children>
-            </ButtonWidget>
           </Children>
         </Widget>
 
@@ -81,9 +80,17 @@
                 HeightSizePolicy="StretchToParent"
                 MarginTop="38"
                 MarginBottom="6"
+                MarginLeft="6"
+                MarginRight="6"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top">
           <Children>
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#0C182480"
+                    DoNotAcceptEvents="true" />
+
             <ScrollablePanel Id="ScrollablePanel"
                              DoNotAcceptEvents="false"
                              WidthSizePolicy="StretchToParent"
@@ -91,7 +98,8 @@
                              VerticalAlignment="Top"
                              ClipRect="ClipRect"
                              InnerPanel="ClipRect\InnerPanel"
-                             VerticalScrollbar="..\ScrollbarHolder\VerticalScrollbar">
+                             VerticalScrollbar="..\ScrollbarHolder\VerticalScrollbar"
+                             AutoHideScrollBars="true">
               <Children>
                 <Widget Id="ClipRect"
                         DoNotAcceptEvents="false"
@@ -99,7 +107,9 @@
                         WidthSizePolicy="StretchToParent"
                         HeightSizePolicy="StretchToParent"
                         MarginLeft="15"
-                        MarginRight="21">
+                        MarginRight="18"
+                        MarginTop="6"
+                        MarginBottom="6">
                   <Children>
                     <ListPanel Id="InnerPanel"
                                DataSource="{Messages}"
@@ -139,7 +149,9 @@
             <Widget Id="ScrollbarHolder"
                     WidthSizePolicy="CoverChildren"
                     HeightSizePolicy="StretchToParent"
-                    HorizontalAlignment="Right">
+                    HorizontalAlignment="Right"
+                    MarginTop="4"
+                    MarginBottom="4">
               <Children>
                 <ScrollbarWidget Id="VerticalScrollbar"
                                  WidthSizePolicy="CoverChildren"

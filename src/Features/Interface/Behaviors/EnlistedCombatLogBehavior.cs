@@ -30,17 +30,22 @@ namespace Enlisted.Features.Interface.Behaviors
         private ScrollablePanel _scrollablePanel;
         private ListPanel _messagesListPanel;
         private Widget _resizeHandleWidget;
+        private Widget _headerBarWidget;
         private ScreenBase _ownerScreen; // The screen we added our layer to
         private bool _isInitialized;
         private bool _isLayerActive;
         private bool _wasInConversation;
         private bool _isResizing;
+        private bool _isDragging;
         private float _lastScrollPosition;
         private float _timeSinceLastManualScroll;
         private bool _shouldAutoScroll = true;
         private Vec2 _resizeStartMousePosition;
+        private Vec2 _dragStartMousePosition;
         private float _resizeStartWidth;
         private float _resizeStartHeight;
+        private float _dragStartOffsetX;
+        private float _dragStartOffsetY;
         private const float AutoScrollResumeDelay = 6f;
 
         public EnlistedCombatLogBehavior()
@@ -91,6 +96,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 _dataSource.UpdateVisibility();
             }
 
+            HandleDrag();
             HandleResize();
 
             // Handle manual scroll detection and auto-scroll behavior
@@ -157,6 +163,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var rootWidget = _movie.Movie.RootWidget;
                 var uiState = CombatLogUiStateStore.Load();
                 _dataSource.RestoreExpandedSize(uiState.ExpandedWidth, uiState.ExpandedHeight);
+                _dataSource.RestorePlacement(uiState.OffsetX, uiState.OffsetY);
                 _scrollablePanel = rootWidget.FindChild("ScrollablePanel", true) as ScrollablePanel;
                 if (_scrollablePanel != null && _scrollablePanel.VerticalScrollbar != null)
                 {
@@ -169,6 +176,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Get reference to the messages ListPanel to subscribe to link clicks
                 _messagesListPanel = rootWidget.FindChild("InnerPanel", true) as ListPanel;
                 _resizeHandleWidget = rootWidget.FindChild("ResizeHandle", true);
+                _headerBarWidget = rootWidget.FindChild("HeaderBar", true);
 
                 // Subscribe to ViewModel Messages collection changes to handle new message widgets
                 _dataSource.Messages.ListChanged += OnMessagesListChanged;
@@ -490,7 +498,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
         private void HandleResize()
         {
-            if (_dataSource == null || !_dataSource.IsExpanded || _resizeHandleWidget == null)
+            if (_dataSource == null || _resizeHandleWidget == null || _isDragging)
             {
                 return;
             }
@@ -534,9 +542,47 @@ namespace Enlisted.Features.Interface.Behaviors
             committedWidth = CombatLogUiStateStore.ClampWidth(committedWidth, Screen.RealScreenResolutionWidth);
             committedHeight = CombatLogUiStateStore.ClampHeight(committedHeight, Screen.RealScreenResolutionHeight);
             _dataSource.CommitExpandedSize(committedWidth, committedHeight);
-            CombatLogUiStateStore.Save(committedWidth, committedHeight);
+            CombatLogUiStateStore.Save(committedWidth, committedHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY);
             _dataSource.OnUserInteraction();
             _isResizing = false;
+        }
+
+        private void HandleDrag()
+        {
+            if (_dataSource == null || _headerBarWidget == null || _isResizing)
+            {
+                return;
+            }
+
+            bool isHovered = _headerBarWidget.EventManager?.HoveredView == _headerBarWidget;
+            if (!_isDragging && isHovered && Input.IsKeyPressed(InputKey.LeftMouseButton))
+            {
+                _isDragging = true;
+                _dragStartMousePosition = Input.MousePositionPixel;
+                _dragStartOffsetX = _dataSource.PanelOffsetX;
+                _dragStartOffsetY = _dataSource.PanelOffsetY;
+                _dataSource.OnUserInteraction();
+                return;
+            }
+
+            if (!_isDragging)
+            {
+                return;
+            }
+
+            if (Input.IsKeyDown(InputKey.LeftMouseButton))
+            {
+                Vec2 delta = Input.MousePositionPixel - _dragStartMousePosition;
+                float offsetX = CombatLogUiStateStore.ClampOffsetX(_dragStartOffsetX + delta.X, _dataSource.ContainerWidth, Screen.RealScreenResolutionWidth);
+                float offsetY = CombatLogUiStateStore.ClampOffsetY(_dragStartOffsetY + delta.Y, _dataSource.ContainerHeight, Screen.RealScreenResolutionHeight);
+                _dataSource.RestorePlacement(offsetX, offsetY);
+                _dataSource.OnUserInteraction();
+                return;
+            }
+
+            CombatLogUiStateStore.Save(_dataSource.ContainerWidth, _dataSource.ContainerHeight, _dataSource.PanelOffsetX, _dataSource.PanelOffsetY);
+            _dataSource.OnUserInteraction();
+            _isDragging = false;
         }
 
         private void CleanUp()
@@ -550,7 +596,9 @@ namespace Enlisted.Features.Interface.Behaviors
                     _scrollablePanel = null;
                 }
                 _resizeHandleWidget = null;
+                _headerBarWidget = null;
                 _isResizing = false;
+                _isDragging = false;
 
                 // Unsubscribe from message list events
                 if (_dataSource != null)
