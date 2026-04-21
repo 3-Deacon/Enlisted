@@ -17,6 +17,12 @@ namespace Enlisted.Features.Activities.Orders
     {
         public string OrderStoryletId { get; set; } = string.Empty;
         public CampaignTime StartedAt { get; set; } = CampaignTime.Zero;
+
+        /// <summary>
+        /// Arc-relative phase index within the named-order's Phases list.
+        /// Distinct from Activity.CurrentPhaseIndex on the enclosing OrderActivity,
+        /// which tracks the duty-profile phase.
+        /// </summary>
         public int CurrentPhaseIndex { get; set; }
         public string Intent { get; set; } = string.Empty;
         public FormationClass CombatClassAtAccept { get; set; } = FormationClass.Infantry;

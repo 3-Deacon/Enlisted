@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Enlisted.Features.Activities;
 using Enlisted.Features.Content;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -37,7 +38,7 @@ namespace Enlisted.Features.Activities.Orders
 
         public override void Tick(bool hourly)
         {
-            // Ambient ticking handled by phase pool selector + DailyDriftApplicator in later tasks.
+            // Ambient ticking is handled by the phase pool selector and DailyDriftApplicator.
         }
 
         public override void OnPhaseEnter(Phase phase)
