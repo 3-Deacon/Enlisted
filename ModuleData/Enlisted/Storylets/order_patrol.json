@@ -1,0 +1,387 @@
+{
+  "storylets": [
+    {
+      "id": "order_patrol_accept",
+      "title": "{=order_patrol_accept_title}A patrol order",
+      "setup": "{=order_patrol_accept_setup}Your lord details you to ride the perimeter — watch the roads, report what you see, and do not engage without cause. The sergeant asks how you intend to work it.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "arc": {
+        "duration_hours": 12,
+        "phases": [
+          {
+            "id": "patrol_mid",
+            "duration_hours": 10,
+            "pool_prefix": "order_patrol_mid_",
+            "fire_interval_hours": 3,
+            "delivery": "auto"
+          },
+          {
+            "id": "patrol_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_patrol_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_patrol_accept_diligent_text}Thorough sweep — every side-trail.",
+          "tooltip": "{=order_patrol_accept_diligent_tt}Diligent patrol. Builds reputation; lord notices.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_patrol_accept_train_hard_text}Use the ride to drill the men.",
+          "tooltip": "{=order_patrol_accept_train_hard_tt}Train hard. Slower patrol; skill gains.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_patrol_accept_slack_text}Walk the loop. No heroics.",
+          "tooltip": "{=order_patrol_accept_slack_tt}Slack patrol. Quick return; risk of scrutiny.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_patrol_accept_scheme_text}Patrol — and keep my eyes open.",
+          "tooltip": "{=order_patrol_accept_scheme_tt}Scheme patrol. Watch for opportunities.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_patrol_accept_decline_text}Not today. Pick another.",
+          "tooltip": "{=order_patrol_accept_decline_tt}Decline the order. Small relation hit with lord.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_mid_lost_peasant",
+      "title": "{=order_patrol_mid_lost_peasant_title}A lost peasant",
+      "setup": "{=order_patrol_mid_lost_peasant_setup}A farmhand sits by the road — turned around, half-frozen, asking after his village. He watches you warily.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 0.9,
+        "slack": 0.8,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "guide_him_home",
+          "text": "{=order_patrol_mid_lost_peasant_guide_text}Point him to his road. Note it for the report.",
+          "tooltip": "{=order_patrol_mid_lost_peasant_guide_tt}Helpful note for the patrol log.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "wave_him_off",
+          "text": "{=order_patrol_mid_lost_peasant_wave_text}Wave him off. Not our business.",
+          "tooltip": "{=order_patrol_mid_lost_peasant_wave_tt}Ignore the peasant. Faster patrol.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_mid_tracks_in_mud",
+      "title": "{=order_patrol_mid_tracks_in_mud_title}Tracks in the mud",
+      "setup": "{=order_patrol_mid_tracks_in_mud_setup}Hoofprints cut off the road and vanish into thorny scrub — too many to be honest travellers, too few for a raid band. They are fresh.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.1,
+        "slack": 0.6,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "follow_tracks",
+          "text": "{=order_patrol_mid_tracks_in_mud_follow_text}Follow a short way. Mark the direction.",
+          "tooltip": "{=order_patrol_mid_tracks_in_mud_follow_tt}Useful scouting for the report.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 }
+          ]
+        },
+        {
+          "id": "note_and_move",
+          "text": "{=order_patrol_mid_tracks_in_mud_note_text}Note them and press on.",
+          "tooltip": "{=order_patrol_mid_tracks_in_mud_note_tt}Minor observation; keep the pace.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_mid_abandoned_cart",
+      "title": "{=order_patrol_mid_abandoned_cart_title}An abandoned cart",
+      "setup": "{=order_patrol_mid_abandoned_cart_setup}A merchant's cart sits tipped at the roadside, axle snapped, the owner nowhere. A sack of grain still lies in the bed. You could report it, or you could not.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 0.9,
+        "train_hard": 0.8,
+        "slack": 1.1,
+        "scheme": 1.4
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "report_it",
+          "text": "{=order_patrol_mid_abandoned_cart_report_text}Log it in the patrol report.",
+          "tooltip": "{=order_patrol_mid_abandoned_cart_report_tt}Dutiful reporting. No personal gain.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "pocket_grain",
+          "text": "{=order_patrol_mid_abandoned_cart_pocket_text}Slide a handful of silver into your kit. None will know.",
+          "tooltip": "{=order_patrol_mid_abandoned_cart_pocket_tt}Opportunistic pilfering. Small scrutiny risk.",
+          "effects": [
+            { "apply": "give_gold", "amount": 25 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_mid_distant_smoke",
+      "title": "{=order_patrol_mid_distant_smoke_title}Smoke on the horizon",
+      "setup": "{=order_patrol_mid_distant_smoke_setup}A grey column rises past the treeline — too steady for a hearth, too thin for a raid. A sergeant's problem, or a soldier's?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 5,
+      "intent_affinity": {
+        "diligent": 1.1,
+        "train_hard": 1.2,
+        "slack": 0.7,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "ride_closer",
+          "text": "{=order_patrol_mid_distant_smoke_ride_text}Ride closer — verify before reporting.",
+          "tooltip": "{=order_patrol_mid_distant_smoke_ride_tt}Thorough verification. Useful intel.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        },
+        {
+          "id": "mark_on_map",
+          "text": "{=order_patrol_mid_distant_smoke_mark_text}Mark the bearing and continue.",
+          "tooltip": "{=order_patrol_mid_distant_smoke_mark_tt}Cursory observation. Lesser payoff.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_mid_mundane_loop",
+      "title": "{=order_patrol_mid_mundane_loop_title}An uneventful loop",
+      "setup": "{=order_patrol_mid_mundane_loop_setup}Crows. Wind. A distant bell. The road is quiet as a grave, and twice as boring. You could push the pace or let the horses rest.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "cooldown_days": 1,
+      "intent_affinity": {
+        "diligent": 0.5,
+        "train_hard": 0.8,
+        "slack": 1.5,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "push_pace",
+          "text": "{=order_patrol_mid_mundane_loop_push_text}Push on. Finish the loop.",
+          "tooltip": "{=order_patrol_mid_mundane_loop_push_tt}Stay on schedule. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "rest_horses",
+          "text": "{=order_patrol_mid_mundane_loop_rest_text}Long halt. The horses earned it.",
+          "tooltip": "{=order_patrol_mid_mundane_loop_rest_tt}Easy stretch. Nothing to report.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_resolve_diligent",
+      "title": "{=order_patrol_resolve_diligent_title}The patrol report",
+      "setup": "{=order_patrol_resolve_diligent_setup}The sergeant reads your notes — tracks, sightings, bearings — and grunts in something like approval. Your lord will see a clean sheet of work.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_patrol_resolve_diligent_done_text}A job well done.",
+          "tooltip": "{=order_patrol_resolve_diligent_done_tt}Solid XP, relation up, patrol concluded.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_resolve_train_hard",
+      "title": "{=order_patrol_resolve_train_hard_title}Saddle-weary and sharper",
+      "setup": "{=order_patrol_resolve_train_hard_setup}You turn the patrol into a running drill — wheel and rally, wheel and rally — the men curse you for it, but their hands are steadier on the reins.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_patrol_resolve_train_hard_done_text}Tired — and better for it.",
+          "tooltip": "{=order_patrol_resolve_train_hard_done_tt}Riding + tactics XP, patrol concluded.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_resolve_slack",
+      "title": "{=order_patrol_resolve_slack_title}Nothing to report",
+      "setup": "{=order_patrol_resolve_slack_setup}The sergeant stares at your thin report and says nothing at all. The silence is worse than a reprimand. Your lord will hear what was not done.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "shrug",
+          "text": "{=order_patrol_resolve_slack_shrug_text}A quiet road is a quiet road.",
+          "tooltip": "{=order_patrol_resolve_slack_shrug_tt}No XP, minor scrutiny, patrol concluded.",
+          "effects": [
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_patrol_resolve_scheme",
+      "title": "{=order_patrol_resolve_scheme_title}A quiet profit",
+      "setup": "{=order_patrol_resolve_scheme_setup}The patrol paid off in a way no one in your lord's tent will hear about. A coin or two heavier, and still wearing a clean uniform — that is the art of it. Unless someone counted.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "pocket_quiet",
+          "text": "{=order_patrol_resolve_scheme_pocket_text}Pocket the coin. Keep the report clean.",
+          "tooltip": "{=order_patrol_resolve_scheme_pocket_tt}Gold + roguery XP + scrutiny risk.",
+          "effects": [
+            { "apply": "give_gold", "amount": 60 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "get_seen",
+          "text": "{=order_patrol_resolve_scheme_seen_text}A witness. Buy their silence.",
+          "tooltip": "{=order_patrol_resolve_scheme_seen_tt}Pay off witness. Moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "give_gold", "amount": -40 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

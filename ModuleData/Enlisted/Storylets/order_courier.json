@@ -1,0 +1,396 @@
+{
+  "storylets": [
+    {
+      "id": "order_courier_accept",
+      "title": "{=order_courier_accept_title}A sealed letter",
+      "setup": "{=order_courier_accept_setup}Your lord presses a waxed packet into your hand and gives an address you repeat twice to be sure. Ride. Deliver. Speak to no one who does not carry the right name.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "arc": {
+        "duration_hours": 14,
+        "phases": [
+          {
+            "id": "courier_mid",
+            "duration_hours": 12,
+            "pool_prefix": "order_courier_mid_",
+            "fire_interval_hours": 3,
+            "delivery": "auto"
+          },
+          {
+            "id": "courier_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_courier_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_courier_accept_diligent_text}Fast and direct. No detours.",
+          "tooltip": "{=order_courier_accept_diligent_tt}Diligent ride. Relation + modest XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_courier_accept_train_hard_text}Full kit. Push the horse and yourself.",
+          "tooltip": "{=order_courier_accept_train_hard_tt}Train hard. Riding + athletics XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_courier_accept_slack_text}Stop at a tavern or three.",
+          "tooltip": "{=order_courier_accept_slack_tt}Slack ride. Scrutiny rises if late.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_courier_accept_scheme_text}Seals crack. Words have buyers.",
+          "tooltip": "{=order_courier_accept_scheme_tt}Scheme ride. High risk, high reward.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_courier_accept_decline_text}Beg off the ride.",
+          "tooltip": "{=order_courier_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_mid_rain_storm",
+      "title": "{=order_courier_mid_rain_storm_title}Cold rain",
+      "setup": "{=order_courier_mid_rain_storm_setup}The sky opens somewhere short of the halfway point. Your cloak is already through. The road will be mud for hours. Ride through or shelter under a tree?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 1.4,
+        "slack": 0.7,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "ride_through",
+          "text": "{=order_courier_mid_rain_storm_ride_text}Ride through. The packet must move.",
+          "tooltip": "{=order_courier_mid_rain_storm_ride_tt}Endurance. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        },
+        {
+          "id": "shelter",
+          "text": "{=order_courier_mid_rain_storm_shelter_text}Shelter. Wait it out.",
+          "tooltip": "{=order_courier_mid_rain_storm_shelter_tt}Delay. Small scrutiny.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_mid_fork_in_road",
+      "title": "{=order_courier_mid_fork_in_road_title}A forked road",
+      "setup": "{=order_courier_mid_fork_in_road_setup}The map-line your lord drew ran straight; the road does not. One fork climbs into rough hills, the other loops slower through safer country. Time costs a risk.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 1.3,
+        "slack": 0.8,
+        "scheme": 1.1
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "hills_route",
+          "text": "{=order_courier_mid_fork_in_road_hills_text}Hills. Faster, if you survive them.",
+          "tooltip": "{=order_courier_mid_fork_in_road_hills_tt}Risky shortcut. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 }
+          ]
+        },
+        {
+          "id": "safe_loop",
+          "text": "{=order_courier_mid_fork_in_road_safe_text}Loop. Slow, but arrived.",
+          "tooltip": "{=order_courier_mid_fork_in_road_safe_tt}Safe route. Nothing dramatic.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_courier_mid_lame_horse",
+      "title": "{=order_courier_mid_lame_horse_title}A limping horse",
+      "setup": "{=order_courier_mid_lame_horse_setup}Your mount favors a leg half a mile past the last waypoint. A stone, a strain — either way, you are losing time whatever you do.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 0.9,
+        "slack": 0.6,
+        "scheme": 1.1
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "check_hooves",
+          "text": "{=order_courier_mid_lame_horse_hooves_text}Dismount. Check the hoof. Lose the hour.",
+          "tooltip": "{=order_courier_mid_lame_horse_hooves_tt}Horsemanship. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 25 }
+          ]
+        },
+        {
+          "id": "push_on",
+          "text": "{=order_courier_mid_lame_horse_push_text}Push on. Risk the leg.",
+          "tooltip": "{=order_courier_mid_lame_horse_push_tt}Ride it lame. Small scrutiny.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_mid_stranger_asks",
+      "title": "{=order_courier_mid_stranger_asks_title}A polite stranger",
+      "setup": "{=order_courier_mid_stranger_asks_setup}A well-dressed rider falls in beside you at a crossroads. He makes pleasant noise about weather and roads, and then — too lightly — asks where you are bound. He is waiting for an answer.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 5,
+      "intent_affinity": {
+        "diligent": 1.1,
+        "train_hard": 0.8,
+        "slack": 0.9,
+        "scheme": 1.5
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "lie_smoothly",
+          "text": "{=order_courier_mid_stranger_asks_lie_text}A market, a cousin, a wedding.",
+          "tooltip": "{=order_courier_mid_stranger_asks_lie_tt}Lie well. Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 }
+          ]
+        },
+        {
+          "id": "cut_him_off",
+          "text": "{=order_courier_mid_stranger_asks_cut_text}Nothing. Spur ahead.",
+          "tooltip": "{=order_courier_mid_stranger_asks_cut_tt}Ride off. No XP, no risk.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_courier_mid_sealed_letter",
+      "title": "{=order_courier_mid_sealed_letter_title}The packet rides in your coat",
+      "setup": "{=order_courier_mid_sealed_letter_setup}You can feel the wax through the wool. Whatever is in that letter travels with you, sealed and secret, to a man you have never met. Curiosity is a sin with a long tally.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 8,
+      "intent_affinity": {
+        "diligent": 1.1,
+        "train_hard": 0.8,
+        "slack": 1.0,
+        "scheme": 1.6
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "keep_sealed",
+          "text": "{=order_courier_mid_sealed_letter_keep_text}Leave it sealed. As ordered.",
+          "tooltip": "{=order_courier_mid_sealed_letter_keep_tt}Honest ride. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "peek",
+          "text": "{=order_courier_mid_sealed_letter_peek_text}Warm the seal. Learn a thing. Reset it.",
+          "tooltip": "{=order_courier_mid_sealed_letter_peek_tt}Read the letter. Roguery XP + scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_resolve_diligent",
+      "title": "{=order_courier_resolve_diligent_title}Delivered",
+      "setup": "{=order_courier_resolve_diligent_setup}The packet passes hand to hand, receipt given, seal intact. The captain on the other end reads the first line, grunts, and pays a small service-coin for the ride. Word will ride back to your lord.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_courier_resolve_diligent_done_text}Ride back tall.",
+          "tooltip": "{=order_courier_resolve_diligent_done_tt}Moderate XP; relation + small gold.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 2 },
+            { "apply": "give_gold", "amount": 40 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_resolve_train_hard",
+      "title": "{=order_courier_resolve_train_hard_title}Hard miles",
+      "setup": "{=order_courier_resolve_train_hard_setup}You rode the packet in on a spent horse and a stiffer back than you started with. The receipt is taken and signed; the miles will live in your legs for days.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_courier_resolve_train_hard_done_text}Unsaddle. Drink deep.",
+          "tooltip": "{=order_courier_resolve_train_hard_done_tt}Riding + athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 40 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 25 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_resolve_slack",
+      "title": "{=order_courier_resolve_slack_title}Late on arrival",
+      "setup": "{=order_courier_resolve_slack_setup}The captain reads the date on the packet and then reads it again, slower. His jaw tightens. A courier who drinks his time does not ride for him twice.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_courier_resolve_slack_absorb_text}Take the stare. Ride out.",
+          "tooltip": "{=order_courier_resolve_slack_absorb_tt}Moderate scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_courier_resolve_scheme",
+      "title": "{=order_courier_resolve_scheme_title}What the seal said",
+      "setup": "{=order_courier_resolve_scheme_setup}You know what was written. Somewhere between here and the next town, that knowing may be worth more than the ride-pay. Or it may be the rope around your neck.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "sell_knowing",
+          "text": "{=order_courier_resolve_scheme_sell_text}Sell the knowing. Quietly.",
+          "tooltip": "{=order_courier_resolve_scheme_sell_tt}Gold + roguery XP; moderate scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 120 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 35 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "caught_out",
+          "text": "{=order_courier_resolve_scheme_caught_text}Someone talked. Buy silence.",
+          "tooltip": "{=order_courier_resolve_scheme_caught_tt}Lose gold, relation hit, scrutiny up.",
+          "effects": [
+            { "apply": "give_gold", "amount": -100 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

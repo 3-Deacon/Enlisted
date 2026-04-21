@@ -5466,5 +5466,410 @@
     <string id="home_unwind_stars_opt_reflect" text="Stay out. Think through what brought you here." />
     <string id="home_unwind_stars_opt_reflect_tt" text="Sets a stargazer flag; quiet character note." />
     <string id="home_unwind_stars_setup" text="You step outside the billet for a breath. The stars are out and the camp is quiet enough to hear them, almost. It&apos;s the kind of night that invites thinking, if you let it." />
-    <string id="home_unwind_stars_title" text="The sky tonight" /></strings>
+    <string id="home_unwind_stars_title" text="The sky tonight" />
+    <!-- Spec 2 Task 33 - named-order archetypes (guard_post / patrol / fatigue_detail / drill / courier) -->
+    <!-- order_guard_post_mid_drunken_civilian -->
+    <string id="ogp_mid_drunk_opt_coin" text="Take the coin. Look the other way." />
+    <string id="ogp_mid_drunk_opt_coin_tt" text="+10 gold. Scrutiny up." />
+    <string id="ogp_mid_drunk_opt_turn" text="Order him back. Curfew is curfew." />
+    <string id="ogp_mid_drunk_opt_turn_tt" text="By the book. +Rank XP." />
+    <string id="ogp_mid_drunk_opt_wave" text="Nod him through. It&apos;s one tired man." />
+    <string id="ogp_mid_drunk_opt_wave_tt" text="Bend the rule quietly. Scrutiny risk." />
+    <string id="ogp_mid_drunk_setup" text="A townsman sways up to the gate well after curfew, wine on his breath and bruises on one hand. He waves a coin at you and asks, not quite begging, to be let in to his wife." />
+    <string id="ogp_mid_drunk_title" text="A man at the gate" />
+
+    <!-- order_guard_post_mid_fellow_watchman -->
+    <string id="ogp_mid_fellow_opt_chat" text="Drift over. Swap a word or two." />
+    <string id="ogp_mid_fellow_opt_chat_tt" text="+Charm XP. Scrutiny if spotted." />
+    <string id="ogp_mid_fellow_opt_silent" text="Shake your head once. Back to the gate." />
+    <string id="ogp_mid_fellow_opt_silent_tt" text="Hold the line. +Rank XP." />
+    <string id="ogp_mid_fellow_setup" text="Rassak stands the next post over, leaning on his spear the same as you. He lifts his chin — quiet invitation to trade gripes while nothing&apos;s happening. The serjeant is at the far wall." />
+    <string id="ogp_mid_fellow_title" text="Rassak at the next post" />
+
+    <!-- order_guard_post_mid_merchant_late -->
+    <string id="ogp_mid_merchant_opt_back" text="Turn the wagon around. He can wait for dawn." />
+    <string id="ogp_mid_merchant_opt_back_tt" text="Strict. No effect." />
+    <string id="ogp_mid_merchant_opt_bribe" text="Accept a &quot;thank-you.&quot; Forget his name by morning." />
+    <string id="ogp_mid_merchant_opt_bribe_tt" text="+25 gold. Scrutiny up." />
+    <string id="ogp_mid_merchant_opt_log" text="Note the name and hour. Pass him through." />
+    <string id="ogp_mid_merchant_opt_log_tt" text="Do it right. +Rank XP, +Lord relation." />
+    <string id="ogp_mid_merchant_setup" text="A trader&apos;s cart rolls up out of the dark, lamp swinging, axle complaining. He&apos;s an hour late for the gate — and he knows it. He looks tired enough to pay for a friendly eye." />
+    <string id="ogp_mid_merchant_title" text="A wagon on the road" />
+
+    <!-- order_guard_post_mid_quiet_watch -->
+    <string id="ogp_mid_quiet_opt" text="The hour turns over." />
+    <string id="ogp_mid_quiet_opt_tt" text="Stand and wait. Minor rank XP." />
+    <string id="ogp_mid_quiet_setup" text="Nothing moves at the gate. A dog barks somewhere beyond the wall; another answers. The cold settles into your shoulders and stays there." />
+    <string id="ogp_mid_quiet_title" text="The hour turns" />
+
+    <!-- order_guard_post_mid_distant_shout -->
+    <string id="ogp_mid_shout_opt_alone" text="Step outside. See for yourself." />
+    <string id="ogp_mid_shout_opt_alone_tt" text="Off your post. Scrutiny up if noticed." />
+    <string id="ogp_mid_shout_opt_check" text="Call it up. Look over the wall." />
+    <string id="ogp_mid_shout_opt_check_tt" text="Proper. +Scouting XP, +Lord relation." />
+    <string id="ogp_mid_shout_opt_hold" text="Stay at the post. Someone else&apos;s problem." />
+    <string id="ogp_mid_shout_opt_hold_tt" text="Don&apos;t leave your post. No effect." />
+    <string id="ogp_mid_shout_setup" text="Something yells outside the wall — a man&apos;s voice, two words you can&apos;t make out, cut off sharp. Could be a drunk. Could be something else. You&apos;re the nearest post." />
+    <string id="ogp_mid_shout_title" text="A cry from the dark" />
+
+    <!-- order_guard_post_resolve_diligent -->
+    <string id="ogp_res_dil_opt" text="Rack your spear. Walk to the billet." />
+    <string id="ogp_res_dil_opt_tt" text="+Rank XP, +Lord relation, +Perception." />
+    <string id="ogp_res_dil_setup" text="The relief arrives at third bell exact. The corporal looks at your log, grunts once — which is approval from him — and waves you off the gate. The serjeant is already telling someone else how it ought to be done." />
+    <string id="ogp_res_dil_title" text="Third bell, post relieved" />
+
+    <!-- order_guard_post_resolve_scheme -->
+    <string id="ogp_res_sc_opt_pocket" text="Stash the coin. Walk to the billet clean." />
+    <string id="ogp_res_sc_opt_pocket_tt" text="+40 gold, +Roguery, scrutiny up." />
+    <string id="ogp_res_sc_opt_seen" text="Fumble the knot. A corporal is behind you — how long?" />
+    <string id="ogp_res_sc_opt_seen_tt" text="Caught. Scrutiny up hard, -Lord relation." />
+    <string id="ogp_res_sc_setup" text="You count the night&apos;s take in the shadow of the billet wall: not bad for a gate post. The knot goes in a boot until you can pass it somewhere safer. No one is looking. No one, if you&apos;ve read the rotation right." />
+    <string id="ogp_res_sc_title" text="Coin in a knotted rag" />
+
+    <!-- order_guard_post_resolve_slack -->
+    <string id="ogp_res_sl_opt" text="Stumble off. Pretend you didn&apos;t catch the look." />
+    <string id="ogp_res_sl_opt_tt" text="Scrutiny up. No rank progress." />
+    <string id="ogp_res_sl_setup" text="Third bell finally crawls around. Your shoulders ache from the spear you barely carried. The corporal looks at your post-log, looks at you, and doesn&apos;t say anything — which is a worse sign than a shout." />
+    <string id="ogp_res_sl_title" text="A long night, mostly leaning" />
+
+    <!-- order_guard_post_resolve_train_hard -->
+    <string id="ogp_res_tr_opt" text="Turn in. Tomorrow the hands will remember." />
+    <string id="ogp_res_tr_opt_tt" text="+Polearm, +Athletics, +Rank XP." />
+    <string id="ogp_res_tr_setup" text="You walked through the polearm form a hundred times in your head tonight. On the way back to the billet you catch yourself sliding a foot back into the stance without thinking. Something settled in." />
+    <string id="ogp_res_tr_title" text="The drill in your hands" />
+
+    <!-- order_courier_accept -->
+    <string id="order_courier_accept_decline_text" text="Beg off the ride." />
+    <string id="order_courier_accept_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <string id="order_courier_accept_diligent_text" text="Fast and direct. No detours." />
+    <string id="order_courier_accept_diligent_tt" text="Diligent ride. Relation + modest XP." />
+    <string id="order_courier_accept_scheme_text" text="Seals crack. Words have buyers." />
+    <string id="order_courier_accept_scheme_tt" text="Scheme ride. High risk, high reward." />
+    <string id="order_courier_accept_setup" text="Your lord presses a waxed packet into your hand and gives an address you repeat twice to be sure. Ride. Deliver. Speak to no one who does not carry the right name." />
+    <string id="order_courier_accept_slack_text" text="Stop at a tavern or three." />
+    <string id="order_courier_accept_slack_tt" text="Slack ride. Scrutiny rises if late." />
+    <string id="order_courier_accept_title" text="A sealed letter" />
+    <string id="order_courier_accept_train_hard_text" text="Full kit. Push the horse and yourself." />
+    <string id="order_courier_accept_train_hard_tt" text="Train hard. Riding + athletics XP." />
+
+    <!-- order_courier_mid_fork_in_road -->
+    <string id="order_courier_mid_fork_in_road_hills_text" text="Hills. Faster, if you survive them." />
+    <string id="order_courier_mid_fork_in_road_hills_tt" text="Risky shortcut. Scouting XP." />
+    <string id="order_courier_mid_fork_in_road_safe_text" text="Loop. Slow, but arrived." />
+    <string id="order_courier_mid_fork_in_road_safe_tt" text="Safe route. Nothing dramatic." />
+    <string id="order_courier_mid_fork_in_road_setup" text="The map-line your lord drew ran straight; the road does not. One fork climbs into rough hills, the other loops slower through safer country. Time costs a risk." />
+    <string id="order_courier_mid_fork_in_road_title" text="A forked road" />
+
+    <!-- order_courier_mid_lame_horse -->
+    <string id="order_courier_mid_lame_horse_hooves_text" text="Dismount. Check the hoof. Lose the hour." />
+    <string id="order_courier_mid_lame_horse_hooves_tt" text="Horsemanship. Riding XP." />
+    <string id="order_courier_mid_lame_horse_push_text" text="Push on. Risk the leg." />
+    <string id="order_courier_mid_lame_horse_push_tt" text="Ride it lame. Small scrutiny." />
+    <string id="order_courier_mid_lame_horse_setup" text="Your mount favors a leg half a mile past the last waypoint. A stone, a strain — either way, you are losing time whatever you do." />
+    <string id="order_courier_mid_lame_horse_title" text="A limping horse" />
+
+    <!-- order_courier_mid_rain_storm -->
+    <string id="order_courier_mid_rain_storm_ride_text" text="Ride through. The packet must move." />
+    <string id="order_courier_mid_rain_storm_ride_tt" text="Endurance. Athletics XP." />
+    <string id="order_courier_mid_rain_storm_setup" text="The sky opens somewhere short of the halfway point. Your cloak is already through. The road will be mud for hours. Ride through or shelter under a tree?" />
+    <string id="order_courier_mid_rain_storm_shelter_text" text="Shelter. Wait it out." />
+    <string id="order_courier_mid_rain_storm_shelter_tt" text="Delay. Small scrutiny." />
+    <string id="order_courier_mid_rain_storm_title" text="Cold rain" />
+
+    <!-- order_courier_mid_sealed_letter -->
+    <string id="order_courier_mid_sealed_letter_keep_text" text="Leave it sealed. As ordered." />
+    <string id="order_courier_mid_sealed_letter_keep_tt" text="Honest ride. Minor credit." />
+    <string id="order_courier_mid_sealed_letter_peek_text" text="Warm the seal. Learn a thing. Reset it." />
+    <string id="order_courier_mid_sealed_letter_peek_tt" text="Read the letter. Roguery XP + scrutiny." />
+    <string id="order_courier_mid_sealed_letter_setup" text="You can feel the wax through the wool. Whatever is in that letter travels with you, sealed and secret, to a man you have never met. Curiosity is a sin with a long tally." />
+    <string id="order_courier_mid_sealed_letter_title" text="The packet rides in your coat" />
+
+    <!-- order_courier_mid_stranger_asks -->
+    <string id="order_courier_mid_stranger_asks_cut_text" text="Nothing. Spur ahead." />
+    <string id="order_courier_mid_stranger_asks_cut_tt" text="Ride off. No XP, no risk." />
+    <string id="order_courier_mid_stranger_asks_lie_text" text="A market, a cousin, a wedding." />
+    <string id="order_courier_mid_stranger_asks_lie_tt" text="Lie well. Charm XP." />
+    <string id="order_courier_mid_stranger_asks_setup" text="A well-dressed rider falls in beside you at a crossroads. He makes pleasant noise about weather and roads, and then — too lightly — asks where you are bound. He is waiting for an answer." />
+    <string id="order_courier_mid_stranger_asks_title" text="A polite stranger" />
+
+    <!-- order_courier_resolve_diligent -->
+    <string id="order_courier_resolve_diligent_done_text" text="Ride back tall." />
+    <string id="order_courier_resolve_diligent_done_tt" text="Moderate XP; relation + small gold." />
+    <string id="order_courier_resolve_diligent_setup" text="The packet passes hand to hand, receipt given, seal intact. The captain on the other end reads the first line, grunts, and pays a small service-coin for the ride. Word will ride back to your lord." />
+    <string id="order_courier_resolve_diligent_title" text="Delivered" />
+
+    <!-- order_courier_resolve_scheme -->
+    <string id="order_courier_resolve_scheme_caught_text" text="Someone talked. Buy silence." />
+    <string id="order_courier_resolve_scheme_caught_tt" text="Lose gold, relation hit, scrutiny up." />
+    <string id="order_courier_resolve_scheme_sell_text" text="Sell the knowing. Quietly." />
+    <string id="order_courier_resolve_scheme_sell_tt" text="Gold + roguery XP; moderate scrutiny." />
+    <string id="order_courier_resolve_scheme_setup" text="You know what was written. Somewhere between here and the next town, that knowing may be worth more than the ride-pay. Or it may be the rope around your neck." />
+    <string id="order_courier_resolve_scheme_title" text="What the seal said" />
+
+    <!-- order_courier_resolve_slack -->
+    <string id="order_courier_resolve_slack_absorb_text" text="Take the stare. Ride out." />
+    <string id="order_courier_resolve_slack_absorb_tt" text="Moderate scrutiny + relation hit." />
+    <string id="order_courier_resolve_slack_setup" text="The captain reads the date on the packet and then reads it again, slower. His jaw tightens. A courier who drinks his time does not ride for him twice." />
+    <string id="order_courier_resolve_slack_title" text="Late on arrival" />
+
+    <!-- order_courier_resolve_train_hard -->
+    <string id="order_courier_resolve_train_hard_done_text" text="Unsaddle. Drink deep." />
+    <string id="order_courier_resolve_train_hard_done_tt" text="Riding + athletics XP." />
+    <string id="order_courier_resolve_train_hard_setup" text="You rode the packet in on a spent horse and a stiffer back than you started with. The receipt is taken and signed; the miles will live in your legs for days." />
+    <string id="order_courier_resolve_train_hard_title" text="Hard miles" />
+
+    <!-- order_drill_accept -->
+    <string id="order_drill_accept_decline_text" text="Beg off — sick, hurt, anything." />
+    <string id="order_drill_accept_decline_tt" text="Decline drill. Relation + scrutiny hit." />
+    <string id="order_drill_accept_diligent_text" text="Clean reps. No showing off." />
+    <string id="order_drill_accept_diligent_tt" text="Diligent drill. Steady skill gains." />
+    <string id="order_drill_accept_scheme_text" text="Pick your partner. Make it count." />
+    <string id="order_drill_accept_scheme_tt" text="Scheme: impress the right watcher." />
+    <string id="order_drill_accept_setup" text="The sergeant calls for ranks and paces the line, stick in hand. Spear-drill, then shield-work, then whatever else he decides you have forgotten. How are you taking it?" />
+    <string id="order_drill_accept_slack_text" text="Go through the motions." />
+    <string id="order_drill_accept_slack_tt" text="Slack drill. Scrutiny risk if noticed." />
+    <string id="order_drill_accept_title" text="Drill detail" />
+    <string id="order_drill_accept_train_hard_text" text="Push until you cannot lift the shield." />
+    <string id="order_drill_accept_train_hard_tt" text="Train hard. Large skill gains; tiring." />
+
+    <!-- order_drill_mid_equipment_check -->
+    <string id="order_drill_mid_equipment_check_loose_text" text="Fumble a strap in time. Hope." />
+    <string id="order_drill_mid_equipment_check_loose_tt" text="Bluff the check. Scrutiny risk." />
+    <string id="order_drill_mid_equipment_check_setup" text="The sergeant pauses drill for a kit check — straps, edges, buckles. He is looking for something to bark about. He will find it." />
+    <string id="order_drill_mid_equipment_check_tight_text" text="Everything tight. Let him look." />
+    <string id="order_drill_mid_equipment_check_tight_tt" text="Ready kit. Small credit." />
+    <string id="order_drill_mid_equipment_check_title" text="Kit inspection" />
+
+    <!-- order_drill_mid_rival_watching -->
+    <string id="order_drill_mid_rival_watching_ignore_text" text="Eyes front. He does not matter." />
+    <string id="order_drill_mid_rival_watching_ignore_tt" text="Stay focused. Small XP." />
+    <string id="order_drill_mid_rival_watching_perform_text" text="Give him something to remember." />
+    <string id="order_drill_mid_rival_watching_perform_tt" text="Show off. Roguery XP." />
+    <string id="order_drill_mid_rival_watching_setup" text="Another soldier leans on a post and watches your bout with something between amusement and appraisal. He is the sort who remembers what he sees." />
+    <string id="order_drill_mid_rival_watching_title" text="Eyes on you" />
+
+    <!-- order_drill_mid_rusty_form -->
+    <string id="order_drill_mid_rusty_form_fake_text" text="Swing hard and loud. Hide it." />
+    <string id="order_drill_mid_rusty_form_fake_tt" text="Fake it. Scrutiny up if caught." />
+    <string id="order_drill_mid_rusty_form_setup" text="The wooden sword feels wrong. Your footwork lags by a beat. Anyone watching would say so — and the sergeant is watching." />
+    <string id="order_drill_mid_rusty_form_slow_text" text="Slow everything down. Fix the form." />
+    <string id="order_drill_mid_rusty_form_slow_tt" text="Deliberate practice. One-handed XP." />
+    <string id="order_drill_mid_rusty_form_title" text="Rust shows" />
+
+    <!-- order_drill_mid_sergeant_correction -->
+    <string id="order_drill_mid_sergeant_correction_excuse_text" text="Mumble an excuse about the footing." />
+    <string id="order_drill_mid_sergeant_correction_excuse_tt" text="Excuse yourself. Small scrutiny." />
+    <string id="order_drill_mid_sergeant_correction_setup" text="The sergeant stops the line and picks on your stance. The stick taps your forward knee, then your back shoulder. He waits for the correction, not an excuse." />
+    <string id="order_drill_mid_sergeant_correction_take_text" text="Adjust. Do it twice. Then twice more." />
+    <string id="order_drill_mid_sergeant_correction_take_tt" text="Accept correction. Polearm XP." />
+    <string id="order_drill_mid_sergeant_correction_title" text="A sharp word" />
+
+    <!-- order_drill_mid_sparring_partner -->
+    <string id="order_drill_mid_sparring_partner_press_text" text="Press him. Take the lessons." />
+    <string id="order_drill_mid_sparring_partner_press_tt" text="Hard spar. One-handed XP." />
+    <string id="order_drill_mid_sparring_partner_setup" text="The sergeant points you at a wiry veteran who smiles thinly. He is faster than you. You know this before the first pass." />
+    <string id="order_drill_mid_sparring_partner_soak_text" text="Defend. Survive the round." />
+    <string id="order_drill_mid_sparring_partner_soak_tt" text="Defensive reps. Athletics XP." />
+    <string id="order_drill_mid_sparring_partner_title" text="Paired up" />
+
+    <!-- order_drill_resolve_diligent -->
+    <string id="order_drill_resolve_diligent_done_text" text="Rack the wasters." />
+    <string id="order_drill_resolve_diligent_done_tt" text="Solid XP; small relation up." />
+    <string id="order_drill_resolve_diligent_setup" text="The sergeant calls the line to rest and looks across. His eyes rest on you a heartbeat longer than anyone else. It is the closest he comes to praise." />
+    <string id="order_drill_resolve_diligent_title" text="Good form, good day" />
+
+    <!-- order_drill_resolve_scheme -->
+    <string id="order_drill_resolve_scheme_over_text" text="He saw through it. Pay a bribe and go." />
+    <string id="order_drill_resolve_scheme_over_tt" text="Cost coin + moderate scrutiny." />
+    <string id="order_drill_resolve_scheme_payoff_text" text="Walk away with a quiet smile." />
+    <string id="order_drill_resolve_scheme_payoff_tt" text="Roguery + charm XP, minor scrutiny." />
+    <string id="order_drill_resolve_scheme_setup" text="The right person watched you land the right hit against the right opponent. Word will travel — and if fortune is kind, travel to the right ears." />
+    <string id="order_drill_resolve_scheme_title" text="Eyes bought" />
+
+    <!-- order_drill_resolve_slack -->
+    <string id="order_drill_resolve_slack_absorb_text" text="Rack your kit. Drift away." />
+    <string id="order_drill_resolve_slack_absorb_tt" text="Scrutiny + relation hit." />
+    <string id="order_drill_resolve_slack_setup" text="The sergeant watched you coast, and says nothing. Silence from him is never a good sign. A note will reach the lord, or it will fester unspoken." />
+    <string id="order_drill_resolve_slack_title" text="Phoning it in" />
+
+    <!-- order_drill_resolve_train_hard -->
+    <string id="order_drill_resolve_train_hard_done_text" text="Pour water over your head." />
+    <string id="order_drill_resolve_train_hard_done_tt" text="Large skill XP; athletics + one-handed." />
+    <string id="order_drill_resolve_train_hard_setup" text="You traded water for exhaustion and exhaustion for something that might one day be skill. Your arms shake. Tomorrow&apos;s ache will be harsh. Worth it." />
+    <string id="order_drill_resolve_train_hard_title" text="Spent" />
+
+    <!-- order_fatigue_detail_accept -->
+    <string id="order_fatigue_detail_accept_decline_text" text="Refuse the detail." />
+    <string id="order_fatigue_detail_accept_decline_tt" text="Refuse the work. Relation + scrutiny hit." />
+    <string id="order_fatigue_detail_accept_diligent_text" text="Heads down, work done. No complaints." />
+    <string id="order_fatigue_detail_accept_diligent_tt" text="Work hard. Small XP; quiet credit." />
+    <string id="order_fatigue_detail_accept_scheme_text" text="Trade the shovel for a favour." />
+    <string id="order_fatigue_detail_accept_scheme_tt" text="Scheme out of the work. Gold risk/reward." />
+    <string id="order_fatigue_detail_accept_setup" text="The sergeant waves you over with a grin that is not friendly. Latrines. Wood. Water. A long list of things that require a strong back and a shut mouth. How are you going to approach it?" />
+    <string id="order_fatigue_detail_accept_slack_text" text="Do the minimum. Lean on the veterans." />
+    <string id="order_fatigue_detail_accept_slack_tt" text="Slack off. Scrutiny rises if caught." />
+    <string id="order_fatigue_detail_accept_title" text="On the work party" />
+    <string id="order_fatigue_detail_accept_train_hard_text" text="Treat the labour as conditioning." />
+    <string id="order_fatigue_detail_accept_train_hard_tt" text="Train through it. Athletics XP." />
+
+    <!-- order_fatigue_detail_mid_broken_tool -->
+    <string id="order_fatigue_detail_mid_broken_tool_hide_text" text="Wedge it back together. Hope no one notices." />
+    <string id="order_fatigue_detail_mid_broken_tool_hide_tt" text="Concealment. Scrutiny up if caught." />
+    <string id="order_fatigue_detail_mid_broken_tool_report_text" text="Report the broken tool." />
+    <string id="order_fatigue_detail_mid_broken_tool_report_tt" text="Honest. Small credit; lecture absorbed." />
+    <string id="order_fatigue_detail_mid_broken_tool_setup" text="Your shovel splinters mid-swing. The sergeant is not in sight. You can report it and face the lecture, or you can patch it rough and pretend nothing happened." />
+    <string id="order_fatigue_detail_mid_broken_tool_title" text="A snapped handle" />
+
+    <!-- order_fatigue_detail_mid_digging -->
+    <string id="order_fatigue_detail_mid_digging_setup" text="Cold earth, a dull shovel, and a line to dig before dusk. Your hands blister quickly. The ground does not care how tired you are." />
+    <string id="order_fatigue_detail_mid_digging_steady_text" text="Dig steady. Finish your stretch." />
+    <string id="order_fatigue_detail_mid_digging_steady_tt" text="Honest labour. Minor credit." />
+    <string id="order_fatigue_detail_mid_digging_strength_text" text="Attack the ground. Make it count." />
+    <string id="order_fatigue_detail_mid_digging_strength_tt" text="Push through. Athletics XP." />
+    <string id="order_fatigue_detail_mid_digging_title" text="Digging work" />
+
+    <!-- order_fatigue_detail_mid_hauling_water -->
+    <string id="order_fatigue_detail_mid_hauling_water_full_text" text="Full buckets every trip." />
+    <string id="order_fatigue_detail_mid_hauling_water_full_tt" text="Carry the weight. Athletics XP." />
+    <string id="order_fatigue_detail_mid_hauling_water_half_text" text="Half loads. No one is counting trips." />
+    <string id="order_fatigue_detail_mid_hauling_water_half_tt" text="Save your back. Minor scrutiny." />
+    <string id="order_fatigue_detail_mid_hauling_water_setup" text="Two buckets, a yoke, and half a mile to the cookpots. Again. The yoke leaves a raw stripe across your shoulders by the fourth trip." />
+    <string id="order_fatigue_detail_mid_hauling_water_title" text="Water from the well" />
+
+    <!-- order_fatigue_detail_mid_sergeant_inspection -->
+    <string id="order_fatigue_detail_mid_sergeant_inspection_head_down_text" text="Keep your head down. Say nothing." />
+    <string id="order_fatigue_detail_mid_sergeant_inspection_head_down_tt" text="Pass under notice. Nothing gained." />
+    <string id="order_fatigue_detail_mid_sergeant_inspection_meet_text" text="Straighten up. Meet his eye." />
+    <string id="order_fatigue_detail_mid_sergeant_inspection_meet_tt" text="Stand tall. Small credit if work is solid." />
+    <string id="order_fatigue_detail_mid_sergeant_inspection_setup" text="The sergeant picks his way down the line, casting an eye on each man&apos;s work. His gaze stops on you. A pause too long for comfort." />
+    <string id="order_fatigue_detail_mid_sergeant_inspection_title" text="The sergeant comes through" />
+
+    <!-- order_fatigue_detail_mid_veteran_complaints -->
+    <string id="order_fatigue_detail_mid_veteran_complaints_listen_text" text="Nod along. Keep working." />
+    <string id="order_fatigue_detail_mid_veteran_complaints_listen_tt" text="Earn a grain of goodwill." />
+    <string id="order_fatigue_detail_mid_veteran_complaints_setup" text="An older soldier leans on his shovel and tells you, at length, how much better things were when he was young. He is wrong about most of it, but he expects agreement." />
+    <string id="order_fatigue_detail_mid_veteran_complaints_silent_text" text="Ignore him. Work." />
+    <string id="order_fatigue_detail_mid_veteran_complaints_silent_tt" text="Silent grind. Nothing gained or lost." />
+    <string id="order_fatigue_detail_mid_veteran_complaints_title" text="The old soldier&apos;s tale" />
+
+    <!-- order_fatigue_detail_resolve_diligent -->
+    <string id="order_fatigue_detail_resolve_diligent_done_text" text="A hard day, honestly spent." />
+    <string id="order_fatigue_detail_resolve_diligent_done_tt" text="XP + small relation up." />
+    <string id="order_fatigue_detail_resolve_diligent_setup" text="The work is done. Your palms are raw and your back complains, but the sergeant nods once as you pass. That nod is worth more than he will ever say aloud." />
+    <string id="order_fatigue_detail_resolve_diligent_title" text="Blisters and credit" />
+
+    <!-- order_fatigue_detail_resolve_scheme -->
+    <string id="order_fatigue_detail_resolve_scheme_away_text" text="Paid off. No one noticed." />
+    <string id="order_fatigue_detail_resolve_scheme_away_tt" text="Cost coin. Small scrutiny + roguery XP." />
+    <string id="order_fatigue_detail_resolve_scheme_seen_text" text="The sergeant saw. A second bribe." />
+    <string id="order_fatigue_detail_resolve_scheme_seen_tt" text="Larger cost, moderate scrutiny." />
+    <string id="order_fatigue_detail_resolve_scheme_setup" text="A few coins changed hands with a tired conscript who did your share. Your uniform is clean. Your palms are soft. Someone saw the transaction, or they did not." />
+    <string id="order_fatigue_detail_resolve_scheme_title" text="Hands kept clean" />
+
+    <!-- order_fatigue_detail_resolve_slack -->
+    <string id="order_fatigue_detail_resolve_slack_absorb_text" text="Accept the grumble. Move on." />
+    <string id="order_fatigue_detail_resolve_slack_absorb_tt" text="Scrutiny + relation hit." />
+    <string id="order_fatigue_detail_resolve_slack_setup" text="The sergeant walks the line and his face sours when he reaches your stretch. The ditch is half what it should be. A word will reach the lord by morning." />
+    <string id="order_fatigue_detail_resolve_slack_title" text="A half-dug ditch" />
+
+    <!-- order_fatigue_detail_resolve_train_hard -->
+    <string id="order_fatigue_detail_resolve_train_hard_done_text" text="Earned the ache." />
+    <string id="order_fatigue_detail_resolve_train_hard_done_tt" text="Athletics + rank XP." />
+    <string id="order_fatigue_detail_resolve_train_hard_setup" text="You treated every bucket and every shovel-stroke as a drill. Your shoulders scream tonight. They will be the stronger for it tomorrow." />
+    <string id="order_fatigue_detail_resolve_train_hard_title" text="Sore, and stronger" />
+
+    <!-- order_guard_post_accept -->
+    <string id="order_guard_post_accept_decline_text" text="&quot;Not me tonight. Find another.&quot; The serjeant&apos;s jaw tightens." />
+    <string id="order_guard_post_accept_decline_tt" text="Refuse the post. Lord relation down." />
+    <string id="order_guard_post_accept_diligent_text" text="&quot;Aye, serjeant.&quot; You set your feet and keep your eyes on the gate." />
+    <string id="order_guard_post_accept_diligent_tt" text="Stand watch by the book. Lord will notice." />
+    <string id="order_guard_post_accept_scheme_text" text="&quot;Aye.&quot; *Eyes outward. Purse outward-leaning too, if it comes to that.*" />
+    <string id="order_guard_post_accept_scheme_tt" text="Watch for an angle. Possible coin, scrutiny risk." />
+    <string id="order_guard_post_accept_setup" text="The serjeant catches your sleeve as the watch changes. &quot;Gate post, till third bell. Eyes outward.&quot; He waits on your answer, already looking past you to the next man." />
+    <string id="order_guard_post_accept_slack_text" text="You take the post. The moment the serjeant&apos;s back turns, you lean on your spear." />
+    <string id="order_guard_post_accept_slack_tt" text="Lean on the spear. Scrutiny risk if caught." />
+    <string id="order_guard_post_accept_title" text="A post to stand" />
+    <string id="order_guard_post_accept_train_text" text="You nod. Between rounds you&apos;ll run the polearm drills in your head — no one has to know." />
+    <string id="order_guard_post_accept_train_tt" text="Stand and rehearse drills between rounds." />
+
+    <!-- order_patrol_accept -->
+    <string id="order_patrol_accept_decline_text" text="Not today. Pick another." />
+    <string id="order_patrol_accept_decline_tt" text="Decline the order. Small relation hit with lord." />
+    <string id="order_patrol_accept_diligent_text" text="Thorough sweep — every side-trail." />
+    <string id="order_patrol_accept_diligent_tt" text="Diligent patrol. Builds reputation; lord notices." />
+    <string id="order_patrol_accept_scheme_text" text="Patrol — and keep my eyes open." />
+    <string id="order_patrol_accept_scheme_tt" text="Scheme patrol. Watch for opportunities." />
+    <string id="order_patrol_accept_setup" text="Your lord details you to ride the perimeter — watch the roads, report what you see, and do not engage without cause. The sergeant asks how you intend to work it." />
+    <string id="order_patrol_accept_slack_text" text="Walk the loop. No heroics." />
+    <string id="order_patrol_accept_slack_tt" text="Slack patrol. Quick return; risk of scrutiny." />
+    <string id="order_patrol_accept_title" text="A patrol order" />
+    <string id="order_patrol_accept_train_hard_text" text="Use the ride to drill the men." />
+    <string id="order_patrol_accept_train_hard_tt" text="Train hard. Slower patrol; skill gains." />
+
+    <!-- order_patrol_mid_abandoned_cart -->
+    <string id="order_patrol_mid_abandoned_cart_pocket_text" text="Slide a handful of silver into your kit. None will know." />
+    <string id="order_patrol_mid_abandoned_cart_pocket_tt" text="Opportunistic pilfering. Small scrutiny risk." />
+    <string id="order_patrol_mid_abandoned_cart_report_text" text="Log it in the patrol report." />
+    <string id="order_patrol_mid_abandoned_cart_report_tt" text="Dutiful reporting. No personal gain." />
+    <string id="order_patrol_mid_abandoned_cart_setup" text="A merchant&apos;s cart sits tipped at the roadside, axle snapped, the owner nowhere. A sack of grain still lies in the bed. You could report it, or you could not." />
+    <string id="order_patrol_mid_abandoned_cart_title" text="An abandoned cart" />
+
+    <!-- order_patrol_mid_distant_smoke -->
+    <string id="order_patrol_mid_distant_smoke_mark_text" text="Mark the bearing and continue." />
+    <string id="order_patrol_mid_distant_smoke_mark_tt" text="Cursory observation. Lesser payoff." />
+    <string id="order_patrol_mid_distant_smoke_ride_text" text="Ride closer — verify before reporting." />
+    <string id="order_patrol_mid_distant_smoke_ride_tt" text="Thorough verification. Useful intel." />
+    <string id="order_patrol_mid_distant_smoke_setup" text="A grey column rises past the treeline — too steady for a hearth, too thin for a raid. A sergeant&apos;s problem, or a soldier&apos;s?" />
+    <string id="order_patrol_mid_distant_smoke_title" text="Smoke on the horizon" />
+
+    <!-- order_patrol_mid_lost_peasant -->
+    <string id="order_patrol_mid_lost_peasant_guide_text" text="Point him to his road. Note it for the report." />
+    <string id="order_patrol_mid_lost_peasant_guide_tt" text="Helpful note for the patrol log." />
+    <string id="order_patrol_mid_lost_peasant_setup" text="A farmhand sits by the road — turned around, half-frozen, asking after his village. He watches you warily." />
+    <string id="order_patrol_mid_lost_peasant_title" text="A lost peasant" />
+    <string id="order_patrol_mid_lost_peasant_wave_text" text="Wave him off. Not our business." />
+    <string id="order_patrol_mid_lost_peasant_wave_tt" text="Ignore the peasant. Faster patrol." />
+
+    <!-- order_patrol_mid_mundane_loop -->
+    <string id="order_patrol_mid_mundane_loop_push_text" text="Push on. Finish the loop." />
+    <string id="order_patrol_mid_mundane_loop_push_tt" text="Stay on schedule. Minor credit." />
+    <string id="order_patrol_mid_mundane_loop_rest_text" text="Long halt. The horses earned it." />
+    <string id="order_patrol_mid_mundane_loop_rest_tt" text="Easy stretch. Nothing to report." />
+    <string id="order_patrol_mid_mundane_loop_setup" text="Crows. Wind. A distant bell. The road is quiet as a grave, and twice as boring. You could push the pace or let the horses rest." />
+    <string id="order_patrol_mid_mundane_loop_title" text="An uneventful loop" />
+
+    <!-- order_patrol_mid_tracks_in_mud -->
+    <string id="order_patrol_mid_tracks_in_mud_follow_text" text="Follow a short way. Mark the direction." />
+    <string id="order_patrol_mid_tracks_in_mud_follow_tt" text="Useful scouting for the report." />
+    <string id="order_patrol_mid_tracks_in_mud_note_text" text="Note them and press on." />
+    <string id="order_patrol_mid_tracks_in_mud_note_tt" text="Minor observation; keep the pace." />
+    <string id="order_patrol_mid_tracks_in_mud_setup" text="Hoofprints cut off the road and vanish into thorny scrub — too many to be honest travellers, too few for a raid band. They are fresh." />
+    <string id="order_patrol_mid_tracks_in_mud_title" text="Tracks in the mud" />
+
+    <!-- order_patrol_resolve_diligent -->
+    <string id="order_patrol_resolve_diligent_done_text" text="A job well done." />
+    <string id="order_patrol_resolve_diligent_done_tt" text="Solid XP, relation up, patrol concluded." />
+    <string id="order_patrol_resolve_diligent_setup" text="The sergeant reads your notes — tracks, sightings, bearings — and grunts in something like approval. Your lord will see a clean sheet of work." />
+    <string id="order_patrol_resolve_diligent_title" text="The patrol report" />
+
+    <!-- order_patrol_resolve_scheme -->
+    <string id="order_patrol_resolve_scheme_pocket_text" text="Pocket the coin. Keep the report clean." />
+    <string id="order_patrol_resolve_scheme_pocket_tt" text="Gold + roguery XP + scrutiny risk." />
+    <string id="order_patrol_resolve_scheme_seen_text" text="A witness. Buy their silence." />
+    <string id="order_patrol_resolve_scheme_seen_tt" text="Pay off witness. Moderate scrutiny + relation hit." />
+    <string id="order_patrol_resolve_scheme_setup" text="The patrol paid off in a way no one in your lord&apos;s tent will hear about. A coin or two heavier, and still wearing a clean uniform — that is the art of it. Unless someone counted." />
+    <string id="order_patrol_resolve_scheme_title" text="A quiet profit" />
+
+    <!-- order_patrol_resolve_slack -->
+    <string id="order_patrol_resolve_slack_setup" text="The sergeant stares at your thin report and says nothing at all. The silence is worse than a reprimand. Your lord will hear what was not done." />
+    <string id="order_patrol_resolve_slack_shrug_text" text="A quiet road is a quiet road." />
+    <string id="order_patrol_resolve_slack_shrug_tt" text="No XP, minor scrutiny, patrol concluded." />
+    <string id="order_patrol_resolve_slack_title" text="Nothing to report" />
+
+    <!-- order_patrol_resolve_train_hard -->
+    <string id="order_patrol_resolve_train_hard_done_text" text="Tired — and better for it." />
+    <string id="order_patrol_resolve_train_hard_done_tt" text="Riding + tactics XP, patrol concluded." />
+    <string id="order_patrol_resolve_train_hard_setup" text="You turn the patrol into a running drill — wheel and rally, wheel and rally — the men curse you for it, but their hands are steadier on the reins." />
+    <string id="order_patrol_resolve_train_hard_title" text="Saddle-weary and sharper" />
+</strings>
 </base>

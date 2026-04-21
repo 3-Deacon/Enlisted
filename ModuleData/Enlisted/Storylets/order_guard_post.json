@@ -1,0 +1,388 @@
+{
+  "storylets": [
+    {
+      "id": "order_guard_post_accept",
+      "category": "order_guard_post_accept",
+      "title": "{=order_guard_post_accept_title}A post to stand",
+      "setup": "{=order_guard_post_accept_setup}The serjeant catches your sleeve as the watch changes. \"Gate post, till third bell. Eyes outward.\" He waits on your answer, already looking past you to the next man.",
+      "trigger": ["rank_gte:1"],
+      "weight": { "base": 1.0 },
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "profile_requires": ["garrisoned", "besieging"],
+      "arc": {
+        "duration_hours": 12,
+        "phases": [
+          {
+            "id": "mid",
+            "duration_hours": 10,
+            "pool_prefix": "order_guard_post_mid_",
+            "fire_interval_hours": 3,
+            "delivery": "auto"
+          },
+          {
+            "id": "resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_guard_post_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_guard_post_accept_diligent_text}\"Aye, serjeant.\" You set your feet and keep your eyes on the gate.",
+          "tooltip": "{=order_guard_post_accept_diligent_tt}Stand watch by the book. Lord will notice.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_guard_post_accept_train_text}You nod. Between rounds you'll run the polearm drills in your head — no one has to know.",
+          "tooltip": "{=order_guard_post_accept_train_tt}Stand and rehearse drills between rounds.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_guard_post_accept_slack_text}You take the post. The moment the serjeant's back turns, you lean on your spear.",
+          "tooltip": "{=order_guard_post_accept_slack_tt}Lean on the spear. Scrutiny risk if caught.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_guard_post_accept_scheme_text}\"Aye.\" *Eyes outward. Purse outward-leaning too, if it comes to that.*",
+          "tooltip": "{=order_guard_post_accept_scheme_tt}Watch for an angle. Possible coin, scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_guard_post_accept_decline_text}\"Not me tonight. Find another.\" The serjeant's jaw tightens.",
+          "tooltip": "{=order_guard_post_accept_decline_tt}Refuse the post. Lord relation down.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_mid_quiet_watch",
+      "category": "order_guard_post_mid",
+      "title": "{=ogp_mid_quiet_title}The hour turns",
+      "setup": "{=ogp_mid_quiet_setup}Nothing moves at the gate. A dog barks somewhere beyond the wall; another answers. The cold settles into your shoulders and stays there.",
+      "observational": true,
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 1.0,
+        "train_hard": 1.0,
+        "slack": 1.2,
+        "scheme": 0.8
+      },
+      "options": [
+        {
+          "id": "hold_post",
+          "text": "{=ogp_mid_quiet_opt}The hour turns over.",
+          "tooltip": "{=ogp_mid_quiet_opt_tt}Stand and wait. Minor rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_mid_drunken_civilian",
+      "category": "order_guard_post_mid",
+      "title": "{=ogp_mid_drunk_title}A man at the gate",
+      "setup": "{=ogp_mid_drunk_setup}A townsman sways up to the gate well after curfew, wine on his breath and bruises on one hand. He waves a coin at you and asks, not quite begging, to be let in to his wife.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 0.7,
+        "slack": 1.3,
+        "scheme": 1.1
+      },
+      "options": [
+        {
+          "id": "turn_away",
+          "text": "{=ogp_mid_drunk_opt_turn}Order him back. Curfew is curfew.",
+          "tooltip": "{=ogp_mid_drunk_opt_turn_tt}By the book. +Rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "wave_through",
+          "text": "{=ogp_mid_drunk_opt_wave}Nod him through. It's one tired man.",
+          "tooltip": "{=ogp_mid_drunk_opt_wave_tt}Bend the rule quietly. Scrutiny risk.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "take_coin",
+          "text": "{=ogp_mid_drunk_opt_coin}Take the coin. Look the other way.",
+          "tooltip": "{=ogp_mid_drunk_opt_coin_tt}+10 gold. Scrutiny up.",
+          "effects": [
+            { "apply": "give_gold", "amount": 10 },
+            { "apply": "scrutiny_up_moderate" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_mid_merchant_late",
+      "category": "order_guard_post_mid",
+      "title": "{=ogp_mid_merchant_title}A wagon on the road",
+      "setup": "{=ogp_mid_merchant_setup}A trader's cart rolls up out of the dark, lamp swinging, axle complaining. He's an hour late for the gate — and he knows it. He looks tired enough to pay for a friendly eye.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 0.8,
+        "slack": 0.9,
+        "scheme": 1.6
+      },
+      "options": [
+        {
+          "id": "log_him",
+          "text": "{=ogp_mid_merchant_opt_log}Note the name and hour. Pass him through.",
+          "tooltip": "{=ogp_mid_merchant_opt_log_tt}Do it right. +Rank XP, +Lord relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "pocket_bribe",
+          "text": "{=ogp_mid_merchant_opt_bribe}Accept a \"thank-you.\" Forget his name by morning.",
+          "tooltip": "{=ogp_mid_merchant_opt_bribe_tt}+25 gold. Scrutiny up.",
+          "effects": [
+            { "apply": "give_gold", "amount": 25 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "set_flag", "name": "pocketed_gate_bribe" }
+          ]
+        },
+        {
+          "id": "turn_back",
+          "text": "{=ogp_mid_merchant_opt_back}Turn the wagon around. He can wait for dawn.",
+          "tooltip": "{=ogp_mid_merchant_opt_back_tt}Strict. No effect.",
+          "effects": []
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_mid_fellow_watchman",
+      "category": "order_guard_post_mid",
+      "title": "{=ogp_mid_fellow_title}Rassak at the next post",
+      "setup": "{=ogp_mid_fellow_setup}Rassak stands the next post over, leaning on his spear the same as you. He lifts his chin — quiet invitation to trade gripes while nothing's happening. The serjeant is at the far wall.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 0.7,
+        "train_hard": 0.8,
+        "slack": 1.5,
+        "scheme": 1.0
+      },
+      "options": [
+        {
+          "id": "chat",
+          "text": "{=ogp_mid_fellow_opt_chat}Drift over. Swap a word or two.",
+          "tooltip": "{=ogp_mid_fellow_opt_chat_tt}+Charm XP. Scrutiny if spotted.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "stay_silent",
+          "text": "{=ogp_mid_fellow_opt_silent}Shake your head once. Back to the gate.",
+          "tooltip": "{=ogp_mid_fellow_opt_silent_tt}Hold the line. +Rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_mid_distant_shout",
+      "category": "order_guard_post_mid",
+      "title": "{=ogp_mid_shout_title}A cry from the dark",
+      "setup": "{=ogp_mid_shout_setup}Something yells outside the wall — a man's voice, two words you can't make out, cut off sharp. Could be a drunk. Could be something else. You're the nearest post.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 1.5,
+        "train_hard": 1.4,
+        "slack": 0.6,
+        "scheme": 0.9
+      },
+      "options": [
+        {
+          "id": "investigate",
+          "text": "{=ogp_mid_shout_opt_check}Call it up. Look over the wall.",
+          "tooltip": "{=ogp_mid_shout_opt_check_tt}Proper. +Scouting XP, +Lord relation.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "hold_still",
+          "text": "{=ogp_mid_shout_opt_hold}Stay at the post. Someone else's problem.",
+          "tooltip": "{=ogp_mid_shout_opt_hold_tt}Don't leave your post. No effect.",
+          "effects": []
+        },
+        {
+          "id": "investigate_alone",
+          "text": "{=ogp_mid_shout_opt_alone}Step outside. See for yourself.",
+          "tooltip": "{=ogp_mid_shout_opt_alone_tt}Off your post. Scrutiny up if noticed.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_resolve_diligent",
+      "category": "order_guard_post_resolve",
+      "title": "{=ogp_res_dil_title}Third bell, post relieved",
+      "setup": "{=ogp_res_dil_setup}The relief arrives at third bell exact. The corporal looks at your log, grunts once — which is approval from him — and waves you off the gate. The serjeant is already telling someone else how it ought to be done.",
+      "weight": { "base": 1.0 },
+      "scope": {
+        "context": "any",
+        "slots": { "lord": { "role": "enlisted_lord" } }
+      },
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.2,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=ogp_res_dil_opt}Rack your spear. Walk to the billet.",
+          "tooltip": "{=ogp_res_dil_opt_tt}+Rank XP, +Lord relation, +Perception.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_resolve_train_hard",
+      "category": "order_guard_post_resolve",
+      "title": "{=ogp_res_tr_title}The drill in your hands",
+      "setup": "{=ogp_res_tr_setup}You walked through the polearm form a hundred times in your head tonight. On the way back to the billet you catch yourself sliding a foot back into the stance without thinking. Something settled in.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 0.2,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=ogp_res_tr_opt}Turn in. Tomorrow the hands will remember.",
+          "tooltip": "{=ogp_res_tr_opt_tt}+Polearm, +Athletics, +Rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 35 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_resolve_slack",
+      "category": "order_guard_post_resolve",
+      "title": "{=ogp_res_sl_title}A long night, mostly leaning",
+      "setup": "{=ogp_res_sl_setup}Third bell finally crawls around. Your shoulders ache from the spear you barely carried. The corporal looks at your post-log, looks at you, and doesn't say anything — which is a worse sign than a shout.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.2
+      },
+      "options": [
+        {
+          "id": "off_post",
+          "text": "{=ogp_res_sl_opt}Stumble off. Pretend you didn't catch the look.",
+          "tooltip": "{=ogp_res_sl_opt_tt}Scrutiny up. No rank progress.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "order_guard_post_resolve_scheme",
+      "category": "order_guard_post_resolve",
+      "title": "{=ogp_res_sc_title}Coin in a knotted rag",
+      "setup": "{=ogp_res_sc_setup}You count the night's take in the shadow of the billet wall: not bad for a gate post. The knot goes in a boot until you can pass it somewhere safer. No one is looking. No one, if you've read the rotation right.",
+      "weight": { "base": 1.0 },
+      "scope": { "context": "any" },
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "pocket_profit",
+          "text": "{=ogp_res_sc_opt_pocket}Stash the coin. Walk to the billet clean.",
+          "tooltip": "{=ogp_res_sc_opt_pocket_tt}+40 gold, +Roguery, scrutiny up.",
+          "effects": [
+            { "apply": "give_gold", "amount": 40 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "get_seen",
+          "text": "{=ogp_res_sc_opt_seen}Fumble the knot. A corporal is behind you — how long?",
+          "tooltip": "{=ogp_res_sc_opt_seen_tt}Caught. Scrutiny up hard, -Lord relation.",
+          "effects": [
+            { "apply": "scrutiny_up_major" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}
