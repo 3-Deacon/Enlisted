@@ -623,5 +623,92 @@ namespace Enlisted.Mod.Entry
     [HarmonyPatch(typeof(Campaign), "Tick")]
     public static class NextFrameDispatcherPatch
     {
+        private static bool _deferredPatchesApplied;
+
+        /// <summary>
+        ///     Called after Campaign.Tick() completes each frame.
+        ///     Processes any actions that were deferred to avoid timing conflicts during game state transitions.
+        ///     Also applies deferred patches on first tick (after character creation is complete).
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051",
+            Justification = "Called by Harmony via reflection")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local",
+            Justification = "Called by Harmony via [HarmonyPatch] postfix")]
+        private static void Postfix()
+        {
+            // Apply deferred patches only after the campaign is fully ready.
+            // On some platforms (notably Proton/Linux), Campaign.Tick can run during character creation,
+            // and touching certain menu/localization-heavy types at that time can crash the game.
+            if (!_deferredPatchesApplied && CampaignSafetyGuard.IsCampaignReady)
+            {
+                try
+                {
+                    _deferredPatchesApplied = true;
+                    var harmony = new Harmony("com.enlisted.mod.deferred");
+
+                    // Apply manual patches.
+                    HidePartyNamePlatePatch.ApplyManualPatches(harmony);
+
+                    // Apply patches that target types with early static initialization.
+                    // These fail on Proton/Linux if applied during OnSubModuleLoad because
+                    // their target classes call GameTexts.FindText() in static field initializers.
+                    // By deferring until the campaign is ready, the localization system is fully initialized.
+                    // Each patch is wrapped individually so one failure doesn't block others.
+                    ApplyDeferredPatch(harmony, typeof(ArmyCohesionExclusionPatch));
+                    ApplyDeferredPatch(harmony, typeof(CheckFortificationAttackablePatch));
+                    ApplyDeferredPatch(harmony, typeof(SettlementOutsideLeaveButtonPatch));
+                    ApplyDeferredPatch(harmony, typeof(JoinEncounterAutoSelectPatch));
+                    ApplyDeferredPatch(harmony, typeof(EncounterAbandonArmyBlockPatch));
+                    ApplyDeferredPatch(harmony, typeof(EncounterAbandonArmyBlockPatch2));
+                    ApplyDeferredPatch(harmony, typeof(EncounterLeaveSuppressionPatch));
+                    ApplyDeferredPatch(harmony, typeof(EncounterCaptureEnemySuppressionPatch));
+                    // EncounterVictoryAutoClosePatch REMOVED - it was intercepting ALL menu activations
+                    // including native siege menus. GenericStateMenuPatch already handles battle-over
+                    // encounter suppression, and CleanupPostEncounterState clears stale state.
+                    ApplyDeferredPatch(harmony, typeof(CombatLogConversationPatch.MapConversationEndPatch));
+
+                    // Apply Naval DLC patches that use reflection to find types.
+                    // These must be deferred because Naval DLC types aren't available during OnSubModuleLoad.
+                    RaftStateSuppressionPatch.TryApplyPatch(harmony);
+                    RaftStateSuppressionPatch.TryApplyOnPartyLeftArmyPatch(harmony);
+                    NavalMobilePartyVisualUpdateEntityPositionCrashGuardPatch.TryApplyPatch(harmony);
+
+                    ModLogger.Info("Bootstrap", "Deferred patches applied (campaign ready)");
+
+                    // Update conflict diagnostics with deferred patch info
+                    // This appends to the existing conflict log so users can see all patches.
+                    ModConflictDiagnostics.RefreshDeferredPatches(harmony);
+                }
+                catch (Exception ex)
+                {
+                    // Hard safety: never allow a failure during deferred patch application to crash the game.
+                    // If something goes wrong here, we'll run without deferred patches.
+                    ModLogger.Caught("Bootstrap", "Unexpected error applying deferred patches", ex);
+                }
+            }
+
+            NextFrameDispatcher.ProcessNextFrame();
+        }
+
+        /// <summary>
+        /// Applies a deferred patch with detailed error logging.
+        /// Isolates failures so one broken patch doesn't block others.
+        /// </summary>
+        private static void ApplyDeferredPatch(Harmony harmony, Type patchType)
+        {
+            try
+            {
+                _ = harmony.CreateClassProcessor(patchType).Patch();
+                ModLogger.Info("Bootstrap", $"Applied deferred patch: {patchType.Name}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
+                if (ex.InnerException != null)
+                {
+                    ModLogger.Caught("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
+                }
+            }
+        }
     }
 }
