@@ -124,6 +124,14 @@ namespace Enlisted.Features.Activities
                 return;
             }
             activity.ResolvePhasesFromType(_types);
+            var typeId = string.IsNullOrEmpty(activity.TypeId) ? activity.GetType().Name : activity.TypeId;
+            var phaseId = activity.CurrentPhase?.Id ?? "none";
+            ModLogger.Info("ACTIVITY", $"Started {typeId} (phase={phaseId})");
+            if (activity.CurrentPhase == null && !string.IsNullOrEmpty(activity.TypeId))
+            {
+                ModLogger.Surfaced("ACTIVITY", "activity started with no phases resolved — type may be missing from ActivityTypeCatalog", null,
+                    new Dictionary<string, object> { ["typeId"] = typeId });
+            }
             activity.StartedAt = CampaignTime.Now;
             activity.OnStart(ctx);
             if (activity.CurrentPhase != null)
@@ -145,6 +153,9 @@ namespace Enlisted.Features.Activities
             {
                 return;
             }
+            var typeId = string.IsNullOrEmpty(activity.TypeId) ? activity.GetType().Name : activity.TypeId;
+            var phaseId = activity.CurrentPhase?.Id ?? "none";
+            ModLogger.Info("ACTIVITY", $"Stopped {typeId} (phase={phaseId}, reason={reason})");
             try
             {
                 activity.OnPhaseExit(activity.CurrentPhase);
