@@ -2141,7 +2141,7 @@ _READ_THROUGH_QUALITY_IDS: set[str] = {
 }
 
 # Subset of read-throughs that storylets MUST NOT write (they have no setter).
-_READ_ONLY_QUALITY_IDS: set[str] = {"rank", "days_in_rank", "days_enlisted"}
+_READ_ONLY_QUALITY_IDS: set[str] = {"rank", "days_in_rank", "days_enlisted", "committed_path"}
 
 # Primitive effect ids understood by EffectExecutor.
 _PRIMITIVE_EFFECT_IDS: set[str] = {
@@ -2920,6 +2920,54 @@ def phase16_loot_pool_sanity(loot_pools: list[dict], ctx: ValidationContext) -> 
         print(f"  OK: {len(loot_pools)} loot pool(s) passed sanity checks.")
 
 
+def phase17_rate_caps(storylets: list[dict], ctx: ValidationContext) -> None:
+    """Spec 2 §7. Per-option caps on permanent reward currencies."""
+    print("[Phase 17] Validating per-option rate caps...")
+    CAPS = {
+        "grant_attribute_level": 1,
+        "grant_focus_point": 1,
+        "grant_skill_level": 3,
+        "grant_renown": 3,
+        "grant_item": 1,
+        "grant_random_item_from_pool": 1,
+    }
+    errors_before = sum(1 for i in ctx.issues if i.category == "rate-caps")
+    for s in storylets:
+        sid = s.get("id", "<unknown>")
+        for opt in s.get("options", []):
+            oid = opt.get("id", "<unknown>")
+            counts = {k: 0 for k in CAPS}
+            for eff in opt.get("effects", []):
+                if not isinstance(eff, dict):
+                    continue
+                # Effects may be short-form {"grant_renown": {...}} or long-form {"apply": "grant_renown", ...}.
+                apply_id = eff.get("apply")
+                for key in CAPS:
+                    if key in eff or apply_id == key:
+                        counts[key] += 1
+                # relation_change delta cap (±5).
+                rc = eff.get("relation_change")
+                if isinstance(rc, dict):
+                    delta = abs(rc.get("delta", 0))
+                    if delta > 5:
+                        ctx.add_issue(
+                            "error", "rate-caps",
+                            f"storylet '{sid}' option '{oid}' relation_change |delta|={delta} > 5",
+                            sid,
+                        )
+            for key, cap in CAPS.items():
+                if counts[key] > cap:
+                    ctx.add_issue(
+                        "error", "rate-caps",
+                        f"storylet '{sid}' option '{oid}' has {counts[key]} "
+                        f"{key} effects (cap {cap})",
+                        sid,
+                    )
+    errors_after = sum(1 for i in ctx.issues if i.category == "rate-caps")
+    if errors_after == errors_before:
+        print("  OK: all storylet options within rate caps.")
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -3018,6 +3066,7 @@ def main():
     phase15_path_crossroads(storylets_for_validation, ctx)
     loot_pools = _load_loot_pools(ctx)
     phase16_loot_pool_sanity(loot_pools, ctx)
+    phase17_rate_caps(storylets_for_validation, ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
