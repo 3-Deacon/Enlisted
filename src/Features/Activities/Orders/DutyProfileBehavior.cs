@@ -15,8 +15,8 @@ namespace Enlisted.Features.Activities.Orders
         private const int MIN_HOURS_BETWEEN_TRANSITION_BEATS = 4;
         private const int HEARTBEAT_INTERVAL_HOURS = 6;
 
-        private int _lastTransitionBeatHourTick = int.MinValue;
-        private int _lastHeartbeatHourTick = int.MinValue;
+        private int _lastTransitionBeatHourTick = int.MinValue / 2;
+        private int _lastHeartbeatHourTick = int.MinValue / 2;
 
         public override void RegisterEvents()
         {

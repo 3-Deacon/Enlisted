@@ -25,7 +25,7 @@ namespace Enlisted.Features.Activities.Orders
             { DutyProfileIds.Imprisoned, new[] { "Roguery", "Charm" } }
         };
 
-        private int _lastHourlyHeartbeatTick = int.MinValue;
+        private int _lastHourlyHeartbeatTick = int.MinValue / 2;
         private const int HOURLY_HEARTBEAT_INTERVAL = 12;
 
         public override void RegisterEvents()
