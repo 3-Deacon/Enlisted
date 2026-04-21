@@ -12,7 +12,7 @@ namespace Enlisted.Features.Activities.Orders
     public sealed class DutyProfileBehavior : CampaignBehaviorBase
     {
         private const int HYSTERESIS_THRESHOLD = 2;
-        private const int MIN_HOURS_BETWEEN_TRANSITION_BEATS = 4;
+        private const int MIN_HOURS_BETWEEN_TRANSITION_BEATS = 12;
         private const int HEARTBEAT_INTERVAL_HOURS = 6;
 
         private int _lastTransitionBeatHourTick = int.MinValue / 2;
