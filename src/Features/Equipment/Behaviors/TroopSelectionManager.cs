@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Equipment;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Config;
@@ -474,76 +475,9 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
         }
 
-        /// <summary>
-        /// Build the culture's troop tree by traversing upgrade paths from BasicTroop and EliteBasicTroop.
-        /// </summary>
         private List<CharacterObject> BuildCultureTroopTree(CultureObject culture)
         {
-            var results = new List<CharacterObject>();
-            try
-            {
-                if (culture == null)
-                {
-                    return results;
-                }
-
-                var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var queue = new Queue<CharacterObject>();
-
-                void EnqueueIfValid(CharacterObject start)
-                {
-                    if (start == null)
-                    {
-                        return;
-                    }
-                    if (start.Culture != culture)
-                    {
-                        return;
-                    }
-                    if (start.IsHero)
-                    {
-                        return;
-                    }
-                    if (!visited.Add(start.StringId))
-                    {
-                        return;
-                    }
-                    queue.Enqueue(start);
-                }
-
-                EnqueueIfValid(culture.BasicTroop);
-                EnqueueIfValid(culture.EliteBasicTroop);
-
-                while (queue.Count > 0)
-                {
-                    var node = queue.Dequeue();
-                    results.Add(node);
-
-                    try
-                    {
-                        var upgrades = node.UpgradeTargets; // MBReadOnlyList<CharacterObject>
-                        if (upgrades != null)
-                        {
-                            foreach (var next in upgrades)
-                            {
-                                if (next != null && next.Culture == culture && !next.IsHero && visited.Add(next.StringId))
-                                {
-                                    queue.Enqueue(next);
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // best-effort; continue on any API differences
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("TROOPSELECTION", "BuildCultureTroopTree failed", ex);
-            }
-            return results;
+            return CultureTroopTreeHelper.BuildCultureTroopTree(culture);
         }
 
         /// <summary>

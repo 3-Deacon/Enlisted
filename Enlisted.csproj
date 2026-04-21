@@ -273,6 +273,7 @@
     <!-- ====================================================================
          EQUIPMENT & QUARTERMASTER SYSTEMS
          ==================================================================== -->
+    <Compile Include="src\Features\Equipment\CultureTroopTreeHelper.cs"/>
     <!-- Equipment Behaviors -->
     <Compile Include="src\Features\Equipment\Behaviors\TroopSelectionManager.cs"/>
     <Compile Include="src\Features\Equipment\Behaviors\EquipmentManager.cs"/>
