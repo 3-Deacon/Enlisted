@@ -106,9 +106,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Activity subsystem enums (Spec 0)
             AddEnumDefinition(typeof(Features.Activities.ActivityEndReason), 83);
 
-            // Spec 2 (Orders Surface) — offsets 84-85
-            // FormationClass is Bannerlord's native enum reused as combat class (Infantry / Ranged / Cavalry / HorseArcher).
-            AddEnumDefinition(typeof(TaleWorlds.Core.FormationClass), 84);
+            // Spec 2 (Orders Surface) — offset 85. FormationClass is already registered by
+            // TaleWorlds.Core.SaveableCoreTypeDefiner at id 2008; re-registering it crashes
+            // Module.Initialize with ArgumentException from the shared definition dictionary.
             AddEnumDefinition(typeof(Features.Activities.Orders.DutyProfileId), 85);
         }
 

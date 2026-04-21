@@ -30,7 +30,7 @@
 | 7 | `CombatClassResolver` extraction | `ec61007` + `97fb19f` | Dead `TaleWorlds.Library` using dropped |
 | 8 | `OrderActivity` + `NamedOrderState` + inline `NamedOrderArcRuntime` stub | `f68dca5` + `f75ebeb` | `CurrentPhaseIndex` documented as arc-relative; parent namespace using added |
 | 9 | `DutyProfileId` enum + `DutyProfileIds` constants | `24bdcfa` | |
-| 10 | Save-definer offsets 46/47/84/85 | `5143ef2` | Containers already covered by Spec 0 registrations |
+| 10 | Save-definer offsets 46/47/85 | `5143ef2` (+ later fix) | Originally registered offset 84 for FormationClass; removed in a follow-up commit — vanilla already registers it. See appendix. |
 | 11 | `DutyProfileSelector` pure function | `36a32c9` | All 8 TaleWorlds APIs matched v1.3.13 decompile on first pass |
 | 12 | `DutyProfileBehavior` + `ActivityContext.Args` | `0eca58e` + `7a09557` | Review fix: skip beat on same-profile hard-bypass |
 | 13 | `EnlistmentLifecycleListener` (narrowed) + `ActivityEndReason.Discharged` + `ActivityRuntime.Stop` | `f3a9ea2` + `a4c6fd9` + `4472a6c` | Plan-vs-grace-period design gap; Revised Option A narrowed scope — see appendix |
@@ -51,7 +51,7 @@
 - **Bash on Windows.** Prepend PATH: `export PATH="/c/Program Files/dotnet:/c/Program Files/Git/cmd:$PATH"`. Python is at `/c/Python313/python.exe`.
 - **Build command.** `dotnet build Enlisted.sln -c "Enlisted RETAIL" -p:Platform=x64` (quote the config — bash splits on the space). Close `BannerlordLauncher.exe` first — it holds the DLL open and the csproj post-build mirror fails with MSB3021.
 - **Validator.** `/c/Python313/python.exe Tools/Validation/validate_content.py` — run after every content-layer change.
-- **Save offset claims.** Before adding a `DefineClassType` / `DefineEnumType` line, grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` to confirm the offset is unclaimed. Spec 1 holds 45 / 82 / 83. Spec 2 claims 46 (OrderActivity), 47 (NamedOrderState), 84 (CombatClass), 85 (DutyProfileId).
+- **Save offset claims.** Before adding a `DefineClassType` / `DefineEnumType` line, grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` to confirm the offset is unclaimed. Spec 1 holds 45 / 82 / 83. Spec 2 claims 46 (OrderActivity), 47 (NamedOrderState), 85 (DutyProfileId). FormationClass — originally planned for enum offset 84 — is already registered by TaleWorlds.Core.SaveableCoreTypeDefiner at id 2008; re-registering it crashes Module.Initialize (see appendix).
 
 ---
 
@@ -5287,4 +5287,13 @@ EnlistmentBehavior.OnXPGained += OnXPGained;
 ```
 
 The handler method can be `static` or `instance` — `-=` matches by method group either way. Add a 2-line behavioral comment above the block: *"Static events persist across Campaign teardown; guard against duplicate subscription when RegisterEvents is re-invoked on save/load cycles."*
+
+### Task 10 — FormationClass save-definer double-registration crash
+
+- **Defect surfaced in-game on Phase A smoke.** The offset-84 registration `AddEnumDefinition(typeof(TaleWorlds.Core.FormationClass), 84)` shipped in commit `5143ef2` crashes `Module.Initialize()` before any mod logging is available. Native watchdog stack: `DefinitionContext.AddEnumDefinition` → `Dictionary.Insert` → `ArgumentException`.
+- **Root cause.** `TaleWorlds.Core.SaveableCoreTypeDefiner.cs:66` already registers `FormationClass` at id 2008. The shared `DefinitionContext` keys `_enumDefinitions` by `Type` via plain `Dictionary.Add` (decompile `DefinitionContext.cs:118-124`) — any second registration of the same Type throws regardless of the offset id.
+- **Applied fix.** Removed the offset-84 line. `OrderActivity.CachedCombatClass` and `NamedOrderState.CombatClassAtAccept` (both typed `FormationClass`) continue to serialize correctly via TaleWorlds' vanilla registration — the same pattern our `[Serializable]` classes already use for `CampaignTime` / `Hero` / `MBGUID` fields (none registered in `EnlistedSaveDefiner`, all work fine via vanilla's definers sharing the same `DefinitionContext`).
+- **Save-compat.** No existing save references id 735084 because the game never successfully launched with Task 10's registration in place.
+- **Convention tightened.** CLAUDE.md now documents the "never re-register a TaleWorlds built-in type" pitfall. Future save-definer additions must grep `../Decompile/TaleWorlds.Core/TaleWorlds.Core/SaveableCoreTypeDefiner.cs` and `../Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem/SaveableCampaignTypeDefiner.cs` before registering any TW Type.
+- **Offset 84 retired.** Intentionally unused in the Enlisted definer's 46-60 range. The removal-site comment explains why. If a future Spec needs an enum offset, claim 86+ (next available).
 
