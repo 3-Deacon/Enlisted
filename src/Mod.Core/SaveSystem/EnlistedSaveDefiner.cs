@@ -67,6 +67,10 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Spec 1 (Enlisted Home Surface) — offset 45
             AddClassDefinition(typeof(Features.Activities.Home.HomeActivity), 45);
+
+            // Spec 2 (Orders Surface) — offsets 46-47
+            AddClassDefinition(typeof(Features.Activities.Orders.OrderActivity), 46);
+            AddClassDefinition(typeof(Features.Activities.Orders.NamedOrderState), 47);
         }
 
         /// <summary>
@@ -101,6 +105,11 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Activity subsystem enums (Spec 0)
             AddEnumDefinition(typeof(Features.Activities.ActivityEndReason), 83);
+
+            // Spec 2 (Orders Surface) — offsets 84-85
+            // FormationClass is Bannerlord's native enum reused as combat class (Infantry / Ranged / Cavalry / HorseArcher).
+            AddEnumDefinition(typeof(TaleWorlds.Core.FormationClass), 84);
+            AddEnumDefinition(typeof(Features.Activities.Orders.DutyProfileId), 85);
         }
 
         /// <summary>
