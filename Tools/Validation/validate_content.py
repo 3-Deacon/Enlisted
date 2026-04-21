@@ -2155,6 +2155,18 @@ _PRIMITIVE_EFFECT_IDS: set[str] = {
     "skill_xp",
     "give_gold",
     "give_item",
+    "grant_attribute_level",
+    "grant_focus_point",
+    "grant_renown",
+    "grant_skill_level",
+    "grant_unspent_attribute",
+    "grant_unspent_focus",
+    "relation_change",
+    "set_trait_level",
+    "grant_item",
+    "grant_random_item_from_pool",
+    "start_arc",
+    "clear_active_named_order",
 }
 
 # Primitives that take a 'quality' parameter.
