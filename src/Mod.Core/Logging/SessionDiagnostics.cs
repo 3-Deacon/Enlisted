@@ -76,24 +76,16 @@ namespace Enlisted.Mod.Core.Logging
                 var sb = new StringBuilder();
                 _ = sb.AppendLine("--- Configuration Loaded ---");
 
-                // Phase 1: Many config systems deleted (Lance, Duties, Schedule)
-                // Only core configurations remain active
-
-                // Core gameplay config (stub in Phase 1)
-                _ = sb.AppendLine($"[Gameplay] (stub in Phase 1, will be implemented in Phase 2+)");
-
-                // Retirement config (still active)
+                // Retirement config
                 var retirement = ConfigurationManager.LoadRetirementConfig();
                 _ = sb.AppendLine($"[Retirement] first_term_days: {retirement.FirstTermDays}");
                 _ = sb.AppendLine($"[Retirement] probation_days: {retirement.ProbationDays}");
 
-                // Escalation config (still active)
+                // Escalation config
                 var escalation = ConfigurationManager.LoadEscalationConfig();
                 _ = sb.AppendLine($"[Escalation] enabled: {escalation?.Enabled == true}");
                 _ = sb.AppendLine($"[Escalation] scrutiny_decay_days: {escalation?.ScrutinyDecayIntervalDays}");
                 _ = sb.AppendLine($"[Escalation] discipline_decay_days: {escalation?.DisciplineDecayIntervalDays}");
-
-                // Lance, Duties, Schedule, and related systems deleted in Phase 1
 
                 _ = sb.AppendLine("----------------------------");
 

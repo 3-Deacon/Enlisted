@@ -781,6 +781,49 @@ namespace Enlisted.Mod.Core.Logging
                     WriteLine("    Order Files: MISSING");
                 }
 
+                // Check Storylets JSON files (Spec 0 backbone)
+                WriteLine("  [Storylet System]");
+                var storyletsPath = Path.Combine(ModulePaths.ModuleRoot, "ModuleData", "Enlisted", "Storylets");
+                if (Directory.Exists(storyletsPath))
+                {
+                    var storyletFiles = Directory.GetFiles(storyletsPath, "*.json").Length;
+                    WriteLine($"    Storylet Files: {storyletFiles}");
+                    if (storyletFiles == 0)
+                    {
+                        warnings.Add("No storylet files found (Phase B not yet authored)");
+                    }
+                }
+                else
+                {
+                    WriteLine("    Storylet Files: MISSING (Phase B directory not created)");
+                }
+
+                // Check Activities JSON files (Spec 1+2 surface configs)
+                WriteLine("  [Activity System]");
+                var activitiesPath = Path.Combine(ModulePaths.ModuleRoot, "ModuleData", "Enlisted", "Activities");
+                if (Directory.Exists(activitiesPath))
+                {
+                    var activityFiles = Directory.GetFiles(activitiesPath, "*.json").Length;
+                    WriteLine($"    Activity Files: {activityFiles}");
+                }
+                else
+                {
+                    WriteLine("    Activity Files: none (Spec 2 configs not yet authored)");
+                }
+
+                // Check Effects JSON files
+                WriteLine("  [Effect System]");
+                var effectsPath = Path.Combine(ModulePaths.ModuleRoot, "ModuleData", "Enlisted", "Effects");
+                if (Directory.Exists(effectsPath))
+                {
+                    var effectFiles = Directory.GetFiles(effectsPath, "*.json").Length;
+                    WriteLine($"    Effect Files: {effectFiles}");
+                }
+                else
+                {
+                    WriteLine("    Effect Files: none");
+                }
+
                 // Check Config JSON files
                 WriteLine("  [Configuration System]");
                 var configPath = ModulePaths.GetContentPath("Config");
