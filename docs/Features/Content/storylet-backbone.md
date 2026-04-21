@@ -216,11 +216,17 @@ Defined in `ModuleData/Enlisted/Effects/scripted_effects.json`:
 | Class | 42 | `QualityDefinition` (registered for completeness; not saved directly) |
 | Class | 43 | `FlagStore` |
 | Class | 44 | `Activity` (abstract base for the polymorphic `List<Activity>` container) |
-| **Class** | **45–60** | **Reserved** for concrete `Activity` subclasses across surface specs 1–5 |
+| Class | 45 | `HomeActivity` (Spec 1) |
+| Class | 46 | `OrderActivity` (Spec 2) |
+| Class | 47 | `NamedOrderState` (Spec 2) |
+| **Class** | **48–60** | **Reserved** for concrete `Activity` subclasses across Specs 3–5 |
 | Enum | 82 | `QualityScope` |
 | Enum | 83 | `ActivityEndReason` |
+| Enum | 84 | `TaleWorlds.Core.FormationClass` (Spec 2, reused as combat class) |
+| Enum | 85 | `DutyProfileId` (Spec 2) |
+| **Enum** | **86+** | **Reserved** for Specs 3–5 |
 
-Surface specs claim their class offset from the 45–60 range in their owning spec. Current claims: `HomeActivity` at **45** (Spec 1). Reserved next claims: `OrderActivity` (Spec 2), `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
+Surface specs claim their class offset from the 45–60 range in their owning spec. Current claims: `HomeActivity` at **45** (Spec 1); `OrderActivity` at **46** + `NamedOrderState` at **47** (Spec 2). Spec 2 also claims enum offsets **84** (`TaleWorlds.Core.FormationClass`, reused as combat class) and **85** (`DutyProfileId`). Reserved next claims in the 48–60 / 86+ band: `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
 
 Pre-Spec-0 claims (class 1, 10–14, 20–24, 30; enum 50–52, 60–64, 70–71, 80–81) remain owned by their prior subsystems — don't reuse.
 

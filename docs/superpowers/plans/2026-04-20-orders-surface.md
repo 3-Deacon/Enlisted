@@ -10,7 +10,28 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-20-orders-surface-design.md](../specs/2026-04-20-orders-surface-design.md) (commits `015128b` + `5d7e311` on `development`).
 
-**Status:** Plan drafted 2026-04-20. Phases A–D not started.
+**Status:** Phase A in progress. Tasks 1-11 of 60 shipped on `development` (commits `2f64137` → `36a32c9`). Tasks 12-17 (DutyProfileBehavior, LordStateListener, NamedOrderArcRuntime, DailyDriftApplicator, OrdersNewsFeedThrottle, PathScorer, Phase A smoke) remain in Phase A. Phases B-D not started.
+
+**Known API corrections discovered during execution:** see [§ API corrections appendix](#api-corrections-appendix) at the bottom of this file. The plan's task bodies were written against assumed v1.3.13 APIs; several diverged from the actual decompile and were adapted in the shipped implementation. Future task implementers should verify against `../Decompile/` first.
+
+---
+
+## Phase A task ledger (Tasks 1-11 shipped)
+
+| # | Task | Commit(s) | Notes |
+|---|------|-----------|-------|
+| 1 | `EnlistmentBehavior.OnTierChanged` event | `2f64137` + `af8425d` + `4a22340` | Guard fix + doc rewrite follow-ups |
+| 2 | `EnlistmentBehavior.OnEnlistmentEnded` event | `7cec2d4` | Doc-comment preemptively scoped |
+| — | Registry resync after Tasks 1-3 | `af129d0` | Was misnamed `feat(enlistment)…`; subject corrected via non-interactive rebase |
+| 3 | `CultureTroopTreeHelper` extraction | `49fdfb4` + `e3388c7` | Style follow-up |
+| 4 | `Storylet` schema + `ArcSpec` POCO | `dde8f5c` + `37bbf63` | `ToObject<T>` replaced with graceful `ParseStringList`/`ParseFloatDict` |
+| 5 | 8 reward primitives in `EffectExecutor` | `a3b999e` + `a57e0f9` | Key-collision fix on skill-lookup `Expected` calls |
+| 6 | 4 runtime-control primitives (3 stubs) | `9445c63` | `grant_item` wired; `start_arc` / `clear_active_named_order` / `grant_random_item_from_pool` stubbed for Phase A |
+| 7 | `CombatClassResolver` extraction | `ec61007` + `97fb19f` | Dead `TaleWorlds.Library` using dropped |
+| 8 | `OrderActivity` + `NamedOrderState` + inline `NamedOrderArcRuntime` stub | `f68dca5` + `f75ebeb` | `CurrentPhaseIndex` documented as arc-relative; parent namespace using added |
+| 9 | `DutyProfileId` enum + `DutyProfileIds` constants | `24bdcfa` | |
+| 10 | Save-definer offsets 46/47/84/85 | `5143ef2` | Containers already covered by Spec 0 registrations |
+| 11 | `DutyProfileSelector` pure function | `36a32c9` | All 8 TaleWorlds APIs matched v1.3.13 decompile on first pass |
 
 ---
 
@@ -148,6 +169,8 @@ Within a phase, some tasks can parallelize (noted where applicable). Phase order
 
 ## Task 1: Add `EnlistmentBehavior.OnTierChanged` event
 
+**Status:** ✅ shipped — `2f64137` + `af8425d` + `4a22340`.
+
 **Files:**
 - Modify: `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs`
 
@@ -240,6 +263,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 2: Add `EnlistmentBehavior.OnEnlistmentEnded` event
 
+**Status:** ✅ shipped — `7cec2d4`.
+
 **Files:**
 - Modify: `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs`
 
@@ -321,6 +346,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
 
 ## Task 3: Extract `CultureTroopTreeHelper` from `TroopSelectionManager`
+
+**Status:** ✅ shipped — `49fdfb4` + `e3388c7`.
 
 **Files:**
 - Create: `src/Features/Equipment/CultureTroopTreeHelper.cs`
@@ -482,6 +509,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 4: Extend `Storylet` schema with Spec 2 fields
 
+**Status:** ✅ shipped — `dde8f5c` + `37bbf63`. See [§ API corrections appendix](#task-4--storyletcatalog-parse-robustness) — `ToObject<T>()` replaced with graceful `ParseStringList`/`ParseFloatDict`.
+
 **Files:**
 - Modify: `src/Features/Content/Storylet.cs`
 - Modify: `src/Features/Content/StoryletCatalog.cs`
@@ -630,6 +659,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
 
 ## Task 5: Add 8 character-development reward primitives to `EffectExecutor`
+
+**Status:** ✅ shipped — `a3b999e` + `a57e0f9`. See [§ API corrections appendix](#task-5--herodeveloperaddfocus--addattribute-third-argument) — `AddFocus`/`AddAttribute` need `checkUnspent*: false` third argument; `GainRenownAction.Apply` takes `float`, not `int`.
 
 **Files:**
 - Modify: `src/Features/Content/EffectExecutor.cs`
@@ -847,6 +878,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 6: Add 4 runtime-control primitives to `EffectExecutor`
 
+**Status:** ✅ shipped — `9445c63`. `grant_item` fully wired; `grant_random_item_from_pool` / `start_arc` / `clear_active_named_order` are Phase A stubs that log `Expected` and return (real runtime lands in Tasks 14 and 26).
+
 **Files:**
 - Modify: `src/Features/Content/EffectExecutor.cs`
 
@@ -968,6 +1001,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 7: Create `CombatClassResolver` + rewire `EnlistedFormationAssignmentBehavior`
 
+**Status:** ✅ shipped — `ec61007` + `97fb19f`. See [§ API corrections appendix](#tasks-7810--formationclass-namespace) — `FormationClass` is in `TaleWorlds.Core`, not `TaleWorlds.Library`.
+
 **Files:**
 - Create: `src/Features/Activities/Orders/CombatClassResolver.cs`
 - Modify: `src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs`
@@ -1086,6 +1121,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
 
 ## Task 8: Create `OrderActivity` class with arc reconstruction
+
+**Status:** ✅ shipped — `f68dca5` + `f75ebeb`. See [§ API corrections appendix](#task-8--storyletcatalog-access-pattern) — `StoryletCatalog.GetById(id)` is static (no `Instance.Get`); stale-arc branch uses `Expected`, not `Caught` with a synthetic exception. Includes an inline `NamedOrderArcRuntime` stub that Task 14 replaces.
 
 **Files:**
 - Create: `src/Features/Activities/Orders/OrderActivity.cs`
@@ -1268,6 +1305,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 9: Define `DutyProfileId` enum + `imprisoned` profile constant
 
+**Status:** ✅ shipped — `24bdcfa`.
+
 **Files:**
 - Create: `src/Features/Activities/Orders/DutyProfileId.cs`
 - Modify: `Enlisted.csproj`
@@ -1356,6 +1395,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 
 ## Task 10: Register Spec 2 types in `EnlistedSaveDefiner` (offsets 46/47/84/85)
 
+**Status:** ✅ shipped — `5143ef2`. Existing `Dictionary<string,int>` and `Dictionary<string,float>` container registrations already cover Spec 2's new fields — no new `ConstructContainerDefinition` calls needed.
+
 **Files:**
 - Modify: `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`
 
@@ -1426,6 +1467,8 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
 
 ## Task 11: Create `DutyProfileSelector` (pure function)
+
+**Status:** ✅ shipped — `36a32c9`. All 8 TaleWorlds APIs (`MobileParty.BesiegedSettlement`/`DefaultBehavior`/`Army.LeaderParty`/`CurrentSettlement`/`IsMoving`/`MapFaction`, `Settlement.MapFaction`, `FactionManager.IsAtWarAgainstFaction`) matched the plan exactly against the v1.3.13 decompile — first-pass clean.
 
 **Files:**
 - Create: `src/Features/Activities/Orders/DutyProfileSelector.cs`
@@ -5173,6 +5216,59 @@ After all 60 tasks land:
 
 If gaps found, add or amend tasks inline and re-run this checklist.
 
+---
+
+## API corrections appendix
+
+During execution of Tasks 1-11, the implementers verified each prescribed TaleWorlds / Newtonsoft call against `../Decompile/` and the existing codebase. Several plan-prescribed calls diverged from the actual v1.3.13 surface. This appendix logs the corrections so future task implementers know to cross-check and so a later plan-doc revision can fold them in.
+
+### Task 4 — `StoryletCatalog` parse robustness
+
+- **Plan prescribed:** `obj["profile_requires"]?.ToObject<List<string>>() ?? new List<string>()`
+- **Actual:** `ToObject<T>()` throws `JsonSerializationException` on type mismatch; `??` does not catch exceptions. A content-author typo (e.g. `"requires_culture": "Vlandia"` as a string instead of an array) was killing the entire file's parse via the file-level catch in `LoadAll`.
+- **Applied fix:** switch to `ParseStringList(obj["…"] as JArray)` (already exists in the file). Add a `ParseFloatDict(obj["…"] as JObject)` helper for the two dictionary fields. The `as JType` casts return null on mismatch, so the parse degrades gracefully to an empty collection.
+
+### Task 5 — `HeroDeveloper.AddFocus` / `AddAttribute` third argument
+
+- **Plan prescribed:** `HeroDeveloper.AddFocus(skill, amount)` and `HeroDeveloper.AddAttribute(attr, amount)`
+- **Actual v1.3.13:** `AddFocus(SkillObject, int, bool checkUnspentFocusPoints)` and `AddAttribute(CharacterAttribute, int, bool checkUnspentPoints)`. The third parameter defaults to `true` in some overloads, which would deduct the grant from the unspent pool.
+- **Applied fix:** pass `checkUnspentFocusPoints: false` / `checkUnspentPoints: false` — reward grants should not spend from the player's pool.
+
+### Task 5 — `GainRenownAction.Apply` second argument type
+
+- **Plan prescribed:** `GainRenownAction.Apply(Hero.MainHero, amount)` where `amount` was `int`.
+- **Actual v1.3.13:** `Apply(Hero, float, bool)` — the second parameter is `float`, not `int`.
+- **Applied fix:** cast via `(float)amount` at the call site.
+
+### Task 8 — `StoryletCatalog` access pattern
+
+- **Plan prescribed:** `StoryletCatalog.Instance?.Get(storyletId)` (instance-based)
+- **Actual:** `StoryletCatalog` is a static class with a static `GetById(string)` method. No `Instance` property, no `Get` method.
+- **Applied fix:** `StoryletCatalog.GetById(ActiveNamedOrder.OrderStoryletId)`.
+
+### Task 8 — `ModLogger.Caught` misuse for stale-arc branch
+
+- **Plan prescribed:** `ModLogger.Caught("ARC", "stale_arc_id_on_load", new Exception($"…"))` — using `Caught` as a general-purpose error log by wrapping dynamic context in a synthetic exception.
+- **Actual convention:** `Caught` is reserved for real defensive try/catch. Known-branch early exits (like "save references a deleted storylet") go through `Expected(category, key, summary)` which has key+summary fields natively.
+- **Applied fix:** `ModLogger.Expected("ARC", "stale_arc_id_on_load", $"OrderStoryletId='{id}' missing or has no arc; clearing")`. Reserve `Caught` for the outer try/catch around the actual reconstruction work.
+
+### Tasks 7/8/10 — `FormationClass` namespace
+
+- **Plan prescribed:** `using TaleWorlds.Library;` with comment `// FormationClass`
+- **Actual v1.3.13:** `FormationClass` lives in `TaleWorlds.Core`, not `TaleWorlds.Library`. The plan's comment is factually wrong.
+- **Applied fix:** use `using TaleWorlds.Core;` (already imported in most files that need it). In `EnlistedSaveDefiner`, register as `typeof(TaleWorlds.Core.FormationClass)`.
+
+### Cross-task — doc-comment conventions
+
+Multiple plan task snippets included XML doc-comments with forward-spec references ("Spec 2 PathScorer subscribes…", "Spec 4 will subscribe…", "Extracted from Y so Spec Z can…"). These violate AGENTS.md's rule "Comments describe current behavior — never changelogs, PR references, or 'added for X'". Each task's implementer was instructed to substitute behavioral one-liners. Future task implementers should expect to rewrite any doc comment the plan prescribes that references a future spec section or the reason for a change.
+
+### Cross-task — brace style
+
+The plan frequently used single-line `if (x) { return; }` / `{ break; }` guards. The project `.editorconfig` + AGENTS.md require expanded 3-line brace form on all control statements. Implementers expanded during each task.
+
+### Cross-task — error-codes registry regeneration
+
+Every C# source edit under `src/` that adds or removes lines in a file containing `ModLogger.Surfaced(...)` calls shifts those calls' line numbers in `docs/error-codes.md`. `validate_content.py` Phase 10 then fails. Implementers must run `/c/Python313/python.exe Tools/Validation/generate_error_codes.py` and stage the regenerated `docs/error-codes.md` in the same commit (or a dedicated chore commit, as in Tasks 1-3's combined `af129d0`).
 
 
 

@@ -15,7 +15,7 @@
 
 | Document | Purpose | Notes |
 |---|---|---|
-| [orders-content.md](orders-content.md) | 17 orders + 84 order events across 16 event pools | Orders are Spec 2 territory; this doc describes the shipped legacy surface until Spec 2 ships |
+| [orders-content.md](orders-content.md) | 17 orders + 84 order events across 16 event pools | Legacy surface. Spec 2 Phase A underway (Tasks 1-11 of 60 shipped; [plan](../../superpowers/plans/2026-04-20-orders-surface.md)) — this doc retires when Spec 2 completes and `orders-surface.md` replaces it. |
 | [injury-system.md](injury-system.md) | Unified medical condition system (injuries, illnesses, context-aware treatment) | Implementation: `PlayerConditionBehavior`, `EventDeliveryManager`, `condition_defs.json` |
 
 ## Authoring new content
