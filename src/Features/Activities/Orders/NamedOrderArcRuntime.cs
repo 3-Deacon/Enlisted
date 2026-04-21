@@ -48,6 +48,7 @@ namespace Enlisted.Features.Activities.Orders
                 activity.StartedAt = CampaignTime.Now;
                 activity.LastAutoFireHour = -1;
                 ModLogger.Info("ARC", $"spliced {sourceStorylet.Id} (intent={intent})");
+                PathScorer.OnIntentPicked(intent);
             }
             catch (Exception ex)
             {

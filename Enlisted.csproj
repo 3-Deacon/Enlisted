@@ -408,7 +408,8 @@
     <Compile Include="src\Features\Activities\Orders\NamedOrderState.cs" />
     <Compile Include="src\Features\Activities\Orders\OrderActivity.cs" />
     <Compile Include="src\Features\Activities\Orders\OrdersNewsFeedThrottle.cs" />
-    
+    <Compile Include="src\Features\Activities\Orders\PathScorer.cs" />
+
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->

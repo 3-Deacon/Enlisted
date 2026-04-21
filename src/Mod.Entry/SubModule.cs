@@ -357,6 +357,10 @@ namespace Enlisted.Mod.Entry
                     // accumulator-summary news-feed emission per hourly tick when the throttle allows.
                     campaignStarter.AddBehavior(new Features.Activities.Orders.DailyDriftApplicator());
 
+                    // Accumulates per-path specialization scores from intent picks and major
+                    // skill-XP gains, capped at 100 per path via path_{name}_score qualities.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.PathScorer());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());

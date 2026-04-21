@@ -4,6 +4,11 @@
     { "id": "medical_risk", "displayName": "{=q_med_risk}Medical Risk",  "min": 0, "max": 5,   "default": 0,  "scope": "Global",  "kind": "Stored", "writable": true, "decay": { "amount": -1, "intervalDays": 10, "requireIdle": true,  "floor": 0 } },
     { "id": "supplies",     "displayName": "{=q_supplies}Supplies",      "min": 0, "max": 100, "default": 50, "scope": "Global",  "kind": "Stored", "writable": true, "decay": null },
     { "id": "readiness",    "displayName": "{=q_readiness}Readiness",    "min": 0, "max": 100, "default": 50, "scope": "Global",  "kind": "Stored", "writable": true, "decay": null },
-    { "id": "loyalty",      "displayName": "{=q_loyalty}Loyalty",        "min": 0, "max": 100, "default": 50, "scope": "PerHero", "kind": "Stored", "writable": true, "decay": null }
+    { "id": "loyalty",      "displayName": "{=q_loyalty}Loyalty",        "min": 0, "max": 100, "default": 50, "scope": "PerHero", "kind": "Stored", "writable": true, "decay": null },
+    { "id": "path_ranger_score",   "displayName": "{=q_path_ranger}Ranger path",   "min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
+    { "id": "path_enforcer_score", "displayName": "{=q_path_enforcer}Enforcer path","min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
+    { "id": "path_support_score",  "displayName": "{=q_path_support}Support path", "min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
+    { "id": "path_diplomat_score", "displayName": "{=q_path_diplomat}Diplomat path","min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
+    { "id": "path_rogue_score",    "displayName": "{=q_path_rogue}Rogue path",     "min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null }
   ]
 }
