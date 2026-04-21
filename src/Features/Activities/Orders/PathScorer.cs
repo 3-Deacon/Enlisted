@@ -39,7 +39,11 @@ namespace Enlisted.Features.Activities.Orders
 
         public override void RegisterEvents()
         {
+            // Static events persist across Campaign teardown; guard against duplicate
+            // subscription when RegisterEvents is re-invoked on save/load cycles.
+            EnlistmentBehavior.OnXPGained -= OnXPGained;
             EnlistmentBehavior.OnXPGained += OnXPGained;
+            EnlistmentBehavior.OnTierChanged -= OnTierChanged;
             EnlistmentBehavior.OnTierChanged += OnTierChanged;
         }
 
