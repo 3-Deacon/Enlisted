@@ -405,6 +405,7 @@
     <Compile Include="src\Features\Activities\Orders\DutyProfileId.cs" />
     <Compile Include="src\Features\Activities\Orders\DutyProfileSelector.cs" />
     <Compile Include="src\Features\Activities\Orders\EnlistmentLifecycleListener.cs" />
+    <Compile Include="src\Features\Activities\Orders\LootPoolResolver.cs" />
     <Compile Include="src\Features\Activities\Orders\NamedOrderArcRuntime.cs" />
     <Compile Include="src\Features\Activities\Orders\NamedOrderState.cs" />
     <Compile Include="src\Features\Activities\Orders\OrderActivity.cs" />
@@ -677,6 +678,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Loot pools (Spec 2 Orders §8 — named pools resolved by LootPoolResolver) -->
+    <LootData Include="ModuleData\Enlisted\Loot\*.json"/>
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Storylets (Spec 0 storylet backbone — surface-spec authored pool files) -->
     <StoryletsData Include="ModuleData\Enlisted\Storylets\*.json"/>
   </ItemGroup>
@@ -759,6 +765,7 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Effects"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Storylets"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Qualities"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Loot"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Languages"/>
     
     <!-- COPY MODULE CONFIGURATION -->
@@ -775,6 +782,7 @@
     <Copy SourceFiles="@(ContentData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Content\"/>
     <Copy SourceFiles="@(ActivitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Activities\"/>
     <Copy SourceFiles="@(EffectsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Effects\"/>
+    <Copy SourceFiles="@(LootData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Loot\"/>
     <Copy SourceFiles="@(StoryletsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Storylets\"/>
     <Copy SourceFiles="@(QualitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Qualities\"/>
     

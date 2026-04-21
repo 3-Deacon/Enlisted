@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "pools": [
+    { "id": "issue_helmet",        "source": "faction_troop_tree", "filter": { "categories": ["HeadArmor"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_body",          "source": "faction_troop_tree", "filter": { "categories": ["BodyArmor"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_arm",           "source": "faction_troop_tree", "filter": { "categories": ["HandArmor"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_leg",           "source": "faction_troop_tree", "filter": { "categories": ["LegArmor"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_weapon_melee",  "source": "faction_troop_tree", "filter": { "categories": ["OneHandedWeapon", "TwoHandedWeapon", "Polearm"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_weapon_ranged", "source": "faction_troop_tree", "filter": { "categories": ["Bow", "Crossbow", "Thrown"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_horse",         "source": "faction_troop_tree", "filter": { "categories": ["Horse"], "max_troop_tier": "player_tier" } },
+    { "id": "issue_horse_harness", "source": "faction_troop_tree", "filter": { "categories": ["HorseHarness"], "max_troop_tier": "player_tier" } },
+
+    { "id": "trade_goods_common",  "source": "global_catalog", "filter": { "categories": ["Goods"], "tier_range": [1, 3] } },
+    { "id": "narrative_trinkets",  "source": "global_catalog", "filter": { "categories": ["Goods"], "tier_range": [1, 2] } },
+    { "id": "foreign_curios",      "source": "global_catalog", "filter": { "categories": ["Goods"], "tier_range": [1, 4] } },
+    { "id": "courier_documents",   "source": "global_catalog", "filter": { "categories": ["Goods"], "tier_range": [1, 1] } }
+  ]
+}

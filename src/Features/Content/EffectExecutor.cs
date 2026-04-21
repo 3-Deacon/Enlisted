@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Flags;
 using Enlisted.Features.Qualities;
 using Enlisted.Mod.Core.Logging;
@@ -546,9 +547,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Expected("EFFECT", "grant_random_item_pool_id_missing", "grant_random_item_from_pool: pool_id required");
                 return;
             }
-
-            // Task 26: wire to LootPoolResolver.ResolveAndGrant(poolId, ctx) when authored content lands.
-            ModLogger.Expected("EFFECT", "grant_random_item_pre_phaseB", $"grant_random_item_from_pool stub: pool='{poolId}'");
+            LootPoolResolver.ResolveAndGrant(poolId);
         }
 
         private static void DoStartArc(EffectDecl eff, StoryletContext ctx)
