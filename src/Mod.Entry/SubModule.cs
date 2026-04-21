@@ -349,9 +349,9 @@ namespace Enlisted.Mod.Entry
                     // events. Fires a profile_changed beat on the active OrderActivity on each commit.
                     campaignStarter.AddBehavior(new Features.Activities.Orders.DutyProfileBehavior());
 
-                    // Listens for lord captured/released/killed and kingdom-change events, and captures
-                    // prior-service flags when enlistment ends; tears down OrderActivity on discharge.
-                    campaignStarter.AddBehavior(new Features.Activities.Orders.LordStateListener());
+                    // Logs kingdom changes affecting the enlisted lord's clan and, on enlistment end,
+                    // captures prior-service flags and tears down OrderActivity via ActivityRuntime.Stop.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.EnlistmentLifecycleListener());
 
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
