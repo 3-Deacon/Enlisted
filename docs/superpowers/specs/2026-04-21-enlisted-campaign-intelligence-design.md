@@ -199,7 +199,29 @@ Primary duty families:
 
 No duty is generated unless the live state and current snapshot support it.
 
-### 6.2 Integration boundary
+### 6.2 Relationship to Spec 2 Orders Surface
+
+This spec does **not** replace Spec 2's continuous duty/profile layer.
+
+The ownership split is explicit:
+
+- `DutyProfileSelector` and `DutyProfileBehavior` remain the authoritative continuous classifier for "what kind of service posture the enlisted lord's party is currently in."
+- `DailyDriftApplicator` remains the passive background skill-XP and service-texture layer by default.
+- `OrderActivity` remains the enacted-duty surface: accepted named orders, active order arcs, profile-driven drift, and related order-display state.
+- `EnlistedCampaignIntelligenceBehavior` is upstream of that layer. It adds strategic assessment that can:
+  - influence which opportunities are generated
+  - influence which named orders are plausible or urgent
+  - influence order transitions, cancellations, or revised-order moments
+  - damp or temporarily bias some background outputs when a higher-priority discrete opportunity is active
+
+Phase 1 rule:
+
+- continuous posture and drift **compose with** discrete campaign-intelligence opportunities
+- they are not superseded globally by the new builder
+
+This preserves Spec 2 as the day-to-day enlisted service substrate while allowing the campaign-intelligence layer to inject episodic work shaped by real strategic context.
+
+### 6.3 Integration boundary
 
 Phase 1 touches only:
 
@@ -448,6 +470,25 @@ Hard limit:
 
 - no direct strategic control at any rank
 
+### 9.8 Relationship to `OrderActivity`
+
+The new opportunity layer does not replace `OrderActivity`.
+
+Ownership split:
+
+- `OrderActivity` continues to represent accepted, active, player-lived duty arcs
+- the intelligence backbone supplies upstream context that shapes:
+  - which named orders become available
+  - when revised orders or cancellations make sense
+  - when front shifts or strain changes should surface as order transitions
+- intelligence-driven duties that are not full named-order arcs may coexist beside `OrderActivity` as lighter operational work, but they must not silently fork a second competing "active order" state machine
+
+Phase 1 rule:
+
+- one authoritative enacted-duty layer remains in Spec 2
+- campaign intelligence is the upstream assessor and opportunity source for that layer
+- if a front shift produces a "revised orders" moment, it should feed through the existing order/story routing surface rather than bypassing it with a parallel hidden order system
+
 ---
 
 ## 10. Story and Routing Design
@@ -510,7 +551,32 @@ At minimum each projected signal must preserve:
 
 This avoids relying on arbitrary rich runtime payloads surviving through current consumers.
 
-### 10.5 Player outcome feedback
+### 10.5 `StoryCandidate` metadata decision
+
+This spec chooses the explicit-field route.
+
+`StoryCandidate` should gain a small optional signal-metadata block rather than encoding signal meaning into `SourceId`, `CategoryId`, or rendered text conventions.
+
+Recommended optional fields:
+
+- `SignalKind`
+  `rumor`, `camp_talk`, `dispatch`, `order_shift`, `quartermaster_warning`, `scout_return`, `prisoner_report`, `aftermath_notice`, `tension_incident`
+- `SignalConfidence`
+  low / medium / high
+- `SignalPerspective`
+  e.g. quartermaster, scout, veteran, camp rumor, direct order, aftermath witness
+- `SignalRecency`
+  fresh / recent / stale
+
+Rules:
+
+- these fields are optional for existing emit sites
+- existing `StoryCandidate` producers remain valid until they opt into richer signal projection
+- `StoryCandidatePersistent` should remain intentionally thin; only persist the minimum subset needed for deferred delivery or replay-safe reconstruction
+
+This is preferred over text-convention encoding because it keeps routing contracts inspectable, avoids semantic drift in string ids, and gives downstream consumers explicit structured meaning when they need it.
+
+### 10.6 Player outcome feedback
 
 Player duty outcomes do not directly write dramatic story beats.
 They update the underlying assessed state or confidence, which then changes future signals, available duties, order shifts, or aftermath stories.
