@@ -26,6 +26,7 @@ namespace Enlisted.Features.Activities.Orders
         public NamedOrderState ActiveNamedOrder { get; set; }
         public FormationClass CachedCombatClass { get; set; } = FormationClass.Infantry;
         public int CombatClassResampleHourTick { get; set; }
+        public Dictionary<string, int> DriftPendingXp { get; set; } = new Dictionary<string, int>();
 
         public static OrderActivity Instance => ActivityRuntime.Instance?.FindActive<OrderActivity>();
 
@@ -92,6 +93,10 @@ namespace Enlisted.Features.Activities.Orders
             if (PendingProfileMatches == null)
             {
                 PendingProfileMatches = new Dictionary<string, int>();
+            }
+            if (DriftPendingXp == null)
+            {
+                DriftPendingXp = new Dictionary<string, int>();
             }
             if (ActiveNamedOrder != null && ActiveNamedOrder.AccumulatedOutcomes == null)
             {

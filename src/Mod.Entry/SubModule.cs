@@ -353,6 +353,10 @@ namespace Enlisted.Mod.Entry
                     // captures prior-service flags and tears down OrderActivity via ActivityRuntime.Stop.
                     campaignStarter.AddBehavior(new Features.Activities.Orders.EnlistmentLifecycleListener());
 
+                    // Daily silent skill-XP drift weighted by the active duty profile, with a single
+                    // accumulator-summary news-feed emission per hourly tick when the throttle allows.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.DailyDriftApplicator());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
