@@ -344,6 +344,11 @@ namespace Enlisted.Mod.Entry
                     // Registered immediately after ActivityRuntime so Start() resolves activity types correctly.
                     campaignStarter.AddBehavior(new Features.Activities.Home.HomeActivityStarter());
 
+                    // Duty-profile sampler: hourly classifies the lord's party and commits profile changes
+                    // only after two consecutive matching samples, with a hard-bypass for siege/army/rethink
+                    // events. Fires a profile_changed beat on the active OrderActivity on each commit.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.DutyProfileBehavior());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
