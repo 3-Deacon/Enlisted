@@ -2855,6 +2855,71 @@ def phase15_path_crossroads(storylets: list[dict], ctx: ValidationContext) -> No
         print(f"  OK: all {len(expected)} crossroads storylets present.")
 
 
+def _load_loot_pools(ctx: ValidationContext) -> list[dict]:
+    """Load loot pool definitions from ModuleData/Enlisted/Loot/loot_pools.json."""
+    repo_root = Path(__file__).parent.parent.parent
+    pool_file = repo_root / "ModuleData" / "Enlisted" / "Loot" / "loot_pools.json"
+    if not pool_file.exists():
+        return []
+    try:
+        with open(pool_file, encoding="utf-8-sig") as f:
+            data = json.load(f)
+    except Exception as e:
+        ctx.add_issue(
+            "error", "loot-pools",
+            f"Failed to parse loot_pools.json: {e}", str(pool_file),
+        )
+        return []
+    pools = data.get("pools") if isinstance(data, dict) else data
+    if not isinstance(pools, list):
+        ctx.add_issue(
+            "error", "loot-pools",
+            "loot_pools.json: expected a 'pools' array or top-level list",
+            str(pool_file),
+        )
+        return []
+    return pools
+
+
+def phase16_loot_pool_sanity(loot_pools: list[dict], ctx: ValidationContext) -> None:
+    """Spec 2 §14. Pool source + filter required; per-source required keys enforced."""
+    print("[Phase 16] Validating loot pool sanity...")
+    repo_root = Path(__file__).parent.parent.parent
+    pool_file = str(repo_root / "ModuleData" / "Enlisted" / "Loot" / "loot_pools.json")
+    errors_before = sum(1 for i in ctx.issues if i.category == "loot-pools")
+    for pool in loot_pools:
+        pid = pool.get("id", "<unknown>")
+        src = pool.get("source")
+        if src not in ("faction_troop_tree", "global_catalog"):
+            ctx.add_issue(
+                "error", "loot-pools",
+                f"pool '{pid}' invalid source '{src}' "
+                f"(must be 'faction_troop_tree' or 'global_catalog')",
+                pool_file,
+            )
+            continue
+        flt = pool.get("filter", {}) or {}
+        if not flt.get("categories"):
+            ctx.add_issue(
+                "error", "loot-pools",
+                f"pool '{pid}' missing filter.categories", pool_file,
+            )
+        if src == "global_catalog" and not flt.get("tier_range"):
+            ctx.add_issue(
+                "error", "loot-pools",
+                f"pool '{pid}' (global_catalog) missing filter.tier_range", pool_file,
+            )
+        if src == "faction_troop_tree" and not flt.get("max_troop_tier"):
+            ctx.add_issue(
+                "error", "loot-pools",
+                f"pool '{pid}' (faction_troop_tree) missing filter.max_troop_tier",
+                pool_file,
+            )
+    errors_after = sum(1 for i in ctx.issues if i.category == "loot-pools")
+    if errors_after == errors_before:
+        print(f"  OK: {len(loot_pools)} loot pool(s) passed sanity checks.")
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -2951,6 +3016,8 @@ def main():
     storylets_for_validation = _load_all_storylets(ctx)
     phase14_arc_integrity(storylets_for_validation, ctx)
     phase15_path_crossroads(storylets_for_validation, ctx)
+    loot_pools = _load_loot_pools(ctx)
+    phase16_loot_pool_sanity(loot_pools, ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
