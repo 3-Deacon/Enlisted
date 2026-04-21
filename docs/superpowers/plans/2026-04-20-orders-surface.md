@@ -10,13 +10,13 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-20-orders-surface-design.md](../specs/2026-04-20-orders-surface-design.md) (commits `015128b` + `5d7e311` on `development`).
 
-**Status:** Phase A in progress. Tasks 1-11 of 60 shipped on `development` (commits `2f64137` → `36a32c9`). Tasks 12-17 (DutyProfileBehavior, LordStateListener, NamedOrderArcRuntime, DailyDriftApplicator, OrdersNewsFeedThrottle, PathScorer, Phase A smoke) remain in Phase A. Phases B-D not started.
+**Status:** Phase A code complete. Tasks 1-16 of 60 shipped on `development` (commits `2f64137` → `fc72bb7`). Task 17 (user-driven in-game smoke) remains in Phase A. Phases B-D not started.
 
 **Known API corrections discovered during execution:** see [§ API corrections appendix](#api-corrections-appendix) at the bottom of this file. The plan's task bodies were written against assumed v1.3.13 APIs; several diverged from the actual decompile and were adapted in the shipped implementation. Future task implementers should verify against `../Decompile/` first.
 
 ---
 
-## Phase A task ledger (Tasks 1-11 shipped)
+## Phase A task ledger (Tasks 1-16 shipped)
 
 | # | Task | Commit(s) | Notes |
 |---|------|-----------|-------|
@@ -32,6 +32,11 @@
 | 9 | `DutyProfileId` enum + `DutyProfileIds` constants | `24bdcfa` | |
 | 10 | Save-definer offsets 46/47/84/85 | `5143ef2` | Containers already covered by Spec 0 registrations |
 | 11 | `DutyProfileSelector` pure function | `36a32c9` | All 8 TaleWorlds APIs matched v1.3.13 decompile on first pass |
+| 12 | `DutyProfileBehavior` + `ActivityContext.Args` | `0eca58e` + `7a09557` | Review fix: skip beat on same-profile hard-bypass |
+| 13 | `EnlistmentLifecycleListener` (narrowed) + `ActivityEndReason.Discharged` + `ActivityRuntime.Stop` | `f3a9ea2` + `a4c6fd9` + `4472a6c` | Plan-vs-grace-period design gap; Revised Option A narrowed scope — see appendix |
+| 14 | `NamedOrderArcRuntime` + `StoryletContext.SourceStorylet` + `ActivityRuntime.GetTypes()` | `bde9f54` + `87d683f` | Review fixes: post-splice CurrentPhaseIndex advance + HomeEveningMenuProvider SourceStorylet prime |
+| 15 + 15a | `DailyDriftApplicator` + `OrdersNewsFeedThrottle` + `OrderActivity.DriftPendingXp` | `f42522a` + `6c4bb1f` | Review fix: atomic accumulator / XP grant on unknown skill id |
+| 16 | `PathScorer` + 5 new `path_*_score` qualities | `b798265` + `fc72bb7` | Review fix: static-event subscription guard (recurring Phase A pattern) |
 
 ---
 
@@ -64,7 +69,7 @@ src/Features/Activities/Orders/
   NamedOrderArcRuntime.cs           -- splice / unsplice arc phases on OrderActivity
   DailyDriftApplicator.cs           -- daily skill-XP drift via floor storylets
   PathScorer.cs                     -- intent + XP + tier accumulator; fires crossroads
-  LordStateListener.cs              -- captured / killed / kingdom-changed handlers
+  EnlistmentLifecycleListener.cs    -- enlistment-end prior-service flag capture + kingdom-change observer (narrowed from LordStateListener per Revised Option A — see appendix)
 
 src/Features/Equipment/
   CultureTroopTreeHelper.cs         -- extracted from TroopSelectionManager.BuildCultureTroopTree
@@ -5279,7 +5284,35 @@ Every C# source edit under `src/` that adds or removes lines in a file containin
 - **Infrastructure preserved for future use.** `DutyProfileIds.Imprisoned` enum value + `"imprisoned"` string constant, the `lord_imprisoned` flag name contract, the public `ActivityRuntime.Stop(Activity, ActivityEndReason)` method, and `ActivityEndReason.Discharged` remain in place. `Stop` + `Discharged` are used today by `OnEnlistmentEnded`. The `Imprisoned` profile stays reserved for a future scrutiny-overflow detention mechanic (e.g. Scrutiny ≥ `ScrutinyExposed` → narrative storylet's accept-option applies `set_flag("player_detained", DaysFromNow(N))` + `force_profile("imprisoned")`), which would land as a small follow-up spec, not in Spec 2.
 - **Phase B impact.** The `duty_imprisoned.json` storylet pool task listed at plan line 130 is removed from Spec 2 scope. Re-add as a follow-up spec if/when the scrutiny-overflow detention mechanic is planned.
 
+### Task 14 — `NamedOrderArcRuntime` API corrections
 
+- **`StoryletCatalog.Instance.All()` doesn't exist.** `StoryletCatalog` is a static class with `public static IEnumerable<Storylet> All { get; }` — a property, no `Instance`, no parens. Matches the correction already logged under Task 8 for `GetById`. Applied via `foreach (var s in StoryletCatalog.All)`.
+- **`ActivityRuntime.GetTypes()` didn't exist.** Plan prescribed `ActivityRuntime.Instance?.GetTypes()` twice (in `UnspliceArc` and `BuildAndSeatPhases`) but the private `_types` dictionary had no public accessor. Added `public IDictionary<string, ActivityTypeDefinition> GetTypes()` returning the internal dictionary. Chose `IDictionary<K,V>` over `IReadOnlyDictionary<K,V>` because `Activity.ResolvePhasesFromType` consumes the former and the latter isn't assignable to the former — a change to tighten to read-only-by-contract would require touching the `Activity` base class. Deferred.
+- **`ctx.Storylet` and `ctx.SelectedOption.Intent` don't exist on `StoryletContext`.** Plan's effect-executor access pattern assumed fields that weren't on the context type. Added `public Storylet SourceStorylet { get; set; }` to `StoryletContext` and populated it in `StoryletEventAdapter.BuildModal` immediately before `RegisterPendingEffects`. Intent is now read via `GetStr(eff, "intent")` from the `start_arc` effect's params — consistent with how every other `Do*` primitive reads its config. No `Choice.Intent` field added.
+- **Inline `NamedOrderArcRuntime` stub in `OrderActivity.cs` had to be deleted before the real class could be created.** Namespace collision would block compile. Task 8 left the stub at `OrderActivity.cs:103-111` with a `// TODO Task 14:` marker; deletion was a pre-step in Task 14.
 
+### Task 15 + 15a — `DailyDriftApplicator` / `OrdersNewsFeedThrottle` API corrections
 
+- **`StoryTier.NewsFeed` doesn't exist.** The enum at `src/Features/Content/StoryTier.cs` defines only `Log = 0, Pertinent = 1, Headline = 2, Modal = 3`. Closest semantic fit for the background drift summary is `StoryTier.Log` (scrollable-news tier per the enum's own doc comment). Applied.
+- **`HeroDeveloper.AddSkillXp` default `shouldNotify: true` contradicts the "silent XP" intent.** Actual signature verified at `../Decompile/TaleWorlds.CampaignSystem/.../HeroDeveloper.cs:189` is `AddSkillXp(SkillObject skill, float rawXp, bool isAffectedByFocusFactor = true, bool shouldNotify = true)`. Plan's 2-arg call would have fired the vanilla per-skill-XP floating text every day. Explicit `shouldNotify: false` suppresses it so the hourly accumulator summary is the only UI surface.
+- **Campaign speed threshold.** `Campaign.Current.SpeedUpMultiplier` defaults to `4f` (verified at `../Decompile/.../Campaign.cs:373`). Plan's `> 4f` threshold means "only suppress above default" — correct as stated, players on stock install rarely exceed 4x without a speed-mod.
+
+### Task 16 — `PathScorer` API corrections
+
+- **`QualityStore.Set` is 3-arg `(string id, int value, string reason)`, not 2-arg.** Plan's `Set(qualityKey, value)` is wrong; actual signature at `src/Features/Qualities/QualityStore.cs:178`. Applied via `BumpPath(path, amount, reason)` which threads a contextual reason (`"intent_pick"` or `"xp_gain"`) through to the store call.
+- **5 path qualities must be registered in `quality_defs.json`.** Plan didn't include this — without registration, every `QualityStore.Get`/`Set` for `path_ranger_score` etc. would emit `Expected("QUALITY", "missing_def_...", ...)` on every bump, filling the session log. Added `path_ranger_score`, `path_enforcer_score`, `path_support_score`, `path_diplomat_score`, `path_rogue_score` — scope Global, kind Stored, range 0-100, default 0, no decay.
+- **`NamedOrderArcRuntime.SpliceArc` had to be extended to call `PathScorer.OnIntentPicked(intent)`.** Plan's Task 16 doc comment said "invoked by NamedOrderArcRuntime.SpliceArc — see Task 14" but Task 14 didn't wire this. Added the call in Task 16 immediately after the `ARC spliced ...` info log.
+
+### Cross-task — static-event subscription leak (Tasks 13, 14, 16)
+
+`CampaignBehaviorManager.RegisterEvents()` is called on every new-game-start AND every save-load within a single process lifetime. Each invocation creates a fresh behavior instance and runs `RegisterEvents`. For subscriptions to `CampaignEvents.*` (i.e. `MbEvent`-backed campaign events), `AddNonSerializedListener(this, handler)` deduplicates per-listener internally — no guard needed. But for subscriptions to project-internal STATIC events (`EnlistmentBehavior.OnEnlistmentEnded`, `.OnXPGained`, `.OnTierChanged` — all `public static event Action<...>`), the invocation list accumulates across save-load cycles, causing N-fold handler firing after the Nth session.
+
+Task 13 solved this for `OnEnlistmentEnded` in `EnlistmentLifecycleListener` with a `-= / +=` idempotent pair. Task 14's code review missed it as a separate concern (Task 14 only subscribes campaign events). Task 16's code review caught the same pattern in `PathScorer` and applied the same fix in commit `fc72bb7`. Future tasks subscribing to any `EnlistmentBehavior.On*` static event (or any new static event added elsewhere) MUST mirror this guard:
+
+```csharp
+EnlistmentBehavior.OnXPGained -= OnXPGained;
+EnlistmentBehavior.OnXPGained += OnXPGained;
+```
+
+The handler method can be `static` or `instance` — `-=` matches by method group either way. Add a 2-line behavioral comment above the block: *"Static events persist across Campaign teardown; guard against duplicate subscription when RegisterEvents is re-invoked on save/load cycles."*
 
