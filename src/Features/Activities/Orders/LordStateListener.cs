@@ -23,6 +23,9 @@ namespace Enlisted.Features.Activities.Orders
             CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnHeroKilled);
             CampaignEvents.OnClanChangedKingdomEvent.AddNonSerializedListener(this, OnClanChangedKingdom);
 
+            // Static event persists across Campaign teardown; guard against duplicate
+            // subscription when RegisterEvents is re-invoked on save/load cycles.
+            EnlistmentBehavior.OnEnlistmentEnded -= OnEnlistmentEnded;
             EnlistmentBehavior.OnEnlistmentEnded += OnEnlistmentEnded;
         }
 

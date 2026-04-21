@@ -131,6 +131,14 @@ namespace Enlisted.Features.Activities
             }
             try
             {
+                activity.OnPhaseExit(activity.CurrentPhase);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ACTIVITY", "OnPhaseExit threw during Stop", ex);
+            }
+            try
+            {
                 activity.Finish(reason);
             }
             catch (Exception ex)

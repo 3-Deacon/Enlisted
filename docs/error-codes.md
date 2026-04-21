@@ -147,7 +147,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-LORDSTATE-ba7c | lord killed; service ended | src/Features/Activities/Orders/LordStateListener.cs:82 |
+| E-LORDSTATE-ba7c | lord killed; service ended | src/Features/Activities/Orders/LordStateListener.cs:85 |
 
 ## MUSTER
 
