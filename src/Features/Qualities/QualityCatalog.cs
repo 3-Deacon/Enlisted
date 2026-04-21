@@ -34,10 +34,17 @@ namespace Enlisted.Features.Qualities
 
                     foreach (var item in defs)
                     {
-                        var def = ParseDefinition(item as JObject);
-                        if (def != null)
+                        try
                         {
-                            result.Add(def);
+                            var def = ParseDefinition(item as JObject);
+                            if (def != null)
+                            {
+                                result.Add(def);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ModLogger.Caught("QUALITY", "bad_quality_parse", ex, LogCtx.Of("file", file));
                         }
                     }
                 }

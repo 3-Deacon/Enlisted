@@ -208,7 +208,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-QUALITY-6370 | Failed to load quality definition file | src/Features/Qualities/QualityCatalog.cs:46 |
+| E-QUALITY-6370 | Failed to load quality definition file | src/Features/Qualities/QualityCatalog.cs:53 |
 
 ## QUARTERMASTER
 
@@ -245,8 +245,8 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:54 |
-| E-STORYLET-d94d | StoryletCatalog loaded 0 storylets despite JSON files present — check parser or JSON schema | src/Features/Content/StoryletCatalog.cs:63 |
+| E-STORYLET-01f5 | Failed to load storylet file | src/Features/Content/StoryletCatalog.cs:62 |
+| E-STORYLET-d94d | StoryletCatalog loaded 0 storylets despite JSON files present — check parser or JSON schema | src/Features/Content/StoryletCatalog.cs:71 |
 
 ## STORYLET-ADAPT
 

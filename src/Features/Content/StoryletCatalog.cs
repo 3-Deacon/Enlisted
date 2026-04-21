@@ -40,13 +40,21 @@ namespace Enlisted.Features.Content
                     }
                     foreach (var item in arr.OfType<JObject>())
                     {
-                        var s = Parse(item);
-                        if (s == null || string.IsNullOrEmpty(s.Id))
+                        try
                         {
-                            ModLogger.Expected("STORYLET", "bad_storylet_item", $"storylet item with null/empty id in {Path.GetFileName(file)}");
-                            continue;
+                            var s = Parse(item);
+                            if (s == null || string.IsNullOrEmpty(s.Id))
+                            {
+                                ModLogger.Expected("STORYLET", "bad_storylet_item", $"storylet item with null/empty id in {Path.GetFileName(file)}");
+                                continue;
+                            }
+                            _byId[s.Id] = s;
                         }
-                        _byId[s.Id] = s;
+                        catch (Exception ex)
+                        {
+                            ModLogger.Caught("STORYLET", "bad_storylet_parse", ex,
+                                new Dictionary<string, object> { ["file"] = Path.GetFileName(file) });
+                        }
                     }
                 }
                 catch (Exception ex)
