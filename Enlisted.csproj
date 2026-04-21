@@ -470,6 +470,7 @@
     <Compile Include="src\Features\Content\ScopeDecl.cs"/>
     <Compile Include="src\Features\Content\SlotDecl.cs"/>
     <Compile Include="src\Features\Content\SlotFiller.cs"/>
+    <Compile Include="src\Features\Content\ArcSpec.cs" />
     <Compile Include="src\Features\Content\Storylet.cs"/>
     <Compile Include="src\Features\Content\StoryletContext.cs"/>
     <Compile Include="src\Features\Content\WeightDecl.cs"/>

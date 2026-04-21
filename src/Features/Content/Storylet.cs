@@ -24,6 +24,29 @@ namespace Enlisted.Features.Content
         public int CooldownDays { get; set; }
         public bool OneTime { get; set; }
 
+        /// <summary>Duty profile gate. Empty list = any profile.</summary>
+        public List<string> ProfileRequires { get; set; } = new List<string>();
+
+        /// <summary>Per-CombatClass selection-weight multipliers. Missing class defaults to 1.0.</summary>
+        public Dictionary<string, float> ClassAffinity { get; set; } = new Dictionary<string, float>();
+
+        /// <summary>Per-Intent selection-weight multipliers. Missing intent defaults to 1.0.</summary>
+        public Dictionary<string, float> IntentAffinity { get; set; } = new Dictionary<string, float>();
+
+        /// <summary>Hard combat-class gate. Empty = no gate. Values: Infantry / Ranged / Cavalry / HorseArcher.</summary>
+        public List<string> RequiresCombatClass { get; set; } = new List<string>();
+
+        /// <summary>Hard culture gate (lord's culture). Empty = no gate.</summary>
+        public List<string> RequiresCulture { get; set; } = new List<string>();
+        public List<string> ExcludesCulture { get; set; } = new List<string>();
+
+        /// <summary>Hard lord-trait gate (trait StringId, e.g. "Mercy", "Valor"). Empty = no gate.</summary>
+        public List<string> RequiresLordTrait { get; set; } = new List<string>();
+        public List<string> ExcludesLordTrait { get; set; } = new List<string>();
+
+        /// <summary>Named-order arc declaration. Null on non-arc storylets.</summary>
+        public ArcSpec Arc { get; set; }
+
         public virtual bool IsEligible(StoryletContext ctx)
         {
             if (ctx == null)

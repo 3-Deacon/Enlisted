@@ -86,6 +86,15 @@ namespace Enlisted.Features.Content
             s.Trigger = ParseStringList(obj["trigger"] as JArray);
             s.Immediate = ParseEffectList(obj["immediate"] as JArray);
             s.Options = ParseChoices(obj["options"] as JArray);
+            s.ProfileRequires = (obj["profile_requires"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.ClassAffinity   = (obj["class_affinity"]?.ToObject<Dictionary<string, float>>()) ?? new Dictionary<string, float>();
+            s.IntentAffinity  = (obj["intent_affinity"]?.ToObject<Dictionary<string, float>>()) ?? new Dictionary<string, float>();
+            s.RequiresCombatClass = (obj["requires_combat_class"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.RequiresCulture     = (obj["requires_culture"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.ExcludesCulture     = (obj["excludes_culture"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.RequiresLordTrait   = (obj["requires_lord_trait"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.ExcludesLordTrait   = (obj["excludes_lord_trait"]?.ToObject<List<string>>()) ?? new List<string>();
+            s.Arc = ParseArc(obj["arc"] as JObject);
             return s;
         }
 
@@ -188,6 +197,35 @@ namespace Enlisted.Features.Content
                 list.Add(eff);
             }
             return list;
+        }
+
+        private static ArcSpec ParseArc(JObject arcObj)
+        {
+            if (arcObj == null)
+            {
+                return null;
+            }
+            var arc = new ArcSpec
+            {
+                DurationHours = (int?)arcObj["duration_hours"] ?? 0,
+                OnTransitionInterruptStorylet = (string)arcObj["on_transition_interrupt_storylet"] ?? string.Empty,
+            };
+            var phasesArr = arcObj["phases"] as JArray;
+            if (phasesArr != null)
+            {
+                foreach (JObject p in phasesArr.OfType<JObject>())
+                {
+                    arc.Phases.Add(new ArcPhaseSpec
+                    {
+                        Id = (string)p["id"] ?? string.Empty,
+                        DurationHours = (int?)p["duration_hours"] ?? 0,
+                        PoolPrefix = (string)p["pool_prefix"] ?? string.Empty,
+                        FireIntervalHours = (int?)p["fire_interval_hours"] ?? 0,
+                        Delivery = (string)p["delivery"] ?? "auto",
+                    });
+                }
+            }
+            return arc;
         }
 
         private static List<Choice> ParseChoices(JArray arr)
