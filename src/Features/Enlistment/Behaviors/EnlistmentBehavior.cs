@@ -9601,6 +9601,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             var previousTier = _enlistmentTier;
+            if (previousTier == tier)
+            {
+                return;
+            }
+
             _enlistmentTier = tier;
 
             // Track promotion date for the days-in-rank requirement and muster recap display.
