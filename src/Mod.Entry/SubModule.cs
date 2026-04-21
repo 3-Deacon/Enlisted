@@ -507,6 +507,11 @@ namespace Enlisted.Mod.Entry
                     // during save/load serialization passes.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.End));
 
+                    // Runtime catalog status: appends content catalog counts to the conflict log once on
+                    // OnSessionLaunched, by which time catalogs have completed LoadAll. Registered after all
+                    // feature behaviors so catalog initialization has already occurred.
+                    campaignStarter.AddBehavior(new RuntimeCatalogStatusMarkerBehavior());
+
                     // Encounter guard: utility system for managing player party attachment and encounter transitions
                     // Initializes static helper methods used throughout the enlistment system
                     EncounterGuard.Initialize();

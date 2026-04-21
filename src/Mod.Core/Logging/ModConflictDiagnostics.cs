@@ -145,14 +145,19 @@ namespace Enlisted.Mod.Core.Logging
                 {
                     WriteLine($"    {name}");
                 }
-
-                // Log runtime catalog status after behaviors are registered
-                WriteRuntimeCatalogStatus();
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("DIAGNOSTICS", "Failed to log behaviors", ex);
             }
+        }
+
+        /// <summary>Appends the runtime catalog counts to the conflict log. Call after all catalogs have initialized (e.g. OnSessionLaunched).</summary>
+        public static void LogRuntimeCatalogStatus()
+        {
+            if (string.IsNullOrWhiteSpace(_conflictLogPath)) { return; }
+            try { WriteRuntimeCatalogStatus(); }
+            catch (Exception ex) { ModLogger.Caught("DIAGNOSTICS", "Failed to log runtime catalog status", ex); }
         }
 
         /// <summary>
