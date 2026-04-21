@@ -3277,6 +3277,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 ModLogger.Info("ENLISTMENT", $"Service ended: {reason} (Honorable: {isHonorableDischarge})");
 
+                try
+                {
+                    OnEnlistmentEnded?.Invoke(reason, isHonorableDischarge);
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.Caught("ENLISTMENT", "OnEnlistmentEnded listener threw", ex);
+                }
+
                 // Save current reputation to faction service record before clearing state.
                 // This allows partial restoration when the player re-enlists with the same faction.
                 // Restoration percentages are applied based on discharge band in TryConsumeReservistForFaction.
@@ -8338,6 +8347,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
         ///     Fired when EnlistmentTier changes. Params: previousTier, newTier.
         /// </summary>
         public static event Action<int, int> OnTierChanged;
+
+        /// <summary>
+        ///     Fired by StopEnlist before tear-down so subscribers see live state.
+        ///     Params: reason, isHonorableDischarge.
+        /// </summary>
+        public static event Action<string, bool> OnEnlistmentEnded;
 
         /// <summary>
         ///     Flag indicating the player chose to keep their retinue troops on retirement.
