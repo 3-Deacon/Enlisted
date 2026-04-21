@@ -2312,11 +2312,12 @@ def _check_effect_apply(
                 storylet_id,
             )
         if apply_id in ("quality_add", "quality_add_for_hero") and qid in _READ_ONLY_QUALITY_IDS:
+            read_only_list = ", ".join(sorted(_READ_ONLY_QUALITY_IDS))
             ctx.add_issue(
                 "error",
                 "storylet-refs",
                 f"[{field_path}] '{apply_id}' writes to read-only quality '{qid}' "
-                f"(rank, days_in_rank, days_enlisted cannot be written by storylets).",
+                f"({read_only_list} cannot be written by storylets).",
                 file_path,
                 storylet_id,
             )
@@ -2748,13 +2749,13 @@ def validate_event_file(file_path: str, ctx: ValidationContext, localization_ids
         validate_consistency(event, file_path, ctx)
 
 
-def _load_all_storylets(ctx: ValidationContext) -> list[dict]:
-    """Load every storylet JSON and return the flattened list of storylet dicts."""
+def _load_all_storylets(ctx: ValidationContext) -> list[tuple[Path, dict]]:
+    """Load every storylet JSON and return (source_path, storylet_dict) pairs."""
     repo_root = Path(__file__).parent.parent.parent
     storylet_dir = repo_root / "ModuleData" / "Enlisted" / "Storylets"
     if not storylet_dir.exists():
         return []
-    storylets: list[dict] = []
+    entries: list[tuple[Path, dict]] = []
     for sf in sorted(storylet_dir.rglob("*.json")):
         try:
             with open(sf, encoding="utf-8-sig") as f:
@@ -2765,60 +2766,73 @@ def _load_all_storylets(ctx: ValidationContext) -> list[dict]:
             )
             continue
         if isinstance(data, dict) and isinstance(data.get("storylets"), list):
-            storylets.extend(s for s in data["storylets"] if isinstance(s, dict))
+            for s in data["storylets"]:
+                if isinstance(s, dict):
+                    entries.append((sf, s))
         elif isinstance(data, list):
-            storylets.extend(s for s in data if isinstance(s, dict))
+            for s in data:
+                if isinstance(s, dict):
+                    entries.append((sf, s))
         elif isinstance(data, dict):
-            storylets.append(data)
-    return storylets
+            entries.append((sf, data))
+    return entries
 
 
-def phase14_arc_integrity(storylets: list[dict], ctx: ValidationContext) -> None:
+def phase14_arc_integrity(
+    storylet_entries: list[tuple[Path, dict]], ctx: ValidationContext
+) -> None:
     """Spec 2 §14. Arc-tagged storylets must have valid duration, phases, and pool refs."""
     print("[Phase 14] Validating named-order arc integrity...")
-    storylet_ids = {s.get("id") for s in storylets if s.get("id")}
+    storylet_ids = {s.get("id") for _, s in storylet_entries if s.get("id")}
     errors_before = sum(1 for i in ctx.issues if i.category == "arc-integrity")
 
-    for s in storylets:
+    for src, s in storylet_entries:
+        sid = s.get("id", "<unknown>")
         arc = s.get("arc")
         if not arc:
             continue
-        sid = s.get("id", "<unknown>")
+        if not isinstance(arc, dict):
+            ctx.add_issue(
+                "error", "arc-integrity",
+                f"storylet '{sid}' arc must be an object, got {type(arc).__name__}",
+                str(src),
+            )
+            continue
         if arc.get("duration_hours", 0) <= 0:
             ctx.add_issue(
                 "error", "arc-integrity",
-                f"storylet '{sid}' arc.duration_hours must be > 0", sid,
+                f"storylet '{sid}' arc.duration_hours must be > 0", str(src),
             )
         phases = arc.get("phases", [])
         if not phases:
             ctx.add_issue(
                 "error", "arc-integrity",
-                f"storylet '{sid}' arc.phases is empty", sid,
+                f"storylet '{sid}' arc.phases is empty", str(src),
             )
         for ph in phases:
             prefix = ph.get("pool_prefix", "")
             if not prefix:
                 ctx.add_issue(
                     "error", "arc-integrity",
-                    f"storylet '{sid}' phase '{ph.get('id')}' missing pool_prefix", sid,
+                    f"storylet '{sid}' phase '{ph.get('id')}' missing pool_prefix", str(src),
                 )
                 continue
             if not any(other_id.startswith(prefix) for other_id in storylet_ids):
                 ctx.add_issue(
                     "error", "arc-integrity",
                     f"storylet '{sid}' phase pool_prefix '{prefix}' has no matching storylets",
-                    sid,
+                    str(src),
                 )
         interrupt_id = arc.get("on_transition_interrupt_storylet", "")
         if interrupt_id and interrupt_id not in storylet_ids:
             ctx.add_issue(
                 "error", "arc-integrity",
                 f"storylet '{sid}' references unknown interrupt storylet '{interrupt_id}'",
-                sid,
+                str(src),
             )
 
     # start_arc effect must only appear on arc-tagged storylets.
-    for s in storylets:
+    for src, s in storylet_entries:
         if s.get("arc"):
             continue
         sid = s.get("id", "<unknown>")
@@ -2829,12 +2843,15 @@ def phase14_arc_integrity(storylets: list[dict], ctx: ValidationContext) -> None
                 if "start_arc" in eff or eff.get("apply") == "start_arc":
                     ctx.add_issue(
                         "error", "arc-integrity",
-                        f"storylet '{sid}' uses start_arc but has no arc block", sid,
+                        f"storylet '{sid}' uses start_arc but has no arc block", str(src),
                     )
 
     errors_after = sum(1 for i in ctx.issues if i.category == "arc-integrity")
     if errors_after == errors_before:
-        print(f"  OK: {sum(1 for s in storylets if s.get('arc'))} arc-tagged storylet(s) passed.")
+        print(
+            f"  OK: {sum(1 for _, s in storylet_entries if s.get('arc'))} "
+            f"arc-tagged storylet(s) passed."
+        )
 
 
 def phase15_path_crossroads(storylets: list[dict], ctx: ValidationContext) -> None:
@@ -2888,6 +2905,12 @@ def phase16_loot_pool_sanity(loot_pools: list[dict], ctx: ValidationContext) -> 
     pool_file = str(repo_root / "ModuleData" / "Enlisted" / "Loot" / "loot_pools.json")
     errors_before = sum(1 for i in ctx.issues if i.category == "loot-pools")
     for pool in loot_pools:
+        if not isinstance(pool, dict):
+            ctx.add_issue(
+                "error", "loot-pools",
+                f"loot_pools.json entry is not an object: {pool!r}", pool_file,
+            )
+            continue
         pid = pool.get("id", "<unknown>")
         src = pool.get("source")
         if src not in ("faction_troop_tree", "global_catalog"):
@@ -2920,7 +2943,9 @@ def phase16_loot_pool_sanity(loot_pools: list[dict], ctx: ValidationContext) -> 
         print(f"  OK: {len(loot_pools)} loot pool(s) passed sanity checks.")
 
 
-def phase17_rate_caps(storylets: list[dict], ctx: ValidationContext) -> None:
+def phase17_rate_caps(
+    storylet_entries: list[tuple[Path, dict]], ctx: ValidationContext
+) -> None:
     """Spec 2 §7. Per-option caps on permanent reward currencies."""
     print("[Phase 17] Validating per-option rate caps...")
     CAPS = {
@@ -2932,7 +2957,7 @@ def phase17_rate_caps(storylets: list[dict], ctx: ValidationContext) -> None:
         "grant_random_item_from_pool": 1,
     }
     errors_before = sum(1 for i in ctx.issues if i.category == "rate-caps")
-    for s in storylets:
+    for src, s in storylet_entries:
         sid = s.get("id", "<unknown>")
         for opt in s.get("options", []):
             oid = opt.get("id", "<unknown>")
@@ -2945,23 +2970,28 @@ def phase17_rate_caps(storylets: list[dict], ctx: ValidationContext) -> None:
                 for key in CAPS:
                     if key in eff or apply_id == key:
                         counts[key] += 1
-                # relation_change delta cap (±5).
+                # relation_change delta cap (±5). Covers both short-form
+                # {"relation_change": {"delta": N}} and long-form
+                # {"apply": "relation_change", "delta": N, ...}.
+                delta = None
                 rc = eff.get("relation_change")
                 if isinstance(rc, dict):
-                    delta = abs(rc.get("delta", 0))
-                    if delta > 5:
-                        ctx.add_issue(
-                            "error", "rate-caps",
-                            f"storylet '{sid}' option '{oid}' relation_change |delta|={delta} > 5",
-                            sid,
-                        )
+                    delta = rc.get("delta", 0)
+                elif apply_id == "relation_change":
+                    delta = eff.get("delta", 0)
+                if delta is not None and abs(delta) > 5:
+                    ctx.add_issue(
+                        "error", "rate-caps",
+                        f"storylet '{sid}' option '{oid}' relation_change |delta|={abs(delta)} > 5",
+                        str(src),
+                    )
             for key, cap in CAPS.items():
                 if counts[key] > cap:
                     ctx.add_issue(
                         "error", "rate-caps",
                         f"storylet '{sid}' option '{oid}' has {counts[key]} "
                         f"{key} effects (cap {cap})",
-                        sid,
+                        str(src),
                     )
     errors_after = sum(1 for i in ctx.issues if i.category == "rate-caps")
     if errors_after == errors_before:
@@ -3061,12 +3091,13 @@ def main():
     validate_storylet_references(ctx)
 
     # Phases 14-17: Spec 2 Orders Surface validators (load storylets once, reuse).
-    storylets_for_validation = _load_all_storylets(ctx)
-    phase14_arc_integrity(storylets_for_validation, ctx)
-    phase15_path_crossroads(storylets_for_validation, ctx)
+    storylet_entries = _load_all_storylets(ctx)
+    storylets_only = [s for _, s in storylet_entries]  # Phase 15 needs ids only.
+    phase14_arc_integrity(storylet_entries, ctx)
+    phase15_path_crossroads(storylets_only, ctx)
     loot_pools = _load_loot_pools(ctx)
     phase16_loot_pool_sanity(loot_pools, ctx)
-    phase17_rate_caps(storylets_for_validation, ctx)
+    phase17_rate_caps(storylet_entries, ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:
