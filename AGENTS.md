@@ -298,6 +298,48 @@ Link, don't duplicate — open these for depth:
     back. `EffectExecutor` caps expansion at depth 8 and logs
     `Expected("EFFECT", "scripted_depth_limit", ...)` — the chain no-ops at the
     cap, but a cyclic catalog is a JSON bug worth surfacing in the session log.
+17. `Campaign.Current.CampaignBehaviorManager` returns an empty collection at
+    `OnGameStart` — behaviors have been registered via `AddBehavior` but not yet
+    published to the Campaign. Read `campaignStarter.CampaignBehaviors` instead
+    (decompile: `TaleWorlds.CampaignSystem/CampaignGameStarter.cs:19` — the
+    starter holds the list directly). A diagnostic that iterates
+    `Campaign.Current.GetCampaignBehaviors<T>()` at OnGameStart NREs in
+    `Enumerable.OfType` or prints zero behaviors, depending on the call shape.
+18. Content catalogs (Storylet, Event, Decision, ActivityType, Scripted
+    Effects) initialize AFTER `OnGameStart`, during their owning behaviors'
+    `OnSessionLaunchedEvent` handlers. A diagnostic that reads catalog counts
+    at OnGameStart reports `0 loaded` even when load ultimately succeeds.
+    Defer diagnostic reads to `OnSessionLaunchedEvent` (see
+    `RuntimeCatalogStatusMarkerBehavior` for the pattern).
+19. `int.MinValue` as a "never fired" sentinel for throttle fields overflows
+    when subtracted: `nowHour - int.MinValue` goes negative and trips
+    `diff >= interval` checks backwards, so either the throttle never gates
+    OR it always gates, depending on comparison direction. Use
+    `int.MinValue / 2` as the sentinel — gives plenty of headroom and keeps
+    arithmetic well-defined. Known-bitten fields: `_lastHeartbeatHourTick`,
+    `_lastTransitionBeatHourTick`, `_lastHourlyHeartbeatTick` in the
+    Orders-surface tick behaviors.
+20. `ModLogger.Surfaced` / `Caught` / `Expected` require the category AND
+    summary arguments to be string literals at the call site — interpolated
+    strings (`$"..."`) are rejected by `generate_error_codes.py`'s scanner
+    (regex-based, doesn't evaluate interpolation). If you need dynamic values
+    in the log entry, put them in the `ctx` anonymous object instead of the
+    summary. Same rule as the existing shared-const pitfall in CLAUDE.md's
+    project-conventions section — this is the interpolation variant.
+21. `OrdersNewsFeedThrottle.TryClaim()` is designed to reject when
+    `Campaign.Current.TimeControlMode == SpeedUpMultiplier` with the multiplier
+    above 4x — news feed entries at extreme fast-forward would flood. This is
+    intentional silence, not a bug. When smoke-testing the Orders surface, run
+    at 1x–4x to see news output; tick-driven `ModLogger` entries (DRIFT,
+    DUTYPROFILE heartbeats, PATH heartbeats) still log at any speed.
+22. Plans in `docs/superpowers/plans/` can drift from the implementation
+    before the plan is fully executed: task scope shifts, architectures are
+    refactored, named files get renamed or deleted. Spec 2 saw this repeatedly
+    (Tasks 19/20/21 all required audit-expansion of their consumer-site lists
+    during execution; `ContentOrchestrator` was listed with zero migration
+    sites). Before implementing a multi-file task from an older plan, grep the
+    codebase for the plan's prescribed file paths and symbol names and confirm
+    they still exist and still have the cardinality the plan assumed.
 
 Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 
