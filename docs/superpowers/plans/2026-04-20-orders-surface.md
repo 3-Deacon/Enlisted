@@ -10,13 +10,13 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-20-orders-surface-design.md](../specs/2026-04-20-orders-surface-design.md) (commits `015128b` + `5d7e311` on `development`).
 
-**Status:** Phase A code complete. Tasks 1-16 of 60 shipped on `development` (commits `2f64137` → `fc72bb7`). Task 17 (user-driven in-game smoke) remains in Phase A. Phases B-D not started.
+**Status:** Phase A (Tasks 1-17) complete 2026-04-21 on `development` (commits `2f64137` → `b8039cf`). Phase B §13.1 consumer migrations complete — 13 OrderManager.Instance sites migrated across 5 files, 1 deferred (Task 19f ShowOrdersMenu, imperative, pending named-order archetypes in Tasks 34-35). Phase B content authoring + validators + old-subsystem deletion not yet started.
 
 **Known API corrections discovered during execution:** see [§ API corrections appendix](#api-corrections-appendix) at the bottom of this file. The plan's task bodies were written against assumed v1.3.13 APIs; several diverged from the actual decompile and were adapted in the shipped implementation. Future task implementers should verify against `../Decompile/` first.
 
 ---
 
-## Phase A task ledger (Tasks 1-16 shipped)
+## Phase A task ledger (Tasks 1-17 shipped)
 
 | # | Task | Commit(s) | Notes |
 |---|------|-----------|-------|
@@ -37,6 +37,7 @@
 | 14 | `NamedOrderArcRuntime` + `StoryletContext.SourceStorylet` + `ActivityRuntime.GetTypes()` | `bde9f54` + `87d683f` | Review fixes: post-splice CurrentPhaseIndex advance + HomeEveningMenuProvider SourceStorylet prime |
 | 15 + 15a | `DailyDriftApplicator` + `OrdersNewsFeedThrottle` + `OrderActivity.DriftPendingXp` | `f42522a` + `6c4bb1f` | Review fix: atomic accumulator / XP grant on unknown skill id |
 | 16 | `PathScorer` + 5 new `path_*_score` qualities | `b798265` + `fc72bb7` | Review fix: static-event subscription guard (recurring Phase A pattern) |
+| 17 | Phase A smoke — all subsystems observed ticking | smoke 2026-04-21 | DutyProfile/DRIFT/PATH heartbeats + OrderActivity start confirmed; DutyProfileBehavior thrashing tuned via beat throttle bump |
 
 ---
 
