@@ -111,8 +111,8 @@ namespace Enlisted.Features.Activities
             _types[def.Id] = def;
         }
 
-        /// <summary>Returns the registered activity type definitions keyed by type id. Callers must treat this as read-only — mutations corrupt activity phase resolution.</summary>
-        public IDictionary<string, ActivityTypeDefinition> GetTypes()
+        /// <summary>Read-only view of registered activity type definitions keyed by type id.</summary>
+        public IReadOnlyDictionary<string, ActivityTypeDefinition> GetTypes()
         {
             return _types;
         }

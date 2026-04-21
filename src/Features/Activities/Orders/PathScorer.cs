@@ -105,7 +105,7 @@ namespace Enlisted.Features.Activities.Orders
             {
                 var qualityKey = $"path_{path}_score";
                 var current = QualityStore.Instance?.Get(qualityKey) ?? 0;
-                QualityStore.Instance?.Set(qualityKey, Math.Min(100, current + amount), reason);
+                QualityStore.Instance?.Set(qualityKey, Math.Max(0, Math.Min(100, current + amount)), reason);
             }
             catch (Exception ex)
             {
@@ -119,11 +119,20 @@ namespace Enlisted.Features.Activities.Orders
             {
                 return null;
             }
-            foreach (var skill in SkillToPath.Keys)
+            var tokens = source.Split(new[] { ':', '_', '-', ' ', '.' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var token in tokens)
             {
-                if (source.IndexOf(skill, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (SkillToPath.ContainsKey(token))
                 {
-                    return skill;
+                    return token;
+                }
+            }
+            for (int i = 0; i < tokens.Length - 1; i++)
+            {
+                var joined = tokens[i] + tokens[i + 1];
+                if (SkillToPath.ContainsKey(joined))
+                {
+                    return joined;
                 }
             }
             return null;

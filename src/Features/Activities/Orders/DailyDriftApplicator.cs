@@ -113,7 +113,11 @@ namespace Enlisted.Features.Activities.Orders
             var pieces = activity.DriftPendingXp
                 .OrderByDescending(kv => kv.Value)
                 .Take(4)
-                .Select(kv => $"{kv.Key} +{kv.Value}");
+                .Select(kv =>
+                {
+                    var name = MBObjectManager.Instance.GetObject<SkillObject>(kv.Key)?.Name?.ToString();
+                    return $"{name ?? kv.Key} +{kv.Value}";
+                });
             var summary = "Past few days: " + string.Join(", ", pieces) + " XP.";
 
             StoryDirector.Instance?.EmitCandidate(new StoryCandidate

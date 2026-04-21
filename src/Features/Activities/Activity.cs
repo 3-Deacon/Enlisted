@@ -57,7 +57,7 @@ namespace Enlisted.Features.Activities
         public virtual void OnBeat(string beatId, ActivityContext ctx) { }
 
         /// <summary>Called by ActivityRuntime after load; resolves Phases from the TypeDefinition.</summary>
-        public void ResolvePhasesFromType(IDictionary<string, ActivityTypeDefinition> types)
+        public void ResolvePhasesFromType(IReadOnlyDictionary<string, ActivityTypeDefinition> types)
         {
             if (string.IsNullOrEmpty(TypeId)) { return; }
             if (types == null || !types.TryGetValue(TypeId, out var def)) { return; }
