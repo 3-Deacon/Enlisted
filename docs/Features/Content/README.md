@@ -15,7 +15,7 @@
 
 | Document | Purpose | Notes |
 |---|---|---|
-| [orders-content.md](orders-content.md) | 17 orders + 84 order events across 16 event pools | Legacy surface. Spec 2 Phase A underway (Tasks 1-11 of 60 shipped; [plan](../../superpowers/plans/2026-04-20-orders-surface.md)) — this doc retires when Spec 2 completes and `orders-surface.md` replaces it. |
+| [orders-content.md](orders-content.md) | 17 orders + 84 order events across 16 event pools | **Retired 2026-04-21.** Legacy content deleted in `a8719bb`; `src/Features/Orders/` + `ModuleData/Enlisted/Orders/` are gone. Replacement is `OrderActivity` + storylet pools, now owned by the five-plan integration roadmap ([integration spec](../../superpowers/specs/2026-04-21-plans-integration-design.md)). This document kept only for historical reference; do not author against it. |
 | [injury-system.md](injury-system.md) | Unified medical condition system (injuries, illnesses, context-aware treatment) | Implementation: `PlayerConditionBehavior`, `EventDeliveryManager`, `condition_defs.json` |
 
 ## Authoring new content
