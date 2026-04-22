@@ -1,5 +1,6 @@
 ﻿using System;
 using Enlisted.Features.CampaignIntelligence;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
@@ -7,13 +8,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
 {
-    /// <summary>
-    /// Enlisted-only wrapper over <see cref="TargetScoreCalculatingModel"/>.
-    /// Currently a pass-through to <c>BaseModel</c> for every member; intel-
-    /// driven bias for assault/raid/defence targeting lands in later Plan 2
-    /// tasks. When <c>BaseModel</c> is null (bootstrap ordering regression),
-    /// each override returns a type-sensible default.
-    /// </summary>
+    /// <summary>Enlisted-only wrapper over <see cref="TargetScoreCalculatingModel"/> that biases target scoring via the Plan 1 intelligence snapshot when the identity gate matches the enlisted lord's army and delegates to <c>BaseModel</c> otherwise; overrides fall back to vanilla defaults if <c>BaseModel</c> is null during a bootstrap-order regression.</summary>
     public sealed class EnlistedTargetScoreModel : TargetScoreCalculatingModel
     {
         public override float TravelingToAssignmentFactor =>
@@ -42,7 +37,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         {
             if (BaseModel == null)
             {
-                Enlisted.Mod.Core.Logging.ModLogger.Surfaced("INTELAI", "base_model_missing", null);
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
                 return 0f;
             }
             var vanilla = BaseModel.GetTargetScoreForFaction(
@@ -128,7 +123,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             }
             catch (Exception ex)
             {
-                Enlisted.Mod.Core.Logging.ModLogger.Caught("INTELAI", "target_score_bias_failed", ex);
+                ModLogger.Caught("INTELAI", "target_score_bias_failed", ex);
                 return vanilla;
             }
         }
