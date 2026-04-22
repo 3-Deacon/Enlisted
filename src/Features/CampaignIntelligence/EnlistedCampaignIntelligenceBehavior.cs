@@ -49,7 +49,11 @@ namespace Enlisted.Features.CampaignIntelligence
 
         public override void RegisterEvents()
         {
+            // Static events persist across Campaign teardown; guard against duplicate
+            // subscription when RegisterEvents is re-invoked on save/load cycles.
+            EnlistmentBehavior.OnEnlisted -= HandleOnEnlisted;
             EnlistmentBehavior.OnEnlisted += HandleOnEnlisted;
+            EnlistmentBehavior.OnEnlistmentEnded -= HandleOnEnlistmentEnded;
             EnlistmentBehavior.OnEnlistmentEnded += HandleOnEnlistmentEnded;
         }
 
@@ -66,7 +70,7 @@ namespace Enlisted.Features.CampaignIntelligence
             }
             catch (Exception ex)
             {
-                ModLogger.Surfaced("INTEL", "enlist_init_failed", ex);
+                ModLogger.Caught("INTEL", "enlist_init_failed", ex);
             }
         }
 

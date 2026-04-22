@@ -138,12 +138,6 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-HOME-START-348a | Failed to start HomeActivity | src/Features/Activities/Home/HomeActivityStarter.cs:56 |
 | E-HOME-START-5528 | Failed to emit departure_imminent beat | src/Features/Activities/Home/HomeActivityStarter.cs:86 |
 
-## INTEL
-
-| Code | Summary | Source |
-|---|---|---|
-| E-INTEL-0628 | enlist_init_failed | src/Features/CampaignIntelligence/EnlistedCampaignIntelligenceBehavior.cs:69 |
-
 ## INTERFACE
 
 | Code | Summary | Source |
