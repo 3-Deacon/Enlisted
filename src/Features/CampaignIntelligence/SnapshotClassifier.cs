@@ -140,15 +140,299 @@ namespace Enlisted.Features.CampaignIntelligence
             return flags;
         }
 
-        // Placeholder classifiers returning neutral defaults.
-        private static FrontPressure ClassifyFrontPressure(IntelligenceInputs _) => FrontPressure.None;
-        private static ArmyStrainLevel ClassifyArmyStrain(IntelligenceInputs _) => ArmyStrainLevel.None;
-        private static SupplyPressure ClassifySupplyPressure(IntelligenceInputs _) => SupplyPressure.None;
-        private static PursuitViability ClassifyPursuitViability(IntelligenceInputs _) => PursuitViability.NotViable;
-        private static EnemyContactRisk ClassifyEnemyContactRisk(IntelligenceInputs _) => EnemyContactRisk.Low;
-        private static RecoveryNeed ClassifyRecoveryNeed(IntelligenceInputs _) => RecoveryNeed.None;
-        private static PrisonerStakes ClassifyPrisonerStakes(IntelligenceInputs _) => PrisonerStakes.None;
-        private static PlayerTrustWindow ClassifyPlayerTrustWindow(IntelligenceInputs _) => PlayerTrustWindow.None;
-        private static InformationConfidence ClassifyInformationConfidence(IntelligenceInputs _) => InformationConfidence.Low;
+        private static FrontPressure ClassifyFrontPressure(IntelligenceInputs inputs)
+        {
+            int score = 0;
+            if (inputs.ThreatenedFriendlySettlementCount > 0)
+            {
+                score += 2;
+            }
+            if (inputs.ThreatenedFriendlySettlementCount > 2)
+            {
+                score += 2;
+            }
+            if (inputs.NearbyHostileCount >= 2)
+            {
+                score += 1;
+            }
+            if (inputs.NearbyHostileCount >= 5)
+            {
+                score += 1;
+            }
+            if (inputs.FrontierHeatingUp)
+            {
+                score += 1;
+            }
+            if (inputs.RecentWarTransition)
+            {
+                score += 2;
+            }
+            if (inputs.NearestHostileStrengthRatio > 1.5f && inputs.NearestHostileDistance < 15f)
+            {
+                score += 2;
+            }
+
+            if (score >= 7)
+            {
+                return FrontPressure.Critical;
+            }
+            if (score >= 5)
+            {
+                return FrontPressure.High;
+            }
+            if (score >= 3)
+            {
+                return FrontPressure.Medium;
+            }
+            if (score >= 1)
+            {
+                return FrontPressure.Low;
+            }
+            return FrontPressure.None;
+        }
+
+        private static ArmyStrainLevel ClassifyArmyStrain(IntelligenceInputs inputs)
+        {
+            if (!inputs.InArmy)
+            {
+                return ArmyStrainLevel.None;
+            }
+
+            int score = 0;
+            if (inputs.ArmyCohesion < 50f)
+            {
+                score += 1;
+            }
+            if (inputs.ArmyCohesion < 25f)
+            {
+                score += 2;
+            }
+            if (inputs.FoodDaysRemaining < 3f)
+            {
+                score += 1;
+            }
+            if (inputs.FoodDaysRemaining < 1f)
+            {
+                score += 2;
+            }
+            if (inputs.WoundedRatio > 0.2f)
+            {
+                score += 1;
+            }
+            if (inputs.WoundedRatio > 0.4f)
+            {
+                score += 2;
+            }
+            if (inputs.PartySizeRatio < 0.7f)
+            {
+                score += 1;
+            }
+            if (inputs.ImportantPrisonerCount > 0)
+            {
+                score += 1;
+            }
+
+            if (score >= 7)
+            {
+                return ArmyStrainLevel.Breaking;
+            }
+            if (score >= 5)
+            {
+                return ArmyStrainLevel.Severe;
+            }
+            if (score >= 3)
+            {
+                return ArmyStrainLevel.Elevated;
+            }
+            if (score >= 1)
+            {
+                return ArmyStrainLevel.Mild;
+            }
+            return ArmyStrainLevel.None;
+        }
+
+        private static SupplyPressure ClassifySupplyPressure(IntelligenceInputs inputs)
+        {
+            if (inputs.FoodDaysRemaining < 0.5f)
+            {
+                return SupplyPressure.Critical;
+            }
+            if (inputs.FoodDaysRemaining < 2f)
+            {
+                return SupplyPressure.Strained;
+            }
+            if (inputs.FoodDaysRemaining < 4f)
+            {
+                return SupplyPressure.Tightening;
+            }
+            return SupplyPressure.None;
+        }
+
+        private static PursuitViability ClassifyPursuitViability(IntelligenceInputs inputs)
+        {
+            if (inputs.NearbyHostileCount == 0)
+            {
+                return PursuitViability.NotViable;
+            }
+            if (inputs.NearestHostileDistance > 20f)
+            {
+                return PursuitViability.Marginal;
+            }
+
+            bool strongEnough = inputs.NearestHostileStrengthRatio < 1.3f;
+            bool closeEnough = inputs.NearestHostileDistance < 10f;
+            bool strained = inputs.FoodDaysRemaining < 2f || inputs.WoundedRatio > 0.35f;
+
+            if (strongEnough && closeEnough && !strained)
+            {
+                return PursuitViability.Strong;
+            }
+            if (strongEnough && !strained)
+            {
+                return PursuitViability.Viable;
+            }
+            if (closeEnough && !strained)
+            {
+                return PursuitViability.Viable;
+            }
+            return PursuitViability.Marginal;
+        }
+
+        private static EnemyContactRisk ClassifyEnemyContactRisk(IntelligenceInputs inputs)
+        {
+            if (inputs.InMapEvent)
+            {
+                return EnemyContactRisk.High;
+            }
+            if (inputs.NearbyHostileCount == 0)
+            {
+                return EnemyContactRisk.Low;
+            }
+
+            bool outnumbered = inputs.NearestHostileStrengthRatio > 1.3f;
+            bool close = inputs.NearestHostileDistance < 8f;
+
+            if (outnumbered && close)
+            {
+                return EnemyContactRisk.High;
+            }
+            if (outnumbered || close)
+            {
+                return EnemyContactRisk.Medium;
+            }
+            return EnemyContactRisk.Low;
+        }
+
+        private static RecoveryNeed ClassifyRecoveryNeed(IntelligenceInputs inputs)
+        {
+            int score = 0;
+            if (inputs.WoundedRatio > 0.15f)
+            {
+                score++;
+            }
+            if (inputs.WoundedRatio > 0.3f)
+            {
+                score += 2;
+            }
+            if (inputs.PartySizeRatio < 0.75f)
+            {
+                score++;
+            }
+            if (inputs.FoodDaysRemaining < 2f)
+            {
+                score++;
+            }
+            if (inputs.LordIsWounded)
+            {
+                score++;
+            }
+
+            if (score >= 4)
+            {
+                return RecoveryNeed.High;
+            }
+            if (score >= 3)
+            {
+                return RecoveryNeed.Medium;
+            }
+            if (score >= 1)
+            {
+                return RecoveryNeed.Low;
+            }
+            return RecoveryNeed.None;
+        }
+
+        private static PrisonerStakes ClassifyPrisonerStakes(IntelligenceInputs inputs)
+        {
+            if (inputs.ImportantPrisonerCount >= 3)
+            {
+                return PrisonerStakes.High;
+            }
+            if (inputs.ImportantPrisonerCount == 2)
+            {
+                return PrisonerStakes.Medium;
+            }
+            if (inputs.ImportantPrisonerCount == 1)
+            {
+                return PrisonerStakes.Low;
+            }
+            return PrisonerStakes.None;
+        }
+
+        private static PlayerTrustWindow ClassifyPlayerTrustWindow(IntelligenceInputs inputs)
+        {
+            int tier = inputs.PlayerTier;
+            int relation = inputs.PlayerRelationWithLord;
+
+            if (tier >= 7 && relation >= 30)
+            {
+                return PlayerTrustWindow.Broad;
+            }
+            if (tier >= 5 && relation >= 10)
+            {
+                return PlayerTrustWindow.Moderate;
+            }
+            if (tier >= 3 || relation >= 0)
+            {
+                return PlayerTrustWindow.Narrow;
+            }
+            return PlayerTrustWindow.None;
+        }
+
+        private static InformationConfidence ClassifyInformationConfidence(IntelligenceInputs inputs)
+        {
+            int score = 0;
+            if (inputs.HasFreshTracks)
+            {
+                score++;
+            }
+            if (inputs.HasEnemyBuildupEvidence)
+            {
+                score++;
+            }
+            if (inputs.HasGarrisonObservation)
+            {
+                score++;
+            }
+            if (inputs.PlayerProximate && inputs.PlayerTier >= 5)
+            {
+                score++;
+            }
+            // Recent war/peace transitions reduce confidence — the lord's prior objective may be stale.
+            if (inputs.RecentWarTransition || inputs.RecentPeaceTransition)
+            {
+                score--;
+            }
+
+            if (score >= 3)
+            {
+                return InformationConfidence.High;
+            }
+            if (score >= 1)
+            {
+                return InformationConfidence.Medium;
+            }
+            return InformationConfidence.Low;
+        }
     }
 }
