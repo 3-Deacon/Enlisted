@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Enlisted.Features.Camp;
+using Enlisted.Features.CampaignIntelligence.Signals;
 using Enlisted.Features.Combat.Behaviors;
 using Enlisted.Features.Conditions;
 using Enlisted.Features.Content;
@@ -363,6 +364,7 @@ namespace Enlisted.Mod.Entry
                     // Campaign Intelligence backbone: hourly recompute of the enlisted lord's strategic
                     // situation. Exposes a read-only snapshot via EnlistedCampaignIntelligenceBehavior.Instance.Current.
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());
+                    campaignStarter.AddBehavior(new EnlistedSignalEmitterBehavior());
 
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
