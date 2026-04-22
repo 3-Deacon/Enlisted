@@ -451,6 +451,7 @@
     <Compile Include="src\Features\CampaignIntelligence\Duty\DutyOpportunity.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Duty\DutyOpportunityShape.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Duty\DutyCooldownStore.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Duty\EnlistedDutyOpportunityBuilder.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
