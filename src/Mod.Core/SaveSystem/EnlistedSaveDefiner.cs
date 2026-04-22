@@ -69,6 +69,9 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Spec 2 (Orders Surface) — offsets 46-47
             AddClassDefinition(typeof(Features.Activities.Orders.OrderActivity), 46);
             AddClassDefinition(typeof(Features.Activities.Orders.NamedOrderState), 47);
+
+            // Campaign Intelligence backbone (Plan 1 of 5) — offset 48
+            AddClassDefinition(typeof(Features.CampaignIntelligence.EnlistedLordIntelligenceSnapshot), 48);
         }
 
         /// <summary>
@@ -108,6 +111,21 @@ namespace Enlisted.Mod.Core.SaveSystem
             // TaleWorlds.Core.SaveableCoreTypeDefiner at id 2008; re-registering it crashes
             // Module.Initialize with ArgumentException from the shared definition dictionary.
             AddEnumDefinition(typeof(Features.Activities.Orders.DutyProfileId), 85);
+
+            // Campaign Intelligence backbone enums (Plan 1 of 5) — offsets 86-98
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.StrategicPosture), 86);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ObjectiveType), 87);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ObjectiveConfidence), 88);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.FrontPressure), 89);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ArmyStrainLevel), 90);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.SupplyPressure), 91);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.InformationConfidence), 92);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.EnemyContactRisk), 93);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PursuitViability), 94);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.RecoveryNeed), 95);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PrisonerStakes), 96);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PlayerTrustWindow), 97);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.RecentChangeFlags), 98);
         }
 
         /// <summary>

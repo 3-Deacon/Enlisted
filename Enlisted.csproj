@@ -416,6 +416,16 @@
     <Compile Include="src\Features\Activities\Orders\PathScorer.cs" />
 
     <!-- ====================================================================
+         CAMPAIGN INTELLIGENCE BACKBONE (Plan 1 of 5)
+         ==================================================================== -->
+    <Compile Include="src\Features\CampaignIntelligence\IntelligenceEnums.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\EnlistedLordIntelligenceSnapshot.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\IntelligenceInputs.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\SnapshotCollector.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\SnapshotClassifier.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\EnlistedCampaignIntelligenceBehavior.cs"/>
+
+    <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->
     <Compile Include="src\Features\Conditions\PlayerConditionModels.cs"/>
