@@ -9,13 +9,19 @@ namespace Enlisted.Features.CampaignIntelligence.Models
 {
     /// <summary>
     /// Enlisted-only wrapper over <see cref="MobilePartyAIModel"/>. Biases
-    /// per-party movement decisions (<c>ShouldConsiderAttacking</c>,
-    /// <c>ShouldConsiderAvoiding</c>, and the initiative-behavior score in
-    /// <c>GetBestInitiativeBehavior</c>) via the Plan 1 intelligence
-    /// snapshot when the identity gate matches the enlisted lord; delegates
-    /// the remaining members (<c>AiCheckInterval</c>, flee radii, etc.)
-    /// unchanged to <c>BaseModel</c>. Falls back to vanilla defaults if
-    /// <c>BaseModel</c> is null during a bootstrap-order regression.
+    /// three per-party decisions via the Plan 1 intelligence snapshot when
+    /// the identity gate matches the enlisted lord: <c>ShouldConsiderAttacking</c>
+    /// (abort unviable pursuits), <c>ShouldConsiderAvoiding</c> (more eager
+    /// to avoid under recovery need), and <c>GetBestInitiativeBehavior</c>
+    /// (the central bait-magnetization fix — zero the initiative score when
+    /// FrontPressure is high and the candidate is an <c>EngageParty</c>). The
+    /// other ~12 abstract members are either global tuning constants
+    /// (<c>AiCheckInterval</c>, flee radii, food thresholds) that affect every
+    /// AI lord in Calradia, or decision predicates already scoped by the three
+    /// biased methods (e.g. <c>ShouldPartyCheckInitiativeBehavior</c> gates
+    /// whether <c>GetBestInitiativeBehavior</c> runs at all). Passing them
+    /// through preserves enlisted-only scope. Falls back to vanilla defaults
+    /// if <c>BaseModel</c> is null during a bootstrap-order regression.
     /// </summary>
     public sealed class EnlistedMobilePartyAiModel : MobilePartyAIModel
     {
