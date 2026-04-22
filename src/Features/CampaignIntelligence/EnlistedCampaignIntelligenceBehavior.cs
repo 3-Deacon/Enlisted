@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
 
@@ -45,9 +47,42 @@ namespace Enlisted.Features.CampaignIntelligence
             }
         }
 
-        public override void RegisterEvents() { }
+        public override void RegisterEvents()
+        {
+            EnlistmentBehavior.OnEnlisted += HandleOnEnlisted;
+            EnlistmentBehavior.OnEnlistmentEnded += HandleOnEnlistmentEnded;
+        }
 
         public override void SyncData(IDataStore dataStore) { }
+
+        private void HandleOnEnlisted(Hero lord)
+        {
+            try
+            {
+                EnsureInitialized();
+                _pendingChangeFlags = RecentChangeFlags.None;
+                _flagFirstSeen.Clear();
+                _working.Clear();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("INTEL", "enlist_init_failed", ex);
+            }
+        }
+
+        private void HandleOnEnlistmentEnded(string reason, bool voluntary)
+        {
+            try
+            {
+                _working?.Clear();
+                _pendingChangeFlags = RecentChangeFlags.None;
+                _flagFirstSeen.Clear();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTEL", "clear_on_end_failed", ex);
+            }
+        }
 
         internal void EnsureInitialized()
         {
