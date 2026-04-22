@@ -1,0 +1,272 @@
+{
+  "storylets": [
+    {
+      "id": "duty_imprisoned_cellmate_bribe",
+      "title": "{=duty_imprisoned_cellmate_bribe_title}The cellmate's offer",
+      "setup": "{=duty_imprisoned_cellmate_bribe_setup}The man in the adjacent cell wants out and has coin hidden in his boot heel. He needs someone who knows how to read a guard's face and time a handoff. You listen to his plan. Most of it is bad. One part is not.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_cellmate_bribe_opt}Help him time it. Take nothing for yourself.",
+          "tooltip": "{=duty_imprisoned_cellmate_bribe_tt}Bribe coordination. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_guard_talk",
+      "title": "{=duty_imprisoned_guard_talk_title}The talkative guard",
+      "setup": "{=duty_imprisoned_guard_talk_setup}One of the evening guards talks. Not to you — to the man in the next cell, about his sister in the north city, about the price of flour. You listen from behind the bars and say nothing. You learn more than he knows he's giving.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_guard_talk_opt}Keep still. Let him fill the silence.",
+          "tooltip": "{=duty_imprisoned_guard_talk_tt}Passive intelligence from a guard's chatter. Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_bread_ration",
+      "title": "{=duty_imprisoned_bread_ration_title}The bread ration",
+      "setup": "{=duty_imprisoned_bread_ration_setup}Two days of thin gruel. The bread comes once in the morning and you learn to eat half and save half. The man across the corridor doesn't and is already struggling. You watch him and adjust your own portions down another notch.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_bread_ration_opt}Eat the half. Save the other half.",
+          "tooltip": "{=duty_imprisoned_bread_ration_tt}Hunger rationing. Readiness down. Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 },
+            { "apply": "quality_add", "quality": "readiness", "amount": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_tap_through_wall",
+      "title": "{=duty_imprisoned_tap_through_wall_title}Tapping through the stone",
+      "setup": "{=duty_imprisoned_tap_through_wall_setup}The man in the cell east of yours has a system. Short taps, long taps, pauses. It takes two days to work out the pattern and another half day to respond. Then the messages start moving. You don't know who he is. The messages still arrive.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_tap_through_wall_opt}Learn the pattern. Send your reply.",
+          "tooltip": "{=duty_imprisoned_tap_through_wall_tt}Cell-to-cell communication. Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_cell_scars",
+      "title": "{=duty_imprisoned_cell_scars_title}Wound care in the dark",
+      "setup": "{=duty_imprisoned_cell_scars_setup}The new arrival came in with a sword cut across the shoulder. Untreated since the battle. He doesn't complain but the smell is wrong. You have nothing except water from the wall bucket and a strip torn from your shirt hem. You work anyway.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_cell_scars_opt}Clean it. Bind it. Hope the heat doesn't come.",
+          "tooltip": "{=duty_imprisoned_cell_scars_tt}Field care with no tools. Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_window_count",
+      "title": "{=duty_imprisoned_window_count_title}Counting through the bars",
+      "setup": "{=duty_imprisoned_window_count_setup}The window is a slit. From it you can see a yard, a gate, and a piece of the road. You count what passes. Horses in, horses out, carts at certain hours. After three days the pattern is clear enough to sketch in your head.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_window_count_opt}Mark the hours. Fix the count.",
+          "tooltip": "{=duty_imprisoned_window_count_tt}Enemy pattern from a cell window. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_guard_rotation",
+      "title": "{=duty_imprisoned_guard_rotation_title}The rotation",
+      "setup": "{=duty_imprisoned_guard_rotation_setup}Four guards. Two shifts. The changeover is at the third bell and the seventh. The last man of the night shift is always slow to the door — he takes longer than the others to lock it and he never checks the bolt twice. You file this away.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_guard_rotation_opt}Map the schedule. Find the weak moment.",
+          "tooltip": "{=duty_imprisoned_guard_rotation_tt}Guard schedule analysis. Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_rumor_from_new_arrival",
+      "title": "{=duty_imprisoned_rumor_from_new_arrival_title}News from outside",
+      "setup": "{=duty_imprisoned_rumor_from_new_arrival_setup}A new prisoner arrived last night — a merchant taken on the road. He talks too much and mostly about himself, but somewhere in the talk is something useful: troop movements, a siege lifted, a lord's name said wrong. You pull at the thread.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_rumor_from_new_arrival_opt}Ask the right questions. Hear what matters.",
+          "tooltip": "{=duty_imprisoned_rumor_from_new_arrival_tt}Prisoner intelligence. Charm XP, scrutiny up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_stretch_yard",
+      "title": "{=duty_imprisoned_stretch_yard_title}Five minutes in the yard",
+      "setup": "{=duty_imprisoned_stretch_yard_setup}Once a day, if the guard is in the right mood, you get the yard. Five minutes. The sun is low and the air has actual movement in it. You do what you can: stretches, a few knee bends, walking the perimeter fast. The guard watches from the wall.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_stretch_yard_opt}Use every second. Keep the body working.",
+          "tooltip": "{=duty_imprisoned_stretch_yard_tt}Restricted yard exercise. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_old_campaigner",
+      "title": "{=duty_imprisoned_old_campaigner_title}The sergeant",
+      "setup": "{=duty_imprisoned_old_campaigner_setup}The man in the opposite cell was a sergeant under three lords before the last one ran. He has seen more than he says and says less than he knows. Mornings, when the guards are busy, he talks. You listen and occasionally ask a question that doesn't embarrass you.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_old_campaigner_opt}Ask one good question. Hear the answer.",
+          "tooltip": "{=duty_imprisoned_old_campaigner_tt}Campaign wisdom from a cell. Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_contraband_coin",
+      "title": "{=duty_imprisoned_contraband_coin_title}Something changes hands",
+      "setup": "{=duty_imprisoned_contraband_coin_setup}There is a trade happening somewhere in the block. Small things: a candle stub, a piece of proper bread, something wrapped in cloth you are not meant to see. You watch the hands and the timing and work out who is moving what and to whom. Useful to know.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_contraband_coin_opt}Map the network. Don't buy in.",
+          "tooltip": "{=duty_imprisoned_contraband_coin_tt}Prison trade network. Roguery + Trade XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Trade", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_silence_after",
+      "title": "{=duty_imprisoned_silence_after_title}After the beating",
+      "setup": "{=duty_imprisoned_silence_after_setup}They wanted a name. You did not give one. The floor afterwards is cold and the cell is quiet. You breathe through it and think about nothing in particular. Eventually the pain settles into a general ache and the cell is just a cell again.",
+      "theme": "duty",
+      "category": "duty_imprisoned",
+      "severity": "low",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imprisoned_silence_after_opt}Say nothing. Survive it.",
+          "tooltip": "{=duty_imprisoned_silence_after_tt}Held silence under pressure. Scrutiny down.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": -1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

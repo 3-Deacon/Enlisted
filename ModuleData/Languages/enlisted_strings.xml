@@ -6974,5 +6974,66 @@
     <string id="duty_wandering_war_declared_1_setup" text="A courier catches you on the road: war declared, faction versus faction, the familiar names aligned in unfamiliar directions. The mercenary quiet is over. Your lord looks at the map a long time before putting it away." />
     <string id="duty_wandering_war_declared_1_title" text="War declared" />
     <string id="duty_wandering_war_declared_1_tt" text="Fresh war changes the board. Tactics XP, readiness up." />
+
+    <!-- duty_imprisoned_bread_ration -->
+    <string id="duty_imprisoned_bread_ration_opt" text="Eat the half. Save the other half." />
+    <string id="duty_imprisoned_bread_ration_setup" text="Two days of thin gruel. The bread comes once in the morning and you learn to eat half and save half. The man across the corridor doesn&apos;t and is already struggling. You watch him and adjust your own portions down another notch." />
+    <string id="duty_imprisoned_bread_ration_title" text="The bread ration" />
+    <string id="duty_imprisoned_bread_ration_tt" text="Hunger rationing. Readiness down. Steward XP." />
+    <!-- duty_imprisoned_cell_scars -->
+    <string id="duty_imprisoned_cell_scars_opt" text="Clean it. Bind it. Hope the heat doesn&apos;t come." />
+    <string id="duty_imprisoned_cell_scars_setup" text="The new arrival came in with a sword cut across the shoulder. Untreated since the battle. He doesn&apos;t complain but the smell is wrong. You have nothing except water from the wall bucket and a strip torn from your shirt hem. You work anyway." />
+    <string id="duty_imprisoned_cell_scars_title" text="Wound care in the dark" />
+    <string id="duty_imprisoned_cell_scars_tt" text="Field care with no tools. Medicine XP." />
+    <!-- duty_imprisoned_cellmate_bribe -->
+    <string id="duty_imprisoned_cellmate_bribe_opt" text="Help him time it. Take nothing for yourself." />
+    <string id="duty_imprisoned_cellmate_bribe_setup" text="The man in the adjacent cell wants out and has coin hidden in his boot heel. He needs someone who knows how to read a guard&apos;s face and time a handoff. You listen to his plan. Most of it is bad. One part is not." />
+    <string id="duty_imprisoned_cellmate_bribe_title" text="The cellmate&apos;s offer" />
+    <string id="duty_imprisoned_cellmate_bribe_tt" text="Bribe coordination. Roguery + Charm XP." />
+    <!-- duty_imprisoned_contraband_coin -->
+    <string id="duty_imprisoned_contraband_coin_opt" text="Map the network. Don&apos;t buy in." />
+    <string id="duty_imprisoned_contraband_coin_setup" text="There is a trade happening somewhere in the block. Small things: a candle stub, a piece of proper bread, something wrapped in cloth you are not meant to see. You watch the hands and the timing and work out who is moving what and to whom. Useful to know." />
+    <string id="duty_imprisoned_contraband_coin_title" text="Something changes hands" />
+    <string id="duty_imprisoned_contraband_coin_tt" text="Prison trade network. Roguery + Trade XP." />
+    <!-- duty_imprisoned_guard_rotation -->
+    <string id="duty_imprisoned_guard_rotation_opt" text="Map the schedule. Find the weak moment." />
+    <string id="duty_imprisoned_guard_rotation_setup" text="Four guards. Two shifts. The changeover is at the third bell and the seventh. The last man of the night shift is always slow to the door — he takes longer than the others to lock it and he never checks the bolt twice. You file this away." />
+    <string id="duty_imprisoned_guard_rotation_title" text="The rotation" />
+    <string id="duty_imprisoned_guard_rotation_tt" text="Guard schedule analysis. Tactics XP." />
+    <!-- duty_imprisoned_guard_talk -->
+    <string id="duty_imprisoned_guard_talk_opt" text="Keep still. Let him fill the silence." />
+    <string id="duty_imprisoned_guard_talk_setup" text="One of the evening guards talks. Not to you — to the man in the next cell, about his sister in the north city, about the price of flour. You listen from behind the bars and say nothing. You learn more than he knows he&apos;s giving." />
+    <string id="duty_imprisoned_guard_talk_title" text="The talkative guard" />
+    <string id="duty_imprisoned_guard_talk_tt" text="Passive intelligence from a guard&apos;s chatter. Charm XP." />
+    <!-- duty_imprisoned_old_campaigner -->
+    <string id="duty_imprisoned_old_campaigner_opt" text="Ask one good question. Hear the answer." />
+    <string id="duty_imprisoned_old_campaigner_setup" text="The man in the opposite cell was a sergeant under three lords before the last one ran. He has seen more than he says and says less than he knows. Mornings, when the guards are busy, he talks. You listen and occasionally ask a question that doesn&apos;t embarrass you." />
+    <string id="duty_imprisoned_old_campaigner_title" text="The sergeant" />
+    <string id="duty_imprisoned_old_campaigner_tt" text="Campaign wisdom from a cell. Leadership XP." />
+    <!-- duty_imprisoned_rumor_from_new_arrival -->
+    <string id="duty_imprisoned_rumor_from_new_arrival_opt" text="Ask the right questions. Hear what matters." />
+    <string id="duty_imprisoned_rumor_from_new_arrival_setup" text="A new prisoner arrived last night — a merchant taken on the road. He talks too much and mostly about himself, but somewhere in the talk is something useful: troop movements, a siege lifted, a lord&apos;s name said wrong. You pull at the thread." />
+    <string id="duty_imprisoned_rumor_from_new_arrival_title" text="News from outside" />
+    <string id="duty_imprisoned_rumor_from_new_arrival_tt" text="Prisoner intelligence. Charm XP, scrutiny up." />
+    <!-- duty_imprisoned_silence_after -->
+    <string id="duty_imprisoned_silence_after_opt" text="Say nothing. Survive it." />
+    <string id="duty_imprisoned_silence_after_setup" text="They wanted a name. You did not give one. The floor afterwards is cold and the cell is quiet. You breathe through it and think about nothing in particular. Eventually the pain settles into a general ache and the cell is just a cell again." />
+    <string id="duty_imprisoned_silence_after_title" text="After the beating" />
+    <string id="duty_imprisoned_silence_after_tt" text="Held silence under pressure. Scrutiny down." />
+    <!-- duty_imprisoned_stretch_yard -->
+    <string id="duty_imprisoned_stretch_yard_opt" text="Use every second. Keep the body working." />
+    <string id="duty_imprisoned_stretch_yard_setup" text="Once a day, if the guard is in the right mood, you get the yard. Five minutes. The sun is low and the air has actual movement in it. You do what you can: stretches, a few knee bends, walking the perimeter fast. The guard watches from the wall." />
+    <string id="duty_imprisoned_stretch_yard_title" text="Five minutes in the yard" />
+    <string id="duty_imprisoned_stretch_yard_tt" text="Restricted yard exercise. Athletics XP." />
+    <!-- duty_imprisoned_tap_through_wall -->
+    <string id="duty_imprisoned_tap_through_wall_opt" text="Learn the pattern. Send your reply." />
+    <string id="duty_imprisoned_tap_through_wall_setup" text="The man in the cell east of yours has a system. Short taps, long taps, pauses. It takes two days to work out the pattern and another half day to respond. Then the messages start moving. You don&apos;t know who he is. The messages still arrive." />
+    <string id="duty_imprisoned_tap_through_wall_title" text="Tapping through the stone" />
+    <string id="duty_imprisoned_tap_through_wall_tt" text="Cell-to-cell communication. Roguery XP." />
+    <!-- duty_imprisoned_window_count -->
+    <string id="duty_imprisoned_window_count_opt" text="Mark the hours. Fix the count." />
+    <string id="duty_imprisoned_window_count_setup" text="The window is a slit. From it you can see a yard, a gate, and a piece of the road. You count what passes. Horses in, horses out, carts at certain hours. After three days the pattern is clear enough to sketch in your head." />
+    <string id="duty_imprisoned_window_count_title" text="Counting through the bars" />
+    <string id="duty_imprisoned_window_count_tt" text="Enemy pattern from a cell window. Scouting XP." />
 </strings>
 </base>
