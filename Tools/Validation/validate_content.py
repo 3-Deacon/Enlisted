@@ -2183,6 +2183,7 @@ _PRIMITIVE_EFFECT_IDS: set[str] = {
     "grant_random_item_from_pool",
     "start_arc",
     "clear_active_named_order",
+    "commit_path",
 }
 
 # Primitives that take a 'quality' parameter.

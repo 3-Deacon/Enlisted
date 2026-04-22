@@ -139,6 +139,9 @@ namespace Enlisted.Features.Content
                 case "clear_active_named_order":
                     DoClearActiveNamedOrder(eff);
                     break;
+                case "commit_path":
+                    DoCommitPath(eff);
+                    break;
                 default:
                     ModLogger.Expected("EFFECT", "unknown_primitive_" + eff.Apply, "Unknown effect primitive: " + eff.Apply);
                     break;
@@ -579,6 +582,51 @@ namespace Enlisted.Features.Content
             {
                 ModLogger.Caught("EFFECT", "clear_active_named_order threw", ex);
             }
+        }
+
+        // commit_path writes the permanent career-path marker flag and bumps the
+        // committed_path indicator. This is the only legitimate write site of
+        // QualityStore.SetDirect for committed_path — storylets cannot mint the
+        // commit via quality_add/quality_set because the quality is writable:false.
+        private static readonly HashSet<string> _knownPathIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "ranger",
+            "enforcer",
+            "support",
+            "diplomat",
+            "rogue",
+        };
+
+        private static void DoCommitPath(EffectDecl eff)
+        {
+            var pathId = GetStr(eff, "path");
+            if (string.IsNullOrEmpty(pathId))
+            {
+                ModLogger.Expected("EFFECT", "commit_path_no_path", "commit_path primitive missing path parameter",
+                    new Dictionary<string, object> { { "apply", eff?.Apply } });
+                return;
+            }
+
+            if (!_knownPathIds.Contains(pathId))
+            {
+                ModLogger.Expected("EFFECT", "commit_path_unknown", "commit_path received unknown path id",
+                    new Dictionary<string, object> { { "path", pathId } });
+                return;
+            }
+
+            var pathIdLower = pathId.ToLowerInvariant();
+            var flag = "committed_path_" + pathIdLower;
+            if (FlagStore.Instance != null && FlagStore.Instance.Has(flag))
+            {
+                ModLogger.Expected("EFFECT", "commit_path_already_" + pathIdLower,
+                    "commit_path no-op: path already committed",
+                    new Dictionary<string, object> { { "path", pathIdLower } });
+                return;
+            }
+
+            FlagStore.Instance?.Set(flag, CampaignTime.Never);
+            QualityStore.Instance?.SetDirect("committed_path", 1, "commit_path primitive");
+            ModLogger.Info("PATH", $"committed path={pathIdLower}");
         }
 
         private static string GetStr(EffectDecl eff, string key)
