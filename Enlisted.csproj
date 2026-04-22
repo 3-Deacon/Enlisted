@@ -440,6 +440,7 @@
          LORD AI INTERVENTION (Plan 2 of 5)
          ==================================================================== -->
     <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedAiGate.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedAiBiasHeartbeat.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedTargetScoreModel.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedArmyManagementModel.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedMobilePartyAiModel.cs"/>
