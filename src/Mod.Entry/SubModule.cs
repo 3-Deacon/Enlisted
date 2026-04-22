@@ -367,6 +367,11 @@ namespace Enlisted.Mod.Entry
                     campaignStarter.AddBehavior(new EnlistedSignalEmitterBehavior());
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.Duty.EnlistedDutyEmitterBehavior());
 
+                    // At tier 4/6/9, picks the highest-scoring path_*_score quality
+                    // and emits a Modal crossroads storylet (path_crossroads_{path}_t{tier})
+                    // where the player commits, resists, or defers the career direction.
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.Career.PathCrossroadsBehavior());
+
                     // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
                     // that bias target choice, army formation, and pursuit for
                     // the enlisted lord only. Every wrapper calls EnlistedAiGate
