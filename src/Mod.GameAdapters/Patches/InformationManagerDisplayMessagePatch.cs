@@ -30,7 +30,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
             "Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior",
             "Enlisted.Features.Camp.CampRoutineProcessor",
             "Enlisted.Features.Content.EventDeliveryManager",
-            "Enlisted.Features.Orders.Behaviors.OrderManager",
             "Enlisted.Features.Activities.Orders.DailyDriftApplicator",
             "Enlisted.Features.Activities.TrainingXpScaler",
         };

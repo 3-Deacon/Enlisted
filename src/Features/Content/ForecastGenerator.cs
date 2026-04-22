@@ -7,7 +7,6 @@ using Enlisted.Features.Conditions;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
-using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Features.Ranks;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;

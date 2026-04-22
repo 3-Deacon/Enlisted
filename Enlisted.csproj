@@ -512,24 +512,11 @@
     <Compile Include="src\Features\Content\StoryletEventAdapter.cs"/>
 
     <!-- ====================================================================
-         ORDERS SYSTEM (Chain of Command)
+         LEGACY ORDERS SYSTEM — RETIRED 2026-04-21
+         Replaced by Spec 2 OrderActivity + DutyProfileBehavior +
+         NamedOrderArcRuntime. See src/Features/Activities/Orders/.
          ==================================================================== -->
-    <!-- Order Models -->
-    <Compile Include="src\Features\Orders\Models\Order.cs"/>
-    <Compile Include="src\Features\Orders\Models\OrderRequirement.cs"/>
-    <Compile Include="src\Features\Orders\Models\OrderConsequence.cs"/>
-    <Compile Include="src\Features\Orders\Models\OrderOutcome.cs"/>
-    <Compile Include="src\Features\Orders\Models\PhaseRecap.cs"/>
-    <Compile Include="src\Features\Orders\Models\OrderPrompt.cs"/>
-    <Compile Include="src\Features\Orders\Models\PromptOutcome.cs"/>
-    <Compile Include="src\Features\Orders\Models\PromptOutcomeData.cs"/>
 
-    <!-- Order Behaviors -->
-    <Compile Include="src\Features\Orders\Behaviors\OrderProgressionBehavior.cs" />
-    <Compile Include="src\Features\Orders\Behaviors\OrderManager.cs"/>
-    <Compile Include="src\Features\Orders\OrderCatalog.cs"/>
-    <Compile Include="src\Features\Orders\PromptCatalog.cs"/>
-    
     <!-- ====================================================================
          CONVERSATIONS & DIALOGUE SYSTEM
          ==================================================================== -->
@@ -654,16 +641,8 @@
     <DecisionsData Include="ModuleData\Enlisted\Decisions\*.json"/>
   </ItemGroup>
   
-  <ItemGroup>
-    <!-- Orders (Chain of Command missions) -->
-    <OrdersData Include="ModuleData\Enlisted\Orders\*.json"/>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <!-- Order Events (Phase events during order execution) -->
-    <OrderEventsData Include="ModuleData\Enlisted\Orders\order_events\*.json"/>
-  </ItemGroup>
-  
+  <!-- Legacy ModuleData\Enlisted\Orders\ ItemGroups retired 2026-04-21; directory deleted. -->
+
   <ItemGroup>
     <!-- Content (Injuries and other dynamic content) -->
     <ContentData Include="ModuleData\Enlisted\Content\*.json"/>
@@ -760,8 +739,6 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Dialogue"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Events"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Decisions"/>
-    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Orders"/>
-    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Orders\order_events"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Content"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Activities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Effects"/>
@@ -778,8 +755,6 @@
     <Copy SourceFiles="@(PlayerConditionData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Conditions\"/>
     <Copy SourceFiles="@(LanceLifeEventsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Events\"/>
     <Copy SourceFiles="@(DecisionsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Decisions\"/>
-    <Copy SourceFiles="@(OrdersData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Orders\"/>
-    <Copy SourceFiles="@(OrderEventsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Orders\order_events\"/>
     <Copy SourceFiles="@(DialogueData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Dialogue\"/>
     <Copy SourceFiles="@(ContentData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Content\"/>
     <Copy SourceFiles="@(ActivitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Activities\"/>

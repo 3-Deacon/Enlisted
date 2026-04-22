@@ -15,7 +15,6 @@ using Enlisted.Features.Identity;
 using Enlisted.Features.Interface;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Logistics;
-using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Features.Ranks.Behaviors;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Features.Retinue.Systems;
@@ -470,12 +469,9 @@ namespace Enlisted.Mod.Entry
                     // Decision system: loads player-initiated decisions from JSON and provides them to the Decisions menu.
                     campaignStarter.AddBehavior(new DecisionManager());
 
-                    // Orders system: issues orders from chain of command, tracks acceptance/decline, applies consequences.
-                    campaignStarter.AddBehavior(new OrderManager());
-
-                    // Order progression: handles multi-day order execution with phase-based event injection.
-                    // Events fire during slot phases based on world state and activity level.
-                    campaignStarter.AddBehavior(new OrderProgressionBehavior());
+                    // Legacy OrderManager + OrderProgressionBehavior registrations removed;
+                    // Spec 2 replaces the imperative order flow with OrderActivity +
+                    // DutyProfileBehavior + NamedOrderArcRuntime (see ActivityRuntime).
 
                     // Baggage train: manages access to player's personal stowage based on march state and logistics.
                     campaignStarter.AddBehavior(new BaggageTrainManager());

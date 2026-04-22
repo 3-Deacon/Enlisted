@@ -216,17 +216,8 @@ namespace Enlisted.Mod.Core.Logging
                 }
                 catch { catalogStatus.Add(("Decisions", 0, "ERROR")); }
 
-                // Order Catalog (doesn't have public count, just check if initialized)
-                try
-                {
-                    var orderCatalogType = Type.GetType("Enlisted.Features.Orders.OrderCatalog, Enlisted");
-                    if (orderCatalogType != null)
-                    {
-                        // Try to call GetAvailableOrders to see if it works
-                        catalogStatus.Add(("Orders", -1, "PRESENT"));
-                    }
-                }
-                catch { catalogStatus.Add(("Orders", 0, "ERROR")); }
+                // Order Catalog probe removed — legacy OrderManager subsystem retired;
+                // Spec 2 OrderActivity is tracked separately via ActivityRuntime.
 
                 // Storylet Catalog (Spec 0 backbone)
                 try

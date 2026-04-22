@@ -3,7 +3,6 @@ using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Logistics;
-using Enlisted.Features.Orders.Models;
 using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.SaveSystem;
@@ -40,12 +39,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Quartermaster inventory state
             AddClassDefinition(typeof(QMInventoryState), 1);
 
-            // Order system types
-            AddClassDefinition(typeof(Order), 10);
-            AddClassDefinition(typeof(OrderRequirement), 11);
-            AddClassDefinition(typeof(OrderConsequence), 12);
-            AddClassDefinition(typeof(OrderOutcome), 13);
-            AddClassDefinition(typeof(PhaseRecap), 14);
+            // Order system types (offsets 10-14) — deleted with legacy OrderManager subsystem
+            // retirement. Save loads tolerate orphaned SyncData entries per
+            // CampaignBehaviorDataStore.LoadBehaviorData permissive lookup
+            // (decompile: TaleWorlds.CampaignSystem/CampaignBehaviorDataStore.cs:86-106).
+            // Offsets 10-14 remain reserved; do not reuse without audit.
 
             // Retinue system types
             AddClassDefinition(typeof(NamedVeteran), 20);
@@ -127,7 +125,7 @@ namespace Enlisted.Mod.Core.SaveSystem
             // List types used by various systems
             ConstructContainerDefinition(typeof(List<string>));               // LifetimeServiceRecord.FactionsServed, Order.Tags
             ConstructContainerDefinition(typeof(List<NamedVeteran>));         // RetinueState.NamedVeterans
-            ConstructContainerDefinition(typeof(List<PhaseRecap>));           // OrderProgressionBehavior._phaseRecaps
+            // List<PhaseRecap> container removed with legacy OrderProgressionBehavior.
 
             // Pacing subsystem containers (Dictionary<string,int> is already registered above)
             ConstructContainerDefinition(typeof(List<Features.Content.StoryCandidatePersistent>));
