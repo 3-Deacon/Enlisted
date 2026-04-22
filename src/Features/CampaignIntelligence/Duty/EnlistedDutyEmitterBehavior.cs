@@ -89,6 +89,16 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
+                // Cannot propose a new arc while one is active. Filter to Episodic-only.
+                if (activity.ActiveNamedOrder != null)
+                {
+                    candidates.RemoveAll(c => c.Shape == DutyOpportunityShape.ArcScale);
+                    if (candidates.Count == 0)
+                    {
+                        return;
+                    }
+                }
+
                 if (!OrdersNewsFeedThrottle.TryClaim())
                 {
                     return;
@@ -233,15 +243,71 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
         private void EmitOpportunity(DutyOpportunity opp, Storylet storylet)
         {
-            var tier = opp.Shape == DutyOpportunityShape.ArcScale
-                ? StoryTier.Modal
-                : StoryTier.Log;
-
-            StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+            var director = StoryDirector.Instance;
+            if (director == null)
             {
-                SourceId = "duty." + opp.Shape.ToString().ToLowerInvariant(),
+                ModLogger.Expected("DUTY", "no_director", "StoryDirector.Instance null at emit");
+                return;
+            }
+
+            if (opp.Shape == DutyOpportunityShape.ArcScale)
+            {
+                EmitArcScaleModal(opp, storylet, director);
+            }
+            else
+            {
+                EmitEpisodicLog(opp, storylet, director);
+            }
+        }
+
+        private void EmitArcScaleModal(DutyOpportunity opp, Storylet storylet, StoryDirector director)
+        {
+            var ctx = new StoryletContext
+            {
+                CurrentContext = "any",
+                EvaluatedAt = CampaignTime.Now,
+                SourceStorylet = storylet
+            };
+
+            EffectExecutor.Apply(storylet.Immediate, ctx);
+
+            var evt = StoryletEventAdapter.BuildModal(storylet, ctx, null);
+            if (evt == null)
+            {
+                ModLogger.Expected("DUTY", "arc_buildmodal_null", "BuildModal returned null for arc-scale storylet",
+                    new Dictionary<string, object>
+                    {
+                        { "storylet_id", storylet.Id }
+                    });
+                return;
+            }
+
+            director.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "duty.arcscale",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
-                ProposedTier = tier,
+                ProposedTier = StoryTier.Modal,
+                ChainContinuation = true,
+                EmittedAt = CampaignTime.Now,
+                InteractiveEvent = evt,
+                RenderedTitle = storylet.Title,
+                RenderedBody = storylet.Setup,
+                StoryKey = storylet.Id
+            });
+
+            _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+
+            ModLogger.Info("DUTY",
+                $"emitted arcscale storylet={storylet.Id} reason={opp.TriggerReason}");
+        }
+
+        private void EmitEpisodicLog(DutyOpportunity opp, Storylet storylet, StoryDirector director)
+        {
+            director.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "duty.episodic",
+                CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
+                ProposedTier = StoryTier.Log,
                 EmittedAt = CampaignTime.Now,
                 RenderedTitle = storylet.Title,
                 RenderedBody = storylet.Setup,
@@ -250,18 +316,15 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
             _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
 
-            if (opp.Shape == DutyOpportunityShape.Episodic)
+            // Track recent history for weighted-diversity picker.
+            _recentEmittedIds.Enqueue(storylet.Id);
+            while (_recentEmittedIds.Count > RECENT_HISTORY_SIZE)
             {
-                _recentEmittedIds.Enqueue(storylet.Id);
-                while (_recentEmittedIds.Count > RECENT_HISTORY_SIZE)
-                {
-                    _recentEmittedIds.Dequeue();
-                }
+                _recentEmittedIds.Dequeue();
             }
 
-            // Episodic Log-tier storylets don't render a modal, so their single-option
-            // effects must auto-apply. Multi-option storylets rely on player interaction.
-            if (opp.Shape == DutyOpportunityShape.Episodic && storylet.Options?.Count == 1)
+            // Log-tier storylets don't render a modal, so single-option effects auto-apply.
+            if (storylet.Options?.Count == 1)
             {
                 var mainOpt = storylet.Options.FirstOrDefault(o => o.Id == "main");
                 if (mainOpt?.Effects != null)
@@ -271,7 +334,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             }
 
             ModLogger.Info("DUTY",
-                $"emitted {opp.Shape} storylet={storylet.Id} reason={opp.TriggerReason}");
+                $"emitted episodic storylet={storylet.Id} reason={opp.TriggerReason}");
         }
 
         private void LogHeartbeatIfDue()
