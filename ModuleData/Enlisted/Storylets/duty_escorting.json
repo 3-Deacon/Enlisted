@@ -1,0 +1,284 @@
+{
+  "storylets": [
+    {
+      "id": "duty_escorting_another_lords_column_1",
+      "title": "{=duty_escorting_another_lords_column_1_title}Another lord's column",
+      "setup": "{=duty_escorting_another_lords_column_1_setup}The army leader rides at the head of a column twice the size of your lord's retinue. His officers set the pace and you follow it. You mark the formation gaps and wonder what the plan is.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_another_lords_column_1_opt}Read the formation. Hold your place in it.",
+          "tooltip": "{=duty_escorting_another_lords_column_1_tt}Marching in another lord's column. Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_officers_in_other_livery_1",
+      "title": "{=duty_escorting_officers_in_other_livery_1_title}Officers in other livery",
+      "setup": "{=duty_escorting_officers_in_other_livery_1_setup}A captain in the army leader's colors rides over and gives your sergeant orders directly, skipping your lord entirely. Your sergeant looks to your lord. Your lord looks away. You follow the order.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_officers_in_other_livery_1_opt}Carry out the order. Note the chain.",
+          "tooltip": "{=duty_escorting_officers_in_other_livery_1_tt}Subordinate command structure. Leadership + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_carried_forward_1",
+      "title": "{=duty_escorting_carried_forward_1_title}Carried along the route",
+      "setup": "{=duty_escorting_carried_forward_1_setup}The army's route bends north, away from where your lord was riding two days ago. No one explains. You follow the column and watch the country change around you.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_carried_forward_1_opt}Mark the ground as you go.",
+          "tooltip": "{=duty_escorting_carried_forward_1_tt}Unknown route, read the terrain. Riding + Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_rear_watch_1",
+      "title": "{=duty_escorting_rear_watch_1_title}Rear watch for the column",
+      "setup": "{=duty_escorting_rear_watch_1_setup}Your lord's retinue draws rear-guard duty. You ride at the back of the army's tail, watching for anyone following. Two hours on an empty road. The dust from the column ahead is the only company.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_rear_watch_1_opt}Ride slow. Watch behind.",
+          "tooltip": "{=duty_escorting_rear_watch_1_tt}Rear-guard mounted watch. Tactics + Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_count_the_column_1",
+      "title": "{=duty_escorting_count_the_column_1_title}Counting the column",
+      "setup": "{=duty_escorting_count_the_column_1_setup}The army leader's quartermaster wants a count of effective riders in your lord's section. You spend the morning tallying kit, horses, and readiness. The numbers are not flattering.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_count_the_column_1_opt}Give honest numbers. Report up the chain.",
+          "tooltip": "{=duty_escorting_count_the_column_1_tt}Section strength assessment. Tactics + Trade + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Trade", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_scout_the_flank_1",
+      "title": "{=duty_escorting_scout_the_flank_1_title}Flanking patrol for the army",
+      "setup": "{=duty_escorting_scout_the_flank_1_setup}The army's scouts are stretched thin. Your lord volunteers your section for a lateral sweep on the left flank. Nobody asked you. You ride anyway.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_scout_the_flank_1_opt}Cover the flank. Report what you find.",
+          "tooltip": "{=duty_escorting_scout_the_flank_1_tt}Lateral flank patrol. Leadership + Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_mixed_camp_1",
+      "title": "{=duty_escorting_mixed_camp_1_title}Camp with men you don't know",
+      "setup": "{=duty_escorting_mixed_camp_1_setup}Camp tonight is shared with three other retinues. Unfamiliar faces, other lords' colors, and different messes. You find a fire with men who look like they have been marching longer than you have.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_mixed_camp_1_opt}Sit down. Let them talk first.",
+          "tooltip": "{=duty_escorting_mixed_camp_1_tt}Listen in mixed camp. Medicine + Roguery + Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_weapons_inspection_1",
+      "title": "{=duty_escorting_weapons_inspection_1_title}Weapons inspection, foreign sergeant",
+      "setup": "{=duty_escorting_weapons_inspection_1_setup}A sergeant in the army leader's service runs an inspection of the attached retinues. He examines edge quality, haft condition, crossbow limbs. You let him handle your blade and watch what he notices.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_weapons_inspection_1_opt}Watch the inspection. Pick up what he knows.",
+          "tooltip": "{=duty_escorting_weapons_inspection_1_tt}Weapons standards review. Smithing + OneHanded + TwoHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 15 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 10 },
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_guard_rotation_1",
+      "title": "{=duty_escorting_guard_rotation_1_title}Guard rotation in the main camp",
+      "setup": "{=duty_escorting_guard_rotation_1_setup}Your retinue draws a shift on the army's perimeter guard. Different post positions, unfamiliar ground. You pace out the coverage and find a gap the previous watch didn't notice.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_guard_rotation_1_opt}Cover the gap. Tell your sergeant.",
+          "tooltip": "{=duty_escorting_guard_rotation_1_tt}Perimeter watch in unfamiliar camp. Polearm + Bow + Crossbow + Throwing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Bow", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_objective_shift_1",
+      "title": "{=duty_escorting_objective_shift_1_title}The army changes course",
+      "setup": "{=duty_escorting_objective_shift_1_setup}Riders come in from the army leader's scouts and the column shifts its heading before noon. No announcement, just a new bearing. You read the terrain ahead and work out what the change means.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:ObjectiveShift"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_objective_shift_1_opt}Adapt to the new heading. Stay in formation.",
+          "tooltip": "{=duty_escorting_objective_shift_1_tt}Army objective change. Tactics XP, readiness up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 25 },
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_dispersal_risk_1",
+      "title": "{=duty_escorting_dispersal_risk_1_title}The army is pulling apart",
+      "setup": "{=duty_escorting_dispersal_risk_1_setup}The army is dissolving. Lords peel off with their retinues and the column thins by the hour. Your lord rides beside the army leader, talking. You hold your section together and wait.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:DispersalRisk"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_dispersal_risk_1_opt}Keep your section formed. Let the lords decide.",
+          "tooltip": "{=duty_escorting_dispersal_risk_1_tt}Army dispersal risk. Leadership + Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_army_dispersed_1",
+      "title": "{=duty_escorting_army_dispersed_1_title}The army has dissolved",
+      "setup": "{=duty_escorting_army_dispersed_1_setup}The army is gone. Yesterday there were six lords in the column; this morning there is your lord's retinue and an empty road. You don't know which way the enemy is anymore.",
+      "theme": "duty",
+      "category": "duty_escorting",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:ArmyDispersed"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_escorting_army_dispersed_1_opt}Scout the road ahead. Find out where you are.",
+          "tooltip": "{=duty_escorting_army_dispersed_1_tt}Alone after army dissolution. Scouting XP, scrutiny up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

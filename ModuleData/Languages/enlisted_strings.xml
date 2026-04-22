@@ -6776,5 +6776,77 @@
     <string id="duty_raiding_wounded_after_1_setup" text="One of your section took a scythe across the forearm. Not deep, but the wound is dirty. You pack it with what you have and tie it off while he complains about the waste of good cloth." />
     <string id="duty_raiding_wounded_after_1_title" text="Wounded after the raid" />
     <string id="duty_raiding_wounded_after_1_tt" text="Field dressing after a skirmish. Medicine + Leadership XP." />
+
+    <!-- duty_escorting_another_lords_column_1 -->
+    <string id="duty_escorting_another_lords_column_1_opt" text="Read the formation. Hold your place in it." />
+    <string id="duty_escorting_another_lords_column_1_setup" text="The army leader rides at the head of a column twice the size of your lord&apos;s retinue. His officers set the pace and you follow it. You mark the formation gaps and wonder what the plan is." />
+    <string id="duty_escorting_another_lords_column_1_title" text="Another lord&apos;s column" />
+    <string id="duty_escorting_another_lords_column_1_tt" text="Marching in another lord&apos;s column. Tactics XP." />
+
+    <!-- duty_escorting_army_dispersed_1 -->
+    <string id="duty_escorting_army_dispersed_1_opt" text="Scout the road ahead. Find out where you are." />
+    <string id="duty_escorting_army_dispersed_1_setup" text="The army is gone. Yesterday there were six lords in the column; this morning there is your lord&apos;s retinue and an empty road. You don&apos;t know which way the enemy is anymore." />
+    <string id="duty_escorting_army_dispersed_1_title" text="The army has dissolved" />
+    <string id="duty_escorting_army_dispersed_1_tt" text="Alone after army dissolution. Scouting XP, scrutiny up." />
+
+    <!-- duty_escorting_carried_forward_1 -->
+    <string id="duty_escorting_carried_forward_1_opt" text="Mark the ground as you go." />
+    <string id="duty_escorting_carried_forward_1_setup" text="The army&apos;s route bends north, away from where your lord was riding two days ago. No one explains. You follow the column and watch the country change around you." />
+    <string id="duty_escorting_carried_forward_1_title" text="Carried along the route" />
+    <string id="duty_escorting_carried_forward_1_tt" text="Unknown route, read the terrain. Riding + Athletics XP." />
+
+    <!-- duty_escorting_count_the_column_1 -->
+    <string id="duty_escorting_count_the_column_1_opt" text="Give honest numbers. Report up the chain." />
+    <string id="duty_escorting_count_the_column_1_setup" text="The army leader&apos;s quartermaster wants a count of effective riders in your lord&apos;s section. You spend the morning tallying kit, horses, and readiness. The numbers are not flattering." />
+    <string id="duty_escorting_count_the_column_1_title" text="Counting the column" />
+    <string id="duty_escorting_count_the_column_1_tt" text="Section strength assessment. Tactics + Trade + Steward XP." />
+
+    <!-- duty_escorting_dispersal_risk_1 -->
+    <string id="duty_escorting_dispersal_risk_1_opt" text="Keep your section formed. Let the lords decide." />
+    <string id="duty_escorting_dispersal_risk_1_setup" text="The army is dissolving. Lords peel off with their retinues and the column thins by the hour. Your lord rides beside the army leader, talking. You hold your section together and wait." />
+    <string id="duty_escorting_dispersal_risk_1_title" text="The army is pulling apart" />
+    <string id="duty_escorting_dispersal_risk_1_tt" text="Army dispersal risk. Leadership + Riding XP." />
+
+    <!-- duty_escorting_guard_rotation_1 -->
+    <string id="duty_escorting_guard_rotation_1_opt" text="Cover the gap. Tell your sergeant." />
+    <string id="duty_escorting_guard_rotation_1_setup" text="Your retinue draws a shift on the army&apos;s perimeter guard. Different post positions, unfamiliar ground. You pace out the coverage and find a gap the previous watch didn&apos;t notice." />
+    <string id="duty_escorting_guard_rotation_1_title" text="Guard rotation in the main camp" />
+    <string id="duty_escorting_guard_rotation_1_tt" text="Perimeter watch in unfamiliar camp. Polearm + Bow + Crossbow + Throwing XP." />
+
+    <!-- duty_escorting_mixed_camp_1 -->
+    <string id="duty_escorting_mixed_camp_1_opt" text="Sit down. Let them talk first." />
+    <string id="duty_escorting_mixed_camp_1_setup" text="Camp tonight is shared with three other retinues. Unfamiliar faces, other lords&apos; colors, and different messes. You find a fire with men who look like they have been marching longer than you have." />
+    <string id="duty_escorting_mixed_camp_1_title" text="Camp with men you don&apos;t know" />
+    <string id="duty_escorting_mixed_camp_1_tt" text="Listen in mixed camp. Medicine + Roguery + Engineering XP." />
+
+    <!-- duty_escorting_objective_shift_1 -->
+    <string id="duty_escorting_objective_shift_1_opt" text="Adapt to the new heading. Stay in formation." />
+    <string id="duty_escorting_objective_shift_1_setup" text="Riders come in from the army leader&apos;s scouts and the column shifts its heading before noon. No announcement, just a new bearing. You read the terrain ahead and work out what the change means." />
+    <string id="duty_escorting_objective_shift_1_title" text="The army changes course" />
+    <string id="duty_escorting_objective_shift_1_tt" text="Army objective change. Tactics XP, readiness up." />
+
+    <!-- duty_escorting_officers_in_other_livery_1 -->
+    <string id="duty_escorting_officers_in_other_livery_1_opt" text="Carry out the order. Note the chain." />
+    <string id="duty_escorting_officers_in_other_livery_1_setup" text="A captain in the army leader&apos;s colors rides over and gives your sergeant orders directly, skipping your lord entirely. Your sergeant looks to your lord. Your lord looks away. You follow the order." />
+    <string id="duty_escorting_officers_in_other_livery_1_title" text="Officers in other livery" />
+    <string id="duty_escorting_officers_in_other_livery_1_tt" text="Subordinate command structure. Leadership + Charm XP." />
+
+    <!-- duty_escorting_rear_watch_1 -->
+    <string id="duty_escorting_rear_watch_1_opt" text="Ride slow. Watch behind." />
+    <string id="duty_escorting_rear_watch_1_setup" text="Your lord&apos;s retinue draws rear-guard duty. You ride at the back of the army&apos;s tail, watching for anyone following. Two hours on an empty road. The dust from the column ahead is the only company." />
+    <string id="duty_escorting_rear_watch_1_title" text="Rear watch for the column" />
+    <string id="duty_escorting_rear_watch_1_tt" text="Rear-guard mounted watch. Tactics + Riding XP." />
+
+    <!-- duty_escorting_scout_the_flank_1 -->
+    <string id="duty_escorting_scout_the_flank_1_opt" text="Cover the flank. Report what you find." />
+    <string id="duty_escorting_scout_the_flank_1_setup" text="The army&apos;s scouts are stretched thin. Your lord volunteers your section for a lateral sweep on the left flank. Nobody asked you. You ride anyway." />
+    <string id="duty_escorting_scout_the_flank_1_title" text="Flanking patrol for the army" />
+    <string id="duty_escorting_scout_the_flank_1_tt" text="Lateral flank patrol. Leadership + Scouting XP." />
+
+    <!-- duty_escorting_weapons_inspection_1 -->
+    <string id="duty_escorting_weapons_inspection_1_opt" text="Watch the inspection. Pick up what he knows." />
+    <string id="duty_escorting_weapons_inspection_1_setup" text="A sergeant in the army leader&apos;s service runs an inspection of the attached retinues. He examines edge quality, haft condition, crossbow limbs. You let him handle your blade and watch what he notices." />
+    <string id="duty_escorting_weapons_inspection_1_title" text="Weapons inspection, foreign sergeant" />
+    <string id="duty_escorting_weapons_inspection_1_tt" text="Weapons standards review. Smithing + OneHanded + TwoHanded XP." />
 </strings>
 </base>
