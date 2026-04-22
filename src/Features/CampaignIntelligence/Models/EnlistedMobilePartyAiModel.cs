@@ -49,8 +49,45 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float NeededFoodsInDaysThresholdForRaid =>
             BaseModel?.NeededFoodsInDaysThresholdForRaid ?? 8f;
 
-        public override bool ShouldConsiderAvoiding(MobileParty party, MobileParty targetParty) =>
-            BaseModel?.ShouldConsiderAvoiding(party, targetParty) ?? false;
+        public override bool ShouldConsiderAvoiding(
+            MobileParty party, MobileParty targetParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return false;
+            }
+            var vanilla = BaseModel.ShouldConsiderAvoiding(party, targetParty);
+
+            if (!EnlistedAiGate.TryGetSnapshotForParty(party, out var snapshot))
+            {
+                return vanilla;
+            }
+
+            // Vanilla already says avoid — respect it.
+            if (vanilla)
+            {
+                return true;
+            }
+
+            // Bias toward avoidance when recovery is urgent.
+            if (snapshot.RecoveryNeed == RecoveryNeed.High)
+            {
+                EnlistedAiBiasHeartbeat.Record("avoid_recovery", 0, 1);
+                return true;
+            }
+
+            // Bias toward avoidance when pursuit is not viable AND the target
+            // would be the one vanilla is checking against.
+            if (snapshot.PursuitViability == PursuitViability.NotViable
+                && snapshot.EnemyContactRisk >= EnemyContactRisk.Medium)
+            {
+                EnlistedAiBiasHeartbeat.Record("avoid_unviable_pursuit", 0, 1);
+                return true;
+            }
+
+            return false;
+        }
 
         public override bool ShouldConsiderAttacking(
             MobileParty party, MobileParty targetParty)
