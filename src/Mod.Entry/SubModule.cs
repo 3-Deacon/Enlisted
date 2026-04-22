@@ -365,6 +365,7 @@ namespace Enlisted.Mod.Entry
                     // situation. Exposes a read-only snapshot via EnlistedCampaignIntelligenceBehavior.Instance.Current.
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());
                     campaignStarter.AddBehavior(new EnlistedSignalEmitterBehavior());
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.Duty.EnlistedDutyEmitterBehavior());
 
                     // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
                     // that bias target choice, army formation, and pursuit for
