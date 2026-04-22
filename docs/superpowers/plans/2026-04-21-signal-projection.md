@@ -72,7 +72,7 @@ These additions are purely additive; existing emit sites default the fields. `St
 - 10 signal families = 10 `floor_<family>.json` files under `ModuleData/Enlisted/Storylets/`, following existing storylet-backbone schema (see `src/Features/Content/StoryletCatalog.cs` parser).
 - ~5 storylets per family = 50 total. Small families (`silence_with_implication`) may have as few as 3; high-variance families (`camp_talk`, `rumor`) may have 6-8.
 - Each storylet uses `profile_requires` (optional — some families are cross-profile) + `trigger` (list; `is_enlisted` + snapshot-gate predicate).
-- Snapshot-gate predicates are the same ones Plan 4 adds to `TriggerRegistry` (Phase B.5 of Plan 4). **Plan 3 declares those predicates as a dependency on Plan 4's trigger extensions.** If Plan 3 ships before Plan 4's Phase B.5, authored floor storylets may use placeholder gates (e.g. `quality_gte:scrutiny:30` on existing quality) until Plan 4's gates land.
+- Snapshot-gate predicates are the same ones Plan 4 adds to `TriggerRegistry` (Phase B.5 of Plan 4). **Plan 3 declares those predicates as a dependency on Plan 4's trigger extensions.** If Plan 3 ships before Plan 4's Phase B.5, authored floor storylets may use placeholder gates (e.g. `quality_gte:scrutiny:30` on existing quality) until Plan 4's gates land. Plan 4 shipped 2026-04-22 — the snapshot predicates are now live; a follow-up authoring pass can tighten floor-storylet triggers at any time.
 
 ### Single-option floor storylets
 
@@ -1829,7 +1829,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 - **Plan 1 dependency:** Plan 3 hard-requires `EnlistedCampaignIntelligenceBehavior.Current` + `RecentChangeFlags` + all Plan 1 snapshot enums. Plan 3 does not ship until Plan 1 ships.
 - **Plan 2 relationship:** Plan 2 (AI intervention) is independent of Plan 3. They can ship in either order.
-- **Plan 4 integration:** Plan 4 Phase B.5 adds snapshot-backed `TriggerRegistry` predicates (e.g. `snapshot_supply_pressure_gte:2`). Plan 3's floor-storylet authoring (T16-T25) uses PLACEHOLDER gates (existing `quality_gte` on existing qualities like `scrutiny`) until Plan 4's predicates land. A follow-up authoring pass after Plan 4 ships refines the triggers to use the richer snapshot predicates — scope out of Plan 3.
+- **Plan 4 integration:** Plan 4 Phase B.5 adds snapshot-backed `TriggerRegistry` predicates (e.g. `snapshot_supply_pressure_gte:2`). Plan 3's floor-storylet authoring (T16-T25) uses PLACEHOLDER gates (existing `quality_gte` on existing qualities like `scrutiny`) until Plan 4's predicates land. A follow-up authoring pass after Plan 4 ships refines the triggers to use the richer snapshot predicates — scope out of Plan 3. Plan 4 shipped 2026-04-22 (`ca22111..0c519d3`) — the follow-up authoring pass is now actionable.
 - **Plan 5 relationship:** Plan 5 (career loop closure) authors culture/trait overlays on hot-path storylets. Plan 3's floor storylets CAN be overlay targets if any prove to be hot-path; that identification happens in Plan 5's overlay-audit phase.
 - **Shared code surface with Plans 2/4/5:** none. Plan 3 writes to `src/Features/CampaignIntelligence/Signals/` + adds optional fields to `src/Features/Content/StoryCandidate.cs` + modifies one emit site in `src/Features/Activities/Orders/DailyDriftApplicator.cs`. None of those are touched by Plans 2/4/5.
 

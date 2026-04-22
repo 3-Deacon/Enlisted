@@ -109,7 +109,7 @@ At T26 close (commit `189e75c`):
 
 - **Localization XML sync deferred.** 192 new loc-keys (48 storylets × 4 keys each for `title` / `setup` / option `text` / option `tooltip`). All authored as inline `{=key}Fallback`; the game falls back to inline text at runtime (zero runtime impact). `Tools/Validation/sync_event_strings.py` identifies missing keys and can generate an XML payload via `--generate output.xml`; a future translator pass integrates the delta into `ModuleData/Languages/enlisted_strings.xml`.
 
-- **Floor-storylet trigger calibration.** All 48 storylets currently gate on `["is_enlisted"]`; family-level relevance is enforced in `SignalBuilder` (e.g., `TensionIncident` only emits when `ArmyStrain >= Elevated`). Plan 4 Phase B.5 adds `snapshot_*_gte:level` predicates to `TriggerRegistry`; once those land, a follow-up authoring pass can refine storylet-level triggers for finer gating. Out of Plan 3 scope.
+- **Floor-storylet trigger calibration.** All 48 storylets currently gate on `["is_enlisted"]`; family-level relevance is enforced in `SignalBuilder` (e.g., `TensionIncident` only emits when `ArmyStrain >= Elevated`). Plan 4 Phase B.5 added `snapshot_*_gte:level` predicates to `TriggerRegistry` (shipped 2026-04-22 with Plan 4, `ca22111..0c519d3`). A follow-up authoring pass can now refine storylet-level triggers for finer gating — no longer blocked.
 
 - **Signal thresholds are seed values.** `SignalBuilder`'s threshold choices (e.g., `FrontPressure.High` for Rumor elevation, `ArmyStrainLevel.Elevated` for TensionIncident, `SupplyPressure.Strained` for QuartermasterWarning) reflect the design spec's initial reading. They may need recalibration once T28 smoke data and longer playtests land — simple enum bumps in `EnlistedCampaignSignalBuilder`, no architectural change.
 
@@ -121,7 +121,7 @@ At T26 close (commit `189e75c`):
 
 - **Plan 2 — independent.** Lord AI Intervention (wrappers + narrow Harmony) does not share code with Plan 3. Plan 2 may ship before or after; no ordering constraint.
 
-- **Plan 4 integration point.** Plan 4 Phase B.5 introduces snapshot-backed `TriggerRegistry` predicates (`snapshot_front_pressure_gte:High`, `snapshot_army_strain_gte:Elevated`, etc.). Plan 3 floor storylets **do not use those yet** — they gate with the placeholder `is_enlisted` trigger. Once Plan 4 lands, a follow-up authoring pass can refine per-storylet relevance (e.g., a specific `floor_tension_incident` variant that fires only on `ArmyStrainLevel.Severe`). Plan 3 does not block Plan 4.
+- **Plan 4 integration point.** Plan 4 Phase B.5 introduced snapshot-backed `TriggerRegistry` predicates (`snapshot_front_pressure_gte:High`, `snapshot_army_strain_gte:Elevated`, etc.) on 2026-04-22. Plan 3 floor storylets **do not yet use them** — they still gate on the placeholder `is_enlisted` trigger. A follow-up authoring pass can now refine per-storylet relevance at any time.
 
 - **Plan 5 — compatible.** Plan 5 may identify floor storylets as overlay targets for culture/trait variants (e.g., a Battanian-flavored `floor_camp_talk` overlay). Plan 3 doesn't constrain Plan 5 — floor storylets are valid overlay candidates with no special handling required.
 
@@ -196,4 +196,4 @@ Notable architectural commits:
 
 ---
 
-**Next up:** Plan 4 (Duty Opportunities) and Plan 2 (Lord AI Intervention) are both unblocked. Plan 4 Phase B.5 is the key integration point for Plan 3's floor-storylet gating refinement.
+**Next up:** Plan 5 (Career Loop Closure) now unblocked by Plan 4 shipping 2026-04-22. Plan 4's shipped snapshot predicates mean Plan 3's floor-storylet gating can now be tightened from the `is_enlisted` placeholder to per-storylet snapshot gates in a future authoring pass.

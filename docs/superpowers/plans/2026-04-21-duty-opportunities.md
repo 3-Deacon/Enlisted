@@ -1,6 +1,6 @@
 # Duty Opportunities Implementation Plan (Plan 4 of 5)
 
-> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+> **Status:** ✅ Shipped on `development` 2026-04-22. Commit range `ca22111..0c519d3` (21 feature commits + status closure = 22 total). T26 + T27 (14-day full-profile smoke + fast-forward soak) pending human operator. Verification doc: [docs/superpowers/plans/2026-04-21-duty-opportunities-verification.md](2026-04-21-duty-opportunities-verification.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
