@@ -7035,5 +7035,81 @@
     <string id="duty_imprisoned_window_count_setup" text="The window is a slit. From it you can see a yard, a gate, and a piece of the road. You count what passes. Horses in, horses out, carts at certain hours. After three days the pattern is clear enough to sketch in your head." />
     <string id="duty_imprisoned_window_count_title" text="Counting through the bars" />
     <string id="duty_imprisoned_window_count_tt" text="Enemy pattern from a cell window. Scouting XP." />
+
+    <!-- transition_besieging_to_marching_generic -->
+    <string id="trans_b2m_gen_opt" text="Leave the wall. Take the road." />
+    <string id="trans_b2m_gen_setup" text="The siege ends without resolution. The wall stands and the lord decides not to spend more men on it. You fold up what you had and join the column heading east." />
+    <string id="trans_b2m_gen_title" text="Siege lifts. Column moves." />
+    <string id="trans_b2m_gen_tt" text="Generic siege-to-march. Partial XP." />
+    <!-- transition_besieging_to_marching_mid_order_guard_post -->
+    <string id="trans_b2m_gp_opt" text="Pack and march." />
+    <string id="trans_b2m_gp_setup" text="The signal to pull back comes without warning. You pack what you can carry and fall in with the column. The wall stays. You leave it to whoever comes next." />
+    <string id="trans_b2m_gp_title" text="The retreat horn sounds." />
+    <string id="trans_b2m_gp_tt" text="Siege broken. Column moves. Partial XP." />
+    <!-- transition_besieging_to_marching_mid_order_siege_works -->
+    <string id="trans_b2m_sw_opt" text="Break down the works. Take the road." />
+    <string id="trans_b2m_sw_setup" text="The lord changes his mind before the wall breaks. You spend a morning undoing what took a week to build — scaffolding pulled, timber stacked, earthworks filled. Then the column forms and moves." />
+    <string id="trans_b2m_sw_title" text="Tear it down. Column moves." />
+    <string id="trans_b2m_sw_tt" text="Siege abandoned mid-works. Partial XP." />
+    <!-- transition_escorting_to_wandering_mid_any -->
+    <string id="trans_e2w_opt" text="Find your own heading." />
+    <string id="trans_e2w_setup" text="No word, no ceremony. The escort destination disappears from the orders and the lord rides off without explanation. You are no longer attached to anything. Every man his own direction." />
+    <string id="trans_e2w_title" text="The army dissolves." />
+    <string id="trans_e2w_tt" text="Escort dissolved into wander. Partial XP." />
+    <!-- transition_from_imprisoned_mid_any -->
+    <string id="trans_from_imp_opt" text="Take the horse. Hear the new orders." />
+    <string id="trans_from_imp_setup" text="The gate opens and no one explains why. You walk out into daylight that is too bright and air that moves in the wrong direction. Your lord&apos;s man is waiting with a horse and a job. The job is already decided." />
+    <string id="trans_from_imp_title" text="Released. Back in harness." />
+    <string id="trans_from_imp_tt" text="Captivity ended mid-order. Readiness up. Partial XP." />
+    <!-- transition_garrisoned_to_escorting_generic -->
+    <string id="trans_g2e_gen_opt" text="Learn the new faces. Hold your tongue." />
+    <string id="trans_g2e_gen_setup" text="The garrison assignment ends and you are handed to a different lord&apos;s column. Brief introduction, no ceremony. You ride under someone else&apos;s colors now." />
+    <string id="trans_g2e_gen_title" text="Out of quarters. New banner." />
+    <string id="trans_g2e_gen_tt" text="Garrisoned into escort. Partial XP." />
+    <!-- transition_garrisoned_to_marching_mid_order_drill -->
+    <string id="trans_g2m_dr_opt" text="Sling the pack. Fall in." />
+    <string id="trans_g2m_dr_setup" text="The drill yard empties in less than two minutes. Word came down from the keep and the sergeant ended the session mid-form. You file out with the others and find a pack waiting at the gate." />
+    <string id="trans_g2m_dr_title" text="Column forms. Drill is over." />
+    <string id="trans_g2m_dr_tt" text="Drill cut short for march. Partial XP." />
+    <!-- transition_garrisoned_to_marching_mid_order_inspection -->
+    <string id="trans_g2m_ins_opt" text="Change out. Get to the column." />
+    <string id="trans_g2m_ins_setup" text="The lord&apos;s man arrived at the third rank and stopped the inspection himself. Orders came down. The garrison is moving. You are still in parade dress when the column begins to form." />
+    <string id="trans_g2m_ins_title" text="Parade cut short." />
+    <string id="trans_g2m_ins_tt" text="Inspection interrupted by march orders. Partial XP." />
+    <!-- transition_generic_interrupted -->
+    <string id="trans_gen_opt" text="Move on." />
+    <string id="trans_gen_s" text="Whatever you were doing is no longer what you are doing. New orders take over." />
+    <string id="trans_gen_t" text="Orders closed." />
+    <string id="trans_gen_tt" text="Close the order. Half-rewards." />
+    <!-- transition_marching_to_besieging_mid_order_escort -->
+    <string id="trans_m2b_esc_opt" text="Leave the wagon. Move to the siege line." />
+    <string id="trans_m2b_esc_setup" text="The escort runs out under you. New orders arrive by rider before you reach the destination — siege, not road work. The wagon sits at a waypoint while the column pivots." />
+    <string id="trans_m2b_esc_title" text="The wagon waits. Siege orders." />
+    <string id="trans_m2b_esc_tt" text="Escort cut short. Siege duty begins. Partial XP." />
+    <!-- transition_marching_to_garrisoned_mid_order_courier -->
+    <string id="trans_m2g_cou_opt" text="Hand it off. Report to the garrison." />
+    <string id="trans_m2g_cou_setup" text="The message was supposed to go further but the destination changed. The garrison took it at the gate and you are suddenly not on the road anymore. Back to quarters. Back to walls." />
+    <string id="trans_m2g_cou_title" text="Message reaches the wall." />
+    <string id="trans_m2g_cou_tt" text="Courier run closed at the wall. Partial XP." />
+    <!-- transition_marching_to_raiding_generic -->
+    <string id="trans_m2r_gen_opt" text="Leave the road. Find the target." />
+    <string id="trans_m2r_gen_setup" text="The column angles off the main road without warning. The countryside changes. You adjust your thinking and your pack." />
+    <string id="trans_m2r_gen_title" text="Off the road. Into the villages." />
+    <string id="trans_m2r_gen_tt" text="March into raid. Partial XP." />
+    <!-- transition_raiding_to_marching_mid_order_fatigue_detail -->
+    <string id="trans_r2m_fd_opt" text="Form up. March." />
+    <string id="trans_r2m_fd_setup" text="The work is finished before the detail is. Smoke still rising when the sergeant calls the column. You fall in with the others, smoke in your clothes, road ahead." />
+    <string id="trans_r2m_fd_title" text="Raid done. Back on the road." />
+    <string id="trans_r2m_fd_tt" text="Raid interrupted fatigue detail. Partial XP." />
+    <!-- transition_to_imprisoned_mid_any -->
+    <string id="trans_to_imp_opt" text="Don&apos;t fight it. Stay alive." />
+    <string id="trans_to_imp_setup" text="Enemy riders come out of the tree line before the flanks react. The column breaks into pieces. You run until you can&apos;t, then you stop running. The men who surround you are not yours." />
+    <string id="trans_to_imp_title" text="The column collapses." />
+    <string id="trans_to_imp_tt" text="Captured mid-order. Scrutiny up. Partial XP." />
+    <!-- transition_wandering_to_marching_generic -->
+    <string id="trans_w2m_gen_opt" text="Take the contract. Fall in." />
+    <string id="trans_w2m_gen_setup" text="The free movement ends with a name on a paper and a direction. You have a lord again, for now. The column has already formed. You find your place in it." />
+    <string id="trans_w2m_gen_title" text="Contract signed. Column forms." />
+    <string id="trans_w2m_gen_tt" text="Wander ended by new orders. Partial XP." />
 </strings>
 </base>
