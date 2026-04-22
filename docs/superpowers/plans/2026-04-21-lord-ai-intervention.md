@@ -2195,7 +2195,7 @@ These are not defects — they are behaviors worth observing when the 14-in-game
 
 ## Phase F closure record
 
-_(T18 appends one paragraph here at Phase F closure. Empty at plan-authoring time.)_
+**Closed 2026-04-22.** Phase H smoke (`Session-A_2026-04-22_17-59-40.log`, excerpt at [docs/Features/CampaignIntelligence/plan2-phase-h-log.md](../../Features/CampaignIntelligence/plan2-phase-h-log.md)) confirmed the model-wrapper layer addresses every design-spec §8.1-§8.3 failure mode the plan targeted. All three wrapper families fired under correct conditions with arithmetic matching the prescribed multipliers; the load-bearing T13 bait-break zeroed a 276-score EngageParty candidate and the lord pivoted from `OffensiveSiege/BesiegeSettlement` to `FrontierDefense/DefendSettlement`, which the vanilla consumer at `MobilePartyAi.cs:488` honored (score > 1f commit threshold). No AI decision path was observed where vanilla's behavior reached a consumer the wrapper layer could not reach. `EnlistedLordAiNarrowPatches.cs` stays absent from the source tree.
 
 ---
 
