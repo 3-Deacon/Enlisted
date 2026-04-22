@@ -360,6 +360,10 @@ namespace Enlisted.Mod.Entry
                     // skill-XP gains, capped at 100 per path via path_{name}_score qualities.
                     campaignStarter.AddBehavior(new Features.Activities.Orders.PathScorer());
 
+                    // Campaign Intelligence backbone: hourly recompute of the enlisted lord's strategic
+                    // situation. Exposes a read-only snapshot via EnlistedCampaignIntelligenceBehavior.Instance.Current.
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
