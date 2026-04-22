@@ -391,11 +391,12 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 - [ ] **Step 1: Write the POCO**
 
+Enlisted save types are registered through `EnlistedSaveDefiner.AddClassDefinition(typeof(X), offset)`, NOT through `[SaveableClass]` / `[SaveableField]` attributes. T1 already claims offset 49 for this type, which is the sole registration source. Author the file with `[Serializable]` only — no per-class or per-field save attributes:
+
 ```csharp
 using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.SaveSystem;
 
 namespace Enlisted.Features.CampaignIntelligence.Signals
 {
@@ -404,11 +405,9 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
     /// storylet id → last-fired CampaignTime. Cleared when enlistment ends
     /// (the emitter clears its instance on OnEnlistmentEnded).
     /// </summary>
-    [SaveableClass(735049)]
     [Serializable]
     public sealed class SignalEmissionRecord
     {
-        [SaveableField(1)]
         public Dictionary<string, CampaignTime> LastFiredAt { get; set; }
             = new Dictionary<string, CampaignTime>(StringComparer.OrdinalIgnoreCase);
 
@@ -427,17 +426,13 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 }
 ```
 
-VERIFY IN DECOMPILE: the `[SaveableClass(...)]` attribute pattern. Existing Enlisted save types do NOT use this attribute — they use the base-id + offset scheme at `EnlistedSaveDefiner.AddClassDefinition(typeof(X), offset)`. Remove the `[SaveableClass]` attribute if it conflicts with the definer registration. The definer path (offset 49 registered in T1) is sufficient.
+VERIFY IN DECOMPILE: none — this follows the existing Enlisted convention (see `QualityStore` / `FlagStore` / `NamedOrderState` for the `[Serializable]`-only pattern paired with definer-side `AddClassDefinition`).
 
-- [ ] **Step 2: Remove `[SaveableClass]` attribute** — the definer is the registration source; attributes are not used in this codebase. Keep only `[Serializable]`.
+- [ ] **Step 2: Verify container registration**
 
-- [ ] **Step 3: Remove `[SaveableField]` attributes** for the same reason. Field serialization is driven by `[Serializable]` + the save definer's `ConstructContainerDefinition` registrations — no per-field attribute needed.
+`Dictionary<string, CampaignTime>` is already registered in `EnlistedSaveDefiner.DefineContainerDefinitions()` (spec 0 backbone block — see `EnlistedSaveDefiner.cs:134`). No new `ConstructContainerDefinition` call needed.
 
-- [ ] **Step 4: Verify container registration**
-
-`Dictionary<string, CampaignTime>` is already registered in `EnlistedSaveDefiner.DefineContainerDefinitions()` (spec 0 backbone block — see `EnlistedSaveDefiner.cs:136`). No new `ConstructContainerDefinition` call needed.
-
-- [ ] **Step 5: CRLF normalize + commit**
+- [ ] **Step 3: CRLF normalize + commit**
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1 -Path src/Features/CampaignIntelligence/Signals/SignalEmissionRecord.cs
@@ -706,12 +701,13 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 
         /// <summary>
         /// Builds a drift-summary signal for DailyDriftApplicator's flush path.
-        /// Takes the formatted summary text; SignalBuilder decides which family
-        /// to render through based on the current profile.
+        /// Returns family/perspective metadata only; the summary body text is
+        /// passed separately through <see cref="EnlistedSignalEmitterBehavior.EmitExternalSignal"/>
+        /// so it lands in the candidate's RenderedBody (where the player reads it),
+        /// not in InferenceOverride (which is a short ≤80-char authored hint, wrong
+        /// semantics for an XP summary).
         /// </summary>
-        public static EnlistedCampaignSignal BuildDriftSummarySignal(
-            string summaryBody,
-            string currentDutyProfile)
+        public static EnlistedCampaignSignal BuildDriftSummarySignal(string currentDutyProfile)
         {
             // Marching / scouting / wandering feel like "scout return" summary.
             // Garrisoned / besieging / raiding / escorting feel like "camp talk."
@@ -724,8 +720,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                 Confidence = SignalConfidence.Medium,
                 ChangeType = SignalChangeType.None,
                 PoolPrefix = isMovementProfile ? "floor_scout_return_" : "floor_camp_talk_",
-                AsOf = CampaignTime.Now,
-                InferenceOverride = summaryBody // short XP-summary text, already formatted
+                AsOf = CampaignTime.Now
             };
         }
     }
@@ -1115,8 +1110,13 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             _record.LastFiredAt[storyletId] = CampaignTime.Now;
 
             // Apply single-option effects auto (floor storylets are single-option
-            // Log-tier texture with light effects).
-            Content.EffectExecutor.ExecuteOptionEffects(storylet, "main", null);
+            // Log-tier texture with light effects). EffectExecutor.Apply is the
+            // public API; lookup the "main" Choice via Storylet.Options.
+            var mainOpt = storylet.Options?.FirstOrDefault(o => o.Id == "main");
+            if (mainOpt?.Effects != null)
+            {
+                Content.EffectExecutor.Apply(mainOpt.Effects, null);
+            }
 
             ModLogger.Info("SIGNAL", $"emitted {signal.Type} storylet={storyletId} confidence={signal.Confidence}");
         }
@@ -1171,7 +1171,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 }
 ```
 
-VERIFY IN DECOMPILE: `Content.EffectExecutor.ExecuteOptionEffects` method signature and whether it accepts a null context for floor-storylet single-option auto-apply. If the signature differs, adapt or use `EffectExecutor.Execute` / `EffectExecutor.ExecuteEffects` as appropriate based on the actual public API in `src/Features/Content/EffectExecutor.cs`.
+VERIFY IN DECOMPILE: none — the `EffectExecutor.Apply(IList<EffectDecl>, StoryletContext)` signature is the public Enlisted API (see `src/Features/Content/EffectExecutor.cs:30`). The `Choice.Id` / `Choice.Effects` field names are stable (see `src/Features/Content/Choice.cs`). Floor storylets may pass a null context since the effect list here is restricted to non-slot-dependent primitives (`quality_add`, `set_flag`, etc. — slot-resolving effects require a non-null ctx).
 
 - [ ] **Step 2: CRLF normalize + commit**
 
@@ -1316,8 +1316,9 @@ private static void FlushSummary(OrderActivity activity)
 
     // Plan 3: route through SignalBuilder instead of direct emit. SignalBuilder
     // picks ScoutReturn (movement profiles) or CampTalk (camp profiles) family.
+    // The summary text itself is passed separately to EmitExternalSignal below
+    // so it lands in RenderedBody, not in the signal's metadata.
     var signal = EnlistedCampaignSignalBuilder.BuildDriftSummarySignal(
-        summary,
         activity.CurrentDutyProfile ?? "wandering");
 
     // Route through the Emitter's public API. If the emitter is not registered

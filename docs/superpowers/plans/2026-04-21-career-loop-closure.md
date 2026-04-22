@@ -185,6 +185,81 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ## Phase A — `commit_path` + `resist_path` primitives
 
+### Task T1.5: Add `SetDirect` to `QualityStore` (commit-path back door)
+
+**Files:**
+- Modify: `src/Features/Qualities/QualityStore.cs`
+
+**Why this exists.** `QualityStore.Add` / `AddForHero` / `Set` all route through the `def.Writable` check (see `QualityStore.cs:119`, `:150`, `:178`) and refuse the write when the quality is declared `writable: false` in `quality_defs.json`. The `committed_path` indicator quality is authored `writable: false` on purpose — it must be unreachable from authored content so a stray storylet `quality_set` can't forge a commit. But the `commit_path` primitive (T2) is the ONE legitimate caller that needs to bump it; a dedicated bypass method is the clean way to express that exception.
+
+`validate_content.py` Phase 12 continues to reject authored `quality_set` / `quality_add` writes to `writable: false` qualities — it scans effect JSON, not C#. `SetDirect` is a C#-only back door; storylet authors see no change.
+
+- [ ] **Step 1: Add `SetDirect` method**
+
+Insert a new public method in `QualityStore.cs` near `Set` (line 178):
+
+```csharp
+/// <summary>
+/// Writes a stored quality's value DIRECTLY, bypassing the <see cref="QualityDefinition.Writable"/>
+/// flag. Intended only for primitives that own a quality authored as read-only for storylet-authoring
+/// safety (e.g. <c>committed_path</c> via the <c>commit_path</c> primitive). Authored content cannot
+/// reach this path — validator Phase 12 continues to block <c>quality_set</c> / <c>quality_add</c>
+/// on <c>writable:false</c> qualities. Unknown qualities and ReadThrough kinds still early-exit
+/// with an Expected log — the Writable bypass applies only to Stored qualities declared in the
+/// catalog.
+/// </summary>
+public void SetDirect(string qualityId, int value, string reason)
+{
+    var def = GetDefinition(qualityId);
+    if (def == null)
+    {
+        ModLogger.Expected(
+            "QUALITY",
+            "set_direct_missing_def_" + qualityId,
+            "SetDirect on unknown quality",
+            new Dictionary<string, object> { { "id", qualityId } });
+        return;
+    }
+    if (def.Kind == QualityKind.ReadThrough)
+    {
+        ModLogger.Expected(
+            "QUALITY",
+            "set_direct_readthrough_" + qualityId,
+            "SetDirect refused: ReadThrough quality has no stored value to write",
+            new Dictionary<string, object> { { "id", qualityId } });
+        return;
+    }
+    if (!GlobalValues.TryGetValue(qualityId, out var v))
+    {
+        v = new QualityValue { Current = def.Default };
+        GlobalValues[qualityId] = v;
+    }
+    v.Current = Clamp(v.Current + (value - v.Current), def.Min, def.Max);
+    v.LastChanged = CampaignTime.Now;
+}
+```
+
+(The clamp is preserved so `committed_path: 0/1` and any future bounded indicator quality continue to respect their authored min/max.)
+
+VERIFY IN DECOMPILE: none — pure Enlisted-internal wiring.
+
+- [ ] **Step 2: Commit**
+
+```
+feat(quality): add SetDirect for read-only indicator qualities
+
+Narrow back-door write that bypasses def.Writable. Unlocks the
+commit_path primitive (Plan 5 T2) to bump committed_path, which is
+authored writable:false so storylets can't forge a commit.
+validate_content.py Phase 12 continues to reject authored writes to
+writable:false qualities — SetDirect is C# only. Rejects unknown /
+ReadThrough qualities with Expected logs. Clamps to def.Min/Max.
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
+```
+
+---
+
 ### Task T2: Add `commit_path` primitive to `EffectExecutor`
 
 **Files:**
@@ -234,7 +309,7 @@ private static void DoCommitPath(EffectDecl eff, StoryletContext ctx)
 }
 ```
 
-VERIFY IN DECOMPILE: none — internal wiring. But verify `QualityStore` has a `SetDirect` method that bypasses the Writable flag. If it doesn't, add it as a new public method in Phase A pre-requisite — the `commit_path` primitive is the sole legitimate caller.
+VERIFY IN DECOMPILE: none — internal wiring. `QualityStore.SetDirect` is the back door this primitive needs; it is added by Task T1.5 above, which runs before this task. The `commit_path` primitive is its sole legitimate caller (Phase 12 continues to block authored-content writes to `writable:false` qualities).
 
 - [ ] **Step 3: Commit**
 

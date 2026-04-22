@@ -522,58 +522,83 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 **Files:**
 - Modify: `src/Features/Content/TriggerRegistry.cs`
 
-- [ ] **Step 1: Read existing `TriggerRegistry.EvaluateOne` dispatch**
+- [ ] **Step 1: Read existing `TriggerRegistry.RegisterSeedPredicates` dispatch**
 
-Identify where predicates are parsed and dispatched. Existing shape handles `is_enlisted`, `is_at_sea`, `in_settlement`, `in_siege`, `in_mapevent`, `context:X`, `flag:X`, `quality_gte:X:N`, `quality_lte:X:N`, `rank_gte:N`, `veteran_has_flag:X`, `beat`. Supports `not:` prefix.
+Predicates are registered via `Register(name, (args, ctx) => ...)` inside `RegisterSeedPredicates()` (see `src/Features/Content/TriggerRegistry.cs:93-185`). `EvaluateOne` does the colon-split (line 65) and passes the tail as `args[]` to the registered predicate; negation via `not:` prefix is handled generically in `EvaluateOne` (lines 63, 81). Existing shape handles `is_enlisted`, `is_at_sea`, `in_settlement`, `in_siege`, `in_mapevent`, `context:X`, `flag:X`, `quality_gte:X:N`, `quality_lte:X:N`, `rank_gte:N`, `veteran_has_flag:X`, `beat`.
 
-- [ ] **Step 2: Add four new predicates**
+- [ ] **Step 2: Add four new predicates via `Register(...)` calls inside `RegisterSeedPredicates`**
 
 ```csharp
 // snapshot_supply_pressure_gte:N — gate on Plan 1 snapshot SupplyPressure ordinal
-if (pred.StartsWith("snapshot_supply_pressure_gte:", StringComparison.OrdinalIgnoreCase))
+Register("snapshot_supply_pressure_gte", (args, _) =>
 {
-    var parts = pred.Split(':');
-    if (parts.Length < 2 || !int.TryParse(parts[1], out var threshold)) return false;
+    if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+    {
+        return false;
+    }
     var snap = CampaignIntelligence.EnlistedCampaignIntelligenceBehavior.Instance?.Current;
-    if (snap == null) return false;
+    if (snap == null)
+    {
+        return false;
+    }
     return (int)snap.SupplyPressure >= threshold;
-}
+});
 
 // snapshot_army_strain_gte:N
-if (pred.StartsWith("snapshot_army_strain_gte:", StringComparison.OrdinalIgnoreCase))
+Register("snapshot_army_strain_gte", (args, _) =>
 {
-    var parts = pred.Split(':');
-    if (parts.Length < 2 || !int.TryParse(parts[1], out var threshold)) return false;
+    if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+    {
+        return false;
+    }
     var snap = CampaignIntelligence.EnlistedCampaignIntelligenceBehavior.Instance?.Current;
-    if (snap == null) return false;
+    if (snap == null)
+    {
+        return false;
+    }
     return (int)snap.ArmyStrain >= threshold;
-}
+});
 
 // snapshot_front_pressure_gte:N
-if (pred.StartsWith("snapshot_front_pressure_gte:", StringComparison.OrdinalIgnoreCase))
+Register("snapshot_front_pressure_gte", (args, _) =>
 {
-    var parts = pred.Split(':');
-    if (parts.Length < 2 || !int.TryParse(parts[1], out var threshold)) return false;
+    if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+    {
+        return false;
+    }
     var snap = CampaignIntelligence.EnlistedCampaignIntelligenceBehavior.Instance?.Current;
-    if (snap == null) return false;
+    if (snap == null)
+    {
+        return false;
+    }
     return (int)snap.FrontPressure >= threshold;
-}
+});
 
 // snapshot_recent_change:<flag_name> — expects RecentChangeFlags enum name
-if (pred.StartsWith("snapshot_recent_change:", StringComparison.OrdinalIgnoreCase))
+Register("snapshot_recent_change", (args, _) =>
 {
-    var parts = pred.Split(':');
-    if (parts.Length < 2) return false;
-    if (!Enum.TryParse<CampaignIntelligence.RecentChangeFlags>(parts[1], true, out var bit)) return false;
+    if (args.Length < 1)
+    {
+        return false;
+    }
+    if (!Enum.TryParse<CampaignIntelligence.RecentChangeFlags>(args[0], true, out var bit))
+    {
+        return false;
+    }
     var snap = CampaignIntelligence.EnlistedCampaignIntelligenceBehavior.Instance?.Current;
-    if (snap == null) return false;
+    if (snap == null)
+    {
+        return false;
+    }
     return snap.RecentChangeFlags.HasFlag(bit);
-}
+});
 ```
+
+Exception handling is generic: `EvaluateOne` wraps every predicate invocation in a `try/catch` (lines 78-88) that logs `Caught("TRIGGER", "Trigger predicate threw", ex, ...)` and returns false. Unknown predicate names are handled by the `_predicates.TryGetValue` miss at line 73, which logs `Expected("TRIGGER", "unknown_" + name, ...)` — so no hand-rolled error handling is needed inside the lambdas.
 
 VERIFY IN DECOMPILE: none direct — this is Enlisted-internal wiring.
 
-- [ ] **Step 3: `not:` prefix** — the existing `not:` dispatch already wraps inner-predicate evaluation. Confirm the new predicates work under `not:` by passing a negation test in T7.
+- [ ] **Step 3: `not:` prefix** — the existing `not:` dispatch already wraps inner-predicate evaluation at `EvaluateOne` (lines 63, 81). Confirm the new predicates work under `not:` by passing a negation test in T7.
 
 - [ ] **Step 4: Commit**
 
@@ -779,9 +804,14 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
             // Episodic: auto-apply effects for single-option floor-style storylets.
             // Multi-option storylets (duty prompts) rely on player interaction.
+            // EffectExecutor.Apply is the public API; lookup the single Choice by Id.
             if (opp.Shape == DutyOpportunityShape.Episodic && storylet.Options.Count == 1)
             {
-                EffectExecutor.ExecuteOptionEffects(storylet, "main", null);
+                var mainOpt = storylet.Options.FirstOrDefault(o => o.Id == "main");
+                if (mainOpt?.Effects != null)
+                {
+                    EffectExecutor.Apply(mainOpt.Effects, null);
+                }
             }
 
             ModLogger.Info("DUTY", $"emitted {opp.Shape} storylet={storyletId} reason={opp.TriggerReason}");
@@ -802,7 +832,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 }
 ```
 
-VERIFY IN DECOMPILE: `EffectExecutor.ExecuteOptionEffects` signature (same verification as Plan 3 T10); adapt to the actual public API if signature differs.
+VERIFY IN DECOMPILE: none — `EffectExecutor.Apply(IList<EffectDecl>, StoryletContext)` is the public Enlisted API (see `src/Features/Content/EffectExecutor.cs:30`) and `Choice.Id` / `Choice.Effects` are stable fields (`src/Features/Content/Choice.cs`). A null `StoryletContext` is safe here because the "main" Choice on a floor/episodic storylet uses primitives that don't read slots (`quality_add`, `set_flag`, etc.); slot-resolving effects would require a real ctx.
 
 - [ ] **Step 2: CRLF + commit**
 
