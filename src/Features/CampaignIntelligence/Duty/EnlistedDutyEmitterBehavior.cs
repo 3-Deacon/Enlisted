@@ -7,6 +7,7 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
 
 namespace Enlisted.Features.CampaignIntelligence.Duty
 {
@@ -23,10 +24,13 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         public static EnlistedDutyEmitterBehavior Instance { get; private set; }
 
         private DutyCooldownStore _cooldowns = new DutyCooldownStore();
+        private readonly Queue<string> _recentEmittedIds = new Queue<string>();
         private int _lastHeartbeatHourTick = int.MinValue / 2;
 
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
+        private const int RECENT_HISTORY_SIZE = 3;
+        private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
         public override void RegisterEvents()
         {
@@ -137,16 +141,21 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 return IsEligibleForEmit(direct) ? direct : null;
             }
 
-            // Episodic: first-match pool scan. T10 replaces this with a
-            // weighted-diversity picker.
-            if (string.IsNullOrEmpty(opp.PoolPrefix))
+            return PickEpisodicFromPool(opp.PoolPrefix);
+        }
+
+        private Storylet PickEpisodicFromPool(string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix))
             {
                 return null;
             }
 
+            var eligible = new List<(Storylet s, float weight)>();
+
             foreach (var s in StoryletCatalog.All)
             {
-                if (s?.Id == null || !s.Id.StartsWith(opp.PoolPrefix, StringComparison.OrdinalIgnoreCase))
+                if (s?.Id == null || !s.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -154,9 +163,45 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 {
                     continue;
                 }
-                return s;
+
+                var w = s.WeightFor(null);
+                foreach (var recent in _recentEmittedIds)
+                {
+                    if (string.Equals(recent, s.Id, StringComparison.OrdinalIgnoreCase))
+                    {
+                        w *= RECENT_PENALTY_PER_HIT;
+                    }
+                }
+
+                if (w > 0f)
+                {
+                    eligible.Add((s, w));
+                }
             }
-            return null;
+
+            if (eligible.Count == 0)
+            {
+                return null;
+            }
+
+            var total = 0f;
+            foreach (var e in eligible)
+            {
+                total += e.weight;
+            }
+
+            var roll = MBRandom.RandomFloat * total;
+            var acc = 0f;
+            foreach (var e in eligible)
+            {
+                acc += e.weight;
+                if (roll <= acc)
+                {
+                    return e.s;
+                }
+            }
+
+            return eligible[eligible.Count - 1].s;
         }
 
         private bool IsEligibleForEmit(Storylet storylet)
@@ -204,6 +249,15 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             });
 
             _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+
+            if (opp.Shape == DutyOpportunityShape.Episodic)
+            {
+                _recentEmittedIds.Enqueue(storylet.Id);
+                while (_recentEmittedIds.Count > RECENT_HISTORY_SIZE)
+                {
+                    _recentEmittedIds.Dequeue();
+                }
+            }
 
             // Episodic Log-tier storylets don't render a modal, so their single-option
             // effects must auto-apply. Multi-option storylets rely on player interaction.
