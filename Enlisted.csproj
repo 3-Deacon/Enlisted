@@ -446,6 +446,13 @@
     <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedMobilePartyAiModel.cs"/>
 
     <!-- ====================================================================
+         DUTY OPPORTUNITIES (Plan 4 of 5)
+         ==================================================================== -->
+    <Compile Include="src\Features\CampaignIntelligence\Duty\DutyOpportunity.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Duty\DutyOpportunityShape.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Duty\DutyCooldownStore.cs"/>
+
+    <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->
     <Compile Include="src\Features\Conditions\PlayerConditionModels.cs"/>
