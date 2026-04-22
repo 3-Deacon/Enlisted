@@ -2174,7 +2174,66 @@ Every implementer subagent MUST verify prescribed APIs against `../Decompile/` b
 
 ## API Corrections Appendix
 
-_(Implementers append entries here as they discover plan-vs-decompile drift. Empty at plan-authoring time.)_
+### T3: save-attribute convention
+
+**Prescribed:** `[Serializable]` POCO with `[SaveableProperty(N)]` attributes on every property; `using TaleWorlds.SaveSystem;`.
+**Actual in this mod:** `[Serializable]`-only classes without `[SaveableProperty]` attributes. Fields serialize via the owning `CampaignBehaviorBase.SyncData` calling `dataStore.SyncData(key, ref obj)` — TaleWorlds walks public fields by reflection. See `src/Features/Qualities/QualityStore.cs:15` and `src/Features/Flags/FlagStore.cs:13` for the idiom.
+**Patch applied:** authored `EnlistedLordIntelligenceSnapshot` without `[SaveableProperty]` + dropped `using TaleWorlds.SaveSystem;` (commit `56bea2f`).
+
+### T9: `MobileParty.LimitedPartySize`
+
+**Prescribed:** `party.LimitedPartySize` (int).
+**Actual in decompile:** does not exist. `MobileParty.PartySizeRatio` (float) is the native property that pre-computes members/limit.
+**Patch applied:** read `party.PartySizeRatio` directly into `inputs.PartySizeRatio` (commit `fe037b7`).
+
+### T9: `MobileParty.GetTotalFoodAtInventory()`
+
+**Prescribed:** method returning daily food consumption.
+**Actual in decompile:** method does not exist. `MobileParty.FoodChange` (float) is the daily net delta (negative = net consumption).
+**Patch applied:** `foodChange < -0.001f ? party.Food / -foodChange : +Infinity` with epsilon guard against near-zero divisions (commit `fe037b7`).
+
+### T9: `PartyRoster.TotalManCount` / `TotalWounded`
+
+**Prescribed:** type `PartyRoster`.
+**Actual in decompile:** the type is `TroopRoster` at `Roster/TroopRoster.cs:59,61`.
+**Patch applied:** references corrected to `TroopRoster` (commit `fe037b7`).
+
+### T10: `MobileParty.Position2D` / `Settlement.Position2D`
+
+**Prescribed:** property access `party.Position2D`.
+**Actual in decompile:** `GetPosition2D` (expression-bodied property `=> Position.ToVec2()` at `MobileParty.cs:1019` and `Settlement.cs:207`).
+**Patch applied:** call sites use `party.GetPosition2D.Distance(...)` — property access, no parens (commit `96efc5a`).
+
+### T10: `PartyBase.TotalStrength`
+
+**Prescribed:** property on PartyBase.
+**Actual in decompile:** renamed to `PartyBase.EstimatedStrength`.
+**Patch applied:** nearest-hostile strength-ratio uses `nearest.Party.EstimatedStrength / party.Party.EstimatedStrength` (commit `96efc5a`).
+
+### T12: `EnlistmentBehavior.CurrentTier`
+
+**Prescribed:** `EnlistmentBehavior.Instance?.CurrentTier`.
+**Actual:** the property is `EnlistmentBehavior.EnlistmentTier` at `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:686`.
+**Patch applied:** `inputs.PlayerTier = EnlistmentBehavior.Instance?.EnlistmentTier ?? 0` (commit `5357311`).
+
+### T12: `Hero.GetRelationWithPlayer(Hero)`
+
+**Prescribed:** `player.GetRelationWithPlayer(lord)` returning the relation.
+**Actual in decompile:** `Hero.GetRelationWithPlayer()` is parameterless (returns float, self-to-main-hero). The correct int-returning symmetric method is `Hero.GetRelation(Hero)` at `Hero.cs:2025`.
+**Patch applied:** `inputs.PlayerRelationWithLord = lord.GetRelation(player)` (commit `5357311`).
+
+### T11: `Hero.IsNoble`
+
+**Prescribed:** `prisoner.IsNoble` on Hero.
+**Actual in decompile:** property does not exist on `Hero`. `Clan.IsNoble` is the only noble flag (member of noble clan).
+**Patch applied:** important-prisoner check uses `prisoner.Clan?.IsNoble == true` (commit `5357311`).
+
+### T13: first-tick `ObjectiveShift` artifact (design decision)
+
+**Prescribed:** `DetectDeltas(previous, current)` returns `None` on `previous == null`; otherwise computes deltas.
+**Issue discovered during implementation:** after `EnsureInitialized` seats `_working` with `Clear()` defaults, the first real hourly tick compares live state against those defaults and spuriously fires `ObjectiveShift`, `NewThreat`, `SiegeTransition`, `SupplyBreak`.
+**Resolution (user-approved):** added `private bool _primedOnce` to the behavior. T19's `HandleHourlyTick` passes `_primedOnce ? _working : null` as `previous` to `Classify`. Reset to `false` in both enlist/end handlers; set to `true` after first successful classify. Persisted across save/load per T23 (commit `f935dc5`).
+**Idiom mirror:** `EnlistmentBehavior._initializationTicksRemaining = 5` (existing skip-first-N-ticks pattern for post-load settling).
 
 ---
 
