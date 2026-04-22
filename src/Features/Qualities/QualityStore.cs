@@ -180,6 +180,43 @@ namespace Enlisted.Features.Qualities
             Add(qualityId, value - Get(qualityId), reason);
         }
 
+        /// <summary>
+        /// Writes a Stored quality's value directly, bypassing the <c>def.Writable</c> check
+        /// so C# primitives can update a read-only indicator quality that authored content is
+        /// forbidden to touch. Rejects unknown quality ids and ReadThrough qualities (which have
+        /// no stored value to write) by logging and returning. Clamps the written value into
+        /// <c>[def.Min, def.Max]</c> and updates <c>LastChanged</c>.
+        /// </summary>
+        public void SetDirect(string qualityId, int value, string reason)
+        {
+            var def = GetDefinition(qualityId);
+            if (def == null)
+            {
+                ModLogger.Expected(
+                    "QUALITY",
+                    "set_direct_missing_def_" + qualityId,
+                    "SetDirect on unknown quality",
+                    new Dictionary<string, object> { { "id", qualityId } });
+                return;
+            }
+            if (def.Kind == QualityKind.ReadThrough)
+            {
+                ModLogger.Expected(
+                    "QUALITY",
+                    "set_direct_readthrough_" + qualityId,
+                    "SetDirect refused: ReadThrough quality has no stored value to write",
+                    new Dictionary<string, object> { { "id", qualityId } });
+                return;
+            }
+            if (!GlobalValues.TryGetValue(qualityId, out var v))
+            {
+                v = new QualityValue { Current = def.Default };
+                GlobalValues[qualityId] = v;
+            }
+            v.Current = Clamp(value, def.Min, def.Max);
+            v.LastChanged = CampaignTime.Now;
+        }
+
         /// <summary>Called by QualityBehavior on daily tick. Applies decay rules to stored qualities.</summary>
         public void ApplyDecayTick(CampaignTime now)
         {
