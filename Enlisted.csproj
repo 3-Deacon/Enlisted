@@ -437,6 +437,14 @@
     <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedSignalEmitterBehavior.cs"/>
 
     <!-- ====================================================================
+         LORD AI INTERVENTION (Plan 2 of 5)
+         ==================================================================== -->
+    <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedAiGate.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedTargetScoreModel.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedArmyManagementModel.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Models\EnlistedMobilePartyAiModel.cs"/>
+
+    <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->
     <Compile Include="src\Features\Conditions\PlayerConditionModels.cs"/>
