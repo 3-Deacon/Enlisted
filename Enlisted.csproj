@@ -434,6 +434,7 @@
     <Compile Include="src\Features\CampaignIntelligence\Signals\SignalChangeType.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedCampaignSignalBuilder.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Signals\SignalEmissionRecord.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedSignalEmitterBehavior.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
