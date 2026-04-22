@@ -72,6 +72,9 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Campaign Intelligence backbone (Plan 1 of 5) — offset 48
             AddClassDefinition(typeof(Features.CampaignIntelligence.EnlistedLordIntelligenceSnapshot), 48);
+
+            // Signal Projection (Plan 3 of 5) — offset 49
+            AddClassDefinition(typeof(Features.CampaignIntelligence.Signals.SignalEmissionRecord), 49);
         }
 
         /// <summary>
@@ -126,6 +129,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddEnumDefinition(typeof(Features.CampaignIntelligence.PrisonerStakes), 96);
             AddEnumDefinition(typeof(Features.CampaignIntelligence.PlayerTrustWindow), 97);
             AddEnumDefinition(typeof(Features.CampaignIntelligence.RecentChangeFlags), 98);
+
+            // Signal Projection enums (Plan 3 of 5) — offsets 99-101
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalType), 99);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalConfidence), 100);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalChangeType), 101);
         }
 
         /// <summary>

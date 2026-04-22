@@ -426,6 +426,17 @@
     <Compile Include="src\Features\CampaignIntelligence\EnlistedCampaignIntelligenceBehavior.cs"/>
 
     <!-- ====================================================================
+         SIGNAL PROJECTION (Plan 3 of 5)
+         ==================================================================== -->
+    <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedCampaignSignal.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\SignalType.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\SignalConfidence.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\SignalChangeType.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedCampaignSignalBuilder.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\SignalEmissionRecord.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Signals\EnlistedSignalEmitterBehavior.cs"/>
+
+    <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->
     <Compile Include="src\Features\Conditions\PlayerConditionModels.cs"/>
