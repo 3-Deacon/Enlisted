@@ -142,7 +142,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-INTELAI-0439 | base_model_missing | src/Features/CampaignIntelligence/Models/EnlistedArmyManagementModel.cs:55 |
+| E-INTELAI-0439 | base_model_missing | src/Features/CampaignIntelligence/Models/EnlistedArmyManagementModel.cs:66 |
 
 ## INTERFACE
 

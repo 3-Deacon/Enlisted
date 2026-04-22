@@ -10,7 +10,18 @@ using TaleWorlds.Localization;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
 {
-    /// <summary>Enlisted-only wrapper over <see cref="ArmyManagementCalculationModel"/> that biases call-to-army and influence-cost decisions via the Plan 1 intelligence snapshot when the identity gate matches the enlisted lord; otherwise delegates to <c>BaseModel</c> and falls back to vanilla defaults if <c>BaseModel</c> is null during a bootstrap-order regression.</summary>
+    /// <summary>
+    /// Enlisted-only wrapper over <see cref="ArmyManagementCalculationModel"/>.
+    /// Biases per-party decisions (call-to-army composition, influence cost)
+    /// via the Plan 1 intelligence snapshot when the identity gate matches
+    /// the enlisted lord; delegates the ~15 global-constant members
+    /// (<c>AIMobilePartySizeRatioToCallToArmy</c>,
+    /// <c>MinimumNeededFoodInDaysToCallToArmy</c>, etc.) unchanged to
+    /// <c>BaseModel</c> because biasing them would affect every AI lord in
+    /// Calradia and violate the enlisted-only scope. Falls back to vanilla
+    /// defaults if <c>BaseModel</c> is null during a bootstrap-order
+    /// regression.
+    /// </summary>
     public sealed class EnlistedArmyManagementModel : ArmyManagementCalculationModel
     {
         public override float AIMobilePartySizeRatioToCallToArmy =>
