@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_aftermath_notice_casualties",
+      "title": "{=floor_aftermath_notice_casualties_title}Three names added",
+      "setup": "{=floor_aftermath_notice_casualties_setup}Three names added to the rolls. A sergeant cleans his sword with a torn rag, unhurried. No one is told who they were. By morning the rolls are rewritten fair.",
+      "theme": "signal",
+      "category": "floor_aftermath_notice",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_aftermath_notice_casualties_opt}Note it.",
+          "tooltip": "{=floor_aftermath_notice_casualties_tt}Acknowledge the dead. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_aftermath_notice_village_burned",
+      "title": "{=floor_aftermath_notice_village_burned_title}A village burns behind",
+      "setup": "{=floor_aftermath_notice_village_burned_setup}A village burns behind us. Orders said to move on. The smoke climbs wrong, thick and black where thatch should be thin and gray. No one in the column looks back.",
+      "theme": "signal",
+      "category": "floor_aftermath_notice",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_aftermath_notice_village_burned_opt}Walk past.",
+          "tooltip": "{=floor_aftermath_notice_village_burned_tt}Do not look back. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_aftermath_notice_prisoners_marched",
+      "title": "{=floor_aftermath_notice_prisoners_marched_title}A column of prisoners",
+      "setup": "{=floor_aftermath_notice_prisoners_marched_setup}A column of prisoners marches behind the army, roped at the wrists. Some limp, most stare at their feet. A guard whistles something tuneless and no one joins in.",
+      "theme": "signal",
+      "category": "floor_aftermath_notice",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_aftermath_notice_prisoners_marched_opt}Avert your eyes.",
+          "tooltip": "{=floor_aftermath_notice_prisoners_marched_tt}Give them that much. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_aftermath_notice_wounded_cart",
+      "title": "{=floor_aftermath_notice_wounded_cart_title}The wounded cart",
+      "setup": "{=floor_aftermath_notice_wounded_cart_setup}The wounded cart rolls slow. Some will not make the next town. A surgeon's boy changes bandages as the wheels creak, and the wheels creak the same whether a man breathes or not.",
+      "theme": "signal",
+      "category": "floor_aftermath_notice",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_aftermath_notice_wounded_cart_opt}Keep marching.",
+          "tooltip": "{=floor_aftermath_notice_wounded_cart_tt}Nothing to do for them. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_aftermath_notice_captured_standard",
+      "title": "{=floor_aftermath_notice_captured_standard_title}A captured standard",
+      "setup": "{=floor_aftermath_notice_captured_standard_setup}A captured standard rides with us. The men are quieter than last week. No one has said it was their friend under that banner, but two sergeants pass it without looking and without speaking.",
+      "theme": "signal",
+      "category": "floor_aftermath_notice",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_aftermath_notice_captured_standard_opt}Mark the silence.",
+          "tooltip": "{=floor_aftermath_notice_captured_standard_tt}Feel the quiet. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}
