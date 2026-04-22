@@ -6404,5 +6404,119 @@
     <string id="duty_garrisoned_wounded_ward_1_setup" text="The garrison surgeon has more patients than hands. You end up holding a man still while the saw does its work, and then doing the wound-dressing on three more through the afternoon." />
     <string id="duty_garrisoned_wounded_ward_1_title" text="Wounded in the ward" />
     <string id="duty_garrisoned_wounded_ward_1_tt" text="Assist the surgeon. Medicine XP." />
+
+    <!-- duty_marching_boot_drill_1 -->
+    <string id="duty_marching_boot_drill_1_opt" text="Keep the pace. Don&apos;t fall out." />
+    <string id="duty_marching_boot_drill_1_setup" text="The column sets a hard pace and the sergeant keeps it. Your boots are wrong for the ground and your shins know it. By midday the step is automatic." />
+    <string id="duty_marching_boot_drill_1_title" text="Boot drill on the road" />
+    <string id="duty_marching_boot_drill_1_tt" text="Hard road march. Athletics XP." />
+
+    <!-- duty_marching_column_disperse_1 -->
+    <string id="duty_marching_column_disperse_1_opt" text="Memorize the rally points. Be ready." />
+    <string id="duty_marching_column_disperse_1_setup" text="Word passes back from the vanguard — the column may need to scatter and regroup off-road. The sergeant is talking routes and rally points. You listen hard because there is a chance you will need to remember this." />
+    <string id="duty_marching_column_disperse_1_title" text="Column dispersal risk" />
+    <string id="duty_marching_column_disperse_1_tt" text="Dispersal drill. Tactics XP. Readiness down." />
+
+    <!-- duty_marching_column_order_1 -->
+    <string id="duty_marching_column_order_1_opt" text="Sort the order. Move the right people." />
+    <string id="duty_marching_column_order_1_setup" text="The sergeant needs the marching order reorganized — cavalry ahead, crossbows inside, wagons last. He explains it twice and you repeat it back. Then you go and tell six people who will not listen the first time." />
+    <string id="duty_marching_column_order_1_title" text="Column order" />
+    <string id="duty_marching_column_order_1_tt" text="Reorganize the march order. Tactics + Leadership XP." />
+
+    <!-- duty_marching_halt_practice_1 -->
+    <string id="duty_marching_halt_practice_1_opt" text="Make use of the halt." />
+    <string id="duty_marching_halt_practice_1_setup" text="The column stops to water horses and you find a stretch of open ground. A crossbowman works bolts at a fence post while you run two-handed forms nearby. Neither of you speaks. Both of you improve." />
+    <string id="duty_marching_halt_practice_1_title" text="Halt practice" />
+    <string id="duty_marching_halt_practice_1_tt" text="Solo practice at road halt. TwoHanded + Crossbow XP." />
+
+    <!-- duty_marching_hillock_watch_1 -->
+    <string id="duty_marching_hillock_watch_1_opt" text="Hold the rise. Let the column pass below." />
+    <string id="duty_marching_hillock_watch_1_setup" text="You take a position on a low rise and hold it while the column passes below. Bow strung, watching the treeline. Nothing comes. That is still useful information." />
+    <string id="duty_marching_hillock_watch_1_title" text="Watch from the hillock" />
+    <string id="duty_marching_hillock_watch_1_tt" text="Flank observation with bow. Scouting + Bow XP." />
+
+    <!-- duty_marching_horse_care_1 -->
+    <string id="duty_marching_horse_care_1_opt" text="See to the animal before the mess." />
+    <string id="duty_marching_horse_care_1_setup" text="The column halts for the night and your mount needs attention before you do. Water, feed, a check of the hooves. The horse is not grateful. That is its right." />
+    <string id="duty_marching_horse_care_1_title" text="Horse care at camp stop" />
+    <string id="duty_marching_horse_care_1_tt" text="End-of-day horse care. Riding XP." />
+
+    <!-- duty_marching_night_sparring_1 -->
+    <string id="duty_marching_night_sparring_1_opt" text="Step in. Work both weapons." />
+    <string id="duty_marching_night_sparring_1_setup" text="After tents go up a small circle forms near the fires. Wasters and staves, nothing formal. It is the best kind of practice — nobody is keeping score except everyone." />
+    <string id="duty_marching_night_sparring_1_title" text="Night-camp sparring" />
+    <string id="duty_marching_night_sparring_1_tt" text="Camp sparring at night. OneHanded + Polearm XP." />
+
+    <!-- duty_marching_rain_mile_1 -->
+    <string id="duty_marching_rain_mile_1_opt" text="Head down. One foot after the other." />
+    <string id="duty_marching_rain_mile_1_setup" text="The road turns to mud past the crossroads. Rain comes sideways and the pack doubles in weight. The column does not stop. It rarely does." />
+    <string id="duty_marching_rain_mile_1_title" text="Rain on the march" />
+    <string id="duty_marching_rain_mile_1_tt" text="March through the mud. Athletics XP." />
+
+    <!-- duty_marching_rearguard_1 -->
+    <string id="duty_marching_rearguard_1_opt" text="Hold the spacing. Watch the road." />
+    <string id="duty_marching_rearguard_1_setup" text="The rearguard is three men and the road behind is empty as far as the last bend. You count paces, mark the time, and keep the intervals the captain prescribed." />
+    <string id="duty_marching_rearguard_1_title" text="Rearguard rotation" />
+    <string id="duty_marching_rearguard_1_tt" text="Rearguard duty. Tactics XP." />
+
+    <!-- duty_marching_ride_ahead_1 -->
+    <string id="duty_marching_ride_ahead_1_opt" text="Ride out. Read the ground. Come back." />
+    <string id="duty_marching_ride_ahead_1_setup" text="The sergeant puts you on the road a quarter-mile ahead of the column. Watch for ambush, crossings, and anything off. Report back before the vanguard rounds the next bend." />
+    <string id="duty_marching_ride_ahead_1_title" text="Ride-ahead scout" />
+    <string id="duty_marching_ride_ahead_1_tt" text="Mounted forward scout. Riding + Scouting XP." />
+
+    <!-- duty_marching_road_barter_1 -->
+    <string id="duty_marching_road_barter_1_opt" text="Watch and learn the peddler&apos;s method." />
+    <string id="duty_marching_road_barter_1_setup" text="A peddler works the column at the midday stop. Half the men are trading for things they do not need. You watch the exchange rate and spot two separate cons running in the same transaction." />
+    <string id="duty_marching_road_barter_1_title" text="Road barter" />
+    <string id="duty_marching_road_barter_1_tt" text="Observe roadside trade. Charm + Roguery XP." />
+
+    <!-- duty_marching_scouts_thin_1 -->
+    <string id="duty_marching_scouts_thin_1_opt" text="Go forward. Find the scouts or find the reason." />
+    <string id="duty_marching_scouts_thin_1_setup" text="The forward scouts have not reported back on schedule. The column slows. You are sent ahead on foot to pick up the trail and find out why the road ahead is quiet." />
+    <string id="duty_marching_scouts_thin_1_title" text="Scout screen is thin" />
+    <string id="duty_marching_scouts_thin_1_tt" text="Scout ahead under pressure. Scouting XP." />
+
+    <!-- duty_marching_short_rations_1 -->
+    <string id="duty_marching_short_rations_1_opt" text="Eat what there is. March anyway." />
+    <string id="duty_marching_short_rations_1_setup" text="The morning portion is half what it should be. Nobody explains it. The sergeant cuts the grumbling short and the column moves on with empty stomachs and shorter tempers." />
+    <string id="duty_marching_short_rations_1_title" text="Short rations on the road" />
+    <string id="duty_marching_short_rations_1_tt" text="Hungry column. Scrutiny up. Athletics XP." />
+
+    <!-- duty_marching_skirmish_run_1 -->
+    <string id="duty_marching_skirmish_run_1_opt" text="Sprint to the ridge. Hold the line." />
+    <string id="duty_marching_skirmish_run_1_setup" text="The captain detaches your file to screen the flank. Double time to a low ridge, javelins forward. No enemy comes, but your legs and your arm do the work anyway." />
+    <string id="duty_marching_skirmish_run_1_title" text="Skirmish run with javelins" />
+    <string id="duty_marching_skirmish_run_1_tt" text="Flank screen at speed. Athletics + Throwing XP." />
+
+    <!-- duty_marching_smoke_horizon_1 -->
+    <string id="duty_marching_smoke_horizon_1_opt" text="Watch and remember." />
+    <string id="duty_marching_smoke_horizon_1_setup" text="Two columns of smoke rise to the east. Too far to say what is burning. The column presses on. You keep your eyes on it through the afternoon, tracking direction and height." />
+    <string id="duty_marching_smoke_horizon_1_title" text="Smoke on the horizon" />
+    <string id="duty_marching_smoke_horizon_1_tt" text="Read distant signals. Scouting XP." />
+
+    <!-- duty_marching_supply_tally_1 -->
+    <string id="duty_marching_supply_tally_1_opt" text="Count everything. Write nothing down twice." />
+    <string id="duty_marching_supply_tally_1_setup" text="The quartermaster needs a count of provisions before the evening meal. You work through the wagon inventory with him: sacks, barrels, dry goods, what was sold off and what was not." />
+    <string id="duty_marching_supply_tally_1_title" text="Supply tally at camp stop" />
+    <string id="duty_marching_supply_tally_1_tt" text="Wagon inventory work. Trade + Steward XP." />
+
+    <!-- duty_marching_wagon_trouble_1 -->
+    <string id="duty_marching_wagon_trouble_1_opt" text="Get behind the wagon. Push." />
+    <string id="duty_marching_wagon_trouble_1_setup" text="The supply line is struggling. Two wagons are behind and the column cannot slow. You carry what can be carried and help push the rest up a slope that does not forgive poor footing." />
+    <string id="duty_marching_wagon_trouble_1_title" text="Wagon train in trouble" />
+    <string id="duty_marching_wagon_trouble_1_tt" text="Wagon rescue under supply stress. Athletics XP, scrutiny up." />
+
+    <!-- duty_marching_wagon_wheel_1 -->
+    <string id="duty_marching_wagon_wheel_1_opt" text="Work the wheel back on. Keep the column moving." />
+    <string id="duty_marching_wagon_wheel_1_setup" text="A supply wagon sheds a wheel on a rut and the column stops. The smith kneels by the axle and explains the fix in terms of tools you do not have and time you do not have either. You improvise." />
+    <string id="duty_marching_wagon_wheel_1_title" text="Wagon wheel repair" />
+    <string id="duty_marching_wagon_wheel_1_tt" text="Roadside repair work. Smithing + Engineering XP." />
+
+    <!-- duty_marching_wound_carry_1 -->
+    <string id="duty_marching_wound_carry_1_opt" text="Carry him back. Watch what the surgeon does." />
+    <string id="duty_marching_wound_carry_1_setup" text="A soldier collapses from a wound that opened on the march. The surgeon is at the rear of the column. You carry him. You also learn more about field dressing than you intended to." />
+    <string id="duty_marching_wound_carry_1_title" text="Carrying the wounded" />
+    <string id="duty_marching_wound_carry_1_tt" text="Field carry and dressing. Medicine XP." />
 </strings>
 </base>
