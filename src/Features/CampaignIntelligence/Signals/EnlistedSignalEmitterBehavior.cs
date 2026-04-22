@@ -26,10 +26,13 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 
         private SignalEmissionRecord _record = new SignalEmissionRecord();
         private int _lastHeartbeatHourTick = int.MinValue / 2;
+        private int _lastDailyCountReportHourTick = int.MinValue / 2;
 
         private readonly Dictionary<SignalType, Queue<string>> _recentByFamily = new Dictionary<SignalType, Queue<string>>();
+        private readonly Dictionary<SignalType, int> _sessionEmissionsByFamily = new Dictionary<SignalType, int>();
 
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
+        private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
         private const int RECENT_HISTORY_PER_FAMILY = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
@@ -66,7 +69,9 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
         {
             try
             {
+                // Heartbeat fires before the IsEnlisted gate so the log shows the tick handler is alive even when not enlisted.
                 LogHeartbeatIfDue();
+                LogDailyCountsIfDue();
 
                 if (EnlistmentBehavior.Instance?.IsEnlisted != true)
                 {
@@ -251,6 +256,13 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 
             ModLogger.Info("SIGNAL", "emitted " + signal.Type + " storylet=" + storyletId + " confidence=" + signal.Confidence);
 
+            // Per-family emission counter for diagnostic telemetry (T26).
+            if (!_sessionEmissionsByFamily.TryGetValue(signal.Type, out var count))
+            {
+                count = 0;
+            }
+            _sessionEmissionsByFamily[signal.Type] = count + 1;
+
             if (!_recentByFamily.TryGetValue(signal.Type, out var historyQueue))
             {
                 historyQueue = new Queue<string>();
@@ -318,6 +330,14 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                     SignalChangeType = signal.ChangeType,
                     SignalInference = signal.InferenceOverride
                 });
+
+                // Per-family emission counter for diagnostic telemetry (T26) — synthesized path.
+                if (!_sessionEmissionsByFamily.TryGetValue(signal.Type, out var extCount))
+                {
+                    extCount = 0;
+                }
+                _sessionEmissionsByFamily[signal.Type] = extCount + 1;
+
                 return true;
             }
 
@@ -379,6 +399,29 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             var snapPresent = EnlistedCampaignIntelligenceBehavior.Instance?.Current != null;
             var trackedStorylets = _record?.LastFiredAt?.Count ?? 0;
             ModLogger.Info("SIGNAL", "heartbeat: enlisted=" + isEnlisted + " snapshot_present=" + snapPresent + " tracked=" + trackedStorylets);
+        }
+
+        private void LogDailyCountsIfDue()
+        {
+            var nowHour = (int)CampaignTime.Now.ToHours;
+            if (nowHour - _lastDailyCountReportHourTick < DAILY_COUNT_REPORT_INTERVAL_HOURS)
+            {
+                return;
+            }
+            _lastDailyCountReportHourTick = nowHour;
+
+            if (_sessionEmissionsByFamily.Count == 0)
+            {
+                ModLogger.Info("SIGNAL", "daily_counts: no emissions this period");
+                return;
+            }
+
+            var parts = new List<string>();
+            foreach (var kv in _sessionEmissionsByFamily)
+            {
+                parts.Add(kv.Key.ToString() + "=" + kv.Value);
+            }
+            ModLogger.Info("SIGNAL", "daily_counts: " + string.Join(", ", parts));
         }
     }
 }
