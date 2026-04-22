@@ -1,5 +1,7 @@
 # Career Loop Closure Implementation Plan (Plan 5 of 5)
 
+> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Integration context:** This is Plan 5, the terminal plan in the five-plan integration roadmap — see [docs/superpowers/specs/2026-04-21-plans-integration-design.md](../specs/2026-04-21-plans-integration-design.md). Plans 1-5: (1) Campaign Intelligence Backbone; (2) Lord AI Intervention; (3) Signal Projection; (4) Duty Opportunities; **(5) Career Loop Closure — this plan**. Plan 5 closes the entire enlisted career loop: path crossroads + committed-path system + T7+ named-order variants + culture/trait overlays + debug hotkeys + save-load test + final playtest + verification doc. Plan 5 has two conceptual halves with different dependencies.

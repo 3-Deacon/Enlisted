@@ -1,5 +1,7 @@
 # Lord AI Intervention Implementation Plan (Plan 2 of 5)
 
+> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Integration context:** This is Plan 2 in the five-plan integration roadmap — see [docs/superpowers/specs/2026-04-21-plans-integration-design.md](../specs/2026-04-21-plans-integration-design.md) for the full sequence (Plan 1: Campaign Intelligence Backbone; Plan 3: Signal Projection; Plan 4: Duty Opportunities; Plan 5: Career Loop Closure). Plan 2 is one of three plans that consume Plan 1's `EnlistedCampaignIntelligenceBehavior.Current` accessor. It runs in parallel with Plans 3 and 4 after Plan 1 signs off — there is no shared code surface with Plan 3 or Plan 4 beyond Plan 1's read-only accessor and additive csproj / `SubModule.cs` entries.

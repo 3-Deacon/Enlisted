@@ -1,5 +1,7 @@
 # Signal Projection Implementation Plan (Plan 3 of 5)
 
+> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Integration context:** This is Plan 3 in the five-plan integration roadmap — see [docs/superpowers/specs/2026-04-21-plans-integration-design.md](../specs/2026-04-21-plans-integration-design.md). Plans 1-5: (1) Campaign Intelligence Backbone; (2) Lord AI Intervention; **(3) Signal Projection — this plan**; (4) Duty Opportunities; (5) Career Loop Closure. Plan 3 reads Plan 1's `EnlistedCampaignIntelligenceBehavior.Current` accessor and projects the snapshot into imperfect soldier-perspective signals for the news feed. Plan 3 ships independently of Plans 2/4/5 once Plan 1 lands.

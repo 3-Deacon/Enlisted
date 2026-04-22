@@ -1,5 +1,7 @@
 ﻿# Campaign Intelligence Backbone Implementation Plan (Plan 1 of 5)
 
+> **Status:** ✅ **Shipped 2026-04-22** on branch `development`. Commit chain `34322d4` → `bc13096` (23 commits). All 29 tasks complete except T28 (in-game manual smoke), which requires a human operator in a live Bannerlord session. Build GREEN, validators pass, first `INTEL/hourly_recompute` heartbeats confirmed in the session log.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Integration context:** This is Plan 1 in the five-plan integration roadmap — see [docs/superpowers/specs/2026-04-21-plans-integration-design.md](../specs/2026-04-21-plans-integration-design.md) for the full sequence (Plan 2: Lord AI Intervention; Plan 3: Signal Projection; Plan 4: Duty Opportunities; Plan 5: Career Loop Closure). Plan 1 is the load-bearing foundation — all four downstream plans read its `EnlistedCampaignIntelligenceBehavior.Current` accessor. No downstream plan ships code until Plan 1 lands.
