@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Enlisted.Features.CampaignIntelligence;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Flags;
 using Enlisted.Features.Qualities;
@@ -181,6 +182,71 @@ namespace Enlisted.Features.Content
                 // At the storylet layer, treat as true — the source wouldn't have called us
                 // if the beat didn't match. This is a marker, not a runtime check.
                 return true;
+            });
+
+            // Snapshot-backed gates — read from the Campaign Intelligence snapshot.
+            // Each predicate returns false when the snapshot is unavailable (no enlisted
+            // lord, or behavior not yet registered). The existing `not:` prefix in
+            // EvaluateOne applies to all four.
+
+            Register("snapshot_supply_pressure_gte", (args, _) =>
+            {
+                if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+                {
+                    return false;
+                }
+                var snap = EnlistedCampaignIntelligenceBehavior.Instance?.Current;
+                if (snap == null)
+                {
+                    return false;
+                }
+                return (int)snap.SupplyPressure >= threshold;
+            });
+
+            Register("snapshot_army_strain_gte", (args, _) =>
+            {
+                if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+                {
+                    return false;
+                }
+                var snap = EnlistedCampaignIntelligenceBehavior.Instance?.Current;
+                if (snap == null)
+                {
+                    return false;
+                }
+                return (int)snap.ArmyStrain >= threshold;
+            });
+
+            Register("snapshot_front_pressure_gte", (args, _) =>
+            {
+                if (args.Length < 1 || !int.TryParse(args[0], out var threshold))
+                {
+                    return false;
+                }
+                var snap = EnlistedCampaignIntelligenceBehavior.Instance?.Current;
+                if (snap == null)
+                {
+                    return false;
+                }
+                return (int)snap.FrontPressure >= threshold;
+            });
+
+            Register("snapshot_recent_change", (args, _) =>
+            {
+                if (args.Length < 1)
+                {
+                    return false;
+                }
+                if (!Enum.TryParse<RecentChangeFlags>(args[0], true, out var bit))
+                {
+                    return false;
+                }
+                var snap = EnlistedCampaignIntelligenceBehavior.Instance?.Current;
+                if (snap == null)
+                {
+                    return false;
+                }
+                return snap.RecentChanges.HasFlag(bit);
             });
         }
     }
