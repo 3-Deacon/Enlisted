@@ -454,6 +454,7 @@
     <Compile Include="src\Features\CampaignIntelligence\Duty\DutyCooldownStore.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Duty\EnlistedDutyOpportunityBuilder.cs"/>
     <Compile Include="src\Features\CampaignIntelligence\Duty\EnlistedDutyEmitterBehavior.cs"/>
+    <Compile Include="src\Features\CampaignIntelligence\Career\PathCrossroadsBehavior.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
