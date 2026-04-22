@@ -138,7 +138,7 @@ Use `ChainContinuation = true` for player-opted continuations (promotions, bag c
 
 Content is authored as **storylets** (`ModuleData/Enlisted/Storylets/*.json`), not as legacy `EventDefinition` JSON. State lives in `QualityStore` (typed numeric, global or per-hero) and `FlagStore` (named booleans with expiry). Durable player engagements are `Activity` subclasses with phases and intent-biased storylet pools. Effects are either named scripted effects from `ModuleData/Enlisted/Effects/scripted_effects.json` (preferred — the seed catalog has 22 entries) or registered primitives (`quality_add`, `set_flag`, `give_gold`, etc.). Triggers are named C# predicates resolved by `TriggerRegistry`. Reference: [docs/Features/Content/storylet-backbone.md](docs/Features/Content/storylet-backbone.md) (living doc — seed catalogs, trigger/slot/primitive lists, save-definer offsets, pitfalls).
 
-**Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) claim class offsets **45-60**. Grep the definer before claiming an offset — collisions corrupt saves silently.
+**Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Class offsets **45-60** are reserved for concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) AND closely-related surface-spec persistent state that surface specs own (snapshots, accessors, compact POCOs serving as sources of truth). Intelligence backbone's `EnlistedLordIntelligenceSnapshot` holds offset 48 under this broadening; Spec 2's `OrderActivity` + `NamedOrderState` hold 46/47. Grep the definer before claiming an offset — collisions corrupt saves silently. Offsets 10-14 were held by the legacy Orders subsystem (retired 2026-04-21, commit `a8719bb`) and remain reserved; do not reuse without audit.
 
 ---
 
@@ -291,8 +291,11 @@ Link, don't duplicate — open these for depth:
 15. Claiming a `SaveableTypeDefiner` offset without grepping
     `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` first. Offsets 40-44
     (classes) and 82-83 (enums) are Spec 0. Offsets 45-60 are reserved for
-    concrete `Activity` subclasses across surface specs 1-5 — see Critical
-    Rule #11.
+    concrete `Activity` subclasses AND closely-related surface-spec
+    persistent state (e.g. Intelligence snapshot at 48) — see the
+    save-definer offset convention under "Content authoring — route through
+    the storylet backbone" above. Offsets 10-14 are reserved (legacy Orders
+    subsystem retired 2026-04-21); do not reuse without audit.
 16. Authoring a scripted effect (in `ModuleData/Enlisted/Effects/scripted_effects.json`)
     whose body references another scripted effect that eventually references it
     back. `EffectExecutor` caps expansion at depth 8 and logs

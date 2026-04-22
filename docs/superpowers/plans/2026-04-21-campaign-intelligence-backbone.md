@@ -1,6 +1,8 @@
-﻿# Campaign Intelligence Backbone Implementation Plan
+﻿# Campaign Intelligence Backbone Implementation Plan (Plan 1 of 5)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Integration context:** This is Plan 1 in the five-plan integration roadmap — see [docs/superpowers/specs/2026-04-21-plans-integration-design.md](../specs/2026-04-21-plans-integration-design.md) for the full sequence (Plan 2: Lord AI Intervention; Plan 3: Signal Projection; Plan 4: Duty Opportunities; Plan 5: Career Loop Closure). Plan 1 is the load-bearing foundation — all four downstream plans read its `EnlistedCampaignIntelligenceBehavior.Current` accessor. No downstream plan ships code until Plan 1 lands.
 
 **Goal:** Build the enlisted-only campaign-intelligence backbone — a compact strategic assessment of the enlisted lord that is recomputed on a fixed cadence, persisted across save/load, and exposed through a read-only accessor. No consumers in this plan; downstream plans (AI intervention, signal projection, duty opportunities) consume the accessor.
 
@@ -46,8 +48,10 @@ public EnlistedLordIntelligenceSnapshot? Current { get; }
 ### Save-definer offsets (claim in T1 after verifying free)
 
 - Class offset: `48` — `EnlistedLordIntelligenceSnapshot`.
-- Enum offsets: `86` through `97` — 12 enums, see T2.
-- CLAUDE.md notes classes `48-60` and enums `86-99` free as of 2026-04-21. T1 greps to confirm no other in-flight branch claimed them first.
+- Enum offsets: `86` through `98` — 13 enums (12 classification enums + `RecentChangeFlags`), see T2.
+- AGENTS.md "Save-definer offset convention" was broadened 2026-04-21 to reserve class offsets 45-60 for concrete `Activity` subclasses AND closely-related surface-spec persistent state (the Intelligence snapshot falls in the latter category). Previously the reservation was strictly for `Activity` subclasses. The broadening ships alongside this plan (see AGENTS.md commit trail).
+- Offsets 10-14 were held by the legacy Orders subsystem; retired 2026-04-21 in commit `a8719bb`. Those offsets remain reserved; do not reuse.
+- T1 greps to confirm no other in-flight branch claimed 48 or 86-98 first.
 
 ---
 
