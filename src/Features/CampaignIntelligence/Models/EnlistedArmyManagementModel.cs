@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Enlisted.Features.CampaignIntelligence;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
@@ -6,13 +10,7 @@ using TaleWorlds.Localization;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
 {
-    /// <summary>
-    /// Enlisted-only wrapper over <see cref="ArmyManagementCalculationModel"/>.
-    /// Currently a pass-through to <c>BaseModel</c> for every member; intel-
-    /// driven bias on call-to-army cost and party eligibility lands in later
-    /// Plan 2 tasks. When <c>BaseModel</c> is null (bootstrap ordering
-    /// regression), each override returns a type-sensible default.
-    /// </summary>
+    /// <summary>Enlisted-only wrapper over <see cref="ArmyManagementCalculationModel"/> that biases call-to-army and influence-cost decisions via the Plan 1 intelligence snapshot when the identity gate matches the enlisted lord; otherwise delegates to <c>BaseModel</c> and falls back to vanilla defaults if <c>BaseModel</c> is null during a bootstrap-order regression.</summary>
     public sealed class EnlistedArmyManagementModel : ArmyManagementCalculationModel
     {
         public override float AIMobilePartySizeRatioToCallToArmy =>
@@ -55,8 +53,65 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float DailyBeingAtArmyInfluenceAward(MobileParty armyMemberParty) =>
             BaseModel?.DailyBeingAtArmyInfluenceAward(armyMemberParty) ?? 0f;
 
-        public override List<MobileParty> GetMobilePartiesToCallToArmy(MobileParty leaderParty) =>
-            BaseModel?.GetMobilePartiesToCallToArmy(leaderParty) ?? new List<MobileParty>();
+        public override List<MobileParty> GetMobilePartiesToCallToArmy(MobileParty leaderParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return new List<MobileParty>();
+            }
+            var vanilla = BaseModel.GetMobilePartiesToCallToArmy(leaderParty);
+
+            if (!EnlistedAiGate.TryGetSnapshotForParty(leaderParty, out var snapshot))
+            {
+                return vanilla;
+            }
+
+            // Only bias when the enlisted lord would BE the army leader. If
+            // leaderParty is some other lord's party, the gate will already
+            // have returned false — belt-and-braces leader check here.
+            if (!EnlistedAiGate.IsEnlistedLordArmyLeader()
+                && EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo != leaderParty)
+            {
+                return vanilla;
+            }
+
+            try
+            {
+                bool strained = snapshot.SupplyPressure >= SupplyPressure.Strained
+                             || snapshot.ArmyStrain >= ArmyStrainLevel.Severe
+                             || snapshot.RecoveryNeed == RecoveryNeed.High;
+
+                if (strained)
+                {
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_suppressed", vanilla.Count, 0);
+                    return new List<MobileParty>();
+                }
+
+                // Front pressure without full strain: trim the list to half so
+                // the lord calls a smaller, closer army rather than a sprawling
+                // one. Preserve ordering — vanilla list is strength-weighted at
+                // DefaultArmyManagementCalculationModel.cs:178-204.
+                if (snapshot.FrontPressure >= FrontPressure.High && vanilla.Count > 2)
+                {
+                    int trimTarget = Math.Max(2, vanilla.Count / 2);
+                    var trimmed = new List<MobileParty>(trimTarget);
+                    for (int i = 0; i < trimTarget && i < vanilla.Count; i++)
+                    {
+                        trimmed.Add(vanilla[i]);
+                    }
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_trimmed", vanilla.Count, trimmed.Count);
+                    return trimmed;
+                }
+
+                return vanilla;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTELAI", "call_to_army_bias_failed", ex);
+                return vanilla;
+            }
+        }
 
         public override int CalculateTotalInfluenceCost(Army army, float percentage) =>
             BaseModel?.CalculateTotalInfluenceCost(army, percentage) ?? 0;
