@@ -192,7 +192,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
         /// </summary>
         public static EnlistedCampaignSignal BuildDriftSummarySignal(string currentDutyProfile)
         {
-            // Marching / scouting / wandering feel like "scout return" summary.
+            // Marching / wandering feel like "scout return" summary.
             // Garrisoned / besieging / raiding / escorting feel like "camp talk."
             var isMovementProfile = currentDutyProfile == "marching"
                 || currentDutyProfile == "wandering";

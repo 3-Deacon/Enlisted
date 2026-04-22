@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.CampaignIntelligence.Signals;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
@@ -118,11 +119,6 @@ namespace Enlisted.Features.Activities.Orders
                     return;
                 }
 
-                if (!OrdersNewsFeedThrottle.TryClaim())
-                {
-                    return;
-                }
-
                 FlushSummary(activity);
             }
             catch (Exception ex)
@@ -143,19 +139,42 @@ namespace Enlisted.Features.Activities.Orders
                 });
             var summary = "Past few days: " + string.Join(", ", pieces) + " XP.";
 
-            StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-            {
-                SourceId = "orders.drift.summary",
-                CategoryId = "orders.drift",
-                ProposedTier = StoryTier.Log,
-                EmittedAt = CampaignTime.Now,
-                RenderedTitle = "Service notes",
-                RenderedBody = summary,
-                StoryKey = "orders_drift_summary"
-            });
+            // Route through SignalBuilder → EmitExternalSignal. Builder selects
+            // ScoutReturn for movement profiles (marching / wandering) and
+            // CampTalk for camp profiles. Emitter owns the throttle gate and
+            // pool lookup; the summary text is passed separately so it lands
+            // in RenderedBody instead of the signal's metadata.
+            var signal = EnlistedCampaignSignalBuilder.BuildDriftSummarySignal(
+                activity.CurrentDutyProfile ?? "wandering");
 
-            activity.DriftPendingXp.Clear();
-            ModLogger.Info("DRIFT", $"Flushed summary: {summary}");
+            var emitter = EnlistedSignalEmitterBehavior.Instance;
+            bool emitted;
+            if (emitter != null)
+            {
+                emitted = emitter.EmitExternalSignal(signal, summary);
+            }
+            else
+            {
+                // Boot-ordering fallback: emitter not yet registered. Direct
+                // Log-tier emit preserves the pre-T14 delivery contract.
+                StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "orders.drift.summary",
+                    CategoryId = "orders.drift",
+                    ProposedTier = StoryTier.Log,
+                    EmittedAt = CampaignTime.Now,
+                    RenderedTitle = "Service notes",
+                    RenderedBody = summary,
+                    StoryKey = "orders_drift_summary"
+                });
+                emitted = true;
+            }
+
+            if (emitted)
+            {
+                activity.DriftPendingXp.Clear();
+                ModLogger.Info("DRIFT", "flushed summary via signals: " + summary);
+            }
         }
     }
 }

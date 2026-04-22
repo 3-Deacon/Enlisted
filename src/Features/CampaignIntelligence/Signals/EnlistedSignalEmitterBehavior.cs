@@ -263,6 +263,68 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             }
         }
 
+        /// <summary>
+        /// Emits an externally-built signal through this emitter's throttle and
+        /// storylet-pool lookup. Used by <see cref="DailyDriftApplicator"/>'s
+        /// flush path so its drift summary text wears the same signal-pipeline
+        /// metadata (family, perspective, cooldown) as state-driven emissions
+        /// without re-running SignalBuilder. <paramref name="bodyText"/> is the
+        /// caller's authoritative body: on a pool hit it's passed to
+        /// <see cref="EmitPicked"/> as <c>overrideBody</c> so the storylet's
+        /// atmospheric Setup is NOT substituted for the caller's content; on a
+        /// pool miss it's written directly into a synthesized candidate's
+        /// <c>RenderedBody</c>. Titles still come from the storylet (hit) or a
+        /// short default (miss) — only the body is caller-owned.
+        /// Returns true when an emit reached StoryDirector, false when the
+        /// throttle rejected or the signal was null.
+        /// </summary>
+        public bool EmitExternalSignal(EnlistedCampaignSignal signal, string bodyText)
+        {
+            if (signal == null)
+            {
+                return false;
+            }
+            if (!OrdersNewsFeedThrottle.TryClaim())
+            {
+                return false;
+            }
+
+            var storyletId = PickStoryletFromPool(signal.PoolPrefix, signal.Type);
+            if (storyletId == null)
+            {
+                // Pool empty for this family — synthesize a direct emit so the
+                // caller's body still reaches the player. Pool-tracking state
+                // (LastFiredAt, _recentByFamily) is intentionally skipped: no
+                // storylet was selected, so there's nothing to record.
+                var director = StoryDirector.Instance;
+                if (director == null)
+                {
+                    ModLogger.Expected("SIGNAL", "no_director_external", "StoryDirector.Instance null at external emit");
+                    return false;
+                }
+
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "signal." + signal.Type.ToString().ToLowerInvariant(),
+                    CategoryId = "signal." + signal.Type.ToString().ToLowerInvariant(),
+                    ProposedTier = StoryTier.Log,
+                    EmittedAt = CampaignTime.Now,
+                    RenderedTitle = "Service notes",
+                    RenderedBody = bodyText,
+                    StoryKey = "signal_drift_summary",
+                    SourcePerspective = DefaultPerspectiveFor(signal.Type),
+                    SignalConfidence = signal.Confidence,
+                    SignalRecency = SignalRecency.Immediate,
+                    SignalChangeType = signal.ChangeType,
+                    SignalInference = signal.InferenceOverride
+                });
+                return true;
+            }
+
+            EmitPicked(signal, storyletId, overrideBody: bodyText);
+            return true;
+        }
+
         private SourcePerspective DefaultPerspectiveFor(SignalType type)
         {
             switch (type)
