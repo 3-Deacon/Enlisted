@@ -16,28 +16,28 @@ namespace Enlisted.Features.CampaignIntelligence.Models
     public sealed class EnlistedArmyManagementModel : ArmyManagementCalculationModel
     {
         public override float AIMobilePartySizeRatioToCallToArmy =>
-            BaseModel?.AIMobilePartySizeRatioToCallToArmy ?? 0.5f;
+            BaseModel?.AIMobilePartySizeRatioToCallToArmy ?? 0.6f;
 
         public override float PlayerMobilePartySizeRatioToCallToArmy =>
-            BaseModel?.PlayerMobilePartySizeRatioToCallToArmy ?? 0.5f;
+            BaseModel?.PlayerMobilePartySizeRatioToCallToArmy ?? 0.4f;
 
         public override float MinimumNeededFoodInDaysToCallToArmy =>
-            BaseModel?.MinimumNeededFoodInDaysToCallToArmy ?? 3f;
+            BaseModel?.MinimumNeededFoodInDaysToCallToArmy ?? 15f;
 
         public override float MaximumDistanceToCallToArmy =>
             BaseModel?.MaximumDistanceToCallToArmy ?? 150f;
 
         public override int InfluenceValuePerGold =>
-            BaseModel?.InfluenceValuePerGold ?? 1;
+            BaseModel?.InfluenceValuePerGold ?? 40;
 
         public override int AverageCallToArmyCost =>
-            BaseModel?.AverageCallToArmyCost ?? 50;
+            BaseModel?.AverageCallToArmyCost ?? 20;
 
         public override int CohesionThresholdForDispersion =>
-            BaseModel?.CohesionThresholdForDispersion ?? 30;
+            BaseModel?.CohesionThresholdForDispersion ?? 10;
 
         public override float MaximumWaitTime =>
-            BaseModel?.MaximumWaitTime ?? 5f;
+            BaseModel?.MaximumWaitTime ?? 72f;
 
         public override bool CanPlayerCreateArmy(out TextObject disabledReason)
         {

@@ -15,7 +15,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
     public sealed class EnlistedMobilePartyAiModel : MobilePartyAIModel
     {
         public override float AiCheckInterval =>
-            BaseModel?.AiCheckInterval ?? 1f;
+            BaseModel?.AiCheckInterval ?? 0.25f;
 
         public override float FleeToNearbyPartyRadius =>
             BaseModel?.FleeToNearbyPartyRadius ?? 15f;
@@ -24,25 +24,25 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             BaseModel?.FleeToNearbySettlementRadius ?? 25f;
 
         public override float HideoutPatrolDistanceAsDays =>
-            BaseModel?.HideoutPatrolDistanceAsDays ?? 1f;
+            BaseModel?.HideoutPatrolDistanceAsDays ?? 0.5f;
 
         public override float FortificationPatrolDistanceAsDays =>
-            BaseModel?.FortificationPatrolDistanceAsDays ?? 1f;
+            BaseModel?.FortificationPatrolDistanceAsDays ?? 0.3f;
 
         public override float VillagePatrolDistanceAsDays =>
-            BaseModel?.VillagePatrolDistanceAsDays ?? 1f;
+            BaseModel?.VillagePatrolDistanceAsDays ?? 0.25f;
 
         public override float SettlementDefendingNearbyPartyCheckRadius =>
             BaseModel?.SettlementDefendingNearbyPartyCheckRadius ?? 25f;
 
         public override float SettlementDefendingWaitingPositionRadius =>
-            BaseModel?.SettlementDefendingWaitingPositionRadius ?? 10f;
+            BaseModel?.SettlementDefendingWaitingPositionRadius ?? 3f;
 
         public override float NeededFoodsInDaysThresholdForSiege =>
-            BaseModel?.NeededFoodsInDaysThresholdForSiege ?? 3f;
+            BaseModel?.NeededFoodsInDaysThresholdForSiege ?? 12f;
 
         public override float NeededFoodsInDaysThresholdForRaid =>
-            BaseModel?.NeededFoodsInDaysThresholdForRaid ?? 2f;
+            BaseModel?.NeededFoodsInDaysThresholdForRaid ?? 8f;
 
         public override bool ShouldConsiderAvoiding(MobileParty party, MobileParty targetParty) =>
             BaseModel?.ShouldConsiderAvoiding(party, targetParty) ?? false;

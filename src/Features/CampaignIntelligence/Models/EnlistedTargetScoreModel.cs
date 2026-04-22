@@ -15,22 +15,22 @@ namespace Enlisted.Features.CampaignIntelligence.Models
     public sealed class EnlistedTargetScoreModel : TargetScoreCalculatingModel
     {
         public override float TravelingToAssignmentFactor =>
-            BaseModel?.TravelingToAssignmentFactor ?? 1f;
+            BaseModel?.TravelingToAssignmentFactor ?? 1.33f;
 
         public override float BesiegingFactor =>
-            BaseModel?.BesiegingFactor ?? 1f;
+            BaseModel?.BesiegingFactor ?? 1.67f;
 
         public override float AssaultingTownFactor =>
-            BaseModel?.AssaultingTownFactor ?? 1f;
+            BaseModel?.AssaultingTownFactor ?? 2f;
 
         public override float RaidingFactor =>
-            BaseModel?.RaidingFactor ?? 1f;
+            BaseModel?.RaidingFactor ?? 1.67f;
 
         public override float DefendingFactor =>
-            BaseModel?.DefendingFactor ?? 1f;
+            BaseModel?.DefendingFactor ?? 2f;
 
         public override float GetPatrollingFactor(bool isNavalPatrolling) =>
-            BaseModel?.GetPatrollingFactor(isNavalPatrolling) ?? 1f;
+            BaseModel?.GetPatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
 
         public override float GetTargetScoreForFaction(
             Settlement targetSettlement,
