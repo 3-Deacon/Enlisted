@@ -1,0 +1,221 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_rogue_t7",
+      "title": "{=order_scout_rogue_t7_title}An unofficial errand",
+      "setup": "{=order_scout_rogue_t7_setup}Your lord does not call it a scout. He calls you aside at the edge of the fire and asks if you would ride ahead, look around, and bring back whatever the column should know that would not be said out loud in front of the sergeants. You would.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_rogue"],
+      "class_affinity": {
+        "Cavalry": 1.2,
+        "HorseArcher": 1.3,
+        "Infantry": 1.0
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_rogue_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_rogue_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_rogue_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_rogue_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_rogue_t7_accept_diligent_text}Take a plain coat. Ride out the back of camp.",
+          "tooltip": "{=order_scout_rogue_t7_accept_diligent_tt}Start quiet-scout arc. Diligent.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_rogue_t7_decline_text}Beg off. The wrong eyes are on you tonight.",
+          "tooltip": "{=order_scout_rogue_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_rogue_t7_mid_vigil",
+      "title": "{=order_scout_rogue_t7_mid_vigil_title}A quiet word in a back room",
+      "setup": "{=order_scout_rogue_t7_mid_vigil_setup}A man you know from the last campaign runs an ale-house off the back road. You sit with him in the room behind the kitchen. He tells you three things. Two are worth knowing. One is worth burying.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_scout_rogue_t7_mid_vigil_main_text}Take the two. Leave the third.",
+          "tooltip": "{=order_scout_rogue_t7_mid_vigil_main_tt}Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_rogue_t7_resolve_diligent",
+      "title": "{=order_scout_rogue_t7_resolve_diligent_title}Not in the report",
+      "setup": "{=order_scout_rogue_t7_resolve_diligent_setup}You come back to camp without being seen. Your lord walks you out to the horse-line in the dark. You tell him what you learned. It does not get written down. That is the point.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_scout_rogue_t7_resolve_diligent_close_text}Finish the word. Drift back to your blanket.",
+          "tooltip": "{=order_scout_rogue_t7_resolve_diligent_close_tt}Rank XP + Roguery + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_rogue_t7",
+      "title": "{=order_escort_rogue_t7_title}A wagon the sergeants do not ask about",
+      "setup": "{=order_escort_rogue_t7_setup}A wagon rolls out of camp at dusk. The sergeant does not ask what is in it. Your lord asks you to ride beside it to the next crossroads and hand it off to a man who will not give his name. You understand the shape of the work.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_rogue"],
+      "class_affinity": {
+        "Cavalry": 1.2,
+        "Infantry": 1.0
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "escort_rogue_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_escort_rogue_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_rogue_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_rogue_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_rogue_t7_accept_diligent_text}Ride beside the wagon. No torches.",
+          "tooltip": "{=order_escort_rogue_t7_accept_diligent_tt}Start quiet-escort arc.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_rogue_t7_decline_text}Beg off. You do not like the shape of this one tonight.",
+          "tooltip": "{=order_escort_rogue_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_rogue_t7_mid_road",
+      "title": "{=order_escort_rogue_t7_mid_road_title}A patrol on the crossroads",
+      "setup": "{=order_escort_rogue_t7_mid_road_setup}A patrol from a neighboring lord sits on the crossroads with torches and questions. You have to give them a name for the wagon and a reason for the hour. You pick one.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_escort_rogue_t7_mid_road_main_text}Ride up easy. Tell them the lie you prepared.",
+          "tooltip": "{=order_escort_rogue_t7_mid_road_main_tt}Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_rogue_t7_resolve_diligent",
+      "title": "{=order_escort_rogue_t7_resolve_diligent_title}Handed off in the dark",
+      "setup": "{=order_escort_rogue_t7_resolve_diligent_setup}The wagon rolls away with a man you do not know at the reins. He nods. You nod. The transaction is finished. Your lord will not ask how you did it, only that you did.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_escort_rogue_t7_resolve_diligent_close_text}Ride back. Find your blanket.",
+          "tooltip": "{=order_escort_rogue_t7_resolve_diligent_close_tt}Rank XP + Roguery + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

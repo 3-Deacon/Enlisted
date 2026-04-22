@@ -1,0 +1,222 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_ranger_t7",
+      "title": "{=order_scout_ranger_t7_title}Ride alone",
+      "setup": "{=order_scout_ranger_t7_setup}Your lord does not call a rider. He calls you by name and points past the ridge. He has come to trust your eye for country. No second man, no sergeant — just the horse, the bow on your knee, and what you can bring back.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_ranger"],
+      "class_affinity": {
+        "Cavalry": 1.5,
+        "HorseArcher": 1.6,
+        "Ranged": 1.2
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_ranger_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_ranger_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_ranger_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_ranger_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_ranger_t7_accept_diligent_text}Ride wide. Bring the map back clean.",
+          "tooltip": "{=order_scout_ranger_t7_accept_diligent_tt}Start solo scout arc. Diligent.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_ranger_t7_decline_text}Beg off. The country is thick today.",
+          "tooltip": "{=order_scout_ranger_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_ranger_t7_mid_vigil",
+      "title": "{=order_scout_ranger_t7_mid_vigil_title}A long still hour",
+      "setup": "{=order_scout_ranger_t7_mid_vigil_setup}You sit the horse in a clump of alder and watch a valley for an hour without moving. The country tells you what it holds when you give it time. A thin line of smoke bends east — woodcutters, not soldiers. You mark it anyway.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_scout_ranger_t7_mid_vigil_main_text}Stay in cover. Watch until the hour turns.",
+          "tooltip": "{=order_scout_ranger_t7_mid_vigil_main_tt}Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_ranger_t7_resolve_diligent",
+      "title": "{=order_scout_ranger_t7_resolve_diligent_title}A clean account",
+      "setup": "{=order_scout_ranger_t7_resolve_diligent_setup}You ride in at dusk alone, as sent. Your lord reads the map without a word and folds it into his coat. He says only that he will send you again. For a ranger, that is the praise.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_scout_ranger_t7_resolve_diligent_close_text}Unsaddle. Water the horse.",
+          "tooltip": "{=order_scout_ranger_t7_resolve_diligent_close_tt}Rank XP + Scouting + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_ranger_t7",
+      "title": "{=order_escort_ranger_t7_title}Ride outside the column",
+      "setup": "{=order_escort_ranger_t7_setup}A diplomat's wagon needs a screen on the flanks, not a guard on the tailboard. Your lord sends you to range wide of the road — eyes on the country, not on the coach. You know this kind of work.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_ranger"],
+      "class_affinity": {
+        "Cavalry": 1.4,
+        "HorseArcher": 1.5,
+        "Ranged": 1.2
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "escort_ranger_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_escort_ranger_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_ranger_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_ranger_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_ranger_t7_accept_diligent_text}Out to the flanks. Eyes on the brush.",
+          "tooltip": "{=order_escort_ranger_t7_accept_diligent_tt}Start flanking-escort arc. Diligent.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_ranger_t7_decline_text}Beg off. Let another ride wide.",
+          "tooltip": "{=order_escort_ranger_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_ranger_t7_mid_road",
+      "title": "{=order_escort_ranger_t7_mid_road_title}Tracks off the road",
+      "setup": "{=order_escort_ranger_t7_mid_road_setup}Two sets of unshod hooves cross the track and turn into the pine. Fresh. You can bring the wagon to a halt and bear the trail alone, or fall back to the column and report.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_escort_ranger_t7_mid_road_main_text}Bear the trail. Quiet and wide.",
+          "tooltip": "{=order_escort_ranger_t7_mid_road_main_tt}Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_ranger_t7_resolve_diligent",
+      "title": "{=order_escort_ranger_t7_resolve_diligent_title}No trouble on the road",
+      "setup": "{=order_escort_ranger_t7_resolve_diligent_setup}The wagon rolls into camp without a scratch because nothing touched it. You rode the country, not the wheels. The merchant never saw you. Your lord knows.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_escort_ranger_t7_resolve_diligent_close_text}Hand the reins off. Walk the line.",
+          "tooltip": "{=order_escort_ranger_t7_resolve_diligent_close_tt}Rank XP + Scouting + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

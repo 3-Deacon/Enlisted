@@ -7245,5 +7245,187 @@
     <string id="path_cx_support_t9_resist" text="Not yet. Not the label." />
     <string id="path_cx_support_t9_resist_tt" text="Resist support path. Future bumps halved." />
     <string id="path_cx_support_t9_setup" text="{LORD_NAME} asks after the wounded and the sergeant names you before the surgeon. The men know the order. You are the one they want over them when the steel comes out of the bone." />
-    <string id="path_cx_support_t9_title" text="The hands the company keeps" /></strings>
+    <string id="path_cx_support_t9_title" text="The hands the company keeps" />
+    <!-- Path T7 variants (Plan 5 T7) -->
+<!-- order_escort_diplomat_t7 -->
+    <string id="order_escort_diplomat_t7_accept_diligent_text" text="Ride at his stirrup. Say little, hear everything." />
+    <string id="order_escort_diplomat_t7_accept_diligent_tt" text="Start envoy-escort arc." />
+    <string id="order_escort_diplomat_t7_decline_text" text="Beg off. Not a day for a clean tongue." />
+    <string id="order_escort_diplomat_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_escort_diplomat_t7_mid_road -->
+    <string id="order_escort_diplomat_t7_mid_road_main_text" text="Answer for him. Easy voice." />
+    <string id="order_escort_diplomat_t7_mid_road_main_tt" text="Charm XP." />
+    <string id="order_escort_diplomat_t7_mid_road_setup" text="At the town gate the envoy is asked a question he does not want to answer — about the price of grain, and who in his lord&apos;s house set it. He glances sideways. You are the one at the stirrup. You give the line that keeps the gate open." />
+    <string id="order_escort_diplomat_t7_mid_road_title" text="A question at the gate" />
+    <!-- order_escort_diplomat_t7_resolve_diligent -->
+    <string id="order_escort_diplomat_t7_resolve_diligent_close_text" text="Bow. Step back. Rack the saddle." />
+    <string id="order_escort_diplomat_t7_resolve_diligent_close_tt" text="Rank XP + Charm + relation." />
+    <string id="order_escort_diplomat_t7_resolve_diligent_setup" text="The envoy dismounts in the inner court and makes a point of thanking your lord for the soldier at his stirrup. He says your name. Your lord files it away. Names matter up here." />
+    <string id="order_escort_diplomat_t7_resolve_diligent_title" text="The envoy remembered your face" />
+    <!-- order_escort_diplomat_t7 -->
+    <string id="order_escort_diplomat_t7_setup" text="An envoy from a neighboring lord rides with a small escort, and yours rides with them. Your lord places you at the envoy&apos;s stirrup — close enough to speak, polished enough not to shame the colors. This is not a soldier&apos;s posting. It is yours now." />
+    <string id="order_escort_diplomat_t7_title" text="Ride at the envoy&apos;s stirrup" />
+    <!-- order_escort_enforcer_t7 -->
+    <string id="order_escort_enforcer_t7_accept_diligent_text" text="Shield up. Walk at the tongue." />
+    <string id="order_escort_enforcer_t7_accept_diligent_tt" text="Start front-rank escort arc." />
+    <string id="order_escort_enforcer_t7_decline_text" text="Beg off. The back feels stiff." />
+    <string id="order_escort_enforcer_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_escort_enforcer_t7_mid_road -->
+    <string id="order_escort_enforcer_t7_mid_road_main_text" text="Hold the line. Let them decide." />
+    <string id="order_escort_enforcer_t7_mid_road_main_tt" text="OneHanded XP." />
+    <string id="order_escort_enforcer_t7_mid_road_setup" text="Three men stand at the crossing with long staves and short tempers. No colors. They do not move off the road. You set the shield and take one step forward. They read you." />
+    <string id="order_escort_enforcer_t7_mid_road_title" text="Three men at the crossroads" />
+    <!-- order_escort_enforcer_t7_resolve_diligent -->
+    <string id="order_escort_enforcer_t7_resolve_diligent_close_text" text="Rack the shield. Water the men." />
+    <string id="order_escort_enforcer_t7_resolve_diligent_close_tt" text="Rank XP + OneHanded + relation." />
+    <string id="order_escort_enforcer_t7_resolve_diligent_setup" text="The merchant climbs down and will not meet your eye — not from rudeness, but from being told by men on the road that you are not a soldier to cross. Your lord heard it back before the wagon did. He nods." />
+    <string id="order_escort_enforcer_t7_resolve_diligent_title" text="The wagon came in whole" />
+    <!-- order_escort_enforcer_t7 -->
+    <string id="order_escort_enforcer_t7_setup" text="A merchant&apos;s wagon needs a man in front who looks like he means the work. Your lord puts you at the tongue of the cart with shield up. Anyone who wants at the purse will have to walk through you first." />
+    <string id="order_escort_enforcer_t7_title" text="Front of the wagon" />
+    <!-- order_escort_ranger_t7 -->
+    <string id="order_escort_ranger_t7_accept_diligent_text" text="Out to the flanks. Eyes on the brush." />
+    <string id="order_escort_ranger_t7_accept_diligent_tt" text="Start flanking-escort arc. Diligent." />
+    <string id="order_escort_ranger_t7_decline_text" text="Beg off. Let another ride wide." />
+    <string id="order_escort_ranger_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_escort_ranger_t7_mid_road -->
+    <string id="order_escort_ranger_t7_mid_road_main_text" text="Bear the trail. Quiet and wide." />
+    <string id="order_escort_ranger_t7_mid_road_main_tt" text="Scouting XP." />
+    <string id="order_escort_ranger_t7_mid_road_setup" text="Two sets of unshod hooves cross the track and turn into the pine. Fresh. You can bring the wagon to a halt and bear the trail alone, or fall back to the column and report." />
+    <string id="order_escort_ranger_t7_mid_road_title" text="Tracks off the road" />
+    <!-- order_escort_ranger_t7_resolve_diligent -->
+    <string id="order_escort_ranger_t7_resolve_diligent_close_text" text="Hand the reins off. Walk the line." />
+    <string id="order_escort_ranger_t7_resolve_diligent_close_tt" text="Rank XP + Scouting + relation." />
+    <string id="order_escort_ranger_t7_resolve_diligent_setup" text="The wagon rolls into camp without a scratch because nothing touched it. You rode the country, not the wheels. The merchant never saw you. Your lord knows." />
+    <string id="order_escort_ranger_t7_resolve_diligent_title" text="No trouble on the road" />
+    <!-- order_escort_ranger_t7 -->
+    <string id="order_escort_ranger_t7_setup" text="A diplomat&apos;s wagon needs a screen on the flanks, not a guard on the tailboard. Your lord sends you to range wide of the road — eyes on the country, not on the coach. You know this kind of work." />
+    <string id="order_escort_ranger_t7_title" text="Ride outside the column" />
+    <!-- order_escort_rogue_t7 -->
+    <string id="order_escort_rogue_t7_accept_diligent_text" text="Ride beside the wagon. No torches." />
+    <string id="order_escort_rogue_t7_accept_diligent_tt" text="Start quiet-escort arc." />
+    <string id="order_escort_rogue_t7_decline_text" text="Beg off. You do not like the shape of this one tonight." />
+    <string id="order_escort_rogue_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_escort_rogue_t7_mid_road -->
+    <string id="order_escort_rogue_t7_mid_road_main_text" text="Ride up easy. Tell them the lie you prepared." />
+    <string id="order_escort_rogue_t7_mid_road_main_tt" text="Roguery XP." />
+    <string id="order_escort_rogue_t7_mid_road_setup" text="A patrol from a neighboring lord sits on the crossroads with torches and questions. You have to give them a name for the wagon and a reason for the hour. You pick one." />
+    <string id="order_escort_rogue_t7_mid_road_title" text="A patrol on the crossroads" />
+    <!-- order_escort_rogue_t7_resolve_diligent -->
+    <string id="order_escort_rogue_t7_resolve_diligent_close_text" text="Ride back. Find your blanket." />
+    <string id="order_escort_rogue_t7_resolve_diligent_close_tt" text="Rank XP + Roguery + relation." />
+    <string id="order_escort_rogue_t7_resolve_diligent_setup" text="The wagon rolls away with a man you do not know at the reins. He nods. You nod. The transaction is finished. Your lord will not ask how you did it, only that you did." />
+    <string id="order_escort_rogue_t7_resolve_diligent_title" text="Handed off in the dark" />
+    <!-- order_escort_rogue_t7 -->
+    <string id="order_escort_rogue_t7_setup" text="A wagon rolls out of camp at dusk. The sergeant does not ask what is in it. Your lord asks you to ride beside it to the next crossroads and hand it off to a man who will not give his name. You understand the shape of the work." />
+    <string id="order_escort_rogue_t7_title" text="A wagon the sergeants do not ask about" />
+    <!-- order_escort_support_t7 -->
+    <string id="order_escort_support_t7_accept_diligent_text" text="Ride at the wheel. Keep them breathing." />
+    <string id="order_escort_support_t7_accept_diligent_tt" text="Start wounded-escort arc." />
+    <string id="order_escort_support_t7_decline_text" text="Beg off. You cannot stomach the wagon today." />
+    <string id="order_escort_support_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_escort_support_t7_mid_road -->
+    <string id="order_escort_support_t7_mid_road_main_text" text="Halt the wagon. Repack the wound." />
+    <string id="order_escort_support_t7_mid_road_main_tt" text="Medicine XP." />
+    <string id="order_escort_support_t7_mid_road_setup" text="A young trooper in the wagon bed is bleeding through the bandage again. You halt the driver long enough to repack the wound. The column will grumble about the delay. The man lives or he does not." />
+    <string id="order_escort_support_t7_mid_road_title" text="A man who will not stop bleeding" />
+    <!-- order_escort_support_t7_resolve_diligent -->
+    <string id="order_escort_support_t7_resolve_diligent_close_text" text="Wash your hands. Eat." />
+    <string id="order_escort_support_t7_resolve_diligent_close_tt" text="Rank XP + Medicine + relation." />
+    <string id="order_escort_support_t7_resolve_diligent_setup" text="Three men in the wagon, three men at the fire. One of them will lose a hand, but he will live. The surgeon tells your lord that the difference was the ride — that someone kept eyes on them through the dust. Your lord looks at you." />
+    <string id="order_escort_support_t7_resolve_diligent_title" text="All three made camp" />
+    <!-- order_escort_support_t7 -->
+    <string id="order_escort_support_t7_setup" text="The baggage wagon has three wounded in the bed — two from yesterday, one fresh. Your lord puts you beside it, not as a soldier with a shield, but as a man who will ride at the wheel and keep them alive to the next camp." />
+    <string id="order_escort_support_t7_title" text="Ride with the hurt wagon" />
+    <!-- order_scout_diplomat_t7 -->
+    <string id="order_scout_diplomat_t7_accept_diligent_text" text="Take the quiet road. Sit in the common room." />
+    <string id="order_scout_diplomat_t7_accept_diligent_tt" text="Start town-scout arc. Diligent." />
+    <string id="order_scout_diplomat_t7_decline_text" text="Beg off. You do not trust your face today." />
+    <string id="order_scout_diplomat_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_scout_diplomat_t7_mid_vigil -->
+    <string id="order_scout_diplomat_t7_mid_vigil_main_text" text="Sit quiet. Nod at the right places." />
+    <string id="order_scout_diplomat_t7_mid_vigil_main_tt" text="Charm XP." />
+    <string id="order_scout_diplomat_t7_mid_vigil_setup" text="Three men at the long table are talking about a tax the lord raised last spring. You do not join them. You order bread. You listen. Every grievance is a piece of ground the column will cross." />
+    <string id="order_scout_diplomat_t7_mid_vigil_title" text="The long table" />
+    <!-- order_scout_diplomat_t7_resolve_diligent -->
+    <string id="order_scout_diplomat_t7_resolve_diligent_close_text" text="Finish the briefing. Step back." />
+    <string id="order_scout_diplomat_t7_resolve_diligent_close_tt" text="Rank XP + Charm + relation." />
+    <string id="order_scout_diplomat_t7_resolve_diligent_setup" text="You give your lord the shape of the next town — who will open the gate, who will balk, what price will turn the bailiff. No map, no hoofprints. Words. He listens all the way through." />
+    <string id="order_scout_diplomat_t7_resolve_diligent_title" text="What the town will say" />
+    <!-- order_scout_diplomat_t7 -->
+    <string id="order_scout_diplomat_t7_setup" text="Your lord sends you ahead — not to map the ground, but to sit in the tavern of the next town and read the mood. Who is loud about the lord, who is quiet, who looks away. You have the tongue for it now." />
+    <string id="order_scout_diplomat_t7_title" text="Read the town, not the road" />
+    <!-- order_scout_enforcer_t7 -->
+    <string id="order_scout_enforcer_t7_accept_diligent_text" text="Walk the line. Touch every post." />
+    <string id="order_scout_enforcer_t7_accept_diligent_tt" text="Start perimeter arc. Diligent." />
+    <string id="order_scout_enforcer_t7_decline_text" text="Beg off. Legs hurt tonight." />
+    <string id="order_scout_enforcer_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_scout_enforcer_t7_mid_vigil -->
+    <string id="order_scout_enforcer_t7_mid_vigil_main_text" text="Wake him hard. Stand the hour yourself." />
+    <string id="order_scout_enforcer_t7_mid_vigil_main_tt" text="OneHanded XP." />
+    <string id="order_scout_enforcer_t7_mid_vigil_setup" text="You come around a stack of shields and find a sentry nodding on his spear. You can wake him hard enough to remember, or put him down for a rest and take the post yourself for an hour." />
+    <string id="order_scout_enforcer_t7_mid_vigil_title" text="A sentry half asleep" />
+    <!-- order_scout_enforcer_t7_resolve_diligent -->
+    <string id="order_scout_enforcer_t7_resolve_diligent_close_text" text="Rack the shield. Find a fire." />
+    <string id="order_scout_enforcer_t7_resolve_diligent_close_tt" text="Rank XP + OneHanded + relation." />
+    <string id="order_scout_enforcer_t7_resolve_diligent_setup" text="You report the camp sound — every post touched, every sentry awake by dawn. Your lord does not thank you, because thanking a man for his trade is thin coin. He gives you the hard nod instead. You take it." />
+    <string id="order_scout_enforcer_t7_resolve_diligent_title" text="The line held" />
+    <!-- order_scout_enforcer_t7 -->
+    <string id="order_scout_enforcer_t7_setup" text="Your lord wants the camp&apos;s edge read before the column beds down. Not a rider&apos;s scout — a soldier&apos;s, on foot, with blade at the hip. Smell the ground. Find the weak line. You are the man he sends for this." />
+    <string id="order_scout_enforcer_t7_title" text="Walk the perimeter" />
+    <!-- order_scout_ranger_t7 -->
+    <string id="order_scout_ranger_t7_accept_diligent_text" text="Ride wide. Bring the map back clean." />
+    <string id="order_scout_ranger_t7_accept_diligent_tt" text="Start solo scout arc. Diligent." />
+    <string id="order_scout_ranger_t7_decline_text" text="Beg off. The country is thick today." />
+    <string id="order_scout_ranger_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_scout_ranger_t7_mid_vigil -->
+    <string id="order_scout_ranger_t7_mid_vigil_main_text" text="Stay in cover. Watch until the hour turns." />
+    <string id="order_scout_ranger_t7_mid_vigil_main_tt" text="Scouting XP." />
+    <string id="order_scout_ranger_t7_mid_vigil_setup" text="You sit the horse in a clump of alder and watch a valley for an hour without moving. The country tells you what it holds when you give it time. A thin line of smoke bends east — woodcutters, not soldiers. You mark it anyway." />
+    <string id="order_scout_ranger_t7_mid_vigil_title" text="A long still hour" />
+    <!-- order_scout_ranger_t7_resolve_diligent -->
+    <string id="order_scout_ranger_t7_resolve_diligent_close_text" text="Unsaddle. Water the horse." />
+    <string id="order_scout_ranger_t7_resolve_diligent_close_tt" text="Rank XP + Scouting + relation." />
+    <string id="order_scout_ranger_t7_resolve_diligent_setup" text="You ride in at dusk alone, as sent. Your lord reads the map without a word and folds it into his coat. He says only that he will send you again. For a ranger, that is the praise." />
+    <string id="order_scout_ranger_t7_resolve_diligent_title" text="A clean account" />
+    <!-- order_scout_ranger_t7 -->
+    <string id="order_scout_ranger_t7_setup" text="Your lord does not call a rider. He calls you by name and points past the ridge. He has come to trust your eye for country. No second man, no sergeant — just the horse, the bow on your knee, and what you can bring back." />
+    <string id="order_scout_ranger_t7_title" text="Ride alone" />
+    <!-- order_scout_rogue_t7 -->
+    <string id="order_scout_rogue_t7_accept_diligent_text" text="Take a plain coat. Ride out the back of camp." />
+    <string id="order_scout_rogue_t7_accept_diligent_tt" text="Start quiet-scout arc. Diligent." />
+    <string id="order_scout_rogue_t7_decline_text" text="Beg off. The wrong eyes are on you tonight." />
+    <string id="order_scout_rogue_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_scout_rogue_t7_mid_vigil -->
+    <string id="order_scout_rogue_t7_mid_vigil_main_text" text="Take the two. Leave the third." />
+    <string id="order_scout_rogue_t7_mid_vigil_main_tt" text="Roguery XP." />
+    <string id="order_scout_rogue_t7_mid_vigil_setup" text="A man you know from the last campaign runs an ale-house off the back road. You sit with him in the room behind the kitchen. He tells you three things. Two are worth knowing. One is worth burying." />
+    <string id="order_scout_rogue_t7_mid_vigil_title" text="A quiet word in a back room" />
+    <!-- order_scout_rogue_t7_resolve_diligent -->
+    <string id="order_scout_rogue_t7_resolve_diligent_close_text" text="Finish the word. Drift back to your blanket." />
+    <string id="order_scout_rogue_t7_resolve_diligent_close_tt" text="Rank XP + Roguery + relation." />
+    <string id="order_scout_rogue_t7_resolve_diligent_setup" text="You come back to camp without being seen. Your lord walks you out to the horse-line in the dark. You tell him what you learned. It does not get written down. That is the point." />
+    <string id="order_scout_rogue_t7_resolve_diligent_title" text="Not in the report" />
+    <!-- order_scout_rogue_t7 -->
+    <string id="order_scout_rogue_t7_setup" text="Your lord does not call it a scout. He calls you aside at the edge of the fire and asks if you would ride ahead, look around, and bring back whatever the column should know that would not be said out loud in front of the sergeants. You would." />
+    <string id="order_scout_rogue_t7_title" text="An unofficial errand" />
+    <!-- order_scout_support_t7 -->
+    <string id="order_scout_support_t7_accept_diligent_text" text="Find water. Find shade. Find a field with a slope for drainage." />
+    <string id="order_scout_support_t7_accept_diligent_tt" text="Start surgeon-scout arc." />
+    <string id="order_scout_support_t7_decline_text" text="Beg off. The hands ache for other work." />
+    <string id="order_scout_support_t7_decline_tt" text="Decline. Relation + scrutiny hit." />
+    <!-- order_scout_support_t7_mid_vigil -->
+    <string id="order_scout_support_t7_mid_vigil_main_text" text="Note it. Drink, then move on." />
+    <string id="order_scout_support_t7_mid_vigil_main_tt" text="Medicine XP." />
+    <string id="order_scout_support_t7_mid_vigil_setup" text="You find a spring behind a tangle of blackthorn, the water running over pale stone. The flies are few. A man could die slower here than elsewhere. You mark the bearing and the path in." />
+    <string id="order_scout_support_t7_mid_vigil_title" text="A clean spring in a bad wood" />
+    <!-- order_scout_support_t7_resolve_diligent -->
+    <string id="order_scout_support_t7_resolve_diligent_close_text" text="Sit. Answer his questions." />
+    <string id="order_scout_support_t7_resolve_diligent_close_tt" text="Rank XP + Medicine + relation." />
+    <string id="order_scout_support_t7_resolve_diligent_setup" text="You deliver the ground report to the surgeon before your lord. It is the right order of precedence, and your lord does not mind — he set you to it for just that reason. The surgeon reads the notes and asks you to sit with him a minute." />
+    <string id="order_scout_support_t7_resolve_diligent_title" text="The surgeon nods" />
+    <!-- order_scout_support_t7 -->
+    <string id="order_scout_support_t7_setup" text="Your lord wants the ground ahead read for a surgeon&apos;s eye — where the water is clean, where the shade is, where a wagon of hurt men could halt without fouling. He sends you because he knows you see country that way now." />
+    <string id="order_scout_support_t7_title" text="Mark the wounded ground" />
+  </strings>
 </base>
