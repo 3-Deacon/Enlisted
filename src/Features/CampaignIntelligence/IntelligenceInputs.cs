@@ -6,12 +6,13 @@ namespace Enlisted.Features.CampaignIntelligence
 {
     /// <summary>
     /// Transient plain-data inputs produced by SnapshotCollector and consumed by
-    /// SnapshotClassifier. One instance per recompute. Fields are grouped by
-    /// Campaign Intelligence spec subsection.
+    /// SnapshotClassifier. One instance per recompute. Fields are grouped into
+    /// lord-and-party state, strategic neighborhood, information evidence, and
+    /// player relevance.
     /// </summary>
     internal struct IntelligenceInputs
     {
-        // §7.1 Lord and party state
+        // Lord and party state
         public bool LordAlive;
         public bool LordIsPrisoner;
         public bool LordIsWounded;
@@ -28,7 +29,7 @@ namespace Enlisted.Features.CampaignIntelligence
         public float PartySizeRatio;
         public float WoundedRatio;
 
-        // §7.2 Strategic neighborhood
+        // Strategic neighborhood
         public int NearbyHostileCount;
         public float NearestHostileDistance;
         public float NearestHostileStrengthRatio;
@@ -38,7 +39,7 @@ namespace Enlisted.Features.CampaignIntelligence
         public Settlement NearestThreatenedFriendly;
         public bool FrontierHeatingUp;
 
-        // §7.3 Information evidence
+        // Information evidence
         public bool HasFreshTracks;
         public bool HasEnemyBuildupEvidence;
         public bool HasGarrisonObservation;
@@ -48,7 +49,7 @@ namespace Enlisted.Features.CampaignIntelligence
         public bool RecentArmyFormation;
         public bool RecentArmyDispersal;
 
-        // §7.4 Player relevance
+        // Player relevance
         public int PlayerTier;
         public int PlayerRelationWithLord;
         public bool PlayerProximate;
