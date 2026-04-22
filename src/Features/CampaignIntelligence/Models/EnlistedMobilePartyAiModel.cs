@@ -143,20 +143,73 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             out float bestInitiativeBehaviorScore,
             out Vec2 averageEnemyVec)
         {
-            if (BaseModel != null)
+            if (BaseModel == null)
             {
-                BaseModel.GetBestInitiativeBehavior(
-                    mobileParty,
-                    out bestInitiativeBehavior,
-                    out bestInitiativeTargetParty,
-                    out bestInitiativeBehaviorScore,
-                    out averageEnemyVec);
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                bestInitiativeBehavior = AiBehavior.None;
+                bestInitiativeTargetParty = null;
+                bestInitiativeBehaviorScore = 0f;
+                averageEnemyVec = Vec2.Zero;
                 return;
             }
-            bestInitiativeBehavior = AiBehavior.None;
-            bestInitiativeTargetParty = null;
-            bestInitiativeBehaviorScore = 0f;
-            averageEnemyVec = Vec2.Zero;
+
+            BaseModel.GetBestInitiativeBehavior(
+                mobileParty,
+                out bestInitiativeBehavior,
+                out bestInitiativeTargetParty,
+                out bestInitiativeBehaviorScore,
+                out averageEnemyVec);
+
+            if (!EnlistedAiGate.TryGetSnapshotForParty(mobileParty, out var snapshot))
+            {
+                return;
+            }
+
+            // Vanilla score already below commit threshold — no bias needed.
+            if (bestInitiativeBehaviorScore <= 1f)
+            {
+                return;
+            }
+
+            // Bait-break: under High-or-greater front pressure AND the
+            // candidate initiative is an EngageParty, zero the score so the
+            // vanilla consumer at MobilePartyAi.cs:488 rejects the commit.
+            // FrontPressure alone is a reliable proxy for "there is real
+            // pressure here" because Plan 1's ClassifyFrontPressure (T14)
+            // already folds the threatened-friendly count into the enum
+            // classification — we do not need a raw count on the snapshot.
+            if (snapshot.FrontPressure >= FrontPressure.High
+                && bestInitiativeBehavior == AiBehavior.EngageParty)
+            {
+                EnlistedAiBiasHeartbeat.Record("initiative_bait_break",
+                    (int)(bestInitiativeBehaviorScore * 100), 0);
+                bestInitiativeBehaviorScore = 0f;
+                return;
+            }
+
+            // Unviable pursuit: soft-break by multiplying down. Don't zero —
+            // PursuitViability.Marginal may still be worth attempting.
+            if (snapshot.PursuitViability == PursuitViability.NotViable
+                && bestInitiativeBehavior == AiBehavior.EngageParty)
+            {
+                float biased = bestInitiativeBehaviorScore * 0.3f;
+                EnlistedAiBiasHeartbeat.Record("initiative_pursuit_weak",
+                    (int)(bestInitiativeBehaviorScore * 100), (int)(biased * 100));
+                bestInitiativeBehaviorScore = biased;
+                return;
+            }
+
+            // Severe-strain blanket: don't initiate ANY initiative when strain
+            // is breaking. The lord should accept what his DefaultBehavior
+            // already set (likely recovery) and stop probing for fights.
+            if (snapshot.ArmyStrain == ArmyStrainLevel.Breaking
+                || snapshot.RecoveryNeed == RecoveryNeed.High)
+            {
+                EnlistedAiBiasHeartbeat.Record("initiative_strain_block",
+                    (int)(bestInitiativeBehaviorScore * 100), 0);
+                bestInitiativeBehaviorScore = 0f;
+                return;
+            }
         }
     }
 }
