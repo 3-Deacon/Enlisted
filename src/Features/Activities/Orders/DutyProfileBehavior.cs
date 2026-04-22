@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -163,6 +164,11 @@ namespace Enlisted.Features.Activities.Orders
                     { "new_profile", newProfile }
                 }
             });
+
+            if (activity.ActiveNamedOrder != null)
+            {
+                TryEmitTransitionStorylet(activity, oldProfile, newProfile);
+            }
         }
 
         /// <summary>Sets the profile unconditionally, clears any pending hysteresis samples, and does not fire a profile_changed beat.</summary>
@@ -177,6 +183,94 @@ namespace Enlisted.Features.Activities.Orders
             activity.CurrentDutyProfile = profileId;
             activity.PendingProfileMatches.Clear();
             ModLogger.Info("DUTYPROFILE", $"profile_forced: {old} -> {profileId}");
+        }
+
+        private void TryEmitTransitionStorylet(OrderActivity activity, string oldProfile, string newProfile)
+        {
+            try
+            {
+                var orderId = activity.ActiveNamedOrder.OrderStoryletId;
+                if (string.IsNullOrEmpty(orderId))
+                {
+                    return;
+                }
+
+                // Fallback chain: most-specific first, then generic pair, then catch-all.
+                var candidates = new[]
+                {
+                    $"transition_{oldProfile}_to_{newProfile}_mid_{orderId}",
+                    $"transition_{oldProfile}_to_{newProfile}_generic",
+                    "transition_generic_interrupted"
+                };
+
+                var director = StoryDirector.Instance;
+                if (director == null)
+                {
+                    ModLogger.Expected("DUTYPROFILE", "transition_no_director",
+                        "StoryDirector.Instance null at transition emit");
+                    return;
+                }
+
+                foreach (var transitionId in candidates)
+                {
+                    var storylet = StoryletCatalog.GetById(transitionId);
+                    if (storylet == null)
+                    {
+                        continue;
+                    }
+
+                    var ctx = new StoryletContext
+                    {
+                        CurrentContext = "any",
+                        EvaluatedAt = CampaignTime.Now,
+                        SourceStorylet = storylet
+                    };
+
+                    EffectExecutor.Apply(storylet.Immediate, ctx);
+
+                    var evt = StoryletEventAdapter.BuildModal(storylet, ctx, null);
+                    if (evt == null)
+                    {
+                        ModLogger.Expected("DUTYPROFILE", "transition_buildmodal_null",
+                            "BuildModal returned null for transition storylet",
+                            new Dictionary<string, object>
+                            {
+                                { "storylet_id", storylet.Id }
+                            });
+                        continue;
+                    }
+
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "duty.transition",
+                        CategoryId = "duty.transition",
+                        ProposedTier = StoryTier.Modal,
+                        ChainContinuation = true,
+                        EmittedAt = CampaignTime.Now,
+                        InteractiveEvent = evt,
+                        RenderedTitle = storylet.Title,
+                        RenderedBody = storylet.Setup,
+                        StoryKey = storylet.Id
+                    });
+
+                    ModLogger.Info("DUTYPROFILE",
+                        $"transition_emitted: {storylet.Id} ({oldProfile} -> {newProfile}, order={orderId})");
+                    return;
+                }
+
+                ModLogger.Expected("DUTYPROFILE", "no_transition_storylet",
+                    "no transition storylet found for profile change mid-order",
+                    new Dictionary<string, object>
+                    {
+                        { "old_profile", oldProfile },
+                        { "new_profile", newProfile },
+                        { "order_id", orderId }
+                    });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTYPROFILE", "TryEmitTransitionStorylet threw", ex);
+            }
         }
     }
 }
