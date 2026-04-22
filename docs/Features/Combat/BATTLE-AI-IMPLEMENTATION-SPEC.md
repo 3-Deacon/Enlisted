@@ -2158,6 +2158,13 @@ public WorldPosition GetRallyPoint(Agent agent)
 
 ## 6.3 Logging Requirements
 
+Battle AI telemetry must let us inspect both sides, compare effectiveness, and understand why orders and decisions changed.
+
+The minimum questions the logs must answer are:
+- What did each army decide?
+- Why did it decide that?
+- What happened afterward that suggests the decision helped or hurt?
+
 All orchestrator decisions must be logged:
 ```
 [BattleAI] Team:Defender Strategy:DelayDefend→Exploit (PowerRatio:1.2, EnemyFlankExposed:true)
@@ -2167,11 +2174,27 @@ All orchestrator decisions must be logged:
 [BattleAI] Formation:2 MicroTacticsDisabled Reason:FormationUnstable Deviation:18.2f
 ```
 
-**Logging Levels:**
-- **INFO:** Strategic decisions (orchestrator strategy changes, plan selection, reserve commits)
-- **DEBUG:** Tactical decisions (formation objectives, cavalry state transitions, agent micro-decisions)
-- **WARN:** Issues (formation instability blocking micro-tactics, position validation failures)
-- **ERROR:** Critical failures (orchestrator null when expected, formation destroyed mid-operation)
+**Required telemetry streams:**
+- **Army snapshot heartbeat:** Emit per-side summaries on a throttled interval with troop counts, casualties, reserve state, suppression pressure, local/global power ratios, current phase, current strategy, and primary effort.
+- **Decision/change events:** Emit whenever strategy, phase, reserve posture, or formation objective changes. Include previous state, new state, top factors, and any blocked alternatives/cooldowns.
+- **Intervention/order events:** Emit whenever the AI changes behavior weights, issues major movement/role changes, commits reserves, or triggers withdrawal logic.
+- **Outcome windows:** After major decisions, log a delayed follow-up describing whether the local/global state improved, stalled, or worsened.
+- **Battle-end summary:** Emit one compact report for both sides covering casualties inflicted/taken, reserve effectiveness, time spent per strategy, churn count for plan/phase changes, and notable successful/failed interventions.
+
+**Logging levels / repo conventions:**
+- **INFO:** Strategic decisions, phase changes, reserve commits, battle summaries, and tester-facing army snapshots
+- **DEBUG:** Tactical scoring, rejected options, formation objectives, cavalry state transitions, sampled agent micro-decisions
+- **WARN:** Unexpected but recoverable Battle AI issues
+- **Caught:** Defensive exception logging for Battle AI internals
+- **Surfaced:** Player/dev-visible Battle AI failures that materially break the feature
+- **Expected:** Guard-rail exits such as Battle AI disabled, invalid mission type, or missing context
+
+Do not use the retired `ModLogger.Error(...)` path. Battle AI logging must follow the current repo logging rules.
+
+**Noise control:**
+- Army/formation telemetry is mandatory; agent telemetry is sampled or event-driven only.
+- Do not emit per-agent per-tick logs for the full battle.
+- Use throttling/deduplication for heartbeat-style messages so logs stay readable.
 
 ---
 

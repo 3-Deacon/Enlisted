@@ -573,6 +573,30 @@ Every 1–2 seconds:
 3. **Decide**: Choose strategy mode (with hysteresis), pick primary effort, decide reserve posture
 4. **Act**: Apply bounded interventions with cooldowns
 
+### Telemetry Requirement
+
+The orchestrator must be observable enough that we can answer three questions from logs alone:
+
+1. **What did each side decide?**
+2. **Why did it decide that?**
+3. **Did that decision improve or worsen the battle state over the next window?**
+
+This is not optional debug garnish. It is part of the design.
+
+Required telemetry:
+- **Army snapshots** every orchestrator interval or coarse heartbeat:
+  current troop counts, committed reserves, casualty ratio, ranged pressure, local power ratio, suppression pressure, current phase, current strategy, and current primary effort
+- **Decision logs** whenever strategy, reserve posture, or major formation role/objective changes:
+  previous state, new state, top contributing factors, and blocked alternatives if cooldowns or constraints prevented action
+- **Order/intervention logs** whenever the orchestrator changes formation intent:
+  target formation, requested behavior/order, reason, and expected effect
+- **Outcome windows** after major decisions:
+  10-30 second follow-up comparing whether the local/global state improved, stalled, or worsened
+- **Battle summary** at mission end for both armies:
+  casualties inflicted/taken, reserve effectiveness, plan/phase churn, time spent in each strategy, and notable successful/failed interventions
+
+Telemetry should stay army-first and formation-first. Individual-agent logs are useful only as sampled diagnostics or for notable events, not as a full-tick firehose.
+
 ---
 
 ## 4.4 Strategic Behaviors
@@ -607,6 +631,11 @@ Response: Commit reserve, concentrate on weak point
 ## 4.6 Acceptance Criteria
 
 **Diagnostics**: Stable intent transitions with logged factors
+
+**Observability**:
+- Every major army decision can be reconstructed from the session log
+- Both sides emit enough telemetry to compare effectiveness, plan stability, and reserve usage
+- Testers can identify what changed, why it changed, and whether the change helped
 
 **Behavior**:
 - Outnumbered → hold/refuse instead of piecemeal charges
