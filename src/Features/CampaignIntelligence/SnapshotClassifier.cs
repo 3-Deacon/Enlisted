@@ -125,10 +125,19 @@ namespace Enlisted.Features.CampaignIntelligence
             EnlistedLordIntelligenceSnapshot previous,
             EnlistedLordIntelligenceSnapshot current)
         {
-            if (previous == null) return RecentChangeFlags.None;
+            if (previous == null)
+            {
+                return RecentChangeFlags.None;
+            }
             var flags = RecentChangeFlags.None;
-            if (previous.Objective != current.Objective) flags |= RecentChangeFlags.ObjectiveShift;
-            if (current.FrontPressure > previous.FrontPressure) flags |= RecentChangeFlags.NewThreat;
+            if (previous.Objective != current.Objective)
+            {
+                flags |= RecentChangeFlags.ObjectiveShift;
+            }
+            if (current.FrontPressure > previous.FrontPressure)
+            {
+                flags |= RecentChangeFlags.NewThreat;
+            }
             if ((previous.Objective != ObjectiveType.BesiegeSettlement) != (current.Objective != ObjectiveType.BesiegeSettlement))
             {
                 flags |= RecentChangeFlags.SiegeTransition;
@@ -328,7 +337,7 @@ namespace Enlisted.Features.CampaignIntelligence
             int score = 0;
             if (inputs.WoundedRatio > 0.15f)
             {
-                score++;
+                score += 1;
             }
             if (inputs.WoundedRatio > 0.3f)
             {
@@ -336,15 +345,15 @@ namespace Enlisted.Features.CampaignIntelligence
             }
             if (inputs.PartySizeRatio < 0.75f)
             {
-                score++;
+                score += 1;
             }
             if (inputs.FoodDaysRemaining < 2f)
             {
-                score++;
+                score += 1;
             }
             if (inputs.LordIsWounded)
             {
-                score++;
+                score += 1;
             }
 
             if (score >= 4)
