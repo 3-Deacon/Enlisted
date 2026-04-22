@@ -293,13 +293,15 @@ private static void DoCommitPath(EffectDecl eff, StoryletContext ctx)
     }
 
     // Already committed? don't double-commit.
-    if (FlagStore.Instance?.HasFlag("committed_path_" + pathId) == true)
+    if (FlagStore.Instance?.Has("committed_path_" + pathId) == true)
     {
         ModLogger.Expected("EFFECT", "commit_path_already", $"Path {pathId} already committed; no-op");
         return;
     }
 
-    FlagStore.Instance?.SetFlag("committed_path_" + pathId, null);
+    // CampaignTime.Never = permanent flag. Path commitment is career-lifetime;
+    // matches the idiom at src/Features/Activities/Orders/EnlistmentLifecycleListener.cs:100.
+    FlagStore.Instance?.Set("committed_path_" + pathId, CampaignTime.Never);
 
     // Back-door write to the committed_path indicator quality
     // (read-only from authored content; writable internally by this primitive).
@@ -355,7 +357,9 @@ private static void DoResistPath(EffectDecl eff, StoryletContext ctx)
         return;
     }
 
-    FlagStore.Instance?.SetFlag("path_resisted_" + pathId, null);
+    // CampaignTime.Never = permanent. Plan T3 Step 3 commit note specifies
+    // "no clearing mechanism (by design; the player's choice persists)."
+    FlagStore.Instance?.Set("path_resisted_" + pathId, CampaignTime.Never);
     ModLogger.Info("PATH", $"resisted path={pathId}");
 }
 ```
@@ -365,7 +369,7 @@ private static void DoResistPath(EffectDecl eff, StoryletContext ctx)
 In `PathScorer.BumpPath(pathId, amount)`, before applying the bump, check if `path_resisted_<pathId>` flag is set. If set, multiply amount by 0.5.
 
 ```csharp
-if (FlagStore.Instance?.HasFlag("path_resisted_" + pathId) == true)
+if (FlagStore.Instance?.Has("path_resisted_" + pathId) == true)
 {
     amount = (int)(amount * 0.5f);
 }
@@ -459,7 +463,7 @@ namespace Enlisted.Features.CampaignIntelligence.Career
 
                 // Check: if this path is already committed, fire a T7+-variant
                 // storylet instead (the variant pool gates on committed_path).
-                if (FlagStore.Instance?.HasFlag("committed_path_" + pickedPath) == true
+                if (FlagStore.Instance?.Has("committed_path_" + pickedPath) == true
                     && newTier < 7)
                 {
                     ModLogger.Expected("PATH", "crossroads_already_committed", $"Path {pickedPath} already committed; skipping crossroads at T{newTier}");
@@ -691,7 +695,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 - [ ] **Step 1: Grep existing flag-emission code**
 
-Search `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` for flag emissions on `OnEnlistmentEnded`. Expected: `FlagStore.Instance?.SetFlag("prior_service_<faction>", ...)` or similar.
+Search `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` for flag emissions on `OnEnlistmentEnded`. Expected: `FlagStore.Instance?.Set("prior_service_<faction>", CampaignTime.Never)` or similar (prior service is a permanent career record; `EnlistmentLifecycleListener.cs:100-101` is the established emission site).
 
 - [ ] **Step 2: Log-verify during smoke**
 

@@ -1028,7 +1028,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                     return;
                 }
 
-                EmitPicked(picked, storyletId);
+                EmitPicked(picked, storyletId, overrideBody: null);
             }
             catch (Exception ex)
             {
@@ -1078,7 +1078,17 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             return null;
         }
 
-        private void EmitPicked(EnlistedCampaignSignal signal, string storyletId)
+        /// <summary>
+        /// Emits the picked storylet as a signal-tagged StoryCandidate.
+        /// <paramref name="overrideBody"/>, when non-null, replaces
+        /// <c>storylet.Setup</c> as the candidate's <c>RenderedBody</c>. This is
+        /// how externally-built signals (e.g. DailyDriftApplicator's drift
+        /// summary) preserve their caller-supplied body text while still
+        /// wearing the floor storylet's atmospheric title + signal metadata.
+        /// The title and all signal fields still come from the storylet /
+        /// signal pair — only the body string is swappable.
+        /// </summary>
+        private void EmitPicked(EnlistedCampaignSignal signal, string storyletId, string overrideBody)
         {
             var storylet = Content.StoryletCatalog.GetById(storyletId);
             if (storylet == null)
@@ -1098,7 +1108,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                 ProposedTier = StoryTier.Log,
                 EmittedAt = CampaignTime.Now,
                 RenderedTitle = storylet.Title,
-                RenderedBody = storylet.Setup,
+                RenderedBody = overrideBody ?? storylet.Setup,
                 StoryKey = storyletId,
                 SourcePerspective = perspective,
                 SignalConfidence = signal.Confidence,
@@ -1357,6 +1367,14 @@ In `EnlistedSignalEmitterBehavior.cs`:
 /// Emits an externally-built signal (e.g. DailyDriftApplicator drift summary)
 /// through the signal pipeline's throttle + storylet-pool lookup. Does NOT
 /// go through SignalBuilder — the caller has already produced the signal.
+/// <paramref name="bodyText"/> carries the caller's authoritative body string
+/// (the XP summary for drift) and MUST survive end-to-end: the pool-hit path
+/// passes it into <see cref="EmitPicked"/> as <c>overrideBody</c> so the
+/// storylet's atmospheric <c>Setup</c> is NOT swapped in on top of the
+/// caller's content, and the pool-miss path writes it directly into
+/// <c>RenderedBody</c>. In both cases the candidate's title still comes from
+/// the storylet (hit) or a short default string (miss) — only the body is
+/// caller-owned.
 /// </summary>
 public void EmitExternalSignal(EnlistedCampaignSignal signal, string bodyText)
 {
@@ -1386,9 +1404,15 @@ public void EmitExternalSignal(EnlistedCampaignSignal signal, string bodyText)
         return;
     }
 
-    EmitPicked(signal, storyletId);
+    // Pool-hit path: wear the floor storylet's title + signal metadata, but
+    // keep the caller's bodyText in RenderedBody so drift XP summaries survive
+    // once Phase F authors floor_scout_return_* / floor_camp_talk_* storylets.
+    // Without overrideBody, storylet.Setup would silently replace the XP text.
+    EmitPicked(signal, storyletId, overrideBody: bodyText);
 }
 ```
+
+VERIFY IN SOURCE: `src/Features/Activities/Orders/DailyDriftApplicator.cs:146-155` — the current direct-emit site showing today's `RenderedBody = summary` contract that must be preserved end-to-end. `src/Features/Content/StoryCandidate.cs` owns the field set the candidate carries.
 
 - [ ] **Step 4: Build**
 
@@ -1405,8 +1429,10 @@ Drift summary no longer emits directly to StoryDirector. Instead it
 routes through SignalBuilder.BuildDriftSummarySignal (picks
 ScoutReturn for movement profiles, CampTalk for camp profiles) then
 through EnlistedSignalEmitterBehavior.EmitExternalSignal (which
-applies throttle + pool lookup + fallback synthesized emit if the
-pool is empty). XP accumulation path is unchanged.
+applies throttle + pool lookup, preserves the caller's bodyText as
+the candidate's RenderedBody on both pool-hit and pool-miss paths,
+and falls back to a synthesized emit when the pool is empty). XP
+accumulation path is unchanged.
 
 Integration spec §5.2 resolution applied.
 
