@@ -2,6 +2,7 @@ using System;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Enlisted.Features.CampaignIntelligence
 {
@@ -106,7 +107,104 @@ namespace Enlisted.Features.CampaignIntelligence
             }
         }
 
-        private static void CollectStrategicNeighborhood(ref IntelligenceInputs inputs, Hero lord) { }
+        /// <summary>
+        /// Scan lord-owned parties and friendly settlements within a 50-unit radius of
+        /// the enlisted lord's party to populate counts, nearest-hostile distance and
+        /// strength ratio, allied-relief plausibility, threatened-settlement count plus
+        /// reference, and the frontier-heating-up heuristic.
+        /// </summary>
+        private static void CollectStrategicNeighborhood(ref IntelligenceInputs inputs, Hero lord)
+        {
+            var party = inputs.LordParty;
+            if (party == null)
+            {
+                return;
+            }
+
+            const float NearbyRadius = 50f;
+
+            int hostileCount = 0;
+            int alliedCount = 0;
+            float nearestHostileDistance = float.PositiveInfinity;
+            MobileParty nearestHostile = null;
+
+            var partyPos = party.GetPosition2D;
+
+            foreach (var candidate in MobileParty.AllLordParties)
+            {
+                if (candidate == null || candidate == party)
+                {
+                    continue;
+                }
+                if (!candidate.IsActive || candidate.IsDisbanding)
+                {
+                    continue;
+                }
+
+                var distance = candidate.GetPosition2D.Distance(partyPos);
+                if (distance > NearbyRadius)
+                {
+                    continue;
+                }
+
+                bool isHostile = FactionManager.IsAtWarAgainstFaction(candidate.MapFaction, party.MapFaction);
+                if (isHostile)
+                {
+                    hostileCount++;
+                    if (distance < nearestHostileDistance)
+                    {
+                        nearestHostileDistance = distance;
+                        nearestHostile = candidate;
+                    }
+                }
+                else if (candidate.MapFaction == party.MapFaction)
+                {
+                    alliedCount++;
+                }
+            }
+
+            inputs.NearbyHostileCount = hostileCount;
+            inputs.NearbyAlliedCount = alliedCount;
+            inputs.NearestHostileDistance = hostileCount > 0 ? nearestHostileDistance : float.PositiveInfinity;
+            if (nearestHostile != null && party.Party != null && party.Party.EstimatedStrength > 0f)
+            {
+                inputs.NearestHostileStrengthRatio = nearestHostile.Party.EstimatedStrength / party.Party.EstimatedStrength;
+            }
+            inputs.NearbyAlliedReliefPlausible = alliedCount >= 2;
+
+            // Friendly settlements under siege within the same radius feed the
+            // threatened-settlement signal and the frontier-heating-up heuristic.
+            int threatenedCount = 0;
+            Settlement nearestThreatened = null;
+            float nearestThreatenedDistance = float.PositiveInfinity;
+
+            foreach (var settlement in Settlement.All)
+            {
+                if (settlement == null || settlement.MapFaction != party.MapFaction)
+                {
+                    continue;
+                }
+                var sd = settlement.GetPosition2D.Distance(partyPos);
+                if (sd > NearbyRadius)
+                {
+                    continue;
+                }
+
+                if (settlement.IsUnderSiege)
+                {
+                    threatenedCount++;
+                    if (sd < nearestThreatenedDistance)
+                    {
+                        nearestThreatenedDistance = sd;
+                        nearestThreatened = settlement;
+                    }
+                }
+            }
+
+            inputs.ThreatenedFriendlySettlementCount = threatenedCount;
+            inputs.NearestThreatenedFriendly = nearestThreatened;
+            inputs.FrontierHeatingUp = threatenedCount > 0 || hostileCount >= 3;
+        }
 
         private static void CollectInformationEvidence(ref IntelligenceInputs inputs, Hero lord) { }
 
