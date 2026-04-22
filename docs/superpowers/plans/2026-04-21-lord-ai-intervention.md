@@ -2107,7 +2107,89 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ## API Corrections Appendix
 
-_(Implementers append entries here as they discover plan-vs-decompile drift. Empty at plan-authoring time.)_
+Drift, plan-text accuracy notes, adopted idioms, and deferred concerns surfaced during execution of Phases A-G. Smoke observations land under Phase F / Phase H review separately.
+
+### T3: `TextObject.Empty`
+
+**Prescribed:** `disabledReason = TextObject.Empty;` in `EnlistedArmyManagementModel.CanPlayerCreateArmy`.
+**Actual in decompile:** no static `Empty` property on `TextObject`. The empty-singleton accessor is `TextObject.GetEmpty()` (method).
+**Patch applied:** call sites use `TextObject.GetEmpty()` (commit `af2da13`).
+
+### T3: `TargetScoreCalculatingModel` member count
+
+**Prescribed:** 10 abstract members to pass through.
+**Actual in decompile:** 9 abstract members (see `TargetScoreCalculatingModel.cs`). Plan's initial count was one-off.
+**Patch applied:** wrapper stub ships 9 pass-through overrides (commit `af2da13`).
+
+### T3: wrapper pass-through default values
+
+**Prescribed:** generic "type-sensible default" constants (1f, 0.5f, new ExplainedNumber(0f), etc.).
+**Actual in decompile:** `DefaultTargetScoreCalculatingModel` / `DefaultArmyManagementCalculationModel` / `DefaultMobilePartyAIModel` ship specific constants (e.g. `TravelingToAssignmentFactor = 1.33f`, `BesiegingFactor = 1.67f`, `AssaultingTownFactor = 2f`).
+**Patch applied:** all ~40 `?? default` fallback literals rewritten to match the vanilla Default*Model values (19 corrections in commit `7a95f72`). So if the null-guard ever fires during a bootstrap-order regression the wrappers mimic vanilla behavior instead of conservative generic constants.
+
+### T4: closure capture in `VanillaOnlyOrBias`
+
+**Prescribed:** `private float VanillaOnlyOrBias(MobileParty, float, Func<snapshot, float, float>)` with the Phase B bias lambdas closing over method parameters (`missionType` in T5, `settlement`/`isFromPort` in T7).
+**Observed during code review (T5):** every call closes over at least one method-local, which forces Roslyn to allocate a display class + delegate per invocation. `GetTargetScoreForFaction` fires on every AI army tick × every candidate settlement — the allocation multiplier is high across ~6 uses of this helper (T5/T6/T7 in the float family; Phases C/D use inline gates so are unaffected).
+**Status: deferred, unprofiled.** No measured evidence of GC pressure. If Phase H smoke shows measurable tick-time regression or frame-gen0-spike, refactor to thread a `TState` argument through the helper so the lambda captures nothing (the idiomatic allocation-free pattern on .NET 4.7.2 / C# 7.3, since static lambdas are C# 9+). Tracked here rather than hot-patched because the plan prescribes the literal lambda shape and the concern is theoretical.
+
+### T5-T13: `ModLogger.*` invocation style
+
+**Prescribed (plan text):** `Enlisted.Mod.Core.Logging.ModLogger.Surfaced("INTELAI", "base_model_missing", null)` — fully qualified, explicit `null` for the third arg.
+**Adopted in shipped code:** short form `ModLogger.Surfaced("INTELAI", "base_model_missing")` after adding `using Enlisted.Mod.Core.Logging;`. The `Exception ex = null` default on the signature makes the explicit third arg redundant.
+**Patch applied:** T5 polish (commit `ca41b0b`) added the using and dropped the qualifiers / explicit null in `EnlistedTargetScoreModel`. Pattern propagated to `EnlistedArmyManagementModel` (T8, commit `92f5905`) and `EnlistedMobilePartyAiModel` (T11, commit `ac4f860`). Every subsequent bias site uses the short form.
+
+### T5/T8/T9/T13: `System.*` qualifier style
+
+**Prescribed (plan text):** `System.Func<...>`, `System.Exception`, `System.Math.Max`, `System.Math.Round`, `System.Globalization.CultureInfo.InvariantCulture` — fully qualified throughout.
+**Adopted in shipped code:** `using System;` + `using System.Globalization;` at file top + short `Func`, `Exception`, `Math.Max`, `Math.Round`, `CultureInfo.InvariantCulture`.
+**Patch applied:** T4 polish (commit `03f925b`) drops `System.*` prefixes in `EnlistedTargetScoreModel`; T8 (commit `92f5905`) adds `using System;` to `EnlistedArmyManagementModel` and uses short forms; T19 (commit `881a114`) uses `using System.Globalization;` in `EnlistedAiBiasHeartbeat`. No functional change — consistency pass.
+
+### T5/T8/T11/T14: class-level XML doc drift
+
+**Prescribed (plan text):** T3/T8/T11 class doc reads "Currently a pass-through to BaseModel for every member; intel-driven bias … lands in later Plan 2 tasks." T10/T14 prescribe an expanded form that cites task numbers ("Biases three methods: ShouldConsiderAttacking (T11), …").
+**Project convention (CLAUDE.md):** doc comments describe current behavior, never forward-spec or change history; task numbers rot as the file evolves.
+**Patch applied:** all three wrapper class docs rewritten to behavioral sentences that do not reference task numbers or forward-spec. T5 polish (commit `ca41b0b`, `EnlistedTargetScoreModel`), T8 (commit `92f5905`, `EnlistedArmyManagementModel`), T10 doc expansion (commit `eab046c`), T11 (commit `ac4f860`, `EnlistedMobilePartyAiModel`), T14 doc expansion (commit `44f33f2`).
+
+### T8: `ModLogger.Surfaced` arity
+
+**Prescribed:** `ModLogger.Surfaced("INTELAI", "base_model_missing", null)` (3 args).
+**Adopted convention (see ModLogger.cs:362-365):** the `Exception` parameter is defaulted to `null`; calls can omit it. All Phase B/C/D wrappers use the 2-arg form.
+**Patch applied:** consistent across T5 / T6 / T7 / T8 / T9 / T11 / T12 / T13 call sites.
+
+### T9: controller-inline commit-message drift
+
+**Prescribed (plan text at line 1150):** `feat(intelai): raise influence cost per call under strain (T9)` with a body about "complementing T8's aggregate suppressor by making individual calls budget-prohibitive."
+**Shipped commit `0ae6a9f`:** subject reads `feat(intelai): raise influence cost under strain (T9)` (dropped "per call"); body rewritten more verbosely.
+**Origin:** controller-inline handoff prompt paraphrased the commit message during dispatch; implementer followed the paraphrased version. Not an implementer fault.
+**Resolution:** commit shipped as-is (amending disallowed per project rules, and the content is semantically accurate). Future T25-style tasks should transcribe plan commit messages verbatim into subagent prompts, not paraphrase.
+
+### T13: commit-message accuracy ("AND a threatened friendly exists")
+
+**Prescribed (plan text at line 1467):** commit-message first bullet — "Zero when FrontPressure >= High AND a threatened friendly exists AND the candidate is EngageParty."
+**Shipped commit `d82b5fa`:** commit message shipped verbatim from plan. However, the actual code predicate only checks `FrontPressure >= High && bestInitiativeBehavior == EngageParty` — the "threatened friendly exists" clause has no literal counterpart in the C#.
+**Why the plan-author chose this phrasing:** Plan 1's `SnapshotClassifier.ClassifyFrontPressure` (T14) folds `ThreatenedFriendlySettlementCount` into the pressure score (>0 adds +2, >2 adds +4), so the design intent was "High pressure is a proxy for threatened-friendly." Code review via decompile confirmed that `FrontPressure.High` (score ≥ 5) can be reached via pure military-proximity signals (`NearbyHostileCount ≥ 5` + `RecentWarTransition` + `NearestHostileStrengthRatio > 1.5`) with zero threatened settlements — so the proxy is not a strict implication.
+**Status:** defect lives in git history only; runtime behavior is correct. Future plan templates should phrase trigger clauses to match the C# predicate exactly, or prefix with "design intent:" so readers know the commit message is summarizing the rule's motivation rather than its literal check.
+
+### T19: registry-growth prediction
+
+**Prescribed (plan text line 1760):** regen error-codes `gains an E-INTELAI-NNN bias_* family of throttled-info codes`.
+**Actual:** `generate_error_codes.py` (`SURFACED_RE` at line 34) only scans `ModLogger.Surfaced(...)` call sites; `Expected` calls do not contribute to the registry. `bias_*` family does not exist in `docs/error-codes.md`.
+**Resolution:** T19 ships as plan-prescribed code; no registry change. Plan's prediction noted here so future readers don't search for the (nonexistent) `bias_*` codes.
+
+### T22: plan-title-vs-body drift
+
+**Prescribed (plan title at line 1897):** "Register the four wrappers in `SubModule.cs`".
+**Actual (plan body at line 1918-1923):** three `AddModel<T>` calls — `TargetScoreCalculatingModel`, `ArmyManagementCalculationModel`, `MobilePartyAIModel`. `SettlementValueModel` is deliberately skipped per Phase E rationale (line 1926).
+**Shipped commit `4f3712f`:** three registrations, matching the body (and the Phase E decision). Plan title is stale.
+
+### Phase H playtest watch-list (to-verify during T24 smoke)
+
+These are not defects — they are behaviors worth observing when the 14-in-game-day smoke runs:
+
+1. **T6 recovery prioritizer + T7 patrol suppressor double-multiply.** When `RecoveryNeed.High` fires both, the patrol score for a settlement can multiply by 0.5 × 0.4 = 0.2. Unlikely to flip decisions (positive score remains) but if the patrolled settlement is also defence-critical, the lord may vacate it unnecessarily. T6's recovery branch has a `DefendSettlement` escape; T7 does not. If smoke confirms the problem, add the same escape to T7.
+2. **T13 strain branch suppresses ALL initiative behaviors, not just `EngageParty`.** Plan-intentional per the "don't initiate ANY initiative" comment. Edge case: lord near a siege where vanilla initiative would have returned a *better* `DefendSettlement` candidate than the lord's current `DefaultBehavior` — the strain branch vetoes the upgrade. Worth watching.
+3. **T11 non-leader attack-abort guard.** `ShouldConsiderAttacking` returns false when `EnemyContactRisk.High` + `!IsEnlistedLordArmyLeader()` + `ArmyStrain >= Elevated`. This aborts attacks the lord might have pursued as a sub-party under another's army. If the smoke shows the army leader issuing engage commands the enlisted lord refuses (stalling the army), the non-leader guard may be too aggressive.
 
 ---
 
