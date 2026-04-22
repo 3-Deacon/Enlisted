@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Enlisted.Features.CampaignIntelligence.Signals
+﻿namespace Enlisted.Features.CampaignIntelligence.Signals
 {
     /// <summary>
     /// How much reliable signal the source has. Low = rumor-heavy

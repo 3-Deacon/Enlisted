@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Enlisted.Features.CampaignIntelligence.Signals
+﻿namespace Enlisted.Features.CampaignIntelligence.Signals
 {
     /// <summary>
     /// The change event the signal is projecting — mirrors Plan 1's

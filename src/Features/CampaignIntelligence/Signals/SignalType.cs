@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Enlisted.Features.CampaignIntelligence.Signals
+﻿namespace Enlisted.Features.CampaignIntelligence.Signals
 {
     /// <summary>
     /// The ten signal families this layer projects. Each family pairs with a
