@@ -5,6 +5,7 @@ using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Features.CampaignIntelligence.Signals
@@ -17,6 +18,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
     /// StoryDirector.EmitCandidate at StoryTier.Log. Cooldown state
     /// persists across save/load in SignalEmissionRecord.
     /// </summary>
+    [UsedImplicitly("Registered in SubModule.OnGameStart via campaignStarter.AddBehavior.")]
     public sealed class EnlistedSignalEmitterBehavior : CampaignBehaviorBase
     {
         public static EnlistedSignalEmitterBehavior Instance { get; private set; }
@@ -144,13 +146,12 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 
         /// <summary>
         /// Emits the picked storylet as a signal-tagged StoryCandidate.
-        /// <paramref name="overrideBody"/>, when non-null, replaces
-        /// <c>storylet.Setup</c> as the candidate's <c>RenderedBody</c>. This is
-        /// how externally-built signals (e.g. DailyDriftApplicator's drift
-        /// summary) preserve their caller-supplied body text while still
-        /// wearing the floor storylet's atmospheric title + signal metadata.
-        /// The title and all signal fields still come from the storylet /
-        /// signal pair — only the body string is swappable.
+        /// When <paramref name="overrideBody"/> is non-null, it replaces
+        /// <c>storylet.Setup</c> as the candidate's <c>RenderedBody</c> — for
+        /// callers that supply their own body text while still wearing the
+        /// floor storylet's title and signal metadata. The title and all
+        /// signal fields always come from the storylet / signal pair; only
+        /// the body string is swappable.
         /// </summary>
         private void EmitPicked(EnlistedCampaignSignal signal, string storyletId, string overrideBody)
         {
@@ -164,7 +165,14 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                 ? ParsePerspective(signal.SourcePerspectiveOverride)
                 : DefaultPerspectiveFor(signal.Type);
 
-            StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+            var director = StoryDirector.Instance;
+            if (director == null)
+            {
+                ModLogger.Expected("SIGNAL", "no_director", "StoryDirector.Instance null at emit");
+                return;
+            }
+
+            director.EmitCandidate(new StoryCandidate
             {
                 SourceId = "signal." + signal.Type.ToString().ToLowerInvariant(),
                 CategoryId = "signal." + signal.Type.ToString().ToLowerInvariant(),
