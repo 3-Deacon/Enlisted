@@ -366,6 +366,20 @@ namespace Enlisted.Mod.Entry
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());
                     campaignStarter.AddBehavior(new EnlistedSignalEmitterBehavior());
 
+                    // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
+                    // that bias target choice, army formation, and pursuit for
+                    // the enlisted lord only. Every wrapper calls EnlistedAiGate
+                    // per-call and falls through to BaseModel for non-enlisted
+                    // parties and non-lord parties. Gated behind
+                    // EnlistmentBehavior.Instance.IsEnlisted via the gate;
+                    // revert on unenlist is automatic.
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.TargetScoreCalculatingModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedTargetScoreModel());
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.ArmyManagementCalculationModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedArmyManagementModel());
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.MobilePartyAIModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedMobilePartyAiModel());
+
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
                     campaignStarter.AddBehavior(new EnlistmentBehavior());
