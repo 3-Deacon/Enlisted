@@ -4,6 +4,9 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
+using TaleWorlds.CampaignSystem.MapEvents;
+using TaleWorlds.CampaignSystem.Party;
 
 namespace Enlisted.Features.CampaignIntelligence
 {
@@ -58,6 +61,12 @@ namespace Enlisted.Features.CampaignIntelligence
             EnlistmentBehavior.OnEnlistmentEnded += HandleOnEnlistmentEnded;
 
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, HandleHourlyTick);
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, HandleDailyTick);
+            CampaignEvents.WarDeclared.AddNonSerializedListener(this, HandleWarDeclared);
+            CampaignEvents.MakePeace.AddNonSerializedListener(this, HandleMakePeace);
+            CampaignEvents.ArmyCreated.AddNonSerializedListener(this, HandleArmyCreated);
+            CampaignEvents.ArmyDispersed.AddNonSerializedListener(this, HandleArmyDispersed);
+            CampaignEvents.MapEventStarted.AddNonSerializedListener(this, HandleMapEventStarted);
         }
 
         public override void SyncData(IDataStore dataStore) { }
@@ -155,6 +164,126 @@ namespace Enlisted.Features.CampaignIntelligence
             {
                 ModLogger.Caught("INTEL", "hourly_recompute_failed", ex);
             }
+        }
+
+        private void HandleDailyTick()
+        {
+            if (_working == null)
+            {
+                return;
+            }
+
+            var decayCutoff = CampaignTime.Now - CampaignTime.Days(1f);
+            var stale = RecentChangeFlags.None;
+
+            foreach (var kv in _flagFirstSeen)
+            {
+                if (kv.Value < decayCutoff)
+                {
+                    stale |= kv.Key;
+                }
+            }
+
+            if (stale != RecentChangeFlags.None)
+            {
+                _working.RecentChanges &= ~stale;
+                foreach (RecentChangeFlags bit in System.Enum.GetValues(typeof(RecentChangeFlags)))
+                {
+                    if (bit == RecentChangeFlags.None)
+                    {
+                        continue;
+                    }
+                    if ((stale & bit) != 0)
+                    {
+                        _flagFirstSeen.Remove(bit);
+                    }
+                }
+            }
+        }
+
+        private void HandleWarDeclared(IFaction side1, IFaction side2, DeclareWarAction.DeclareWarDetail detail)
+        {
+            if (!IsRelevantFaction(side1) && !IsRelevantFaction(side2))
+            {
+                return;
+            }
+            _pendingChangeFlags |= RecentChangeFlags.WarDeclared | RecentChangeFlags.NewThreat;
+        }
+
+        private void HandleMakePeace(IFaction side1, IFaction side2, MakePeaceAction.MakePeaceDetail detail)
+        {
+            if (!IsRelevantFaction(side1) && !IsRelevantFaction(side2))
+            {
+                return;
+            }
+            _pendingChangeFlags |= RecentChangeFlags.MakePeace;
+        }
+
+        private void HandleArmyCreated(Army army)
+        {
+            if (!IsEnlistedLordArmy(army))
+            {
+                return;
+            }
+            _pendingChangeFlags |= RecentChangeFlags.ArmyFormed | RecentChangeFlags.ObjectiveShift;
+        }
+
+        private void HandleArmyDispersed(Army army, Army.ArmyDispersionReason reason, bool isPlayerArmy)
+        {
+            if (!IsEnlistedLordArmy(army))
+            {
+                return;
+            }
+            _pendingChangeFlags |= RecentChangeFlags.ArmyDispersed | RecentChangeFlags.DispersalRisk;
+        }
+
+        private void HandleMapEventStarted(MapEvent ev, PartyBase attacker, PartyBase defender)
+        {
+            var lordPartyBase = EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo?.Party;
+            if (lordPartyBase == null)
+            {
+                return;
+            }
+            if (attacker == lordPartyBase || defender == lordPartyBase)
+            {
+                _pendingChangeFlags |= RecentChangeFlags.MapEventJoined | RecentChangeFlags.NewThreat;
+            }
+        }
+
+        private static bool IsRelevantFaction(IFaction faction)
+        {
+            var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+            if (lord == null || faction == null)
+            {
+                return false;
+            }
+            return faction == lord.MapFaction || faction == lord.Clan?.Kingdom;
+        }
+
+        private static bool IsEnlistedLordArmy(Army army)
+        {
+            var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+            if (lord == null || army == null)
+            {
+                return false;
+            }
+            if (army.LeaderParty?.LeaderHero == lord)
+            {
+                return true;
+            }
+            // Army.Parties enumeration — iterate if available. Some dispersion events may fire
+            // with Parties already cleared; LeaderParty check above is the primary path.
+            if (army.Parties != null)
+            {
+                for (int i = 0; i < army.Parties.Count; i++)
+                {
+                    if (army.Parties[i]?.LeaderHero == lord)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         internal void EnsureInitialized()
