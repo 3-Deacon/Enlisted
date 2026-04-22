@@ -1,4 +1,5 @@
 using System;
+using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -206,8 +207,71 @@ namespace Enlisted.Features.CampaignIntelligence
             inputs.FrontierHeatingUp = threatenedCount > 0 || hostileCount >= 3;
         }
 
-        private static void CollectInformationEvidence(ref IntelligenceInputs inputs, Hero lord) { }
+        /// <summary>
+        /// Populate coarse information-evidence inputs: recent war/peace/army transition
+        /// flags come directly from the behavior's pending-flags accumulator, and the
+        /// notable-prisoner count scans the lord's PrisonRoster for clan leaders or
+        /// members of noble clans. Richer evidence signals (scout tracks, enemy buildup,
+        /// garrison observations) are left as false placeholders for future plans that
+        /// own the player-observation surface.
+        /// </summary>
+        private static void CollectInformationEvidence(ref IntelligenceInputs inputs, Hero lord)
+        {
+            inputs.RecentWarTransition = (inputs.PendingFlagsAtTickStart & RecentChangeFlags.WarDeclared) != 0;
+            inputs.RecentPeaceTransition = (inputs.PendingFlagsAtTickStart & RecentChangeFlags.MakePeace) != 0;
+            inputs.RecentArmyFormation = (inputs.PendingFlagsAtTickStart & RecentChangeFlags.ArmyFormed) != 0;
+            inputs.RecentArmyDispersal = (inputs.PendingFlagsAtTickStart & RecentChangeFlags.ArmyDispersed) != 0;
 
-        private static void CollectPlayerRelevance(ref IntelligenceInputs inputs, Hero lord) { }
+            inputs.ImportantPrisonerCount = 0;
+            var party = inputs.LordParty;
+            if (party != null && party.PrisonRoster != null)
+            {
+                for (int i = 0; i < party.PrisonRoster.Count; i++)
+                {
+                    var element = party.PrisonRoster.GetElementCopyAtIndex(i);
+                    if (element.Character != null && element.Character.IsHero && element.Character.HeroObject != null)
+                    {
+                        var prisoner = element.Character.HeroObject;
+                        if (prisoner.Clan?.Leader == prisoner || prisoner.Clan?.IsNoble == true)
+                        {
+                            inputs.ImportantPrisonerCount++;
+                        }
+                    }
+                }
+            }
+
+            inputs.HasFreshTracks = false;
+            inputs.HasEnemyBuildupEvidence = false;
+            inputs.HasGarrisonObservation = false;
+        }
+
+        /// <summary>
+        /// Populate player-relevance inputs: current enlistment tier, player/lord
+        /// relation, and a proximity check against the player's own MobileParty.
+        /// Falls back to PlayerProximate=true when either party reference is missing,
+        /// matching the enlisted escort-AI default that keeps the player tethered.
+        /// </summary>
+        private static void CollectPlayerRelevance(ref IntelligenceInputs inputs, Hero lord)
+        {
+            var player = Hero.MainHero;
+            if (player == null || lord == null)
+            {
+                return;
+            }
+
+            inputs.PlayerTier = EnlistmentBehavior.Instance?.EnlistmentTier ?? 0;
+            inputs.PlayerRelationWithLord = lord.GetRelation(player);
+
+            var playerParty = PartyBase.MainParty?.MobileParty;
+            if (playerParty != null && inputs.LordParty != null)
+            {
+                var distance = playerParty.GetPosition2D.Distance(inputs.LordParty.GetPosition2D);
+                inputs.PlayerProximate = distance < 3f;
+            }
+            else
+            {
+                inputs.PlayerProximate = true;
+            }
+        }
     }
 }
