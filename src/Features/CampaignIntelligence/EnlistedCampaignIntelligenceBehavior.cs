@@ -8,8 +8,9 @@ namespace Enlisted.Features.CampaignIntelligence
     /// <summary>
     /// Tracks the enlisted lord's strategic situation on an hourly cadence plus
     /// event-driven invalidation. Produces one EnlistedLordIntelligenceSnapshot
-    /// exposed to consumers via <see cref="Current"/>. Only runs while the player
-    /// is actively enlisted; returns null and clears interior state otherwise.
+    /// exposed to consumers via <see cref="Current"/>. The accessor returns null
+    /// when the player is not enlisted; interior state is not persisted across
+    /// enlistments — the snapshot is recomputed from live world state each hour.
     /// </summary>
     [UsedImplicitly("Registered in SubModule.OnGameStart via campaignStarter.AddBehavior.")]
     public sealed class EnlistedCampaignIntelligenceBehavior : CampaignBehaviorBase
