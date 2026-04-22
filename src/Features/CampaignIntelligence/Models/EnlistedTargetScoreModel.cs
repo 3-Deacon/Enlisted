@@ -100,8 +100,42 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             MobileParty mobileParty) =>
             BaseModel?.CalculatePatrollingScoreForSettlement(settlement, isFromPort, mobileParty) ?? 0f;
 
-        public override float CurrentObjectiveValue(MobileParty mobileParty) =>
-            BaseModel?.CurrentObjectiveValue(mobileParty) ?? 0f;
+        public override float CurrentObjectiveValue(MobileParty mobileParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return 0f;
+            }
+            var vanilla = BaseModel.CurrentObjectiveValue(mobileParty);
+
+            return VanillaOnlyOrBias(mobileParty, vanilla, (snapshot, v) =>
+            {
+                // Bad-pursuit suppressor. When Plan 1 says the current objective
+                // is a Pursue whose viability is Marginal or NotViable, halve the
+                // objective value so any alternative scores higher by comparison.
+                if (snapshot.Objective == ObjectiveType.Pursue
+                    && snapshot.PursuitViability <= PursuitViability.Marginal)
+                {
+                    float mult = snapshot.PursuitViability == PursuitViability.NotViable ? 0.3f : 0.6f;
+                    EnlistedAiBiasHeartbeat.Record("objective_pursuit_weak", v, v * mult);
+                    return v * mult;
+                }
+
+                // Recovery prioritizer. When RecoveryNeed == High, drop the
+                // current-objective value so the AI prefers moving toward
+                // settlement-backed rest.
+                if (snapshot.RecoveryNeed == RecoveryNeed.High
+                    && snapshot.Objective != ObjectiveType.Recover
+                    && snapshot.Objective != ObjectiveType.DefendSettlement)
+                {
+                    EnlistedAiBiasHeartbeat.Record("objective_recovery_override", v, v * 0.5f);
+                    return v * 0.5f;
+                }
+
+                return v;
+            });
+        }
 
         /// <summary>
         /// Unified identity-gate + vanilla-fallback entry for every biased
