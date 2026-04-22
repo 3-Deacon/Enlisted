@@ -130,10 +130,14 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddEnumDefinition(typeof(Features.CampaignIntelligence.PlayerTrustWindow), 97);
             AddEnumDefinition(typeof(Features.CampaignIntelligence.RecentChangeFlags), 98);
 
-            // Signal Projection enums (Plan 3 of 5) — offsets 99-101
+            // Signal Projection enums (Plan 3 of 5) — offsets 99-103
             AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalType), 99);
             AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalConfidence), 100);
             AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalChangeType), 101);
+
+            // StoryCandidate signal-metadata enums (Plan 3 of 5) — offsets 102-103
+            AddEnumDefinition(typeof(Features.Content.SourcePerspective), 102);
+            AddEnumDefinition(typeof(Features.Content.SignalRecency), 103);
         }
 
         /// <summary>

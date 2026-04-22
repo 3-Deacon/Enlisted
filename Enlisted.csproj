@@ -500,6 +500,8 @@
     <Compile Include="src\Features\Content\IStorySource.cs"/>
     <Compile Include="src\Features\Content\StoryCandidate.cs"/>
     <Compile Include="src\Features\Content\StoryCandidatePersistent.cs"/>
+    <Compile Include="src\Features\Content\SourcePerspective.cs"/>
+    <Compile Include="src\Features\Content\SignalRecency.cs"/>
     <Compile Include="src\Features\Content\RelevanceFilter.cs"/>
     <Compile Include="src\Features\Content\SeverityClassifier.cs"/>
     <Compile Include="src\Features\Content\Choice.cs"/>

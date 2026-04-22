@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Enlisted.Features.CampaignIntelligence.Signals;
 using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Features.Content
@@ -40,5 +41,17 @@ namespace Enlisted.Features.Content
         // cooldown so their follow-up beats fire immediately. The 60s wall-clock
         // guard still applies so rapid-fire chains can't stack into the same second.
         public bool ChainContinuation { get; set; }
+
+        // Plan 3 signal-metadata block — optional, defaults preserve existing behavior.
+        public SourcePerspective SourcePerspective { get; set; } = SourcePerspective.Narrator;
+        public SignalConfidence SignalConfidence { get; set; } = SignalConfidence.Medium;
+        public SignalRecency SignalRecency { get; set; } = SignalRecency.Immediate;
+        public SignalChangeType SignalChangeType { get; set; } = SignalChangeType.None;
+
+        /// <summary>
+        /// Optional short (&lt;= 80 char) hint describing what the player is expected
+        /// to infer or do from this signal. Null = no hint.
+        /// </summary>
+        public string SignalInference { get; set; }
     }
 }
