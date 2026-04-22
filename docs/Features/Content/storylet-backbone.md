@@ -219,13 +219,16 @@ Defined in `ModuleData/Enlisted/Effects/scripted_effects.json`:
 | Class | 45 | `HomeActivity` (Spec 1) |
 | Class | 46 | `OrderActivity` (Spec 2) |
 | Class | 47 | `NamedOrderState` (Spec 2) |
-| **Class** | **48–60** | **Reserved** for concrete `Activity` subclasses across Specs 3–5 |
+| Class | 48 | `EnlistedLordIntelligenceSnapshot` (Plan 1 / Campaign Intelligence) |
+| Class | 49 | `SignalEmissionRecord` (Plan 3 / Signal Projection) |
+| Class | 50 | `DutyCooldownStore` (Plan 4 / Duty Opportunities) |
+| **Class** | **51–60** | **Reserved** for remaining surface specs (Specs 3–5) |
 | Enum | 82 | `QualityScope` |
 | Enum | 83 | `ActivityEndReason` |
 | Enum | 85 | `DutyProfileId` (Spec 2) |
 | **Enum** | **86+** | **Reserved** for Specs 3–5 |
 
-Surface specs claim their class offset from the 45–60 range in their owning spec. Current claims: `HomeActivity` at **45** (Spec 1); `OrderActivity` at **46** + `NamedOrderState` at **47** (Spec 2). Spec 2 also claims enum offset **85** (`DutyProfileId`). `TaleWorlds.Core.FormationClass` is referenced by `OrderActivity.CachedCombatClass` and `NamedOrderState.CombatClassAtAccept` but is NOT registered in our definer — `TaleWorlds.Core.SaveableCoreTypeDefiner` already registers it at id 2008, and the shared `DefinitionContext` dictionary throws on duplicate `Type` keys (crashes `Module.Initialize` natively, no mod log). Reserved next claims in the 48–60 / 86+ band: `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
+Surface specs claim their class offset from the 45–60 range in their owning spec (Activity subclasses AND closely-related surface-spec persistent state per AGENTS.md Rule #11). Current claims: `HomeActivity` at **45** (Spec 1); `OrderActivity` at **46** + `NamedOrderState` at **47** (Spec 2); `EnlistedLordIntelligenceSnapshot` at **48** (Plan 1); `SignalEmissionRecord` at **49** (Plan 3); `DutyCooldownStore` at **50** (Plan 4). Spec 2 also claims enum offset **85** (`DutyProfileId`); Plan 1 claims enum offsets 86-98; Plan 3 claims enum offsets 99-103. `TaleWorlds.Core.FormationClass` is referenced by `OrderActivity.CachedCombatClass` and `NamedOrderState.CombatClassAtAccept` but is NOT registered in our definer — `TaleWorlds.Core.SaveableCoreTypeDefiner` already registers it at id 2008, and the shared `DefinitionContext` dictionary throws on duplicate `Type` keys (crashes `Module.Initialize` natively, no mod log). Reserved next claims in the 51–60 / 86+ band: `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
 
 Pre-Spec-0 claims (class 1, 10–14, 20–24, 30; enum 50–52, 60–64, 70–71, 80–81) remain owned by their prior subsystems — don't reuse.
 
