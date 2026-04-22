@@ -97,8 +97,30 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float CalculatePatrollingScoreForSettlement(
             Settlement settlement,
             bool isFromPort,
-            MobileParty mobileParty) =>
-            BaseModel?.CalculatePatrollingScoreForSettlement(settlement, isFromPort, mobileParty) ?? 0f;
+            MobileParty mobileParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return 0f;
+            }
+            var vanilla = BaseModel.CalculatePatrollingScoreForSettlement(
+                settlement, isFromPort, mobileParty);
+
+            return VanillaOnlyOrBias(mobileParty, vanilla, (snapshot, v) =>
+            {
+                // Patrol suppressor under pressure. Patrolling is the wrong
+                // posture when the front is lit up or supply is failing.
+                if (snapshot.FrontPressure >= FrontPressure.High
+                    || snapshot.SupplyPressure >= SupplyPressure.Strained
+                    || snapshot.RecoveryNeed >= RecoveryNeed.Medium)
+                {
+                    EnlistedAiBiasHeartbeat.Record("patrol_suppressed", v, v * 0.4f);
+                    return v * 0.4f;
+                }
+                return v;
+            });
+        }
 
         public override float CurrentObjectiveValue(MobileParty mobileParty)
         {
