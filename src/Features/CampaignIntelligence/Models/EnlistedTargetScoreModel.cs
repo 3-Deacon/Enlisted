@@ -57,7 +57,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         private float VanillaOnlyOrBias(
             MobileParty party,
             float vanilla,
-            System.Func<EnlistedLordIntelligenceSnapshot, float, float> biasFn)
+            Func<EnlistedLordIntelligenceSnapshot, float, float> biasFn)
         {
             if (!EnlistedAiGate.TryGetSnapshotForParty(party, out var snapshot))
             {
@@ -67,7 +67,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             {
                 return biasFn(snapshot, vanilla);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Enlisted.Mod.Core.Logging.ModLogger.Caught("INTELAI", "target_score_bias_failed", ex);
                 return vanilla;
