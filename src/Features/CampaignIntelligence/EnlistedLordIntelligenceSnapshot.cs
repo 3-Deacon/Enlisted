@@ -8,7 +8,7 @@ namespace Enlisted.Features.CampaignIntelligence
     /// specific campaign-event invalidation. Never stores live TaleWorlds references —
     /// all fields are enums or primitives so the snapshot round-trips cleanly through
     /// save/load without dangling pointers. Owning behavior clears volatile fields on
-    /// enlistment end; §12.2 recompute-on-load is honored by the next hourly tick
+    /// enlistment end; recompute-on-load is honored by the next hourly tick
     /// overwriting fields from live world state.
     /// </summary>
     [Serializable]
