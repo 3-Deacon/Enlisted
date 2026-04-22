@@ -4,8 +4,7 @@ namespace Enlisted.Features.CampaignIntelligence
 {
     /// <summary>
     /// Owns the EnlistedLordIntelligenceSnapshot lifecycle and the hourly recompute
-    /// cadence. Handlers and persistence land in Phases B–F. Registered in SubModule
-    /// via campaignStarter.AddBehavior in T7.
+    /// cadence. Registered in SubModule via campaignStarter.AddBehavior.
     /// </summary>
     public sealed class EnlistedCampaignIntelligenceBehavior : CampaignBehaviorBase
     {
