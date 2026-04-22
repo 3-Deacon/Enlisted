@@ -114,7 +114,10 @@ namespace Enlisted.Features.CampaignIntelligence
                 }
                 return ObjectiveConfidence.High;
             }
-            if (inputs.NearbyHostileCount > 2) return ObjectiveConfidence.Low;
+            if (inputs.NearbyHostileCount > 2)
+            {
+                return ObjectiveConfidence.Low;
+            }
             return ObjectiveConfidence.Medium;
         }
 
@@ -137,7 +140,7 @@ namespace Enlisted.Features.CampaignIntelligence
             return flags;
         }
 
-        // Stubs filled in later tasks.
+        // Placeholder classifiers returning neutral defaults.
         private static FrontPressure ClassifyFrontPressure(IntelligenceInputs _) => FrontPressure.None;
         private static ArmyStrainLevel ClassifyArmyStrain(IntelligenceInputs _) => ArmyStrainLevel.None;
         private static SupplyPressure ClassifySupplyPressure(IntelligenceInputs _) => SupplyPressure.None;
