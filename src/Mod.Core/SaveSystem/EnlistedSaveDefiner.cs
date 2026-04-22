@@ -157,6 +157,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Activity subsystem containers (Spec 0)
             ConstructContainerDefinition(typeof(List<Features.Activities.Activity>));
             ConstructContainerDefinition(typeof(Dictionary<string, List<string>>));
+
+            // Campaign Intelligence backbone (Plan 1 of 5) — parallel-list encoding for the
+            // RecentChangeFlags decay tracker in EnlistedCampaignIntelligenceBehavior.SyncData.
+            ConstructContainerDefinition(typeof(List<int>));
+            ConstructContainerDefinition(typeof(List<TaleWorlds.CampaignSystem.CampaignTime>));
         }
     }
 }

@@ -69,7 +69,47 @@ namespace Enlisted.Features.CampaignIntelligence
             CampaignEvents.MapEventStarted.AddNonSerializedListener(this, HandleMapEventStarted);
         }
 
-        public override void SyncData(IDataStore dataStore) { }
+        public override void SyncData(IDataStore dataStore)
+        {
+            dataStore.SyncData("EnlistedIntel._working", ref _working);
+
+            // _pendingChangeFlags: persist as int round-trip so event-driven bits set between
+            // tick and save aren't lost on reload.
+            int pendingInt = (int)_pendingChangeFlags;
+            dataStore.SyncData("EnlistedIntel._pendingChangeFlags", ref pendingInt);
+            _pendingChangeFlags = (RecentChangeFlags)pendingInt;
+
+            // _flagFirstSeen: Dictionary<RecentChangeFlags, CampaignTime> serialized as
+            // parallel List<int> keys + List<CampaignTime> values. Avoids registering a
+            // dedicated Dictionary container on the save-definer for the decay tracker.
+            EnsureInitialized();
+            var flagKeys = new List<int>();
+            var flagTimes = new List<CampaignTime>();
+            if (dataStore.IsSaving)
+            {
+                foreach (var kv in _flagFirstSeen)
+                {
+                    flagKeys.Add((int)kv.Key);
+                    flagTimes.Add(kv.Value);
+                }
+            }
+            dataStore.SyncData("EnlistedIntel._flagKeys", ref flagKeys);
+            dataStore.SyncData("EnlistedIntel._flagTimes", ref flagTimes);
+            if (dataStore.IsLoading)
+            {
+                _flagFirstSeen.Clear();
+                int n = System.Math.Min(flagKeys?.Count ?? 0, flagTimes?.Count ?? 0);
+                for (int i = 0; i < n; i++)
+                {
+                    _flagFirstSeen[(RecentChangeFlags)flagKeys[i]] = flagTimes[i];
+                }
+            }
+
+            EnsureInitialized();
+
+            // Persist _primedOnce so post-load ticks compute deltas against restored _working.
+            dataStore.SyncData("EnlistedIntel._primedOnce", ref _primedOnce);
+        }
 
         private void HandleOnEnlisted(Hero lord)
         {
