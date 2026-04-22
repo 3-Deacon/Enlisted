@@ -36,7 +36,7 @@ The merge partitions the remaining work by **lifecycle position in this loop**, 
 |---|---|---|---|---|
 | 1 | Campaign Intelligence Backbone | ✅ Shipped 2026-04-22 (34322d4→bc13096) | Snapshot + collector + classifier + hourly tick + persistence. No consumers. | 29 tasks |
 | 2 | Lord AI Intervention | Drafted, ready to start | Model wrappers (`TargetScoreCalculatingModel`, `ArmyManagementCalculationModel`, `MobilePartyAIModel`) + narrow Harmony for behavior loops. Snapshot-driven bias. Enlisted-gated. | ~25 tasks est. |
-| 3 | Signal Projection | Drafted, ready to start | `SignalBuilder` projects snapshot into imperfect soldier-visible signals (rumor, camp_talk, scout_return, quartermaster_warning, etc.). Absorbs Orders Task 53 (floor storylets → signal authoring) and rewires `DailyDriftApplicator`'s emission path. | ~25 tasks est. |
+| 3 | Signal Projection | ✅ Shipped 2026-04-22 (5fedf88→189e75c, 26 commits incl. status closure) | `SignalBuilder` projects snapshot into imperfect soldier-visible signals (rumor, camp_talk, scout_return, quartermaster_warning, etc.). Absorbs Orders Task 53 (floor storylets → signal authoring) and rewires `DailyDriftApplicator`'s emission path. | 29 tasks (T28 in-game smoke pending human operator) |
 | 4 | Duty Opportunities | Drafted, ready to start | `DutyOpportunityBuilder` generates ambient duty storylets from snapshot. Fires at `StoryTier.Log` through `StoryDirector` + `OrdersNewsFeedThrottle`. Absorbs Orders Tasks 27-32, 35, 36, 41, 43, 54. | ~30 tasks est. |
 | 5 | Career Loop Closure | Drafted, ready to start | Path crossroads (Phase C 44-52 from Orders) + lord-trait/culture overlays (Phase D 55-56) + debug/save-load/playtest (Phase D 57-60). Final integration smoke. | ~25 tasks est. |
 
