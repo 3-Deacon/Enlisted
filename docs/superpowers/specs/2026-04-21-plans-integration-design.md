@@ -79,14 +79,17 @@ After Tasks 33 and 34 shipped today (commits `f8e028b`, `deb88db`), the Orders p
 **Conflict:** Today `DailyDriftApplicator.FlushSummary` emits a `StoryTier.Log` "Past few days: Bow +45, Athletics +25 XP" entry through `StoryDirector`. Plan 3's `SignalBuilder` produces richer signals (`rumor`, `camp_talk`, `scout_return`, etc.) that would overlap.
 **Resolution:** Plan 3 absorbs the emission path. `DailyDriftApplicator` keeps the XP accumulator (per-skill pending-XP dictionary + daily apply) but its news-feed emit site is rewired to emit through `SignalBuilder` as a `scout_return`-or-similar signal. XP bookkeeping = DailyDriftApplicator's job. News-feed voice = Plan 3's job.
 
-### 5.3 Transition-interrupt hook location — **flagged for user checkpoint**
-**Conflict:** Orders Task 35 transition storylets fire when a profile change commits while a named order is active. Two viable sites:
+### 5.3 Transition-interrupt hook location
+**Conflict:** Orders Task 35 transition storylets fire when a profile change commits while a named order is active. Two viable sites were considered:
 - **(a)** `DutyProfileBehavior.CommitTransition` emits the transition storylet directly. Profile-change is the trigger; the hook lives with the state-change that generates it. Plan 4 authors the content; Plan 4 does not own the emission call site. Simplest wiring.
-- **(b)** Plan 4's `DutyOpportunityBuilder` subscribes to `DutyProfileBehavior`'s existing `profile_changed` beat on `OrderActivity` and emits the transition storylet there. Centralizes all content emission in Plan 4's builder. Requires Plan 4 to subscribe to a beat emitted by an Orders-era behavior.
+- **(b)** Plan 4's `DutyOpportunityBuilder` subscribes to `DutyProfileBehavior`'s existing `profile_changed` beat on `OrderActivity` and emits the transition storylet there. Centralizes all content emission in Plan 4's builder. Requires cross-plan beat subscription.
 
-Note: Plan 1's `RecentChangeFlags` cover `WarDeclared / MakePeace / ArmyCreated / ArmyDispersed / MapEventStarted` — NOT `DutyProfileId` changes. So option (b) routes through the existing beat, not through the snapshot.
+**Resolution: (a).** Rationale:
+- Plan 1's `RecentChangeFlags` explicitly cover `WarDeclared / MakePeace / ArmyCreated / ArmyDispersed / MapEventStarted` — **not** `DutyProfileId` changes. Option (b) would require either adding a profile-change flag to Plan 1 (scope creep into a frozen plan) or Plan 4 subscribing cross-plan to an Orders-era beat (coupling).
+- Profile transitions are already a committed state change inside `DutyProfileBehavior`; the emission is additive — `CommitTransition` already fires a `profile_changed` beat, and the transition-storylet emit is a natural extension.
+- Content still lives in Plan 4's authoring pass (`transition.json`, ~15 storylets). Only the emission call site lives in `DutyProfileBehavior`.
 
-**Status:** Unresolved. User must decide before Plan 4 is dispatched to a subagent. See §8.
+Plan 4's task list includes the content authoring. Plan 4 does **not** need to extend `DutyProfileBehavior`; Plan 4 leaves a small step instructing the subagent to add the `StoryletCatalog.GetById(...)` lookup + `StoryDirector.EmitCandidate(ChainContinuation = true)` call inside `CommitTransition`, with the fallback chain `transition_<old>_to_<new>_mid_<orderId>` → `transition_<old>_to_<new>_generic` → `transition_generic_interrupted`.
 
 ### 5.4 Boundary between Orders content authoring and Plan 4 content
 **Conflict:** Orders Phase C Task 49 (T7+ named-order variants gated on `committed_path`) and Phase D Tasks 54-56 (imprisoned, culture, trait overlays) are all content authoring. Which plan owns them?
@@ -136,13 +139,9 @@ Update CLAUDE.md's "Current project status" paragraph to reflect the new five-pl
 
 ---
 
-## 8. Open checkpoint before subagent dispatch
+## 8. Status of resolutions
 
-**Before spawning the four plan-drafting subagents (Plans 2, 3, 4, 5), the user must confirm:**
-
-- Resolution **§5.3** — transition-interrupt hook in `DutyProfileBehavior` (option a) or in Plan 4's `DutyOpportunityBuilder` (option b, currently proposed).
-
-The other three resolutions (offset 48, daily drift vs signals, content/overlay boundary) were approved implicitly when the user said "merge" after the earlier presentation. #5.3 involves a specific code surface that wasn't surfaced in that round.
+All four conflict resolutions (§5.1 through §5.4) are locked in — no open checkpoints before subagent dispatch. Plans 2, 3, 4, 5 can proceed to drafting.
 
 ---
 
