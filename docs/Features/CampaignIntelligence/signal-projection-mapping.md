@@ -1,0 +1,36 @@
+# Signal Projection Mapping
+
+Living reference mapping Plan 1 campaign-intelligence snapshot state (and its `RecentChangeFlags` bits) to the ten signal families produced by `EnlistedCampaignSignalBuilder`. Used by:
+
+- `EnlistedCampaignSignalBuilder` (Plan 3 T6) — picks which family to project for a given snapshot.
+- Floor-storylet authors (Plan 3 T16-T25) — keeps authored pool content aligned with the snapshot-to-signal contract.
+
+## Trigger → Signal Family
+
+| Trigger (snapshot state or flag) | Signal family | Default confidence | Example inference |
+|---|---|---|---|
+| `SupplyPressure >= Strained` | QuartermasterWarning | Medium | "Stores may need to move sooner than expected." |
+| `ArmyStrain >= High AND not in settlement` | TensionIncident | Medium | "The men are restless at the campfires." |
+| `FrontPressure >= High` | Rumor | Low | "Enemy riders seen to the east — unconfirmed." |
+| `RecentChangeFlags has SiegeTransition` | Dispatch | High | "The army marches; camp breaks by dawn." |
+| `RecentChangeFlags has ConfirmedScoutInfo` | ScoutReturn | High | "Scouts returned; numbers confirmed." |
+| `PrisonerStakes >= Medium AND RecentChangeFlags has PrisonerUpdate` | PrisonerReport | Medium | "Word on the prisoner — not all good." |
+| `SupplyPressure == None AND ArmyStrain == None AND FrontPressure == None` | SilenceWithImplication | Low | (no inference text — the silence IS the point) |
+| `RecentChangeFlags has ObjectiveShift` | OrderShift | High | "New orders came down; old plans scrapped." |
+| `RecentChangeFlags has NewThreat` | AftermathNotice | Medium | "Trouble on the road — some didn't make it back." |
+| `RecoveryNeed >= High` | CampTalk | Low | "Talk in the mess: how much longer?" |
+
+## Default Source Perspective per Family
+
+| Family | Default source perspective |
+|---|---|
+| Rumor | Rumor |
+| CampTalk | OwnObservation |
+| Dispatch | Courier |
+| OrderShift | Sergeant |
+| QuartermasterWarning | Quartermaster |
+| ScoutReturn | Narrator (describing the scout's return) |
+| PrisonerReport | Narrator |
+| AftermathNotice | Narrator |
+| TensionIncident | OwnObservation |
+| SilenceWithImplication | Narrator |
