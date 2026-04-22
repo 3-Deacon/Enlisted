@@ -1,4 +1,5 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using System;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -47,5 +48,30 @@ namespace Enlisted.Features.CampaignIntelligence.Models
 
         public override float CurrentObjectiveValue(MobileParty mobileParty) =>
             BaseModel?.CurrentObjectiveValue(mobileParty) ?? 0f;
+
+        /// <summary>
+        /// Unified identity-gate + vanilla-fallback entry for every biased
+        /// float-returning method. Always returns the vanilla value when the
+        /// gate fails; the caller applies any enlisted-only bias on top.
+        /// </summary>
+        private float VanillaOnlyOrBias(
+            MobileParty party,
+            float vanilla,
+            System.Func<EnlistedLordIntelligenceSnapshot, float, float> biasFn)
+        {
+            if (!EnlistedAiGate.TryGetSnapshotForParty(party, out var snapshot))
+            {
+                return vanilla;
+            }
+            try
+            {
+                return biasFn(snapshot, vanilla);
+            }
+            catch (System.Exception ex)
+            {
+                Enlisted.Mod.Core.Logging.ModLogger.Caught("INTELAI", "target_score_bias_failed", ex);
+                return vanilla;
+            }
+        }
     }
 }
