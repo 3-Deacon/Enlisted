@@ -6848,5 +6848,131 @@
     <string id="duty_escorting_weapons_inspection_1_setup" text="A sergeant in the army leader&apos;s service runs an inspection of the attached retinues. He examines edge quality, haft condition, crossbow limbs. You let him handle your blade and watch what he notices." />
     <string id="duty_escorting_weapons_inspection_1_title" text="Weapons inspection, foreign sergeant" />
     <string id="duty_escorting_weapons_inspection_1_tt" text="Weapons standards review. Smithing + OneHanded + TwoHanded XP." />
+
+    <!-- duty_wandering_campfire_sparring_1 -->
+    <string id="duty_wandering_campfire_sparring_1_opt" text="Take a bout. Stay sharp." />
+    <string id="duty_wandering_campfire_sparring_1_setup" text="No enemies and nothing to do. Someone produces two blunted blades and a space clears at the edge of camp. Better than standing still in the dark." />
+    <string id="duty_wandering_campfire_sparring_1_title" text="Sparring by the fire" />
+    <string id="duty_wandering_campfire_sparring_1_tt" text="Idle sparring at camp. TwoHanded + Polearm XP." />
+
+    <!-- duty_wandering_cover_a_road_1 -->
+    <string id="duty_wandering_cover_a_road_1_opt" text="Hold the watch. Count what passes." />
+    <string id="duty_wandering_cover_a_road_1_setup" text="The lord asks for a watch on the south road while he meets with a notable. An hour, he says. You find a spot in the tree line and watch who passes." />
+    <string id="duty_wandering_cover_a_road_1_title" text="Cover a road for an hour" />
+    <string id="duty_wandering_cover_a_road_1_tt" text="Road watch and tally. Scouting + Roguery XP." />
+
+    <!-- duty_wandering_dice_at_the_inn_1 -->
+    <string id="duty_wandering_dice_at_the_inn_1_opt" text="Play quiet. Watch what people give away." />
+    <string id="duty_wandering_dice_at_the_inn_1_setup" text="A quiet night in a crossroads tavern. The locals play dice on a worn corner table. You sit in and watch the tells — who hesitates before a raise, who looks at the door, who plays with other people&apos;s money." />
+    <string id="duty_wandering_dice_at_the_inn_1_title" text="Dice at the tavern" />
+    <string id="duty_wandering_dice_at_the_inn_1_tt" text="Tavern dice observation. Roguery + Charm XP." />
+
+    <!-- duty_wandering_ford_crossing_1 -->
+    <string id="duty_wandering_ford_crossing_1_opt" text="Walk the line. Bring the horse through steady." />
+    <string id="duty_wandering_ford_crossing_1_setup" text="The ford is running high from last week&apos;s rain. You go first, walking the horse slowly, feeling for the bottom. The rest of the party watches and follows your line." />
+    <string id="duty_wandering_ford_crossing_1_title" text="Ford crossing in high water" />
+    <string id="duty_wandering_ford_crossing_1_tt" text="High-water ford crossing. Riding + Medicine XP." />
+
+    <!-- duty_wandering_goods_assessment_1 -->
+    <string id="duty_wandering_goods_assessment_1_opt" text="Work through the inventory. Flag anything valuable." />
+    <string id="duty_wandering_goods_assessment_1_setup" text="After a run-in on the road, you help catalog what was recovered. Cloth, iron ingots, a merchant&apos;s ledger with debts listed in three scripts. The ledger might be worth something to the right buyer." />
+    <string id="duty_wandering_goods_assessment_1_title" text="Assessing the haul" />
+    <string id="duty_wandering_goods_assessment_1_tt" text="Spoil assessment after a skirmish. Trade + Steward XP." />
+
+    <!-- duty_wandering_half_built_bridge_1 -->
+    <string id="duty_wandering_half_built_bridge_1_opt" text="Work out why it stopped. File the lesson." />
+    <string id="duty_wandering_half_built_bridge_1_setup" text="A bridge over the eastern ford is half-built and abandoned. The scaffolding is wrong and the timber selection is poor. You walk the structure, note the problem, and think about the man who left it." />
+    <string id="duty_wandering_half_built_bridge_1_title" text="Half-built bridge" />
+    <string id="duty_wandering_half_built_bridge_1_tt" text="Abandoned construction analysis. Engineering + Smithing XP." />
+
+    <!-- duty_wandering_javelin_tree_1 -->
+    <string id="duty_wandering_javelin_tree_1_opt" text="Work the distances. Find the arc." />
+    <string id="duty_wandering_javelin_tree_1_setup" text="A field, a tree, and an afternoon to kill. You spend it working throwing distances — ten paces, then fifteen, then back to ten when the results embarrass you." />
+    <string id="duty_wandering_javelin_tree_1_title" text="Javelins at a tree" />
+    <string id="duty_wandering_javelin_tree_1_tt" text="Javelin practice in a field. Throwing + Athletics XP." />
+
+    <!-- duty_wandering_long_ride_1 -->
+    <string id="duty_wandering_long_ride_1_opt" text="Let the horse set the pace. Learn its mind." />
+    <string id="duty_wandering_long_ride_1_setup" text="Two days between settlements with nothing but road, weather, and saddle time. You and the horse come to an understanding about pace and preferred stops." />
+    <string id="duty_wandering_long_ride_1_title" text="Long ride between nowhere" />
+    <string id="duty_wandering_long_ride_1_tt" text="Long cross-country ride. Riding XP." />
+
+    <!-- duty_wandering_low_intel_1 -->
+    <string id="duty_wandering_low_intel_1_opt" text="Push further out. Find what the quiet is hiding." />
+    <string id="duty_wandering_low_intel_1_setup" text="There is no front to speak of — no news of where the enemy is, no runners from the castle, no sign of armies moving. The road is quiet in the way that makes experienced men uneasy." />
+    <string id="duty_wandering_low_intel_1_title" text="No word from the front" />
+    <string id="duty_wandering_low_intel_1_tt" text="Quiet-stretch intel sweep. Scouting XP." />
+
+    <!-- duty_wandering_market_prices_1 -->
+    <string id="duty_wandering_market_prices_1_opt" text="Price the goods. Note what moves." />
+    <string id="duty_wandering_market_prices_1_setup" text="The village has a market. Not much — grain, cloth, a few tools — but you walk the stalls and work out what things cost here versus what they cost three days east. The difference is the reason to be here." />
+    <string id="duty_wandering_market_prices_1_title" text="Village market prices" />
+    <string id="duty_wandering_market_prices_1_tt" text="Local market survey. Trade XP." />
+
+    <!-- duty_wandering_new_threat_1 -->
+    <string id="duty_wandering_new_threat_1_opt" text="Read the side tracks. Watch what&apos;s moving." />
+    <string id="duty_wandering_new_threat_1_setup" text="Word reaches you from a rider on the road: something new is moving in the region. Doesn&apos;t know what, doesn&apos;t know where. He kept riding. You start paying more attention to the side tracks." />
+    <string id="duty_wandering_new_threat_1_title" text="Fresh threat on the road" />
+    <string id="duty_wandering_new_threat_1_tt" text="New threat nearby. Scouting + Roguery XP." />
+
+    <!-- duty_wandering_notable_deal_1 -->
+    <string id="duty_wandering_notable_deal_1_opt" text="Hear the terms. Don&apos;t overpromise." />
+    <string id="duty_wandering_notable_deal_1_setup" text="A village notable wants protection for a grain shipment two days west. He offers silver and a night&apos;s lodging. Your lord is flexible on destinations. You sit with the man and work out terms." />
+    <string id="duty_wandering_notable_deal_1_title" text="A deal with a rural notable" />
+    <string id="duty_wandering_notable_deal_1_tt" text="Freelance escort negotiation. Trade + Charm XP." />
+
+    <!-- duty_wandering_objective_shift_1 -->
+    <string id="duty_wandering_objective_shift_1_opt" text="Recalculate the supply needs. Plan the new route." />
+    <string id="duty_wandering_objective_shift_1_setup" text="The lord announces a new destination over breakfast. No explanation, different road. You adjust the day&apos;s plan and estimate what supplies will last and which will need replacing on this heading." />
+    <string id="duty_wandering_objective_shift_1_title" text="Objective shift, new direction" />
+    <string id="duty_wandering_objective_shift_1_tt" text="New heading mid-wander. Trade + Charm XP." />
+
+    <!-- duty_wandering_range_practice_1 -->
+    <string id="duty_wandering_range_practice_1_opt" text="Work the targets until the light goes." />
+    <string id="duty_wandering_range_practice_1_setup" text="A dead oak in a field makes a decent target. You pull from thirty paces, then forty. The crossbowman nearby moves his bolts in tight groups while you trade remarks about technique." />
+    <string id="duty_wandering_range_practice_1_title" text="Range work at camp" />
+    <string id="duty_wandering_range_practice_1_tt" text="Idle range practice. Bow + Crossbow XP." />
+
+    <!-- duty_wandering_read_the_trail_1 -->
+    <string id="duty_wandering_read_the_trail_1_opt" text="Read the ground. Take the likeliest road." />
+    <string id="duty_wandering_read_the_trail_1_setup" text="The road ends at a crossroads and there is no one to ask which way. You read the wheel ruts, the hoof marks, the trampled grass. Three choices. You pick the one that looks like coin." />
+    <string id="duty_wandering_read_the_trail_1_title" text="Reading the trail" />
+    <string id="duty_wandering_read_the_trail_1_tt" text="Crossroads navigation. Scouting XP." />
+
+    <!-- duty_wandering_ridgeline_watch_1 -->
+    <string id="duty_wandering_ridgeline_watch_1_opt" text="Read the country from above." />
+    <string id="duty_wandering_ridgeline_watch_1_setup" text="You ride to the nearest ridge and look. No orders, no hurry. Just the lay of the country spread out below — roads, farmsteads, the glint of water two valleys off. You file it away." />
+    <string id="duty_wandering_ridgeline_watch_1_title" text="Ridgeline watch" />
+    <string id="duty_wandering_ridgeline_watch_1_tt" text="High ground observation. Scouting XP." />
+
+    <!-- duty_wandering_rumor_buying_1 -->
+    <string id="duty_wandering_rumor_buying_1_opt" text="Pay for the real part. Discard the rest." />
+    <string id="duty_wandering_rumor_buying_1_setup" text="A pedlar has a story worth paying for — or says he has. You sit with him long enough to determine that half of it is real, a quarter is embellished, and the rest is invention. The real quarter is still useful." />
+    <string id="duty_wandering_rumor_buying_1_title" text="Buying a rumor" />
+    <string id="duty_wandering_rumor_buying_1_tt" text="Intelligence gathering from a pedlar. Roguery XP." />
+
+    <!-- duty_wandering_sell_the_surplus_1 -->
+    <string id="duty_wandering_sell_the_surplus_1_opt" text="Drive a fair deal. Keep your lord&apos;s name clean." />
+    <string id="duty_wandering_sell_the_surplus_1_setup" text="The party has more than it needs and coin would be more useful. You take the surplus to a merchant at the crossroads inn and work through the haggle over an afternoon drink you do not actually drink." />
+    <string id="duty_wandering_sell_the_surplus_1_title" text="Selling the surplus" />
+    <string id="duty_wandering_sell_the_surplus_1_tt" text="Surplus goods sold at a crossroads. Trade + lord_relation XP." />
+
+    <!-- duty_wandering_shakedown_averted_1 -->
+    <string id="duty_wandering_shakedown_averted_1_opt" text="Move them off without a fuss." />
+    <string id="duty_wandering_shakedown_averted_1_setup" text="A pair of armed men are blocking the road with a chain and a story about a toll. They are not authorized toll collectors. You are fairly sure they know this." />
+    <string id="duty_wandering_shakedown_averted_1_title" text="Shakedown on the road" />
+    <string id="duty_wandering_shakedown_averted_1_tt" text="Road shakedown dealt with. Roguery + OneHanded XP." />
+
+    <!-- duty_wandering_tracks_at_dawn_1 -->
+    <string id="duty_wandering_tracks_at_dawn_1_opt" text="Measure the tracks. Count the horses." />
+    <string id="duty_wandering_tracks_at_dawn_1_setup" text="Overnight, someone passed through camp on the road. The tracks in the morning mud are clear — a party moving fast, no wagon, heading east. You note the interval and the iron-shoe marks." />
+    <string id="duty_wandering_tracks_at_dawn_1_title" text="Tracks in the mud at dawn" />
+    <string id="duty_wandering_tracks_at_dawn_1_tt" text="Early-morning track read. Scouting + Tactics XP." />
+
+    <!-- duty_wandering_war_declared_1 -->
+    <string id="duty_wandering_war_declared_1_opt" text="Think through the new positions. Plan accordingly." />
+    <string id="duty_wandering_war_declared_1_setup" text="A courier catches you on the road: war declared, faction versus faction, the familiar names aligned in unfamiliar directions. The mercenary quiet is over. Your lord looks at the map a long time before putting it away." />
+    <string id="duty_wandering_war_declared_1_title" text="War declared" />
+    <string id="duty_wandering_war_declared_1_tt" text="Fresh war changes the board. Tactics XP, readiness up." />
 </strings>
 </base>
