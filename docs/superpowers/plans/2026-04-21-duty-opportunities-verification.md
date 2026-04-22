@@ -2,7 +2,7 @@
 
 **Status:** Code-level verification complete. T26 + T27 (14-day in-game smoke + fast-forward soak) pending human operator.
 
-**Shipped:** 2026-04-22 on `development`. Commit range `ca22111..0c519d3` (20 feature commits + this status-closure commit = 21 total).
+**Shipped:** 2026-04-22 on `development`. Commit range `ca22111..0c519d3` (21 feature commits + this status-closure commit = 22 total).
 **Plan doc:** [docs/superpowers/plans/2026-04-21-duty-opportunities.md](2026-04-21-duty-opportunities.md)
 **Design reference:** [docs/superpowers/specs/2026-04-21-enlisted-campaign-intelligence-design.md](../specs/2026-04-21-enlisted-campaign-intelligence-design.md)
 
@@ -102,7 +102,7 @@ At T28 close (commit `0c519d3` + status-closure commit):
 
 - **T26 + T27 — in-game smoke pending.** Requires a live Bannerlord session running 14 in-game days through all seven duty profiles plus at least one arc-accept + transition-interrupt scenario. Code-level verification is complete; operator smoke confirms cadence, arc-scale Modal rendering, transition dialog, and throttle behavior at 1×/4×/16× speed.
 
-- **Phase 13 threshold softened from plan-literal.** The plan specified "≥5 covering storylets per `(profile, skill)` cell" — mathematically unreachable with 140 storylets distributed across 18 skills × 7 profiles (= 126 cells). Shipped threshold is warning-level **≥1 per cell**. 10 cells remain empty (9 `imprisoned` combat/mounted skills + 1 `wandering` Leadership). Tightening would require doubling the content budget — left as a deliberate authoring-future item.
+- **Phase 13 threshold softened from plan-literal.** The plan specified "≥5 covering storylets per `(profile, skill)` cell" — mathematically unreachable with 140 storylets distributed across 18 skills × 7 profiles (= 126 cells). Shipped threshold is warning-level **≥1 per cell**. 10 cells remain empty by design: 9 `imprisoned` combat/mounted skills (captivity locks out bow / polearm / mounted / engineering per the mapping doc) and 1 `wandering` Leadership (wandering is low-direction mercenary downtime; Leadership XP lives in `escorting` and `garrisoned`). Tightening would require doubling the content budget — left as a deliberate authoring-future item.
 
 - **Localization XML sync deferred.** 140 new storylets introduced ~560 new loc-keys authored as inline `{=key}Fallback`. `Tools/Validation/sync_event_strings.py` was run after each pool commit and its XML output staged. A future translator pass can formalize non-English variants.
 
