@@ -1,0 +1,514 @@
+{
+  "storylets": [
+    {
+      "id": "path_crossroads_ranger_t4",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_ranger_t4_title}The treeline keeps talking",
+      "setup": "{=path_cx_ranger_t4_setup}The column rests. You read the ground without meaning to — bent grass, a turned stone. {SERGEANT} watches you do it and says nothing.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_ranger_t4_commit}Let them put you out front.",
+          "tooltip": "{=path_cx_ranger_t4_commit_tt}Commit to ranger path. +1 Scouting focus, +10 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "ranger" },
+            { "apply": "grant_focus_point", "skill": "Scouting", "amount": 1 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_ranger_t4_resist}Not yet. Not the name.",
+          "tooltip": "{=path_cx_ranger_t4_resist_tt}Resist ranger path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "ranger" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_ranger_t4_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_ranger_t4_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_ranger_t6",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_ranger_t6_title}First out, first back",
+      "setup": "{=path_cx_ranger_t6_setup}{SERGEANT} sends you ahead without naming the task. The men shift aside when you move to mount. It is how they treat a scout now, not a soldier with a knack.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_ranger_t6_commit}Take the saddle. Wear the name.",
+          "tooltip": "{=path_cx_ranger_t6_commit_tt}Commit to ranger path. +1 Cunning, +15 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "ranger" },
+            { "apply": "grant_attribute_level", "attribute": "cunning", "amount": 1 },
+            { "apply": "grant_renown", "amount": 15 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_ranger_t6_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_ranger_t6_resist_tt}Resist ranger path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "ranger" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_ranger_t6_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_ranger_t6_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_ranger_t9",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_ranger_t9_title}The ranger's road",
+      "setup": "{=path_cx_ranger_t9_setup}{LORD_NAME} asks who reads the ground and every head turns your way. Not as a soldier who happens to scout. As the scout. The column has a shape now, and you are at the point of it.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_ranger_t9_commit}Answer to the name.",
+          "tooltip": "{=path_cx_ranger_t9_commit_tt}Commit to ranger path. +1 unspent focus, +25 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "ranger" },
+            { "apply": "grant_unspent_focus", "amount": 1 },
+            { "apply": "grant_renown", "amount": 25 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_ranger_t9_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_ranger_t9_resist_tt}Resist ranger path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "ranger" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_ranger_t9_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_ranger_t9_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_enforcer_t4",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_enforcer_t4_title}The heavy side of the line",
+      "setup": "{=path_cx_enforcer_t4_setup}When the shove came, you held. {COMRADE_NAME} fell in behind you without being told. The habit of it sits strange in your shoulders the next morning.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_enforcer_t4_commit}Stand where they put you.",
+          "tooltip": "{=path_cx_enforcer_t4_commit_tt}Commit to enforcer path. +1 OneHanded focus, +10 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "enforcer" },
+            { "apply": "grant_focus_point", "skill": "OneHanded", "amount": 1 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_enforcer_t4_resist}Not yet. Not the name.",
+          "tooltip": "{=path_cx_enforcer_t4_resist_tt}Resist enforcer path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "enforcer" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_enforcer_t4_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_enforcer_t4_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_enforcer_t6",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_enforcer_t6_title}Anchor of the line",
+      "setup": "{=path_cx_enforcer_t6_setup}{SERGEANT} calls you by a nickname the shield-men use — the one that means 'does not move'. He does not smile when he says it. No one else questions the name.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_enforcer_t6_commit}Take the place they leave you.",
+          "tooltip": "{=path_cx_enforcer_t6_commit_tt}Commit to enforcer path. +1 Vigor, +15 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "enforcer" },
+            { "apply": "grant_attribute_level", "attribute": "vigor", "amount": 1 },
+            { "apply": "grant_renown", "amount": 15 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_enforcer_t6_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_enforcer_t6_resist_tt}Resist enforcer path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "enforcer" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_enforcer_t6_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_enforcer_t6_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_enforcer_t9",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_enforcer_t9_title}The wall they point at",
+      "setup": "{=path_cx_enforcer_t9_setup}The company forms up and leaves a space for you. {LORD_NAME} rides past the line and stops where you stand. He does not greet you. He places you. It is the place the front-rank men hold.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_enforcer_t9_commit}Be the shape they expect.",
+          "tooltip": "{=path_cx_enforcer_t9_commit_tt}Commit to enforcer path. +1 unspent focus, +25 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "enforcer" },
+            { "apply": "grant_unspent_focus", "amount": 1 },
+            { "apply": "grant_renown", "amount": 25 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_enforcer_t9_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_enforcer_t9_resist_tt}Resist enforcer path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "enforcer" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_enforcer_t9_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_enforcer_t9_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_support_t4",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_support_t4_title}The hand that binds",
+      "setup": "{=path_cx_support_t4_setup}The surgeon's assistant needed a clean cloth and a steady arm. You gave both without thinking. He grunts at you the next morning — not thanks. Recognition.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_support_t4_commit}Go where the bandages are.",
+          "tooltip": "{=path_cx_support_t4_commit_tt}Commit to support path. +1 Medicine focus, +10 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "support" },
+            { "apply": "grant_focus_point", "skill": "Medicine", "amount": 1 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_support_t4_resist}Not yet. Not the name.",
+          "tooltip": "{=path_cx_support_t4_resist_tt}Resist support path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "support" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_support_t4_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_support_t4_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_support_t6",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_support_t6_title}They bring you the bleeding",
+      "setup": "{=path_cx_support_t6_setup}A man is dragged in with a wound down his thigh and the men do not set him by the fire. They set him by you. {SERGEANT} watches to see what you do with what he has given you.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_support_t6_commit}Take the needle and the name.",
+          "tooltip": "{=path_cx_support_t6_commit_tt}Commit to support path. +1 Intelligence, +15 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "support" },
+            { "apply": "grant_attribute_level", "attribute": "intelligence", "amount": 1 },
+            { "apply": "grant_renown", "amount": 15 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_support_t6_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_support_t6_resist_tt}Resist support path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "support" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_support_t6_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_support_t6_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_support_t9",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_support_t9_title}The hands the company keeps",
+      "setup": "{=path_cx_support_t9_setup}{LORD_NAME} asks after the wounded and the sergeant names you before the surgeon. The men know the order. You are the one they want over them when the steel comes out of the bone.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_support_t9_commit}Be the hands they ask for.",
+          "tooltip": "{=path_cx_support_t9_commit_tt}Commit to support path. +1 unspent focus, +25 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "support" },
+            { "apply": "grant_unspent_focus", "amount": 1 },
+            { "apply": "grant_renown", "amount": 25 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_support_t9_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_support_t9_resist_tt}Resist support path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "support" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_support_t9_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_support_t9_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_diplomat_t4",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_diplomat_t4_title}The tongue that holds the room",
+      "setup": "{=path_cx_diplomat_t4_setup}Two men almost came to blows over rations. You said a short thing and they let it drop. A veteran at the next fire looks at you differently the next day.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_diplomat_t4_commit}Do it again when asked.",
+          "tooltip": "{=path_cx_diplomat_t4_commit_tt}Commit to diplomat path. +1 Charm focus, +10 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "diplomat" },
+            { "apply": "grant_focus_point", "skill": "Charm", "amount": 1 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_diplomat_t4_resist}Not yet. Not the name.",
+          "tooltip": "{=path_cx_diplomat_t4_resist_tt}Resist diplomat path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "diplomat" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_diplomat_t4_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_diplomat_t4_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_diplomat_t6",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_diplomat_t6_title}Sent to the gate, not the wall",
+      "setup": "{=path_cx_diplomat_t6_setup}The village headman will not open and {SERGEANT} sends you up the road alone. No shield. Only the words. The men stay back because they have learned you can do this.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_diplomat_t6_commit}Walk the road without the shield.",
+          "tooltip": "{=path_cx_diplomat_t6_commit_tt}Commit to diplomat path. +1 Social, +15 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "diplomat" },
+            { "apply": "grant_attribute_level", "attribute": "social", "amount": 1 },
+            { "apply": "grant_renown", "amount": 15 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_diplomat_t6_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_diplomat_t6_resist_tt}Resist diplomat path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "diplomat" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_diplomat_t6_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_diplomat_t6_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_diplomat_t9",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_diplomat_t9_title}Where they send the tongue",
+      "setup": "{=path_cx_diplomat_t9_setup}{LORD_NAME} has business with a lord who does not like his face. He takes you. Not as guard. To speak. The company knows it before you are told.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_diplomat_t9_commit}Ride with him. Speak for him.",
+          "tooltip": "{=path_cx_diplomat_t9_commit_tt}Commit to diplomat path. +1 unspent focus, +25 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "diplomat" },
+            { "apply": "grant_unspent_focus", "amount": 1 },
+            { "apply": "grant_renown", "amount": 25 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_diplomat_t9_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_diplomat_t9_resist_tt}Resist diplomat path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "diplomat" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_diplomat_t9_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_diplomat_t9_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_rogue_t4",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_rogue_t4_title}Coin that wasn't counted",
+      "setup": "{=path_cx_rogue_t4_setup}A purse turned up short at muster and no one looked at you. Later, {COMRADE_NAME} catches your eye across the fire. He says nothing. He does not need to.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_rogue_t4_commit}Let the ledger stay short.",
+          "tooltip": "{=path_cx_rogue_t4_commit_tt}Commit to rogue path. +1 Roguery focus, +10 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "rogue" },
+            { "apply": "grant_focus_point", "skill": "Roguery", "amount": 1 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_rogue_t4_resist}Not yet. Not the name.",
+          "tooltip": "{=path_cx_rogue_t4_resist_tt}Resist rogue path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "rogue" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_rogue_t4_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_rogue_t4_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_rogue_t6",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_rogue_t6_title}The quiet errand",
+      "setup": "{=path_cx_rogue_t6_setup}{SERGEANT} wants a thing done that will not be written down. He does not ask the shield-men. He asks you, and he asks you alone, and he does not meet your eye while he does it.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_rogue_t6_commit}Take the errand. Keep the silence.",
+          "tooltip": "{=path_cx_rogue_t6_commit_tt}Commit to rogue path. +1 Cunning, +15 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "rogue" },
+            { "apply": "grant_attribute_level", "attribute": "cunning", "amount": 1 },
+            { "apply": "grant_renown", "amount": 15 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_rogue_t6_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_rogue_t6_resist_tt}Resist rogue path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "rogue" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_rogue_t6_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_rogue_t6_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "path_crossroads_rogue_t9",
+      "category": "path_crossroads",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=path_cx_rogue_t9_title}The man for the unwritten work",
+      "setup": "{=path_cx_rogue_t9_setup}{LORD_NAME} has an instruction that will not go on any page. He does not summon the captain. He summons you. The company sees him do it and the company does not ask.",
+      "options": [
+        {
+          "id": "commit",
+          "text": "{=path_cx_rogue_t9_commit}Answer. Ask no questions.",
+          "tooltip": "{=path_cx_rogue_t9_commit_tt}Commit to rogue path. +1 unspent focus, +25 renown.",
+          "effects": [
+            { "apply": "commit_path", "path": "rogue" },
+            { "apply": "grant_unspent_focus", "amount": 1 },
+            { "apply": "grant_renown", "amount": 25 }
+          ]
+        },
+        {
+          "id": "resist",
+          "text": "{=path_cx_rogue_t9_resist}Not yet. Not the label.",
+          "tooltip": "{=path_cx_rogue_t9_resist_tt}Resist rogue path. Future bumps halved.",
+          "effects": [
+            { "apply": "resist_path", "path": "rogue" }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=path_cx_rogue_t9_defer}Decide later. Keep the work.",
+          "tooltip": "{=path_cx_rogue_t9_defer_tt}No commitment either way.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

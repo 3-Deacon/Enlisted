@@ -7111,5 +7111,139 @@
     <string id="trans_w2m_gen_setup" text="The free movement ends with a name on a paper and a direction. You have a lord again, for now. The column has already formed. You find your place in it." />
     <string id="trans_w2m_gen_title" text="Contract signed. Column forms." />
     <string id="trans_w2m_gen_tt" text="Wander ended by new orders. Partial XP." />
-</strings>
+    <!-- path_crossroads_diplomat_t4 -->
+    <string id="path_cx_diplomat_t4_commit" text="Do it again when asked." />
+    <string id="path_cx_diplomat_t4_commit_tt" text="Commit to diplomat path. +1 Charm focus, +10 renown." />
+    <string id="path_cx_diplomat_t4_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_diplomat_t4_defer_tt" text="No commitment either way." />
+    <string id="path_cx_diplomat_t4_resist" text="Not yet. Not the name." />
+    <string id="path_cx_diplomat_t4_resist_tt" text="Resist diplomat path. Future bumps halved." />
+    <string id="path_cx_diplomat_t4_setup" text="Two men almost came to blows over rations. You said a short thing and they let it drop. A veteran at the next fire looks at you differently the next day." />
+    <string id="path_cx_diplomat_t4_title" text="The tongue that holds the room" />
+    <!-- path_crossroads_diplomat_t6 -->
+    <string id="path_cx_diplomat_t6_commit" text="Walk the road without the shield." />
+    <string id="path_cx_diplomat_t6_commit_tt" text="Commit to diplomat path. +1 Social, +15 renown." />
+    <string id="path_cx_diplomat_t6_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_diplomat_t6_defer_tt" text="No commitment either way." />
+    <string id="path_cx_diplomat_t6_resist" text="Not yet. Not the label." />
+    <string id="path_cx_diplomat_t6_resist_tt" text="Resist diplomat path. Future bumps halved." />
+    <string id="path_cx_diplomat_t6_setup" text="The village headman will not open and {SERGEANT} sends you up the road alone. No shield. Only the words. The men stay back because they have learned you can do this." />
+    <string id="path_cx_diplomat_t6_title" text="Sent to the gate, not the wall" />
+    <!-- path_crossroads_diplomat_t9 -->
+    <string id="path_cx_diplomat_t9_commit" text="Ride with him. Speak for him." />
+    <string id="path_cx_diplomat_t9_commit_tt" text="Commit to diplomat path. +1 unspent focus, +25 renown." />
+    <string id="path_cx_diplomat_t9_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_diplomat_t9_defer_tt" text="No commitment either way." />
+    <string id="path_cx_diplomat_t9_resist" text="Not yet. Not the label." />
+    <string id="path_cx_diplomat_t9_resist_tt" text="Resist diplomat path. Future bumps halved." />
+    <string id="path_cx_diplomat_t9_setup" text="{LORD_NAME} has business with a lord who does not like his face. He takes you. Not as guard. To speak. The company knows it before you are told." />
+    <string id="path_cx_diplomat_t9_title" text="Where they send the tongue" />
+    <!-- path_crossroads_enforcer_t4 -->
+    <string id="path_cx_enforcer_t4_commit" text="Stand where they put you." />
+    <string id="path_cx_enforcer_t4_commit_tt" text="Commit to enforcer path. +1 OneHanded focus, +10 renown." />
+    <string id="path_cx_enforcer_t4_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_enforcer_t4_defer_tt" text="No commitment either way." />
+    <string id="path_cx_enforcer_t4_resist" text="Not yet. Not the name." />
+    <string id="path_cx_enforcer_t4_resist_tt" text="Resist enforcer path. Future bumps halved." />
+    <string id="path_cx_enforcer_t4_setup" text="When the shove came, you held. {COMRADE_NAME} fell in behind you without being told. The habit of it sits strange in your shoulders the next morning." />
+    <string id="path_cx_enforcer_t4_title" text="The heavy side of the line" />
+    <!-- path_crossroads_enforcer_t6 -->
+    <string id="path_cx_enforcer_t6_commit" text="Take the place they leave you." />
+    <string id="path_cx_enforcer_t6_commit_tt" text="Commit to enforcer path. +1 Vigor, +15 renown." />
+    <string id="path_cx_enforcer_t6_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_enforcer_t6_defer_tt" text="No commitment either way." />
+    <string id="path_cx_enforcer_t6_resist" text="Not yet. Not the label." />
+    <string id="path_cx_enforcer_t6_resist_tt" text="Resist enforcer path. Future bumps halved." />
+    <string id="path_cx_enforcer_t6_setup" text="{SERGEANT} calls you by a nickname the shield-men use — the one that means &apos;does not move&apos;. He does not smile when he says it. No one else questions the name." />
+    <string id="path_cx_enforcer_t6_title" text="Anchor of the line" />
+    <!-- path_crossroads_enforcer_t9 -->
+    <string id="path_cx_enforcer_t9_commit" text="Be the shape they expect." />
+    <string id="path_cx_enforcer_t9_commit_tt" text="Commit to enforcer path. +1 unspent focus, +25 renown." />
+    <string id="path_cx_enforcer_t9_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_enforcer_t9_defer_tt" text="No commitment either way." />
+    <string id="path_cx_enforcer_t9_resist" text="Not yet. Not the label." />
+    <string id="path_cx_enforcer_t9_resist_tt" text="Resist enforcer path. Future bumps halved." />
+    <string id="path_cx_enforcer_t9_setup" text="The company forms up and leaves a space for you. {LORD_NAME} rides past the line and stops where you stand. He does not greet you. He places you. It is the place the front-rank men hold." />
+    <string id="path_cx_enforcer_t9_title" text="The wall they point at" />
+    <!-- path_crossroads_ranger_t4 -->
+    <string id="path_cx_ranger_t4_commit" text="Let them put you out front." />
+    <string id="path_cx_ranger_t4_commit_tt" text="Commit to ranger path. +1 Scouting focus, +10 renown." />
+    <string id="path_cx_ranger_t4_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_ranger_t4_defer_tt" text="No commitment either way." />
+    <string id="path_cx_ranger_t4_resist" text="Not yet. Not the name." />
+    <string id="path_cx_ranger_t4_resist_tt" text="Resist ranger path. Future bumps halved." />
+    <string id="path_cx_ranger_t4_setup" text="The column rests. You read the ground without meaning to — bent grass, a turned stone. {SERGEANT} watches you do it and says nothing." />
+    <string id="path_cx_ranger_t4_title" text="The treeline keeps talking" />
+    <!-- path_crossroads_ranger_t6 -->
+    <string id="path_cx_ranger_t6_commit" text="Take the saddle. Wear the name." />
+    <string id="path_cx_ranger_t6_commit_tt" text="Commit to ranger path. +1 Cunning, +15 renown." />
+    <string id="path_cx_ranger_t6_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_ranger_t6_defer_tt" text="No commitment either way." />
+    <string id="path_cx_ranger_t6_resist" text="Not yet. Not the label." />
+    <string id="path_cx_ranger_t6_resist_tt" text="Resist ranger path. Future bumps halved." />
+    <string id="path_cx_ranger_t6_setup" text="{SERGEANT} sends you ahead without naming the task. The men shift aside when you move to mount. It is how they treat a scout now, not a soldier with a knack." />
+    <string id="path_cx_ranger_t6_title" text="First out, first back" />
+    <!-- path_crossroads_ranger_t9 -->
+    <string id="path_cx_ranger_t9_commit" text="Answer to the name." />
+    <string id="path_cx_ranger_t9_commit_tt" text="Commit to ranger path. +1 unspent focus, +25 renown." />
+    <string id="path_cx_ranger_t9_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_ranger_t9_defer_tt" text="No commitment either way." />
+    <string id="path_cx_ranger_t9_resist" text="Not yet. Not the label." />
+    <string id="path_cx_ranger_t9_resist_tt" text="Resist ranger path. Future bumps halved." />
+    <string id="path_cx_ranger_t9_setup" text="{LORD_NAME} asks who reads the ground and every head turns your way. Not as a soldier who happens to scout. As the scout. The column has a shape now, and you are at the point of it." />
+    <string id="path_cx_ranger_t9_title" text="The ranger&apos;s road" />
+    <!-- path_crossroads_rogue_t4 -->
+    <string id="path_cx_rogue_t4_commit" text="Let the ledger stay short." />
+    <string id="path_cx_rogue_t4_commit_tt" text="Commit to rogue path. +1 Roguery focus, +10 renown." />
+    <string id="path_cx_rogue_t4_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_rogue_t4_defer_tt" text="No commitment either way." />
+    <string id="path_cx_rogue_t4_resist" text="Not yet. Not the name." />
+    <string id="path_cx_rogue_t4_resist_tt" text="Resist rogue path. Future bumps halved." />
+    <string id="path_cx_rogue_t4_setup" text="A purse turned up short at muster and no one looked at you. Later, {COMRADE_NAME} catches your eye across the fire. He says nothing. He does not need to." />
+    <string id="path_cx_rogue_t4_title" text="Coin that wasn&apos;t counted" />
+    <!-- path_crossroads_rogue_t6 -->
+    <string id="path_cx_rogue_t6_commit" text="Take the errand. Keep the silence." />
+    <string id="path_cx_rogue_t6_commit_tt" text="Commit to rogue path. +1 Cunning, +15 renown." />
+    <string id="path_cx_rogue_t6_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_rogue_t6_defer_tt" text="No commitment either way." />
+    <string id="path_cx_rogue_t6_resist" text="Not yet. Not the label." />
+    <string id="path_cx_rogue_t6_resist_tt" text="Resist rogue path. Future bumps halved." />
+    <string id="path_cx_rogue_t6_setup" text="{SERGEANT} wants a thing done that will not be written down. He does not ask the shield-men. He asks you, and he asks you alone, and he does not meet your eye while he does it." />
+    <string id="path_cx_rogue_t6_title" text="The quiet errand" />
+    <!-- path_crossroads_rogue_t9 -->
+    <string id="path_cx_rogue_t9_commit" text="Answer. Ask no questions." />
+    <string id="path_cx_rogue_t9_commit_tt" text="Commit to rogue path. +1 unspent focus, +25 renown." />
+    <string id="path_cx_rogue_t9_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_rogue_t9_defer_tt" text="No commitment either way." />
+    <string id="path_cx_rogue_t9_resist" text="Not yet. Not the label." />
+    <string id="path_cx_rogue_t9_resist_tt" text="Resist rogue path. Future bumps halved." />
+    <string id="path_cx_rogue_t9_setup" text="{LORD_NAME} has an instruction that will not go on any page. He does not summon the captain. He summons you. The company sees him do it and the company does not ask." />
+    <string id="path_cx_rogue_t9_title" text="The man for the unwritten work" />
+    <!-- path_crossroads_support_t4 -->
+    <string id="path_cx_support_t4_commit" text="Go where the bandages are." />
+    <string id="path_cx_support_t4_commit_tt" text="Commit to support path. +1 Medicine focus, +10 renown." />
+    <string id="path_cx_support_t4_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_support_t4_defer_tt" text="No commitment either way." />
+    <string id="path_cx_support_t4_resist" text="Not yet. Not the name." />
+    <string id="path_cx_support_t4_resist_tt" text="Resist support path. Future bumps halved." />
+    <string id="path_cx_support_t4_setup" text="The surgeon&apos;s assistant needed a clean cloth and a steady arm. You gave both without thinking. He grunts at you the next morning — not thanks. Recognition." />
+    <string id="path_cx_support_t4_title" text="The hand that binds" />
+    <!-- path_crossroads_support_t6 -->
+    <string id="path_cx_support_t6_commit" text="Take the needle and the name." />
+    <string id="path_cx_support_t6_commit_tt" text="Commit to support path. +1 Intelligence, +15 renown." />
+    <string id="path_cx_support_t6_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_support_t6_defer_tt" text="No commitment either way." />
+    <string id="path_cx_support_t6_resist" text="Not yet. Not the label." />
+    <string id="path_cx_support_t6_resist_tt" text="Resist support path. Future bumps halved." />
+    <string id="path_cx_support_t6_setup" text="A man is dragged in with a wound down his thigh and the men do not set him by the fire. They set him by you. {SERGEANT} watches to see what you do with what he has given you." />
+    <string id="path_cx_support_t6_title" text="They bring you the bleeding" />
+    <!-- path_crossroads_support_t9 -->
+    <string id="path_cx_support_t9_commit" text="Be the hands they ask for." />
+    <string id="path_cx_support_t9_commit_tt" text="Commit to support path. +1 unspent focus, +25 renown." />
+    <string id="path_cx_support_t9_defer" text="Decide later. Keep the work." />
+    <string id="path_cx_support_t9_defer_tt" text="No commitment either way." />
+    <string id="path_cx_support_t9_resist" text="Not yet. Not the label." />
+    <string id="path_cx_support_t9_resist_tt" text="Resist support path. Future bumps halved." />
+    <string id="path_cx_support_t9_setup" text="{LORD_NAME} asks after the wounded and the sergeant names you before the surgeon. The men know the order. You are the one they want over them when the steel comes out of the bone." />
+    <string id="path_cx_support_t9_title" text="The hands the company keeps" /></strings>
 </base>
