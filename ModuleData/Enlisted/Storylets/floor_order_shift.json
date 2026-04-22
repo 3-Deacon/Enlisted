@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_order_shift_pursuit_cancelled",
+      "title": "{=floor_order_shift_pursuit_cancelled_title}Pursuit called off",
+      "setup": "{=floor_order_shift_pursuit_cancelled_setup}The pursuit is called off. Back to the column, the sergeant says, and spits. The horses were just warming to the chase. Nobody asks what changed up the line.",
+      "theme": "signal",
+      "category": "floor_order_shift",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_order_shift_pursuit_cancelled_opt}Rein in.",
+          "tooltip": "{=floor_order_shift_pursuit_cancelled_tt}Wheel about. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_order_shift_target_changes",
+      "title": "{=floor_order_shift_target_changes_title}New target",
+      "setup": "{=floor_order_shift_target_changes_setup}New target. Some lord's cousin had a bright idea, or so the muttering goes. The maps come out again and the runners are sent off with fresh orders for the vanguard.",
+      "theme": "signal",
+      "category": "floor_order_shift",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_order_shift_target_changes_opt}Adjust.",
+          "tooltip": "{=floor_order_shift_target_changes_tt}Reorient to the new heading. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_order_shift_return_to_base",
+      "title": "{=floor_order_shift_return_to_base_title}Back to garrison",
+      "setup": "{=floor_order_shift_return_to_base_setup}Orders came back: return to garrison. Whatever the march was for, it is over before it started. The men grouse about wasted boot leather and nobody argues with them.",
+      "theme": "signal",
+      "category": "floor_order_shift",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_order_shift_return_to_base_opt}About face.",
+          "tooltip": "{=floor_order_shift_return_to_base_tt}Turn for home. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_order_shift_position_held",
+      "title": "{=floor_order_shift_position_held_title}Hold the position",
+      "setup": "{=floor_order_shift_position_held_setup}Hold the position, the runner says, breathing hard. Whatever was out there isn't coming. The line settles back into the mud it had just finished rising from.",
+      "theme": "signal",
+      "category": "floor_order_shift",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_order_shift_position_held_opt}Stand down.",
+          "tooltip": "{=floor_order_shift_position_held_tt}Hold your ground. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_order_shift_formation_changes",
+      "title": "{=floor_order_shift_formation_changes_title}Formation shift",
+      "setup": "{=floor_order_shift_formation_changes_setup}Formation shift. The sergeant curses through every adjustment, by the numbers, by the book, and by the man who thought of it. The line lurches into its new shape anyway.",
+      "theme": "signal",
+      "category": "floor_order_shift",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_order_shift_formation_changes_opt}Curse and form up.",
+          "tooltip": "{=floor_order_shift_formation_changes_tt}Take the new place in line. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}
