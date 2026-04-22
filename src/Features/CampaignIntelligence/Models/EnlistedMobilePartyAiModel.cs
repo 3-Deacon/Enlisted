@@ -1,4 +1,6 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using Enlisted.Features.CampaignIntelligence;
+using Enlisted.Mod.Core.Logging;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Library;
@@ -6,11 +8,14 @@ using TaleWorlds.Library;
 namespace Enlisted.Features.CampaignIntelligence.Models
 {
     /// <summary>
-    /// Enlisted-only wrapper over <see cref="MobilePartyAIModel"/>. Currently
-    /// a pass-through to <c>BaseModel</c> for every member; intel-driven bias
-    /// on avoidance, attacking, and initiative behaviors lands in later Plan
-    /// 2 tasks. When <c>BaseModel</c> is null (bootstrap ordering regression),
-    /// each override returns a type-sensible default.
+    /// Enlisted-only wrapper over <see cref="MobilePartyAIModel"/>. Biases
+    /// per-party movement decisions (<c>ShouldConsiderAttacking</c>,
+    /// <c>ShouldConsiderAvoiding</c>, and the initiative-behavior score in
+    /// <c>GetBestInitiativeBehavior</c>) via the Plan 1 intelligence
+    /// snapshot when the identity gate matches the enlisted lord; delegates
+    /// the remaining members (<c>AiCheckInterval</c>, flee radii, etc.)
+    /// unchanged to <c>BaseModel</c>. Falls back to vanilla defaults if
+    /// <c>BaseModel</c> is null during a bootstrap-order regression.
     /// </summary>
     public sealed class EnlistedMobilePartyAiModel : MobilePartyAIModel
     {
@@ -47,8 +52,46 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override bool ShouldConsiderAvoiding(MobileParty party, MobileParty targetParty) =>
             BaseModel?.ShouldConsiderAvoiding(party, targetParty) ?? false;
 
-        public override bool ShouldConsiderAttacking(MobileParty party, MobileParty targetParty) =>
-            BaseModel?.ShouldConsiderAttacking(party, targetParty) ?? false;
+        public override bool ShouldConsiderAttacking(
+            MobileParty party, MobileParty targetParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return false;
+            }
+            var vanilla = BaseModel.ShouldConsiderAttacking(party, targetParty);
+
+            if (!EnlistedAiGate.TryGetSnapshotForParty(party, out var snapshot))
+            {
+                return vanilla;
+            }
+
+            if (!vanilla)
+            {
+                // Vanilla already says no — don't second-guess.
+                return false;
+            }
+
+            // Abort unviable chases.
+            if (snapshot.PursuitViability == PursuitViability.NotViable)
+            {
+                EnlistedAiBiasHeartbeat.Record("attack_abort_unviable", 1, 0);
+                return false;
+            }
+
+            // Abort when contact risk is high AND the lord is not army-leader
+            // (a lone party should not rush a high-risk contact).
+            if (snapshot.EnemyContactRisk == EnemyContactRisk.High
+                && !EnlistedAiGate.IsEnlistedLordArmyLeader()
+                && snapshot.ArmyStrain >= ArmyStrainLevel.Elevated)
+            {
+                EnlistedAiBiasHeartbeat.Record("attack_abort_high_risk", 1, 0);
+                return false;
+            }
+
+            return true;
+        }
 
         public override float GetPatrolRadius(MobileParty mobileParty, CampaignVec2 patrolPoint) =>
             BaseModel?.GetPatrolRadius(mobileParty, patrolPoint) ?? 1f;
