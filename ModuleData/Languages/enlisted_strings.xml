@@ -6518,5 +6518,125 @@
     <string id="duty_marching_wound_carry_1_setup" text="A soldier collapses from a wound that opened on the march. The surgeon is at the rear of the column. You carry him. You also learn more about field dressing than you intended to." />
     <string id="duty_marching_wound_carry_1_title" text="Carrying the wounded" />
     <string id="duty_marching_wound_carry_1_tt" text="Field carry and dressing. Medicine XP." />
+
+    <!-- duty_besieging_arrow_scavenge_1 -->
+    <string id="duty_besieging_arrow_scavenge_1_opt" text="Sort the good from the bent. Keep what you can." />
+    <string id="duty_besieging_arrow_scavenge_1_setup" text="The camp is running short and the supply wagon is two days behind. You spend an evening in the dead ground pulling spent arrows from the earth and sorting them — yours, theirs, and the ones too bent to save." />
+    <string id="duty_besieging_arrow_scavenge_1_title" text="Arrow recovery" />
+    <string id="duty_besieging_arrow_scavenge_1_tt" text="Arrow recovery and sorting. Bow + Roguery XP." />
+
+    <!-- duty_besieging_assault_brief_1 -->
+    <string id="duty_besieging_assault_brief_1_opt" text="Listen. Remember the gaps." />
+    <string id="duty_besieging_assault_brief_1_setup" text="The captain lays out the approach plan on a patch of cleared earth — three lanes, two feints, one real push. He asks who understands. You understand, and you also hear where the plan is thin." />
+    <string id="duty_besieging_assault_brief_1_title" text="Assault approach briefing" />
+    <string id="duty_besieging_assault_brief_1_tt" text="Assault planning briefing. Tactics + Leadership XP." />
+
+    <!-- duty_besieging_blade_sharpening_1 -->
+    <string id="duty_besieging_blade_sharpening_1_opt" text="Work both blades. Get them ready." />
+    <string id="duty_besieging_blade_sharpening_1_setup" text="Word is the assault will happen inside two days. The forge pit is busy with edge work. You wait your turn, then work your own blade and the heavy two-hander belonging to the man in your file who cannot sharpen a blade to save himself." />
+    <string id="duty_besieging_blade_sharpening_1_title" text="Blade sharpening before the push" />
+    <string id="duty_besieging_blade_sharpening_1_tt" text="Pre-assault forge work. Smithing + TwoHanded XP." />
+
+    <!-- duty_besieging_bolt_surplus_1 -->
+    <string id="duty_besieging_bolt_surplus_1_opt" text="Sort the count. Keep the surplus quiet." />
+    <string id="duty_besieging_bolt_surplus_1_setup" text="The quartermaster&apos;s count is off and there is an argument about which crate is yours. You find the discrepancy before he does and say nothing that the wrong person might hear." />
+    <string id="duty_besieging_bolt_surplus_1_title" text="Bolt surplus" />
+    <string id="duty_besieging_bolt_surplus_1_tt" text="Supply discrepancy. Crossbow + Charm XP." />
+
+    <!-- duty_besieging_breach_rush_1 -->
+    <string id="duty_besieging_breach_rush_1_opt" text="Sprint clean. Clear the barricade. Blade ready." />
+    <string id="duty_besieging_breach_rush_1_setup" text="The sergeant runs a mock breach assault in the rear camp — sprint a hundred paces, over a timber barricade, blade out. It is a drill. Everyone pretends that is the only reason their hands shake." />
+    <string id="duty_besieging_breach_rush_1_title" text="Breach rush drill" />
+    <string id="duty_besieging_breach_rush_1_tt" text="Assault approach drill. Athletics + OneHanded XP." />
+
+    <!-- duty_besieging_breach_work_1 -->
+    <string id="duty_besieging_breach_work_1_opt" text="Keep working. Don&apos;t look up." />
+    <string id="duty_besieging_breach_work_1_setup" text="The engineers need hands on the breach face — chipping at the mortar, widening the gap, working under the overhang while the wall-walk answers with stones and arrows. You keep going because stopping is worse." />
+    <string id="duty_besieging_breach_work_1_title" text="Breach work under fire" />
+    <string id="duty_besieging_breach_work_1_tt" text="Breach work under pressure. Engineering + Athletics XP." />
+
+    <!-- duty_besieging_camp_market_1 -->
+    <string id="duty_besieging_camp_market_1_opt" text="Bargain down the price. Get the supplies." />
+    <string id="duty_besieging_camp_market_1_setup" text="The surgeon needs sulphur and linen and wine — in that order of importance. The camp market has two of the three and charges too much for all of them. You spend the afternoon negotiating." />
+    <string id="duty_besieging_camp_market_1_title" text="Camp market errand" />
+    <string id="duty_besieging_camp_market_1_tt" text="Medical supply errand. Trade + Medicine XP." />
+
+    <!-- duty_besieging_cavalry_screen_1 -->
+    <string id="duty_besieging_cavalry_screen_1_opt" text="Hold the screen. Watch the horizon." />
+    <string id="duty_besieging_cavalry_screen_1_setup" text="The besieging army&apos;s flanks need watching against a relief column. You ride the screen with three others — lance across the saddle, slow circles on the high ground. Nothing comes. That is tonight&apos;s news." />
+    <string id="duty_besieging_cavalry_screen_1_title" text="Cavalry screen outside camp" />
+    <string id="duty_besieging_cavalry_screen_1_tt" text="Mounted perimeter watch. Riding + Polearm XP." />
+
+    <!-- duty_besieging_dwindling_stores_1 -->
+    <string id="duty_besieging_dwindling_stores_1_opt" text="Count everything again. Get the real number." />
+    <string id="duty_besieging_dwindling_stores_1_setup" text="The siege supply situation has been getting quietly worse for three days. The steward calls a count and the number does not add up to what the roster expects. Someone has to present the number to the captain without losing their head." />
+    <string id="duty_besieging_dwindling_stores_1_title" text="Dwindling stores" />
+    <string id="duty_besieging_dwindling_stores_1_tt" text="Supply crisis accounting. Steward XP. Scrutiny up." />
+
+    <!-- duty_besieging_harassing_fire_1 -->
+    <string id="duty_besieging_harassing_fire_1_opt" text="Keep the defenders pinned. Conserve." />
+    <string id="duty_besieging_harassing_fire_1_setup" text="A detachment takes the forward berm and keeps pressure on the wall-walk defenders. The range is long, the targets are moving, and you burn through your arrows faster than you planned." />
+    <string id="duty_besieging_harassing_fire_1_title" text="Harassing fire from the berm" />
+    <string id="duty_besieging_harassing_fire_1_tt" text="Pressure fire at range. Bow XP." />
+
+    <!-- duty_besieging_ladder_carry_1 -->
+    <string id="duty_besieging_ladder_carry_1_opt" text="Move the timber and the weapons together." />
+    <string id="duty_besieging_ladder_carry_1_setup" text="The assault ladders need moving to a forward cache before the next push. You carry one end of a heavy timber while your other hand holds a bundle of javelins. Balance is a problem. You solve it." />
+    <string id="duty_besieging_ladder_carry_1_title" text="Ladder carry and javelin haul" />
+    <string id="duty_besieging_ladder_carry_1_tt" text="Heavy carry with weapons. Athletics + Throwing XP." />
+
+    <!-- duty_besieging_loading_drill_1 -->
+    <string id="duty_besieging_loading_drill_1_opt" text="Run the sequence until it is muscle." />
+    <string id="duty_besieging_loading_drill_1_setup" text="The crossbow sergeant drills the file on reload speed — span, bolt, raise, aim, loose. Do it wrong and the next man in line says nothing, but he notices. You do it until it stops being wrong." />
+    <string id="duty_besieging_loading_drill_1_title" text="Loading drill" />
+    <string id="duty_besieging_loading_drill_1_tt" text="Reload technique drill. Crossbow XP." />
+
+    <!-- duty_besieging_range_compare_1 -->
+    <string id="duty_besieging_range_compare_1_opt" text="Work both. Let the results speak." />
+    <string id="duty_besieging_range_compare_1_setup" text="An argument breaks out at the rear camp about which fires faster and which hits harder. The only honest way to settle it is at the practice butts. You end up arguing both sides." />
+    <string id="duty_besieging_range_compare_1_title" text="Bow versus crossbow" />
+    <string id="duty_besieging_range_compare_1_tt" text="Comparative range practice. Crossbow + Bow XP." />
+
+    <!-- duty_besieging_siege_camp_tension_1 -->
+    <string id="duty_besieging_siege_camp_tension_1_opt" text="Keep your head down. Help the sergeant where you can." />
+    <string id="duty_besieging_siege_camp_tension_1_setup" text="The siege has gone longer than the lord planned. Tempers are short, rations shorter. Two files nearly came to blows over a watch assignment this morning. The sergeant is holding it together with harsh words and stubbornness." />
+    <string id="duty_besieging_siege_camp_tension_1_title" text="Tension in the siege camp" />
+    <string id="duty_besieging_siege_camp_tension_1_tt" text="Army strain builds. Scrutiny up. Engineering XP." />
+
+    <!-- duty_besieging_siege_transition_1 -->
+    <string id="duty_besieging_siege_transition_1_opt" text="Adapt to the new plan. Learn it fast." />
+    <string id="duty_besieging_siege_transition_1_setup" text="The objective changed overnight — new orders say a different gate, a different lane. The captain is reshuffling the approach plan with markers in the dirt while soldiers ask questions he has not answered himself yet." />
+    <string id="duty_besieging_siege_transition_1_title" text="The siege shifts" />
+    <string id="duty_besieging_siege_transition_1_tt" text="Objective change. Tactics XP. Readiness up." />
+
+    <!-- duty_besieging_timber_frame_1 -->
+    <string id="duty_besieging_timber_frame_1_opt" text="Learn the joints. Do the work clean." />
+    <string id="duty_besieging_timber_frame_1_setup" text="A mantlet frame needs rebuilding after a fire-drop took the top section. You work with the camp carpenter on new bracing — mortised joints, squared corners, greenwood spliced into dry. Not elegant, but standing." />
+    <string id="duty_besieging_timber_frame_1_title" text="Siege frame carpentry" />
+    <string id="duty_besieging_timber_frame_1_tt" text="Siege carpentry. Engineering + Smithing XP." />
+
+    <!-- duty_besieging_tower_shot_1 -->
+    <string id="duty_besieging_tower_shot_1_opt" text="Hold the line. Keep the bolts moving." />
+    <string id="duty_besieging_tower_shot_1_setup" text="The earthworks are close enough now that the defenders try sorties. You hold a position near the front ditch with a crossbow and discourage them. Most of the morning is waiting." />
+    <string id="duty_besieging_tower_shot_1_title" text="Covering fire from the works" />
+    <string id="duty_besieging_tower_shot_1_tt" text="Forward covering fire. Crossbow XP." />
+
+    <!-- duty_besieging_trench_dig_1 -->
+    <string id="duty_besieging_trench_dig_1_opt" text="Work the clay. Keep the trench moving forward." />
+    <string id="duty_besieging_trench_dig_1_setup" text="The approach trench needs extending by twenty paces before nightfall. The soil is clay and the picks ring off it. You rotate through the crew and learn where to swing to make it count." />
+    <string id="duty_besieging_trench_dig_1_title" text="Trench work" />
+    <string id="duty_besieging_trench_dig_1_tt" text="Approach trench extension. Athletics XP." />
+
+    <!-- duty_besieging_trench_extension_1 -->
+    <string id="duty_besieging_trench_extension_1_opt" text="Re-mark the line. Work the new angle." />
+    <string id="duty_besieging_trench_extension_1_setup" text="The engineer marks where the sap needs to dog-leg to avoid a buried rock shelf. You work the angle in, shoring the sides with timber as you go. The rock shelf is not where he said it was." />
+    <string id="duty_besieging_trench_extension_1_title" text="Extending the sap" />
+    <string id="duty_besieging_trench_extension_1_tt" text="Siege sap work. Engineering XP." />
+
+    <!-- duty_besieging_wall_read_1 -->
+    <string id="duty_besieging_wall_read_1_opt" text="Watch the patterns. File them away." />
+    <string id="duty_besieging_wall_read_1_setup" text="You spend an hour at extended range, watching the defender rotations. Who relieves whom at what interval, where the wall-walk goes quiet, which section has a crumbled merlon. You note it without being asked." />
+    <string id="duty_besieging_wall_read_1_title" text="Reading the walls" />
+    <string id="duty_besieging_wall_read_1_tt" text="Defender observation from range. Bow + Scouting XP." />
 </strings>
 </base>

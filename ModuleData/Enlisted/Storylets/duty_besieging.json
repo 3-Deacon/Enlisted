@@ -1,0 +1,459 @@
+{
+  "storylets": [
+    {
+      "id": "duty_besieging_tower_shot_1",
+      "title": "{=duty_besieging_tower_shot_1_title}Covering fire from the works",
+      "setup": "{=duty_besieging_tower_shot_1_setup}The earthworks are close enough now that the defenders try sorties. You hold a position near the front ditch with a crossbow and discourage them. Most of the morning is waiting.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_tower_shot_1_opt}Hold the line. Keep the bolts moving.",
+          "tooltip": "{=duty_besieging_tower_shot_1_tt}Forward covering fire. Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_loading_drill_1",
+      "title": "{=duty_besieging_loading_drill_1_title}Loading drill",
+      "setup": "{=duty_besieging_loading_drill_1_setup}The crossbow sergeant drills the file on reload speed — span, bolt, raise, aim, loose. Do it wrong and the next man in line says nothing, but he notices. You do it until it stops being wrong.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_loading_drill_1_opt}Run the sequence until it is muscle.",
+          "tooltip": "{=duty_besieging_loading_drill_1_tt}Reload technique drill. Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_range_compare_1",
+      "title": "{=duty_besieging_range_compare_1_title}Bow versus crossbow",
+      "setup": "{=duty_besieging_range_compare_1_setup}An argument breaks out at the rear camp about which fires faster and which hits harder. The only honest way to settle it is at the practice butts. You end up arguing both sides.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_range_compare_1_opt}Work both. Let the results speak.",
+          "tooltip": "{=duty_besieging_range_compare_1_tt}Comparative range practice. Crossbow + Bow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_bolt_surplus_1",
+      "title": "{=duty_besieging_bolt_surplus_1_title}Bolt surplus",
+      "setup": "{=duty_besieging_bolt_surplus_1_setup}The quartermaster's count is off and there is an argument about which crate is yours. You find the discrepancy before he does and say nothing that the wrong person might hear.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_bolt_surplus_1_opt}Sort the count. Keep the surplus quiet.",
+          "tooltip": "{=duty_besieging_bolt_surplus_1_tt}Supply discrepancy. Crossbow + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_harassing_fire_1",
+      "title": "{=duty_besieging_harassing_fire_1_title}Harassing fire from the berm",
+      "setup": "{=duty_besieging_harassing_fire_1_setup}A detachment takes the forward berm and keeps pressure on the wall-walk defenders. The range is long, the targets are moving, and you burn through your arrows faster than you planned.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_harassing_fire_1_opt}Keep the defenders pinned. Conserve.",
+          "tooltip": "{=duty_besieging_harassing_fire_1_tt}Pressure fire at range. Bow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_arrow_scavenge_1",
+      "title": "{=duty_besieging_arrow_scavenge_1_title}Arrow recovery",
+      "setup": "{=duty_besieging_arrow_scavenge_1_setup}The camp is running short and the supply wagon is two days behind. You spend an evening in the dead ground pulling spent arrows from the earth and sorting them — yours, theirs, and the ones too bent to save.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_arrow_scavenge_1_opt}Sort the good from the bent. Keep what you can.",
+          "tooltip": "{=duty_besieging_arrow_scavenge_1_tt}Arrow recovery and sorting. Bow + Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_wall_read_1",
+      "title": "{=duty_besieging_wall_read_1_title}Reading the walls",
+      "setup": "{=duty_besieging_wall_read_1_setup}You spend an hour at extended range, watching the defender rotations. Who relieves whom at what interval, where the wall-walk goes quiet, which section has a crumbled merlon. You note it without being asked.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_wall_read_1_opt}Watch the patterns. File them away.",
+          "tooltip": "{=duty_besieging_wall_read_1_tt}Defender observation from range. Bow + Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_trench_dig_1",
+      "title": "{=duty_besieging_trench_dig_1_title}Trench work",
+      "setup": "{=duty_besieging_trench_dig_1_setup}The approach trench needs extending by twenty paces before nightfall. The soil is clay and the picks ring off it. You rotate through the crew and learn where to swing to make it count.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_trench_dig_1_opt}Work the clay. Keep the trench moving forward.",
+          "tooltip": "{=duty_besieging_trench_dig_1_tt}Approach trench extension. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_ladder_carry_1",
+      "title": "{=duty_besieging_ladder_carry_1_title}Ladder carry and javelin haul",
+      "setup": "{=duty_besieging_ladder_carry_1_setup}The assault ladders need moving to a forward cache before the next push. You carry one end of a heavy timber while your other hand holds a bundle of javelins. Balance is a problem. You solve it.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_ladder_carry_1_opt}Move the timber and the weapons together.",
+          "tooltip": "{=duty_besieging_ladder_carry_1_tt}Heavy carry with weapons. Athletics + Throwing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_breach_rush_1",
+      "title": "{=duty_besieging_breach_rush_1_title}Breach rush drill",
+      "setup": "{=duty_besieging_breach_rush_1_setup}The sergeant runs a mock breach assault in the rear camp — sprint a hundred paces, over a timber barricade, blade out. It is a drill. Everyone pretends that is the only reason their hands shake.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_breach_rush_1_opt}Sprint clean. Clear the barricade. Blade ready.",
+          "tooltip": "{=duty_besieging_breach_rush_1_tt}Assault approach drill. Athletics + OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_trench_extension_1",
+      "title": "{=duty_besieging_trench_extension_1_title}Extending the sap",
+      "setup": "{=duty_besieging_trench_extension_1_setup}The engineer marks where the sap needs to dog-leg to avoid a buried rock shelf. You work the angle in, shoring the sides with timber as you go. The rock shelf is not where he said it was.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_trench_extension_1_opt}Re-mark the line. Work the new angle.",
+          "tooltip": "{=duty_besieging_trench_extension_1_tt}Siege sap work. Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_timber_frame_1",
+      "title": "{=duty_besieging_timber_frame_1_title}Siege frame carpentry",
+      "setup": "{=duty_besieging_timber_frame_1_setup}A mantlet frame needs rebuilding after a fire-drop took the top section. You work with the camp carpenter on new bracing — mortised joints, squared corners, greenwood spliced into dry. Not elegant, but standing.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_timber_frame_1_opt}Learn the joints. Do the work clean.",
+          "tooltip": "{=duty_besieging_timber_frame_1_tt}Siege carpentry. Engineering + Smithing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_assault_brief_1",
+      "title": "{=duty_besieging_assault_brief_1_title}Assault approach briefing",
+      "setup": "{=duty_besieging_assault_brief_1_setup}The captain lays out the approach plan on a patch of cleared earth — three lanes, two feints, one real push. He asks who understands. You understand, and you also hear where the plan is thin.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_assault_brief_1_opt}Listen. Remember the gaps.",
+          "tooltip": "{=duty_besieging_assault_brief_1_tt}Assault planning briefing. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_camp_market_1",
+      "title": "{=duty_besieging_camp_market_1_title}Camp market errand",
+      "setup": "{=duty_besieging_camp_market_1_setup}The surgeon needs sulphur and linen and wine — in that order of importance. The camp market has two of the three and charges too much for all of them. You spend the afternoon negotiating.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_camp_market_1_opt}Bargain down the price. Get the supplies.",
+          "tooltip": "{=duty_besieging_camp_market_1_tt}Medical supply errand. Trade + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_blade_sharpening_1",
+      "title": "{=duty_besieging_blade_sharpening_1_title}Blade sharpening before the push",
+      "setup": "{=duty_besieging_blade_sharpening_1_setup}Word is the assault will happen inside two days. The forge pit is busy with edge work. You wait your turn, then work your own blade and the heavy two-hander belonging to the man in your file who cannot sharpen a blade to save himself.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_blade_sharpening_1_opt}Work both blades. Get them ready.",
+          "tooltip": "{=duty_besieging_blade_sharpening_1_tt}Pre-assault forge work. Smithing + TwoHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 20 },
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_cavalry_screen_1",
+      "title": "{=duty_besieging_cavalry_screen_1_title}Cavalry screen outside camp",
+      "setup": "{=duty_besieging_cavalry_screen_1_setup}The besieging army's flanks need watching against a relief column. You ride the screen with three others — lance across the saddle, slow circles on the high ground. Nothing comes. That is tonight's news.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_cavalry_screen_1_opt}Hold the screen. Watch the horizon.",
+          "tooltip": "{=duty_besieging_cavalry_screen_1_tt}Mounted perimeter watch. Riding + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_siege_camp_tension_1",
+      "title": "{=duty_besieging_siege_camp_tension_1_title}Tension in the siege camp",
+      "setup": "{=duty_besieging_siege_camp_tension_1_setup}The siege has gone longer than the lord planned. Tempers are short, rations shorter. Two files nearly came to blows over a watch assignment this morning. The sergeant is holding it together with harsh words and stubbornness.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_army_strain_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_siege_camp_tension_1_opt}Keep your head down. Help the sergeant where you can.",
+          "tooltip": "{=duty_besieging_siege_camp_tension_1_tt}Army strain builds. Scrutiny up. Engineering XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_siege_transition_1",
+      "title": "{=duty_besieging_siege_transition_1_title}The siege shifts",
+      "setup": "{=duty_besieging_siege_transition_1_setup}The objective changed overnight — new orders say a different gate, a different lane. The captain is reshuffling the approach plan with markers in the dirt while soldiers ask questions he has not answered himself yet.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:SiegeTransition"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_siege_transition_1_opt}Adapt to the new plan. Learn it fast.",
+          "tooltip": "{=duty_besieging_siege_transition_1_tt}Objective change. Tactics XP. Readiness up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 25 },
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_breach_work_1",
+      "title": "{=duty_besieging_breach_work_1_title}Breach work under fire",
+      "setup": "{=duty_besieging_breach_work_1_setup}The engineers need hands on the breach face — chipping at the mortar, widening the gap, working under the overhang while the wall-walk answers with stones and arrows. You keep going because stopping is worse.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_front_pressure_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_breach_work_1_opt}Keep working. Don't look up.",
+          "tooltip": "{=duty_besieging_breach_work_1_tt}Breach work under pressure. Engineering + Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_dwindling_stores_1",
+      "title": "{=duty_besieging_dwindling_stores_1_title}Dwindling stores",
+      "setup": "{=duty_besieging_dwindling_stores_1_setup}The siege supply situation has been getting quietly worse for three days. The steward calls a count and the number does not add up to what the roster expects. Someone has to present the number to the captain without losing their head.",
+      "theme": "duty",
+      "category": "duty_besieging",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_besieging_dwindling_stores_1_opt}Count everything again. Get the real number.",
+          "tooltip": "{=duty_besieging_dwindling_stores_1_tt}Supply crisis accounting. Steward XP. Scrutiny up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 20 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}
