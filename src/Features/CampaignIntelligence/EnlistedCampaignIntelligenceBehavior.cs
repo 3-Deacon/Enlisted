@@ -21,6 +21,7 @@ namespace Enlisted.Features.CampaignIntelligence
 
         private EnlistedLordIntelligenceSnapshot _working;
         private RecentChangeFlags _pendingChangeFlags;
+        private bool _primedOnce;
         private Dictionary<RecentChangeFlags, CampaignTime> _flagFirstSeen
             = new Dictionary<RecentChangeFlags, CampaignTime>();
 
@@ -55,6 +56,8 @@ namespace Enlisted.Features.CampaignIntelligence
             EnlistmentBehavior.OnEnlisted += HandleOnEnlisted;
             EnlistmentBehavior.OnEnlistmentEnded -= HandleOnEnlistmentEnded;
             EnlistmentBehavior.OnEnlistmentEnded += HandleOnEnlistmentEnded;
+
+            CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, HandleHourlyTick);
         }
 
         public override void SyncData(IDataStore dataStore) { }
@@ -67,6 +70,7 @@ namespace Enlisted.Features.CampaignIntelligence
                 _pendingChangeFlags = RecentChangeFlags.None;
                 _flagFirstSeen.Clear();
                 _working.Clear();
+                _primedOnce = false;
             }
             catch (Exception ex)
             {
@@ -81,10 +85,75 @@ namespace Enlisted.Features.CampaignIntelligence
                 _working?.Clear();
                 _pendingChangeFlags = RecentChangeFlags.None;
                 _flagFirstSeen.Clear();
+                _primedOnce = false;
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("INTEL", "clear_on_end_failed", ex);
+            }
+        }
+
+        private void HandleHourlyTick()
+        {
+            if (EnlistmentBehavior.Instance == null || !EnlistmentBehavior.Instance.IsEnlisted)
+            {
+                return;
+            }
+
+            var lord = EnlistmentBehavior.Instance.EnlistedLord;
+            if (lord == null)
+            {
+                ModLogger.Expected("INTEL", "no_enlisted_lord", "hourly tick with IsEnlisted but EnlistedLord null");
+                return;
+            }
+
+            try
+            {
+                EnsureInitialized();
+
+                var pending = _pendingChangeFlags;
+                _pendingChangeFlags = RecentChangeFlags.None;
+
+                var inputs = SnapshotCollector.Collect(lord, pending);
+
+                var fresh = new EnlistedLordIntelligenceSnapshot();
+                fresh.Clear();
+
+                // First real tick after enlist passes previous=null so DetectDeltas returns None.
+                // Subsequent ticks pass _working so deltas are computed against the prior snapshot.
+                var previousForDeltas = _primedOnce ? _working : null;
+                SnapshotClassifier.Classify(ref inputs, previousForDeltas, fresh);
+                fresh.LastRefreshed = CampaignTime.Now;
+
+                // Record first-seen time for flag bits set this tick so the daily decay pass can clear bits older than 24h.
+                var priorFlags = _primedOnce ? _working.RecentChanges : RecentChangeFlags.None;
+                var newBits = fresh.RecentChanges & ~priorFlags;
+                foreach (RecentChangeFlags bit in System.Enum.GetValues(typeof(RecentChangeFlags)))
+                {
+                    if (bit == RecentChangeFlags.None)
+                    {
+                        continue;
+                    }
+                    if ((newBits & bit) != 0)
+                    {
+                        _flagFirstSeen[bit] = CampaignTime.Now;
+                    }
+                }
+
+                _working = fresh;
+                _primedOnce = true;
+
+                ModLogger.Expected("INTEL", "hourly_recompute",
+                    "tick posture=" + fresh.Posture
+                    + " obj=" + fresh.Objective
+                    + " front=" + fresh.FrontPressure
+                    + " strain=" + fresh.ArmyStrain
+                    + " supply=" + fresh.SupplyPressure
+                    + " flags=" + fresh.RecentChanges);
+            }
+            catch (System.Exception ex)
+            {
+                ModLogger.Caught("INTEL", "hourly_recompute_failed", ex);
             }
         }
 
