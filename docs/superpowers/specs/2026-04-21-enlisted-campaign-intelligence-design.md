@@ -483,6 +483,15 @@ Ownership split:
   - when front shifts or strain changes should surface as order transitions
 - intelligence-driven duties that are not full named-order arcs may coexist beside `OrderActivity` as lighter operational work, but they must not silently fork a second competing "active order" state machine
 
+**Opportunity scale — concrete taxonomy:**
+
+To keep "one enacted-duty state machine" honest, every campaign-intelligence opportunity resolves into exactly one of two shapes:
+
+1. **Episodic opportunity** — resolves within a short flag-gated storylet flow (one or two interaction moments, no activity instance). Uses the existing storylet backbone: a snapshot-backed trigger fires, the player picks an option, effects write flags/qualities, done. Episodic flows may use short-lived `FlagStore` windows for between-storylet sequencing (scout dispatched → scout return). No durable activity, no new save-definer offset. Fits most of the recon / dispatch / supply / prisoner / camp-tension surface in §9.
+2. **Arc-scale opportunity** — multi-day or multi-phase player engagement. Feeds the existing `OrderActivity` + `NamedOrderState` path as an intelligence-proposed named order. No new activity state machine. Examples: a 3-day food-wagon escort, a multi-phase prisoner transfer.
+
+Opportunities never create a third kind of durable enacted-duty state. A storylet that discovers mid-flow that it wants to become durable must escalate by proposing a named order through the existing Spec 2 pipeline, not by instantiating its own activity.
+
 Phase 1 rule:
 
 - one authoritative enacted-duty layer remains in Spec 2
@@ -572,7 +581,7 @@ Rules:
 
 - these fields are optional for existing emit sites
 - existing `StoryCandidate` producers remain valid until they opt into richer signal projection
-- `StoryCandidatePersistent` should remain intentionally thin; only persist the minimum subset needed for deferred delivery or replay-safe reconstruction
+- `StoryCandidatePersistent` (already defined at `src/Features/Content/StoryCandidatePersistent.cs` for deferred-modal rehydration) should remain intentionally thin; the new signal-metadata block lives on transient `StoryCandidate` only, not on its persistent form
 
 This is preferred over text-convention encoding because it keeps routing contracts inspectable, avoids semantic drift in string ids, and gives downstream consumers explicit structured meaning when they need it.
 
