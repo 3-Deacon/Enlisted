@@ -2126,6 +2126,22 @@ def validate_error_code_registry(ctx: ValidationContext):
 
 
 # ============================================================================
+# Phase 13 configuration — duty-pool skill coverage enforcement.
+# ============================================================================
+
+_DUTY_PROFILES = [
+    "garrisoned", "marching", "besieging", "raiding",
+    "escorting", "wandering", "imprisoned"
+]
+
+_BANNERLORD_SKILLS = [
+    "OneHanded", "TwoHanded", "Polearm", "Bow", "Crossbow", "Throwing",
+    "Riding", "Athletics", "Scouting", "Tactics", "Trade", "Leadership",
+    "Charm", "Roguery", "Steward", "Medicine", "Engineering", "Smithing"
+]
+
+
+# ============================================================================
 # Phase 12: Storylet Reference Validation
 # ============================================================================
 
@@ -2790,6 +2806,73 @@ def _load_all_storylets(ctx: ValidationContext) -> list[tuple[Path, dict]]:
     return entries
 
 
+# ============================================================================
+# Phase 13: Duty-profile pool coverage
+# ============================================================================
+
+
+def phase13_pool_coverage(
+    storylet_entries: list[tuple[Path, dict]], ctx: ValidationContext
+) -> None:
+    """Plan 4 §T23. Each duty-profile pool must cover all 18 Bannerlord skills
+    at least once. Gaps emit warnings; no build-failure threshold."""
+    print("[Phase 13] Validating duty-profile pool skill coverage...")
+    repo_root = Path(__file__).parent.parent.parent
+    storylet_dir = repo_root / "ModuleData" / "Enlisted" / "Storylets"
+
+    # Initialize coverage matrix: coverage[profile][skill] = int
+    coverage: dict[str, dict[str, int]] = {
+        profile: {skill: 0 for skill in _BANNERLORD_SKILLS}
+        for profile in _DUTY_PROFILES
+    }
+
+    for _src, storylet in storylet_entries:
+        sid = storylet.get("id", "")
+        # Skip transition storylets — they fire from the interrupt hook, not the
+        # ambient emitter, and don't have profile_requires.
+        if sid.startswith("transition_"):
+            continue
+
+        profiles = storylet.get("profile_requires") or []
+        if not profiles:
+            continue  # Untargeted storylets don't count toward per-profile coverage.
+
+        # Collect every skill this storylet grants XP for.
+        granted: set[str] = set()
+        for option in storylet.get("options") or []:
+            for effect in option.get("effects") or []:
+                if effect.get("apply") == "skill_xp":
+                    skill = effect.get("skill")
+                    if skill:
+                        granted.add(skill)
+
+        for profile in profiles:
+            if profile not in coverage:
+                continue  # storylet targets an unknown profile — separate check
+            for skill in granted:
+                if skill in coverage[profile]:
+                    coverage[profile][skill] += 1
+
+    # Report density summary and flag empty cells.
+    summary_parts = []
+    for profile in _DUTY_PROFILES:
+        filled = sum(1 for skill in _BANNERLORD_SKILLS if coverage[profile][skill] > 0)
+        total = len(_BANNERLORD_SKILLS)
+        summary_parts.append(f"{profile}={filled}/{total}")
+
+        pool_path = storylet_dir / f"duty_{profile}.json"
+        for skill in _BANNERLORD_SKILLS:
+            if coverage[profile][skill] == 0:
+                ctx.add_issue(
+                    "warning",
+                    "duty-pool-coverage",
+                    f"duty profile '{profile}' has no storylet awarding {skill} XP",
+                    str(pool_path),
+                )
+
+    print(f"  Pool coverage (cells with >=1 covering storylet): {', '.join(summary_parts)}")
+
+
 def phase14_arc_integrity(
     storylet_entries: list[tuple[Path, dict]], ctx: ValidationContext
 ) -> None:
@@ -3102,9 +3185,10 @@ def main():
     # Phase 12: Storylet reference validation
     validate_storylet_references(ctx)
 
-    # Phases 14-17: Spec 2 Orders Surface validators (load storylets once, reuse).
+    # Phases 13-17: Storylet-catalog validators (load storylets once, reuse).
     storylet_entries = _load_all_storylets(ctx)
     storylets_only = [s for _, s in storylet_entries]  # Phase 15 needs ids only.
+    phase13_pool_coverage(storylet_entries, ctx)
     phase14_arc_integrity(storylet_entries, ctx)
     phase15_path_crossroads(storylets_only, ctx)
     loot_pools = _load_loot_pools(ctx)
