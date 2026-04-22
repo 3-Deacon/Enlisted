@@ -1,6 +1,6 @@
 # Lord AI Intervention Implementation Plan (Plan 2 of 5)
 
-> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+> **Status:** ✅ **Code complete on `development` 2026-04-22.** Commit chain `4929246` → `315b8ed` (22 commits). Three MBGameModel wrappers registered via `SubModule.OnGameStart`; `EnlistedAiGate` per-call identity filter live; snapshot-driven bias active; `EnlistedAiBiasHeartbeat` throttled emitter routes bias events under the `INTELAI` category. Build GREEN, content validator passes. T24 14-in-game-day smoke pending human operator (see Phase H). T16-T18 Phase F narrow Harmony deferred pending T24 evidence. Full `API Corrections Appendix` at bottom of this file records drift and idiom notes surfaced during execution.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
