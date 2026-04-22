@@ -6272,5 +6272,137 @@
     <string id="order_treat_wounded_resolve_sociable_done_tt" text="Charm + Medicine + rank XP." />
     <string id="order_treat_wounded_resolve_sociable_setup" text="You sat with men at the worst hour of their lives and did what little was needed — water, words, a name spoken aloud. They will remember. Many will not live long enough to say so, but some will." />
     <string id="order_treat_wounded_resolve_sociable_title" text="Names remembered" />
+
+    <!-- duty_garrisoned_alert_posture_1 -->
+    <string id="duty_garrisoned_alert_posture_1_opt" text="Keep your blade sharp and your watch honest." />
+    <string id="duty_garrisoned_alert_posture_1_setup" text="The lord&apos;s captains have doubled the gate guard and moved the watch schedule forward. No one says why. The garrison drills harder than it did yesterday." />
+    <string id="duty_garrisoned_alert_posture_1_title" text="Alert posture" />
+    <string id="duty_garrisoned_alert_posture_1_tt" text="Alert drill under threat. Readiness up, OneHanded XP." />
+
+    <!-- duty_garrisoned_archery_butts_1 -->
+    <string id="duty_garrisoned_archery_butts_1_opt" text="Work the draw until the groupings tighten." />
+    <string id="duty_garrisoned_archery_butts_1_setup" text="The butts are set up behind the stables, forty paces out. You pull until your fingers are raw and your quiver is empty." />
+    <string id="duty_garrisoned_archery_butts_1_title" text="Archery butts" />
+    <string id="duty_garrisoned_archery_butts_1_tt" text="Range practice at the butts. Bow XP." />
+
+    <!-- duty_garrisoned_formation_push_1 -->
+    <string id="duty_garrisoned_formation_push_1_opt" text="Push hard and hold your footing." />
+    <string id="duty_garrisoned_formation_push_1_setup" text="Two ranks press into each other across the courtyard. Not a real assault — just the feel of bodies and shafts in close space. Your legs know the difference by the end." />
+    <string id="duty_garrisoned_formation_push_1_title" text="Shield and pike push" />
+    <string id="duty_garrisoned_formation_push_1_tt" text="Formation contact drill. Polearm + Athletics XP." />
+
+    <!-- duty_garrisoned_gate_formation_1 -->
+    <string id="duty_garrisoned_gate_formation_1_opt" text="Watch the structure from above." />
+    <string id="duty_garrisoned_gate_formation_1_setup" text="The sergeant arranges the gate guard into a reception line and drills the presentation — spacing, facing, order of response. You watch from the wall walk above, noting what he is building." />
+    <string id="duty_garrisoned_gate_formation_1_title" text="Gate formation drill" />
+    <string id="duty_garrisoned_gate_formation_1_tt" text="Tactical observation. Tactics + Leadership XP." />
+
+    <!-- duty_garrisoned_gate_stance_1 -->
+    <string id="duty_garrisoned_gate_stance_1_opt" text="Work the footwork. Hold the post." />
+    <string id="duty_garrisoned_gate_stance_1_setup" text="Four hours at the gate. Traffic is thin. You run stance drills in your head, feet shifting on the stone, blade never leaving the scabbard." />
+    <string id="duty_garrisoned_gate_stance_1_title" text="Gate-post watch" />
+    <string id="duty_garrisoned_gate_stance_1_tt" text="Quiet practice at watch. OneHanded XP." />
+
+    <!-- duty_garrisoned_javelin_fence_1 -->
+    <string id="duty_garrisoned_javelin_fence_1_opt" text="Take your throws and count the hits." />
+    <string id="duty_garrisoned_javelin_fence_1_setup" text="Someone sets up a painted timber at the far end of the yard. Half the watch tries their arm at it. Most miss by a stride. A few don&apos;t." />
+    <string id="duty_garrisoned_javelin_fence_1_title" text="Javelins at the fence" />
+    <string id="duty_garrisoned_javelin_fence_1_tt" text="Javelin practice. Throwing + Roguery XP." />
+
+    <!-- duty_garrisoned_market_errand_1 -->
+    <string id="duty_garrisoned_market_errand_1_opt" text="Haggle what you can. Cover the rest." />
+    <string id="duty_garrisoned_market_errand_1_setup" text="The quartermaster sends you to the market with a list and a purse. Not enough coin for what the list says. You are expected to sort the difference." />
+    <string id="duty_garrisoned_market_errand_1_title" text="Market errand" />
+    <string id="duty_garrisoned_market_errand_1_tt" text="Quartermaster errand. Trade + Medicine XP." />
+
+    <!-- duty_garrisoned_mess_argument_1 -->
+    <string id="duty_garrisoned_mess_argument_1_opt" text="Step between them. Keep it quiet." />
+    <string id="duty_garrisoned_mess_argument_1_setup" text="Two soldiers are about to throw hands over a gambling debt. The sergeant is at the far end of the hall. You are between them and the door." />
+    <string id="duty_garrisoned_mess_argument_1_title" text="Argument in the mess" />
+    <string id="duty_garrisoned_mess_argument_1_tt" text="Defuse a fight. Charm + Steward XP." />
+
+    <!-- duty_garrisoned_mounted_patrol_1 -->
+    <string id="duty_garrisoned_mounted_patrol_1_opt" text="Read the ground as you ride." />
+    <string id="duty_garrisoned_mounted_patrol_1_setup" text="A short patrol loop outside the walls — three riders, no urgency. You note the lay of the ground and where a column might approach from the north. Old habit from the field." />
+    <string id="duty_garrisoned_mounted_patrol_1_title" text="Mounted patrol outside the gates" />
+    <string id="duty_garrisoned_mounted_patrol_1_tt" text="Mounted loop outside the walls. Riding + Scouting XP." />
+
+    <!-- duty_garrisoned_new_threat_1 -->
+    <string id="duty_garrisoned_new_threat_1_opt" text="Watch the roads. Report anything." />
+    <string id="duty_garrisoned_new_threat_1_setup" text="Word comes in from a rider — something new is moving two days out. The captains want eyes on every approach. You get a post on the east wall and a description to memorize." />
+    <string id="duty_garrisoned_new_threat_1_title" text="New threat on the road" />
+    <string id="duty_garrisoned_new_threat_1_tt" text="Threat watch. Scouting XP + readiness up." />
+
+    <!-- duty_garrisoned_parapet_repair_1 -->
+    <string id="duty_garrisoned_parapet_repair_1_opt" text="Follow the mason&apos;s lead." />
+    <string id="duty_garrisoned_parapet_repair_1_setup" text="A section of battlement needs relaying. The mason shows you once where to set the mortar and leaves. You work with the others until the stones sit level." />
+    <string id="duty_garrisoned_parapet_repair_1_title" text="Parapet repair detail" />
+    <string id="duty_garrisoned_parapet_repair_1_tt" text="Wall repair work. Engineering + Smithing XP." />
+
+    <!-- duty_garrisoned_pike_watch_1 -->
+    <string id="duty_garrisoned_pike_watch_1_opt" text="Stay upright. Find the balance." />
+    <string id="duty_garrisoned_pike_watch_1_setup" text="Three hours holding a pike on the parapet. The weight tells in your shoulders long before the watch ends. You shift the butt and find what the old soldiers mean by grip." />
+    <string id="duty_garrisoned_pike_watch_1_title" text="Pike post on the wall" />
+    <string id="duty_garrisoned_pike_watch_1_tt" text="Wall watch with full kit. Polearm XP." />
+
+    <!-- duty_garrisoned_range_competition_1 -->
+    <string id="duty_garrisoned_range_competition_1_opt" text="Trade technique across the lanes." />
+    <string id="duty_garrisoned_range_competition_1_setup" text="A bet forms at the butts — bow against crossbow. You take the bow side. The crossbowman is slow and methodical. His bolts land tight. Yours do too, eventually." />
+    <string id="duty_garrisoned_range_competition_1_title" text="Range competition" />
+    <string id="duty_garrisoned_range_competition_1_tt" text="Bow and crossbow practice. Bow + Crossbow XP." />
+
+    <!-- duty_garrisoned_short_rations_1 -->
+    <string id="duty_garrisoned_short_rations_1_opt" text="Take your share and say nothing." />
+    <string id="duty_garrisoned_short_rations_1_setup" text="The ration-post line is shorter than the crowd waiting for it. Someone in the queue counts the portions out loud. The sergeant hears. Nobody looks happy." />
+    <string id="duty_garrisoned_short_rations_1_title" text="Short rations" />
+    <string id="duty_garrisoned_short_rations_1_tt" text="Supply tension. Scrutiny up." />
+
+    <!-- duty_garrisoned_spear_drill_1 -->
+    <string id="duty_garrisoned_spear_drill_1_opt" text="Match his calls without watching the man beside you." />
+    <string id="duty_garrisoned_spear_drill_1_setup" text="The sergeant lines you up in the yard and walks the row with a stick. Spacing, angle, advance — the same calls he&apos;s been making for twenty years." />
+    <string id="duty_garrisoned_spear_drill_1_title" text="Spear formation drill" />
+    <string id="duty_garrisoned_spear_drill_1_tt" text="Formation drill. Polearm XP." />
+
+    <!-- duty_garrisoned_sparring_veteran_1 -->
+    <string id="duty_garrisoned_sparring_veteran_1_opt" text="Take the lessons. Keep moving." />
+    <string id="duty_garrisoned_sparring_veteran_1_setup" text="The sergeant pairs you with a soldier who has fought longer than you have been enlisted. He does not speak during the bout. His blade does his teaching." />
+    <string id="duty_garrisoned_sparring_veteran_1_title" text="Paired against a veteran" />
+    <string id="duty_garrisoned_sparring_veteran_1_tt" text="Hard sparring against a veteran. OneHanded XP." />
+
+    <!-- duty_garrisoned_stable_work_1 -->
+    <string id="duty_garrisoned_stable_work_1_opt" text="Work the horses, learn their moods." />
+    <string id="duty_garrisoned_stable_work_1_setup" text="Your name is on the stable list. Feed, muck, tack check — two hours of it before the horses are ready for the afternoon rotation. The animals are indifferent to your effort." />
+    <string id="duty_garrisoned_stable_work_1_title" text="Stable rotation" />
+    <string id="duty_garrisoned_stable_work_1_tt" text="Stable duty. Riding XP." />
+
+    <!-- duty_garrisoned_stair_sprint_1 -->
+    <string id="duty_garrisoned_stair_sprint_1_opt" text="Empty the legs. Post a time." />
+    <string id="duty_garrisoned_stair_sprint_1_setup" text="The gatehouse stairs. Up, turn, down. The sergeant is timing. There is a wrong time to be slow and this is it." />
+    <string id="duty_garrisoned_stair_sprint_1_title" text="Stair sprints" />
+    <string id="duty_garrisoned_stair_sprint_1_tt" text="Stair conditioning. Athletics XP." />
+
+    <!-- duty_garrisoned_sword_form_1 -->
+    <string id="duty_garrisoned_sword_form_1_opt" text="Run the forms until they sit right." />
+    <string id="duty_garrisoned_sword_form_1_setup" text="The drill yard is quiet except for footwork and the knock of wasters. You work through the forms alone, slow enough to feel every error." />
+    <string id="duty_garrisoned_sword_form_1_title" text="Sword form at the post" />
+    <string id="duty_garrisoned_sword_form_1_tt" text="Steady solo practice. OneHanded XP." />
+
+    <!-- duty_garrisoned_wall_circuit_1 -->
+    <string id="duty_garrisoned_wall_circuit_1_opt" text="Run it clean. Both laps." />
+    <string id="duty_garrisoned_wall_circuit_1_setup" text="The sergeant sends you around the walls at pace — twice before the bell, full kit, no dawdling. The stairs are the worst part. They always are." />
+    <string id="duty_garrisoned_wall_circuit_1_title" text="Circuit on the walls" />
+    <string id="duty_garrisoned_wall_circuit_1_tt" text="Kit run on the walls. Athletics XP." />
+
+    <!-- duty_garrisoned_whetstone_1 -->
+    <string id="duty_garrisoned_whetstone_1_opt" text="Finish both blades before mess." />
+    <string id="duty_garrisoned_whetstone_1_setup" text="An afternoon without orders. You pull a whetstone and work the edges — shortsword first, then the two-hander someone left leaning against the barracks wall." />
+    <string id="duty_garrisoned_whetstone_1_title" text="Whetstone and slow work" />
+    <string id="duty_garrisoned_whetstone_1_tt" text="Blade maintenance and form work. OneHanded + TwoHanded XP." />
+
+    <!-- duty_garrisoned_wounded_ward_1 -->
+    <string id="duty_garrisoned_wounded_ward_1_opt" text="Learn the work. Keep your hands steady." />
+    <string id="duty_garrisoned_wounded_ward_1_setup" text="The garrison surgeon has more patients than hands. You end up holding a man still while the saw does its work, and then doing the wound-dressing on three more through the afternoon." />
+    <string id="duty_garrisoned_wounded_ward_1_title" text="Wounded in the ward" />
+    <string id="duty_garrisoned_wounded_ward_1_tt" text="Assist the surgeon. Medicine XP." />
 </strings>
 </base>
