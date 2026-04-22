@@ -7,6 +7,7 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
 
 namespace Enlisted.Features.CampaignIntelligence.Signals
 {
@@ -26,8 +27,12 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
         private SignalEmissionRecord _record = new SignalEmissionRecord();
         private int _lastHeartbeatHourTick = int.MinValue / 2;
 
+        private readonly Dictionary<SignalType, Queue<string>> _recentByFamily = new Dictionary<SignalType, Queue<string>>();
+
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
+        private const int RECENT_HISTORY_PER_FAMILY = 3;
+        private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
         public override void RegisterEvents()
         {
@@ -87,7 +92,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
 
                 var picked = candidates[0];
 
-                var storyletId = PickStoryletFromPool(picked.PoolPrefix);
+                var storyletId = PickStoryletFromPool(picked.PoolPrefix, picked.Type);
                 if (storyletId == null)
                 {
                     ModLogger.Expected("SIGNAL", "no_storylet_for_family",
@@ -108,7 +113,15 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             }
         }
 
-        private string PickStoryletFromPool(string prefix)
+        /// <summary>
+        /// Selects a floor storylet from the pool matching <paramref name="prefix"/>,
+        /// weighted by the storylet's base weight times its satisfied modifier factors,
+        /// and biased against the last few emissions from the same family. Storylets
+        /// on cooldown or whose triggers fail are skipped. When eligible storylets
+        /// remain, one is sampled proportionally to its adjusted weight; otherwise
+        /// null is returned.
+        /// </summary>
+        private string PickStoryletFromPool(string prefix, SignalType type)
         {
             if (string.IsNullOrEmpty(prefix))
             {
@@ -116,6 +129,9 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             }
 
             var nowHours = (int)CampaignTime.Now.ToHours;
+            var eligible = new List<(Storylet s, float weight)>();
+            Queue<string> recent;
+            _recentByFamily.TryGetValue(type, out recent);
 
             foreach (var s in StoryletCatalog.All)
             {
@@ -138,10 +154,47 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                     continue;
                 }
 
-                return s.Id;
+                var w = s.WeightFor(null);
+                if (recent != null)
+                {
+                    foreach (var recentId in recent)
+                    {
+                        if (string.Equals(recentId, s.Id, StringComparison.OrdinalIgnoreCase))
+                        {
+                            w *= RECENT_PENALTY_PER_HIT;
+                        }
+                    }
+                }
+
+                if (w > 0f)
+                {
+                    eligible.Add((s, w));
+                }
             }
 
-            return null;
+            if (eligible.Count == 0)
+            {
+                return null;
+            }
+
+            var total = 0f;
+            foreach (var e in eligible)
+            {
+                total += e.weight;
+            }
+
+            var roll = MBRandom.RandomFloat * total;
+            var acc = 0f;
+            foreach (var e in eligible)
+            {
+                acc += e.weight;
+                if (roll <= acc)
+                {
+                    return e.s.Id;
+                }
+            }
+
+            return eligible[eligible.Count - 1].s.Id;
         }
 
         /// <summary>
@@ -197,6 +250,17 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
             }
 
             ModLogger.Info("SIGNAL", "emitted " + signal.Type + " storylet=" + storyletId + " confidence=" + signal.Confidence);
+
+            if (!_recentByFamily.TryGetValue(signal.Type, out var historyQueue))
+            {
+                historyQueue = new Queue<string>();
+                _recentByFamily[signal.Type] = historyQueue;
+            }
+            historyQueue.Enqueue(storyletId);
+            while (historyQueue.Count > RECENT_HISTORY_PER_FAMILY)
+            {
+                historyQueue.Dequeue();
+            }
         }
 
         private SourcePerspective DefaultPerspectiveFor(SignalType type)
