@@ -47,8 +47,51 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             return false;
         }
 
-        public override int CalculatePartyInfluenceCost(MobileParty armyLeaderParty, MobileParty party) =>
-            BaseModel?.CalculatePartyInfluenceCost(armyLeaderParty, party) ?? 0;
+        public override int CalculatePartyInfluenceCost(
+            MobileParty armyLeaderParty, MobileParty party)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return 0;
+            }
+            var vanilla = BaseModel.CalculatePartyInfluenceCost(armyLeaderParty, party);
+
+            if (!EnlistedAiGate.TryGetSnapshotForParty(armyLeaderParty, out var snapshot))
+            {
+                return vanilla;
+            }
+
+            try
+            {
+                // Moderate bias up when the enlisted lord (as leader) is under
+                // supply pressure or elevated strain. This applies BEFORE the
+                // empty-list suppressor in T8 at vanilla call-sites that iterate
+                // (e.g., influence-budget checks inside the AI's loop at
+                // DefaultArmyManagementCalculationModel.cs:171-175). T8 catches
+                // the aggregate; T9 catches the per-call budgeting.
+                if (snapshot.SupplyPressure >= SupplyPressure.Tightening
+                    || snapshot.ArmyStrain >= ArmyStrainLevel.Elevated
+                    || snapshot.RecoveryNeed >= RecoveryNeed.Medium)
+                {
+                    float mult = 1.5f;
+                    if (snapshot.SupplyPressure == SupplyPressure.Critical
+                        || snapshot.ArmyStrain == ArmyStrainLevel.Breaking)
+                    {
+                        mult = 2.5f;
+                    }
+                    int biased = (int)Math.Round(vanilla * mult);
+                    EnlistedAiBiasHeartbeat.Record("influence_cost_strained", vanilla, biased);
+                    return biased;
+                }
+                return vanilla;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTELAI", "influence_cost_bias_failed", ex);
+                return vanilla;
+            }
+        }
 
         public override float DailyBeingAtArmyInfluenceAward(MobileParty armyMemberParty) =>
             BaseModel?.DailyBeingAtArmyInfluenceAward(armyMemberParty) ?? 0f;
