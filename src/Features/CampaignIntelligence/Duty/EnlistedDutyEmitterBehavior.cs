@@ -26,8 +26,12 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private DutyCooldownStore _cooldowns = new DutyCooldownStore();
         private readonly Queue<string> _recentEmittedIds = new Queue<string>();
         private int _lastHeartbeatHourTick = int.MinValue / 2;
+        private int _lastDailyCountReportHourTick = int.MinValue / 2;
+
+        private readonly Dictionary<string, int> _sessionEmissionsByProfile = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
+        private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
@@ -65,6 +69,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             try
             {
                 LogHeartbeatIfDue();
+                LogDailyCountsIfDue();
 
                 if (EnlistmentBehavior.Instance?.IsEnlisted != true)
                 {
@@ -296,6 +301,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             });
 
             _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            IncrementProfileCount("arcscale");
 
             ModLogger.Info("DUTY",
                 $"emitted arcscale storylet={storylet.Id} reason={opp.TriggerReason}");
@@ -315,6 +321,8 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             });
 
             _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            var profile = OrderActivity.Instance?.CurrentDutyProfile ?? "unknown";
+            IncrementProfileCount(profile);
 
             // Track recent history for weighted-diversity picker.
             _recentEmittedIds.Enqueue(storylet.Id);
@@ -335,6 +343,39 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
             ModLogger.Info("DUTY",
                 $"emitted episodic storylet={storylet.Id} reason={opp.TriggerReason}");
+        }
+
+        private void IncrementProfileCount(string profile)
+        {
+            if (string.IsNullOrEmpty(profile))
+            {
+                return;
+            }
+            _sessionEmissionsByProfile.TryGetValue(profile, out var count);
+            _sessionEmissionsByProfile[profile] = count + 1;
+        }
+
+        private void LogDailyCountsIfDue()
+        {
+            var nowHour = (int)CampaignTime.Now.ToHours;
+            if (nowHour - _lastDailyCountReportHourTick < DAILY_COUNT_REPORT_INTERVAL_HOURS)
+            {
+                return;
+            }
+            _lastDailyCountReportHourTick = nowHour;
+
+            if (_sessionEmissionsByProfile.Count == 0)
+            {
+                ModLogger.Info("DUTY", "daily_counts: no emissions in the last 24h");
+                return;
+            }
+
+            var parts = _sessionEmissionsByProfile
+                .OrderBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(kvp => $"{kvp.Key}={kvp.Value}");
+            ModLogger.Info("DUTY", "daily_counts: " + string.Join(" ", parts));
+
+            _sessionEmissionsByProfile.Clear();
         }
 
         private void LogHeartbeatIfDue()
