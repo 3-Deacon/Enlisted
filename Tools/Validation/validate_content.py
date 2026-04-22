@@ -2184,6 +2184,7 @@ _PRIMITIVE_EFFECT_IDS: set[str] = {
     "start_arc",
     "clear_active_named_order",
     "commit_path",
+    "resist_path",
 }
 
 # Primitives that take a 'quality' parameter.

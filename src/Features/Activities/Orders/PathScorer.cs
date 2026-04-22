@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Flags;
 using Enlisted.Features.Qualities;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -122,6 +123,10 @@ namespace Enlisted.Features.Activities.Orders
             try
             {
                 var qualityKey = $"path_{path}_score";
+                if (FlagStore.Instance?.Has("path_resisted_" + path) == true)
+                {
+                    amount = (int)(amount * 0.5f);
+                }
                 var current = QualityStore.Instance?.Get(qualityKey) ?? 0;
                 QualityStore.Instance?.Set(qualityKey, Math.Max(0, Math.Min(100, current + amount)), reason);
             }
