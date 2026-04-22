@@ -1,6 +1,6 @@
 # Career Loop Closure Implementation Plan (Plan 5 of 5)
 
-> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live. ✅ Plan 4 shipped 2026-04-22 (commits `ca22111..0c519d3`, 22 total) — Half B is now unblocked alongside Half A. Ready to start.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -9,7 +9,7 @@
 **Half A / Half B split:**
 
 - **Half A (Path crossroads system)** — Phases A-F, Tasks T1-T10. Independent of Plan 1 snapshot; fires on existing `PathScorer` + `EnlistmentBehavior.OnTierChanged` events that already exist. **Parallelizable with Plans 2/3/4 after Plan 1 ships.** Does not need to wait for any downstream plan.
-- **Half B (Polish + integration closure)** — Phases G-L, Tasks T11-T22. Culture/trait overlays operate on content authored in Plan 4. **Queues behind Plan 4's Phase F content completion.** Debug hotkeys, save-load test, playtest scenarios, and verification doc do not require Plan 4 content but follow after it to test the full loop.
+- **Half B (Polish + integration closure)** — Phases G-L, Tasks T11-T22. Culture/trait overlays operate on content authored in Plan 4. **Plan 4 Phase F shipped 2026-04-22 — Half B is unblocked.** Debug hotkeys, save-load test, playtest scenarios, and verification doc do not require Plan 4 content but follow after it to test the full loop.
 
 **Goal:** Close the career arc — give players a meaningful T4/T6/T9 crossroads moment where their skill-gain pattern commits them to a path (or they resist and earn the flag), author T7+ named-order variants that reflect committed-path character, overlay culture/trait variants on hot-path storylets, ship debug hotkeys for Spec 2+ inspection, verify save-load reconstructs the full loop, run final playtest scenarios A-G across the integrated Plans 1-5 surface, and write the final verification doc that closes the Enlisted v2 redesign.
 
@@ -77,7 +77,7 @@
 
 ### Half B dependency
 
-Half B Phases G + H (culture/trait overlays) **hard-require** Plan 4 Phase F completion. Plan 5 Tasks T11-T14 include explicit "queue until Plan 4 Phase F ships" annotations. If Plan 5 begins execution before Plan 4 Phase F lands, Half A executes first; Half B pauses.
+Half B Phases G + H (culture/trait overlays) hard-require Plan 4 Phase F completion, which shipped 2026-04-22. Plan 5 Tasks T11-T14 no longer queue on Plan 4 — their "wait for Plan 4 Phase F" gates are now satisfied; proceed when Half A lands or earlier if content authoring is desired first.
 
 ---
 
@@ -126,7 +126,7 @@ Three new C# files, two modified. ~75+ authored storylets across Half A + Half B
 - **Phase E — `prior_service_*` flag verification**: T8
 - **Phase F — Validator Phase 15 full enforcement**: T9, T10
 
-**Half B — Polish + closure (queues behind Plan 4 Phase F)**
+**Half B — Polish + closure** (Plan 4 Phase F shipped 2026-04-22; no longer queued)
 
 - **Phase G — Culture overlays (~45 storylets)**: T11, T12
 - **Phase H — Lord-trait gated storylets (~15)**: T13, T14
@@ -764,18 +764,16 @@ On T4 crossroads, pick resist. Verify `path_resisted_<path>` flag set. Over the 
 
 # Half B — Polish + integration closure
 
-**Half B queues behind Plan 4 Phase F content completion.** The overlay targets (~15 hot-path storylets) can only be identified after Plan 4's authored duty pools exist.
+**Half B prerequisite met — Plan 4 Phase F shipped 2026-04-22.** The overlay targets (~15 hot-path storylets) can only be identified after Plan 4's authored duty pools exist.
 
 ## Phase G — Culture overlays
 
-### Task T11: Identify hot-path storylets (requires Plan 4 Phase F complete)
+### Task T11: Identify hot-path storylets (Plan 4 Phase F shipped 2026-04-22)
 
 **Files:**
 - None (analysis task; output feeds T12)
 
-- [ ] **Step 1: Wait for Plan 4 Phase F**
-
-Do not begin T11 until Plan 4 T15-T22 (duty pool authoring) is complete.
+- [x] **Step 1: Plan 4 Phase F prerequisite** — Plan 4 T15-T22 (duty pool authoring) shipped 2026-04-22 as part of Plan 4. Proceed.
 
 - [ ] **Step 2: Identify hot-path targets**
 
@@ -1055,7 +1053,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - **Plan 1 dependency:** Plan 5 Half A is independent of Plan 1 snapshot. Plan 5 Half B touches no Plan 1 code.
 - **Plan 2 relationship:** Independent. Plan 5 doesn't read Plan 2.
 - **Plan 3 relationship:** Plan 5 Half B culture-overlay emission preference modifies Plan 3's / Plan 4's picker — minor shared-code touch in `PickStoryletFromPool`. Document in T12.
-- **Plan 4 dependency:** Plan 5 Half B (Phase G + H) hard-requires Plan 4 Phase F completion. Half A does not.
+- **Plan 4 dependency:** Plan 5 Half B (Phase G + H) hard-requires Plan 4 Phase F completion. Plan 4 shipped 2026-04-22; prerequisite met. Half A has no Plan 4 dependency.
 - **Shared code surface:** `EffectExecutor.cs` (Plan 5 adds 2 primitives), `PathScorer.cs` (Plan 5 adds resist-multiplier check), `PickStoryletFromPool` in Plan 3/4 emitter (Plan 5 adds culture-overlay preference). All additive.
 
 ---
@@ -1071,7 +1069,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - [ ] T8 — prior_service_* flag verification
 - [ ] T9-T10 — Phase 15 validator + smoke
 
-**Half B (after Plan 4 Phase F, queued):**
+**Half B (Plan 4 Phase F shipped 2026-04-22; no longer queued):**
 - [ ] T11-T12 — hot-path identification + culture overlays (~45 storylets)
 - [ ] T13-T14 — lord-trait gate targets + overlays (~15 storylets)
 - [ ] T15-T16 — debug hotkeys behavior + registration
@@ -1079,4 +1077,4 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - [ ] T18-T21 — playtest scenarios A-G doc + execution
 - [ ] T22 — final verification doc + CLAUDE.md closure
 
-Total: 22 tasks. Estimated effort: Half A — 2-3 implementation sessions; Half B — 3-4 sessions after Plan 4 Phase F ships.
+Total: 22 tasks. Estimated effort: Half A — 2-3 implementation sessions; Half B — 3-4 sessions; Plan 4 Phase F already shipped 2026-04-22.
