@@ -1,0 +1,1069 @@
+{
+  "storylets": [
+    {
+      "id": "duty_garrisoned_sword_form_1__empire",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_gar_sword_form_1__empire_title}Forms by the regimental measure",
+      "setup": "{=duty_gar_sword_form_1__empire_setup}The drill yard is paved in the old fashion, square stones laid by an engineer two emperors ago. The sergeant calls each cut by its written number. You answer the count and let the protocol carry the work.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sword_form_1__empire_opt_main}Hold to the count. Run the forms.",
+          "tooltip": "{=duty_gar_sword_form_1__empire_opt_main_tt}Regimental drill. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sword_form_1__sturgia",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_gar_sword_form_1__sturgia_title}The forms in grey light",
+      "setup": "{=duty_gar_sword_form_1__sturgia_setup}The yard is frost-bitten. The old drill-master does not speak. He moves through the cuts and expects you to follow until your breath is heavy and the cold is gone from your arms.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sword_form_1__sturgia_opt_main}Match him. Hold the forms.",
+          "tooltip": "{=duty_gar_sword_form_1__sturgia_opt_main_tt}Silent drill in the cold. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sword_form_1__khuzait",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_gar_sword_form_1__khuzait_title}Sabre forms outside the yurts",
+      "setup": "{=duty_gar_sword_form_1__khuzait_setup}A clear stretch of trampled grass beside the picket line serves as a yard. The old rider beside you works the sabre cuts with one foot half-turned, as if he might step into a saddle between blows. You learn the angle.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sword_form_1__khuzait_opt_main}Work the cuts. Keep the foot ready.",
+          "tooltip": "{=duty_gar_sword_form_1__khuzait_opt_main_tt}Sabre forms beside the picket. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_market_errand_1__empire",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_gar_market_errand_1__empire_title}Market errand by writ",
+      "setup": "{=duty_gar_market_errand_1__empire_setup}The quartermaster gives you a sealed writ and a purse short of the figure on the writ. Imperial measure on every line. The merchants know the seal and the discount it implies.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_market_errand_1__empire_opt_main}Press the writ. Cover the gap.",
+          "tooltip": "{=duty_gar_market_errand_1__empire_opt_main_tt}Quartermaster errand. Trade + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_market_errand_1__khuzait",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_gar_market_errand_1__khuzait_title}Errand among the steppe traders",
+      "setup": "{=duty_gar_market_errand_1__khuzait_setup}The market sits where two trade routes cross — felt, hides, dried meat, and a few iron goods carried in from further west. The steppe traders bargain in long pauses. You learn to wait them out.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_market_errand_1__khuzait_opt_main}Wait out the silence. Settle the price.",
+          "tooltip": "{=duty_gar_market_errand_1__khuzait_opt_main_tt}Quartermaster errand. Trade + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_market_errand_1__aserai",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["aserai"],
+      "title": "{=duty_gar_market_errand_1__aserai_title}The caravan-quarter at noon",
+      "setup": "{=duty_gar_market_errand_1__aserai_setup}The market is shaded by hung cloth and the air smells of cardamom and dust. Every price has a story attached and a man behind it expecting tea. You drink the tea. Then the bargain starts in earnest.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_market_errand_1__aserai_opt_main}Drink the tea. Then settle the figure.",
+          "tooltip": "{=duty_gar_market_errand_1__aserai_opt_main_tt}Quartermaster errand. Trade + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sparring_veteran_1__empire",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_gar_sparring_vet_1__empire_title}Paired against the legionnaire",
+      "setup": "{=duty_gar_sparring_vet_1__empire_setup}The sergeant pairs you with a man whose service stripe runs the length of his sleeve. He fights to the regimental form — measured, square, every cut named. Your blade meets his and learns by losing.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sparring_vet_1__empire_opt_main}Take the lessons in the form he prefers.",
+          "tooltip": "{=duty_gar_sparring_vet_1__empire_opt_main_tt}Hard sparring against an old legionnaire. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sparring_veteran_1__battania",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_gar_sparring_vet_1__battania_title}Paired against the highland fian",
+      "setup": "{=duty_gar_sparring_vet_1__battania_setup}The veteran is a fian from the western glens. He says nothing, fights like the woods are still around him — short steps, sudden angles, no formal lines. You spend the bout learning to read which way he is not standing.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sparring_vet_1__battania_opt_main}Match the angles. Take the bruises.",
+          "tooltip": "{=duty_gar_sparring_vet_1__battania_opt_main_tt}Hard sparring against a fian. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sparring_veteran_1__vlandia",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["vlandia"],
+      "title": "{=duty_gar_sparring_vet_1__vlandia_title}Paired against the old man-at-arms",
+      "setup": "{=duty_gar_sparring_vet_1__vlandia_setup}The veteran is a man-at-arms from the lord's household, four campaigns served in the chain. He fights heavy and patient, the way a man fights when he expects to wear armour all day. You take the lesson in the timing.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_sparring_vet_1__vlandia_opt_main}Take the lessons. Wait for his weight.",
+          "tooltip": "{=duty_gar_sparring_vet_1__vlandia_opt_main_tt}Hard sparring against a man-at-arms. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_night_sparring_1__khuzait",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_mar_night_spar_1__khuzait_title}Camp circle under open sky",
+      "setup": "{=duty_mar_night_spar_1__khuzait_setup}The fires burn low and the horses are picketed downwind. A wide circle clears beside the wagons. Wasters and lance-shafts. The riders do not stop their songs while they spar.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_night_spar_1__khuzait_opt_main}Step in. Take a turn at both.",
+          "tooltip": "{=duty_mar_night_spar_1__khuzait_opt_main_tt}Camp sparring at night. OneHanded + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_night_sparring_1__sturgia",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_mar_night_spar_1__sturgia_title}Sparring by the fires in the cold",
+      "setup": "{=duty_mar_night_spar_1__sturgia_setup}The cold settles in the moment the fires bank low. Someone produces a flask and two staves. The circle is small and silent. A man laughs once. The rest is breath and wood.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_night_spar_1__sturgia_opt_main}Take the flask. Take the bout.",
+          "tooltip": "{=duty_mar_night_spar_1__sturgia_opt_main_tt}Cold-night sparring. OneHanded + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_night_sparring_1__battania",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_mar_night_spar_1__battania_title}Wood and song at the fires",
+      "setup": "{=duty_mar_night_spar_1__battania_setup}The bard is two fires over and the song is one of the long ones. Wasters cross beside the picket. You step into the circle and find the rhythm sits well in the chest.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_night_spar_1__battania_opt_main}Step in. Move with the song.",
+          "tooltip": "{=duty_mar_night_spar_1__battania_opt_main_tt}Camp sparring with the song. OneHanded + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_spare_the_village_1__empire",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_raid_spare_vil_1__empire_title}The headman with the tally-stick",
+      "setup": "{=duty_raid_spare_vil_1__empire_setup}The headman is old enough to remember the last regiment that came through. He brings out the village's tally-sticks and a copy of the imperial ledger and asks the sergeant to count rather than burn. Your sergeant looks at you.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_spare_vil_1__empire_opt_main}Hear the figures. Send them up the chain.",
+          "tooltip": "{=duty_raid_spare_vil_1__empire_opt_main_tt}Negotiated surrender of stores. Charm + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_spare_the_village_1__khuzait",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_raid_spare_vil_1__khuzait_title}The headman offers his herd",
+      "setup": "{=duty_raid_spare_vil_1__khuzait_setup}The headman comes out leading a brown mare and three goats. He speaks the steppe tongue badly but well enough. The herd in exchange for the houses. The sergeant looks at you.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_spare_vil_1__khuzait_opt_main}Take the count. Send it up the line.",
+          "tooltip": "{=duty_raid_spare_vil_1__khuzait_opt_main_tt}Negotiated surrender of stores. Charm + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_spare_the_village_1__battania",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_raid_spare_vil_1__battania_title}The elder beside the stones",
+      "setup": "{=duty_raid_spare_vil_1__battania_setup}The village elder meets you at the boundary stone, hands open. He counts the stores in the old fashion — by song and by season — and asks the fires be left for the children's sake. The sergeant looks at you.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_spare_vil_1__battania_opt_main}Hear him through. Carry the count up.",
+          "tooltip": "{=duty_raid_spare_vil_1__battania_opt_main_tt}Negotiated surrender of stores. Charm + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_mixed_camp_1__vlandia",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["vlandia"],
+      "title": "{=duty_esc_mixed_camp_1__vlandia_title}Camp with men in three liveries",
+      "setup": "{=duty_esc_mixed_camp_1__vlandia_setup}The host's three retinues each fly their lord's colors and the camp lays them out by chain of fealty. You sit at a fire belonging to no one in particular and listen to a sergeant from the eastern march complain about a bishop.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_mixed_camp_1__vlandia_opt_main}Sit down. Let them talk first.",
+          "tooltip": "{=duty_esc_mixed_camp_1__vlandia_opt_main_tt}Listen in mixed camp. Medicine + Roguery + Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_mixed_camp_1__empire",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_esc_mixed_camp_1__empire_title}Camp with three regiments",
+      "setup": "{=duty_esc_mixed_camp_1__empire_setup}The mess fires are arranged in the regimental fashion — straight rows, posted sentries, an officer's path through the middle. You find a fire with veterans from another legion and listen to them argue about an old order nobody followed.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_mixed_camp_1__empire_opt_main}Sit down. Let them talk first.",
+          "tooltip": "{=duty_esc_mixed_camp_1__empire_opt_main_tt}Listen in mixed camp. Medicine + Roguery + Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_mixed_camp_1__sturgia",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_esc_mixed_camp_1__sturgia_title}Camp under low cloud",
+      "setup": "{=duty_esc_mixed_camp_1__sturgia_setup}Three boyars share the camp tonight and the fires sit close against the cold. You take a place at one belonging to a retinue from further north. The mead is stronger than yours. The talk is slower and goes deeper.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_mixed_camp_1__sturgia_opt_main}Sit down. Let them talk first.",
+          "tooltip": "{=duty_esc_mixed_camp_1__sturgia_opt_main_tt}Listen in mixed camp. Medicine + Roguery + Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_assault_brief_1__empire",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_bes_assault_brief_1__empire_title}Briefing in the engineer's tent",
+      "setup": "{=duty_bes_assault_brief_1__empire_setup}The captain has the wall sketched on parchment by one of the imperial engineers — true scale, marked breach, three named lanes. He runs the brief in regimental order. You hear where the plan is thin and you keep your peace.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_assault_brief_1__empire_opt_main}Listen. File the gaps.",
+          "tooltip": "{=duty_bes_assault_brief_1__empire_opt_main_tt}Assault planning briefing. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_assault_brief_1__khuzait",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_bes_assault_brief_1__khuzait_title}Brief in the saddle-shadow",
+      "setup": "{=duty_bes_assault_brief_1__khuzait_setup}The captain draws the wall in the dust beside his horse. Three lanes, two feints, one push. He talks fast and rides as he talks, expecting the men to keep up on foot. You keep up. You hear what he leaves out.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_assault_brief_1__khuzait_opt_main}Listen on the move. Mark the gaps.",
+          "tooltip": "{=duty_bes_assault_brief_1__khuzait_opt_main_tt}Assault planning briefing. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_assault_brief_1__vlandia",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["vlandia"],
+      "title": "{=duty_bes_assault_brief_1__vlandia_title}Brief at the captain's pavilion",
+      "setup": "{=duty_bes_assault_brief_1__vlandia_setup}The captain stands by his banner and runs the brief in proper order — knights forward, sergeants in support, men-at-arms holding the lane. The chain is clean on parchment. You listen for the place where the chain will not hold.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_assault_brief_1__vlandia_opt_main}Listen. Note the weak link.",
+          "tooltip": "{=duty_bes_assault_brief_1__vlandia_opt_main_tt}Assault planning briefing. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_gate_stance_1__empire",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_gar_gate_stance_1__empire_title}Watch at the imperial gate",
+      "setup": "{=duty_gar_gate_stance_1__empire_setup}The gate is faced with paving stones laid in the regimental pattern. Four hours by the bell. Traffic is checked against the writs in the gatehouse book. You run stance drills between the inspections.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_gate_stance_1__empire_opt_main}Hold the post. Work the footwork.",
+          "tooltip": "{=duty_gar_gate_stance_1__empire_opt_main_tt}Quiet practice at watch. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_gate_stance_1__battania",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_gar_gate_stance_1__battania_title}Watch at the timber gate",
+      "setup": "{=duty_gar_gate_stance_1__battania_setup}The gate is timber, hewn from oak older than the village. Four hours and the wind through the palisade carries woodsmoke and a song from inside the hall. You shift your weight on the boards and run the cuts in your head.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_gate_stance_1__battania_opt_main}Work the footwork. Hold the post.",
+          "tooltip": "{=duty_gar_gate_stance_1__battania_opt_main_tt}Quiet practice at watch. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_gate_stance_1__khuzait",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_gar_gate_stance_1__khuzait_title}Watch at the camp-mouth",
+      "setup": "{=duty_gar_gate_stance_1__khuzait_setup}The gate is a rope and two timber posts at the mouth of the camp. Four hours, no traffic worth speaking of, the open sky to either side. You step the cuts where the dust will not show them.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_gate_stance_1__khuzait_opt_main}Work the footwork. Hold the post.",
+          "tooltip": "{=duty_gar_gate_stance_1__khuzait_opt_main_tt}Quiet practice at watch. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_short_rations_1__sturgia",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_gar_short_rat_1__sturgia_title}Short rations in the cold",
+      "setup": "{=duty_gar_short_rat_1__sturgia_setup}The line is short and the portion is shorter. The cold makes the hunger sharper. The veterans take their share without comment because the cold has taught them quiet. You learn from them.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_short_rat_1__sturgia_opt_main}Take your share. Say nothing.",
+          "tooltip": "{=duty_gar_short_rat_1__sturgia_opt_main_tt}Supply tension. Scrutiny up.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_short_rations_1__aserai",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "requires_culture": ["aserai"],
+      "title": "{=duty_gar_short_rat_1__aserai_title}Short rations and short water",
+      "setup": "{=duty_gar_short_rat_1__aserai_setup}The water-jar is half-full and the bread is yesterday's. The caravan-quarter would not call this hunger. The garrison line knows better. A man counts his portion against his neighbor's and looks away.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_short_rat_1__aserai_opt_main}Take your share. Say nothing.",
+          "tooltip": "{=duty_gar_short_rat_1__aserai_opt_main_tt}Supply tension. Scrutiny up.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_short_rations_1__empire",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_gar_short_rat_1__empire_title}Short rations against the writ",
+      "setup": "{=duty_gar_short_rat_1__empire_setup}The quartermaster has the writ pinned to the post. The portions on the line do not match the figures on the writ and a soldier reads both aloud. The sergeant cuts him short and the line moves on with shorter tempers.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_gar_short_rat_1__empire_opt_main}Take your share. Say nothing.",
+          "tooltip": "{=duty_gar_short_rat_1__empire_opt_main_tt}Supply tension. Scrutiny up.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_ridgeline_watch_1__battania",
+      "category": "duty_wandering",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_wan_ridge_watch_1__battania_title}Ridgeline above the woods",
+      "setup": "{=duty_wan_ridge_watch_1__battania_setup}The ridge is bare stone above the tree line. From it the forest spreads in every direction — a stone-circle to the south, smoke from a steading to the east, the cold glint of a river two valleys off. You file each one.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wan_ridge_watch_1__battania_opt_main}Read the country. File it away.",
+          "tooltip": "{=duty_wan_ridge_watch_1__battania_opt_main_tt}High ground observation. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_ridgeline_watch_1__khuzait",
+      "category": "duty_wandering",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_wan_ridge_watch_1__khuzait_title}A low rise on the open steppe",
+      "setup": "{=duty_wan_ridge_watch_1__khuzait_setup}Not much of a ridge — a long swell of grass, a man's height above the plain. From it the steppe runs for days. A herd to the east, a smudge of dust on the south horizon, a shape of riders too far to count. You mark each.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wan_ridge_watch_1__khuzait_opt_main}Read the steppe. File the marks.",
+          "tooltip": "{=duty_wan_ridge_watch_1__khuzait_opt_main_tt}High ground observation. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_ridgeline_watch_1__aserai",
+      "category": "duty_wandering",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["aserai"],
+      "title": "{=duty_wan_ridge_watch_1__aserai_title}Ridge above the dry country",
+      "setup": "{=duty_wan_ridge_watch_1__aserai_setup}The ridge looks down on dry country and a caravan track that runs out toward the salt. You count the wells you can see from here, mark the dust of a moving train, note the shadow of a settlement at the river bend. You file the lot.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wan_ridge_watch_1__aserai_opt_main}Read the country. File it away.",
+          "tooltip": "{=duty_wan_ridge_watch_1__aserai_opt_main_tt}High ground observation. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_boot_drill_1__empire",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_mar_boot_drill_1__empire_title}Regimental pace on the road",
+      "setup": "{=duty_mar_boot_drill_1__empire_setup}The sergeant calls the pace by the regimental count and the column sets to it. The road is one of the old imperial works — straight, paved, hard on the soles. By midday the count is in the bones.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_boot_drill_1__empire_opt_main}Hold the count. Don't fall out.",
+          "tooltip": "{=duty_mar_boot_drill_1__empire_opt_main_tt}Hard road march. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_boot_drill_1__vlandia",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["vlandia"],
+      "title": "{=duty_mar_boot_drill_1__vlandia_title}Sergeant's pace, knight's road",
+      "setup": "{=duty_mar_boot_drill_1__vlandia_setup}The lord rides at the head with his knights and the sergeant sets the column's pace behind. The road runs past two chapels and a milestone in the lord's livery. The pack is heavy and the chain holds.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_boot_drill_1__vlandia_opt_main}Keep the pace. Hold the chain.",
+          "tooltip": "{=duty_mar_boot_drill_1__vlandia_opt_main_tt}Hard road march. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_boot_drill_1__khuzait",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_mar_boot_drill_1__khuzait_title}On foot among riders",
+      "setup": "{=duty_mar_boot_drill_1__khuzait_setup}Today the column moves at a pace that suits the wagons and the foot. The riders hate it. The sergeant keeps the pace anyway. The grass is long and the boots are wrong for it. By midday the step is automatic.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_mar_boot_drill_1__khuzait_opt_main}Keep the pace. Don't fall out.",
+          "tooltip": "{=duty_mar_boot_drill_1__khuzait_opt_main_tt}Hard road march. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_prisoner_update_1__empire",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:PrisonerUpdate"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_raid_pris_upd_1__empire_title}Prisoners by the regimental log",
+      "setup": "{=duty_raid_pris_upd_1__empire_setup}Three taken from the estate guard. The sergeant wants them entered in the log before dark — names, ranks, units of origin where given. You sit across from the eldest and work through the form.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_pris_upd_1__empire_opt_main}Sit with him. Take down what is worth knowing.",
+          "tooltip": "{=duty_raid_pris_upd_1__empire_opt_main_tt}Prisoner questioning. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_prisoner_update_1__khuzait",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:PrisonerUpdate"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_raid_pris_upd_1__khuzait_title}Prisoners by the picket line",
+      "setup": "{=duty_raid_pris_upd_1__khuzait_setup}They are tied beside the picketed horses, three of them. The sergeant wants the count and the names before the column moves at first light. You sit on a saddle-roll and put the questions to the eldest.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_pris_upd_1__khuzait_opt_main}Sit with him. Find what's worth knowing.",
+          "tooltip": "{=duty_raid_pris_upd_1__khuzait_opt_main_tt}Prisoner questioning. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_prisoner_update_1__sturgia",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:PrisonerUpdate"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_raid_pris_upd_1__sturgia_title}Prisoners in the cold",
+      "setup": "{=duty_raid_pris_upd_1__sturgia_setup}Three taken from the estate guard. They sit by the dying fire wrapped in their own cloaks. The sergeant wants the questions done before they freeze useful answers out of him. You sit close to the coals and wait the eldest out.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raid_pris_upd_1__sturgia_opt_main}Sit close. Wait him out.",
+          "tooltip": "{=duty_raid_pris_upd_1__sturgia_opt_main_tt}Prisoner questioning. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_siege_camp_tension_1__empire",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_army_strain_gte:2"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_bes_camp_ten_1__empire_title}Tension across the regimental lines",
+      "setup": "{=duty_bes_camp_ten_1__empire_setup}The siege has run past the date in the writ. The regimental commanders are being formal with each other in a way that means the seams are showing. The sergeant holds your file together with stripes-and-stripes language and stubbornness.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_camp_ten_1__empire_opt_main}Keep your head down. Help where you can.",
+          "tooltip": "{=duty_bes_camp_ten_1__empire_opt_main_tt}Army strain builds. Scrutiny up. Engineering XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_siege_camp_tension_1__khuzait",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_army_strain_gte:2"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_bes_camp_ten_1__khuzait_title}Tension at a sitting siege",
+      "setup": "{=duty_bes_camp_ten_1__khuzait_setup}The riders chafe. A siege is not their work and the days have run too long. The horses grow restless on the picket line and the men grow shorter with each other. The sergeant settles two arguments before the noon meal.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_camp_ten_1__khuzait_opt_main}Keep your head down. Help the sergeant.",
+          "tooltip": "{=duty_bes_camp_ten_1__khuzait_opt_main_tt}Army strain builds. Scrutiny up. Engineering XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_siege_camp_tension_1__sturgia",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted", "snapshot_army_strain_gte:2"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_bes_camp_ten_1__sturgia_title}Tension under grey siege weather",
+      "setup": "{=duty_bes_camp_ten_1__sturgia_setup}The siege has gone on into the cold and the camp grumbles under low cloud. Mead is short. Tempers are shorter. The veterans drink in silence and the younger men are louder than is wise. The sergeant moves between fires.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_bes_camp_ten_1__sturgia_opt_main}Keep your head down. Help the sergeant.",
+          "tooltip": "{=duty_bes_camp_ten_1__sturgia_opt_main_tt}Army strain builds. Scrutiny up. Engineering XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_officers_in_other_livery_1__vlandia",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["vlandia"],
+      "title": "{=duty_esc_off_livery_1__vlandia_title}A captain in the wrong livery",
+      "setup": "{=duty_esc_off_livery_1__vlandia_setup}A knight in the army leader's colors rides over and gives your sergeant orders directly, skipping your lord's chain entirely. Your sergeant glances at your lord. Your lord lowers his eyes. The order is followed.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_off_livery_1__vlandia_opt_main}Carry out the order. Note the chain.",
+          "tooltip": "{=duty_esc_off_livery_1__vlandia_opt_main_tt}Subordinate command structure. Leadership + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_officers_in_other_livery_1__empire",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_esc_off_livery_1__empire_title}A tribune from another legion",
+      "setup": "{=duty_esc_off_livery_1__empire_setup}A tribune in the army leader's colors gives your sergeant the order in writing — across your lord's chain and outside the regimental order. Your sergeant looks to your lord. Your lord looks at the parchment. The order moves.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_off_livery_1__empire_opt_main}Carry out the order. Note the chain.",
+          "tooltip": "{=duty_esc_off_livery_1__empire_opt_main_tt}Subordinate command structure. Leadership + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_officers_in_other_livery_1__battania",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["battania"],
+      "title": "{=duty_esc_off_livery_1__battania_title}A captain from another clan",
+      "setup": "{=duty_esc_off_livery_1__battania_setup}A captain from the high chief's retinue rides over in another clan's plaid and gives your sergeant the order direct, around your lord. Your sergeant looks to your lord. Your lord looks at the trees. The order is followed.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_esc_off_livery_1__battania_opt_main}Carry out the order. Note the chain.",
+          "tooltip": "{=duty_esc_off_livery_1__battania_opt_main_tt}Subordinate command structure. Leadership + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_cellmate_bribe__khuzait",
+      "category": "duty_imprisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["khuzait"],
+      "title": "{=duty_imp_cell_bribe__khuzait_title}A rider's offer",
+      "setup": "{=duty_imp_cell_bribe__khuzait_setup}The man in the next cell is a rider from beyond the steppe. He has coin sewn into his saddle-pad lining and a guard's name. He needs someone who can read a man's face and time the handoff. You listen. Most of his plan is bad. One part is not.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imp_cell_bribe__khuzait_opt_main}Help him time it. Take nothing for yourself.",
+          "tooltip": "{=duty_imp_cell_bribe__khuzait_opt_main_tt}Bribe coordination. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_cellmate_bribe__empire",
+      "category": "duty_imprisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["empire"],
+      "title": "{=duty_imp_cell_bribe__empire_title}A clerk's offer",
+      "setup": "{=duty_imp_cell_bribe__empire_setup}The man in the next cell was a clerk in a regimental office before the trouble. He has coin in a hollowed boot heel and the name of a guard who owes a writ-debt elsewhere. He needs a man who can read a face and time a handoff. You listen.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imp_cell_bribe__empire_opt_main}Help him time it. Take nothing for yourself.",
+          "tooltip": "{=duty_imp_cell_bribe__empire_opt_main_tt}Bribe coordination. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_imprisoned_cellmate_bribe__sturgia",
+      "category": "duty_imprisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["imprisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_culture": ["sturgia"],
+      "title": "{=duty_imp_cell_bribe__sturgia_title}A druzhinnik's offer",
+      "setup": "{=duty_imp_cell_bribe__sturgia_setup}The man in the next cell served a boyar in the north and has been here longer than he says. He has coin pressed into the lining of his fur cloak and the name of a guard with a sister to feed. He needs a man who can read faces. You listen.",
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_imp_cell_bribe__sturgia_opt_main}Help him time it. Take nothing for yourself.",
+          "tooltip": "{=duty_imp_cell_bribe__sturgia_opt_main_tt}Bribe coordination. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    }
+  ]
+}

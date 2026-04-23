@@ -7427,5 +7427,231 @@
     <!-- order_scout_support_t7 -->
     <string id="order_scout_support_t7_setup" text="Your lord wants the ground ahead read for a surgeon&apos;s eye — where the water is clean, where the shade is, where a wagon of hurt men could halt without fouling. He sends you because he knows you see country that way now." />
     <string id="order_scout_support_t7_title" text="Mark the wounded ground" />
+    <!-- Culture overlays (Plan 5 T12 Part B) -->
+    <!-- duty_besieging_assault_brief_1__empire -->
+    <string id="duty_bes_assault_brief_1__empire_opt_main" text="Listen. File the gaps." />
+    <string id="duty_bes_assault_brief_1__empire_opt_main_tt" text="Assault planning briefing. Tactics + Leadership XP." />
+    <string id="duty_bes_assault_brief_1__empire_setup" text="The captain has the wall sketched on parchment by one of the imperial engineers — true scale, marked breach, three named lanes. He runs the brief in regimental order. You hear where the plan is thin and you keep your peace." />
+    <string id="duty_bes_assault_brief_1__empire_title" text="Briefing in the engineer&apos;s tent" />
+    <!-- duty_besieging_assault_brief_1__khuzait -->
+    <string id="duty_bes_assault_brief_1__khuzait_opt_main" text="Listen on the move. Mark the gaps." />
+    <string id="duty_bes_assault_brief_1__khuzait_opt_main_tt" text="Assault planning briefing. Tactics + Leadership XP." />
+    <string id="duty_bes_assault_brief_1__khuzait_setup" text="The captain draws the wall in the dust beside his horse. Three lanes, two feints, one push. He talks fast and rides as he talks, expecting the men to keep up on foot. You keep up. You hear what he leaves out." />
+    <string id="duty_bes_assault_brief_1__khuzait_title" text="Brief in the saddle-shadow" />
+    <!-- duty_besieging_assault_brief_1__vlandia -->
+    <string id="duty_bes_assault_brief_1__vlandia_opt_main" text="Listen. Note the weak link." />
+    <string id="duty_bes_assault_brief_1__vlandia_opt_main_tt" text="Assault planning briefing. Tactics + Leadership XP." />
+    <string id="duty_bes_assault_brief_1__vlandia_setup" text="The captain stands by his banner and runs the brief in proper order — knights forward, sergeants in support, men-at-arms holding the lane. The chain is clean on parchment. You listen for the place where the chain will not hold." />
+    <string id="duty_bes_assault_brief_1__vlandia_title" text="Brief at the captain&apos;s pavilion" />
+    <!-- duty_besieging_siege_camp_tension_1__empire -->
+    <string id="duty_bes_camp_ten_1__empire_opt_main" text="Keep your head down. Help where you can." />
+    <string id="duty_bes_camp_ten_1__empire_opt_main_tt" text="Army strain builds. Scrutiny up. Engineering XP." />
+    <string id="duty_bes_camp_ten_1__empire_setup" text="The siege has run past the date in the writ. The regimental commanders are being formal with each other in a way that means the seams are showing. The sergeant holds your file together with stripes-and-stripes language and stubbornness." />
+    <string id="duty_bes_camp_ten_1__empire_title" text="Tension across the regimental lines" />
+    <!-- duty_besieging_siege_camp_tension_1__khuzait -->
+    <string id="duty_bes_camp_ten_1__khuzait_opt_main" text="Keep your head down. Help the sergeant." />
+    <string id="duty_bes_camp_ten_1__khuzait_opt_main_tt" text="Army strain builds. Scrutiny up. Engineering XP." />
+    <string id="duty_bes_camp_ten_1__khuzait_setup" text="The riders chafe. A siege is not their work and the days have run too long. The horses grow restless on the picket line and the men grow shorter with each other. The sergeant settles two arguments before the noon meal." />
+    <string id="duty_bes_camp_ten_1__khuzait_title" text="Tension at a sitting siege" />
+    <!-- duty_besieging_siege_camp_tension_1__sturgia -->
+    <string id="duty_bes_camp_ten_1__sturgia_opt_main" text="Keep your head down. Help the sergeant." />
+    <string id="duty_bes_camp_ten_1__sturgia_opt_main_tt" text="Army strain builds. Scrutiny up. Engineering XP." />
+    <string id="duty_bes_camp_ten_1__sturgia_setup" text="The siege has gone on into the cold and the camp grumbles under low cloud. Mead is short. Tempers are shorter. The veterans drink in silence and the younger men are louder than is wise. The sergeant moves between fires." />
+    <string id="duty_bes_camp_ten_1__sturgia_title" text="Tension under grey siege weather" />
+    <!-- duty_escorting_mixed_camp_1__empire -->
+    <string id="duty_esc_mixed_camp_1__empire_opt_main" text="Sit down. Let them talk first." />
+    <string id="duty_esc_mixed_camp_1__empire_opt_main_tt" text="Listen in mixed camp. Medicine + Roguery + Engineering XP." />
+    <string id="duty_esc_mixed_camp_1__empire_setup" text="The mess fires are arranged in the regimental fashion — straight rows, posted sentries, an officer&apos;s path through the middle. You find a fire with veterans from another legion and listen to them argue about an old order nobody followed." />
+    <string id="duty_esc_mixed_camp_1__empire_title" text="Camp with three regiments" />
+    <!-- duty_escorting_mixed_camp_1__sturgia -->
+    <string id="duty_esc_mixed_camp_1__sturgia_opt_main" text="Sit down. Let them talk first." />
+    <string id="duty_esc_mixed_camp_1__sturgia_opt_main_tt" text="Listen in mixed camp. Medicine + Roguery + Engineering XP." />
+    <string id="duty_esc_mixed_camp_1__sturgia_setup" text="Three boyars share the camp tonight and the fires sit close against the cold. You take a place at one belonging to a retinue from further north. The mead is stronger than yours. The talk is slower and goes deeper." />
+    <string id="duty_esc_mixed_camp_1__sturgia_title" text="Camp under low cloud" />
+    <!-- duty_escorting_mixed_camp_1__vlandia -->
+    <string id="duty_esc_mixed_camp_1__vlandia_opt_main" text="Sit down. Let them talk first." />
+    <string id="duty_esc_mixed_camp_1__vlandia_opt_main_tt" text="Listen in mixed camp. Medicine + Roguery + Engineering XP." />
+    <string id="duty_esc_mixed_camp_1__vlandia_setup" text="The host&apos;s three retinues each fly their lord&apos;s colors and the camp lays them out by chain of fealty. You sit at a fire belonging to no one in particular and listen to a sergeant from the eastern march complain about a bishop." />
+    <string id="duty_esc_mixed_camp_1__vlandia_title" text="Camp with men in three liveries" />
+    <!-- duty_escorting_officers_in_other_livery_1__battania -->
+    <string id="duty_esc_off_livery_1__battania_opt_main" text="Carry out the order. Note the chain." />
+    <string id="duty_esc_off_livery_1__battania_opt_main_tt" text="Subordinate command structure. Leadership + Charm XP." />
+    <string id="duty_esc_off_livery_1__battania_setup" text="A captain from the high chief&apos;s retinue rides over in another clan&apos;s plaid and gives your sergeant the order direct, around your lord. Your sergeant looks to your lord. Your lord looks at the trees. The order is followed." />
+    <string id="duty_esc_off_livery_1__battania_title" text="A captain from another clan" />
+    <!-- duty_escorting_officers_in_other_livery_1__empire -->
+    <string id="duty_esc_off_livery_1__empire_opt_main" text="Carry out the order. Note the chain." />
+    <string id="duty_esc_off_livery_1__empire_opt_main_tt" text="Subordinate command structure. Leadership + Charm XP." />
+    <string id="duty_esc_off_livery_1__empire_setup" text="A tribune in the army leader&apos;s colors gives your sergeant the order in writing — across your lord&apos;s chain and outside the regimental order. Your sergeant looks to your lord. Your lord looks at the parchment. The order moves." />
+    <string id="duty_esc_off_livery_1__empire_title" text="A tribune from another legion" />
+    <!-- duty_escorting_officers_in_other_livery_1__vlandia -->
+    <string id="duty_esc_off_livery_1__vlandia_opt_main" text="Carry out the order. Note the chain." />
+    <string id="duty_esc_off_livery_1__vlandia_opt_main_tt" text="Subordinate command structure. Leadership + Charm XP." />
+    <string id="duty_esc_off_livery_1__vlandia_setup" text="A knight in the army leader&apos;s colors rides over and gives your sergeant orders directly, skipping your lord&apos;s chain entirely. Your sergeant glances at your lord. Your lord lowers his eyes. The order is followed." />
+    <string id="duty_esc_off_livery_1__vlandia_title" text="A captain in the wrong livery" />
+    <!-- duty_garrisoned_gate_stance_1__battania -->
+    <string id="duty_gar_gate_stance_1__battania_opt_main" text="Work the footwork. Hold the post." />
+    <string id="duty_gar_gate_stance_1__battania_opt_main_tt" text="Quiet practice at watch. OneHanded XP." />
+    <string id="duty_gar_gate_stance_1__battania_setup" text="The gate is timber, hewn from oak older than the village. Four hours and the wind through the palisade carries woodsmoke and a song from inside the hall. You shift your weight on the boards and run the cuts in your head." />
+    <string id="duty_gar_gate_stance_1__battania_title" text="Watch at the timber gate" />
+    <!-- duty_garrisoned_gate_stance_1__empire -->
+    <string id="duty_gar_gate_stance_1__empire_opt_main" text="Hold the post. Work the footwork." />
+    <string id="duty_gar_gate_stance_1__empire_opt_main_tt" text="Quiet practice at watch. OneHanded XP." />
+    <string id="duty_gar_gate_stance_1__empire_setup" text="The gate is faced with paving stones laid in the regimental pattern. Four hours by the bell. Traffic is checked against the writs in the gatehouse book. You run stance drills between the inspections." />
+    <string id="duty_gar_gate_stance_1__empire_title" text="Watch at the imperial gate" />
+    <!-- duty_garrisoned_gate_stance_1__khuzait -->
+    <string id="duty_gar_gate_stance_1__khuzait_opt_main" text="Work the footwork. Hold the post." />
+    <string id="duty_gar_gate_stance_1__khuzait_opt_main_tt" text="Quiet practice at watch. OneHanded XP." />
+    <string id="duty_gar_gate_stance_1__khuzait_setup" text="The gate is a rope and two timber posts at the mouth of the camp. Four hours, no traffic worth speaking of, the open sky to either side. You step the cuts where the dust will not show them." />
+    <string id="duty_gar_gate_stance_1__khuzait_title" text="Watch at the camp-mouth" />
+    <!-- duty_garrisoned_market_errand_1__aserai -->
+    <string id="duty_gar_market_errand_1__aserai_opt_main" text="Drink the tea. Then settle the figure." />
+    <string id="duty_gar_market_errand_1__aserai_opt_main_tt" text="Quartermaster errand. Trade + Medicine XP." />
+    <string id="duty_gar_market_errand_1__aserai_setup" text="The market is shaded by hung cloth and the air smells of cardamom and dust. Every price has a story attached and a man behind it expecting tea. You drink the tea. Then the bargain starts in earnest." />
+    <string id="duty_gar_market_errand_1__aserai_title" text="The caravan-quarter at noon" />
+    <!-- duty_garrisoned_market_errand_1__empire -->
+    <string id="duty_gar_market_errand_1__empire_opt_main" text="Press the writ. Cover the gap." />
+    <string id="duty_gar_market_errand_1__empire_opt_main_tt" text="Quartermaster errand. Trade + Medicine XP." />
+    <string id="duty_gar_market_errand_1__empire_setup" text="The quartermaster gives you a sealed writ and a purse short of the figure on the writ. Imperial measure on every line. The merchants know the seal and the discount it implies." />
+    <string id="duty_gar_market_errand_1__empire_title" text="Market errand by writ" />
+    <!-- duty_garrisoned_market_errand_1__khuzait -->
+    <string id="duty_gar_market_errand_1__khuzait_opt_main" text="Wait out the silence. Settle the price." />
+    <string id="duty_gar_market_errand_1__khuzait_opt_main_tt" text="Quartermaster errand. Trade + Medicine XP." />
+    <string id="duty_gar_market_errand_1__khuzait_setup" text="The market sits where two trade routes cross — felt, hides, dried meat, and a few iron goods carried in from further west. The steppe traders bargain in long pauses. You learn to wait them out." />
+    <string id="duty_gar_market_errand_1__khuzait_title" text="Errand among the steppe traders" />
+    <!-- duty_garrisoned_short_rations_1__aserai -->
+    <string id="duty_gar_short_rat_1__aserai_opt_main" text="Take your share. Say nothing." />
+    <string id="duty_gar_short_rat_1__aserai_opt_main_tt" text="Supply tension. Scrutiny up." />
+    <string id="duty_gar_short_rat_1__aserai_setup" text="The water-jar is half-full and the bread is yesterday&apos;s. The caravan-quarter would not call this hunger. The garrison line knows better. A man counts his portion against his neighbor&apos;s and looks away." />
+    <string id="duty_gar_short_rat_1__aserai_title" text="Short rations and short water" />
+    <!-- duty_garrisoned_short_rations_1__empire -->
+    <string id="duty_gar_short_rat_1__empire_opt_main" text="Take your share. Say nothing." />
+    <string id="duty_gar_short_rat_1__empire_opt_main_tt" text="Supply tension. Scrutiny up." />
+    <string id="duty_gar_short_rat_1__empire_setup" text="The quartermaster has the writ pinned to the post. The portions on the line do not match the figures on the writ and a soldier reads both aloud. The sergeant cuts him short and the line moves on with shorter tempers." />
+    <string id="duty_gar_short_rat_1__empire_title" text="Short rations against the writ" />
+    <!-- duty_garrisoned_short_rations_1__sturgia -->
+    <string id="duty_gar_short_rat_1__sturgia_opt_main" text="Take your share. Say nothing." />
+    <string id="duty_gar_short_rat_1__sturgia_opt_main_tt" text="Supply tension. Scrutiny up." />
+    <string id="duty_gar_short_rat_1__sturgia_setup" text="The line is short and the portion is shorter. The cold makes the hunger sharper. The veterans take their share without comment because the cold has taught them quiet. You learn from them." />
+    <string id="duty_gar_short_rat_1__sturgia_title" text="Short rations in the cold" />
+    <!-- duty_garrisoned_sparring_veteran_1__battania -->
+    <string id="duty_gar_sparring_vet_1__battania_opt_main" text="Match the angles. Take the bruises." />
+    <string id="duty_gar_sparring_vet_1__battania_opt_main_tt" text="Hard sparring against a fian. OneHanded XP." />
+    <string id="duty_gar_sparring_vet_1__battania_setup" text="The veteran is a fian from the western glens. He says nothing, fights like the woods are still around him — short steps, sudden angles, no formal lines. You spend the bout learning to read which way he is not standing." />
+    <string id="duty_gar_sparring_vet_1__battania_title" text="Paired against the highland fian" />
+    <!-- duty_garrisoned_sparring_veteran_1__empire -->
+    <string id="duty_gar_sparring_vet_1__empire_opt_main" text="Take the lessons in the form he prefers." />
+    <string id="duty_gar_sparring_vet_1__empire_opt_main_tt" text="Hard sparring against an old legionnaire. OneHanded XP." />
+    <string id="duty_gar_sparring_vet_1__empire_setup" text="The sergeant pairs you with a man whose service stripe runs the length of his sleeve. He fights to the regimental form — measured, square, every cut named. Your blade meets his and learns by losing." />
+    <string id="duty_gar_sparring_vet_1__empire_title" text="Paired against the legionnaire" />
+    <!-- duty_garrisoned_sparring_veteran_1__vlandia -->
+    <string id="duty_gar_sparring_vet_1__vlandia_opt_main" text="Take the lessons. Wait for his weight." />
+    <string id="duty_gar_sparring_vet_1__vlandia_opt_main_tt" text="Hard sparring against a man-at-arms. OneHanded XP." />
+    <string id="duty_gar_sparring_vet_1__vlandia_setup" text="The veteran is a man-at-arms from the lord&apos;s household, four campaigns served in the chain. He fights heavy and patient, the way a man fights when he expects to wear armour all day. You take the lesson in the timing." />
+    <string id="duty_gar_sparring_vet_1__vlandia_title" text="Paired against the old man-at-arms" />
+    <!-- duty_garrisoned_sword_form_1__empire -->
+    <string id="duty_gar_sword_form_1__empire_opt_main" text="Hold to the count. Run the forms." />
+    <string id="duty_gar_sword_form_1__empire_opt_main_tt" text="Regimental drill. OneHanded XP." />
+    <string id="duty_gar_sword_form_1__empire_setup" text="The drill yard is paved in the old fashion, square stones laid by an engineer two emperors ago. The sergeant calls each cut by its written number. You answer the count and let the protocol carry the work." />
+    <string id="duty_gar_sword_form_1__empire_title" text="Forms by the regimental measure" />
+    <!-- duty_garrisoned_sword_form_1__khuzait -->
+    <string id="duty_gar_sword_form_1__khuzait_opt_main" text="Work the cuts. Keep the foot ready." />
+    <string id="duty_gar_sword_form_1__khuzait_opt_main_tt" text="Sabre forms beside the picket. OneHanded XP." />
+    <string id="duty_gar_sword_form_1__khuzait_setup" text="A clear stretch of trampled grass beside the picket line serves as a yard. The old rider beside you works the sabre cuts with one foot half-turned, as if he might step into a saddle between blows. You learn the angle." />
+    <string id="duty_gar_sword_form_1__khuzait_title" text="Sabre forms outside the yurts" />
+    <!-- duty_garrisoned_sword_form_1__sturgia -->
+    <string id="duty_gar_sword_form_1__sturgia_opt_main" text="Match him. Hold the forms." />
+    <string id="duty_gar_sword_form_1__sturgia_opt_main_tt" text="Silent drill in the cold. OneHanded XP." />
+    <string id="duty_gar_sword_form_1__sturgia_setup" text="The yard is frost-bitten. The old drill-master does not speak. He moves through the cuts and expects you to follow until your breath is heavy and the cold is gone from your arms." />
+    <string id="duty_gar_sword_form_1__sturgia_title" text="The forms in grey light" />
+    <!-- duty_imprisoned_cellmate_bribe__empire -->
+    <string id="duty_imp_cell_bribe__empire_opt_main" text="Help him time it. Take nothing for yourself." />
+    <string id="duty_imp_cell_bribe__empire_opt_main_tt" text="Bribe coordination. Roguery + Charm XP." />
+    <string id="duty_imp_cell_bribe__empire_setup" text="The man in the next cell was a clerk in a regimental office before the trouble. He has coin in a hollowed boot heel and the name of a guard who owes a writ-debt elsewhere. He needs a man who can read a face and time a handoff. You listen." />
+    <string id="duty_imp_cell_bribe__empire_title" text="A clerk&apos;s offer" />
+    <!-- duty_imprisoned_cellmate_bribe__khuzait -->
+    <string id="duty_imp_cell_bribe__khuzait_opt_main" text="Help him time it. Take nothing for yourself." />
+    <string id="duty_imp_cell_bribe__khuzait_opt_main_tt" text="Bribe coordination. Roguery + Charm XP." />
+    <string id="duty_imp_cell_bribe__khuzait_setup" text="The man in the next cell is a rider from beyond the steppe. He has coin sewn into his saddle-pad lining and a guard&apos;s name. He needs someone who can read a man&apos;s face and time the handoff. You listen. Most of his plan is bad. One part is not." />
+    <string id="duty_imp_cell_bribe__khuzait_title" text="A rider&apos;s offer" />
+    <!-- duty_imprisoned_cellmate_bribe__sturgia -->
+    <string id="duty_imp_cell_bribe__sturgia_opt_main" text="Help him time it. Take nothing for yourself." />
+    <string id="duty_imp_cell_bribe__sturgia_opt_main_tt" text="Bribe coordination. Roguery + Charm XP." />
+    <string id="duty_imp_cell_bribe__sturgia_setup" text="The man in the next cell served a boyar in the north and has been here longer than he says. He has coin pressed into the lining of his fur cloak and the name of a guard with a sister to feed. He needs a man who can read faces. You listen." />
+    <string id="duty_imp_cell_bribe__sturgia_title" text="A druzhinnik&apos;s offer" />
+    <!-- duty_marching_boot_drill_1__empire -->
+    <string id="duty_mar_boot_drill_1__empire_opt_main" text="Hold the count. Don&apos;t fall out." />
+    <string id="duty_mar_boot_drill_1__empire_opt_main_tt" text="Hard road march. Athletics XP." />
+    <string id="duty_mar_boot_drill_1__empire_setup" text="The sergeant calls the pace by the regimental count and the column sets to it. The road is one of the old imperial works — straight, paved, hard on the soles. By midday the count is in the bones." />
+    <string id="duty_mar_boot_drill_1__empire_title" text="Regimental pace on the road" />
+    <!-- duty_marching_boot_drill_1__khuzait -->
+    <string id="duty_mar_boot_drill_1__khuzait_opt_main" text="Keep the pace. Don&apos;t fall out." />
+    <string id="duty_mar_boot_drill_1__khuzait_opt_main_tt" text="Hard road march. Athletics XP." />
+    <string id="duty_mar_boot_drill_1__khuzait_setup" text="Today the column moves at a pace that suits the wagons and the foot. The riders hate it. The sergeant keeps the pace anyway. The grass is long and the boots are wrong for it. By midday the step is automatic." />
+    <string id="duty_mar_boot_drill_1__khuzait_title" text="On foot among riders" />
+    <!-- duty_marching_boot_drill_1__vlandia -->
+    <string id="duty_mar_boot_drill_1__vlandia_opt_main" text="Keep the pace. Hold the chain." />
+    <string id="duty_mar_boot_drill_1__vlandia_opt_main_tt" text="Hard road march. Athletics XP." />
+    <string id="duty_mar_boot_drill_1__vlandia_setup" text="The lord rides at the head with his knights and the sergeant sets the column&apos;s pace behind. The road runs past two chapels and a milestone in the lord&apos;s livery. The pack is heavy and the chain holds." />
+    <string id="duty_mar_boot_drill_1__vlandia_title" text="Sergeant&apos;s pace, knight&apos;s road" />
+    <!-- duty_marching_night_sparring_1__battania -->
+    <string id="duty_mar_night_spar_1__battania_opt_main" text="Step in. Move with the song." />
+    <string id="duty_mar_night_spar_1__battania_opt_main_tt" text="Camp sparring with the song. OneHanded + Polearm XP." />
+    <string id="duty_mar_night_spar_1__battania_setup" text="The bard is two fires over and the song is one of the long ones. Wasters cross beside the picket. You step into the circle and find the rhythm sits well in the chest." />
+    <string id="duty_mar_night_spar_1__battania_title" text="Wood and song at the fires" />
+    <!-- duty_marching_night_sparring_1__khuzait -->
+    <string id="duty_mar_night_spar_1__khuzait_opt_main" text="Step in. Take a turn at both." />
+    <string id="duty_mar_night_spar_1__khuzait_opt_main_tt" text="Camp sparring at night. OneHanded + Polearm XP." />
+    <string id="duty_mar_night_spar_1__khuzait_setup" text="The fires burn low and the horses are picketed downwind. A wide circle clears beside the wagons. Wasters and lance-shafts. The riders do not stop their songs while they spar." />
+    <string id="duty_mar_night_spar_1__khuzait_title" text="Camp circle under open sky" />
+    <!-- duty_marching_night_sparring_1__sturgia -->
+    <string id="duty_mar_night_spar_1__sturgia_opt_main" text="Take the flask. Take the bout." />
+    <string id="duty_mar_night_spar_1__sturgia_opt_main_tt" text="Cold-night sparring. OneHanded + Polearm XP." />
+    <string id="duty_mar_night_spar_1__sturgia_setup" text="The cold settles in the moment the fires bank low. Someone produces a flask and two staves. The circle is small and silent. A man laughs once. The rest is breath and wood." />
+    <string id="duty_mar_night_spar_1__sturgia_title" text="Sparring by the fires in the cold" />
+    <!-- duty_raiding_prisoner_update_1__empire -->
+    <string id="duty_raid_pris_upd_1__empire_opt_main" text="Sit with him. Take down what is worth knowing." />
+    <string id="duty_raid_pris_upd_1__empire_opt_main_tt" text="Prisoner questioning. Roguery + Charm XP." />
+    <string id="duty_raid_pris_upd_1__empire_setup" text="Three taken from the estate guard. The sergeant wants them entered in the log before dark — names, ranks, units of origin where given. You sit across from the eldest and work through the form." />
+    <string id="duty_raid_pris_upd_1__empire_title" text="Prisoners by the regimental log" />
+    <!-- duty_raiding_prisoner_update_1__khuzait -->
+    <string id="duty_raid_pris_upd_1__khuzait_opt_main" text="Sit with him. Find what&apos;s worth knowing." />
+    <string id="duty_raid_pris_upd_1__khuzait_opt_main_tt" text="Prisoner questioning. Roguery + Charm XP." />
+    <string id="duty_raid_pris_upd_1__khuzait_setup" text="They are tied beside the picketed horses, three of them. The sergeant wants the count and the names before the column moves at first light. You sit on a saddle-roll and put the questions to the eldest." />
+    <string id="duty_raid_pris_upd_1__khuzait_title" text="Prisoners by the picket line" />
+    <!-- duty_raiding_prisoner_update_1__sturgia -->
+    <string id="duty_raid_pris_upd_1__sturgia_opt_main" text="Sit close. Wait him out." />
+    <string id="duty_raid_pris_upd_1__sturgia_opt_main_tt" text="Prisoner questioning. Roguery + Charm XP." />
+    <string id="duty_raid_pris_upd_1__sturgia_setup" text="Three taken from the estate guard. They sit by the dying fire wrapped in their own cloaks. The sergeant wants the questions done before they freeze useful answers out of him. You sit close to the coals and wait the eldest out." />
+    <string id="duty_raid_pris_upd_1__sturgia_title" text="Prisoners in the cold" />
+    <!-- duty_raiding_spare_the_village_1__battania -->
+    <string id="duty_raid_spare_vil_1__battania_opt_main" text="Hear him through. Carry the count up." />
+    <string id="duty_raid_spare_vil_1__battania_opt_main_tt" text="Negotiated surrender of stores. Charm + Steward XP." />
+    <string id="duty_raid_spare_vil_1__battania_setup" text="The village elder meets you at the boundary stone, hands open. He counts the stores in the old fashion — by song and by season — and asks the fires be left for the children&apos;s sake. The sergeant looks at you." />
+    <string id="duty_raid_spare_vil_1__battania_title" text="The elder beside the stones" />
+    <!-- duty_raiding_spare_the_village_1__empire -->
+    <string id="duty_raid_spare_vil_1__empire_opt_main" text="Hear the figures. Send them up the chain." />
+    <string id="duty_raid_spare_vil_1__empire_opt_main_tt" text="Negotiated surrender of stores. Charm + Steward XP." />
+    <string id="duty_raid_spare_vil_1__empire_setup" text="The headman is old enough to remember the last regiment that came through. He brings out the village&apos;s tally-sticks and a copy of the imperial ledger and asks the sergeant to count rather than burn. Your sergeant looks at you." />
+    <string id="duty_raid_spare_vil_1__empire_title" text="The headman with the tally-stick" />
+    <!-- duty_raiding_spare_the_village_1__khuzait -->
+    <string id="duty_raid_spare_vil_1__khuzait_opt_main" text="Take the count. Send it up the line." />
+    <string id="duty_raid_spare_vil_1__khuzait_opt_main_tt" text="Negotiated surrender of stores. Charm + Steward XP." />
+    <string id="duty_raid_spare_vil_1__khuzait_setup" text="The headman comes out leading a brown mare and three goats. He speaks the steppe tongue badly but well enough. The herd in exchange for the houses. The sergeant looks at you." />
+    <string id="duty_raid_spare_vil_1__khuzait_title" text="The headman offers his herd" />
+    <!-- duty_wandering_ridgeline_watch_1__aserai -->
+    <string id="duty_wan_ridge_watch_1__aserai_opt_main" text="Read the country. File it away." />
+    <string id="duty_wan_ridge_watch_1__aserai_opt_main_tt" text="High ground observation. Scouting XP." />
+    <string id="duty_wan_ridge_watch_1__aserai_setup" text="The ridge looks down on dry country and a caravan track that runs out toward the salt. You count the wells you can see from here, mark the dust of a moving train, note the shadow of a settlement at the river bend. You file the lot." />
+    <string id="duty_wan_ridge_watch_1__aserai_title" text="Ridge above the dry country" />
+    <!-- duty_wandering_ridgeline_watch_1__battania -->
+    <string id="duty_wan_ridge_watch_1__battania_opt_main" text="Read the country. File it away." />
+    <string id="duty_wan_ridge_watch_1__battania_opt_main_tt" text="High ground observation. Scouting XP." />
+    <string id="duty_wan_ridge_watch_1__battania_setup" text="The ridge is bare stone above the tree line. From it the forest spreads in every direction — a stone-circle to the south, smoke from a steading to the east, the cold glint of a river two valleys off. You file each one." />
+    <string id="duty_wan_ridge_watch_1__battania_title" text="Ridgeline above the woods" />
+    <!-- duty_wandering_ridgeline_watch_1__khuzait -->
+    <string id="duty_wan_ridge_watch_1__khuzait_opt_main" text="Read the steppe. File the marks." />
+    <string id="duty_wan_ridge_watch_1__khuzait_opt_main_tt" text="High ground observation. Scouting XP." />
+    <string id="duty_wan_ridge_watch_1__khuzait_setup" text="Not much of a ridge — a long swell of grass, a man&apos;s height above the plain. From it the steppe runs for days. A herd to the east, a smudge of dust on the south horizon, a shape of riders too far to count. You mark each." />
+    <string id="duty_wan_ridge_watch_1__khuzait_title" text="A low rise on the open steppe" />
   </strings>
 </base>
