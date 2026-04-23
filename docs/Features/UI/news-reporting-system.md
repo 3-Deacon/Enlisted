@@ -38,21 +38,21 @@
 
 ## Typed Routing Metadata
 
-Dispatches carry typed routing metadata so the menu builders do not infer display meaning from category strings or rendered prose:
+Dispatch items carry typed routing metadata so the menu builders do not infer display meaning from category strings or rendered prose:
 
 - `Domain` selects the feed family: `Kingdom`, `Personal`, or `Camp`.
 - `SourceKind` records the producer: `ServiceStance`, `Order`, `ActivityOverride`, `ModalIncident`, `Routine`, `Battle`, `Muster`, `Promotion`, `Condition`, `Flavor`, or `Unknown`.
 - `SurfaceHint` gives the preferred display surface: `Auto`, `Dispatches`, `Upcoming`, `You`, `SinceLastMuster`, `CampActivities`, or `ModalOnly`.
 
-The route is advisory for display, not an effects gate. State mutation rules still live with the emitting system and storylet validation.
+The route is advisory for display, not an effects gate. State mutation rules still live with the emitting system and storylet validation. Native kingdom feed producers write kingdom-domain items into `_kingdomFeed`; routed storylet emissions currently still enter the personal dispatch path.
 
 Surface consumers use the route consistently:
 
 | Surface | Route consumed |
 | :--- | :--- |
-| `DISPATCHES` | Kingdom-domain items, usually `SurfaceHint.Dispatches` or `Auto` |
+| `DISPATCHES` | Kingdom-domain items from native kingdom feed producers, usually `SurfaceHint.Dispatches` or `Auto` |
 | Camp `YOU` | Personal items intended for the player, usually `SurfaceHint.You` or `Auto` |
-| `SINCE LAST MUSTER` | Period-bounded personal outcomes such as service stance, order, battle, condition, promotion, muster, and modal-incident results |
+| `SINCE LAST MUSTER` | The route predicate includes period-bounded personal outcomes, but current rendering only adds `ServiceStance` dispatch summaries there; order and event recaps still come from the legacy muster/order/event record lists |
 | `CAMP ACTIVITIES` | Camp-domain items and activity-override outcomes |
 
 Legacy entries that lack routing are treated as personal `Unknown` / `Auto` dispatches during load so old saves remain readable.

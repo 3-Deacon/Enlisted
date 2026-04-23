@@ -66,6 +66,8 @@ Storylets can declare an optional `agency` block that classifies authoring rules
 
 `role` controls authoring and validator rules. It also provides routing defaults when `domain`, `sourceKind`, or `surfaceHint` are omitted. Explicit route fields map onto `StoryCandidate.DispatchDomain`, `StoryCandidate.DispatchSourceKind`, and `StoryCandidate.DispatchSurfaceHint` when the storylet emits a candidate.
 
+Current routing caveat: `StoryDirector` writes routed storylet emissions through `EnlistedNewsBehavior.AddPersonalDispatch`, even when metadata says `domain: "kingdom"` / `surfaceHint: "dispatches"`. `realm_dispatch` is therefore an authoring and validation role for non-mutating realm-flavor storylets; it does not by itself publish a storylet into the kingdom `DISPATCHES` feed. Native kingdom news producers still own `_kingdomFeed`.
+
 Allowed route values:
 
 | Field | Values |
@@ -86,7 +88,7 @@ Known `role` defaults:
 | `activity_override` | `camp` / `activity_override` / `camp_activities` | Requires preview metadata |
 | `modal_incident` | `personal` / `modal_incident` / `modal_only` | Requires preview metadata |
 | `news_flavor` | `personal` / `flavor` / `auto` | Cannot have effects |
-| `realm_dispatch` | `kingdom` / `flavor` / `dispatches` | Cannot mutate player state |
+| `realm_dispatch` | `kingdom` / `flavor` / `dispatches` | Authoring/validation role for non-mutating realm flavor; not a kingdom-feed publisher by itself |
 
 Validator rules:
 
