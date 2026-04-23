@@ -1777,7 +1777,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var campLine = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true);
                     if (!string.IsNullOrWhiteSpace(campLine))
                     {
-                        parts.Add(campLine + ".");
+                        parts.Add(campLine);
                     }
                 }
 
@@ -2344,7 +2344,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     var stanceLine = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true);
                     if (!string.IsNullOrWhiteSpace(stanceLine))
                     {
-                        parts.Add(stanceLine + ".");
+                        parts.Add(stanceLine);
                     }
                 }
 

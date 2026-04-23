@@ -125,6 +125,7 @@
     
     <string id="status_header_since_muster" text="SINCE LAST MUSTER" />
     <string id="status_header_upcoming" text="UPCOMING" />
+    <string id="status_header_you" text="YOU" />
     <string id="status_header_recent_activity" text="RECENT ACTIVITY" />
     <string id="status_header_your_status" text="YOUR STATUS" />
     
