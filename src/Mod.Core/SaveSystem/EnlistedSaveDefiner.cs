@@ -141,6 +141,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             // StoryCandidate signal-metadata enums (Plan 3 of 5) — offsets 102-103
             AddEnumDefinition(typeof(Features.Content.SourcePerspective), 102);
             AddEnumDefinition(typeof(Features.Content.SignalRecency), 103);
+
+            // Dispatch routing enums (Agency News Status integration) — offsets 104-106
+            AddEnumDefinition(typeof(Features.Interface.Models.DispatchDomain), 104);
+            AddEnumDefinition(typeof(Features.Interface.Models.DispatchSourceKind), 105);
+            AddEnumDefinition(typeof(Features.Interface.Models.DispatchSurfaceHint), 106);
         }
 
         /// <summary>
