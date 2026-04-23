@@ -17,5 +17,6 @@
 
   <ItemGroup>
     <Compile Include="..\..\..\src\Features\Enlistment\Core\GraceLordMarkerRefreshPolicy.cs" Link="GraceLordMarkerRefreshPolicy.cs" />
+    <Compile Include="..\..\..\src\Features\Interface\Models\DispatchRouting.cs" Link="DispatchRouting.cs" />
   </ItemGroup>
 </Project>
