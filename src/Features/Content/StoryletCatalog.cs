@@ -98,6 +98,7 @@ namespace Enlisted.Features.Content
                 OneTime = (bool?)obj["one_time"] ?? false,
                 Scope = ParseScope(obj["scope"] as JObject),
                 Weight = ParseWeight(obj["weight"] as JObject),
+                Agency = StoryletAgency.FromJson(obj["agency"]),
             };
             s.Trigger = ParseStringList(obj["trigger"] as JArray);
             s.Immediate = ParseEffectList(obj["immediate"] as JArray);

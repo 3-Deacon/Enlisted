@@ -1,5 +1,6 @@
 using Enlisted.Features.Content;
 using Enlisted.Features.Interface.Models;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Enlisted.UnitTests;
@@ -28,5 +29,22 @@ public sealed class StoryletAgencyTests
         Assert.Equal(domain, agency.ToDomain());
         Assert.Equal(sourceKind, agency.ToSourceKind());
         Assert.Equal(surfaceHint, agency.ToSurfaceHint());
+    }
+
+    [Fact]
+    public void FromJsonUsesRoleDefaultsForCandidateRouting()
+    {
+        var json = JObject.Parse(
+            """
+            {
+              "agency": { "role": "realm_dispatch" }
+            }
+            """);
+
+        var agency = StoryletAgency.FromJson(json["agency"]!);
+
+        Assert.Equal(DispatchDomain.Kingdom, agency.ToDomain());
+        Assert.Equal(DispatchSourceKind.Flavor, agency.ToSourceKind());
+        Assert.Equal(DispatchSurfaceHint.Dispatches, agency.ToSurfaceHint());
     }
 }

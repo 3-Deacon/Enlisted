@@ -1,5 +1,6 @@
 using Enlisted.Features.Interface.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Enlisted.Features.Content
 {
@@ -41,6 +42,13 @@ namespace Enlisted.Features.Content
                 default:
                     return Create(role, "personal", "unknown", "auto");
             }
+        }
+
+        public static StoryletAgency FromJson(JToken token)
+        {
+            return token is JObject obj
+                ? obj.ToObject<StoryletAgency>() ?? DefaultForRole(string.Empty)
+                : DefaultForRole(string.Empty);
         }
 
         public DispatchDomain ToDomain()
