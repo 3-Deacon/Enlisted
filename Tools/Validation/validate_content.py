@@ -2125,6 +2125,55 @@ def validate_error_code_registry(ctx: ValidationContext):
             print(f"  {stdout}")
 
 
+_SAVE_DEFINITION_RE = re.compile(
+    r"Add(?P<kind>Class|RootClass|Struct|Interface|Enum)Definition"
+    r"\(\s*typeof\((?P<type>[^)]+)\)\s*,\s*(?P<offset>\d+)"
+)
+
+
+def validate_save_definer_offsets(ctx: ValidationContext):
+    """Validate Enlisted save-definer type offsets.
+
+    TaleWorlds adds the definer base id to every class/struct/interface/enum
+    offset, then stores all resulting TypeSaveIds in one dictionary. Class and
+    enum offsets therefore cannot overlap.
+    """
+    print("[Phase 7.5] Validating save-definer type offsets...")
+    file_path = Path("src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs")
+    if not file_path.exists():
+        ctx.add_issue(
+            "error",
+            "save-definer",
+            "EnlistedSaveDefiner.cs not found",
+            str(file_path),
+        )
+        return
+
+    seen: dict[int, tuple[str, str, int]] = {}
+    text = file_path.read_text(encoding="utf-8-sig")
+    for lineno, line in enumerate(text.splitlines(), 1):
+        match = _SAVE_DEFINITION_RE.search(line)
+        if not match:
+            continue
+
+        offset = int(match.group("offset"))
+        current = (match.group("kind"), match.group("type"), lineno)
+        previous = seen.get(offset)
+        if previous is not None:
+            prev_kind, prev_type, prev_line = previous
+            ctx.add_issue(
+                "error",
+                "save-definer",
+                "Duplicate save-definer type offset "
+                f"{offset}: {prev_kind} {prev_type} at line {prev_line} and "
+                f"{current[0]} {current[1]} at line {lineno}",
+                str(file_path),
+                str(lineno),
+            )
+        else:
+            seen[offset] = current
+
+
 # ============================================================================
 # Phase 13 configuration — duty-pool skill coverage enforcement.
 # ============================================================================
@@ -3348,6 +3397,7 @@ def main():
 
     # Phase 7: Project structure validation
     validate_csproj(ctx)
+    validate_save_definer_offsets(ctx)
 
     # Phase 8: Code quality validation
     validate_code_quality(ctx)

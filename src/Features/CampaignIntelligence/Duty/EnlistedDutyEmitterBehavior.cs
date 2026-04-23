@@ -18,7 +18,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
     /// snapshot + current duty profile, invokes DutyOpportunityBuilder,
     /// throttle-claims via OrdersNewsFeedThrottle, picks one opportunity,
     /// emits via StoryDirector. Cooldown state persists in DutyCooldownStore
-    /// via SaveableTypeDefiner offset 50.
+    /// via SaveableTypeDefiner offset 53.
     /// </summary>
     [UsedImplicitly("Registered in SubModule.OnGameStart via campaignStarter.AddBehavior.")]
     public sealed class EnlistedDutyEmitterBehavior : CampaignBehaviorBase

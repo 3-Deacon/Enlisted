@@ -43,4 +43,4 @@ Each duty-profile pool carries class-affinity multipliers on its authored storyl
 
 ## Cooldown Defaults
 
-Storylets default to a 36 in-game-hour cooldown, tracked per storylet ID in `DutyCooldownStore`. Authors may override per storylet via the `cooldown_days` schema field.
+Storylets default to a 36 in-game-hour cooldown, tracked per storylet ID in `DutyCooldownStore` at save-definer offset 53. Authors may override per storylet via the `cooldown_days` schema field.

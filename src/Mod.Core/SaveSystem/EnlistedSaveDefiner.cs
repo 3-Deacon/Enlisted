@@ -76,8 +76,10 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Signal Projection (Plan 3 of 5) — offset 49
             AddClassDefinition(typeof(Features.CampaignIntelligence.Signals.SignalEmissionRecord), 49);
 
-            // Duty Opportunities (Plan 4 of 5) — offset 50
-            AddClassDefinition(typeof(Features.CampaignIntelligence.Duty.DutyCooldownStore), 50);
+            // Duty Opportunities (Plan 4 of 5) — offset 53
+            // Offsets share the same TypeSaveId namespace across classes and enums; 50-52
+            // are already used by legacy Retinue/Logistics enums below.
+            AddClassDefinition(typeof(Features.CampaignIntelligence.Duty.DutyCooldownStore), 53);
         }
 
         /// <summary>
