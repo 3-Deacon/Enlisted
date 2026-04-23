@@ -2194,6 +2194,51 @@ _QUALITY_WRITING_PRIMITIVES: set[str] = {
     "quality_set",
 }
 
+_AGENCY_ROLES = {
+    "stance_drift",
+    "stance_interrupt",
+    "order_accept",
+    "order_phase",
+    "order_outcome",
+    "activity_override",
+    "modal_incident",
+    "news_flavor",
+    "realm_dispatch",
+}
+
+_AGENCY_DOMAINS = {"personal", "kingdom", "camp"}
+
+_AGENCY_SOURCE_KINDS = {
+    "unknown",
+    "service_stance",
+    "order",
+    "activity_override",
+    "modal_incident",
+    "routine",
+    "battle",
+    "muster",
+    "promotion",
+    "condition",
+    "flavor",
+}
+
+_AGENCY_SURFACE_HINTS = {
+    "auto",
+    "dispatches",
+    "upcoming",
+    "you",
+    "since_last_muster",
+    "camp_activities",
+    "modal_only",
+}
+
+_AGENCY_PREVIEW_REQUIRED_ROLES = {
+    "order_accept",
+    "activity_override",
+    "stance_interrupt",
+    "modal_incident",
+}
+
 
 def _load_quality_ids(repo_root: Path, ctx: ValidationContext) -> set[str]:
     """Load valid quality ids from quality_defs.json union read-through ids."""
@@ -2387,6 +2432,89 @@ def _walk_effect_list(
             valid_effect_ids,
             quality_ids,
             ctx,
+        )
+
+
+def _storylet_has_effects(storylet: dict) -> bool:
+    if storylet.get("immediate"):
+        return True
+    for option in storylet.get("options", []) or []:
+        if option.get("effects"):
+            return True
+    return False
+
+
+def _storylet_has_preview(storylet: dict) -> bool:
+    preview = storylet.get("preview")
+    return isinstance(preview, dict) and any(
+        preview.get(k) for k in ("grants", "may_cost", "mayCost", "risks")
+    )
+
+
+def _validate_storylet_agency(
+    storylet: dict,
+    storylet_id: str,
+    file_path: str,
+    ctx: ValidationContext,
+):
+    agency = storylet.get("agency")
+    if agency is None:
+        return
+    if not isinstance(agency, dict):
+        ctx.add_issue(
+            "error",
+            "storylet-agency",
+            "agency must be an object when present.",
+            file_path,
+            storylet_id,
+        )
+        return
+
+    fields = (
+        ("role", _AGENCY_ROLES),
+        ("domain", _AGENCY_DOMAINS),
+        ("sourceKind", _AGENCY_SOURCE_KINDS),
+        ("surfaceHint", _AGENCY_SURFACE_HINTS),
+    )
+    for field_name, allowed_values in fields:
+        value = agency.get(field_name)
+        if value is None:
+            continue
+        if value not in allowed_values:
+            allowed_list = ", ".join(sorted(allowed_values))
+            ctx.add_issue(
+                "error",
+                "storylet-agency",
+                f"agency.{field_name} '{value}' is invalid (allowed: {allowed_list}).",
+                file_path,
+                storylet_id,
+            )
+
+    role = agency.get("role")
+    has_effects = _storylet_has_effects(storylet)
+    if role == "news_flavor" and has_effects:
+        ctx.add_issue(
+            "error",
+            "storylet-agency",
+            "agency.role 'news_flavor' cannot have effects.",
+            file_path,
+            storylet_id,
+        )
+    if role == "realm_dispatch" and has_effects:
+        ctx.add_issue(
+            "error",
+            "storylet-agency",
+            "agency.role 'realm_dispatch' cannot mutate player state.",
+            file_path,
+            storylet_id,
+        )
+    if role in _AGENCY_PREVIEW_REQUIRED_ROLES and not _storylet_has_preview(storylet):
+        ctx.add_issue(
+            "error",
+            "storylet-agency",
+            f"agency.role '{role}' requires preview metadata.",
+            file_path,
+            storylet_id,
         )
 
 
@@ -2611,6 +2739,8 @@ def _validate_storylet_file(
             continue
         sid = storylet.get("id", Path(file_path).stem)
 
+        _validate_storylet_agency(storylet, sid, file_path, ctx)
+
         # immediate[*].apply
         _walk_effect_list(
             storylet.get("immediate", []),
@@ -2710,10 +2840,12 @@ def validate_storylet_references(ctx: ValidationContext):
         )
 
     errors_before = sum(
-        1 for i in ctx.issues if i.severity == "error" and i.category == "storylet-refs"
+        1
+        for i in ctx.issues
+        if i.severity == "error" and i.category in ("storylet-refs", "storylet-agency")
     )
     if errors_before == 0:
-        print(f"  OK: all {len(storylet_files)} storylet file(s) passed reference checks.")
+        print(f"  OK: all {len(storylet_files)} storylet file(s) passed reference/agency checks.")
 
 
 # ============================================================================
