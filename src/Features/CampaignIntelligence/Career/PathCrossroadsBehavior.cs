@@ -77,60 +77,66 @@ namespace Enlisted.Features.CampaignIntelligence.Career
                     return;
                 }
 
-                var storyletId = "path_crossroads_" + pickedPath + "_t" + newTier.ToString();
-                var storylet = StoryletCatalog.GetById(storyletId);
-                if (storylet == null)
-                {
-                    ModLogger.Expected("PATH", "crossroads_missing_storylet",
-                        "Crossroads storylet not found in catalog",
-                        new Dictionary<string, object>
-                        {
-                            { "storylet_id", storyletId }
-                        });
-                    return;
-                }
-
-                var ctx = new StoryletContext
-                {
-                    CurrentContext = "any",
-                    EvaluatedAt = CampaignTime.Now,
-                    SourceStorylet = storylet
-                };
-
-                EffectExecutor.Apply(storylet.Immediate, ctx);
-
-                var evt = StoryletEventAdapter.BuildModal(storylet, ctx, null);
-                if (evt == null)
-                {
-                    ModLogger.Expected("PATH", "crossroads_buildmodal_null",
-                        "BuildModal returned null for crossroads storylet",
-                        new Dictionary<string, object>
-                        {
-                            { "storylet_id", storylet.Id }
-                        });
-                    return;
-                }
-
-                StoryDirector.Instance?.EmitCandidate(new StoryCandidate
-                {
-                    SourceId = "path.crossroads",
-                    CategoryId = "path.crossroads",
-                    ProposedTier = StoryTier.Modal,
-                    ChainContinuation = true,
-                    EmittedAt = CampaignTime.Now,
-                    InteractiveEvent = evt,
-                    RenderedTitle = storylet.Title,
-                    RenderedBody = storylet.Setup,
-                    StoryKey = storylet.Id
-                });
-
-                ModLogger.Info("PATH",
-                    $"crossroads_emitted: {storylet.Id} path={pickedPath} tier={newTier} score={pickedScore}");
+                FireCrossroadsStorylet(pickedPath, newTier, pickedScore);
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("PATH", "OnTierChanged crossroads threw", ex);
             }
+        }
+
+        /// <summary>Builds the storylet id from path + tier, looks it up, and emits the Modal. Callers supply the score only for the success log; production OnTierChanged owns the score/already-committed/tier gates, so this method fires the storylet whenever the catalog has a matching entry. Debug force-fire callers pass the path they want to test regardless of real scores.</summary>
+        public static void FireCrossroadsStorylet(string pathId, int tier, int score)
+        {
+            var storyletId = "path_crossroads_" + pathId + "_t" + tier.ToString();
+            var storylet = StoryletCatalog.GetById(storyletId);
+            if (storylet == null)
+            {
+                ModLogger.Expected("PATH", "crossroads_missing_storylet",
+                    "Crossroads storylet not found in catalog",
+                    new Dictionary<string, object>
+                    {
+                        { "storylet_id", storyletId }
+                    });
+                return;
+            }
+
+            var ctx = new StoryletContext
+            {
+                CurrentContext = "any",
+                EvaluatedAt = CampaignTime.Now,
+                SourceStorylet = storylet
+            };
+
+            EffectExecutor.Apply(storylet.Immediate, ctx);
+
+            var evt = StoryletEventAdapter.BuildModal(storylet, ctx, null);
+            if (evt == null)
+            {
+                ModLogger.Expected("PATH", "crossroads_buildmodal_null",
+                    "BuildModal returned null for crossroads storylet",
+                    new Dictionary<string, object>
+                    {
+                        { "storylet_id", storylet.Id }
+                    });
+                return;
+            }
+
+            StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "path.crossroads",
+                CategoryId = "path.crossroads",
+                ProposedTier = StoryTier.Modal,
+                ChainContinuation = true,
+                EmittedAt = CampaignTime.Now,
+                InteractiveEvent = evt,
+                RenderedTitle = storylet.Title,
+                RenderedBody = storylet.Setup,
+                StoryKey = storylet.Id
+            });
+
+            ModLogger.Info("PATH",
+                $"crossroads_emitted: {storylet.Id} path={pathId} tier={tier} score={score}");
         }
     }
 }

@@ -324,6 +324,11 @@ namespace Enlisted.Mod.Entry
                     // DebugToolsBehavior smoke helpers for the Home surface. No persisted state.
                     campaignStarter.AddBehavior(new Debugging.Behaviors.DebugHotkeysBehavior());
 
+                    // Career debug hotkeys: polls Ctrl+Shift+I/A/O/F for intel snapshot dump, arc
+                    // state dump, path-score overview, and force-fire of the current top-path
+                    // crossroads at tier 4. Smoke aid for Plan 5 Half A verification.
+                    campaignStarter.AddBehavior(new Debugging.Behaviors.CareerDebugHotkeysBehavior());
+
                     // Flag store: global + hero-scoped named booleans with optional expiry; used by storylet
                     // prereq checks and arc progress markers. Registers before all feature behaviors so flags
                     // are available during their OnSessionLaunched / OnGameLoaded handlers.
