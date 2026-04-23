@@ -1418,6 +1418,7 @@
     <string id="enlisted_standing_header" text="â€” YOUR STANDING â€”" />
     <string id="enlisted_camp_status_header" text="â€” CAMP STATUS â€”" />
     <string id="enlisted_camp_status_line" text="Supplies: {SUP} | Morale: {MOR} | Pay: {PAY}" />
+    <string id="enlisted_camp_activities" text="Camp Activities" />
     <string id="enlisted_camp_supply_stable" text="Stable" />
     <string id="enlisted_camp_supply_tight" text="Tight" />
     <string id="enlisted_camp_morale_steady" text="Steady" />
@@ -4326,15 +4327,6 @@
     <string id="escort_shortcut_option_title" text="Risky Shortcut" />
 
     
-    <string id="escort_vip_demands_comply" text="Comply with his wishes." />
-    <string id="escort_vip_demands_comply_result" text="You take his route. It's not faster, but he's satisfied." />
-    <string id="escort_vip_demands_explain" text="Explain why you can't." />
-    <string id="escort_vip_demands_explain_fail" text="He's not convinced, but you're in charge. He sulks the rest of the way." />
-    <string id="escort_vip_demands_explain_result" text="He listens to reason. Grudgingly, he accepts your judgment." />
-    <string id="escort_vip_demands_refuse" text="Refuse flatly. You have orders." />
-    <string id="escort_vip_demands_refuse_result" text="'I answer to {LORD_NAME}, not you.' He's furious, but you're right." />
-    <string id="escort_vip_demands_setup" text="The noble you're escorting demands you take a different route. 'I know a faster way.'" />
-    <string id="escort_vip_demands_title" text="VIP Demands" />
 
     
     <string id="escort_wheel_stuck_find_route" text="Find a way around." />

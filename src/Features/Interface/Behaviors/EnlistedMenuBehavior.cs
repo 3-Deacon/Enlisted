@@ -98,9 +98,6 @@ namespace Enlisted.Features.Interface.Behaviors
         private bool _ordersCollapsed = true;
         private string _ordersLastSeenOrderId = string.Empty;
 
-        // Headlines drilldown state — session-scoped; not persisted (DispatchItem is a struct).
-        private readonly HashSet<string> _viewedHeadlineStoryKeys = new HashSet<string>(StringComparer.Ordinal);
-
         // Decisions accordion state for the main menu.
         // Auto-expands when new decisions are available, collapses when empty.
         private bool _decisionsMainMenuCollapsed = true;
@@ -921,29 +918,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 OnEnlistedStatusTick, // Tick handler for real-time updates
                 GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption); // Wait menu template that hides progress boxes
 
-            // Main menu options for enlisted status menu
+            // Main menu options for enlisted status menu.
             // IMPORTANT: Options appear in the order they are added to the menu. Index is secondary.
-            // Desired order: Orders → Decisions → Camp → Reports → Status → Debug
-
-            // 0. Headlines drilldown — visible only when there are unread Headline-tier (or legacy Severity>=2) dispatches.
-            starter.AddGameMenuOption("enlisted_status", "enlisted_headlines_entry",
-                "{HEADLINES_HEADER_TEXT}",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    var news = Campaign.Current?.GetCampaignBehavior<EnlistedNewsBehavior>();
-                    int unread = CountUnreadHeadlines(news);
-                    if (unread == 0)
-                    {
-                        return false;
-                    }
-                    var headerText = "<span style=\"Link\">HEADLINES</span>";
-                    headerText += " <span style=\"Link\">[NEW]</span>";
-                    MBTextManager.SetTextVariable("HEADLINES_HEADER_TEXT", headerText);
-                    return true;
-                },
-                _ => GameMenu.SwitchToMenu("enlisted_headlines"),
-                false, 0);
 
             // 1. Orders accordion header (always visible).
             // When a new order arrives, it auto-expands and shows a [NEW] marker for the day.
@@ -1021,74 +997,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 _ => ShowOrdersMenu(),
                 false, 2);
 
-            // 2. Decisions accordion header (auto-expands when new decisions available)
-            starter.AddGameMenuOption("enlisted_status", "enlisted_decisions_header",
-                "{DECISIONS_HEADER_TEXT}",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.WaitQuest;
-
-                    // Get decisions and CACHE them - click handlers will use this same list
-                    // to prevent race conditions when phase changes between render and click
-                    var decisions = GetCurrentDecisions();
-                    _cachedDecisionsForCurrentMenu = decisions;
-                    _cachedDecisionsTime = CampaignTime.Now;
-
-                    // Check for new decisions
-                    var currentIds = new HashSet<string>(decisions.Select(d => d.Decision?.Id ?? string.Empty), StringComparer.OrdinalIgnoreCase);
-                    var hasNew = currentIds.Any(id => !_decisionsMainMenuLastSeenIds.Contains(id));
-                    if (hasNew && decisions.Count > 0)
-                    {
-                        _decisionsMainMenuCollapsed = false; // Auto-expand when new decisions arrive
-                    }
-
-                    // Collapse if no decisions
-                    if (decisions.Count == 0)
-                    {
-                        _decisionsMainMenuCollapsed = true;
-                    }
-
-                    // Set decision slot text variables using the already-cached decisions
-                    RefreshMainMenuDecisionSlots();
-
-                    var headerText = $"<span style=\"Link\">DECISIONS</span>";
-                    if (decisions.Count > 0)
-                    {
-                        headerText += $" ({decisions.Count})";
-                        if (hasNew)
-                        {
-                            headerText += " <span style=\"Link\">[NEW]</span>";
-                        }
-                        args.Tooltip = new TextObject("{=enlisted_decisions_tooltip_pending}You have pending decisions to make.");
-                    }
-                    else
-                    {
-                        headerText += " (None)";
-                        args.Tooltip = new TextObject("{=enlisted_decisions_tooltip_none}No pending decisions at this time.");
-                    }
-
-                    MBTextManager.SetTextVariable("DECISIONS_HEADER_TEXT", headerText);
-                    return true;
-                },
-                ToggleDecisionsMainMenuAccordion,
-                false, 3);
-
-            // 2a-e. Decision slots (up to 3 opportunities + 2 logistics = 5 max, visible when expanded)
-            for (var i = 0; i < 5; i++)
-            {
-                var slotIndex = i;
-                starter.AddGameMenuOption("enlisted_status", $"enlisted_decision_slot_{i}",
-                    $"{{MAIN_DECISION_SLOT_{i}_TEXT}}",
-                    args => IsMainMenuDecisionSlotAvailable(args, slotIndex),
-                    args => OnMainMenuDecisionSlotSelected(args, slotIndex),
-                    false, 4 + i);
-            }
-
             // Evening intent slots - visible only when HomeActivity is in the evening phase.
             // Indices 9..13 (one per slot) so Evening sits above camp_hub (index 14) during its
-            // phase, matching the decisions-slot pattern at 4..8. GameMenu.AddOption uses
-            // positional insertion, not priority sorting, so every slot needs a unique index —
-            // registering all five at a shared index would splice them around later items.
+            // phase. GameMenu.AddOption uses positional insertion, not priority sorting, so
+            // every slot needs a unique index.
             for (var i = 0; i < 5; i++)
             {
                 var slotIndex = i;
@@ -1114,12 +1026,12 @@ namespace Enlisted.Features.Interface.Behaviors
                     false, 9 + i);
             }
 
-            // 3. Camp hub - index 14 to appear after decision slots (4-8) and evening slots (9-13).
+            // Camp hub - index 14 to appear after evening slots (9-13).
             // GameMenu.AddOption is positional insertion, not priority sorting: if 5 evening
             // slots were to register at 9+i, Camp at 10 would splice in between them. We give
             // Camp a position past the entire evening block.
             starter.AddGameMenuOption("enlisted_status", "enlisted_camp_hub",
-                "{=enlisted_camp}Camp",
+                "{=enlisted_camp_activities}Camp Activities",
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
@@ -1201,36 +1113,6 @@ namespace Enlisted.Features.Interface.Behaviors
 
             // No "return to duties" option needed - player IS doing duties by being in this menu
 
-            // Headlines drilldown menu — listed dispatches with Headline-tier (or legacy Severity>=2) from the last 7 days.
-            starter.AddGameMenu(
-                "enlisted_headlines",
-                "{=enl_headlines_body}{HEADLINES_TEXT}",
-                args =>
-                {
-                    try
-                    {
-                        var news = Campaign.Current?.GetCampaignBehavior<EnlistedNewsBehavior>();
-                        var text = FormatHeadlines(news);
-                        MBTextManager.SetTextVariable("HEADLINES_TEXT", text);
-                        MarkHeadlinesViewed(news);
-                    }
-                    catch (Exception ex)
-                    {
-                        ModLogger.Caught("INTERFACE", "Error initializing Headlines menu", ex);
-                        MBTextManager.SetTextVariable("HEADLINES_TEXT", string.Empty);
-                    }
-                });
-
-            starter.AddGameMenuOption(
-                "enlisted_headlines", "enlisted_headlines_back",
-                "{=enl_back}Back",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
-                    return true;
-                },
-                _ => GameMenu.SwitchToMenu("enlisted_status"),
-                true, -1, false);
         }
 
         /// <summary>
@@ -1340,8 +1222,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
 
         // NOTE: RegisterDecisionsMenu, RegisterReportsMenu, RegisterStatusMenu removed.
-        // - Decisions is now an accordion on the main menu (see enlisted_decisions_header)
-        // - Reports/Status info is integrated into Camp Hub CAMP STATUS section
+        // Camp choices, reports, and status now live in Camp Hub.
 
         private void RegisterCampHubMenu(CampaignGameStarter starter)
         {
@@ -1357,7 +1238,17 @@ namespace Enlisted.Features.Interface.Behaviors
                 OnCampHubTick,
                 GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
 
-            // NOTE: Rest & Recover, Train Skills, and Morale Boost moved to Decisions menu.
+            // NOTE: Rest & Recover, Train Skills, and Morale Boost are surfaced through Camp Hub.
+
+            for (var i = 0; i < 3; i++)
+            {
+                var slotIndex = i;
+                starter.AddGameMenuOption(CampHubMenuId, $"camp_hub_activity_slot_{i}",
+                    $"{{MAIN_DECISION_SLOT_{i}_TEXT}}",
+                    args => IsMainMenuDecisionSlotAvailable(args, slotIndex),
+                    args => OnMainMenuDecisionSlotSelected(args, slotIndex),
+                    false, 1 + i);
+            }
 
             // Service Records
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_service_records",
@@ -1373,7 +1264,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     GameMenu.SwitchToMenu("enlisted_service_records");
                 },
-                false, 1);
+                false, 10);
 
             // Manage Companions
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_companions",
@@ -1389,7 +1280,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     GameMenu.SwitchToMenu("enlisted_companions");
                 },
-                false, 2);
+                false, 11);
 
             // Personal Retinue (T7+: Commander track with recruit training system)
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_retinue",
@@ -1415,7 +1306,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     GameMenu.SwitchToMenu("enlisted_retinue");
                 },
-                false, 3);
+                false, 12);
 
             // Visit Quartermaster - blocked when company supply is critically low (below 15%)
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_quartermaster",
@@ -1439,7 +1330,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     return true;
                 },
                 OnQuartermasterSelected,
-                false, 4);
+                false, 13);
 
             // Medical care migrated to decision system (Phase 6G)
             // Treatment decisions appear as orchestrated opportunities when player has conditions
@@ -1464,7 +1355,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     return true;
                 },
                 OnTalkToSelected,
-                false, 7);
+                false, 14);
 
 
             // Back
@@ -1498,6 +1389,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 var normalized = QuartermasterManager.NormalizeToStoppable(captured);
                 Campaign.Current.TimeControlMode = normalized;
 
+                _decisionsMainMenuCollapsed = false;
+                RefreshMainMenuDecisionSlots();
                 MBTextManager.SetTextVariable("CAMP_HUB_TEXT", BuildCampHubText());
             }
             catch (Exception ex)
@@ -1512,27 +1405,6 @@ namespace Enlisted.Features.Interface.Behaviors
             _ = args;
             _ = dt;
             // Intentionally empty - hub is refreshed on init and re-entry.
-        }
-
-        private List<DispatchItem> GetUnreadHighSeverity(EnlistedNewsBehavior news)
-        {
-            if (news == null) { return new List<DispatchItem>(); }
-            int today = (int)CampaignTime.Now.ToDays;
-            var items = news.GetPersonalFeedSince(today - 7);
-            var result = new List<DispatchItem>();
-            foreach (var it in items)
-            {
-                // Prefer the typed predicate when the dispatch carries a Tier (i.e. was written
-                // via the StoryDirector path post-PR-c). Fall back to the legacy Severity check
-                // for dispatches created through older code paths that don't set Tier.
-                bool isHeadline = it.Tier != StoryTier.Log
-                    ? it.IsHeadline
-                    : it.Severity >= 2;
-                if (!isHeadline) { continue; }
-                if (!string.IsNullOrEmpty(it.StoryKey) && _viewedHeadlineStoryKeys.Contains(it.StoryKey)) { continue; }
-                result.Add(it);
-            }
-            return result;
         }
 
         private static List<DispatchItem> GetPersonalItemsForYou(EnlistedNewsBehavior news, int maxItems)
@@ -1571,38 +1443,6 @@ namespace Enlisted.Features.Interface.Behaviors
                 .Where(item => item.Route.IsCampActivity)
                 .Take(maxItems)
                 .ToList();
-        }
-
-        private int CountUnreadHeadlines(EnlistedNewsBehavior news)
-        {
-            return GetUnreadHighSeverity(news).Count;
-        }
-
-        private string FormatHeadlines(EnlistedNewsBehavior news)
-        {
-            var items = GetUnreadHighSeverity(news);
-            var sb = new StringBuilder();
-            foreach (var it in items)
-            {
-                var line = EnlistedNewsBehavior.FormatDispatchForDisplay(it, includeColor: false);
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    _ = sb.AppendLine("• " + line);
-                }
-            }
-            return sb.ToString();
-        }
-
-        private void MarkHeadlinesViewed(EnlistedNewsBehavior news)
-        {
-            var items = GetUnreadHighSeverity(news);
-            foreach (var it in items)
-            {
-                if (!string.IsNullOrEmpty(it.StoryKey))
-                {
-                    _ = _viewedHeadlineStoryKeys.Add(it.StoryKey);
-                }
-            }
         }
 
         private static string BuildCampHubText()
@@ -4434,15 +4274,14 @@ namespace Enlisted.Features.Interface.Behaviors
 
         #region Decision Handlers
 
-        // NOTE: The dedicated "enlisted_decisions" submenu was removed in favor of an accordion
-        // on the main status menu. See enlisted_decisions_header registration.
-        // The following methods are shared utilities used by the main menu's decision accordion.
+        // NOTE: The dedicated "enlisted_decisions" submenu and main-menu accordion are removed.
+        // The following methods remain for camp-hub activity slots.
 
         // REMOVED: ToggleDecisionsSection, EnsureDecisionsAccordionInitialized, CollapseAllDecisionsSections,
         // IsDecisionsSectionCollapsed, SetDecisionsSectionCollapsed, OnDecisionsMenuInit, BuildDecisionsMenuEntries,
         // BuildDecisionsStatusText, AddSectionDecisions, AddDecisionEntry, OnScheduledDecisionClicked,
         // DecisionsMenuEntry, DecisionsMenuSection - all dead code from old dedicated submenu.
-        // The decisions are now shown via accordion on the main status menu (see enlisted_decisions_header).
+        // Camp-hub activity slots call the remaining decision utilities directly.
 
 
         /// <summary>
@@ -5175,7 +5014,7 @@ namespace Enlisted.Features.Interface.Behaviors
             // Use CACHED decisions to prevent race condition between render and click
             var decisions = _cachedDecisionsForCurrentMenu ?? new List<DecisionAvailability>();
 
-            if (_decisionsMainMenuCollapsed || slotIndex >= decisions.Count)
+            if (slotIndex >= decisions.Count)
             {
                 return false;
             }

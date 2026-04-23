@@ -550,13 +550,6 @@ namespace Enlisted.Features.Content
             // Notify news system of event outcome (includes narrative for Recent Activities display)
             NotifyNewsOfEventOutcome(option, isRisky && !success);
 
-            // Show result text in combat log for decisions (immediate feedback)
-            if (_currentEvent != null && _currentEvent.Category != null &&
-                _currentEvent.Category.Equals("decision", StringComparison.OrdinalIgnoreCase))
-            {
-                SendDecisionOutcomeToCombatLog(option, isRisky && !success);
-            }
-
             // Notify news of pending chain event if applicable
             NotifyNewsOfPendingChainEvent(option);
 
@@ -1871,40 +1864,6 @@ namespace Enlisted.Features.Content
                     state.ClearFlag(flag);
                     ModLogger.Info(LogCategory, $"Cleared flag: {flag}");
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sends decision outcome text to the combat log for immediate feedback.
-        /// Only called for decisions (not regular events).
-        /// </summary>
-        /// <param name="option">The selected option.</param>
-        /// <param name="showFailure">True if this was a risky option that failed.</param>
-        private void SendDecisionOutcomeToCombatLog(EventOption option, bool showFailure)
-        {
-            try
-            {
-                // Get the appropriate result narrative
-                var resultNarrative = showFailure
-                    ? ResolveText(option.ResultTextFailureId, option.ResultTextFailureFallback)
-                    : ResolveText(option.ResultTextId, option.ResultTextFallback);
-
-                if (string.IsNullOrWhiteSpace(resultNarrative))
-                {
-                    return;
-                }
-
-                // Choose color based on outcome
-                var color = showFailure
-                    ? Color.FromUint(0xFFCCCC44) // Yellow for failures
-                    : Color.FromUint(0xFF88CC88); // Light green for successes
-
-                // Send to combat log
-                InformationManager.DisplayMessage(new InformationMessage(resultNarrative, color));
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("EVENTDELIVERY", "Failed to send decision outcome to combat log", ex);
             }
         }
 

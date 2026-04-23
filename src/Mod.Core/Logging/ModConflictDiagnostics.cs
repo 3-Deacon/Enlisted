@@ -761,22 +761,19 @@ namespace Enlisted.Mod.Core.Logging
                     WriteLine("    Decision Files: MISSING");
                 }
 
-                // Check Orders JSON files
-                WriteLine("  [Order System]");
+                // Retired legacy Orders JSON should not be present. Current orders are
+                // authored as storylets and activities.
+                WriteLine("  [Retired Order JSON]");
                 var ordersPath = ModulePaths.GetContentPath("Orders");
                 if (Directory.Exists(ordersPath))
                 {
-                    var orderFiles = Directory.GetFiles(ordersPath, "*.json").Length;
-                    WriteLine($"    Order Files: {orderFiles}");
-                    if (orderFiles == 0)
-                    {
-                        warnings.Add("No order files found");
-                    }
+                    var orderFiles = Directory.GetFiles(ordersPath, "*.json", SearchOption.AllDirectories).Length;
+                    warnings.Add("Retired Orders directory present; stale JSON may be ignored or removed");
+                    WriteLine($"    Retired Order Files: {orderFiles} (stale)");
                 }
                 else
                 {
-                    issues.Add("Orders directory missing");
-                    WriteLine("    Order Files: MISSING");
+                    WriteLine("    Retired Order Files: none");
                 }
 
                 // Check Storylets JSON files (Spec 0 backbone)

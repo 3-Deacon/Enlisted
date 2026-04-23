@@ -115,7 +115,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-EVENTCATALOG-a291 | EventCatalog.Initialize failed during file load — catalog will be empty and retry on next access | src/Features/Content/EventCatalog.cs:94 |
+| E-EVENTCATALOG-a291 | EventCatalog.Initialize failed during file load — catalog will be empty and retry on next access | src/Features/Content/EventCatalog.cs:80 |
 
 ## FORMATIONASSIGNMENT
 
@@ -148,20 +148,20 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-INTERFACE-086a | Error returning to camp | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:894 |
-| E-INTERFACE-0f3a | Error in Talk to My Lord | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4036 |
-| E-INTERFACE-2965 | Error opening Master at Arms | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3874 |
-| E-INTERFACE-3980 | Error opening conversation with lord | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4189 |
-| E-INTERFACE-44ac | Error opening quartermaster conversation | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3938 |
-| E-INTERFACE-6014 | Error starting lord conversation | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4134 |
-| E-INTERFACE-726f | Error handling baggage train access | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4002 |
-| E-INTERFACE-9713 | VisitTown failed | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4330 |
-| E-INTERFACE-a2e9 | Error showing lord selection | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4148 |
-| E-INTERFACE-a6ab | Failed to toggle orders accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4866 |
-| E-INTERFACE-bc27 | Error showing orders menu | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5379 |
-| E-INTERFACE-c9df | Error opening debug tools | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:406 |
-| E-INTERFACE-f0bd | Failed to toggle decisions accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4908 |
-| E-INTERFACE-f8a1 | Failed to select decision slot | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5322 |
+| E-INTERFACE-086a | Error returning to camp | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:891 |
+| E-INTERFACE-0f3a | Error in Talk to My Lord | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3876 |
+| E-INTERFACE-2965 | Error opening Master at Arms | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3714 |
+| E-INTERFACE-3980 | Error opening conversation with lord | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4029 |
+| E-INTERFACE-44ac | Error opening quartermaster conversation | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3778 |
+| E-INTERFACE-6014 | Error starting lord conversation | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3974 |
+| E-INTERFACE-726f | Error handling baggage train access | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3842 |
+| E-INTERFACE-9713 | VisitTown failed | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4170 |
+| E-INTERFACE-a2e9 | Error showing lord selection | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3988 |
+| E-INTERFACE-a6ab | Failed to toggle orders accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4705 |
+| E-INTERFACE-bc27 | Error showing orders menu | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5218 |
+| E-INTERFACE-c9df | Error opening debug tools | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:403 |
+| E-INTERFACE-f0bd | Failed to toggle decisions accordion | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:4747 |
+| E-INTERFACE-f8a1 | Failed to select decision slot | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:5161 |
 
 ## MUSTER
 
@@ -214,8 +214,8 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-QUARTERMASTER-4df4 | Both QM and enlisted lord have no party — cannot open conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3901 |
-| E-QUARTERMASTER-6852 | GetOrCreateQuartermaster returned null or dead hero while enlisted | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3931 |
+| E-QUARTERMASTER-4df4 | Both QM and enlisted lord have no party — cannot open conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3741 |
+| E-QUARTERMASTER-6852 | GetOrCreateQuartermaster returned null or dead hero while enlisted | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3771 |
 | E-QUARTERMASTER-8adc | Error processing equipment variant request | src/Features/Equipment/Behaviors/QuartermasterManager.cs:1428 |
 | E-QUARTERMASTER-9cb7 | Cannot find troop template for culture - quartermaster hero creation will fail | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:9864 |
 | E-QUARTERMASTER-b40e | Cannot open sell popup: QuartermasterManager.Instance is null | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:3318 |

@@ -28,4 +28,4 @@
 
 ## Legacy content runtime (reference only)
 
-`ModuleData/Enlisted/Events/*.json`, `ModuleData/Enlisted/Decisions/*.json`, and `ModuleData/Enlisted/Orders/order_events/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. New authoring should target storylets per above, not these.
+`ModuleData/Enlisted/Events/*.json` and `ModuleData/Enlisted/Decisions/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. Retired `ModuleData/Enlisted/Orders/order_events/*.json` content is no longer loaded. New authoring should target storylets per above, not legacy event JSON.

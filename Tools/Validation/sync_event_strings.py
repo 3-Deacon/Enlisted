@@ -293,14 +293,6 @@ def main():
     all_strings.update(decision_strings)
     missing_fallbacks.extend(decision_fallbacks)
 
-    # Scan order event files
-    order_events_dir = Path("ModuleData/Enlisted/Orders/order_events")
-    if order_events_dir.exists():
-        print("Scanning order event files...")
-        order_strings, order_fallbacks = scan_event_files(order_events_dir, args.verbose)
-        all_strings.update(order_strings)
-        missing_fallbacks.extend(order_fallbacks)
-
     # Scan storylet files
     storylets_dir = Path("ModuleData/Enlisted/Storylets")
     if storylets_dir.exists():

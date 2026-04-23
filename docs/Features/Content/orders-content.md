@@ -1,12 +1,12 @@
 # Orders Content Catalog
 
-**Summary:** Complete catalog of all 16 implemented orders for the Order Progression System. Each order includes duration, skills, fatigue, injury risk, phase blocks, and event pool references. This document serves as both specification and implementation reference.
+**Summary:** Historical catalog for the retired legacy Order Progression JSON system. Current order content is authored through `OrderActivity` and storylet pools.
 
-**Status:** ✅ **IMPLEMENTED** - All 17 orders defined in JSON with 84 order events across 16 event pools  
-**Last Updated:** 2026-01-03 (Added order event sea/land filtering section)  
+**Status:** **RETIRED** - legacy `ModuleData/Enlisted/Orders/` JSON is no longer loaded or deployed.
+**Last Updated:** 2026-04-23 (marked retired after deployed-content cleanup)
 **Files:** 
-- Orders: `ModuleData/Enlisted/Orders/orders_t1_t3.json`, `orders_t4_t6.json`, `orders_t7_t9.json`
-- Events: `ModuleData/Enlisted/Orders/order_events/*.json` (16 files, 84 total events)
+- Current: `ModuleData/Enlisted/Activities/*.json` and `ModuleData/Enlisted/Storylets/*.json`
+- Retired: `ModuleData/Enlisted/Orders/`
 
 **Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](storylet-backbone.md)
 
@@ -37,7 +37,7 @@ Orders are multi-day duty assignments that progress through phases (4 per day). 
 |------------|-------------|-------------|-------|
 | T1-T3 | 8 orders | ~150 events | Menial, physical, routine |
 | T4-T6 | 9 orders | ~180 events | Specialist, skilled, leadership |
-| **Total** | **17 orders** | **84 events** | Events defined in `order_events/*.json` |
+| **Total** | **17 orders** | **84 events** | Retired legacy JSON |
 
 ---
 
@@ -654,7 +654,7 @@ Day 3: [routine] [slot] [routine] [resolve]
 - `escort_ambush` - Combat or evade
 - `escort_difficult_terrain` - Athletics check
 - `escort_cargo_problem` - Crafting check, quick fix
-- `escort_vip_demands` - Charm check, handle noble
+- `escort_noble_route_request` - Charm check, handle noble
 - `escort_shortcut_option` - Tactics check, risk vs reward
 
 **Critical Failure:** Lost cargo, major rep damage
@@ -756,29 +756,18 @@ This allows orders like "Firewood Collection" → "Deck Scrubbing" to use the sa
 ### JSON File Structure
 
 ```
-ModuleData/Enlisted/Orders/
-├── orders_t1_t3.json         (8 basic orders)
-├── orders_t4_t6.json         (8 specialist orders)
-└── order_events/
-    ├── guard_events.json       (order_guard_post)
-    ├── sentry_events.json      (order_sentry_duty)
-    ├── patrol_events.json      (order_camp_patrol)
-    ├── patrol_lead_events.json (order_lead_patrol)
-    ├── scout_events.json       (order_scout_route)
-    ├── escort_events.json      (order_escort_duty)
-    ├── firewood_events.json    (order_firewood_detail)
-    ├── latrine_events.json     (order_latrine_duty)
-    ├── cleaning_events.json    (order_equipment_cleaning)
-    ├── muster_events.json      (order_muster_inspection)
-    ├── march_events.json       (order_march_formation)
-    ├── medical_events.json     (order_treat_wounded)
-    ├── repair_events.json      (order_repair_equipment)
-    ├── forage_events.json      (order_forage_supplies)
-    ├── training_events.json    (order_train_recruits)
-    └── defenses_events.json    (order_inspect_defenses)
+ModuleData/Enlisted/Activities/
+└── duty_profiles.json
+
+ModuleData/Enlisted/Storylets/
+├── order_guard_post.json
+├── order_patrol.json
+├── order_scout.json
+├── order_escort.json
+└── ...
 ```
 
-See JSON files in `ModuleData/Enlisted/Orders/order_events/` for complete event definitions (84 total events across 16 files).
+Legacy `ModuleData/Enlisted/Orders/order_events/` files are no longer present in source, no longer loaded at runtime, and cleaned from deployed builds.
 
 ### Localization
 

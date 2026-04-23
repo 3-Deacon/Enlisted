@@ -85,7 +85,6 @@ namespace Enlisted.Features.Camp
                 {
                     outcomes.Add(outcome1);
                     ApplyOutcome(outcome1);
-                    SendCombatLogMessage(outcome1);
                     AddToNewsFeed(outcome1);
                 }
             }
@@ -104,7 +103,6 @@ namespace Enlisted.Features.Camp
                 {
                     outcomes.Add(outcome2);
                     ApplyOutcome(outcome2);
-                    SendCombatLogMessage(outcome2);
                     AddToNewsFeed(outcome2);
                 }
             }
@@ -562,33 +560,6 @@ namespace Enlisted.Features.Camp
         {
             // TODO: Integrate with ConditionManager when implemented
             ModLogger.Info(LogCategory, $"Condition applied: {conditionId}");
-        }
-
-        /// <summary>
-        /// Sends a combat log message for the outcome.
-        /// </summary>
-        private static void SendCombatLogMessage(RoutineOutcome outcome)
-        {
-            var message = outcome.GetCombatLogText();
-            var color = GetMessageColor(outcome);
-
-            InformationManager.DisplayMessage(new InformationMessage(message, color));
-        }
-
-        /// <summary>
-        /// Gets the appropriate color for the combat log message.
-        /// </summary>
-        private static Color GetMessageColor(RoutineOutcome outcome)
-        {
-            return outcome.Outcome switch
-            {
-                OutcomeType.Excellent => Color.FromUint(0xFF44AA44), // Green
-                OutcomeType.Good => Color.FromUint(0xFF88CC88), // Light green
-                OutcomeType.Normal => Color.FromUint(0xFFCCCCCC), // Light gray
-                OutcomeType.Poor => Color.FromUint(0xFFCCCC44), // Yellow
-                OutcomeType.Mishap => Color.FromUint(0xFFCC4444), // Red
-                _ => Color.FromUint(0xFFCCCCCC)
-            };
         }
 
         /// <summary>

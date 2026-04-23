@@ -507,10 +507,8 @@ def print_analysis(data):
                 '  2. MakeDir:   <MakeDir Directories="$(OutputPath)..\\\\..\\\\path\\\\to\\\\"/>'
             )
             print('  3. Copy:      <Copy SourceFiles="@(YourDataName)" DestinationFolder="..."/>')
-            print("\nExample for order_events:")
-            print(
-                '  <OrderEventsData Include="ModuleData\\\\Enlisted\\\\Orders\\\\order_events\\\\*.json"/>'
-            )
+            print("\nExample:")
+            print('  <StoryletsData Include="ModuleData\\\\Enlisted\\\\Storylets\\\\*.json"/>')
 
         gui_missing = project_issues.get("gui_missing", [])
         if gui_missing:

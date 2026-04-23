@@ -778,6 +778,11 @@
     <Copy SourceFiles="$(OutputPath)Enlisted.dll" DestinationFolder="$(OutputPath)..\Win64_Shipping_wEditor\" SkipUnchangedFiles="true"/>
     <Copy SourceFiles="$(OutputPath)Enlisted.pdb" DestinationFolder="$(OutputPath)..\Win64_Shipping_wEditor\" SkipUnchangedFiles="true" Condition="Exists('$(OutputPath)Enlisted.pdb')"/>
 
+    <!-- CLEAN DEPLOYED DATA BEFORE COPY.
+         Removed JSON/XML remains active in Bannerlord if we only copy changed files. -->
+    <RemoveDir Directories="$(OutputPath)..\..\ModuleData\Enlisted" Condition="Exists('$(OutputPath)..\..\ModuleData\Enlisted')"/>
+    <RemoveDir Directories="$(OutputPath)..\..\ModuleData\Languages" Condition="Exists('$(OutputPath)..\..\ModuleData\Languages')"/>
+
     <!-- CREATE DIRECTORY STRUCTURE -->
     <MakeDir Directories="$(OutputPath)..\..\Debugging"/>
     <MakeDir Directories="$(OutputPath)..\..\GUI\Brushes"/>

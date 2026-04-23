@@ -4343,16 +4343,6 @@
     <string id="escort_shortcut_option_take_it_result" text="You scout ahead, move fast. The pass is clear. Time saved." />
     <string id="escort_shortcut_option_title" text="Risky Shortcut" />
 
-    <!-- escort_vip_demands -->
-    <string id="escort_vip_demands_comply" text="Comply with his wishes." />
-    <string id="escort_vip_demands_comply_result" text="You take his route. It&apos;s not faster, but he&apos;s satisfied." />
-    <string id="escort_vip_demands_explain" text="Explain why you can&apos;t." />
-    <string id="escort_vip_demands_explain_fail" text="He&apos;s not convinced, but you&apos;re in charge. He sulks the rest of the way." />
-    <string id="escort_vip_demands_explain_result" text="He listens to reason. Grudgingly, he accepts your judgment." />
-    <string id="escort_vip_demands_refuse" text="Refuse flatly. You have orders." />
-    <string id="escort_vip_demands_refuse_result" text="&apos;I answer to {LORD_NAME}, not you.&apos; He&apos;s furious, but you&apos;re right." />
-    <string id="escort_vip_demands_setup" text="The noble you&apos;re escorting demands you take a different route. &apos;I know a faster way.&apos;" />
-    <string id="escort_vip_demands_title" text="VIP Demands" />
 
     <!-- escort_wheel_stuck -->
     <string id="escort_wheel_stuck_find_route" text="Find a way around." />

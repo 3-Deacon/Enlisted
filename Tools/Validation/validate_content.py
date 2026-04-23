@@ -1470,15 +1470,41 @@ def validate_csproj(ctx: ValidationContext):
                     "Enlisted.csproj",
                 )
 
-        # --- Check 6: Content subdirectories are deployed ---
-        # Verify that all content subdirectories in ModuleData have corresponding
-        # ItemGroup entries and AfterBuild copy commands in .csproj
-        content_dirs_to_check = [
-            ("ModuleData/Enlisted/Orders/order_events", "OrderEventsData", "order_events/*.json"),
-            # Add other content subdirectories here as needed
+        # --- Check 6: Retired content is cleaned from deployed module data ---
+        retired_content_dirs = [
+            "ModuleData/Enlisted/Orders",
+            "ModuleData/Enlisted/Chains",
         ]
 
         csproj_content = csproj_path.read_text(encoding="utf-8")
+
+        for retired_dir in retired_content_dirs:
+            source_path = Path(retired_dir.replace("/", os.sep))
+            if source_path.exists():
+                ctx.add_issue(
+                    "error",
+                    "project",
+                    f"Retired content directory still exists in source: {retired_dir}",
+                    retired_dir,
+                )
+
+        required_cleanup_paths = [
+            "$(OutputPath)..\\..\\ModuleData\\Enlisted",
+            "$(OutputPath)..\\..\\ModuleData\\Languages",
+        ]
+        for cleanup_path in required_cleanup_paths:
+            if cleanup_path not in csproj_content:
+                ctx.add_issue(
+                    "error",
+                    "project",
+                    f"AfterBuild must remove deployed '{cleanup_path}' before copying current data",
+                    "Enlisted.csproj",
+                )
+
+        # --- Check 7: Content subdirectories are deployed ---
+        # Verify that all content subdirectories in ModuleData have corresponding
+        # ItemGroup entries and AfterBuild copy commands in .csproj
+        content_dirs_to_check = []
 
         for source_dir, item_group_name, pattern in content_dirs_to_check:
             source_path = Path(source_dir.replace("/", os.sep))
@@ -3352,27 +3378,23 @@ def main():
     print("[Phase 0] Loading localization strings...")
     localization_ids = load_localization_strings()
 
-    # Collect all content files (Events, Decisions, Order Events)
+    # Collect all content files (Events, Decisions)
     event_files = sorted(glob.glob("ModuleData/Enlisted/Events/**/*.json", recursive=True))
     decision_files = sorted(glob.glob("ModuleData/Enlisted/Decisions/**/*.json", recursive=True))
-    # Only validate order_events/*.json, not the order definition files (orders_*.json)
-    order_event_files = sorted(
-        glob.glob("ModuleData/Enlisted/Orders/order_events/**/*.json", recursive=True)
-    )
     # Opportunity files (separate validation for hints - not treated as regular events)
     opportunity_files = sorted(
         glob.glob("ModuleData/Enlisted/Decisions/camp_opportunities*.json", recursive=True)
     )
     # Exclude opportunity files from regular event validation (they have different structure)
     decision_files = [f for f in decision_files if not any(op in f for op in opportunity_files)]
-    all_files = event_files + decision_files + order_event_files
+    all_files = event_files + decision_files
 
     if not all_files:
         print("[ERROR] No content files found!")
         return 2
 
     print(
-        f"[Phase 0] Found {len(all_files)} content files ({len(event_files)} events, {len(decision_files)} decisions, {len(order_event_files)} order events, {len(opportunity_files)} opportunity files)"
+        f"[Phase 0] Found {len(all_files)} content files ({len(event_files)} events, {len(decision_files)} decisions, {len(opportunity_files)} opportunity files)"
     )
     print()
 

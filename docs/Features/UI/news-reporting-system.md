@@ -327,7 +327,7 @@ Recent Activities:
   pickets. The sergeant finds it on his own rounds.
 ```
 
-**Technical Note:** The outcome popup system has been removed (dead code: `ShowResultText()` and `ShowOrderResult()` deleted). Event outcomes are recorded with their full `ResultNarrative` text, and order outcomes use their detailed summary text. Both are added to the personal feed only when actively shown. Decisions additionally display their result text in the combat log via `SendDecisionOutcomeToCombatLog()` for immediate player feedback. This reduces cognitive load while ensuring important player-initiated choices have instant visible results.
+**Technical Note:** The outcome popup system has been removed (dead code: `ShowResultText()` and `ShowOrderResult()` deleted). Event outcomes are recorded with their full `ResultNarrative` text, and order outcomes use their detailed summary text. Both are added to the personal feed only when actively shown. Decision outcomes stay in the personal feed/status surfaces instead of the combat log.
 
 ### Order Outcome Text (2025-12-31 Update)
 
@@ -422,7 +422,7 @@ EnlistedNewsBehavior.Instance.AddEventOutcome(
 );
 ```
 
-**See Also:** [Orders Content](../Content/orders-content.md) for order definitions, event files at `ModuleData/Enlisted/Orders/order_events/`.
+**See Also:** [Storylet Backbone](../Content/storylet-backbone.md) for current content authoring.
 
 ---
 

@@ -516,7 +516,7 @@ Event Pool:
   - escort_ambush (Combat or evade)
   - escort_difficult_terrain (Athletics check)
   - escort_cargo_problem (Crafting check - quick fix)
-  - escort_vip_demands (Charm check - handle noble)
+  - escort_noble_route_request (Charm check - handle noble)
   - escort_shortcut_option (Tactics check - risk vs reward)
 
 High stakes: Cargo or VIP protection
@@ -1331,14 +1331,14 @@ src/Features/Orders/
 └── Events/
     └── OrderEventDefinition.cs   (new)
 
-ModuleData/Enlisted/Orders/
-├── orders_t1_t3.json             (existing - extend with blocks)
-├── orders_t4_t6.json             (existing - extend with blocks)
-└── order_events/
-    ├── guard_events.json         (new)
-    ├── patrol_events.json        (new)
-    ├── scout_events.json         (new)
-    └── ... (per order type)
+ModuleData/Enlisted/Activities/
+└── duty_profiles.json
+
+ModuleData/Enlisted/Storylets/
+├── order_guard_post.json
+├── order_patrol.json
+├── order_scout.json
+└── ... (per order type)
 ```
 
 ### Phase Tick Registration
