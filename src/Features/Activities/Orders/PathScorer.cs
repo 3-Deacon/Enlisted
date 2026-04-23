@@ -125,7 +125,19 @@ namespace Enlisted.Features.Activities.Orders
                 var qualityKey = $"path_{path}_score";
                 if (FlagStore.Instance?.Has("path_resisted_" + path) == true)
                 {
+                    var originalAmount = amount;
                     amount = (int)(amount * 0.5f);
+                    // Expected is throttled per-key on 60s so each resisted path emits at
+                    // most once per minute; smoke-runner evidence the resist bias is
+                    // actually firing without flooding the log on every skill-gain tick.
+                    ModLogger.Expected("PATH", "bump_resisted_" + path,
+                        "BumpPath halved by path_resisted_<path> flag",
+                        new Dictionary<string, object>
+                        {
+                            { "path", path },
+                            { "original", originalAmount },
+                            { "halved", amount }
+                        });
                 }
                 var current = QualityStore.Instance?.Get(qualityKey) ?? 0;
                 QualityStore.Instance?.Set(qualityKey, Math.Max(0, Math.Min(100, current + amount)), reason);
