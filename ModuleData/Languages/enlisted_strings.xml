@@ -7653,5 +7653,129 @@
     <string id="duty_wan_ridge_watch_1__khuzait_opt_main_tt" text="High ground observation. Scouting XP." />
     <string id="duty_wan_ridge_watch_1__khuzait_setup" text="Not much of a ridge — a long swell of grass, a man&apos;s height above the plain. From it the steppe runs for days. A herd to the east, a smudge of dust on the south horizon, a shape of riders too far to count. You mark each." />
     <string id="duty_wan_ridge_watch_1__khuzait_title" text="A low rise on the open steppe" />
+
+    <!-- duty_besieging_breach_lead_1 -->
+    <string id="duty_bes_breach_trait_1_opt_follow" text="Follow him up. Keep to his shield-side." />
+    <string id="duty_bes_breach_trait_1_opt_follow_tt" text="+Engineering XP, relation up." />
+    <string id="duty_bes_breach_trait_1_opt_stay" text="Hold at the reserve line. Watch the second wave." />
+    <string id="duty_bes_breach_trait_1_opt_stay_tt" text="+OneHanded XP, relation down." />
+    <string id="duty_bes_breach_trait_1_setup" text="Your lord has a shield in one hand and a broken sword knotted to his wrist. The breach is loud and the ladders are already drawing fire and he is going up first. He looks once over his shoulder for his men. You are inside the look." />
+    <string id="duty_bes_breach_trait_1_title" text="He takes the breach himself" />
+
+    <!-- duty_besieging_accept_truce_1 -->
+    <string id="duty_bes_truce_trait_1_opt_note" text="Memorize the terms. File them for the camp." />
+    <string id="duty_bes_truce_trait_1_opt_note_tt" text="+Steward XP, rank XP." />
+    <string id="duty_bes_truce_trait_1_opt_witness" text="Witness the words. Keep your peace." />
+    <string id="duty_bes_truce_trait_1_opt_witness_tt" text="+Charm XP, relation up." />
+    <string id="duty_bes_truce_trait_1_setup" text="The defenders send a grey-haired captain with a rod of office. He asks for terms, offers the keys, and names the families within. Your lord hears him through. He answers the terms on his own hand and names the day of the withdrawal. You stand at his shoulder." />
+    <string id="duty_bes_truce_trait_1_title" text="A parley at the broken gate" />
+
+    <!-- duty_escorting_side_angle_1 -->
+    <string id="duty_esc_side_trait_1_opt_ask" text="Ask the sergeant about the second parchment." />
+    <string id="duty_esc_side_trait_1_opt_ask_tt" text="+Charm XP, relation down." />
+    <string id="duty_esc_side_trait_1_opt_cut" text="Work a side-cut of your own off the drover." />
+    <string id="duty_esc_side_trait_1_opt_cut_tt" text="+40 gold, scrutiny risk." />
+    <string id="duty_esc_side_trait_1_opt_watch" text="Watch. Learn. Say nothing in camp." />
+    <string id="duty_esc_side_trait_1_opt_watch_tt" text="+Scouting XP, relation up." />
+    <string id="duty_esc_side_trait_1_setup" text="Your lord has the escort detail but he is not reading the manifest the sergeant showed him. He has a second parchment and a second figure, and the lead drover is paid by the day in both accounts. You see it because he lets you see it." />
+    <string id="duty_esc_side_trait_1_title" text="A convoy with two ledgers" />
+
+    <!-- duty_garrisoned_cut_corner_1 -->
+    <string id="duty_gar_cut_corner_trait_1_opt_sign" text="Sign in his name. Move on." />
+    <string id="duty_gar_cut_corner_trait_1_opt_sign_tt" text="+Steward XP, scrutiny risk." />
+    <string id="duty_gar_cut_corner_trait_1_opt_wait" text="Wait for the clerk. Do it properly." />
+    <string id="duty_gar_cut_corner_trait_1_opt_wait_tt" text="+OneHanded XP, relation down." />
+    <string id="duty_gar_cut_corner_trait_1_setup" text="Your lord reads the writ, sets it aside, and tells you the clerk is a problem for another day. Sign for the stores yourself. His seal will cover the gap. Save an afternoon in the gatehouse book." />
+    <string id="duty_gar_cut_corner_trait_1_title" text="The shorter road through the paperwork" />
+
+    <!-- duty_garrisoned_harsh_discipline_1 -->
+    <string id="duty_gar_harsh_disc_trait_1_opt_stand" text="Stand in rank. Keep your face still." />
+    <string id="duty_gar_harsh_disc_trait_1_opt_stand_tt" text="+OneHanded XP, relation up." />
+    <string id="duty_gar_harsh_disc_trait_1_opt_water" text="Take water to him at the post when the file breaks." />
+    <string id="duty_gar_harsh_disc_trait_1_opt_water_tt" text="+Medicine XP, sets a flag." />
+    <string id="duty_gar_harsh_disc_trait_1_setup" text="A boy from the third file got drunk on the first night of pay and missed the morning count. Your lord calls it theft of the regiment&apos;s time. Six lashes by the inner post. The file is ordered to watch. You stand in rank." />
+    <string id="duty_gar_harsh_disc_trait_1_title" text="Lashing by the posts" />
+
+    <!-- duty_garrisoned_patronize_minstrel_1 -->
+    <string id="duty_gar_minstrel_trait_1_opt_coin" text="Add a copper of your own to the cup when he comes round." />
+    <string id="duty_gar_minstrel_trait_1_opt_coin_tt" text="-5 gold, sets a flag." />
+    <string id="duty_gar_minstrel_trait_1_opt_listen" text="Sit on the water-trough. Listen through the last verse." />
+    <string id="duty_gar_minstrel_trait_1_opt_listen_tt" text="+Charm XP, relation up." />
+    <string id="duty_gar_minstrel_trait_1_setup" text="A traveling minstrel works the yard between the bells — a country song at first, then a long one about a siege in the old tongue. Your lord stops on the way past and tosses the man a silver piece without breaking stride. The yard stops to listen to the second verse." />
+    <string id="duty_gar_minstrel_trait_1_title" text="A coin for the man with the lute" />
+
+    <!-- duty_garrisoned_quartermaster_wink_1 -->
+    <string id="duty_gar_qm_wink_trait_1_opt_refuse" text="Slide it back. Take only your marked share." />
+    <string id="duty_gar_qm_wink_trait_1_opt_refuse_tt" text="+Steward XP, sets a flag." />
+    <string id="duty_gar_qm_wink_trait_1_opt_take" text="Take the ration. Nod. Keep walking." />
+    <string id="duty_gar_qm_wink_trait_1_opt_take_tt" text="+Roguery XP, scrutiny risk." />
+    <string id="duty_gar_qm_wink_trait_1_setup" text="The quartermaster catches your eye over the ledger and does not look away. Your lord runs this stores-room the way a man runs a market stall. An extra share for the men with the right posture. A quiet word in exchange. He pushes a second ration across the board." />
+    <string id="duty_gar_qm_wink_trait_1_title" text="An extra ration, quietly offered" />
+
+    <!-- duty_marching_glory_charge_1 -->
+    <string id="duty_mar_glory_trait_1_opt_hold" text="Rein in. Hold the foot. Cover the wagons." />
+    <string id="duty_mar_glory_trait_1_opt_hold_tt" text="+Tactics XP, relation down." />
+    <string id="duty_mar_glory_trait_1_opt_ride" text="Ride with him. Match the pace." />
+    <string id="duty_mar_glory_trait_1_opt_ride_tt" text="+Riding XP, relation up." />
+    <string id="duty_mar_glory_trait_1_setup" text="Your lord sees the enemy screen on the far ridge and does not wait for the scouts to come back with numbers. He calls for lances and stirrups and the charge is moving before the captain has his helmet strapped. You find yourself in the second rank of the run." />
+    <string id="duty_mar_glory_trait_1_title" text="Down the slope before the count is good" />
+
+    <!-- duty_marching_prudent_halt_1 -->
+    <string id="duty_mar_prudent_trait_1_opt_grumble" text="Shift in the saddle. Ask why the delay." />
+    <string id="duty_mar_prudent_trait_1_opt_grumble_tt" text="+Athletics XP, relation down." />
+    <string id="duty_mar_prudent_trait_1_opt_watch" text="Keep eyes on the trees. Mark what the scouts flush." />
+    <string id="duty_mar_prudent_trait_1_opt_watch_tt" text="+Scouting XP, relation up." />
+    <string id="duty_mar_prudent_trait_1_setup" text="Your lord raises a hand and the column halts. He does not like the look of the copse to the south. Two scouts out, the rest at ease with the reins short. You stand by the lead horse and watch the tree-line the way he taught you." />
+    <string id="duty_mar_prudent_trait_1_title" text="A copse that does not look empty" />
+
+    <!-- duty_marching_share_rations_1 -->
+    <string id="duty_mar_share_trait_1_opt_take" text="Take your cut. Pass the knife on." />
+    <string id="duty_mar_share_trait_1_opt_take_tt" text="+Athletics XP, relation up." />
+    <string id="duty_mar_share_trait_1_opt_wave" text="Wave it on. Give the share to the younger men." />
+    <string id="duty_mar_share_trait_1_opt_wave_tt" text="+Leadership XP, sets a flag." />
+    <string id="duty_mar_share_trait_1_setup" text="The halt runs long and the line looks at the officers&apos; fire with flat eyes. Your lord has his man bring the small cask forward, cuts the cheese in open view, and tells the sergeant to walk it down the files. The column stands a little taller for the rest of the march." />
+    <string id="duty_mar_share_trait_1_title" text="The officer&apos;s share on the line" />
+
+    <!-- duty_raiding_burn_barn_1 -->
+    <string id="duty_raid_burn_trait_1_opt_half" text="Strike a poor light. Let the wet straw choke it." />
+    <string id="duty_raid_burn_trait_1_opt_half_tt" text="Quiet sabotage. Roguery XP, relation down." />
+    <string id="duty_raid_burn_trait_1_opt_set" text="Set it. Walk away without looking." />
+    <string id="duty_raid_burn_trait_1_opt_set_tt" text="+OneHanded XP, relation up." />
+    <string id="duty_raid_burn_trait_1_setup" text="The grain is out, the cart is loaded, the work is done. Your lord tells the sergeant to put the barn to the torch anyway. The sergeant hands you the brand. The dry timber will go up in one breath." />
+    <string id="duty_raid_burn_trait_1_title" text="A barn past what is needed" />
+
+    <!-- duty_raiding_captive_story_1 -->
+    <string id="duty_raid_captive_story_trait_1_opt_short" text="Say he is begging. Keep it short." />
+    <string id="duty_raid_captive_story_trait_1_opt_short_tt" text="+Roguery XP, relation down." />
+    <string id="duty_raid_captive_story_trait_1_opt_true" text="Translate honestly. Name the daughters." />
+    <string id="duty_raid_captive_story_trait_1_opt_true_tt" text="+Charm XP, relation up." />
+    <string id="duty_raid_captive_story_trait_1_setup" text="The captive starts talking about his two daughters, the elder with a husband in the garrison, the younger still at the mill. Your lord actually stops to listen. He looks at you for the meaning of the words you caught and missed." />
+    <string id="duty_raid_captive_story_trait_1_title" text="A story, half-told in a broken tongue" />
+
+    <!-- duty_raiding_prisoner_harsh_1 -->
+    <string id="duty_raid_prisoner_harsh_trait_1_opt_press" text="Press the questions. Do as he asked." />
+    <string id="duty_raid_prisoner_harsh_trait_1_opt_press_tt" text="+Roguery XP, relation up." />
+    <string id="duty_raid_prisoner_harsh_trait_1_opt_soft" text="Try the softer angle first. Stall the hard way." />
+    <string id="duty_raid_prisoner_harsh_trait_1_opt_soft_tt" text="+Charm XP, small relation hit." />
+    <string id="duty_raid_prisoner_harsh_trait_1_setup" text="The prisoner kneels with a split lip. Your lord wants the supply route and does not care about the cost of getting it. He nods once at the sergeant. The sergeant looks at you and steps back half a pace. Your turn." />
+    <string id="duty_raid_prisoner_harsh_trait_1_title" text="Ask him the hard way" />
+
+    <!-- duty_raiding_spare_village_trait_1 -->
+    <string id="duty_raid_spare_trait_1_opt_honest" text="Sort cleanly. Leave what he said." />
+    <string id="duty_raid_spare_trait_1_opt_honest_tt" text="+Steward XP, relation up." />
+    <string id="duty_raid_spare_trait_1_opt_pocket" text="Skim a purse from the finished cloth." />
+    <string id="duty_raid_spare_trait_1_opt_pocket_tt" text="+25 gold, scrutiny risk." />
+    <string id="duty_raid_spare_trait_1_opt_tell" text="Tell a woman at the door what he said." />
+    <string id="duty_raid_spare_trait_1_opt_tell_tt" text="+Charm XP, sets a flag." />
+    <string id="duty_raid_spare_trait_1_setup" text="Your lord walks through the village square and shakes his head. Take the animals, he says, and the finished cloth. Leave the grain. They winter here. You understand him, and you begin to sort." />
+    <string id="duty_raid_spare_trait_1_title" text="The grain stays in the bin" />
+
+    <!-- duty_raiding_split_loot_1 -->
+    <string id="duty_raid_split_loot_trait_1_opt_pass" text="Pass your share to the man with the bandaged arm." />
+    <string id="duty_raid_split_loot_trait_1_opt_pass_tt" text="+Leadership XP, relation up." />
+    <string id="duty_raid_split_loot_trait_1_opt_take" text="Take your share when your name is called." />
+    <string id="duty_raid_split_loot_trait_1_opt_take_tt" text="+30 gold, rank XP." />
+    <string id="duty_raid_split_loot_trait_1_setup" text="Your lord will not touch the pile until every man has his share marked out in full view. Coin, cloth, a single good mail-shirt. The sergeant calls the count and each man steps up when his name is read. You watch the ritual work." />
+    <string id="duty_raid_split_loot_trait_1_title" text="The share by the old measure" />
   </strings>
 </base>

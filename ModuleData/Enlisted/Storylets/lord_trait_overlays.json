@@ -1,0 +1,518 @@
+{
+  "storylets": [
+    {
+      "id": "duty_raiding_spare_village_trait_1",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Mercy"],
+      "title": "{=duty_raid_spare_trait_1_title}The grain stays in the bin",
+      "setup": "{=duty_raid_spare_trait_1_setup}Your lord walks through the village square and shakes his head. Take the animals, he says, and the finished cloth. Leave the grain. They winter here. You understand him, and you begin to sort.",
+      "options": [
+        {
+          "id": "sort_honest",
+          "text": "{=duty_raid_spare_trait_1_opt_honest}Sort cleanly. Leave what he said.",
+          "tooltip": "{=duty_raid_spare_trait_1_opt_honest_tt}+Steward XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "pocket_extra",
+          "text": "{=duty_raid_spare_trait_1_opt_pocket}Skim a purse from the finished cloth.",
+          "tooltip": "{=duty_raid_spare_trait_1_opt_pocket_tt}+25 gold, scrutiny risk.",
+          "effects": [
+            { "apply": "give_gold", "amount": 25 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "tell_the_families",
+          "text": "{=duty_raid_spare_trait_1_opt_tell}Tell a woman at the door what he said.",
+          "tooltip": "{=duty_raid_spare_trait_1_opt_tell_tt}+Charm XP, sets a flag.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 },
+            { "apply": "set_flag", "name": "spared_raid_helped_families" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_prisoner_harsh_1",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "excludes_lord_trait": ["Mercy"],
+      "title": "{=duty_raid_prisoner_harsh_trait_1_title}Ask him the hard way",
+      "setup": "{=duty_raid_prisoner_harsh_trait_1_setup}The prisoner kneels with a split lip. Your lord wants the supply route and does not care about the cost of getting it. He nods once at the sergeant. The sergeant looks at you and steps back half a pace. Your turn.",
+      "options": [
+        {
+          "id": "press_hard",
+          "text": "{=duty_raid_prisoner_harsh_trait_1_opt_press}Press the questions. Do as he asked.",
+          "tooltip": "{=duty_raid_prisoner_harsh_trait_1_opt_press_tt}+Roguery XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "softer_angle",
+          "text": "{=duty_raid_prisoner_harsh_trait_1_opt_soft}Try the softer angle first. Stall the hard way.",
+          "tooltip": "{=duty_raid_prisoner_harsh_trait_1_opt_soft_tt}+Charm XP, small relation hit.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_burn_barn_1",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "excludes_lord_trait": ["Honor"],
+      "title": "{=duty_raid_burn_trait_1_title}A barn past what is needed",
+      "setup": "{=duty_raid_burn_trait_1_setup}The grain is out, the cart is loaded, the work is done. Your lord tells the sergeant to put the barn to the torch anyway. The sergeant hands you the brand. The dry timber will go up in one breath.",
+      "options": [
+        {
+          "id": "set_the_torch",
+          "text": "{=duty_raid_burn_trait_1_opt_set}Set it. Walk away without looking.",
+          "tooltip": "{=duty_raid_burn_trait_1_opt_set_tt}+OneHanded XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "half_torch",
+          "text": "{=duty_raid_burn_trait_1_opt_half}Strike a poor light. Let the wet straw choke it.",
+          "tooltip": "{=duty_raid_burn_trait_1_opt_half_tt}Quiet sabotage. Roguery XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 },
+            { "apply": "set_flag", "name": "spared_raid_barn_quietly" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_captive_story_1",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Generosity"],
+      "title": "{=duty_raid_captive_story_trait_1_title}A story, half-told in a broken tongue",
+      "setup": "{=duty_raid_captive_story_trait_1_setup}The captive starts talking about his two daughters, the elder with a husband in the garrison, the younger still at the mill. Your lord actually stops to listen. He looks at you for the meaning of the words you caught and missed.",
+      "options": [
+        {
+          "id": "translate_true",
+          "text": "{=duty_raid_captive_story_trait_1_opt_true}Translate honestly. Name the daughters.",
+          "tooltip": "{=duty_raid_captive_story_trait_1_opt_true_tt}+Charm XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "summarize_short",
+          "text": "{=duty_raid_captive_story_trait_1_opt_short}Say he is begging. Keep it short.",
+          "tooltip": "{=duty_raid_captive_story_trait_1_opt_short_tt}+Roguery XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_split_loot_1",
+      "category": "duty_raiding",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Honor"],
+      "title": "{=duty_raid_split_loot_trait_1_title}The share by the old measure",
+      "setup": "{=duty_raid_split_loot_trait_1_setup}Your lord will not touch the pile until every man has his share marked out in full view. Coin, cloth, a single good mail-shirt. The sergeant calls the count and each man steps up when his name is read. You watch the ritual work.",
+      "options": [
+        {
+          "id": "take_your_share",
+          "text": "{=duty_raid_split_loot_trait_1_opt_take}Take your share when your name is called.",
+          "tooltip": "{=duty_raid_split_loot_trait_1_opt_take_tt}+30 gold, rank XP.",
+          "effects": [
+            { "apply": "give_gold", "amount": 30 },
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "pass_to_wounded",
+          "text": "{=duty_raid_split_loot_trait_1_opt_pass}Pass your share to the man with the bandaged arm.",
+          "tooltip": "{=duty_raid_split_loot_trait_1_opt_pass_tt}+Leadership XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_cut_corner_1",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Calculating"],
+      "title": "{=duty_gar_cut_corner_trait_1_title}The shorter road through the paperwork",
+      "setup": "{=duty_gar_cut_corner_trait_1_setup}Your lord reads the writ, sets it aside, and tells you the clerk is a problem for another day. Sign for the stores yourself. His seal will cover the gap. Save an afternoon in the gatehouse book.",
+      "options": [
+        {
+          "id": "sign_quickly",
+          "text": "{=duty_gar_cut_corner_trait_1_opt_sign}Sign in his name. Move on.",
+          "tooltip": "{=duty_gar_cut_corner_trait_1_opt_sign_tt}+Steward XP, scrutiny risk.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "wait_for_clerk",
+          "text": "{=duty_gar_cut_corner_trait_1_opt_wait}Wait for the clerk. Do it properly.",
+          "tooltip": "{=duty_gar_cut_corner_trait_1_opt_wait_tt}+OneHanded XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_harsh_discipline_1",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "excludes_lord_trait": ["Mercy"],
+      "title": "{=duty_gar_harsh_disc_trait_1_title}Lashing by the posts",
+      "setup": "{=duty_gar_harsh_disc_trait_1_setup}A boy from the third file got drunk on the first night of pay and missed the morning count. Your lord calls it theft of the regiment's time. Six lashes by the inner post. The file is ordered to watch. You stand in rank.",
+      "options": [
+        {
+          "id": "stand_still",
+          "text": "{=duty_gar_harsh_disc_trait_1_opt_stand}Stand in rank. Keep your face still.",
+          "tooltip": "{=duty_gar_harsh_disc_trait_1_opt_stand_tt}+OneHanded XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "take_water_after",
+          "text": "{=duty_gar_harsh_disc_trait_1_opt_water}Take water to him at the post when the file breaks.",
+          "tooltip": "{=duty_gar_harsh_disc_trait_1_opt_water_tt}+Medicine XP, sets a flag.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 },
+            { "apply": "set_flag", "name": "helped_lashed_soldier" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_quartermaster_wink_1",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Calculating"],
+      "title": "{=duty_gar_qm_wink_trait_1_title}An extra ration, quietly offered",
+      "setup": "{=duty_gar_qm_wink_trait_1_setup}The quartermaster catches your eye over the ledger and does not look away. Your lord runs this stores-room the way a man runs a market stall. An extra share for the men with the right posture. A quiet word in exchange. He pushes a second ration across the board.",
+      "options": [
+        {
+          "id": "take_it",
+          "text": "{=duty_gar_qm_wink_trait_1_opt_take}Take the ration. Nod. Keep walking.",
+          "tooltip": "{=duty_gar_qm_wink_trait_1_opt_take_tt}+Roguery XP, scrutiny risk.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=duty_gar_qm_wink_trait_1_opt_refuse}Slide it back. Take only your marked share.",
+          "tooltip": "{=duty_gar_qm_wink_trait_1_opt_refuse_tt}+Steward XP, sets a flag.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 },
+            { "apply": "set_flag", "name": "refused_quartermaster_wink" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_glory_charge_1",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Valor"],
+      "title": "{=duty_mar_glory_trait_1_title}Down the slope before the count is good",
+      "setup": "{=duty_mar_glory_trait_1_setup}Your lord sees the enemy screen on the far ridge and does not wait for the scouts to come back with numbers. He calls for lances and stirrups and the charge is moving before the captain has his helmet strapped. You find yourself in the second rank of the run.",
+      "options": [
+        {
+          "id": "ride_hard",
+          "text": "{=duty_mar_glory_trait_1_opt_ride}Ride with him. Match the pace.",
+          "tooltip": "{=duty_mar_glory_trait_1_opt_ride_tt}+Riding XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 25 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "hold_the_line",
+          "text": "{=duty_mar_glory_trait_1_opt_hold}Rein in. Hold the foot. Cover the wagons.",
+          "tooltip": "{=duty_mar_glory_trait_1_opt_hold_tt}+Tactics XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_prudent_halt_1",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "excludes_lord_trait": ["Valor"],
+      "title": "{=duty_mar_prudent_trait_1_title}A copse that does not look empty",
+      "setup": "{=duty_mar_prudent_trait_1_setup}Your lord raises a hand and the column halts. He does not like the look of the copse to the south. Two scouts out, the rest at ease with the reins short. You stand by the lead horse and watch the tree-line the way he taught you.",
+      "options": [
+        {
+          "id": "watch_close",
+          "text": "{=duty_mar_prudent_trait_1_opt_watch}Keep eyes on the trees. Mark what the scouts flush.",
+          "tooltip": "{=duty_mar_prudent_trait_1_opt_watch_tt}+Scouting XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "grumble",
+          "text": "{=duty_mar_prudent_trait_1_opt_grumble}Shift in the saddle. Ask why the delay.",
+          "tooltip": "{=duty_mar_prudent_trait_1_opt_grumble_tt}+Athletics XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 10 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_share_rations_1",
+      "category": "duty_marching",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Generosity"],
+      "title": "{=duty_mar_share_trait_1_title}The officer's share on the line",
+      "setup": "{=duty_mar_share_trait_1_setup}The halt runs long and the line looks at the officers' fire with flat eyes. Your lord has his man bring the small cask forward, cuts the cheese in open view, and tells the sergeant to walk it down the files. The column stands a little taller for the rest of the march.",
+      "options": [
+        {
+          "id": "take_and_pass",
+          "text": "{=duty_mar_share_trait_1_opt_take}Take your cut. Pass the knife on.",
+          "tooltip": "{=duty_mar_share_trait_1_opt_take_tt}+Athletics XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "wave_off",
+          "text": "{=duty_mar_share_trait_1_opt_wave}Wave it on. Give the share to the younger men.",
+          "tooltip": "{=duty_mar_share_trait_1_opt_wave_tt}+Leadership XP, sets a flag.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 },
+            { "apply": "set_flag", "name": "gave_officer_share_to_line" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_breach_lead_1",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Valor"],
+      "title": "{=duty_bes_breach_trait_1_title}He takes the breach himself",
+      "setup": "{=duty_bes_breach_trait_1_setup}Your lord has a shield in one hand and a broken sword knotted to his wrist. The breach is loud and the ladders are already drawing fire and he is going up first. He looks once over his shoulder for his men. You are inside the look.",
+      "options": [
+        {
+          "id": "follow_him_up",
+          "text": "{=duty_bes_breach_trait_1_opt_follow}Follow him up. Keep to his shield-side.",
+          "tooltip": "{=duty_bes_breach_trait_1_opt_follow_tt}+Engineering XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 25 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "stay_with_reserve",
+          "text": "{=duty_bes_breach_trait_1_opt_stay}Hold at the reserve line. Watch the second wave.",
+          "tooltip": "{=duty_bes_breach_trait_1_opt_stay_tt}+OneHanded XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_besieging_accept_truce_1",
+      "category": "duty_besieging",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["besieging"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Honor"],
+      "title": "{=duty_bes_truce_trait_1_title}A parley at the broken gate",
+      "setup": "{=duty_bes_truce_trait_1_setup}The defenders send a grey-haired captain with a rod of office. He asks for terms, offers the keys, and names the families within. Your lord hears him through. He answers the terms on his own hand and names the day of the withdrawal. You stand at his shoulder.",
+      "options": [
+        {
+          "id": "witness_quietly",
+          "text": "{=duty_bes_truce_trait_1_opt_witness}Witness the words. Keep your peace.",
+          "tooltip": "{=duty_bes_truce_trait_1_opt_witness_tt}+Charm XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "note_the_terms",
+          "text": "{=duty_bes_truce_trait_1_opt_note}Memorize the terms. File them for the camp.",
+          "tooltip": "{=duty_bes_truce_trait_1_opt_note_tt}+Steward XP, rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Steward", "amount": 20 },
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_patronize_minstrel_1",
+      "category": "duty_garrisoned",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Generosity"],
+      "title": "{=duty_gar_minstrel_trait_1_title}A coin for the man with the lute",
+      "setup": "{=duty_gar_minstrel_trait_1_setup}A traveling minstrel works the yard between the bells — a country song at first, then a long one about a siege in the old tongue. Your lord stops on the way past and tosses the man a silver piece without breaking stride. The yard stops to listen to the second verse.",
+      "options": [
+        {
+          "id": "listen",
+          "text": "{=duty_gar_minstrel_trait_1_opt_listen}Sit on the water-trough. Listen through the last verse.",
+          "tooltip": "{=duty_gar_minstrel_trait_1_opt_listen_tt}+Charm XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "add_coin",
+          "text": "{=duty_gar_minstrel_trait_1_opt_coin}Add a copper of your own to the cup when he comes round.",
+          "tooltip": "{=duty_gar_minstrel_trait_1_opt_coin_tt}-5 gold, sets a flag.",
+          "effects": [
+            { "apply": "give_gold", "amount": -5 },
+            { "apply": "set_flag", "name": "tipped_garrison_minstrel" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_escorting_side_angle_1",
+      "category": "duty_escorting",
+      "theme": "duty",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["escorting"],
+      "trigger": ["is_enlisted"],
+      "requires_lord_trait": ["Calculating"],
+      "title": "{=duty_esc_side_trait_1_title}A convoy with two ledgers",
+      "setup": "{=duty_esc_side_trait_1_setup}Your lord has the escort detail but he is not reading the manifest the sergeant showed him. He has a second parchment and a second figure, and the lead drover is paid by the day in both accounts. You see it because he lets you see it.",
+      "options": [
+        {
+          "id": "watch_and_learn",
+          "text": "{=duty_esc_side_trait_1_opt_watch}Watch. Learn. Say nothing in camp.",
+          "tooltip": "{=duty_esc_side_trait_1_opt_watch_tt}+Scouting XP, relation up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "cut_for_self",
+          "text": "{=duty_esc_side_trait_1_opt_cut}Work a side-cut of your own off the drover.",
+          "tooltip": "{=duty_esc_side_trait_1_opt_cut_tt}+40 gold, scrutiny risk.",
+          "effects": [
+            { "apply": "give_gold", "amount": 40 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "ask_sergeant",
+          "text": "{=duty_esc_side_trait_1_opt_ask}Ask the sergeant about the second parchment.",
+          "tooltip": "{=duty_esc_side_trait_1_opt_ask_tt}+Charm XP, relation down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 },
+            { "apply": "relation_change", "target_slot": "enlisted_lord", "delta": -1 }
+          ]
+        }
+      ]
+    }
+  ]
+}
