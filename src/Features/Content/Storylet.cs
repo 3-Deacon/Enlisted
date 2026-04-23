@@ -51,6 +51,8 @@ namespace Enlisted.Features.Content
         /// <summary>Named-order arc declaration. Null on non-arc storylets.</summary>
         public ArcSpec Arc { get; set; }
 
+        public StoryletAgency Agency { get; set; }
+
         public virtual bool IsEligible(StoryletContext ctx)
         {
             if (ctx == null)
@@ -114,6 +116,8 @@ namespace Enlisted.Features.Content
                 return null;
             }
 
+            var agency = Agency ?? StoryletAgency.DefaultForRole(string.Empty);
+
             return new StoryCandidate
             {
                 SourceId = "storylet." + Id,
@@ -131,7 +135,10 @@ namespace Enlisted.Features.Content
                 HasObservationalRender = Observational,
                 RenderedTitle = SlotFiller.Render(Title, ctx.ResolvedSlots),
                 RenderedBody = SlotFiller.Render(Setup, ctx.ResolvedSlots),
-                StoryKey = Id
+                StoryKey = Id,
+                DispatchDomain = agency.ToDomain(),
+                DispatchSourceKind = agency.ToSourceKind(),
+                DispatchSurfaceHint = agency.ToSurfaceHint()
             };
         }
     }
