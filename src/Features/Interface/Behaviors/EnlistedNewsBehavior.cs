@@ -5286,6 +5286,12 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             try
             {
+                if (item.Route.SourceKind == DispatchSourceKind.ServiceStance &&
+                    !string.IsNullOrWhiteSpace(item.Body))
+                {
+                    return item.Body.Trim();
+                }
+
                 if (string.IsNullOrEmpty(item.HeadlineKey))
                 {
                     return string.Empty;
