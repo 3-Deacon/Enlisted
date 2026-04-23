@@ -1,3 +1,5 @@
+using Enlisted.Features.Interface.Models;
+
 namespace Enlisted.Features.Content
 {
     /// <summary>
@@ -18,5 +20,8 @@ namespace Enlisted.Features.Content
         public string RenderedTitle { get; set; }
         public string RenderedBody { get; set; }
         public string StoryKey { get; set; }
+        public DispatchDomain DispatchDomain { get; set; } = DispatchDomain.Personal;
+        public DispatchSourceKind DispatchSourceKind { get; set; } = DispatchSourceKind.Unknown;
+        public DispatchSurfaceHint DispatchSurfaceHint { get; set; } = DispatchSurfaceHint.Auto;
     }
 }

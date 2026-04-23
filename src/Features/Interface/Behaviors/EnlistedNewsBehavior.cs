@@ -13,6 +13,7 @@ using Enlisted.Features.Interface.News.Generation;
 using Enlisted.Features.Interface.News.Generation.Producers;
 using Enlisted.Features.Interface.News.Models;
 using Enlisted.Features.Interface.News.State;
+using Enlisted.Features.Interface.Models;
 using Enlisted.Features.Logistics;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Triggers;
@@ -3295,7 +3296,10 @@ namespace Enlisted.Features.Interface.Behaviors
                     Severity = severity,
                     Confidence = 100,
                     MinDisplayDays = 1,
-                    FirstShownDay = -1
+                    FirstShownDay = -1,
+                    Domain = DispatchDomain.Personal,
+                    SourceKind = DispatchSourceKind.Unknown,
+                    SurfaceHint = DispatchSurfaceHint.Auto
                 });
 
                 // Trim to capacity
@@ -3367,7 +3371,10 @@ namespace Enlisted.Features.Interface.Behaviors
                     Confidence = 100,
                     MinDisplayDays = minDisplayDays,
                     FirstShownDay = -1,
-                    StoryKey = storyKey
+                    StoryKey = storyKey,
+                    Domain = DispatchDomain.Personal,
+                    SourceKind = DispatchSourceKind.Unknown,
+                    SurfaceHint = DispatchSurfaceHint.Auto
                 });
 
                 // Trim to capacity
@@ -3433,7 +3440,10 @@ namespace Enlisted.Features.Interface.Behaviors
                     Confidence = 100,
                     MinDisplayDays = 1,
                     FirstShownDay = -1,
-                    StoryKey = storyKey
+                    StoryKey = storyKey,
+                    Domain = DispatchDomain.Personal,
+                    SourceKind = DispatchSourceKind.Routine,
+                    SurfaceHint = DispatchSurfaceHint.You
                 });
 
                 // Trim to capacity
@@ -4932,6 +4942,9 @@ namespace Enlisted.Features.Interface.Behaviors
                     updated.MinDisplayDays = Math.Max(1, minDisplayDays);
                     updated.FirstShownDay = -1; // reset visibility window
                     updated.Severity = severity;
+                    updated.Domain = DispatchDomain.Kingdom;
+                    updated.SourceKind = DispatchSourceKind.Flavor;
+                    updated.SurfaceHint = DispatchSurfaceHint.Dispatches;
 
                     _kingdomFeed[existingIndex] = updated;
                     ModLogger.Info(LogCategory, $"Kingdom news updated: {headlineKey} ({category})");
@@ -4950,7 +4963,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 Confidence = 100,
                 MinDisplayDays = Math.Max(1, minDisplayDays),
                 FirstShownDay = -1,
-                Severity = severity
+                Severity = severity,
+                Domain = DispatchDomain.Kingdom,
+                SourceKind = DispatchSourceKind.Flavor,
+                SurfaceHint = DispatchSurfaceHint.Dispatches
             };
 
             _kingdomFeed.Add(item);
@@ -5091,7 +5107,10 @@ namespace Enlisted.Features.Interface.Behaviors
             int severity = 0,
             StoryTier tier = StoryTier.Log,
             HashSet<StoryBeat> beats = null,
-            string body = null)
+            string body = null,
+            DispatchDomain domain = DispatchDomain.Personal,
+            DispatchSourceKind sourceKind = DispatchSourceKind.Unknown,
+            DispatchSurfaceHint surfaceHint = DispatchSurfaceHint.Auto)
         {
             if (!IsEnlisted())
             {
@@ -5120,6 +5139,9 @@ namespace Enlisted.Features.Interface.Behaviors
                     updated.Tier = tier;
                     updated.Beats = beats;
                     updated.Body = body;
+                    updated.Domain = domain;
+                    updated.SourceKind = sourceKind;
+                    updated.SurfaceHint = surfaceHint;
 
                     _personalFeed[existingIndex] = updated;
                     ModLogger.Info(LogCategory, $"Personal news updated: {headlineKey} ({category})");
@@ -5142,6 +5164,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 Tier = tier,
                 Beats = beats,
                 Body = body,
+                Domain = domain,
+                SourceKind = sourceKind,
+                SurfaceHint = surfaceHint,
             };
 
             _personalFeed.Add(item);
@@ -5183,7 +5208,10 @@ namespace Enlisted.Features.Interface.Behaviors
             int minDisplayDays,
             StoryTier tier,
             HashSet<StoryBeat> beats,
-            string body)
+            string body,
+            DispatchDomain domain = DispatchDomain.Personal,
+            DispatchSourceKind sourceKind = DispatchSourceKind.Unknown,
+            DispatchSurfaceHint surfaceHint = DispatchSurfaceHint.Auto)
         {
             if (string.IsNullOrEmpty(headlineKey))
             {
@@ -5192,7 +5220,8 @@ namespace Enlisted.Features.Interface.Behaviors
 
             try
             {
-                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body,
+                    domain, sourceKind, surfaceHint);
             }
             catch (Exception ex)
             {
@@ -5347,6 +5376,9 @@ namespace Enlisted.Features.Interface.Behaviors
             var minDisplayDays = Math.Max(1, item.MinDisplayDays);
             var firstShownDay = item.FirstShownDay;
             var severity = item.Severity;
+            var domain = (int)(item.Domain == DispatchDomain.Unknown ? DispatchDomain.Personal : item.Domain);
+            var sourceKind = (int)item.SourceKind;
+            var surfaceHint = (int)item.SurfaceHint;
 
             _ = dataStore.SyncData($"{prefix}_day", ref dayCreated);
             _ = dataStore.SyncData($"{prefix}_cat", ref category);
@@ -5357,6 +5389,9 @@ namespace Enlisted.Features.Interface.Behaviors
             _ = dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
             _ = dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
             _ = dataStore.SyncData($"{prefix}_severity", ref severity);
+            _ = dataStore.SyncData($"{prefix}_domain", ref domain);
+            _ = dataStore.SyncData($"{prefix}_sourceKind", ref sourceKind);
+            _ = dataStore.SyncData($"{prefix}_surfaceHint", ref surfaceHint);
 
             // Save placeholder values as a count + individual key-value pairs
             var placeholderCount = item.PlaceholderValues?.Count ?? 0;
@@ -5413,6 +5448,9 @@ namespace Enlisted.Features.Interface.Behaviors
             var minDisplayDays = 1;
             var firstShownDay = -1;
             var severity = 0;
+            var domain = (int)DispatchDomain.Personal;
+            var sourceKind = (int)DispatchSourceKind.Unknown;
+            var surfaceHint = (int)DispatchSurfaceHint.Auto;
 
             _ = dataStore.SyncData($"{prefix}_day", ref dayCreated);
             _ = dataStore.SyncData($"{prefix}_cat", ref category);
@@ -5423,6 +5461,9 @@ namespace Enlisted.Features.Interface.Behaviors
             _ = dataStore.SyncData($"{prefix}_minDays", ref minDisplayDays);
             _ = dataStore.SyncData($"{prefix}_shownDay", ref firstShownDay);
             _ = dataStore.SyncData($"{prefix}_severity", ref severity);
+            _ = dataStore.SyncData($"{prefix}_domain", ref domain);
+            _ = dataStore.SyncData($"{prefix}_sourceKind", ref sourceKind);
+            _ = dataStore.SyncData($"{prefix}_surfaceHint", ref surfaceHint);
 
             // Load placeholder values
             var placeholderCount = 0;
@@ -5452,7 +5493,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 Confidence = confidence,
                 MinDisplayDays = Math.Max(1, minDisplayDays),
                 FirstShownDay = firstShownDay,
-                Severity = severity
+                Severity = severity,
+                Domain = (DispatchDomain)domain,
+                SourceKind = (DispatchSourceKind)sourceKind,
+                SurfaceHint = (DispatchSurfaceHint)surfaceHint
             };
 
             // Tier/Body/Beats typed fields.
@@ -5889,6 +5933,14 @@ namespace Enlisted.Features.Interface.Behaviors
         /// observational content when a HeadlineKey lookup isn't sufficient.
         /// </summary>
         public string Body { get; set; }
+        public DispatchDomain Domain { get; set; }
+        public DispatchSourceKind SourceKind { get; set; }
+        public DispatchSurfaceHint SurfaceHint { get; set; }
+
+        public DispatchRoute Route => new DispatchRoute(
+            Domain == DispatchDomain.Unknown ? DispatchDomain.Personal : Domain,
+            SourceKind,
+            SurfaceHint);
 
         /// <summary>
         /// Semantic predicate replacing the Severity >= 2 magic number used by menu code
@@ -5909,6 +5961,9 @@ namespace Enlisted.Features.Interface.Behaviors
                    FirstShownDay == other.FirstShownDay &&
                    Severity == other.Severity &&
                    Tier == other.Tier &&
+                   Domain == other.Domain &&
+                   SourceKind == other.SourceKind &&
+                   SurfaceHint == other.SurfaceHint &&
                    Body == other.Body &&
                    BeatsEqual(Beats, other.Beats);
         }
@@ -5940,6 +5995,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 hash = hash * 31 + FirstShownDay;
                 hash = hash * 31 + Severity;
                 hash = hash * 31 + (int)Tier;
+                hash = hash * 31 + Domain.GetHashCode();
+                hash = hash * 31 + SourceKind.GetHashCode();
+                hash = hash * 31 + SurfaceHint.GetHashCode();
                 hash = hash * 31 + (Body?.GetHashCode() ?? 0);
                 // Beats intentionally excluded from hash — HashSet ordering is not stable and
                 // SetEquals already covers equality. Hash collisions for same non-Beats fields

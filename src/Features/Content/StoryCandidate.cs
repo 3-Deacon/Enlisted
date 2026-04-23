@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Enlisted.Features.CampaignIntelligence.Signals;
+using Enlisted.Features.Interface.Models;
 using TaleWorlds.CampaignSystem;
 
 namespace Enlisted.Features.Content
@@ -35,6 +36,9 @@ namespace Enlisted.Features.Content
         public string DispatchCategory { get; set; }
         public int SeverityLevel { get; set; }
         public int MinDisplayDays { get; set; } = 1;
+        public DispatchDomain DispatchDomain { get; set; } = DispatchDomain.Personal;
+        public DispatchSourceKind DispatchSourceKind { get; set; } = DispatchSourceKind.Unknown;
+        public DispatchSurfaceHint DispatchSurfaceHint { get; set; } = DispatchSurfaceHint.Auto;
 
         // Chain continuation: candidates the player already opted into (promotions,
         // chain events, bag checks) bypass the 5-day in-game floor and per-category

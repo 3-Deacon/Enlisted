@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Interface.Models;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -178,7 +179,10 @@ namespace Enlisted.Features.Content
                 {
                     SourceId = next.SourceId,
                     CategoryId = next.CategoryId,
-                    InteractiveEvent = evt
+                    InteractiveEvent = evt,
+                    DispatchDomain = next.DispatchDomain,
+                    DispatchSourceKind = next.DispatchSourceKind,
+                    DispatchSurfaceHint = next.DispatchSurfaceHint
                 };
 
                 if (!ModalFloorsAllow(pseudo, today))
@@ -300,7 +304,10 @@ namespace Enlisted.Features.Content
                 InteractiveEventId = c.InteractiveEvent?.Id,
                 RenderedTitle = c.RenderedTitle,
                 RenderedBody = c.RenderedBody,
-                StoryKey = c.StoryKey
+                StoryKey = c.StoryKey,
+                DispatchDomain = c.DispatchDomain,
+                DispatchSourceKind = c.DispatchSourceKind,
+                DispatchSurfaceHint = c.DispatchSurfaceHint
             };
         }
 
@@ -329,7 +336,10 @@ namespace Enlisted.Features.Content
                 minDisplayDays: c.MinDisplayDays,
                 tier: tier,
                 beats: c.Beats != null ? new HashSet<StoryBeat>(c.Beats) : null,
-                body: c.RenderedBody);
+                body: c.RenderedBody,
+                domain: c.DispatchDomain,
+                sourceKind: c.DispatchSourceKind,
+                surfaceHint: c.DispatchSurfaceHint);
         }
     }
 }
