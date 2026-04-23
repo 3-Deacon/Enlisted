@@ -146,7 +146,7 @@
 - `crossroads_emitted: path_crossroads_<path>_t4 path=<path> tier=4 score=...` on the T4 fire.
 - `committed path=<path>` on option-commit.
 - `resisted path=<path>` on option-resist.
-- `PATH BumpPath: ...` entries showing `amount=1` where an unresisted path would show `amount=3` (or `amount=0` where an unresisted path would show `+1` — int truncation).
+- `Expected("PATH", "bump_resisted_<path>", "BumpPath halved by path_resisted_<path> flag" ...)` — at most one entry per resisted path per minute (60s per-key throttle on Expected). The ctx dict carries `original` and `halved` amounts, so the runner can confirm the halving arithmetic.
 
 **Pass criteria:** all three crossroads (T4/T6/T9) fire on the commit-path save. A T7+ committed-path variant fires at T7+. On the resist-path save, `resisted_<path>` flag persists and `PathScorer.BumpPath` halves future bumps. Zero `Surfaced`.
 
