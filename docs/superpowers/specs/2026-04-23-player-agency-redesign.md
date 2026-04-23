@@ -1,283 +1,298 @@
-# Player Agency Redesign — Design
+# Player Agency Redesign — Design (v2)
 
-**Status:** Draft v1 (2026-04-23). Redesign of the passive simulation layer under the "orders over duties" mod vision — replace the background tick engine that mutates player state without player input with an explicit choice-driven model.
+**Status:** Draft v2 (2026-04-23). Revised after spec-review feedback flagged v1's over-strict gate model, broken save-load semantics, under-scoped migration, wrong PlayerChoice timing, FF dead-end, chore-spam risk, and false "keep" claims on pressure-arc + enlistment daily tick.
 
-**North star:** between decisions, nothing changes. Every mutation to the player's skill XP, conditions, gold, scrutiny, relations, or path scores traces back to a choice the player made — accepting an order, picking a camp activity, or responding to a modal. The world can still move without the player (kingdom wars, lord decisions, sieges) but the player's own state only advances when they act.
+**North star (unchanged):** the mod should stop silently changing the player's soldier as if they were an NPC. The "orders over duties" vision holds.
+
+**Contract (revised):** not "nothing changes between decisions" but **"no unpreviewed authored player-state consequences."** The player accepts an envelope (order, camp activity, modal) and the envelope declares what categories of mutation are allowed, up to what magnitude, across what duration, at what risk bands, with what interruption points. Baseline service physics (tiny XP drift, small condition tick inside an accepted duty envelope, supply consumption on the march, daily wage accrual while serving) continues **inside** a valid envelope. High-stakes mutations (lose 3 men, +20 scrutiny, trait-level change, gold gain above a threshold) require either a modal at the moment of impact OR an explicit preview at envelope acceptance.
 
 ---
 
 ## Problem statement
 
-An audit of `src/` surfaced 22 auto-firing systems that mutate player-visible state on daily / hourly ticks or on passive event listeners — no player input required. The top five offenders:
+Audit found 22 auto-firing systems mutating player-visible state on daily / hourly ticks without player input. v1's response was "gate every mutation behind an active `DecisionScope`; reject everything between scopes." Spec review found this over-corrects: breaks save/load, under-scopes the migration, and makes Bannerlord time feel fake for categories of change that are legitimately continuous inside service (a soldier's pay doesn't pause when he's between named orders).
 
-1. `CompanySimulationBehavior.OnDailyTick` (four sub-handlers: `ProcessRosterRecovery`, `ProcessNewConditions`, `ProcessIncidents`, `CheckPressureArcEvents`) — random sickness / desertion / incident rolls applying outcomes silently.
-2. `EnlistmentBehavior.OnDailyTick` — wage accrual + pension + leave-duration checks.
-3. `EscalationManager.OnDailyTick` — scrutiny and medical-risk passive decay + threshold firing.
-4. `PlayerConditionBehavior.OnDailyTick` — injury / illness day countdown + medical-risk auto-escalation.
-5. `CampOpportunityGenerator.OnHourlyTick` — scheduled commitments auto-firing (intent-scoped, so partial agency already).
+The user's actual pain: rewards and penalties **that feel like they happened TO the soldier without foreshadowing or consent**. Tiny ambient XP gains are annoying because they're unasked-for; random sickness outbreaks are insulting because they couldn't be anticipated.
 
-Combined effect: the player's soldier gets skills, wounds, scrutiny, relation changes, and gold while the human sits staring at the map. The systems treat the main hero as an NPC being managed, not an agent making choices. This contradicts the mod's "soldier career simulator" framing.
-
-Philosophy choice (C from brainstorm): **both rewards and penalties** must tie to player choice. Cut the passive simulation layer; keep only world-scope events the player is correctly powerless over (kingdom wars, lord decisions, siege starts).
+Sharper rule: **everything the player feels as "a consequence landed on me" must have been previewed at envelope acceptance or must fire as a modal at the landing moment.** Inside a previewed envelope, low-magnitude physics runs free.
 
 ---
 
-## Architecture
+## Envelope model
 
-**One idea:** every mutation that changes player-visible state routes through a single `StateMutator` gate. The gate checks for an active `DecisionScope` — a consent envelope created by the player accepting an order, picking a camp activity, or responding to a modal prompt. No scope → mutation refused.
+An **envelope** is a player-acknowledged activity with a declared mutation contract. Three envelope types:
 
-### Core abstractions
+| Envelope | Triggered by | Typical duration | Example allowed mutations |
+| :--- | :--- | :--- | :--- |
+| **Order envelope** | Player accepts a named / daily order | Hours to days | Skill XP in expected skills, small conditions (fatigue, minor wounds from combat), path bumps for the order's path tag, small gold earned, scrutiny shifts with magnitude caps |
+| **Activity envelope** | Player picks a camp activity from the slot bank | Minutes to hours | Category-scoped: Drill allows Skill; Rest allows Condition; Patrol allows Gold/Scrutiny; etc. |
+| **Modal envelope** | Player opens a `StoryDirector`-delivered Modal (incident, dialogue, proclamation) | Single decision | Only the option's declared effects |
+
+Plus one implicit low-level envelope that persists as long as the player is enlisted and the lord's column is moving:
+
+| **Service envelope** | Auto-active while `IsEnlisted == true` AND the lord's party is doing duty-consistent things (marching, garrisoning, resting) | Entire enlistment | Daily wage accrual (ledger only, no modal), supply consumption on the march, tiny fatigue drift, column-movement skill micro-XP inside vanilla caps |
+
+The service envelope is the answer to "FF in a peaceful garrison has zero consequences." It exists implicitly so that baseline physics continues without the player clicking every 4 hours — but its allowed magnitudes are deliberately small and its contents are **previewed at enlistment acceptance** (the enlistment dialog tells the player: "You earn pay daily, you consume supplies while marching, you may take small knocks in routine duty — anything bigger requires an order").
+
+Envelopes form a stack. Most specific (order > activity > modal) wins for mutation categorization. Service sits at the bottom as the default fallback.
+
+---
+
+## Core abstractions
 
 | Type | Role |
 | :--- | :--- |
-| `DecisionScope` | Consent envelope. Carries `ActivityId` / `OrderStoryletId`, intent id, `StartedAt` / `ExpiresAt`, `AllowedCategories` (skills / conditions / gold / quality / scrutiny / path / relation). Lives on a stack in `AgencyGate` while active. |
-| `AgencyGate` | Static service owning the scope stack. `Push(scope)` / `Pop()` / `TryGetCurrent(out scope)`. Populated by `OrderActivity`, camp activity providers, and modal resolvers. |
-| `StateMutator` | Single gateway for all player-state writes: `TryApplySkillXp(hero, skill, amount, reason)`, `TryAdjustCondition(...)`, `TryGiveGold(...)`, `TryWriteQuality(...)`, `TryWriteFlag(...)`, `TryAdjustScrutiny(...)`, `TryBumpPath(...)`, `TryAdjustRelation(...)`. Each call checks `AgencyGate.TryGetCurrent` and the requested mutation's category against `scope.AllowedCategories`. Rejected calls log `Expected("AGENCY", "mutation_without_scope", ...)` or `Expected("AGENCY", "mutation_outside_scope_categories", ...)`. |
-| `CampActivityMenuProvider` | New camp-hub slot-bank provider (patterned on `HomeEveningMenuProvider`). Surfaces named activities when no order is active. |
-| `IncidentResponseModal` | Replaces `CompanySimulationBehavior.ProcessIncidents` auto-apply. Simulation proposes candidate incidents; modal fires; outcome lands only when the player picks. |
+| `MutationCategory` | `[Flags]` enum: `Skill / Condition / Gold / Quality / Flag / Scrutiny / Path / Relation / CompanyRoster`. A mutation carries its category. |
+| `MagnitudeBand` | `Trivial / Minor / Moderate / Major`. Each envelope declares a per-category ceiling. A mutation whose magnitude exceeds the envelope's band is reclassified "high-stakes" and must be pre-previewed or modal-gated. |
+| `Envelope` | Poco: `EnvelopeKind` (Service / Order / Activity / Modal), `Source` (storylet id / activity id / "implicit_service"), `StartedAt`, `ExpiresAt` (or null for Service), `AllowedCategories`, `PerCategoryMaxBand` (dict), `PreviewedIds` (HashSet of storylet / effect ids pre-announced at acceptance). |
+| `AgencyGate` | Static service. Does NOT own a persisted stack. On every `StateMutator.Try{…}` call, derives the current envelope set by reading: `ActivityRuntime._active` (order + camp activities), `StoryDirector` active modal id, `EnlistmentBehavior.IsEnlisted`. No save serialization. |
+| `StateMutator` | Gateway: `TryApplySkillXp(hero, skill, amount, reason, magnitudeHint)`, `TryAdjustCondition(...)`, `TryGiveGold(...)`, `TryWriteQuality(...)`, `TryWriteFlag(...)`, `TryAdjustScrutiny(...)`, `TryBumpPath(...)`, `TryAdjustRelation(...)`, `TryMutateRoster(...)`. Each call resolves the current envelope, checks category + magnitude band, applies or rejects. |
+| `EnvelopeAcceptancePreview` | Rendered at order / activity acceptance: list of `PreviewedIds` bundled with "will grant / may cost / risks" summary. Text comes from the storylet's new `preview` field (see schema addendum). |
+| `IncidentResponseModal` | Converts `CompanySimulationBehavior.ProcessIncidents` auto-apply into candidate emission → modal → player picks → effects fire under the modal envelope. |
+| `ChoreThrottle` | Per-(category, source) cooldown registry. E.g. Drill cannot fire the "sharpen blade" XP-grant storylet more than once per 12 game-hours. Enforced in `StoryletCatalog.PickEligible` filter. |
 
 ### File map
 
 | New file | Purpose |
 | :--- | :--- |
-| `src/Features/Agency/AgencyGate.cs` | DecisionScope stack + observers |
-| `src/Features/Agency/DecisionScope.cs` | POCO carrying scope metadata + `MutationCategory` enum |
-| `src/Features/Agency/StateMutator.cs` | Gateway with Try- methods; routes to existing store APIs when allowed |
-| `src/Features/Agency/MutationCategory.cs` | `[Flags]` enum: `Skill / Condition / Gold / Quality / Flag / Scrutiny / Path / Relation / CompanyRoster` |
-| `src/Features/Activities/Camp/CampActivityActivity.cs` | Concrete `Activity` subclass for camp activities (claims the next free save-definer offset 51) |
-| `src/Features/Activities/Camp/CampActivityStarter.cs` | Lifecycle starter gated on "enlisted + no active OrderActivity + no active HomeActivity" |
-| `src/Features/Activities/Camp/CampActivityMenuProvider.cs` | 5–7 slot bank on the camp hub for activity picks |
-| `ModuleData/Enlisted/Activities/camp_activity.json` | ActivityTypeDefinition: single phase, `PhaseDelivery.PlayerChoice`, pool per intent |
-| `ModuleData/Enlisted/Storylets/camp_rest.json` | ~8 rest-intent storylets |
-| `ModuleData/Enlisted/Storylets/camp_drill.json` | ~10 drill-intent storylets |
-| `ModuleData/Enlisted/Storylets/camp_tend.json` | ~6 tend-intent storylets |
-| `ModuleData/Enlisted/Storylets/camp_patrol.json` | ~8 patrol-intent storylets |
-| `ModuleData/Enlisted/Storylets/camp_scheme.json` | ~6 scheme-intent storylets |
-| `ModuleData/Enlisted/Storylets/camp_attend_lord.json` | ~6 attend-lord storylets |
-| `ModuleData/Enlisted/Storylets/camp_study.json` | ~5 study-intent storylets |
-| `ModuleData/Enlisted/Storylets/incident_response_*.json` | Incident response chains (one per incident type) |
+| `src/Features/Agency/MutationCategory.cs` | `[Flags]` enum |
+| `src/Features/Agency/MagnitudeBand.cs` | enum + helper `ClassifyAmount(category, amount)` |
+| `src/Features/Agency/Envelope.cs` | POCO |
+| `src/Features/Agency/AgencyGate.cs` | Static derivation service (no save state) |
+| `src/Features/Agency/StateMutator.cs` | Gateway |
+| `src/Features/Agency/EnvelopeAcceptancePreview.cs` | Render helper called from order/activity acceptance flows |
+| `src/Features/Agency/ChoreThrottle.cs` | Per-(category, source) cooldown tracking (save-definer offset 52) |
+| `src/Features/Activities/Camp/CampActivityActivity.cs` | Concrete `Activity` subclass (save-definer offset 51) |
+| `src/Features/Activities/Camp/CampActivityStarter.cs` | Lifecycle starter |
+| `src/Features/Activities/Camp/CampActivityMenuProvider.cs` | Slot-bank provider |
+| `src/Features/Activities/Camp/CampActivityTypeJson.cs` | Two-phase template loader |
+| `ModuleData/Enlisted/Activities/camp_activity.json` | Two-phase ActivityTypeDefinition (see "Activity timing" below) |
+| `ModuleData/Enlisted/Storylets/camp_*.json` | Camp activity pools |
+| `ModuleData/Enlisted/Storylets/incident_response_*.json` | Incident response chains |
+| `ModuleData/Enlisted/Effects/scripted_effects_preview.json` | Preview-metadata addendum (optional authoring field) |
 
-Count of new storylets target: ~50 camp + ~15 incident response = ~65.
+---
+
+## Activity timing (fix for v1 blocker #3)
+
+v1 assumed camp activities have 2–12h durations and resolve time-gated. `ActivityRuntime.ResolvePlayerChoice` at `ActivityRuntime.cs:379-383` calls `AdvancePhase` immediately, so a single `PhaseDelivery.PlayerChoice` phase resolves right away. Fix: **two-phase activity**.
+
+```
+Phase 0: "pick_intent"        — PhaseDelivery.PlayerChoice, duration 0
+                                Player selects the camp activity (Drill / Rest / etc.)
+                                ResolvePlayerChoice advances to Phase 1 immediately
+                                Intent is locked onto the Activity
+
+Phase 1: "execute_<intent>"   — PhaseDelivery.Auto, duration = intent-specific
+                                  (Drill: 3h, Rest: 12h, Tend: 6h, Patrol: 6h,
+                                   Scheme: 4h, Attend: 2h, Study: 2h)
+                                fire_interval_hours = 0 (fire once at end)
+                                pool contains resolution storylets for that intent
+                                On duration elapse or fire, Auto runtime resolves
+                                  → effects apply via StateMutator
+                                Activity ends (OnBeat "activity_complete" pops envelope)
+```
+
+This matches the `FireIntervalHours` + phase-duration contract already in the runtime (see `Activity.LastAutoFireHour` gating at `storylet-backbone.md` Phase Flow). Home Evening is a one-phase shortcut because its player-choice IS the resolution; camp activities separate intent from timed execution because the physics needs the time envelope to justify the reward.
 
 ---
 
 ## Time-control taxonomy (authoritative, decompile-verified)
 
-Bannerlord exposes exactly three map speeds via `Campaign.Current.TimeControlMode` (a `CampaignTimeControlMode`). The enum has seven values, but the tick math at `Campaign.cs:843` collapses them to three behaviors:
+Bannerlord exposes exactly three map speeds via `Campaign.Current.TimeControlMode` (a `CampaignTimeControlMode`). Seven enum values; tick math at `Campaign.cs:843-875` buckets them by the `num` assignment:
 
-| Speed | Enum values that produce this behavior | `TickMapTime` `num` value |
+| Behavior | Enum values | `TickMapTime` `num` |
 | :--- | :--- | :--- |
-| **Paused** | `Stop`, `FastForwardStop` | `0` (map time does not advance) |
+| **Paused** | `Stop`, `FastForwardStop` | `0` |
 | **Play (1×)** | `StoppablePlay`, `UnstoppablePlay` | `0.25 × realDt` |
-| **Fast-forward (4× default)** | `StoppableFastForward`, `UnstoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime` | `0.25 × realDt × SpeedUpMultiplier` |
+| **Fast-forward** | `StoppableFastForward`, `UnstoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime` | `0.25 × realDt × SpeedUpMultiplier` (default `4f`) |
 
-**`SpeedUpMultiplier` defaults to `4f`** (`Campaign.cs:373, :615`). It is settable at runtime (`CampaignCheats.cs:3143-3146` sets it from the cheat console); mods may raise it. The UI only has three buttons — pause / play / fast-forward. There is no native 8× or 16×; higher speeds only exist if another mod bumped `SpeedUpMultiplier`.
+**Play-family** (player reading or game not advancing): `Stop`, `StoppablePlay`, `UnstoppablePlay`, `FastForwardStop`.
+**Fast-family**: `StoppableFastForward`, `UnstoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime`.
 
-**Unstoppable variants** are game-forced (army-wait, hideout-wait, in-menu waits). The player cannot switch into an Unstoppable mode manually. For gate design, treat Unstoppable fast/play exactly like their Stoppable siblings.
-
-**Two families for gate logic:**
-
-- **Play-family (player is reading or the game is not skipping):** `Stop`, `StoppablePlay`, `UnstoppablePlay`, `FastForwardStop`.
-- **Fast-family (game is accelerating, player is not reading):** `StoppableFastForward`, `UnstoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime`.
-
-This taxonomy is referenced below for the idle-reprimand trigger and for consistency with the news-unification spec. (Note: the news spec v2 mis-bucketed `FastForwardStop` as fast-family — see "Open issues" below for the fix.)
+`SpeedUpMultiplier` default `4f` (`Campaign.cs:373, :615`); settable at runtime. Unstoppable variants are game-forced (army-wait, hideout). Treat Unstoppable/Stoppable siblings identically for envelope logic.
 
 ---
 
-## Systems gutted / converted
+## Systems converted (fuller migration table, replaces v1's narrow list)
 
 | System | Current behavior | New behavior |
 | :--- | :--- | :--- |
-| `CompanySimulationBehavior.ProcessRosterRecovery` | Daily random sickness recovery + desertion rolls mutate roster | **Delete the mutations.** `_sickCount` etc. now only move on camp-activity resolve or incident-modal resolve. Fields kept for display. |
-| `CompanySimulationBehavior.ProcessNewConditions` | Daily random sickness / desertion / wound rolls | **Delete the auto-apply path.** New conditions arise only as downstream consequences of player choices (e.g. player chose harsh discipline → desertion chain fires as a modal). |
-| `CompanySimulationBehavior.ProcessIncidents` | Daily random incident rolls (0–2 / day) with auto-applied effects | **Refactor to IncidentResponseModal.** The simulation still computes incident probabilities but produces **candidate incidents** that emit as Modals. Player picks the outcome; effects apply through `StateMutator`. |
-| `CompanySimulationBehavior.CheckPressureArcEvents` | Emits Modals for threshold crossings | **Keep.** This is already the right shape — Modal prompts for player decision. |
-| `PlayerConditionBehavior.ApplyDailyRecoveryAndRisk` | Daily day-countdown on `InjuryDaysRemaining` / `IllnessDaysRemaining` + auto-raises `MedicalRisk` on untreated | **Delete the countdown and auto-raise.** Recovery fires only when `Rest`, `Tend`, or `Seek Medic` camp activity resolves. Medical-risk changes route through explicit scope. |
-| `EscalationManager.ApplyPassiveDecay` | Daily scrutiny decay if no recent change | **Delete.** Scrutiny drops via `Patrol`, `Attend Lord` with an honorable-trait lord, or certain order-resolve storylets. It does not bleed down with time. |
-| `PathScorer.OnHeroGainedSkill` | Every vanilla skill-XP gain bumps a path score | **Delete.** Path only accumulates via `OnIntentPicked` (existing, intent-scoped). Vanilla skill XP from combat still flows; it just no longer feeds paths without explicit player commitment. |
-| `EnlistmentBehavior.OnDailyTick` wage accrual | Writes pending muster-pay each day | **Convert to ledger-only tracking.** No `StateMutator` gold writes until the muster ceremony the player opts into. Pension accrual stays as a tracked number, paid out at muster. |
-| `EnlistmentBehavior.OnDailyTick` leave / captivity checks | State sync | **Keep.** State reads, not state writes. |
-| `EnlistmentBehavior.OnHourlyTick` | Party-state visibility sync | **Keep.** No player-state mutations. |
-| `QualityBehavior.OnDailyTick` (decay) | Applies decay rules from `quality_defs.json` | **Keep DATA plumbing, remove decay rules from player-facing qualities.** `quality_defs.json` entries for `scrutiny`, `readiness`, `supplies`, `medical_risk` lose their `decay` blocks. Housekeeping-scoped qualities (if any) keep decay. |
-| `FlagStore.OnHourlyTick` (expiry sweeps) | Drops expired flags | **Keep.** Data housekeeping. |
-| `StoryDirector.OnDailyTick` (pacing gates + retries) | Deferred-interactive retry queue | **Keep.** Content-delivery plumbing; doesn't write player state directly. |
-| `EnlistedCampaignIntelligenceBehavior.HandleHourlyTick` | Recomputes snapshot, emits candidates | **Keep snapshot recompute (read-only).** Candidate emission must produce Modals, not silent mutations. Already largely the shape. |
-| `CampOpportunityGenerator.OnHourlyTick` | Scheduled commitments auto-fire | **Gate on `AgencyGate`.** The commitment itself was picked by the player, which should count as a scope — but the commitment must push a fresh scope when it fires, not auto-apply effects. Wrap the fire path through `StateMutator`. |
-| `CampLifeBehavior.OnDailyTick` + event listeners | Pressure recompute | **Keep as pressure computation (read-only).** Pressure values feed displays and eligibility checks; they no longer trigger auto-applied effects. |
+| `CompanySimulationBehavior.ProcessRosterRecovery` / `ProcessNewConditions` | Daily random sickness/desertion roll with auto-applied roster mutations | Delete auto-apply. Produce candidate events; surface via `IncidentResponseModal`. |
+| `CompanySimulationBehavior.ProcessIncidents` | Daily incident rolls with auto-apply | Refactor to candidate emission only. Modal responses apply effects. |
+| `CompanySimulationBehavior.CheckPressureArcEvents` | Calls both `StoryDirector.EmitCandidate` (Modal) AND `EventDeliveryManager.QueueEvent` (non-interactive pertinent) at `:702, :723` | Convert all to Modal-or-previewed. Replace the non-interactive `QueueEvent` arm with `StoryDirector.EmitCandidate(Pertinent)` that renders a news line but does NOT write state. |
+| `PlayerConditionBehavior.ApplyDailyRecoveryAndRisk` | Daily countdown + auto-raise MedicalRisk | Under Service envelope: allow tiny Trivial-band auto-healing (1 day per 7 real game-days) — previewed at enlistment as "the body mends over time." Anything faster requires Rest / Tend / Seek Medic activity envelope. MedicalRisk auto-raise becomes Modal ("wound fever — [seek medic / ride it out]"). |
+| `EscalationManager.ApplyPassiveDecay` | Time-based scrutiny decay | Delete time-based. Scrutiny drops only via Patrol / honorable-order resolves. Decay arm re-enabled as Service-envelope Trivial-band *if* no scrutiny-delta in 14+ days (so very stale scrutiny slowly fades — previewed). |
+| `PathScorer.OnHeroGainedSkill` | Every vanilla skill XP bump → path score | Delete. Path bumps only via `OnIntentPicked` (intent-scoped) + order resolves that preview their path tag. |
+| `EnlistmentBehavior.OnDailyTick` (wage, supply, desertion, leave, captivity, grace period) | Many state writes | Split: **Service envelope allows** wage ledger accrual, daily supply consumption, company-supply tick. **Service envelope denies** desertion-penalty application (must modal: "X days AWOL — [rejoin / accept penalty]"). Grace period + captivity state sync are read-only and allowed. |
+| `EnlistmentBehavior.OnHourlyTick` (party visibility, sea state) | Read-only sync | Keep. No mutations. |
+| `CampRoutineProcessor.ApplyOutcome` | Routine XP / gold / supply / news writes, triggered by phase-end | Currently fires *inside* phase resolution — already envelope-scoped by construction. Audit each outcome to ensure the grants match the phase's declared contract. Wrap all store writes in `StateMutator.Try{…}` calls. |
+| `EffectExecutor.Apply` primitives | Direct `QualityStore.Add`, `FlagStore.Set`, `GiveGoldAction`, skill XP, relation changes | Route every primitive through `StateMutator.Try{…}`. Adds one indirection layer; no behavior change under normal storylet flow because storylets run inside envelopes. Calls from non-envelope contexts (debug hotkeys, boot) get explicitly whitelisted via a `StateMutator.ApplyBootstrap(...)` escape hatch. |
+| `EventDeliveryManager` direct hooks (baggage, raid tracking) | Direct mutations | Audit. Convert any state write to route through `StateMutator`; the `Modal` these ride on IS the envelope. |
+| `DailyDriftApplicator` | Phase-3 Signal Projection applies drift to qualities on daily tick | Gate on Service envelope. Drift magnitudes are Trivial-band by design; previewed at enlistment as "the camp's mood shifts over time." |
+| `QualityBehavior.OnDailyTick` (decay) | Rule-based decay from `quality_defs.json` | Keep, but remove decay blocks from player-facing qualities (scrutiny, readiness, supplies, medical_risk, loyalty). Decay survives only for housekeeping. |
+| `FlagStore.OnHourlyTick` (expiry) | Data plumbing | Keep. |
+| `StoryDirector.OnDailyTick` (pacing, retries) | Content delivery | Keep. |
+| `EnlistedCampaignIntelligenceBehavior.HandleHourlyTick` | Snapshot recompute + candidate emission | Keep snapshot (read-only). Candidate emission must be Modal-or-Pertinent-news, never direct state write. |
+| `CampOpportunityGenerator.OnHourlyTick` (scheduled commitments) | Commitments fire on time | Each scheduled commitment becomes its own Activity envelope on fire. Before fire, player saw the commitment scheduled (preview at schedule-time). |
+| `CampLifeBehavior.OnDailyTick` + listeners | Pressure recompute | Keep as read-only. |
+| Menu-path gold writes (`CampMenuHandler`, `QuartermasterManager`) | Direct `GiveGoldAction.Apply…` | Route through `StateMutator.TryGiveGold`. Menu clicks ARE player-initiated Modal envelopes. |
+| Pension accrual + discharge reward writes | Direct gold + flag writes | Route through `StateMutator`. Discharge ceremony IS the Modal envelope. |
+
+**Validator rail addition:** a new Phase in `validate_content.py` scans `src/` for direct writes to player-facing stores (`QualityStore.Set/Add`, `FlagStore.Set`, `Hero.AddSkillXp`, `GiveGoldAction.ApplyBetweenCharacters`, `ChangeRelationAction.Apply...`, `hero.ChangeHeroGold` if any snuck back in) and flags any site that is not inside `StateMutator`. This is the "compile-time discipline" that prevents regression.
 
 ---
 
 ## What stays passive (correctly)
 
-- Kingdom / lord / faction-level events (wars, sieges, clan-leader deaths, political shifts). The player is a soldier, not a sovereign — these are correctly outside their scope.
-- Catalog loading + JSON hot-reload.
-- StoryDirector pacing floor enforcement + retry queue.
-- Save / load plumbing.
+- Kingdom / faction / lord events (war, siege, clan leader death). Fire as Modals requesting a response.
+- Catalog loading, JSON hot-reload, save/load plumbing.
 - Intelligence snapshot recompute (read-only).
-- Flag expiry sweeps, quality decay for non-player-facing qualities.
+- Flag expiry sweeps.
+- Pressure / world-state computation (read-only).
 
-World-scope events still reach the player as **Modals requesting a response**, not as silent state writes. A war declaration emits a Modal ("runners cry through camp — read the proclamation") which the player opens on their own time.
-
----
-
-## New player-facing surfaces
-
-### Camp activity slot bank
-
-When no order is active AND the player is enlisted AND the lord is stationary (garrisoned, or waiting in a camp), the camp hub shows 5–7 activity slots patterned on the Home Evening menu:
-
-| Slot | Intent | Default effect at resolve | Typical duration |
-| :--- | :--- | :--- | :--- |
-| Rest | `rest` | Heal 1 injury day + fatigue recovery | 12h |
-| Drill | `drill` | +skill XP in a chosen skill + readiness | 3h |
-| Tend | `tend` | −1 company sickness + loyalty for retinue | 6h |
-| Patrol | `patrol` | Small gold + scrutiny −3 + chance of minor-incident modal | 6h |
-| Scheme | `scheme` | Scrutiny −5 illegally OR failure flag | 4h |
-| Attend Lord | `attend` | +relation + rank-XP + exposes next named-order prompt | 2h |
-| Study | `study` | +weapon or skill XP at reduced rate + refreshes path score | 2h |
-
-Each slot pushes a `DecisionScope` whose `AllowedCategories` match the activity's effects. Storylet-pool-driven content per intent, same backbone as Home Evening.
-
-### Incident response modals
-
-`IncidentResponseModal` replaces the auto-applied incident outcome. Example flow:
-
-- Simulation detects roster risk (e.g. 3+ days at high logistics strain) → emits candidate `incident_desertion_risk` with `StoryDirector.EmitCandidate` (Modal tier).
-- Modal renders: "Corporal says three men wavering — flog one / reason with them / ignore."
-- Player picks. The choice's effects pass through `StateMutator` under the scope the modal pushed when it opened. Scope pops on modal-resolve.
-
-Incident categories to implement Phase 4: desertion risk, sickness outbreak, supply shortfall, camp brawl, raid aftermath.
-
-### Idle-reprimand modal
-
-If the player sits at play-family (Stop / Play) for more than 3 in-game days with no `DecisionScope` ever pushed AND the lord is stationary, fire a Modal: "Sergeant notes you've been idle — pick an activity today or expect a reprimand (scrutiny +5 next muster)." Forces engagement.
-
-If the player sits at fast-family (FF), the mutation-drop behavior is the real discipline: time passes but nothing changes, so eventually the kingdom / lord fires a world event that creates a decision point anyway.
+World-scope mutation writes are gated: a kingdom war declaration CAN emit a news-feed item (the news feed is a display) but must go through Modal to mutate anything player-facing.
 
 ---
 
-## Data flow
+## Chore-spam mitigations (fix for v1 blocker #5)
 
+Four layers:
+
+1. **Per-activity cooldown** (`ChoreThrottle`): picking the same camp activity within N in-game hours is blocked with a flavor message ("The sergeant frowns — you drilled just this morning.").
+2. **Diminishing returns**: repeating the same activity within a muster period halves the reward each time (implemented as a `repeat_count` quality the activity's storylet reads).
+3. **Lord patience**: Attend Lord 3x in one muster period → lord's relation modifier flips negative ("he grows tired of your presence"). Authored in the storylet pool's weight modifiers.
+4. **Failure chance**: Patrol / Scheme / Study carry authored failure branches that subtract instead of add. Scheme has the steepest risk-reward; Drill the mildest. Failure outcomes are ALSO previewed at acceptance.
+
+Also: **opportunity cost** — picking one activity advances time, so other activities are gated until enough time passes. "You can't drill AND patrol AND rest in the same 6-hour block."
+
+---
+
+## FF dead-end fix (fix for v1 blocker #4)
+
+Three layers:
+
+1. **Service envelope persists across FF**. At FF in a peaceful garrison, Service envelope is active → wage accrues, supply consumes, Trivial-band drift physics runs. State is moving but nothing high-stakes lands without a modal.
+2. **Modal prompts interrupt FF** (vanilla behavior — `Campaign.Current.TimeControlMode = Stop` on Modal display). So any high-stakes event forces the player into play-family at the moment of decision.
+3. **Idle-reprimand modal fires at ANY time-control speed**, not just play-family. Trigger: `IsEnlisted` AND lord stationary AND no Order / Activity envelope AND 3+ in-game days since last envelope pop. FF hits this trigger naturally since FF passes days quickly — the reprimand will pause the game and prompt within seconds of real-world FF time.
+
+Combination: player CAN FF through peaceful garrison for a day or two, earning Service-envelope wage and drift. On the third day the reprimand forces a choice. Pacing is preserved.
+
+---
+
+## Save / migration (fix for v1 blocker #1)
+
+**Envelope derivation is not persisted.** On save-load, `AgencyGate.GetCurrentEnvelopes()` recomputes by reading:
+
+1. `EnlistmentBehavior.IsEnlisted` → adds Service envelope if true.
+2. `ActivityRuntime._active` (persisted via `SyncData` at `ActivityRuntime.cs:52`) → for each active activity, derives an Order or Activity envelope.
+3. `StoryDirector` active-modal state (if modal is mid-display on save) → derives Modal envelope.
+
+A save mid-order reloads with the order still active (`_active` list restored) → `GetCurrentEnvelopes` returns the Order envelope → resolve-phase effects apply cleanly. No ephemeral scope stack to worry about.
+
+**`ChoreThrottle`** per-(category, source) cooldowns DO persist (save-definer offset 52). They're the only agency-specific state that needs save-ride.
+
+**Existing saves:** accumulated `scrutiny`, `readiness`, `supplies`, `medical_risk` values load as-is. Decay rules removed → values persist until a player action changes them. One-shot migration on first load after patch: zero any in-flight `InjuryDaysRemaining` / `IllnessDaysRemaining` above 7 (prevents "old save healed you via deleted countdown" confusion).
+
+**Save-definer offsets claimed:**
+- 51 — `CampActivityActivity`
+- 52 — `ChoreThrottleStore`
+
+---
+
+## Storylet schema addendum
+
+Add an optional `preview` field to storylets used as envelope entry points (order-accept, camp-activity entry, modal display):
+
+```json
+{
+  "id": "order_scout_ranger_t1",
+  "preview": {
+    "grants": ["scouting_xp_moderate", "ranger_path_bump_small"],
+    "may_cost": ["fatigue_minor", "small_wound_risk"],
+    "risks": ["ambush_encounter"]
+  },
+  ...
+}
 ```
-Idle state — no DecisionScope active
-    ↓
-Player accepts order OR picks camp activity OR responds to modal
-    → AgencyGate.Push(DecisionScope{ActivityId, Intent, AllowedCategories})
-    ↓
-Time advances during activity / order arc (at any of the 3 game speeds)
-    → storylet effects fire
-    → StateMutator.Try{...}(...) called
-       → AgencyGate.TryGetCurrent passes the scope
-       → category check passes
-       → underlying store API (QualityStore, FlagStore, skill XP, gold) writes
-    ↓
-Storylet arc resolves
-    → AgencyGate.Pop()
-    ↓
-Back to idle
-```
 
-Between Pop() and the next Push(), every `StateMutator.Try{...}` call logs `Expected("AGENCY", "mutation_without_scope", ...)` with the attempted mutation in ctx and returns false. The underlying store is never touched.
+`EnvelopeAcceptancePreview` reads this and renders it into the acceptance dialogue / modal body so the player SEES the contract before consenting. Storylets without a `preview` block are treated as "Trivial contract — no advertised consequences beyond the storylet's own option effects."
+
+Validator addition: Phase 16 (new) — any storylet with effects whose declared magnitude exceeds Trivial MUST carry a `preview` block. Missing preview on a high-stakes storylet is a build error.
 
 ---
 
-## Playflows
+## Playflows (revised for envelope model)
 
 ### Playflow 1 — Fresh recruit, Day 1, peaceful garrison
 
-1. Enlistment dialogue resolves; its storylet pushed a scope that granted initial rank XP + prior-service flags. Scope pops.
-2. Main menu: `DISPATCHES` renders, `UPCOMING` reads "No orders — pick a camp activity."
-3. Player opens Camp → 5 activity slots. Picks **Drill**, picks One-Handed skill.
-4. Drill scope pushes, 3h advances, storylet resolves: `+One-Handed 40 XP`, `+readiness 3`. Scope pops.
-5. Player fast-forwards 4 hours at FF. **Zero state change** — no scope active. Menu body identical to before.
-6. Player picks **Patrol**: scope pushes, 6h advances, `+12 gold`, `scrutiny −3`. No incident this time. Scope pops.
-7. Player picks **Rest**: scope pushes, 12h advances, `fatigue recovery`. Scope pops.
-8. Dawn. Lord has not moved (no passive tick advanced his plans). Player must pick again.
+1. Enlistment dialogue → Service envelope becomes active (enlistment is the envelope acceptance; preview read at acceptance was "you earn pay daily, consume supplies while marching, take small knocks in routine duty — anything bigger requires an order").
+2. Main menu: `DISPATCHES` + `UPCOMING`. Player opens Camp → 7 activity slots (with `ChoreThrottle` showing empty cooldowns).
+3. Picks **Drill** (One-Handed). Activity envelope pushes on top of Service. Phase 0 resolves immediately (intent picked), Phase 1 runs 3h. End-of-phase storylet fires: `+One-Handed XP`, `+readiness`. StateMutator applies under Activity envelope's declared contract. Activity ends.
+4. Player fast-forwards 4 hours. Service envelope allows Trivial-band drift: tiny fatigue, tiny supply tick. Previewed at enlistment. No big surprises.
+5. At 3 hours of FF with no new envelope picked, idle-reprimand fires (trigger fires under any speed). Player must pick.
 
-**Feel:** player is the engine.
+### Playflow 2 — Scout order arc
 
-### Playflow 2 — Named order accepted, scout arc
+1. `UPCOMING` shows "Scout the eastern ridge — grants: `scouting_xp_moderate`, `ranger_path_bump_small`; may cost: `fatigue_minor`; risks: `ambush_encounter`. [Accept]" (preview rendered from storylet's `preview` block).
+2. Accept → Order envelope pushes. 3-day arc. Service envelope remains underneath.
+3. Day 2: mid-arc Modal fires ("tracks in the mud"). Modal envelope pushes on top. Player picks Follow. Modal envelope resolves → mutations apply under the modal's declared contract → Modal envelope pops.
+4. Day 3: arc resolves. Order envelope pops. Service envelope still active.
 
-1. `UPCOMING` shows "Sergeant proposed: Scout the eastern ridge. [Accept]"
-2. Accept → `OrderActivity.AcceptNamedOrder("order_scout_ranger_t1")` → `AgencyGate.Push(Scout_3d)`.
-3. Time advances across 3 days. Scout storylet phases fire; a mid-arc Modal pushes a child scope to resolve a "tracks in the mud" decision.
-4. Arc resolves Day 3. `AgencyGate.Pop()`. `YOU` narrative reflects outcomes: `+Scouting 65→72`, `+ranger path score`, `+battles_survived 1`.
+### Playflow 3 — Kingdom war mid-activity
 
-**Feel:** the order is the consent envelope. Everything fires within it.
-
-### Playflow 3 — Kingdom war declared mid-activity
-
-1. Player is in a Drill scope at 1×.
-2. `OnKingdomDecision` → Vlandia declares war. World-scope passive event.
-3. **No direct player-state mutation.** A Modal is queued via `StoryDirector`: "Runners cry through the camp — war with the Northern Empire. [Read the proclamation]"
-4. Drill resolves first (current scope wins). `AgencyGate.Pop()`.
-5. Modal fires, player reads, trivial scope for it pushes and pops. No mutations.
-6. `DISPATCHES` stays frozen until next weekly edition. `UPCOMING` adds "Rumors of mobilization."
-7. A day later, a named-order proposal fires: "Join the march on Pravend." Accept / decline routes war impact through orders.
-
-**Feel:** world-scope events arrive as optional reading + opt-in orders.
+1. Player in Drill. Vlandia declares war (world-scope passive event).
+2. Event emits a Modal candidate ("runners cry through camp — read the proclamation"). `StoryDirector` queues it. Game does NOT force-pause because the Modal isn't immediate-impact (read-only lore).
+3. Drill finishes naturally. Proclamation Modal fires after. Player reads. No state mutation — the Modal's effects list is empty; this is informational.
+4. Day later, Named order "Join the march on Pravend" proposes. Order envelope acceptance preview warns: "may cost `march_fatigue_major`, risks `front_line_battle`." Player opts in or out.
 
 ### Playflow 4 — Wounded, recovery
 
-1. Battle scope previously wrote `InjurySeverity=Moderate, days=7` via the gate. Scope popped.
-2. `YOU` reads "Injured — moderate, 7 days. Training restricted until healed."
-3. At 1× for 7 in-game days doing nothing → injury stays at `days=7`. **No passive healing.**
-4. Player must pick **Rest** / **Tend** / **Seek Medic**. Each resolves a fixed reduction.
-5. Four Rest picks (or two Tend + medicinal storylet fires) → cleared.
-
-**Feel:** recovery is earned.
+1. Battle storylet wrote `InjurySeverity=Moderate, days=7` via the gate under a Modal envelope. Scope popped.
+2. Under Service envelope, Trivial-band auto-heal is allowed: 1 day per 7 real-game-days. Previewed at enlistment.
+3. Player wants faster recovery → picks **Rest** (Activity envelope): 12h scope, resolves `InjuryDays -= 2`.
+4. Three more Rest picks → cleared. Alternative: wait 49 in-game days of Service-envelope drift → also cleared, slowly.
 
 ### Playflow 5 — Scrutiny pressure
 
-1. Scrutiny sits at 68. **No passive decay.**
-2. `UPCOMING` shows "Lieutenant requests to speak with you. [Attend]"
-3. Modal fires: "Where were you Tuesday? [Lie / Deflect / Truthful]"
-4. Each option writes through the gate with different effects.
-5. Alternatively, player Patrols 3 times → scrutiny −9 cumulative. Scrutiny is earned down, not bled down.
+1. Scrutiny at 68. No time-based decay.
+2. `UPCOMING`: "Lieutenant requests to speak. [Attend]" — preview: "may grant `scrutiny_down_major`, may cost `relation_down_small`, risks `caught_in_lie_flag`."
+3. Modal fires with options. Player picks. Effects under the modal envelope.
+4. Alternatively 3 Patrol picks → scrutiny earned down.
+5. If scrutiny stays >= 70 for 14 days without change → Service envelope allows Trivial-band decay of 1 / 14 days (previewed). Very slow, keeps stale state from sticking forever.
 
-**Feel:** scrutiny is a real pressure the player negotiates.
+### Playflow 6 — T4 path crossroads
 
-### Playflow 6 — T4 crossroads (existing Plan 5)
-
-1. Rank 4 reached. `EnlistmentBehavior.OnTierChanged(3, 4)` fires.
-2. `PathCrossroadsBehavior` picks highest path score, emits Modal, pushes scope.
-3. Player picks Commit → `commit_path ranger` writes via gate.
-4. Scope pops. Downstream T7+ variants now gate on `committed_path_ranger`.
-
-**Feel:** this is already the model. Plan 5 was the prototype; agency redesign generalizes it.
+1. Rank 4 reached. `PathCrossroadsBehavior` emits Modal via `StoryDirector.EmitCandidate(ChainContinuation=true)`. Modal envelope pushes.
+2. Storylet has its own `preview` block: "Commit grants `+1 focus(Bow) / +10 renown / commits path=ranger permanently`. Resist grants `path_resisted_ranger flag (halves future score bumps)`."
+3. Player picks Commit. `commit_path` primitive fires through `StateMutator.TryWriteFlag` under the Modal envelope's contract. Envelope pops.
 
 ---
 
-## Save / migration
+## Phasing (revised)
 
-- `AgencyGate` scope stack is ephemeral runtime state, not persisted. On save-load with no active scope, no mutations occur until the player picks. Clean.
-- Existing saves with accumulated `scrutiny`, `readiness`, `supplies`, `medical_risk` load as-is. Values persist until a player action changes them — acceptable ("state the save was in when the patch landed").
-- `PlayerConditionBehavior.State` in-flight day counters survive the load but no longer advance on tick. Conditions clear on Rest / Tend / Seek Medic resolves OR via one-shot patch migration that zeros all in-flight counters below 7 days on first-load-after-patch (recommended — avoids confused "why is my old injury still here").
-- No new save-definer offsets beyond `CampActivityActivity` claiming offset 51 (next after Plan 4's `DutyCooldownStore` at 50).
+- **Phase 1 — Define + instrument.** Author `MutationCategory` + `MagnitudeBand` + `Envelope` + `AgencyGate` + `StateMutator`. Make `StateMutator.Try{…}` observer-only: calls underlying stores and logs what would have been rejected. Add `validate_content.py` Phase 16 (preview-on-high-stakes). Deploy; collect one week of logs.
+- **Phase 2 — Audit feedback.** Read Phase 1 logs. Any unexpected mutation sources (mods that write to `QualityStore` directly, boot-time writes) get explicit whitelist entries via `StateMutator.ApplyBootstrap(...)`. Tune magnitude-band thresholds.
+- **Phase 3 — Convert menu + effect-executor paths.** `EffectExecutor` primitives route through `StateMutator`. Menu gold writes route through `StateMutator`. Routine outcomes route through `StateMutator`. Still observer mode.
+- **Phase 4 — Flip gate to enforce.** `StateMutator.Try{…}` now rejects mutations that fail category / magnitude check. Top-5 passive handlers either get proper envelopes, get removed, or get converted to Modal-or-Pertinent-news emission. Player-facing quality decay rules deleted.
+- **Phase 5 — Ship `CampActivityActivity`.** Two-phase template, 7 slots, ~50 storylets. `ChoreThrottle` save-definer offset 52. Preview metadata on every slot.
+- **Phase 6 — Convert incident handlers.** `CompanySimulationBehavior.Process{RosterRecovery,NewConditions,Incidents}` rewired through `IncidentResponseModal`. `CheckPressureArcEvents` converts the `QueueEvent` arm to Pertinent-news.
+- **Phase 7 — Content tuning.** Re-balance rewards so skill progression pace is acceptable. Author missing previews on existing orders.
+- **Phase 8 — Idle-reprimand + FF handling.** Fires on any time-control speed. Tuned to 3 in-game days. Skip during active world events.
 
----
-
-## Phasing
-
-- **Phase 1 — Introduce gate in observer mode.** `StateMutator` / `AgencyGate` / `DecisionScope` added as wrappers. Every existing mutation call routes through `TryXxx`, but the gate returns `true` unconditionally (observer mode). Log count of would-reject calls per scope per hour for baseline. No behavior change.
-- **Phase 2 — Flip gate to enforce.** Remove the "always allow" stub. Top-5 passive handlers (audit) route through the gate and now no-op between scopes. Existing orders / Home Evening / path crossroads still work. Idle-freeze behavior becomes visible.
-- **Phase 3 — Ship `CampActivityActivity` + 7-slot menu + 50 storylets.** Save-definer offset 51 claimed. Player has explicit choices to make between orders.
-- **Phase 4 — Refactor incidents to `IncidentResponseModal`.** Delete auto-apply from `ProcessIncidents`; ship 5 incident-response chains.
-- **Phase 5 — Rebalance `quality_defs.json`** — remove decay blocks on player-facing qualities; delete obsolete decay tests.
-- **Phase 6 — Content sweep.** Re-tune order resolve effects to carry rewards that the passive layer used to leak. Authoring pass for content density so the player has interesting picks.
-
-Each phase is a reviewable diff. Budget: 2–3 weeks total.
+Budget: 3–4 weeks. Each phase is reviewable independently.
 
 ---
 
 ## Risks
 
-1. **Idle boredom.** Camp activities are hours-scale — idle gaps collapse to one menu pick. Idle-reprimand modal (3 in-game days at play-family with no scope) backstops.
-2. **Existing smoke scenarios (Plans 1–5, A–H)** assume passive behavior in places. The agency refactor must re-run all eight scenarios to confirm nothing relied on passive drip. Phase 2 flip is the risk peak.
-3. **Skill XP starvation.** Removing `PathScorer.OnHeroGainedSkill` cuts path bumps; camp Drill + intent picks must restore the pace. Tune in Phase 6.
-4. **Unstoppable-forced FF.** `UnstoppableFastForward` + `UnstoppableFastForwardForPartyWaitTime` happen during army-wait / hideout scenarios. Gate treats them same as player-picked FF → no mutations. Acceptable: if the game is force-waiting the party, the narrative is "time passes but nothing happens to you specifically," which is fine.
-5. **`SpeedUpMultiplier` mods.** Another mod raising `SpeedUpMultiplier` doesn't change our gate's behavior — we gate on the enum family, not the multiplier. Resilient.
-6. **Idle-reprimand modal feeling nagging.** Cooldown: fire at most once per 7 in-game days. Skip entirely during active world events (war declared, siege started — player has reading to do).
+1. **Service envelope too permissive.** If Service's Trivial band allows too much, we're back to v1's complaint. Mitigation: Phase 2 tune from Phase 1 log data; Trivial band capped tightly.
+2. **Preview-authoring burden.** Every high-stakes storylet needs a `preview` block. Phase 7 content pass, Phase 16 validator catches misses.
+3. **Migration surface risk.** Phase 3 routes many mutation sites through `StateMutator`. Observer mode (Phase 1–3) catches surprises before Phase 4 enforces.
+4. **Modal fatigue.** If we modal every incident, players get spam. Mitigation: `StoryDirector` pacing already handles this via per-category cooldowns.
+5. **Plan 1–5 smoke regressions.** Scenarios A–H must re-run post-Phase 4. Envelope-lookup on `ActivityRuntime._active` is cheap (O(active count), typically 0–2).
+6. **FF in Service envelope still invisible.** Wage accrues, supply consumes, but the numeric change at speed might feel uncanny. Mitigation: news-feed inserts a line "Day 12 — wages logged, supplies at 82%" every N in-game days under FF so the change is communicated.
+7. **ChoreThrottle authoring burden.** Every camp storylet needs a cooldown key. Keep shared throttles where possible (all Drill storylets share `drill_daily` throttle, etc.).
 
 ---
 
@@ -285,39 +300,49 @@ Each phase is a reviewable diff. Budget: 2–3 weeks total.
 
 | Test | Method | Expected |
 | :--- | :--- | :--- |
-| Idle freeze smoke | Enlisted + lord stationary + no activity. Sit at 1× for 7 in-game days. | Zero delta on skill values, scrutiny, gold, conditions, quality values, path scores, roster. |
-| Idle freeze at FF smoke | Same setup at 4× FF. | Zero delta. |
-| Scope-matched mutations | Accept a scout order → run to resolve. | Mutations match storylet's declared effects exactly. No side deltas. |
-| Camp activity resolves cleanly | Each of 7 activities fires and pops scope. | State changes match activity's declared effects. |
-| Incident modal | Force incident candidate via debug → modal appears → pick option. | Outcome applies; no auto-apply before pick. |
-| Idle-reprimand modal | 3 in-game days at Play/Stop with no scope. | Modal fires. |
-| No reprimand at FF | Same 3 days at FF. | Modal does not fire (FF → no reading happening). |
-| Plans 1–5 scenarios A–H | Re-run each scenario. | All pass. |
-| Mutation-without-scope log | Hit any `StateMutator.Try` while no scope. | `Expected("AGENCY", "mutation_without_scope", ...)` emitted. Mutation dropped. |
+| **Idle-freeze at FF (revised)** | Enlisted + lord stationary + no order/activity. FF for 2 in-game days. | Service envelope active → small wage delta + small supply delta observed and previewed. No big state changes. Day 3 → idle-reprimand modal fires at FF. |
+| **Scope-matched mutation** | Accept scout order → run to resolve. | Mutations match storylet's `preview` block's `grants` / `may_cost`. Nothing in excess. |
+| **Envelope stack derivation on save-load** | Save mid-order → reload → observe envelope stack. | Order envelope derived correctly from `ActivityRuntime._active`. Resolve-phase effects land. |
+| **Camp activity two-phase** | Pick Drill from slot bank → time advances 3h → end-storylet fires. | `StateMutator` applies effects; activity ends cleanly. |
+| **ChoreThrottle cooldown** | Drill → immediately attempt Drill again. | Slot rejects with "sergeant frowns." |
+| **Preview rendering** | Accept an order with `preview` block. | Acceptance dialogue shows grants / costs / risks. |
+| **Non-previewed high-stakes storylet** | Author a test storylet with Major-band effects and no `preview`. | `validate_content.py` Phase 16 rejects at build. |
+| **Incident modal** | Force incident candidate → verify modal renders, effects apply only on pick. | Pass. |
+| **Plans 1–5 scenarios A–H** | Re-run all. | All pass. |
+| **Idle-reprimand fires at FF** | FF for 3 in-game days with no envelope. | Modal fires, game force-pauses. |
 
 ---
 
-## Open issues
+## Open questions
 
-1. **News-spec v2 FastForwardStop bucket error.** The news-unification spec at `docs/superpowers/specs/2026-04-23-news-and-status-unification-design.md` (v2, commit `2855866`) lists `FastForwardStop` in the fast-family for the regeneration-trigger taxonomy. That's wrong — the decompile treats `FastForwardStop` as Stop (tick `num = 0`, simplified mode returns `Stop`). A follow-up commit to the news spec should reclassify it to play-family. Small correction, does not invalidate the regeneration-trigger design.
-2. **Which qualities lose decay?** Explicit list to author in Phase 5: `scrutiny`, `readiness`, `supplies`, `medical_risk`, `loyalty`. `rank_xp` stays read-through. `days_in_rank` / `days_enlisted` stay read-through. `path_*_score` has no decay today; no change needed.
-3. **Does `AgencyGate` need to persist its scope stack?** Lean toward no — if the game crashes mid-activity, on reload the player is in a known idle state. But confirm this doesn't break muster sequences or long order arcs that might span save/load. Potentially: persist only the top scope.
-4. **How many camp activities ship Phase 3?** 7 is the working target. If authoring load is too high, reduce to 5 core (Rest / Drill / Tend / Patrol / Attend Lord) and add Scheme / Study later.
-5. **Intent bias migration from Home Evening.** Home Evening uses 5 intents (unwind / train_hard / brood / commune / scheme). Camp activities use different intents (rest / drill / tend / patrol / scheme / attend / study). The `PathScorer.IntentToPath` map (at `PathScorer.cs:33-40`) needs updating for the new intents.
-
----
-
-## Deferred
-
-- Ultra-long idle (30+ in-game days) housekeeping — the reprimand loop handles it, but for a true "I walked away from the keyboard" case, consider pausing time via `Campaign.Current.SetTimeControlModeLock(true)` on the reprimand modal.
-- Culture flavor on camp activities (Khuzait "patrol the herds," Vlandian "drill with crossbows"). Deferred to a polish pass after core agency lands.
-- Companion / retinue delegation — could the player send a companion on camp activities instead of doing them themselves? Out of scope for v1.
+1. **Service envelope's Trivial band per category** — specific numbers need Phase 1 log data. Start with: skill XP ≤ 10 per real-game-day; gold ± ≤ 5; condition day ≤ 0.15 / real-game-day; scrutiny ± ≤ 1 per 14 days; no path or relation writes.
+2. **Pension accrual** — lives in service envelope or order envelope? Lean service (it's continuous) — but then the "paid at muster" modal IS what prevents the bookkeeping from feeling unearned.
+3. **How many camp activities Phase 5** — 7 in spec; fallback to 5 if authoring is slow (drop Scheme, Study; add them in Phase 9).
+4. **What about `PathScorer.OnHeroGainedSkill`** — deletion is correct under the new contract (path bumps are Major-band, need explicit intent). But Plans 1–5 rely on path scores existing; the storylet-backbone spec may need a pointer update.
+5. **`validate_content.py` Phase 16 — which `MagnitudeBand` threshold triggers "preview required"?** Lean: Moderate and above require preview. Trivial / Minor are exempt.
+6. **ChoreThrottle save-definer offset 52** — verify no collision with Plan 4's `DutyCooldownStore` at 50 and Plan 1's `EnlistedLordIntelligenceSnapshot` at 48. Gap at 51 for `CampActivityActivity`. 52 is free.
 
 ---
 
 ## Relation to other specs
 
-- **News-unification spec v2** (`docs/superpowers/specs/2026-04-23-news-and-status-unification-design.md`): paused pending this spec. Once agency lands, the news spec's `DISPATCHES` / `YOU` / `SINCE LAST MUSTER` / `CAMP ACTIVITIES` sections stay valid, but `CAMP ACTIVITIES` pulls will have less passive-drift content to report (since passive routine outcomes are gone) — will be a pure activity-resolution log. Minor editing to the news spec after agency ships.
-- **Plan 5 Career Loop** (`docs/superpowers/plans/2026-04-21-career-loop-closure.md`): crossroads are already scope-correct — they push a scope, player picks, scope pops. No change needed.
-- **Plan 1 Campaign Intelligence** (`docs/superpowers/plans/2026-04-21-campaign-intelligence-backbone.md`): snapshot recompute stays read-only.
-- **Plan 4 Duty Opportunities** (`docs/superpowers/plans/2026-04-21-duty-opportunities.md`): ambient duty storylets need audit — do they mutate state on emission or only when the player responds? Expected: they emit Modals, player responds, scope pushed at response time. If any fire auto-apply effects on emission, those break and need conversion in Phase 4.
+- **News-unification spec v2** (`docs/superpowers/specs/2026-04-23-news-and-status-unification-design.md`): paused. Once agency ships, revisit; `CAMP ACTIVITIES` pulls now read envelope-logged events instead of raw passive outcomes. News spec's FastForwardStop bucket already fixed in same commit.
+- **Plan 5 Career Loop** (`docs/superpowers/plans/2026-04-21-career-loop-closure.md`): crossroads already scope-correct (Modal envelope on fire). No change. `PathScorer.OnHeroGainedSkill` deletion removes the auto-bump path, so path scores will accumulate slower — authors may want to tune intent-pick bumps upward (current `+3` in `PathScorer.cs:86`).
+- **Plan 1 Campaign Intelligence**: snapshot stays read-only.
+- **Plan 4 Duty Opportunities**: ambient duty storylets emit via `StoryDirector` as Modal candidates — already envelope-correct. Audit Phase 3 to confirm no direct writes bypass the gateway.
+- **Plan 2 Lord AI**: zero player-state mutations, only biases `MBGameModel`. Unaffected.
+
+---
+
+## Changelog vs v1
+
+- **Contract reframed** from "no state change between decisions" to "no unpreviewed high-stakes consequences." Baseline service physics allowed inside envelopes.
+- **Envelope model** replaces `DecisionScope` stack. Envelopes derive from persistent state (`ActivityRuntime._active`, `EnlistmentBehavior.IsEnlisted`, `StoryDirector` modal state) — no separate ephemeral stack to persist. Fixes save/load.
+- **Service envelope** added as the default low-magnitude envelope for enlisted play. Fixes FF dead-end.
+- **Migration table widened** to include `EffectExecutor`, `EventDeliveryManager`, `CampRoutineProcessor`, `DailyDriftApplicator`, menu gold paths, pension, discharge. Plus a new `validate_content.py` Phase 16 that blocks new direct writes at build time.
+- **Camp activity** now two-phase (instant pick-intent + timed execute-intent) to match `ActivityRuntime.ResolvePlayerChoice` actual runtime behavior.
+- **Chore-spam mitigations** added: `ChoreThrottle` cooldown, diminishing returns, lord patience, failure chances, opportunity cost.
+- **FF-safe idle-reprimand** fires at any time-control speed.
+- **False "keep" claims fixed.** `CheckPressureArcEvents` needs its `QueueEvent` arm converted. `EnlistmentBehavior.OnDailyTick` explicitly split between Service-allowed (wage/supply) and Modal-required (desertion).
+- **Preview metadata** added to storylet schema; rendered at envelope acceptance; enforced by validator Phase 16.
+- **Two save-definer offsets claimed**: 51 (`CampActivityActivity`), 52 (`ChoreThrottleStore`). Was 1 in v1.
