@@ -12,6 +12,7 @@ using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
+using Enlisted.Features.Interface.Models;
 using Enlisted.Features.Logistics;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
@@ -1534,6 +1535,44 @@ namespace Enlisted.Features.Interface.Behaviors
             return result;
         }
 
+        private static List<DispatchItem> GetPersonalItemsForYou(EnlistedNewsBehavior news, int maxItems)
+        {
+            if (news == null)
+            {
+                return new List<DispatchItem>();
+            }
+
+            return news.GetVisiblePersonalFeedItems(Math.Max(maxItems * 2, maxItems))
+                .Where(item => item.Route.IsPersonalForYou)
+                .Take(maxItems)
+                .ToList();
+        }
+
+        private static List<DispatchItem> GetPersonalItemsForMusterPeriod(EnlistedNewsBehavior news, int sinceDay)
+        {
+            if (news == null)
+            {
+                return new List<DispatchItem>();
+            }
+
+            return news.GetPersonalFeedSince(sinceDay)
+                .Where(item => item.Route.CountsForMusterRecap)
+                .ToList();
+        }
+
+        private static List<DispatchItem> GetCampActivityItems(EnlistedNewsBehavior news, int maxItems)
+        {
+            if (news == null)
+            {
+                return new List<DispatchItem>();
+            }
+
+            return news.GetVisiblePersonalFeedItems(Math.Max(maxItems * 2, maxItems))
+                .Where(item => item.Route.IsCampActivity)
+                .Take(maxItems)
+                .ToList();
+        }
+
         private int CountUnreadHeadlines(EnlistedNewsBehavior news)
         {
             return GetUnreadHighSeverity(news).Count;
@@ -1608,23 +1647,21 @@ namespace Enlisted.Features.Interface.Behaviors
                     _ = sb.AppendLine();
                 }
 
-                // === RECENT ACTIVITY (What the player and company have been doing) ===
-                var recentActivities = BuildRecentActivitiesNarrative(enlistment);
-                if (!string.IsNullOrWhiteSpace(recentActivities))
-                {
-                    var headerText = new TextObject("{=status_header_recent_activity}RECENT ACTIVITY").ToString();
-                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    _ = sb.AppendLine(recentActivities);
-                    _ = sb.AppendLine();
-                }
-
-                // === STATUS (Player's personal condition - injuries, illness, duty status) ===
+                // === YOU (Player status and personal activity) ===
                 var playerStatus = BuildPlayerPersonalStatus(enlistment);
-                if (!string.IsNullOrWhiteSpace(playerStatus))
+                var recentActivities = BuildRecentActivitiesNarrative(enlistment);
+                if (!string.IsNullOrWhiteSpace(playerStatus) || !string.IsNullOrWhiteSpace(recentActivities))
                 {
-                    var headerText = new TextObject("{=status_header_your_status}YOUR STATUS").ToString();
+                    var headerText = new TextObject("{=status_header_you}YOU").ToString();
                     _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    _ = sb.AppendLine(playerStatus);
+                    if (!string.IsNullOrWhiteSpace(playerStatus))
+                    {
+                        _ = sb.AppendLine(playerStatus);
+                    }
+                    if (!string.IsNullOrWhiteSpace(recentActivities))
+                    {
+                        _ = sb.AppendLine(recentActivities);
+                    }
                 }
 
                 return sb.ToString().TrimEnd();
@@ -1730,6 +1767,17 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (needsParts.Count > 0)
                     {
                         parts.Add(string.Join(", ", needsParts) + ".");
+                    }
+                }
+
+                var news = EnlistedNewsBehavior.Instance;
+                var campActivities = GetCampActivityItems(news, 2);
+                foreach (var item in campActivities)
+                {
+                    var campLine = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true);
+                    if (!string.IsNullOrWhiteSpace(campLine))
+                    {
+                        parts.Add(campLine + ".");
                     }
                 }
 
@@ -2043,7 +2091,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var news = EnlistedNewsBehavior.Instance;
 
                 // Recent personal feed events
-                var personalItems = news?.GetVisiblePersonalFeedItems(3);
+                var personalItems = GetPersonalItemsForYou(news, 3);
                 if (personalItems != null && personalItems.Count > 0)
                 {
                     foreach (var item in personalItems)
@@ -2222,6 +2270,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 // Get period statistics from tracking systems
                 var orderOutcomes = news?.GetRecentOrderOutcomes(12) ?? new List<OrderOutcomeRecord>();
                 var eventOutcomes = news?.GetRecentEventOutcomes(12) ?? new List<EventOutcomeRecord>();
+                var periodDispatches = GetPersonalItemsForMusterPeriod(news, lastMusterDay);
                 var xpSources = enlistment?.GetXPSourcesThisPeriod() ?? new Dictionary<string, int>();
                 var lastMuster = news?.GetLastMusterOutcome();
 
@@ -2284,6 +2333,18 @@ namespace Enlisted.Features.Interface.Behaviors
                     if (recentEvent != null && !string.IsNullOrWhiteSpace(recentEvent.EventTitle))
                     {
                         parts.Add($"<span style=\"Link\">{eventCount} incidents</span> handled (last: {recentEvent.EventTitle}).");
+                    }
+                }
+
+                var stanceSummaries = periodDispatches
+                    .Where(item => item.Route.SourceKind == DispatchSourceKind.ServiceStance)
+                    .Take(2);
+                foreach (var item in stanceSummaries)
+                {
+                    var stanceLine = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true);
+                    if (!string.IsNullOrWhiteSpace(stanceLine))
+                    {
+                        parts.Add(stanceLine + ".");
                     }
                 }
 
