@@ -2952,21 +2952,62 @@ def phase14_arc_integrity(
 
 
 def phase15_path_crossroads(storylets: list[dict], ctx: ValidationContext) -> None:
-    """Spec 2 §14. Phase C content; assert completeness when crossroads.json exists."""
+    """Plan 5 T9. Asserts career-path crossroads completeness + per-path T7+ variant coverage.
+
+    Two checks, gated on the presence of any path_crossroads_* id so pre-Plan-5 repos
+    don't fail the phase:
+
+    (a) 15 base crossroads storylets: 5 paths x 3 milestones (T4/T6/T9). Missing ids
+        fail with an error referencing the expected id.
+
+    (b) Each of the 5 paths has at least one T7+ variant — identified as any storylet
+        whose trigger list contains the literal 'flag:committed_path_<path>'. Minimum
+        viable check (one variant per path), not per-archetype enforcement — Half B
+        polish expands the archetype matrix later.
+    """
     print("[Phase 15] Validating path crossroads completeness...")
     PATHS = ["ranger", "enforcer", "support", "diplomat", "rogue"]
-    BANDS = ["t3_to_t4", "t5_to_t6", "t7_to_t8"]
+    MILESTONES = [4, 6, 9]
     storylet_ids = {s.get("id") for s in storylets if s.get("id")}
-    have_any_crossroads = any(sid.startswith("crossroads_") for sid in storylet_ids)
+
+    have_any_crossroads = any(sid.startswith("path_crossroads_") for sid in storylet_ids)
     if not have_any_crossroads:
-        print("  OK: no crossroads_* storylets yet (Phase B); skipping completeness check.")
+        print("  OK: no path_crossroads_* storylets yet; skipping completeness check.")
         return
-    expected = {f"crossroads_{p}_{b}" for p in PATHS for b in BANDS}
+
+    # (a) Base milestone storylets.
+    expected = {f"path_crossroads_{p}_t{t}" for p in PATHS for t in MILESTONES}
     missing = expected - storylet_ids
     for m in sorted(missing):
         ctx.add_issue("error", "crossroads", f"missing crossroads storylet '{m}'", m)
-    if not missing:
-        print(f"  OK: all {len(expected)} crossroads storylets present.")
+
+    # (b) Per-path T7+ variant coverage: count storylets whose trigger array contains
+    # 'flag:committed_path_<path>'. Any matching storylet counts as a variant for that
+    # path — we don't care which archetype (scout / escort / future) it covers.
+    variants_per_path: dict[str, int] = {p: 0 for p in PATHS}
+    for s in storylets:
+        triggers = s.get("trigger") or []
+        if not isinstance(triggers, list):
+            continue
+        for p in PATHS:
+            if f"flag:committed_path_{p}" in triggers:
+                variants_per_path[p] += 1
+                break  # one storylet counts for at most one path
+
+    for p in PATHS:
+        if variants_per_path[p] == 0:
+            ctx.add_issue(
+                "error", "crossroads",
+                f"path '{p}' has no T7+ variant storylet with trigger 'flag:committed_path_{p}'",
+                f"ModuleData/Enlisted/Storylets/path_{p}_t7_variants.json (expected)",
+            )
+
+    if not missing and all(v > 0 for v in variants_per_path.values()):
+        variant_summary = ", ".join(f"{p}={variants_per_path[p]}" for p in PATHS)
+        print(
+            f"  OK: all {len(expected)} milestone storylets present; "
+            f"T7+ variants per path — {variant_summary}."
+        )
 
 
 def _load_loot_pools(ctx: ValidationContext) -> list[dict]:
