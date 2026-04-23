@@ -20,6 +20,7 @@
 
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
+- [Typed Routing Metadata](#typed-routing-metadata)
 - [Event & Order Outcome Queue System](#event--order-outcome-queue-system)
 - [Kingdom Feed](#kingdom-feed)
 - [Personal Feed](#personal-feed)
@@ -32,6 +33,29 @@
 - [Data Structures](#data-structures)
 - [Localization](#localization)
 - [Implementation Files](#implementation-files)
+
+---
+
+## Typed Routing Metadata
+
+Dispatches carry typed routing metadata so the menu builders do not infer display meaning from category strings or rendered prose:
+
+- `Domain` selects the feed family: `Kingdom`, `Personal`, or `Camp`.
+- `SourceKind` records the producer: `ServiceStance`, `Order`, `ActivityOverride`, `ModalIncident`, `Routine`, `Battle`, `Muster`, `Promotion`, `Condition`, `Flavor`, or `Unknown`.
+- `SurfaceHint` gives the preferred display surface: `Auto`, `Dispatches`, `Upcoming`, `You`, `SinceLastMuster`, `CampActivities`, or `ModalOnly`.
+
+The route is advisory for display, not an effects gate. State mutation rules still live with the emitting system and storylet validation.
+
+Surface consumers use the route consistently:
+
+| Surface | Route consumed |
+| :--- | :--- |
+| `DISPATCHES` | Kingdom-domain items, usually `SurfaceHint.Dispatches` or `Auto` |
+| Camp `YOU` | Personal items intended for the player, usually `SurfaceHint.You` or `Auto` |
+| `SINCE LAST MUSTER` | Period-bounded personal outcomes such as service stance, order, battle, condition, promotion, muster, and modal-incident results |
+| `CAMP ACTIVITIES` | Camp-domain items and activity-override outcomes |
+
+Legacy entries that lack routing are treated as personal `Unknown` / `Auto` dispatches during load so old saves remain readable.
 
 ---
 

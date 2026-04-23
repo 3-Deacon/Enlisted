@@ -19,6 +19,7 @@ The backbone is the content layer beneath [`StoryDirector`](../../superpowers/sp
 | Read or write a quality (Scrutiny, Rank XP, Lord Relation, …) | [Quality registry](#quality-registry) |
 | Check what a named trigger does | [Seed triggers](#seed-triggers) |
 | Bind `{veteran}` / `{lord}` in a storylet | [Slot roles](#slot-roles) |
+| Classify storylet news/status routing | [Agency metadata](#agency-metadata) |
 | Claim a save-definer offset for a new `Activity` subclass | [Save-definer offsets](#save-definer-offsets) |
 | Route a follow-up event | [Chains](#chains) |
 | Understand where the C# lives | [File map](#file-map) |
@@ -47,6 +48,53 @@ Canonical terms. Surface specs use these names; legacy terms are migrated out, n
 | **Phase** | Time window inside an activity with its own storylet pool and delivery mode |
 | **Pool** | Storylet ids eligible in a phase |
 | **Emission** | A candidate a source hands to the Director (`StoryCandidate`) |
+
+---
+
+## Agency metadata
+
+Storylets can declare an optional `agency` block that classifies authoring rules and typed news/status routing. Example:
+
+```json
+"agency": {
+  "role": "order_phase",
+  "domain": "personal",
+  "sourceKind": "order",
+  "surfaceHint": "you"
+}
+```
+
+`role` controls authoring and validator rules. It also provides routing defaults when `domain`, `sourceKind`, or `surfaceHint` are omitted. Explicit route fields map onto `StoryCandidate.DispatchDomain`, `StoryCandidate.DispatchSourceKind`, and `StoryCandidate.DispatchSurfaceHint` when the storylet emits a candidate.
+
+Allowed route values:
+
+| Field | Values |
+| :--- | :--- |
+| `domain` | `kingdom`, `personal`, `camp` |
+| `sourceKind` | `service_stance`, `order`, `activity_override`, `modal_incident`, `routine`, `battle`, `muster`, `promotion`, `condition`, `flavor`, `unknown` |
+| `surfaceHint` | `auto`, `dispatches`, `upcoming`, `you`, `since_last_muster`, `camp_activities`, `modal_only` |
+
+Known `role` defaults:
+
+| Role | Default route | Rule |
+| :--- | :--- | :--- |
+| `stance_drift` | `personal` / `service_stance` / `you` | Stance summary or low-level drift |
+| `stance_interrupt` | `personal` / `service_stance` / `you` | Requires preview metadata |
+| `order_accept` | `personal` / `order` / `upcoming` | Requires preview metadata |
+| `order_phase` | `personal` / `order` / `you` | In-order beat for the player |
+| `order_outcome` | `personal` / `order` / `since_last_muster` | Period recap outcome |
+| `activity_override` | `camp` / `activity_override` / `camp_activities` | Requires preview metadata |
+| `modal_incident` | `personal` / `modal_incident` / `modal_only` | Requires preview metadata |
+| `news_flavor` | `personal` / `flavor` / `auto` | Cannot have effects |
+| `realm_dispatch` | `kingdom` / `flavor` / `dispatches` | Cannot mutate player state |
+
+Validator rules:
+
+- `news_flavor` cannot have effects.
+- `realm_dispatch` cannot mutate player state.
+- `order_accept`, `activity_override`, `stance_interrupt`, and `modal_incident` require preview metadata.
+
+Preview metadata is a top-level `preview` object with at least one of `grants`, `may_cost` / `mayCost`, or `risks`.
 
 ---
 
