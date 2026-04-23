@@ -245,6 +245,10 @@
     <!-- Identity & Traits -->
     <Compile Include="src\Features\Identity\TraitHelper.cs"/>
     <Compile Include="src\Features\Identity\EnlistedStatusManager.cs"/>
+
+    <!-- Agency -->
+    <Compile Include="src\Features\Agency\StanceSummary.cs"/>
+    <Compile Include="src\Features\Agency\StanceSummaryAccumulator.cs"/>
     <!-- ====================================================================
          INTERFACE & UI SYSTEMS
          ==================================================================== -->

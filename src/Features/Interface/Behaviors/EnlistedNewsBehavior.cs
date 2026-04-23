@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Enlisted.Features.Activities.Orders;
+using Enlisted.Features.Agency;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Conditions;
@@ -3459,6 +3460,34 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 ModLogger.Caught("News", "Failed to add routine outcome", ex);
             }
+        }
+
+        /// <summary>
+        /// Adds a service stance summary to the personal news feed.
+        /// </summary>
+        /// <param name="summary">The stance summary to add as typed service stance news.</param>
+        public void AddStanceSummary(StanceSummary summary)
+        {
+            if (summary == null || string.IsNullOrWhiteSpace(summary.Body))
+            {
+                return;
+            }
+
+            AddPersonalDispatch(
+                category: "stance",
+                headlineKey: string.IsNullOrWhiteSpace(summary.Title) ? "Service routine" : summary.Title,
+                placeholderValues: null,
+                storyKey: string.IsNullOrWhiteSpace(summary.StoryKey)
+                    ? $"stance:{summary.StanceId}:{(int)CampaignTime.Now.ToDays}"
+                    : summary.StoryKey,
+                severity: summary.Severity,
+                minDisplayDays: 1,
+                tier: summary.Severity >= 2 ? StoryTier.Headline : StoryTier.Log,
+                beats: null,
+                body: summary.Body,
+                domain: DispatchDomain.Personal,
+                sourceKind: DispatchSourceKind.ServiceStance,
+                surfaceHint: DispatchSurfaceHint.You);
         }
 
         /// <summary>
