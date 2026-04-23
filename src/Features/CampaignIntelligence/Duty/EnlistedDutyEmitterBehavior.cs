@@ -199,6 +199,29 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 return null;
             }
 
+            // Overlay preference: storylet ids with "__<culture>" suffix are culture overlays
+            // for the base id preceding the suffix. When an overlay is eligible, drop its base
+            // sibling from the pool so the culture flavor wins instead of a random mix.
+            var overlaidBaseIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var e in eligible)
+            {
+                var idx = e.s.Id.IndexOf("__", StringComparison.Ordinal);
+                if (idx > 0)
+                {
+                    overlaidBaseIds.Add(e.s.Id.Substring(0, idx));
+                }
+            }
+            if (overlaidBaseIds.Count > 0)
+            {
+                eligible = eligible
+                    .Where(e => !overlaidBaseIds.Contains(e.s.Id))
+                    .ToList();
+                if (eligible.Count == 0)
+                {
+                    return null;
+                }
+            }
+
             var total = 0f;
             foreach (var e in eligible)
             {
@@ -241,6 +264,36 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             if (!TriggerRegistry.Evaluate(storylet.Trigger, null))
             {
                 return false;
+            }
+
+            // Enlisted lord's culture gates RequiresCulture / ExcludesCulture. Empty lists =
+            // no gate. StringIds are lowercase per the engine (empire / sturgia / vlandia /
+            // battania / khuzait / aserai). Null lord or missing culture data is treated as
+            // "no match" for RequiresCulture so overlays never fire pre-enlistment.
+            if (storylet.RequiresCulture.Count > 0 || storylet.ExcludesCulture.Count > 0)
+            {
+                var lordCulture = EnlistmentBehavior.Instance?.EnlistedLord?.Culture?.StringId;
+                if (string.IsNullOrEmpty(lordCulture))
+                {
+                    if (storylet.RequiresCulture.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (storylet.RequiresCulture.Count > 0
+                        && !storylet.RequiresCulture.Any(c =>
+                            string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+                    if (storylet.ExcludesCulture.Any(c =>
+                        string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+                }
             }
 
             return true;

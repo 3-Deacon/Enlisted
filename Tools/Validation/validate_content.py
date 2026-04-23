@@ -2835,6 +2835,12 @@ def phase13_pool_coverage(
         if sid.startswith("transition_"):
             continue
 
+        # Skip culture-overlay storylets — their id contains "__<culture>" and the
+        # emitter pre-empts the base sibling when the overlay is eligible. Counting
+        # them toward coverage would triple-book the same skill grant across cultures.
+        if "__" in sid:
+            continue
+
         profiles = storylet.get("profile_requires") or []
         if not profiles:
             continue  # Untargeted storylets don't count toward per-profile coverage.
