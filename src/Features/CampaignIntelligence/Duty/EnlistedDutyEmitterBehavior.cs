@@ -7,7 +7,9 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
+using TaleWorlds.ObjectSystem;
 
 namespace Enlisted.Features.CampaignIntelligence.Duty
 {
@@ -292,6 +294,51 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
                     {
                         return false;
+                    }
+                }
+            }
+
+            // Enlisted lord's personality traits gate RequiresLordTrait / ExcludesLordTrait.
+            // Trait StringIds are PascalCase per DefaultTraits.cs (Mercy / Valor / Honor /
+            // Generosity / Calculating). Trait level range is [-2, 2]; "requires" matches
+            // lords with level > 0 (positive-trait lord), "excludes" matches the same and
+            // fails (content hidden from positive-trait lord). Null lord = any trait gate
+            // fails so trait-gated content never fires pre-enlistment.
+            if (storylet.RequiresLordTrait.Count > 0 || storylet.ExcludesLordTrait.Count > 0)
+            {
+                var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+                if (lord == null)
+                {
+                    if (storylet.RequiresLordTrait.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    foreach (var traitId in storylet.RequiresLordTrait)
+                    {
+                        if (string.IsNullOrEmpty(traitId))
+                        {
+                            continue;
+                        }
+                        var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
+                        if (trait == null || lord.GetTraitLevel(trait) <= 0)
+                        {
+                            return false;
+                        }
+                    }
+                    foreach (var traitId in storylet.ExcludesLordTrait)
+                    {
+                        if (string.IsNullOrEmpty(traitId))
+                        {
+                            continue;
+                        }
+                        var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
+                        if (trait != null && lord.GetTraitLevel(trait) > 0)
+                        {
+                            return false;
+                        }
                     }
                 }
             }
