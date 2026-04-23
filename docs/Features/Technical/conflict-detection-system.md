@@ -541,9 +541,7 @@ if (Hero.MainHero.IsPrisoner) return false;
 - Run before committing content changes: `python Tools/Validation/validate_content.py`
 - Use `--strict` mode for pre-merge validation: `python Tools/Validation/validate_content.py --strict`
 - See [../../../Tools/README.md](../../../Tools/README.md) for complete usage guide
-- **NEW:** Add `hint` or `hintId` to camp opportunities for Daily Brief integration (see [Event System Schemas](../Content/event-system-schemas.md#narrative-hints-orchestrator-pre-scheduling))
-
-**Legacy Tool:** `Tools/Validation/validate_events.py` (basic ID/option count checks, use enhanced tool instead)
+- Add `hint` or `hintId` to camp opportunities for news integration (see [Event System Schemas](../Content/event-system-schemas.md#narrative-hints-orchestrator-pre-scheduling))
 
 ---
 
@@ -1153,7 +1151,7 @@ for event in events:
 
 ### Validation Tool Enhancements Needed
 
-Current `validate_events.py` only checks duplicate IDs and option counts. It should be enhanced to check:
+`validate_content.py` owns content validation. Keep new structural checks there:
 
 **Phase 1: Structure Validation**
 - [ ] JSON schema validation (correct field names, types)
@@ -1403,7 +1401,7 @@ if (!BaggageTrainAvailability.CanAccessBaggage(out string reason))
 ### Quick Reference
 
 **When adding content (events/decisions):**
-1. Run `validate_events.py` before committing
+1. Run `python Tools/Validation/validate_content.py` before committing
 2. Check requirements for impossible combinations
 3. Add appropriate cooldowns
 4. Use flags for multi-stage events

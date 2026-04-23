@@ -9,8 +9,8 @@ namespace Enlisted.Features.Content
 {
     /// <summary>
     /// Manages chain events (scheduled follow-ups from previous player choices).
-    /// Previously controlled random narrative event pacing - now removed per Order Prompt Model.
-    /// Chain events fire on daily tick. Random events removed - player engagement via Order Prompts.
+    /// Previously controlled random narrative event pacing. Chain events still fire
+    /// on daily tick; current player engagement routes through StoryDirector.
     /// </summary>
     public class EventPacingManager : CampaignBehaviorBase
     {

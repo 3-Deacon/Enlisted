@@ -26,7 +26,7 @@
 | Understand rank progression | [Features/Core/promotion-system.md](Features/Core/promotion-system.md) |
 | Find a specific feature quickly | [Feature Lookup Quick Reference](#feature-lookup-quick-reference) ⭐ NEW |
 | Find how a feature works | Search this INDEX, check [Features/Core/](#core-systems) |
-| See all events/decisions/orders | [Features/Content/orders-content.md](Features/Content/orders-content.md) |
+| Author events, activities, and storylets | [Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
 | Verify Bannerlord APIs | [Reference/native-apis.md](Reference/native-apis.md) |
 | Build/deploy the mod | [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) |
 | Create new documentation | [BLUEPRINT.md](BLUEPRINT.md) → "Creating New Documentation" |
@@ -94,7 +94,7 @@
 | **Muster System (Pay Day Ceremony)** | [muster-system.md](Features/Core/muster-system.md) | Menu Flow, All 8 Stages |
 | **Officers Armory** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Officers Armory |
 | **Onboarding** | [enlistment.md](Features/Core/enlistment.md) | Onboarding |
-| **Orders (Chain of Command)** | [order-progression-system.md](Features/Core/order-progression-system.md) | — |
+| **Orders (Chain of Command)** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | OrderActivity + storylet arcs |
 | **Pay & Wages** | [pay-system.md](Features/Core/pay-system.md) | — |
 | **Progression System** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | Generic probabilistic daily rolls for escalation tracks |
 | **Promotion & Rank Progression** | [promotion-system.md](Features/Core/promotion-system.md) | — |
@@ -134,7 +134,6 @@
 | [index.md](Features/Core/index.md) | Core features index | ✅ Current |
 | [core-gameplay.md](Features/Core/core-gameplay.md) | Complete gameplay overview covering all major systems and how they interact | ✅ Current |
 | [enlistment.md](Features/Core/enlistment.md) | Enlistment system: joining process, lord selection, initial rank assignment, contract terms | ✅ Current |
-| [order-progression-system.md](Features/Core/order-progression-system.md) | Multi-day order execution: phase progression (4/day), slot events during duty, consequence accumulation, order forecasting with imminent warnings. 17 orders with 84 order events active. | ✅ Implemented |
 | [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, scrutiny cap), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
 | [pay-system.md](Features/Core/pay-system.md) | Wages and payment: 12-day muster cycle, rank-based pay scales, wage modifiers (performance, reputation, lord wealth), pay tension (mutiny risk), deductions (fines, missing gear) | ✅ Current |
 | [muster-system.md](Features/Core/muster-system.md) | Muster System: 6-stage GameMenu sequence for pay day ceremonies, rank progression display, period summary (12-day recap), event integration (recruit), comprehensive reporting (combat/training/orders/XP breakdown), pay options, promotion recap, retinue muster (T7+), direct Quartermaster access | ✅ Current |
@@ -199,7 +198,6 @@
 | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Bannerlord RP writing guide: voice and tone (terse military prose), tense/perspective rules, vocabulary (medieval military register, avoid anachronisms), setup/option/result text patterns, tooltip formatting, **opportunity hints** (camp rumors vs personal hints, placeholder usage, categorization), dialogue patterns by rank, common mistakes to avoid, examples and checklists | ✅ Current |
 | [home-surface.md](Features/Content/home-surface.md) | Living reference for the Enlisted Home Surface (Spec 1, Phases A–D complete). HomeActivity lifecycle, 4-phase flow, 5-intent Evening menu provider, 34 HomeTriggers predicates, 50-storylet corpus, save offset 45, integration points with the storylet backbone. | ✅ Current |
 | [career-loop.md](Features/Content/career-loop.md) | Living reference for the Career Loop Closure surface (Plan 5). Five paths × T4/T6/T9 crossroads, `commit_path` / `resist_path` effect primitives, T7+ named-order variants (30 storylets), culture + lord-trait overlays (45 + 15), `CareerDebugHotkeysBehavior` hotkeys, `validate_content.py` Phase 15 enforcement, integration with Plans 1-4. No new save-definer offsets. | 🟡 Code-complete |
-| [orders-content.md](Features/Content/orders-content.md) | Complete catalog of all 17 implemented orders with event pools, duration, skills, fatigue, injury risk, and sea/land filtering. Live reference until Spec 2 replaces the subsystem — **Spec 2 Phase A underway** (Tasks 1-16 of 60 shipped (Phase A code complete, Task 17 smoke pending); [plan](superpowers/plans/2026-04-20-orders-surface.md)). | ✅ Current |
 
 ### Technical Systems
 

@@ -494,9 +494,9 @@ Complete inventory of all JSON configuration and content files.
 - `Events/incidents_waiting.json` - Waiting/idle incidents
 - `Events/schema_version.json` - Event schema version
 
-### Orders
+### Order Content
 
-Retired. Order content is now authored through `Activities/`, `Storylets/`, `Effects/`, and `Qualities/`. The deployed build cleans stale `Orders/` content before copying current data.
+Order content is authored through `Activities/`, `Storylets/`, `Effects/`, and `Qualities/`. The deployed build removes stale `Orders/` content before copying current data.
 
 ---
 

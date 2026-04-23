@@ -205,7 +205,7 @@ This refactor changes shipped surfaces documented in multiple places. All must b
 | :--- | :--- |
 | `docs/Features/Content/home-surface.md` | References to `enlisted_status` body composition (if any touch Kingdom/Company/Player sections) |
 | `docs/INDEX.md` | Feature-lookup rows referencing HEADLINES or the camp-body section list |
-| `docs/Features/Core/order-progression-system.md` | Lines 838 + 856 + 962 describe `SINCE LAST MUSTER` + `UPCOMING` as shipped — confirm the spec preserves these contracts verbatim or update the doc if content shifts |
+| `docs/Features/Content/storylet-backbone.md` | Confirm activity/storylet authoring docs match the current Camp Hub news and activity routing |
 | `docs/Features/UI/news-reporting-system.md` | Extensively describes "Daily Brief" as shipped. Must be rewritten to describe the `DISPATCHES` weekly-edition flow, remove references to the orphaned `BuildDailyBriefSection`, and clarify the two-feed separation |
 | `docs/Features/Core/muster-system.md` | If it cross-references news surfaces used by the ceremony |
 | `docs/Features/Campaign/camp-life-simulation.md` | If it references camp-hub body sections by name |
@@ -291,7 +291,7 @@ None locked in. Edition length (7 days) is the one tunable playtest might want t
 - `UPCOMING` full forecast contract documented and preserved (commitment + order + world-state hint + schedule).
 - Camp Hub body expanded from 2 sections to 3 (`YOU` / `SINCE LAST MUSTER` / `CAMP ACTIVITIES`).
 - `CampaignTimeControlMode` enum used with real value names from the decompile (fast-family + play-family taxonomy explicit).
-- Docs-sync scope widened to six files including `order-progression-system.md` and `news-reporting-system.md`.
+- Docs-sync scope widened to include current content and news-reporting references.
 - Explicit disposition table entries for every helper that moves, stays, or disappears.
 
 ## Changelog vs initial v2

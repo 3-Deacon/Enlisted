@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-14 (Updated to reflect Scrutiny 0-100 and native lord relation system)  
-**Related Docs:** [Enlistment System](enlistment.md), [Training System](../Combat/training-system.md), [Pay System](pay-system.md), [Order Progression System](order-progression-system.md)
+**Related Docs:** [Enlistment System](enlistment.md), [Training System](../Combat/training-system.md), [Pay System](pay-system.md), [Storylet Backbone](../Content/storylet-backbone.md)
 
 **SYSTEM CHANGES (2026-01-14):**
 - **Scrutiny** is now 0-100 scale (merged from old Discipline 0-10)

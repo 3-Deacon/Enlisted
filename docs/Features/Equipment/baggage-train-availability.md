@@ -13,7 +13,7 @@
 - ✅ **Daily Brief integration:** Shows baggage status (raids, arrivals, delays, temporary access)
 - ✅ **Event tracking:** Records raid/arrival timestamps for contextual Daily Brief messages
 - ✅ Rank progression: Officers gain privileges (halt column, free emergency access)
-- ✅ **Dynamic decision:** Baggage access appears in DECISIONS accordion only when accessible
+- ✅ **Dynamic decision:** Baggage access appears in Camp Activities only when accessible
 
 **Status:** ✅ Complete (Phases 1-6 + Orchestrator Integration Implemented)  
 **Last Updated:** 2026-01-01
@@ -647,7 +647,7 @@ public bool CanHaltColumn()
 
 ### Overview
 
-Baggage access appears as a decision button in the DECISIONS accordion. When clicked, it **bypasses the popup** and routes directly to either the baggage stash or the QM dialogue based on current access state. This provides seamless access without unnecessary confirmation popups.
+Baggage access appears as a Camp Activities button. When clicked, it **bypasses the popup** and routes directly to either the baggage stash or the QM dialogue based on current access state. This provides seamless access without unnecessary confirmation popups.
 
 ### Implementation
 

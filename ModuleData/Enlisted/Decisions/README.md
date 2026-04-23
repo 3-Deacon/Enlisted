@@ -51,7 +51,7 @@ The following are **triggered events** (game-initiated based on conditions), not
 ### Automatic Decision Events (`events_decisions.json`)
 **Delivery:** Game triggers as popup inquiry based on conditions  
 **Examples:** Lord's hunt invitation, training offers from NCO, quartermaster deals  
-**Recognition:** `decision_*` prefix (legacy naming)
+**Recognition:** `decision_*` prefix
 
 ### Player-Initiated Event Popups (`events_player_decisions.json`)
 **Delivery:** Player initiates from menu, but delivered as popup inquiry  

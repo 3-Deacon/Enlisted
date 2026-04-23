@@ -54,16 +54,15 @@ namespace Enlisted.Debugging.Behaviors
 
 
         /// <summary>
-        /// [DEPRECATED] Random event forcing removed per Order Prompt Model.
-        /// Events now fire via player-driven Order Prompt system only.
-        /// Use ListEligibleEvents() to check what events could fire from prompts.
+        /// Random event forcing is removed. Events now route through StoryDirector
+        /// and surface-specific emitters. Use ListEligibleEvents() for diagnostics.
         /// </summary>
         public static void ForceEventSelection()
         {
-            var msg = new TextObject("Random events removed. Events now fire via Order Prompt system.");
+            var msg = new TextObject("Random events removed. Events now fire through StoryDirector.");
             InformationManager.DisplayMessage(new InformationMessage(msg.ToString()));
-            ModLogger.Info("Debug", "ForceEventSelection: Random event system removed per Order Prompt Model");
-            SessionDiagnostics.LogEvent("Debug", "ForceEventSelection", "Deprecated - use Order Prompts");
+            ModLogger.Info("Debug", "ForceEventSelection: Random event system removed");
+            SessionDiagnostics.LogEvent("Debug", "ForceEventSelection", "Use StoryDirector diagnostics");
         }
 
         /// <summary>

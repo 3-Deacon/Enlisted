@@ -28,7 +28,7 @@ The backbone is the content layer beneath [`StoryDirector`](../../superpowers/sp
 
 ## Vocabulary
 
-Canonical terms. Surface specs use these names; legacy terms are migrated out, not kept alongside.
+Canonical terms. Surface specs use these names; older terms are migrated out, not kept alongside.
 
 | Canonical term | What it is |
 | :--- | :--- |
@@ -370,7 +370,7 @@ StoryDirector.Instance?.EmitCandidate(candidate);
 
 **Synthetic IDs:** `BuildModal` generates `"storylet_{id}_{monotonic_counter}"` as the `EventDefinition.Id`. The counter is global and monotonic so the same storylet can fire twice (rare, but possible) without key collisions in the pending-effects registry.
 
-**Effect bridging:** `Choice.Effects` (`List<EffectDecl>`) are stored in a static `_pendingEffects` registry keyed by `(syntheticEventId, choiceId)`. They are **not** put into `EventOption.Effects` (which uses the legacy `EventEffects` shape). Instead, `EventDeliveryManager.OnOptionSelected` calls `StoryletEventAdapter.DrainPendingEffects(eventId, optionId)` after its normal effect pass — this hook is already wired as of Phase A.
+**Effect bridging:** `Choice.Effects` (`List<EffectDecl>`) are stored in a static `_pendingEffects` registry keyed by `(syntheticEventId, choiceId)`. They are **not** put into `EventOption.Effects` (which uses the older `EventEffects` shape). Instead, `EventDeliveryManager.OnOptionSelected` calls `StoryletEventAdapter.DrainPendingEffects(eventId, optionId)` after its normal effect pass — this hook is already wired as of Phase A.
 
 **Chain parking:** After applying effects, `DrainPendingEffects` calls `ParkChainIfAny`, which reads `Choice.Chain.When` and calls `ActivityRuntime.Instance?.ParkChain(typeId, phaseId, chain.Id)`. The `when` field uses `"{typeId}.{phaseId}"` syntax (e.g. `"home_activity.evening"`). An absent `when` field falls back to the owner activity's current type/phase.
 
@@ -473,4 +473,4 @@ Lord-trait-gated storylets don't use the `__` convention — they're authored as
 - [Event Pacing (delivery layer, Spec above this one)](../../superpowers/specs/2026-04-18-event-pacing-design.md)
 - [Writing Style Guide](writing-style-guide.md) — voice, tone, tooltip format
 - [Error Code Registry](../../error-codes.md) — auto-generated
-- [Content System Architecture (legacy, pre-Spec-0)](content-system-architecture.md) — scheduled for replacement by surface specs 1–5
+- [Content System Architecture (pre-Spec-0)](content-system-architecture.md) — scheduled for replacement by surface specs 1–5

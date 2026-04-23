@@ -91,7 +91,7 @@ namespace Enlisted.Features.Content
                 TitleFallback = s.Title ?? string.Empty,
                 SetupFallback = s.Setup ?? string.Empty,
                 // Sentinel category — EventDeliveryManager does not branch on "storylet",
-                // but future code should not assume legacy semantics for this category.
+                // but future code should not assume older event semantics for this category.
                 Category = "storylet",
                 Options = options
             };

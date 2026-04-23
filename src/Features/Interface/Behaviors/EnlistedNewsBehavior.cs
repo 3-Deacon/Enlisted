@@ -5446,7 +5446,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
             // Tier/Body/Beats typed fields. Mirrored in LoadDispatchItem.
             // Tier is serialized as int for backward-compat with pre-PR-c saves (missing
-            // key loads as 0 = StoryTier.Log, which is the correct legacy default).
+            // key loads as 0 = StoryTier.Log, the correct default for untyped items).
             var tier = (int)item.Tier;
             _ = dataStore.SyncData($"{prefix}_tier", ref tier);
 
@@ -5455,7 +5455,7 @@ namespace Enlisted.Features.Interface.Behaviors
             _ = dataStore.SyncData($"{prefix}_body", ref body);
 
             // Beats: serialize count + per-index enum values. Missing count key loads as 0,
-            // matching the "legacy dispatch with no typed beats" semantic.
+            // matching the untyped dispatch semantic.
             var beatCount = item.Beats?.Count ?? 0;
             _ = dataStore.SyncData($"{prefix}_beatCount", ref beatCount);
             if (item.Beats != null)
@@ -5949,8 +5949,8 @@ namespace Enlisted.Features.Interface.Behaviors
         /// <summary>
         /// Authoritative tier for this dispatch. Replaces the magic-number read of Severity
         /// for "is this a headline?" queries. Set by StoryDirector.WriteDispatchItem.
-        /// 0 (Log) is the default for dispatches created through legacy paths that don't
-        /// yet set this field; treat those as non-headline.
+        /// 0 (Log) is the default for dispatches created through untyped paths; treat
+        /// those as non-headline.
         /// </summary>
         public StoryTier Tier { get; set; }
 

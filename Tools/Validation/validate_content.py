@@ -1470,22 +1470,22 @@ def validate_csproj(ctx: ValidationContext):
                     "Enlisted.csproj",
                 )
 
-        # --- Check 6: Retired content is cleaned from deployed module data ---
-        retired_content_dirs = [
+        # --- Check 6: Removed content is cleaned from deployed module data ---
+        removed_content_dirs = [
             "ModuleData/Enlisted/Orders",
             "ModuleData/Enlisted/Chains",
         ]
 
         csproj_content = csproj_path.read_text(encoding="utf-8")
 
-        for retired_dir in retired_content_dirs:
-            source_path = Path(retired_dir.replace("/", os.sep))
+        for removed_dir in removed_content_dirs:
+            source_path = Path(removed_dir.replace("/", os.sep))
             if source_path.exists():
                 ctx.add_issue(
                     "error",
                     "project",
-                    f"Retired content directory still exists in source: {retired_dir}",
-                    retired_dir,
+                    f"Removed content directory still exists in source: {removed_dir}",
+                    removed_dir,
                 )
 
         required_cleanup_paths = [

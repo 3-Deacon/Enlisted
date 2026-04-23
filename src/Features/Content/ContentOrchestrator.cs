@@ -360,7 +360,7 @@ namespace Enlisted.Features.Content
                 // This pre-schedules opportunities 24 hours ahead so they don't disappear mid-session
                 ScheduleOpportunities();
 
-                // Update camp opportunities availability (legacy - can be deprecated after Phase 3)
+                // Update camp opportunities availability until all callers read scheduled opportunities directly.
                 RefreshCampOpportunities();
 
                 // Update baggage simulation context (world-state-aware probabilities)

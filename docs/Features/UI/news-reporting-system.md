@@ -12,7 +12,7 @@
 
 **Status:** ✅ Current - Comprehensive Integration Complete  
 **Last Updated:** 2026-01-03 (Routine outcome severity fix)  
-**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Order Progression System](../Core/order-progression-system.md), [Orders Content](../Content/orders-content.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
+**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Storylet Backbone](../Content/storylet-backbone.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
 
 ---
 
@@ -52,10 +52,10 @@ Surface consumers use the route consistently:
 | :--- | :--- |
 | `DISPATCHES` | Kingdom-domain items from native kingdom feed producers, usually `SurfaceHint.Dispatches` or `Auto` |
 | Camp `YOU` | Personal items intended for the player, usually `SurfaceHint.You` or `Auto` |
-| `SINCE LAST MUSTER` | The route predicate includes period-bounded personal outcomes, but current rendering only adds `ServiceStance` dispatch summaries there; order and event recaps still come from the legacy muster/order/event record lists |
+| `SINCE LAST MUSTER` | The route predicate includes period-bounded personal outcomes; current rendering adds `ServiceStance` dispatch summaries there while muster-specific records continue to come from the muster ledger |
 | `CAMP ACTIVITIES` | Camp-domain items and activity-override outcomes |
 
-Legacy entries that lack routing are treated as personal `Unknown` / `Auto` dispatches during load so old saves remain readable.
+Saved entries that lack routing are treated as personal `Unknown` / `Auto` dispatches during load so older saves remain readable.
 
 ---
 
@@ -972,7 +972,7 @@ Tracks event choices for personal feed using a queue system to display one outco
 - `EventId`: Event identifier
 - `EventTitle`: Localized title
 - `OptionChosen`: Which option selected
-- `OutcomeSummary`: Mechanical effects summary (legacy)
+- `OutcomeSummary`: Mechanical effects summary kept for older save records.
 - `ResultNarrative`: Full RP narrative outcome text from option's `resultText` field
 - `DayNumber`: When event occurred
 - `EffectsApplied`: Dictionary<string, int> of effects

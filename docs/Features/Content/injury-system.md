@@ -5,7 +5,7 @@
 **Status:** ✅ Implemented  
 **Last Updated:** 2026-01-01  
 **Implementation:** `src/Features/Conditions/PlayerConditionBehavior.cs`, `src/Features/Content/EventDeliveryManager.cs`, `ModuleData/Enlisted/Conditions/condition_defs.json`  
-**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](storylet-backbone.md)
+**Related Docs:** [Storylet Backbone](storylet-backbone.md)
 
 ---
 
@@ -390,38 +390,24 @@ The injury severity scales naturally with character progression.
 
 ## Integration Points
 
-### Order Outcomes
+### Activity Outcomes
 
-Order outcomes can specify `injury_type` instead of `hp_loss`:
-
-```json:ModuleData/Enlisted/Orders/orders_t4_t6.json
-{
-  "id": "order_scout_route",
-  "consequences": {
-    "critical_failure": {
-      "reputation": { "officer": -15, "lord": -10 },
-      "injury_type": "puncture_wound",
-      "text": "The ambush caught you. An arrow finds your side. You barely escaped."
-    }
-  }
-}
-```
+Activity and storylet outcomes route medical consequences through `EventDeliveryManager` and `PlayerConditionBehavior`.
 
 **Code path:**
 ```csharp
-OrderManager.ApplyOrderOutcomeEffects()
-  → Checks outcome.InjuryType first
-  → InjurySystem.ApplyInjury(injuryType, reason)
-  → Displays narrative + applies HP loss
+EventDeliveryManager
+  -> PlayerConditionBehavior.TryApplyInjury(...)
+  -> Displays narrative + applies recovery state
 ```
 
 ### Event Outcomes
 
 Events can trigger injuries through outcome effects:
 
-```json:ModuleData/Enlisted/Events/order_events_scout.json
+```json:ModuleData/Enlisted/Events/illness_onset.json
 {
-  "id": "order_evt_scout_ambush",
+  "id": "untreated_condition_worsening",
   "options": [
     {
       "id": "fight_back",

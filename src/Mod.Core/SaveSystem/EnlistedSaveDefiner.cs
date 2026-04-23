@@ -39,8 +39,8 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Quartermaster inventory state
             AddClassDefinition(typeof(QMInventoryState), 1);
 
-            // Order system types (offsets 10-14) — deleted with legacy OrderManager subsystem
-            // retirement. Save loads tolerate orphaned SyncData entries per
+            // Order system types (offsets 10-14) were deleted with the old OrderManager
+            // subsystem. Save loads tolerate orphaned SyncData entries per
             // CampaignBehaviorDataStore.LoadBehaviorData permissive lookup
             // (decompile: TaleWorlds.CampaignSystem/CampaignBehaviorDataStore.cs:86-106).
             // Offsets 10-14 remain reserved; do not reuse without audit.

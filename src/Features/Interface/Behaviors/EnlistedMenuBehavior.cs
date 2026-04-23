@@ -98,12 +98,7 @@ namespace Enlisted.Features.Interface.Behaviors
         private bool _ordersCollapsed = true;
         private string _ordersLastSeenOrderId = string.Empty;
 
-        // Decisions accordion state for the main menu.
-        // Auto-expands when new decisions are available, collapses when empty.
-        private bool _decisionsMainMenuCollapsed = true;
-        private HashSet<string> _decisionsMainMenuLastSeenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        // CACHED decisions list - populated when menu renders, used for click handling.
+        // CACHED camp activity list - populated when menu renders, used for click handling.
         // This prevents the "phase changed between render and click" bug where decisions
         // disappear mid-interaction because the game phase advanced.
         private List<DecisionAvailability> _cachedDecisionsForCurrentMenu = new List<DecisionAvailability>();
@@ -1244,9 +1239,9 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 var slotIndex = i;
                 starter.AddGameMenuOption(CampHubMenuId, $"camp_hub_activity_slot_{i}",
-                    $"{{MAIN_DECISION_SLOT_{i}_TEXT}}",
-                    args => IsMainMenuDecisionSlotAvailable(args, slotIndex),
-                    args => OnMainMenuDecisionSlotSelected(args, slotIndex),
+                    $"{{CAMP_ACTIVITY_SLOT_{i}_TEXT}}",
+                    args => IsCampHubActivitySlotAvailable(args, slotIndex),
+                    args => OnCampHubActivitySlotSelected(args, slotIndex),
                     false, 1 + i);
             }
 
@@ -1336,7 +1331,7 @@ namespace Enlisted.Features.Interface.Behaviors
             // Treatment decisions appear as orchestrated opportunities when player has conditions
             // See: dec_medical_surgeon, dec_medical_rest, dec_medical_herbal, dec_medical_emergency
 
-            // Access Baggage Train moved to Decisions accordion - appears only when accessible
+            // Access Baggage Train is surfaced through Camp Activities when accessible.
 
             // My Lord... - conversation with the current lord (Conversation icon)
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_talk_to_lord",
@@ -1389,8 +1384,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var normalized = QuartermasterManager.NormalizeToStoppable(captured);
                 Campaign.Current.TimeControlMode = normalized;
 
-                _decisionsMainMenuCollapsed = false;
-                RefreshMainMenuDecisionSlots();
+                RefreshCampHubActivitySlots();
                 MBTextManager.SetTextVariable("CAMP_HUB_TEXT", BuildCampHubText());
             }
             catch (Exception ex)
@@ -3644,7 +3638,7 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-        // Note: Removed legacy section builders (BuildMainMenuKingdomSection, BuildMainMenuCampSummary,
+        // Note: Removed section builders (BuildMainMenuKingdomSection, BuildMainMenuCampSummary,
         // BuildMainMenuYouSection) - replaced by paragraph-based BuildMainMenuNarrative()
 
         // Note: Removed unused GetDynamicStatusMessages, CanPromote, and GetOfficerSkillName methods
@@ -4706,72 +4700,30 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-        private void ToggleDecisionsMainMenuAccordion(MenuCallbackArgs args)
+        private void RefreshCampHubActivitySlots()
         {
-            try
-            {
-                // Fetch and cache decisions - click handlers will use this same list
-                var decisions = GetCurrentDecisions();
-                _cachedDecisionsForCurrentMenu = decisions;
-                _cachedDecisionsTime = CampaignTime.Now;
-
-                if (decisions.Count == 0)
-                {
-                    _decisionsMainMenuCollapsed = true;
-                    return;
-                }
-
-                _decisionsMainMenuCollapsed = !_decisionsMainMenuCollapsed;
-
-                // When user expands the accordion, mark all current decisions as "seen" to clear the [NEW] badge
-                if (!_decisionsMainMenuCollapsed)
-                {
-                    var currentIds = new HashSet<string>(decisions.Select(d => d.Decision?.Id ?? string.Empty), StringComparer.OrdinalIgnoreCase);
-                    _decisionsMainMenuLastSeenIds = currentIds;
-                }
-
-                // Update slot text variables using already-cached decisions
-                RefreshMainMenuDecisionSlots();
-
-                // Re-render and refresh menu options
-                RefreshEnlistedStatusDisplay(args);
-
-                var menuContext = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
-                if (Campaign.Current != null && menuContext?.GameMenu != null)
-                {
-                    Campaign.Current.GameMenuManager.RefreshMenuOptions(menuContext);
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Surfaced("INTERFACE", "Failed to toggle decisions accordion", ex);
-            }
-        }
-
-        private void RefreshMainMenuDecisionSlots()
-        {
-            // Use already-cached decisions if available and fresh (within 1 game hour)
-            // Otherwise fetch and cache new decisions
+            // Use already-cached activities if available and fresh (within 1 game hour).
+            // Otherwise fetch and cache new activities.
             var decisions = _cachedDecisionsForCurrentMenu;
             var isFresh = _cachedDecisionsTime.ElapsedHoursUntilNow < 1.0f;
 
             if (decisions == null || decisions.Count == 0 || !isFresh)
             {
-                decisions = GetCurrentDecisions();
+                decisions = GetCurrentCampActivities();
 
-                // CACHE the decisions list - used by click handlers to prevent race condition
+                // CACHE the activity list - used by click handlers to prevent race condition
                 // where phase changes between render and click cause index mismatch
                 _cachedDecisionsForCurrentMenu = decisions;
                 _cachedDecisionsTime = CampaignTime.Now;
 
-                ModLogger.Debug("INTERFACE", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions FETCHED and cached");
+                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities FETCHED and cached");
             }
             else
             {
-                ModLogger.Debug("INTERFACE", $"RefreshMainMenuDecisionSlots: {decisions.Count} decisions from cache");
+                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities from cache");
             }
 
-            for (var i = 0; i < 5; i++)
+            for (var i = 0; i < 3; i++)
             {
                 var slotText = string.Empty;
                 if (i < decisions.Count)
@@ -4794,16 +4746,16 @@ namespace Enlisted.Features.Interface.Behaviors
                         }
                     }
                 }
-                MBTextManager.SetTextVariable($"MAIN_DECISION_SLOT_{i}_TEXT", slotText);
+                MBTextManager.SetTextVariable($"CAMP_ACTIVITY_SLOT_{i}_TEXT", slotText);
             }
         }
 
         /// <summary>
-        /// Gets current decisions directly from the Orchestrator (no caching).
+        /// Gets current Camp Hub activities directly from the Orchestrator (no caching).
         /// Shows ALL today's opportunities - available ones are clickable, committed ones are greyed.
         /// The Orchestrator owns the schedule - menu just reads from it.
         /// </summary>
-        private List<DecisionAvailability> GetCurrentDecisions()
+        private List<DecisionAvailability> GetCurrentCampActivities()
         {
             var allDecisions = new List<DecisionAvailability>();
 
@@ -4817,13 +4769,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     var allTodaysOpps = orchestrator.GetAllTodaysOpportunities();
                     var currentPhase = WorldStateAnalyzer.GetCurrentDayPhase();
 
-                    // INFO level logging to diagnose decision display issues
+                    // INFO level logging to diagnose activity display issues.
                     ModLogger.Info("INTERFACE",
-                        $"GetCurrentDecisions: Orchestrator returned {allTodaysOpps.Count} opportunities for today " +
+                        $"GetCurrentCampActivities: Orchestrator returned {allTodaysOpps.Count} opportunities for today " +
                         $"(committed={allTodaysOpps.Count(o => o.PlayerCommitted)}, available={allTodaysOpps.Count(o => o.IsAvailableToCommit)})");
 
-                    // Show up to 5 opportunities (3 regular + overflow for visibility)
-                    foreach (var scheduled in allTodaysOpps.Take(5))
+                    // Camp Hub has three fixed activity slots.
+                    foreach (var scheduled in allTodaysOpps.Take(3))
                     {
                         var availability = ConvertScheduledToDecisionAvailability(scheduled, currentPhase);
                         if (availability != null)
@@ -4840,10 +4792,10 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
                 else
                 {
-                    ModLogger.Warn("INTERFACE", "GetCurrentDecisions: ContentOrchestrator.Instance is null!");
+                    ModLogger.Warn("INTERFACE", "GetCurrentCampActivities: ContentOrchestrator.Instance is null!");
                 }
 
-                // Add logistics decisions (baggage access, etc.) - these don't count against the opportunity limit
+                // Add logistics activities (baggage access, etc.) - these don't count against the opportunity limit.
                 var decisionManager = DecisionManager.Instance;
                 if (decisionManager != null)
                 {
@@ -4863,12 +4815,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 if (allDecisions.Count == 0)
                 {
                     ModLogger.Expected("INTERFACE", "menu_decisions_empty",
-                        "GetCurrentDecisions: 0 decisions available - check Orchestrator schedule and phase");
+                        "GetCurrentCampActivities: 0 activities available - check Orchestrator schedule and phase");
                 }
                 else
                 {
                     ModLogger.Info("INTERFACE",
-                        $"GetCurrentDecisions: {allDecisions.Count} total decisions ready for menu");
+                        $"GetCurrentCampActivities: {allDecisions.Count} total activities ready for menu");
                 }
             }
             catch (Exception ex)
@@ -5009,9 +4961,9 @@ namespace Enlisted.Features.Interface.Behaviors
             };
         }
 
-        private bool IsMainMenuDecisionSlotAvailable(MenuCallbackArgs args, int slotIndex)
+        private bool IsCampHubActivitySlotAvailable(MenuCallbackArgs args, int slotIndex)
         {
-            // Use CACHED decisions to prevent race condition between render and click
+            // Use CACHED activities to prevent race condition between render and click.
             var decisions = _cachedDecisionsForCurrentMenu ?? new List<DecisionAvailability>();
 
             if (slotIndex >= decisions.Count)
@@ -5031,24 +4983,24 @@ namespace Enlisted.Features.Interface.Behaviors
             return true;
         }
 
-        private void OnMainMenuDecisionSlotSelected(MenuCallbackArgs args, int slotIndex)
+        private void OnCampHubActivitySlotSelected(MenuCallbackArgs args, int slotIndex)
         {
             try
             {
-                // Use CACHED decisions to prevent race condition where phase changes
+                // Use CACHED activities to prevent race condition where phase changes
                 // between menu render and user click cause index mismatch
                 var decisions = _cachedDecisionsForCurrentMenu ?? new List<DecisionAvailability>();
 
                 // Log what was clicked and what we have cached for debugging
                 var cachedIds = decisions.Select(d => d.Decision?.Id ?? "null").ToList();
                 ModLogger.Info("INTERFACE",
-                    $"Decision slot {slotIndex} clicked - cached: [{string.Join(", ", cachedIds)}] " +
+                    $"Camp activity slot {slotIndex} clicked - cached: [{string.Join(", ", cachedIds)}] " +
                     $"(count={decisions.Count}, age={_cachedDecisionsTime.ElapsedHoursUntilNow:F2}h)");
 
                 if (slotIndex >= decisions.Count)
                 {
                     ModLogger.Warn("INTERFACE",
-                        $"Decision slot {slotIndex} out of range! Have {decisions.Count} cached decisions. " +
+                        $"Camp activity slot {slotIndex} out of range! Have {decisions.Count} cached activities. " +
                         $"Cache may be stale - will refresh on next menu render.");
                     return;
                 }
@@ -5056,15 +5008,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 var availability = decisions[slotIndex];
                 if (availability.Decision == null)
                 {
-                    ModLogger.Warn("INTERFACE", $"Decision slot {slotIndex} has null Decision object");
+                    ModLogger.Warn("INTERFACE", $"Camp activity slot {slotIndex} has null Decision object");
                     return;
                 }
 
-                ModLogger.Info("INTERFACE", $"Processing decision from slot {slotIndex}: {availability.Decision.Id}");
-
-                // Mark all current decisions as "seen" since user is now interacting with them
-                var currentIds = new HashSet<string>(decisions.Select(d => d.Decision?.Id ?? string.Empty), StringComparer.OrdinalIgnoreCase);
-                _decisionsMainMenuLastSeenIds = currentIds;
+                ModLogger.Info("INTERFACE", $"Processing camp activity from slot {slotIndex}: {availability.Decision.Id}");
 
                 // Check if this is a scheduled opportunity with commitment model
                 var scheduled = availability.ScheduledOpportunity;
@@ -5108,7 +5056,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                         // Refresh menu to show greyed-out state
                         ModLogger.Info("INTERFACE", $"Refreshing menu after commitment...");
-                        RefreshMainMenuDecisionSlots();
+                        RefreshCampHubActivitySlots();
                         var menuContext = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
                         if (Campaign.Current != null && menuContext?.GameMenu != null)
                         {
@@ -5146,19 +5094,19 @@ namespace Enlisted.Features.Interface.Behaviors
                 }
 
                 // IMMEDIATE MENU REFRESH: Refresh slots NOW so consumed decision disappears
-                RefreshMainMenuDecisionSlots();
+                RefreshCampHubActivitySlots();
                 var ctx = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
                 if (Campaign.Current != null && ctx?.GameMenu != null)
                 {
                     Campaign.Current.GameMenuManager.RefreshMenuOptions(ctx);
                 }
 
-                // Fire the decision event
+                // Fire the activity event.
                 OnDecisionSelected(availability.Decision);
             }
             catch (Exception ex)
             {
-                ModLogger.Surfaced("INTERFACE", "Failed to select decision slot", ex,
+                ModLogger.Surfaced("INTERFACE", "Failed to select camp activity slot", ex,
                     ctx: LogCtx.Of("SlotIndex", slotIndex));
             }
         }

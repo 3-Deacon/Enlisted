@@ -4,7 +4,7 @@
 
 **Status:** 📋 Specification  
 **Last Updated:** 2025-12-24  
-**Related Docs:** [ui-systems-master.md](ui-systems-master.md), [quartermaster-system.md](../Equipment/quartermaster-system.md), [order-progression-system.md](../Core/order-progression-system.md)
+**Related Docs:** [ui-systems-master.md](ui-systems-master.md), [quartermaster-system.md](../Equipment/quartermaster-system.md), [storylet-backbone.md](../Content/storylet-backbone.md)
 
 ---
 
@@ -1483,7 +1483,8 @@ Enlisted/
 src/Features/Interface/Behaviors/
 └── EnlistedMenuBehavior.cs               (KEEP AS-IS - registers all native submenus)
 
-ModuleData/Enlisted/Orders/               (KEEP AS-IS - native orders config)
+ModuleData/Enlisted/Activities/           (KEEP AS-IS - activity type config)
+ModuleData/Enlisted/Storylets/            (KEEP AS-IS - activity and narrative storylets)
 ModuleData/Enlisted/Decisions/            (KEEP AS-IS - native decisions config)
 ```
 

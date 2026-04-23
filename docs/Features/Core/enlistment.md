@@ -3,7 +3,7 @@
 **Summary:** The enlistment system manages how players join a lord's service, progress through 9 military ranks (T1-T9), and leave through discharge or desertion. Covers deep technical details of enlistment mechanics, invisible party management, XP progression, wage calculation, baggage handling, grace periods, and service records for re-enlistment.
 
 **Status:** ✅ Current  
-**Last Updated:** 2026-04-21 (Grace/leave lord tracking now uses an explicit campaign marker alongside the legacy tracker)
+**Last Updated:** 2026-04-21 (Grace/leave lord tracking now uses an explicit campaign marker alongside the tracker fallback)
 **Related Docs:** [Core Gameplay](core-gameplay.md), [Onboarding & Discharge](onboarding-discharge-system.md), [Pay System](pay-system.md), [Promotion System](promotion-system.md)
 
 > **Note:** For high-level gameplay overview, see `core-gameplay.md`. This document provides technical implementation details.
@@ -149,7 +149,7 @@ Instead of passive assignments, players receive explicit orders from the chain o
 - **T7-T9**: Strategic directives (command squads, strategic planning)
 Success improves reputation and company needs; failure or declining orders carries heavy penalties.
 
-**See:** [Order Progression System](order-progression-system.md) for complete documentation.
+**See:** [Storylet Backbone](../Content/storylet-backbone.md) for current order activity authoring.
 
 **Promotion Requirements:**
 
@@ -287,8 +287,8 @@ Level 10 Player, Returning (Deserter):
 **Configuration Files:**
 - `ModuleData/Enlisted/enlisted_config.json`: Core gameplay config (grace period, wages, pacing, probation)
 - `ModuleData/Enlisted/progression_config.json`: Tier XP thresholds, culture-specific ranks, promotion benefits
-  - **Note**: `xp_sources` section (daily_base, battle_participation, xp_per_kill) is legacy; XP is now awarded through order system and combat skill conversion
-- `ModuleData/Enlisted/Orders/*.json`: Order definitions (17 total orders across T1-T9)
+  - **Note**: `xp_sources` section (daily_base, battle_participation, xp_per_kill) is not used for current progression; XP is awarded through activity outcomes and combat skill conversion.
+- `ModuleData/Enlisted/Activities/*.json` and `ModuleData/Enlisted/Storylets/*.json`: Activity and order-arc content.
 - `ModuleData/Languages/enlisted_strings.xml`: All localized strings
 
 ## Edge Cases

@@ -159,7 +159,7 @@ Base `Activity` fields (`TypeId`, `CurrentPhaseIndex`, `Intent`, `LastAutoFireHo
 
 ## Localization
 
-Storylet loc-keys use the **inline `{=key}Fallback`** pattern (in `title` / `setup` / `options[].text` / `options[].tooltip`), not the legacy Event schema's separate `titleId`+`title` pairs. See [`../../../CLAUDE.md`](../../../CLAUDE.md) → Project conventions.
+Storylet loc-keys use the **inline `{=key}Fallback`** pattern (in `title` / `setup` / `options[].text` / `options[].tooltip`), not the Event schema's separate `titleId`+`title` pairs. See [`../../../CLAUDE.md`](../../../CLAUDE.md) -> Project conventions.
 
 All 206 home-surface keys are synced into [`ModuleData/Languages/enlisted_strings.xml`](../../../ModuleData/Languages/enlisted_strings.xml); run `Tools/Validation/sync_event_strings.py` after authoring new storylets to pick up additions.
 

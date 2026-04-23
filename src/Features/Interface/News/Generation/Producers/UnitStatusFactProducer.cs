@@ -64,7 +64,7 @@ namespace Enlisted.Features.Interface.News.Generation.Producers
 
                 // Scrutiny (0-100 scale): tracks rule-breaking and insubordination
                 var scrutiny = EscalationManager.Instance?.State?.Scrutiny ?? -1;
-                snapshot.DisciplineIssues = scrutiny; // Legacy field name (TODO: rename to ScrutinyValue)
+                snapshot.DisciplineIssues = scrutiny; // Older field name (TODO: rename to ScrutinyValue)
                 snapshot.DisciplineTag = scrutiny switch
                 {
                     < 0 => string.Empty,

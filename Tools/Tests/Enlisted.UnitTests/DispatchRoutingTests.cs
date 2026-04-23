@@ -6,7 +6,7 @@ namespace Enlisted.UnitTests;
 public sealed class DispatchRoutingTests
 {
     [Fact]
-    public void DefaultsPreserveLegacyPersonalFeedBehavior()
+    public void DefaultsRouteUntypedItemsToPersonalFeed()
     {
         var route = DispatchRoute.DefaultPersonal;
 

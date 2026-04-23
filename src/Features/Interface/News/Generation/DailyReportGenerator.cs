@@ -223,7 +223,7 @@ namespace Enlisted.Features.Interface.News.Generation
             }
 
             // ===== Unit: scrutiny pressure (0-100 scale) =====
-            if (snapshot.DisciplineIssues >= 0) // Legacy field name, now contains scrutiny value
+            if (snapshot.DisciplineIssues >= 0) // Older field name, now contains scrutiny value
             {
                 // Critical: 81-100 (Court-martial pending)
                 if (snapshot.DisciplineIssues >= 81 || string.Equals(snapshot.DisciplineTag, "breaking", StringComparison.OrdinalIgnoreCase))

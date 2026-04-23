@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities, Flags, Activities are now first-class state primitives; surface specs 1-5 will author content against them.)  
-**Related Docs:** [Enlistment](enlistment.md), [Order Progression System](order-progression-system.md), [Identity System](../Identity/identity-system.md), [Camp Simulation System](../Campaign/camp-simulation-system.md)
+**Related Docs:** [Enlistment](enlistment.md), [Storylet Backbone](../Content/storylet-backbone.md), [Identity System](../Identity/identity-system.md), [Camp Simulation System](../Campaign/camp-simulation-system.md)
 
 ---
 
@@ -54,7 +54,7 @@ The mod is built on three core transformations introduced in v2.0:
 
 - **Config**: `ModuleData/Enlisted/enlisted_config.json`
 - **Progression**: `ModuleData/Enlisted/progression_config.json`
-- **Orders Catalog**: `ModuleData/Enlisted/Orders/*.json`
+- **Order Activity Content**: `ModuleData/Enlisted/Activities/*.json` and `ModuleData/Enlisted/Storylets/*.json`
 - **Events Catalog**: `ModuleData/Enlisted/Events/*.json` (Role-based & Contextual)
 - **Rank Titles**: `ModuleData/Enlisted/progression_config.json` (Culture-specific)
 
@@ -75,7 +75,7 @@ Enlisted turns Bannerlord into a “soldier career” loop:
 
 ## Orders System (Chain of Command)
 
-Replaces the legacy passive duties system with explicit, mission-driven tasks.
+Uses `OrderActivity` and storylet arcs for explicit, mission-driven soldier duties.
 
 -   **Frequency**: Orders are issued every 3-5 days by default (config-driven via `enlisted_config.json` → `decision_events.pacing.event_window_min_days` and `event_window_max_days`).
 -   **Chain of Command**: Your rank determines who issues the order (e.g., T1-T2 get orders from a Sergeant; T7+ receive strategic orders from the Lord).
@@ -90,7 +90,7 @@ Replaces the legacy passive duties system with explicit, mission-driven tasks.
 
 **Note:** Orders follow the same pacing system as narrative events. See [Event System Schemas](../Content/event-system-schemas.md#global-event-pacing-enlisted_configjson) for full pacing config details.
 
-**See:** [Order Progression System](order-progression-system.md) for complete technical details.
+**See:** [Storylet Backbone](../Content/storylet-backbone.md) for content authoring and activity details.
 
 ---
 
@@ -124,7 +124,7 @@ Reputation with your lord is tracked using native Bannerlord's relation system (
 All interactions occur through the **Enlisted Status** menu hub:
 -   **Enlisted Status**: View rank, active orders, and immersive narrative reports (Kingdom Reports, Company Reports, Player Status).
 -   **Camp Hub**: Access Service Records, Quartermaster, and Personal Retinue management.
--   **Decisions Accordion**: Handle pending event choices, camp opportunities, and medical care (appears when content is available).
+-   **Camp Activities**: Handle pending camp opportunities, personal commitments, and medical care from the Camp Hub.
 
 ### Daily Brief & Company Reports
 The main **Enlisted Status** menu displays three narrative sections:

@@ -27,7 +27,7 @@ Players can instantly identify problems at a glance - critical supplies, low rep
 |------|------------------|
 | **Main Menu (enlisted_status)** | KINGDOM REPORTS, COMPANY REPORTS, PLAYER STATUS headers + all status values |
 | **Camp Hub** | RECENT ACTIVITY, STATUS headers + all status labels/values |
-| **Reports (Legacy)** | DAILY BRIEF, RECENT ACTIVITY, COMPANY STATUS, CAMPAIGN CONTEXT headers (if implemented) |
+| **Reports** | DAILY BRIEF, RECENT ACTIVITY, COMPANY STATUS, CAMPAIGN CONTEXT headers (if implemented) |
 | **Status Detail** | REPUTATION, ROLE & SPECIALIZATIONS, PERSONALITY TRAITS headers + reputation values |
 | **Decisions Menu** | COMPANY REPORT header (if present) |
 | **Muster Menu** | All 6 stages use full color scheme: section headers, status labels, reputation values, XP progress, rank titles |

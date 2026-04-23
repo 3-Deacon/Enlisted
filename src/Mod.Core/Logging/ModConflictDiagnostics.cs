@@ -216,8 +216,8 @@ namespace Enlisted.Mod.Core.Logging
                 }
                 catch { catalogStatus.Add(("Decisions", 0, "ERROR")); }
 
-                // Order Catalog probe removed — legacy OrderManager subsystem retired;
-                // Spec 2 OrderActivity is tracked separately via ActivityRuntime.
+                // Order Catalog probe removed; OrderActivity is tracked separately
+                // via ActivityRuntime.
 
                 // Storylet Catalog (Spec 0 backbone)
                 try
@@ -761,19 +761,19 @@ namespace Enlisted.Mod.Core.Logging
                     WriteLine("    Decision Files: MISSING");
                 }
 
-                // Retired legacy Orders JSON should not be present. Current orders are
-                // authored as storylets and activities.
-                WriteLine("  [Retired Order JSON]");
+                // Stale Orders JSON should not be present. Current orders are authored
+                // as storylets and activities.
+                WriteLine("  [Stale Order JSON]");
                 var ordersPath = ModulePaths.GetContentPath("Orders");
                 if (Directory.Exists(ordersPath))
                 {
                     var orderFiles = Directory.GetFiles(ordersPath, "*.json", SearchOption.AllDirectories).Length;
-                    warnings.Add("Retired Orders directory present; stale JSON may be ignored or removed");
-                    WriteLine($"    Retired Order Files: {orderFiles} (stale)");
+                    warnings.Add("Stale Orders directory present; remove ignored JSON");
+                    WriteLine($"    Stale Order Files: {orderFiles}");
                 }
                 else
                 {
-                    WriteLine("    Retired Order Files: none");
+                    WriteLine("    Stale Order Files: none");
                 }
 
                 // Check Storylets JSON files (Spec 0 backbone)

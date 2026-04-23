@@ -562,8 +562,8 @@
     <Compile Include="src\Features\Content\StoryletEventAdapter.cs"/>
 
     <!-- ====================================================================
-         LEGACY ORDERS SYSTEM — RETIRED 2026-04-21
-         Replaced by Spec 2 OrderActivity + DutyProfileBehavior +
+         REMOVED ORDERS SUBSYSTEM
+         Replaced by OrderActivity + DutyProfileBehavior +
          NamedOrderArcRuntime. See src/Features/Activities/Orders/.
          ==================================================================== -->
 
@@ -691,7 +691,7 @@
     <DecisionsData Include="ModuleData\Enlisted\Decisions\*.json"/>
   </ItemGroup>
   
-  <!-- Legacy ModuleData\Enlisted\Orders\ ItemGroups retired 2026-04-21; directory deleted. -->
+  <!-- ModuleData\Enlisted\Orders\ ItemGroups removed; order content lives in Activities and Storylets. -->
 
   <ItemGroup>
     <!-- Content (Injuries and other dynamic content) -->

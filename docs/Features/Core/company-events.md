@@ -140,7 +140,7 @@ Events are filtered by the unit's current strategic situation:
 -   `recruitment_drive`: Mustering for War (stockpiling and sharpening blades).
 -   `winter_camp`: Seasonal rest and daily duties in the snow.
 
-Legacy tactical tags (`war`, `peace`, `siege`, `town`, `outdoor`, `camp`) remain supported for broad categorization.
+Older tactical tags (`war`, `peace`, `siege`, `town`, `outdoor`, `camp`) remain supported for broad categorization.
 
 ---
 
@@ -159,7 +159,8 @@ When an option is selected, effects are applied through centralized managers:
 |------|---------|
 | `ModuleData/Enlisted/Events/` | Event JSON definitions (loaded recursively). |
 | `ModuleData/Enlisted/Decisions/` | Player-initiated decision definitions. |
-| `ModuleData/Enlisted/Orders/` | Chain of command order definitions (3 files by tier). |
+| `ModuleData/Enlisted/Activities/` | Activity type definitions. |
+| `ModuleData/Enlisted/Storylets/` | Storylet pools for duties, incidents, and camp activity texture. |
 | `ModuleData/Languages/enlisted_strings.xml` | Localized text and templates. |
 | `src/Features/Content/` | Event system implementation (EventCatalog, EventDeliveryManager, etc.). |
 

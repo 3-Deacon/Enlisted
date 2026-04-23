@@ -494,8 +494,8 @@ if (eb?.IsEnlisted == true)
 
 ### Orders System
 
-- JSON-defined in `ModuleData/Enlisted/Orders/*.json`
-- Tier-gated missions from lord
+- Authored through `ModuleData/Enlisted/Activities/*.json` and `ModuleData/Enlisted/Storylets/*.json`
+- Tier-gated activity arcs from the chain of command
 - Completion affects reputation
 
 ### Equipment System

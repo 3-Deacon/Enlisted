@@ -994,7 +994,7 @@ Order events use `world_state` for context filtering:
 | Complete JSON schema | [event-system-schemas.md](event-system-schemas.md) | All field definitions |
 | All placeholder tokens | This document (see Dynamic Tokens section above) | Complete variable list |
 | Content architecture | [content-system-architecture.md](content-system-architecture.md) | Pipeline overview |
-| Order event structure | [orders-content.md](orders-content.md) | Order-specific rules |
+| Storylet and activity structure | [storylet-backbone.md](storylet-backbone.md) | Duty, camp activity, and event authoring rules |
 | Validation tools | [../../Tools/README.md](../../Tools/README.md) | How to validate |
 
 ### Content Generation Checklist

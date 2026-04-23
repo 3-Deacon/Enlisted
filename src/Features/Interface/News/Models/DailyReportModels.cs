@@ -73,8 +73,8 @@ namespace Enlisted.Features.Interface.News.Models
         public string LastStopTag { get; set; } = string.Empty;  // e.g. "resupply", "recruit"
         public string BattleTag { get; set; } = string.Empty;    // e.g. "imminent", "aftermath"
         public string AttachedArmyTag { get; set; } = string.Empty; // e.g. "attached_to_army"
-        public string DisciplineTag { get; set; } = string.Empty; // Legacy name: now tracks Scrutiny (0-100). Values: "clean", "minor", "troubled", "serious", "breaking"
-        public int DisciplineIssues { get; set; } = -1; // Legacy name: now tracks Scrutiny (0-100). -1 when unknown.
+        public string DisciplineTag { get; set; } = string.Empty; // Older name: now tracks Scrutiny (0-100). Values: "clean", "minor", "troubled", "serious", "breaking"
+        public int DisciplineIssues { get; set; } = -1; // Older name: now tracks Scrutiny (0-100). -1 when unknown.
 
         public string StrategicContextTag { get; set; } = string.Empty; // e.g. "coordinated_offensive", "winter_camp"
 
