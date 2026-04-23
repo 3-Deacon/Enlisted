@@ -115,6 +115,8 @@ Bake these into Half B polish prompts and any future content-authoring work.
 
 ## 6. Pending verification — human operator
 
+### Plan 5 pending
+
 | Task | Description | Runbook |
 |---|---|---|
 | T10 | Half A in-game smoke: T4/T6/T9 crossroads fire, commit/resist flow works, T7+ variants appear at committed-path T7+, `PathScorer.BumpPath` resist 0.5× bias verified | Scenario G in the playtest runbook |
@@ -123,7 +125,19 @@ Bake these into Half B polish prompts and any future content-authoring work.
 | T20 | Execute Scenarios C + D + E | Playtest runbook §§C, D, E |
 | T21 | Execute Scenarios F + G | Playtest runbook §§F, G |
 
-Plus pre-existing pending smoke queue from Plans 1 / 3 / 4 (T28 in each plan's verification doc).
+### Cross-plan smoke queue — coverage by the Plan 5 runbook
+
+The same human playtest run of Scenarios A-H from this plan's [playtest runbook](2026-04-21-career-loop-playtest-scenarios.md) **covers** (does not automatically close) the pre-existing pending smoke queue from Plans 1, 3, and 4. Each plan below was shipped code-complete with its own smoke task left open for human execution; the playtest runbook exercises the behavior those tasks want to verify, but a runner should still read the original pending task text to make sure no specific assertion is missed. Plan 2's Phase H smoke passed 2026-04-22 and is NOT in this queue.
+
+| Plan | Pending task | Covering scenarios | Inspection aids |
+|---|---|---|---|
+| 1 | T28 — 14-day in-game smoke, `INTEL/hourly_recompute` cadence + snapshot transitions | A (garrison baseline), B (marching posture), C (offensive siege posture), E (imprisoned profile flip) | `Ctrl+Shift+I` dumps the snapshot on demand |
+| 3 | T28 — 14-day in-game smoke, signal cadence across 10 families | B (front-pressure signals), D (aftermath signals post-raid), F (culture-varying signal narration) | News-feed accordion + session log `SIGNAL` entries |
+| 4 | T26 — 14-day full-profile run, all 7 profiles exercised, transitions fire | A (garrisoned), B (marching), C (besieging → marching transition), D (raiding), E (imprisoned → back-transition) | `Ctrl+Shift+O` path overview; `DUTY heartbeat` / `DUTY daily_counts` lines |
+| 4 | T27 — fast-forward soak (4×/16× throttle behaviour) | **H** (newly-added scenario explicitly scripted for this) | Tick-logs continue at 16×; news-feed silences by design per AGENTS.md pitfall #21 |
+| 5 | T10, T17, T19-T21 | Listed above | `Ctrl+Shift+I/A/O/F` career-debug hotkeys |
+
+A smoke runner who executes Scenarios A-H end-to-end will exercise all five plans' behaviour under a realistic workload. After the run, the runner should still open each plan's verification doc (Plan 1 T28, Plan 3 T28, Plan 4 T26/T27) and confirm the specific assertions listed there were observed. If any specific assertion was missed, the runbook is the gap — not the smoke.
 
 ---
 

@@ -152,6 +152,32 @@
 
 ---
 
+## Scenario H — Fast-forward soak (throttle verification)
+
+**Setup:** Same starting state as Scenario A (enlisted, peaceful garrison). This scenario is a time-compression soak; the intent is to verify the tick-driven log surface survives extreme speed AND that the news-feed throttle correctly silences at >4× per AGENTS.md pitfall #21.
+
+**Steps:**
+1. From the peaceful garrison base state, switch time to 4× speed. Let ~5 in-game days pass.
+2. Observe the session log. News-feed entries (Plan 3 signal accordion output) SHOULD continue to arrive at this speed.
+3. Switch to 8× or 16× speed (whichever the UI exposes). Let another ~5 in-game days pass.
+4. Observe again. News-feed entries SHOULD now drop out (intentional — `OrdersNewsFeedThrottle.TryClaim()` rejects when `Campaign.Current.TimeControlMode == SpeedUpMultiplier` with multiplier > 4×). This is not a bug.
+5. Confirm tick-driven log entries still fire at 16×:
+   - `INTEL/hourly_recompute` — should continue hourly.
+   - `DUTY heartbeat: ...` — should continue every ~12 in-game hours.
+   - `DUTY daily_counts: ...` — should continue every 24 in-game hours.
+   - `PATH session_heartbeat: ...` — should continue per its cadence.
+6. Drop back to 1×. News-feed entries should resume immediately.
+
+**Expected log markers:** same set as Scenarios A-G; the difference at 16× is the news-feed entries specifically go silent while tick logs continue.
+
+**Pass criteria:** at 16×, news-feed entries stop appearing. Tick-driven heartbeats continue without gaps. Returning to 1× immediately restores news-feed output. Zero `Surfaced`.
+
+**Reference:** AGENTS.md "Common pitfalls" #21 documents the throttle-by-speed behaviour. Missing news-feed entries at 16× is NOT a bug — filing one against this scenario wastes debug time. Tick-driven logs dropping out at 16× IS a bug — file it.
+
+Covers Plan 4 T27 (fast-forward soak) from the Plan 4 verification doc's pending-smoke set.
+
+---
+
 ## Failure-mode reference
 
 If a scenario reports log entries that LOOK wrong, check against these known-safe patterns first:
