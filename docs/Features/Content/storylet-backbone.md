@@ -165,6 +165,8 @@ Unknown roles log `Expected("SLOT", "unknown_role_<role>", ...)` once and return
 | `skill_xp` | `skill`, `amount` (positive only) |
 | `give_gold` | `amount` (positive grant / negative charge, routed through `GiveGoldAction`) |
 | `give_item` | `item_id`, `count` |
+| `commit_path` | `path` (one of `ranger` / `enforcer` / `support` / `diplomat` / `rogue`) — sets `committed_path_<path>` flag permanently + bumps `committed_path` indicator to `1` via the internal `QualityStore.SetDirect` back-door. Added by Plan 5; see [Plan 5 additions](#plan-5-additions-career-path-primitives--overlay-preference) |
+| `resist_path` | `path` (one of the five path ids) — sets `path_resisted_<path>` flag permanently; `PathScorer.BumpPath` halves future score gains on that path. Added by Plan 5 |
 
 **Gold must route through `GiveGoldAction`** — never `Hero.ChangeHeroGold` (AGENTS.md Critical Rule #3).
 
@@ -359,6 +361,49 @@ home.OnBeat("departure_imminent", ActivityContext.FromCurrent());
 ```
 
 The factory is a single-responsibility helper — no lord lookup, no logging. Keeps starter behaviors free of boilerplate without introducing a subsystem.
+
+---
+
+## Plan 5 additions (career path primitives + overlay preference)
+
+Plan 5 (Career Loop Closure) layered two new capabilities on top of the substrate without changing its shape: two effect primitives that mint the committed-path marker and two emitter-side conventions that let cultures and lord traits flavor authored content. Day-to-day reference: [career-loop.md](career-loop.md).
+
+### `commit_path` / `resist_path` primitives
+
+Both are internal-only primitives (authored content is the only caller). The `committed_path` indicator quality stays `writable: false` so storylets can't mint a commit via `quality_set`; `commit_path` routes through the back-door `QualityStore.SetDirect` method that bypasses `def.Writable`.
+
+| Primitive | Writes | Intended authoring site |
+| :--- | :--- | :--- |
+| `commit_path` | `committed_path_<path>` flag (permanent) + `committed_path` quality → 1 via `SetDirect` | `path_crossroads_<path>_t{4,6,9}` commit option effects |
+| `resist_path` | `path_resisted_<path>` flag (permanent) | `path_crossroads_<path>_t{4,6,9}` resist option effects |
+
+Idempotent: a second `commit_path` for an already-committed path logs `Expected("EFFECT", "commit_path_already_<path>", ...)` and no-ops. Unknown path ids log `Expected("EFFECT", "commit_path_unknown" | "resist_path_unknown", ...)`. Canonical path id list lives in `src/Features/Activities/Orders/PathIds.cs` (`ranger`, `enforcer`, `support`, `diplomat`, `rogue`).
+
+Downstream:
+
+- Committed-path gating in authored content uses the pre-existing `flag:<name>` trigger — e.g. `trigger: ["rank_gte:7", "flag:committed_path_ranger"]` gates a T7+ named-order variant.
+- `PathScorer.BumpPath` (see `src/Features/Activities/Orders/PathScorer.cs`) reads `path_resisted_<path>` and applies a `0.5×` multiplier to the bump amount, with a throttled `Expected("PATH", "bump_resisted_<path>", ...)` log for smoke evidence.
+
+Validator Phase 15 (`validate_content.py`) enforces the 15-combo completeness of `path_crossroads_<path>_t{4,6,9}` and a per-path `has_any_t7_variant` rule keyed on the `flag:committed_path_<path>` trigger.
+
+### Culture + lord-trait overlay preference
+
+The `Storylet` POCO carries four already-parsed list fields (see `StoryletCatalog.cs:109-112`) — Plan 5 is the first consumer that actively filters on them. They're populated from optional JSON arrays of the same snake_case name on the storylet object:
+
+| JSON field | POCO property | Compares against |
+| :--- | :--- | :--- |
+| `requires_culture` | `RequiresCulture` | `EnlistmentBehavior.Instance.EnlistedLord.Culture.StringId` — passes if at least one id matches |
+| `excludes_culture` | `ExcludesCulture` | Same source — fails if any id matches |
+| `requires_lord_trait` | `RequiresLordTrait` | `enlistedLord.GetTraitLevel(TraitObject)` via `MBObjectManager.GetObject<TraitObject>(id)` — passes if every listed trait has level > 0 |
+| `excludes_lord_trait` | `ExcludesLordTrait` | Same source — fails if any listed trait has level > 0 |
+
+Culture StringIds are **lowercase** (`empire`, `sturgia`, `battania`, `vlandia`, `khuzait`, `aserai`); trait StringIds are **PascalCase** (`Mercy`, `Valor`, `Honor`, `Generosity`, `Calculating`). Attribute StringIds are lowercase (`vigor`, `cunning`, …) per `DefaultCharacterAttributes.cs:45-50`.
+
+Enforcement lives in `EnlistedDutyEmitterBehavior.IsEligibleForEmit` (`src/Features/CampaignIntelligence/Duty/`); other consumers (Plan 3 signal builder, Plan 1 ambient emitter) do not currently filter on these fields — only the duty emitter.
+
+**`__<culture>` overlay convention.** When an overlay storylet shares a base id with the `__<culture>` suffix appended (e.g. `duty_garrisoned_sword_form_1` base + `duty_garrisoned_sword_form_1__khuzait` overlay), the Duty emitter's `PickEpisodicFromPool` drops the base sibling from the eligible pool whenever any overlay of that base is eligible. Result: a Khuzait-lord player reads the Khuzait flavor; a Sturgian-lord player reads the Sturgia flavor; a lord of a culture without an overlay reads the base. Matching is case-insensitive on the `__` separator.
+
+Lord-trait-gated storylets don't use the `__` convention — they're authored as standalone ids keyed on `requires_lord_trait` / `excludes_lord_trait` lists (e.g. `duty_raiding_spare_village_trait_1` gated on `requires_lord_trait: ["Mercy"]`).
 
 ---
 

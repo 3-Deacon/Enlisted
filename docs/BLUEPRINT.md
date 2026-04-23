@@ -496,7 +496,7 @@ These mistakes cause real problems. Avoid them.
 
 **Problem:** Authoring new content as legacy `EventDefinition` JSON instead of as storylets. Storylets are the canonical target as of Spec 0 (2026-04-19); `EventDefinition` content still loads at runtime but is not the target for new authoring.
 
-**Solution:** Author new content as storylets in `ModuleData/Enlisted/Storylets/*.json`. See [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md).
+**Solution:** Author new content as storylets in `ModuleData/Enlisted/Storylets/*.json`. See [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md). Plan 5 (Career Loop Closure, 2026-04-22) added two authored-content-reachable effect primitives (`commit_path`, `resist_path`) plus a culture/lord-trait overlay preference (`__<culture>` suffix; `requires_culture` / `excludes_culture` / `requires_lord_trait` / `excludes_lord_trait` consumed by the Duty emitter) — see [storylet-backbone.md → Plan 5 additions](Features/Content/storylet-backbone.md#plan-5-additions-career-path-primitives--overlay-preference) for authoring semantics and [career-loop.md](Features/Content/career-loop.md) for the full surface.
 
 ---
 
