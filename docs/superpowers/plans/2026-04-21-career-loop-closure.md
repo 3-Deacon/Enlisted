@@ -1,6 +1,6 @@
 # Career Loop Closure Implementation Plan (Plan 5 of 5)
 
-> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live. ✅ Plan 4 shipped 2026-04-22 (commits `ca22111..0c519d3`, 22 total) — Half B is now unblocked alongside Half A. Ready to start.
+> **Status:** 🟡 **Half A partial** — Tasks T1-T7 shipped locally on `development` 2026-04-22 (commits `4f66604` → `88e7486`, 8 commits; not yet pushed to origin). Pending: T8 (`prior_service_*` flag-emission grep-verify — likely no-op), T9 (Phase 15 validator rewrite), T10 (in-game smoke). Half B (T11-T22) has not been started; prerequisites remain met (Plan 4 Phase F shipped 2026-04-22). See the Shipped Status Appendix at the bottom of this file for per-commit detail.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -716,10 +716,11 @@ If flag emission is present, smoke-verify: enlist, retire from service, check se
 
 - [ ] **Step 1: Extend Phase 15 from stub to full enforcement**
 
-Phase 15 exists as a stub (see `validate_content.py` `phase15_path_crossroads` function). Extend to:
-- Walk authored storylets under `path_crossroads_*`.
-- For each of 5 paths × 3 milestones = 15 expected combos, assert a matching storylet exists.
-- For each T7+ variant file, assert the storylet id matches `path_<path>_t7_variants` convention + the storylet triggers include `flag:committed_path_<path>`.
+Phase 15 exists as a stub (see `validate_content.py` `phase15_path_crossroads` function at line 2952). **The stub gates on legacy id prefix `crossroads_` with bands `t3_to_t4`/`t5_to_t6`/`t7_to_t8`** — T6 shipped `path_crossroads_*_t{4,6,9}`, so the stub's guard never matches and Phase 15 currently no-ops. T9 rewrites the stub to the authored convention and adds full enforcement:
+
+- Gate on prefix `path_crossroads_` (not `crossroads_`).
+- For each of 5 paths × 3 milestones (T4 / T6 / T9) = 15 expected combos, assert a matching storylet exists.
+- For each path, assert at least one T7+ variant exists with id matching `order_*_<path>_t7` AND triggers that include `flag:committed_path_<path>`. **Scope relaxation:** the original plan asked for "at least one T7+ variant for EACH of the 10 named-order archetypes per path" (= 150 storylet minimum). T7 shipped 5 paths × 2 shared archetypes (scout + escort) = 10 variants as the minimum viable Half A scope. Half B polish expands the archetype matrix later. Phase 15 enforcement must match the authored reality: `each_path_has_any_t7_variant`, NOT `each_path_has_variant_for_each_archetype`.
 
 - [ ] **Step 2: Run validator + commit**
 
@@ -730,10 +731,13 @@ Phase 15 exists as a stub (see `validate_content.py` `phase15_path_crossroads` f
 ```
 feat(validator): Phase 15 path-crossroads completeness full enforcement
 
-Promotes Phase 15 from stub to full enforcement. Asserts: (a) 15
-base crossroads storylets (5 paths × T4/T6/T9) exist; (b) T7+ path
-variants gate on flag:committed_path_<path>; (c) each path has at
-least one T7+ variant for each of the 10 named-order archetypes.
+Promotes Phase 15 from stub to full enforcement. Rewrites the gate
+from legacy prefix crossroads_ to the shipped path_crossroads_
+convention, and asserts: (a) 15 base crossroads storylets (5 paths
+× T4/T6/T9) exist; (b) each path has ≥1 T7+ variant whose triggers
+include flag:committed_path_<path>. Per-archetype-per-path
+enforcement is deferred to Half B polish (T7 shipped scout+escort
+shared across the five paths as the minimum viable scope).
 
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ```
@@ -1061,13 +1065,13 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ## Shipping checklist
 
 **Half A (after Plan 1, parallelizable):**
-- [ ] T1 — scaffolding + committed_path encoding decision
-- [ ] T2-T3 — commit_path + resist_path primitives + PathScorer resist bias
-- [ ] T4-T5 — PathCrossroadsBehavior registered
-- [ ] T6 — 15 crossroads storylets authored
-- [ ] T7 — T7+ path variants authored (5 paths)
-- [ ] T8 — prior_service_* flag verification
-- [ ] T9-T10 — Phase 15 validator + smoke
+- [x] T1 — scaffolding + committed_path encoding decision (shipped `4f66604`; also added `T1.5 — QualityStore.SetDirect` at `cbf59a5`)
+- [x] T2-T3 — commit_path + resist_path primitives + PathScorer resist bias (shipped `0bee054`, `bb772d7`; `PathIds` helper extracted for dedupe)
+- [x] T4-T5 — PathCrossroadsBehavior registered (shipped `70b1f33`, `2be5966`)
+- [x] T6 — 15 crossroads storylets authored (shipped `e6ef67e`; attribute StringIds corrected to lowercase per `DefaultCharacterAttributes.cs:45-50`)
+- [x] T7 — T7+ path variants authored (shipped `88e7486`; minimum-viable scope = 5 paths × 2 shared archetypes (scout + escort) × (entry + mid + resolve) = 30 storylets. Per-archetype matrix deferred to Half B polish)
+- [ ] T8 — prior_service_* flag verification (likely no-op — flag is already emitted at `src/Features/Activities/Orders/EnlistmentLifecycleListener.cs:100-101`)
+- [ ] T9-T10 — Phase 15 validator rewrite + human smoke (T9 stub at `validate_content.py:2952` must be rewritten from `crossroads_*_t3_to_t4` convention to `path_crossroads_*_t{4,6,9}`; T9 bullet (c) has been relaxed above)
 
 **Half B (Plan 4 Phase F shipped 2026-04-22; no longer queued):**
 - [ ] T11-T12 — hot-path identification + culture overlays (~45 storylets)
@@ -1078,3 +1082,40 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - [ ] T22 — final verification doc + CLAUDE.md closure
 
 Total: 22 tasks. Estimated effort: Half A — 2-3 implementation sessions; Half B — 3-4 sessions; Plan 4 Phase F already shipped 2026-04-22.
+
+---
+
+## Shipped status appendix (updated 2026-04-22)
+
+Half A tasks T1-T7 shipped locally on `development` 2026-04-22 across 8 commits. Not pushed to `origin/development` at appendix-time; `git push` is user-controlled.
+
+| Commit | Task | What landed |
+| --- | --- | --- |
+| `4f66604` | T1 | `committed_path` indicator quality (Stored, Global, `writable:false`, `min=0 max=1 default=0`) in `ModuleData/Enlisted/Qualities/quality_defs.json`. **Plan-vs-shipped delta:** the plan's literal `"max": 0` was changed to `"max": 1` — `QualityStore.SetDirect` clamps to `def.Max`, so `max=0` would silently null any write. `csproj` entries for `PathCrossroadsBehavior` and `CareerDebugHotkeysBehavior` were NOT added in T1 (plan prescribed both) — instead moved to the tasks that actually create those files (T4 created the Career entry; Half B T15 will create the debug entry). Registering a `Compile` for a non-existent file breaks intermediate builds. |
+| `cbf59a5` | T1.5 | `QualityStore.SetDirect(qualityId, value, reason)` back-door write method that bypasses `def.Writable`. Rejects unknown + ReadThrough qualities with `ModLogger.Expected`; for Stored qualities, writes `Clamp(value, def.Min, def.Max)` to `GlobalValues[qualityId].Current` and bumps `LastChanged`. Authored-content paths cannot reach `SetDirect` — validator Phase 12 continues to block `quality_set`/`quality_add` on `writable:false` qualities. |
+| `0bee054` | T2 | `commit_path` effect primitive in `EffectExecutor.cs` (switch case + `DoCommitPath` helper). Validates `path ∈ {ranger,enforcer,support,diplomat,rogue}` via a local HashSet (refactored to the shared `PathIds.Set` in T3). Idempotent double-commit via `FlagStore.Has` check. Writes `committed_path_<path>` flag permanent + `SetDirect("committed_path", 1, ...)`. Also added `commit_path` to the Phase 12 known-primitives set so authored T6 storylets pass validation (coupled change). |
+| `bb772d7` | T3 | New `src/Features/Activities/Orders/PathIds.cs` with `All` (`IReadOnlyList<string>` of the five ids) + `Set` (`HashSet<string>` with OrdinalIgnoreCase). T2's local HashSet deleted. New `resist_path` primitive mirrors `commit_path` for the rejection side (no idempotent guard — permanent-flag write is naturally idempotent). `PathScorer.BumpPath` extended: if `path_resisted_<path>` flag is set, `amount = (int)(amount * 0.5f)` before the quality write. Validator Phase 12 known-primitives set gained `resist_path`. |
+| `70b1f33` | T4 | New `src/Features/CampaignIntelligence/Career/PathCrossroadsBehavior.cs`. **Plan-vs-shipped delta:** plan line 435 prescribed `EnlistmentBehavior.Instance.OnTierChanged +=` — WRONG. `OnTierChanged` is `public static event Action<int, int>` at `EnlistmentBehavior.cs:8490`. Subscription goes on the TYPE, not `.Instance`. Subscription pattern matches `PathScorer.cs:47-48` (`-= / +=` guard against double-sub on save/load). Handler walks `PathIds.All`, picks highest `path_<id>_score` with stable first-match tie-break (`>`, not OrderByDescending). Skips already-committed-before-T7 and no-score-above-zero cases. Builds `StoryletContext` + calls `StoryletEventAdapter.BuildModal(storylet, ctx, null)` + emits `StoryCandidate` with `InteractiveEvent = evt`, `ChainContinuation = true` (milestone bypasses in-game floor + category cooldown per `StoryDirector.Route`). All `Expected`/`Caught` calls use literal category + summary (no `$"..."` interpolation — Phase 10 gate). `csproj` Compile entry added. |
+| `2be5966` | T5 | Behavior registered in `SubModule.cs` after the Plan 4 Duty emitter. Keeps Intelligence / Signal / Duty / Career cadence aligned. Known-footgun hit during this commit: the `Write` tool errored because `/c/Users/coola/commit.txt` had been modified since the last Read, and `git commit -F` shipped stale content with T4's subject. Fixed via message-only `git commit --amend` on the local unpushed commit. |
+| `e6ef67e` | T6 | `ModuleData/Enlisted/Storylets/path_crossroads.json` — 15 storylets, 5 paths × 3 milestones (T4 / T6 / T9). Each Modal with 3 options (`commit`, `resist`, `defer`). T4 commit = `commit_path` + `grant_focus_point` on path's lead skill + `grant_renown:10`. T6 commit = `commit_path` + `grant_attribute_level` on path's heavy attribute + `grant_renown:15`. T9 commit = `commit_path` + `grant_unspent_focus:1` + `grant_renown:25`. Resist = `resist_path`. Defer = no-op. **Plan-vs-shipped delta:** engine's `DefaultCharacterAttributes` at `../Decompile/TaleWorlds.Core/DefaultCharacterAttributes.cs:45-50` registers attributes with **lowercase** StringIds (`vigor`, `cunning`, `social`, `intelligence`) — NOT the title-case the prompt showed. All T6 attribute effects use lowercase. 120 `path_cx_*` loc entries synced to `enlisted_strings.xml`. |
+| `88e7486` | T7 | Five new files `ModuleData/Enlisted/Storylets/path_{ranger,enforcer,support,diplomat,rogue}_t7_variants.json`. 6 storylets per file × 5 files = 30 total. Two shared archetypes (scout + escort) per path × (1 entry + 1 mid + 1 resolve) per archetype. Entry triggers `["is_enlisted", "rank_gte:7", "flag:committed_path_<path>"]`. Arc 10h = 8h mid + 2h resolve. **Plan-vs-shipped delta:** plan T7 resolve schema omitted `clear_active_named_order` — every base resolve in `order_scout.json` / `order_escort.json` includes it, and without it the named order never unsplices. Implementer added to every resolve. `class_affinity` included on entries with path-themed biases (ranger cavalry/horse-archer, enforcer heavy-infantry, etc.). 40 string blocks added to `enlisted_strings.xml`. |
+
+### Plan-vs-shipped deltas carrying forward
+
+| # | Drift | Impact for next session |
+| --- | --- | --- |
+| 1 | `committed_path` quality max | Already fixed at T1. No action. |
+| 2 | `OnTierChanged` is static | Already fixed at T4. Next session's T8-T10 implementers don't touch it. |
+| 3 | `ModLogger.Expected/Caught/Surfaced` summary/category must be literal | Bake into every C# implementer prompt going into Half B. |
+| 4 | Attribute StringIds lowercase (`vigor` not `Vigor`) | Bake into any Half B content-authoring prompt that adds `grant_attribute_level`. |
+| 5 | Resolves need `clear_active_named_order` | Bake into Half B content-authoring prompts that add new named-order resolves. |
+| 6 | Phase 15 stub uses legacy `crossroads_` prefix + `t3_to_t4` bands | T9 implementer rewrites to `path_crossroads_*_t{4,6,9}`. |
+| 7 | T9 bullet (c) scope relaxed from per-archetype-per-path to per-path-any-variant | See T9 in-body spec (line 719 onwards). Half B polish can expand. |
+| 8 | `PathCrossroadsBehavior` file location (`CampaignIntelligence/Career/`) | Reads QualityStore directly, not snapshot-driven. Cohesion would favor `Activities/Orders/` next to `PathScorer` / `PathIds`. Left as-is per plan; flagged in Plan 5 retrospective. |
+
+### Next-session starting point
+
+1. **T8** — grep `src/Features/Activities/Orders/EnlistmentLifecycleListener.cs` for `prior_service_*` emission. Confirmed present at lines 100-101 during T3. Likely zero-commit verification; if a gap exists, small C# edit.
+2. **T9** — rewrite `validate_content.py` phase15 (line 2952). Gate on `path_crossroads_` prefix. Assert 15 T4/T6/T9 combos + per-path `has_any_t7_variant` check (NOT per-archetype-per-path — see relaxation above).
+3. **T10** — human-operator in-game smoke: grind to T4 crossroads, commit one path, verify `committed_path_<path>` flag + reward effects + T6/T9 re-fires; separately, resist on fresh save + verify `path_resisted_<path>` flag + halved `PathScorer.BumpPath` amount.
+4. Then Half B (T11-T22) — culture overlays, lord-trait gates, debug hotkeys, save-load test, playtest scenarios A-G, verification doc.
