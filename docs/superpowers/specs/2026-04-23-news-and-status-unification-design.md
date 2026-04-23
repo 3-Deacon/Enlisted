@@ -119,8 +119,8 @@ Every return from a submenu / battle / settlement visit / dialogue / muster cere
 
 Hook in `OnEnlistedStatusTick`: compare current `Campaign.Current.TimeControlMode` (a `CampaignTimeControlMode`) to the cached `_lastTimeControlMode`. On transition **from fast-family to play-family**, fire the regen check.
 
-- **Fast-family:** `UnstoppableFastForward`, `StoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime`, `FastForwardStop`.
-- **Play-family:** `Stop`, `UnstoppablePlay`, `StoppablePlay`.
+- **Fast-family:** `UnstoppableFastForward`, `StoppableFastForward`, `UnstoppableFastForwardForPartyWaitTime`.
+- **Play-family:** `Stop`, `UnstoppablePlay`, `StoppablePlay`, `FastForwardStop` (decompile-verified: `Campaign.TickMapTime` treats `FastForwardStop` identically to `Stop` with `num = 0`; `GetSimplifiedTimeControlMode` returns `Stop` via default arm).
 
 Interpretation: the player slowed or paused — they're about to read.
 
@@ -241,7 +241,7 @@ Doc-update commit lands alongside the implementation commit(s), not as a separat
 
 **Risk 1 — Player plays for 7+ real hours at 1× without opening any submenu.** The body text visibly changes once per week-of-play in this case. RP-acceptable (newspaper-handover metaphor); masthead shows the week-of date so an observant player sees why.
 
-**Risk 2 — `CampaignTimeControlMode` value set.** The taxonomy above (fast-family vs play-family) is derived from the live decompile at `../Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem/CampaignTimeControlMode.cs`. Implementation must re-verify the enum values at the authoring moment per AGENTS.md Critical Rule #1 — a Bannerlord patch could add/rename members.
+**Risk 2 — `CampaignTimeControlMode` value set.** The taxonomy above (fast-family vs play-family) is derived from the live decompile at `../Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem/CampaignTimeControlMode.cs` plus the tick math at `Campaign.cs:843-875` (which bucket each value by the `num` assignment). Implementation must re-verify against the decompile at authoring time per AGENTS.md Critical Rule #1 — a Bannerlord patch could add/rename members. The bucketing rule is: values producing `num = 0` in `TickMapTime` are play-family (include `FastForwardStop` under this); values multiplying by `SpeedUpMultiplier` are fast-family.
 
 **Risk 3 — Compiled-in 7-day edition length.** If playtest feedback prefers a 12-day cadence (muster-cycle aligned), it's a one-constant edit in `BuildKingdomDigestSection`'s window-days param + the masthead label. Not a re-design.
 
@@ -293,3 +293,8 @@ None locked in. Edition length (7 days) is the one tunable playtest might want t
 - `CampaignTimeControlMode` enum used with real value names from the decompile (fast-family + play-family taxonomy explicit).
 - Docs-sync scope widened to six files including `order-progression-system.md` and `news-reporting-system.md`.
 - Explicit disposition table entries for every helper that moves, stays, or disappears.
+
+## Changelog vs initial v2
+
+- `FastForwardStop` reclassified from fast-family to play-family. Decompile at `Campaign.cs:872-874` puts it in the `num = 0` bucket alongside `Stop`; `GetSimplifiedTimeControlMode` also collapses it to `Stop` via its default arm. Fast-family is now specifically the three values that multiply `SpeedUpMultiplier` in `TickMapTime`.
+- Risk 2 text expanded to include the bucketing rule (watch `num` in tick math, not enum name) so future verification doesn't trip on the same naming-versus-behavior mismatch.
