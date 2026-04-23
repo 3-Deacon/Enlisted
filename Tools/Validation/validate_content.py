@@ -2439,8 +2439,9 @@ def _storylet_has_effects(storylet: dict) -> bool:
     if storylet.get("immediate"):
         return True
     for option in storylet.get("options", []) or []:
-        if option.get("effects"):
-            return True
+        for field in ("effects", "effectsSuccess", "effectsFailure"):
+            if option.get(field):
+                return True
     return False
 
 
