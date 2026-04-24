@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-22  
-**Related Docs:** [Onboarding & Discharge](../Core/onboarding-discharge-system.md), [Content System](../Content/content-system-architecture.md)
+**Related Docs:** [Enlistment System](../Core/enlistment.md), [Storylet Backbone](../Content/storylet-backbone.md)
 
 ---
 

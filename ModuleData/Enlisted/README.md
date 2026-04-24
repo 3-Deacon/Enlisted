@@ -94,11 +94,10 @@ All files use JSON format and can be edited with any text editor. Changes take e
 - **[events_player_decisions.json](#events-folder)** - Additional player decisions
 
 ### Orders (Chain of Command)
-- **[Orders folder](#orders-folder)** - 17 military orders from your chain of command (T1-T3: 6, T4-T6: 6, T7-T9: 5)
-- Orders are issued every 3-5 days by Sergeants, Captains, or your Lord
-- Accept or decline - success builds reputation, failure damages it
-- Strategic context filtering ensures orders match current campaign situation
-- **See:** `docs/Features/Core/orders-system.md` for complete documentation
+- **Activities + Storylets** - chain-of-command duties are authored through `Activities/`, `Storylets/`, `Effects/`, and `Qualities/`.
+- Duty profile and named-order content is selected by campaign context and player service state.
+- Outcomes route through the storylet/effect backbone for XP, reputation, scrutiny, supply, and narrative consequences.
+- **See:** `docs/Features/Content/storylet-backbone.md` for the current authoring reference.
 
 ### Reputation & Discipline
 - **[enlisted_config.json](#enlisted_configjson)** → `escalation`:
@@ -257,7 +256,7 @@ Contains all narrative events triggered by context, role, or player action.
 
 **Role-Specific Content:**
 
-Role-based events are integrated into the general event system. The Orders system (see Orders folder) delivers role-specific content through chain-of-command directives that are filtered by your skills and traits.
+Role-based events are integrated into the general event system. Chain-of-command activity content is delivered through activity/storylet pools filtered by campaign situation, skills, and traits.
 
 **Map Incidents:**
 
@@ -271,27 +270,16 @@ Role-based events are integrated into the general event system. The Orders syste
 | `incidents_waiting.json` | While waiting/idle | ~4 |
 | `incidents_retinue.json` | Post-battle retinue incidents (T7+) | ~6 |
 
-### Orders Folder
+### Order Activity Content
 
-Contains military orders from your chain of command - the primary gameplay driver replacing passive duties.
+Order content is no longer stored in a dedicated `Orders/` folder. Current military duty content is split across:
 
-**Order Files:**
-
-| File | Tier Range | Issuer | Count |
-|------|------------|--------|-------|
-| `orders_t1_t3.json` | Basic Soldier (T1-T3) | Sergeant | 6 |
-| `orders_t4_t6.json` | Specialist (T4-T6) | Lieutenant/Captain | 6 |
-| `orders_t7_t9.json` | Leadership (T7-T9) | Lord | 5 |
-
-**How Orders Work:**
-- Issued every 3-5 days based on strategic context
-- Success determined by relevant skills (e.g., Scouting for scout orders)
-- Accept or decline - repeated declines lead to discharge
-- Success rewards reputation, skill XP, gold (T4+), and renown (T7+)
-- Failure penalties range from reputation loss to troop casualties
-- **All order events grant skill XP** - this is tracked for rank progression
-
-**Complete Documentation:** `docs/Features/Core/orders-system.md`
+| Folder | Purpose |
+|------|---------|
+| `Activities/` | Activity type definitions, including order activity shape. |
+| `Storylets/` | Duty profile pools, named-order arcs, transitions, and outcomes. |
+| `Effects/` | Scripted effects reused by activity and storylet options. |
+| `Qualities/` | Numeric state used by storylet triggers and effects. |
 
 ### Decisions Folder
 
@@ -433,9 +421,9 @@ To add translations, see the [Translation Guide](../Languages/README.md).
 **Event Schema:** Events use schema version 2. See `Events/schema_version.json`.
 
 **Full Documentation:**
-- Complete content catalog: `docs/Content/content-index.md`
-- Event system reference: `docs/Features/Content/event-system-schemas.md`
-- Content system architecture: `docs/Features/Content/content-system-architecture.md`
+- Content authoring overview: `docs/Features/Content/README.md`
+- Storylet backbone reference: `docs/Features/Content/storylet-backbone.md`
+- Writing style guide: `docs/Features/Content/writing-style-guide.md`
 
 ---
 

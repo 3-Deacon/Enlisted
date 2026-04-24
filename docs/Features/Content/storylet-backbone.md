@@ -473,4 +473,3 @@ Lord-trait-gated storylets don't use the `__` convention — they're authored as
 - [Event Pacing (delivery layer, Spec above this one)](../../superpowers/specs/2026-04-18-event-pacing-design.md)
 - [Writing Style Guide](writing-style-guide.md) — voice, tone, tooltip format
 - [Error Code Registry](../../error-codes.md) — auto-generated
-- [Content System Architecture (pre-Spec-0)](content-system-architecture.md) — scheduled for replacement by surface specs 1–5

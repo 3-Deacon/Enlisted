@@ -120,7 +120,7 @@ If the player has a pending discharge, additional options appear:
 - Ends service honorably
 - Pays final wages + severance based on service band
 - Activates pension system
-- Equipment reclaimed (see [Discharge System](onboarding-discharge-system.md))
+- Equipment reclaimed during discharge
 - Player must confirm in popup before discharge processes
 
 **6. Smuggle Out (Deserter)**
@@ -240,7 +240,7 @@ After pay resolution, the system automatically processes ration exchange for T1-
 - Exempt from ration exchange (provision their own retinue)
 - Any outstanding enlisted rations reclaimed on promotion
 
-See [Muster Menu System](muster-menu-revamp.md) for full muster flow details.
+See [Muster System](muster-system.md) for full muster flow details.
 
 ---
 

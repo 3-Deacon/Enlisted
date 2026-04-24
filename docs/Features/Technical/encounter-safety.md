@@ -1700,4 +1700,4 @@ If mission cleanup crash persists (crash after battle ends):
 ## Related Documentation
 
 - [Enlistment System](../Core/enlistment.md) - Service state management
-- [Formation Assignment](formation-assignment.md) - Battle formation assignment details
+- [Formation Assignment](../Combat/formation-assignment.md) - Battle formation assignment details

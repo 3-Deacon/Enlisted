@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-04-21 (Grace/leave lord tracking now uses an explicit campaign marker alongside the tracker fallback)
-**Related Docs:** [Core Gameplay](core-gameplay.md), [Onboarding & Discharge](onboarding-discharge-system.md), [Pay System](pay-system.md), [Promotion System](promotion-system.md)
+**Related Docs:** [Core Gameplay](core-gameplay.md), [Pay System](pay-system.md), [Promotion System](promotion-system.md)
 
 > **Note:** For high-level gameplay overview, see `core-gameplay.md`. This document provides technical implementation details.
 
@@ -277,7 +277,7 @@ Level 10 Player, Returning (Deserter):
 **Core Files:**
 - `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs`: Core service state, lord tracking, party following, bag check, grace period, wage calculation
 - `src/Features/Ranks/Behaviors/PromotionBehavior.cs`: Multi-factor promotion requirements (T1-T9), proving events
-- `src/Features/Orders/Behaviors/OrderManager.cs`: Chain of command orders, pacing, rewards
+- `src/Features/Activities/Orders/OrderActivity.cs`: Chain of command activity state and named-order arcs
 - `src/Features/Escalation/EscalationManager.cs`: Triple reputation system (Lord, Officer, Soldier), discipline, scrutiny
 - `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`: Native game menu implementation (Camp Hub, Reports)
 - `src/Features/Company/CompanyNeedsManager.cs`: Company needs simulation (Readiness, Supply) - Note: Rest removed 2026-01-11

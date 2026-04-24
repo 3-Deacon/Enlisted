@@ -92,7 +92,7 @@ At the next pay muster after T7 promotion, a **Retinue Muster** stage appears sh
 - Initial retinue capacity (20/20 soldiers)
 - Morale and equipment status
 - Recruitment options if openings exist
-- See [Muster Menu System](muster-menu-revamp.md#7-retinue-muster-menu-t7-only) for details
+- See [Muster System](muster-system.md) for details
 
 **Selection Dialog:**
 
@@ -615,7 +615,7 @@ After each battle with casualties:
 
 **Memorial Event:**
 
-When a veteran dies, `evt_ret_veteran_memorial` is emitted to `StoryDirector` as a `Pertinent`-tier (accordion-only) candidate — it surfaces in the `enlisted_status` Headlines drilldown, not as a modal popup (demoted in commit `a8d42bf`):
+When a veteran dies, `evt_ret_veteran_memorial` is emitted to `StoryDirector` as a non-modal candidate. It surfaces through the news/status feed instead of a popup (demoted in commit `a8d42bf`):
 
 ```
 Setup: "The men gather around the fire. [Veteran Name] is gone. [Count] 

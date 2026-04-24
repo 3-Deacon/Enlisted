@@ -169,7 +169,7 @@ The existing `_dailyBriefCompany` / `_dailyBriefUnit` + their SyncData lines + `
 
 ## Removals (stale-code cleanup) + moves
 
-| Item | Current location | Disposition |
+| Item | Pre-refactor location | Disposition |
 | :--- | :--- | :--- |
 | `enlisted_headlines_entry` option | `EnlistedMenuBehavior.cs:928-945` | **Delete** — replaced by inline [NEW] in Camp `YOU` |
 | `enlisted_headlines` submenu + `enlisted_headlines_back` | `:1203-1232` | **Delete** |

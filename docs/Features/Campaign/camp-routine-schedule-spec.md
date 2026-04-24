@@ -6,7 +6,7 @@
 **Last Updated:** 2026-01-01 (Reduced slot2 frequency - routine phases are now majority)  
 **Implementation:** `src/Features/Camp/CampScheduleManager.cs`, `src/Features/Camp/CampRoutineProcessor.cs`, `src/Features/Content/ContentOrchestrator.cs`  
 **Config Files:** `camp_schedule.json`, `routine_outcomes.json`, `orchestrator_overrides.json`  
-**Related Docs:** [Camp Simulation System](camp-simulation-system.md), [Content System Architecture](../Content/content-system-architecture.md), [Event System Schemas](../Content/event-system-schemas.md)
+**Related Docs:** [Camp Simulation System](camp-simulation-system.md), [Storylet Backbone](../Content/storylet-backbone.md), [Content Overview](../Content/README.md)
 
 **RECENT CHANGES (2026-01-01):**
 - **Slot2 weights significantly reduced**: Dawn 0.5→0.2, Midday 0.6→0.3, Dusk 0.5→0.2, Night 0.3→0.1
@@ -905,7 +905,7 @@ Foraging Duty: Excellent results (Supplies critical)
 2. **`routine_outcomes.json`** - Activity outcome tables and flavor text
 3. **`orchestrator_overrides.json`** - Need triggers and variety pool
 
-See [Event System Schemas](../Content/event-system-schemas.md#camp-routine-configs) for full schema definitions.
+See [Storylet Backbone](../Content/storylet-backbone.md) for current content schema and authoring rules.
 
 ### Implementation Details
 

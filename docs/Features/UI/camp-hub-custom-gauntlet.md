@@ -914,7 +914,7 @@ public class EnlistedCampHubVM : ViewModel
     
     private void RefreshPendingOrder()
     {
-        var currentOrder = OrderManager.Instance?.GetCurrentOrder();
+        var currentOrder = OrderActivity.Instance?.ActiveNamedOrder;
         
         if (currentOrder == null)
         {
@@ -958,14 +958,14 @@ public class EnlistedCampHubVM : ViewModel
     
     public void ExecuteAcceptOrder()
     {
-        OrderManager.Instance?.AcceptOrder();
+        // Accept flow is handled by the storylet option that splices the named-order arc.
         RefreshPendingOrder();
         RefreshCampStatus(); // Order outcome may affect status
     }
     
     public void ExecuteDeclineOrder()
     {
-        OrderManager.Instance?.DeclineOrder();
+        // Decline flow is handled by the storylet option and its scripted effects.
         RefreshPendingOrder();
     }
     
@@ -1534,8 +1534,8 @@ The custom hub is the ONLY new Gauntlet screen. All submenus use existing native
 - All order registration in `EnlistedMenuBehavior` - unchanged
 
 **Migration Notes:**
-- `OrderManager.Instance.GetCurrentOrder()` - Same API, no changes
-- `OrderManager.Instance.AcceptOrder()` / `DeclineOrder()` - Same API
+- `OrderActivity.Instance?.ActiveNamedOrder` - current named-order state
+- Storylet option effects - accept/decline handling for named-order candidates
 - The hub displays order summary; clicking "View Details" could still open native orders menu
 
 ### Settlement Access (Hub Only)

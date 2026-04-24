@@ -58,7 +58,7 @@ src/
 ├── Mod.GameAdapters/       # Harmony patches
 └── Features/
     ├── Enlistment/         # Core state, wages, XP, retirement
-    ├── Orders/             # Mission-driven directives (Chain of Command)
+    ├── Activities/         # Stateful duties and activity runtimes
     ├── Content/            # Events, Decisions, and narrative delivery
     ├── Identity/           # Role detection (Traits) and Reputation helpers
     ├── Escalation/         # Lord/Officer/Soldier reputation and Discipline
@@ -118,7 +118,8 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 | `settings.json` | Logging levels, encounter settings |
 | `enlisted_config.json` | Tiers, wages, retirement, feature flags |
 | `progression_config.json` | XP thresholds, culture-specific rank titles |
-| `Orders/*.json` | Order definitions for Chain of Command |
+| `Activities/*.json` | Activity type definitions |
+| `Storylets/*.json` | Duty, event, and activity storylets |
 | `Events/*.json` | Role-based narrative and social events |
 | `Decisions/*.json` | Decision definitions for Camp Hub |
 | `equipment_kits.json` | Culture-specific equipment loadouts |
@@ -571,8 +572,8 @@ if (eb?.IsEnlisted == true)
 | :--- | :--- |
 | [BLUEPRINT.md](BLUEPRINT.md) | Architecture, patterns, standards |
 | [Features/Core/index.md](Features/Core/index.md) | Feature specs and gameplay systems |
-| [Reference/campaignsystem-apis.md](Reference/campaignsystem-apis.md) | API notes and research |
-| [Content/content-index.md](Content/content-index.md) | Content catalog (events, orders, decisions) |
+| [Reference/native-apis.md](Reference/native-apis.md) | API notes and research |
+| [Features/Content/README.md](Features/Content/README.md) | Content authoring overview |
 
 ---
 

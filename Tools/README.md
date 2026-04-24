@@ -306,7 +306,7 @@ Validator checks structure, not gameplay logic. Test in-game!
 | :--- | :--- |
 | [BLUEPRINT.md](../docs/BLUEPRINT.md) | Master project guide, coding standards, architecture |
 | [writing-style-guide.md](../docs/Features/Content/writing-style-guide.md) | Writing standards for RP text (voice, tone, tokens) |
-| [event-system-schemas.md](../docs/Features/Content/event-system-schemas.md) | JSON schema reference (source of truth) |
+| [storylet-backbone.md](../docs/Features/Content/storylet-backbone.md) | Storylet, activity, trigger, effect, and quality reference |
 | [TECHNICAL-REFERENCE.md](TECHNICAL-REFERENCE.md) | Logging, save system, code patterns |
 | [Steam/WORKSHOP_UPLOAD.md](Steam/WORKSHOP_UPLOAD.md) | Steam Workshop deployment guide |
 

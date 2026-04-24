@@ -26,7 +26,7 @@
 | What You Need | Where To Go |
 |---------------|-------------|
 | **Understand the core gameplay** | [Core Gameplay (Consolidated)](core-gameplay.md) |
-| **Browse content** | [Content Index](../Content/content-index.md) |
+| **Browse content** | [Content Overview](../Content/README.md) |
 
 ---
 
@@ -93,21 +93,21 @@ Enlisted uses the native Bannerlord Game Menu system for all interactions.
 
 ## Gameplay Features
 
-- **[Temporary Leave](../Gameplay/temporary-leave.md)** - Suspend service while preserving progression.
-- **[Camp Life Simulation](../Gameplay/camp-life-simulation.md)** - Detailed tracking of unit-wide company needs.
-- **[Provisions System](../Gameplay/provisions-system.md)** - Manage morale and fatigue through rations.
-- **[Town Access](../Gameplay/town-access-system.md)** - Safe exploration of settlements while enlisted.
+- **[Temporary Leave](../Campaign/temporary-leave.md)** - Suspend service while preserving progression.
+- **[Camp Life Simulation](../Campaign/camp-life-simulation.md)** - Detailed tracking of unit-wide company needs.
+- **[Provisions System](../Equipment/provisions-rations-system.md)** - Manage morale and fatigue through rations.
+- **[Town Access](../Campaign/town-access-system.md)** - Safe exploration of settlements while enlisted.
 
 ---
 
 ## Technical Systems
 
 - **[Encounter Safety](../Technical/encounter-safety.md)** - Crash prevention and state management.
-- **[Formation Assignment](../Technical/formation-assignment.md)** - Battle deployment logic.
+- **[Formation Assignment](../Combat/formation-assignment.md)** - Battle deployment logic.
 
 ---
 
 ## Story Content & Events
 
-- **[Content System Architecture](../Content/content-system-architecture.md)** - Single source of truth for all story systems and event schemas.
-- **[Content Index](../Content/content-index.md)** - Complete catalog of all events, decisions, orders, and opportunities.
+- **[Storylet Backbone](../Content/storylet-backbone.md)** - Current source of truth for storylets, activities, triggers, effects, and qualities.
+- **[Content Overview](../Content/README.md)** - Content authoring entry point.

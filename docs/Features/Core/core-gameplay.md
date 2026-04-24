@@ -40,7 +40,7 @@ The mod is built on three core transformations introduced in v2.0:
 ### Core Code Areas
 
 - **Enlistment + State**: `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs`
-- **Orders System**: `src/Features/Orders/Behaviors/OrderManager.cs`
+- **Orders System**: `src/Features/Activities/Orders/OrderActivity.cs`
 - **Identity & Traits**: `src/Features/Identity/EnlistedStatusManager.cs`
 - **Reputation & Escalation**: `src/Features/Escalation/EscalationManager.cs`
 - **Native Menus**: `src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs`
@@ -88,7 +88,7 @@ Uses `OrderActivity` and storylet arcs for explicit, mission-driven soldier duti
 -   **Discharge Risk**: Repeatedly declining optional orders (5+ times) triggers a risk of dishonorable discharge.
 -   **Camp Life Continues**: Being on duty doesn't block gameplay. Camp decisions remain available, with some flagged as risky (detection chance) or blocked while on duty.
 
-**Note:** Orders follow the same pacing system as narrative events. See [Event System Schemas](../Content/event-system-schemas.md#global-event-pacing-enlisted_configjson) for full pacing config details.
+**Note:** Orders route through the storylet/activity pacing layer. See [Storylet Backbone](../Content/storylet-backbone.md) for current authoring details.
 
 **See:** [Storylet Backbone](../Content/storylet-backbone.md) for content authoring and activity details.
 

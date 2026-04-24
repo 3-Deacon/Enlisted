@@ -676,7 +676,7 @@ if (trainingFailed && MBRandom.RandomFloat < 0.1f)
 - [x] 15 injury types defined with appropriate HP percentages
 - [x] Multiple narrative variations per injury
 - [x] Severity levels (Minor, Moderate, Serious, Severe, Critical)
-- [x] Integration with OrderManager (prioritizes injury_type over hp_loss)
+- [x] Integration with event/activity outcome handling
 - [x] Random injury selection by severity
 - [x] Brief narratives for UI display
 - [x] Proper logging with context

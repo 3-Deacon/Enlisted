@@ -158,7 +158,7 @@
 
 **Steps:**
 1. From the peaceful garrison base state, switch time to 4× speed. Let ~5 in-game days pass.
-2. Observe the session log. News-feed entries (Plan 3 signal accordion output) SHOULD continue to arrive at this speed.
+2. Observe the session log. Typed personal/camp feed output and `SIGNAL` log entries SHOULD continue to arrive at this speed.
 3. Switch to 8× or 16× speed (whichever the UI exposes). Let another ~5 in-game days pass.
 4. Observe again. News-feed entries SHOULD now drop out (intentional — `OrdersNewsFeedThrottle.TryClaim()` rejects when `Campaign.Current.TimeControlMode == SpeedUpMultiplier` with multiplier > 4×). This is not a bug.
 5. Confirm tick-driven log entries still fire at 16×:

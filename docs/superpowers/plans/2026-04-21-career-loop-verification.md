@@ -132,7 +132,7 @@ The same human playtest run of Scenarios A-H from this plan's [playtest runbook]
 | Plan | Pending task | Covering scenarios | Inspection aids |
 |---|---|---|---|
 | 1 | T28 — 14-day in-game smoke, `INTEL/hourly_recompute` cadence + snapshot transitions | A (garrison baseline), B (marching posture), C (offensive siege posture), E (imprisoned profile flip) | `Ctrl+Shift+I` dumps the snapshot on demand |
-| 3 | T28 — 14-day in-game smoke, signal cadence across 10 families | B (front-pressure signals), D (aftermath signals post-raid), F (culture-varying signal narration) | News-feed accordion + session log `SIGNAL` entries |
+| 3 | T28 — 14-day in-game smoke, signal cadence across 10 families | B (front-pressure signals), D (aftermath signals post-raid), F (culture-varying signal narration) | Typed personal/camp feed output + session log `SIGNAL` entries |
 | 4 | T26 — 14-day full-profile run, all 7 profiles exercised, transitions fire | A (garrisoned), B (marching), C (besieging → marching transition), D (raiding), E (imprisoned → back-transition) | `Ctrl+Shift+O` path overview; `DUTY heartbeat` / `DUTY daily_counts` lines |
 | 4 | T27 — fast-forward soak (4×/16× throttle behaviour) | **H** (newly-added scenario explicitly scripted for this) | Tick-logs continue at 16×; news-feed silences by design per AGENTS.md pitfall #21 |
 | 5 | T10, T17, T19-T21 | Listed above | `Ctrl+Shift+I/A/O/F` career-debug hotkeys |

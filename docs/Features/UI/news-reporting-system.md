@@ -168,7 +168,7 @@ BuildMainMenuNarrative()
     │   ├── LogisticsStrain >70 - "Logistics collapsing"
     │   ├── MoraleShock >60 - "Morale crisis"
     │   └── PayTension >60 - "Pay disputes simmer"
-    ├── OrderManager - Current duty state
+    ├── OrderActivity - Current duty state
     ├── CompanySimulationBehavior - Critical company warnings
     └── Culture-aware rank names (NCO/Officer titles)
 ```
@@ -358,7 +358,7 @@ Failure examples:
 - Patrol: "You missed the signs. The camp stirred with rumor of what you failed to notice."
 - Scout: "Your report was wrong. Men may pay for your errors with blood."
 
-**Implementation:** `OrderManager.GetSuccessBrief()`, `GetFailureBrief()`, `GetSuccessFallback()`, `GetFailureFallback()` provide context-aware text based on order ID patterns.
+**Implementation:** Order activity and storylet outcomes provide context-aware text through the activity/storylet backbone.
 
 ### Routine Activity Flavor Text (2026-01-01 Update)
 
@@ -470,7 +470,7 @@ Events specific to your enlisted lord and your direct participation.
 
 **Added:** 2025-12-31  
 **Implementation:** `CampRoutineProcessor`, `AddRoutineOutcome()`  
-**Related Docs:** [Camp Routine Schedule](../../Campaign/camp-routine-schedule-spec.md)
+**Related Docs:** [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
 
 Automatic routine activities (training, foraging, patrol, etc.) generate feed entries without popups:
 
@@ -958,7 +958,7 @@ Tracks order completions for service record.
 - `Issuer`: Who gave the order
 - `DayNumber`: When completed
 
-**Added via:** `RecordOrderOutcome()` (called by OrderManager)
+**Added via:** typed dispatch records from activity/storylet outcomes.
 
 **Retrieved via:** `GetRecentOrderOutcomes(maxDaysOld)`
 
@@ -1238,7 +1238,7 @@ The template includes fallback text for development:
 
 | System | Integration Point |
 |--------|-------------------|
-| **Orders** | `OrderManager` calls `RecordOrderOutcome()` |
+| **Orders** | `OrderActivity` and storylet outcomes write typed dispatch records |
 | **Events** | `EventDeliveryManager` calls `AddEventOutcome()`, `SchedulePendingChainEvent()` |
 | **Escalation** | `EscalationManager` calls `RecordReputationChange()` |
 | **Company Needs** | `CompanyNeedsManager` provides current values |

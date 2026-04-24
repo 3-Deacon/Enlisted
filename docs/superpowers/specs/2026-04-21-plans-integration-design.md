@@ -52,7 +52,7 @@ After Tasks 33 and 34 shipped today (commits `f8e028b`, `deb88db`), the Orders p
 | 35 | Author transition.json (~15 storylets) | **Plan 4** | Emission hook (profile-change or snapshot `RecentChangeFlags`) lives in Plan 4. |
 | 36 | Validator Phase 13 — pool coverage | **Plan 4** | Runs after pool authoring; natural closure for Plan 4's content. |
 | 41 | Sync localization strings | **Per-commit verification step** | Not a plan-level task. Each authoring plan runs `sync_event_strings.py` as part of its content commits. Dropped from the task inventory. |
-| 42 | Delete old Orders subsystem (`src/Features/Orders/`) | **Pre-plan hygiene** | Single-commit cleanup. Does not require a plan. Ships before Plan 1 T1 or alongside. |
+| 42 | Delete old Orders subsystem (`src/Features/Orders/`) | **Completed** | Shipped in `a8719bb`; no pending plan work. |
 | 43 | Phase B smoke — daily drift + named-order arc + transitions | **Plan 4** | Verifies the loop Plan 4 delivers. |
 | 44 | PathScorer.OnIntentPicked (already shipped in Task 16) | — | Already done. |
 | 45-52 | Phase C path system — committed_path, crossroads, prior_service flags, Phase 15 validator, Phase C smoke | **Plan 5** | Independent of Intelligence; career-commitment subsystem closes the player arc. |
@@ -100,7 +100,7 @@ Plan 4's task list includes the content authoring. Plan 4 does **not** need to e
 ## 6. Execution order + cross-plan dependencies
 
 ```
-[pre-plan hygiene: delete src/Features/Orders/ legacy — Task 42, single commit]
+[completed hygiene: delete src/Features/Orders/ — Task 42, `a8719bb`]
           ↓
    Plan 1 (Intelligence Backbone) — snapshot exists, no consumers
           ↓

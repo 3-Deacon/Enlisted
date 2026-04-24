@@ -4,7 +4,7 @@
 
 **Status:** ⚠️ Mixed (Core implemented, pressure arc events implemented, enhancements planned)  
 **Last Updated:** 2026-01-06 (Added supply pressure arc events)
-**Related Docs:** [Quartermaster System](quartermaster-system.md), [Provisions & Rations](provisions-rations-system.md), [Company Events](../../Core/company-events.md#pressure-arc-events)
+**Related Docs:** [Quartermaster System](quartermaster-system.md), [Provisions & Rations](provisions-rations-system.md), [Company Events](../Core/company-events.md#pressure-arc-events)
 
 ---
 
@@ -367,7 +367,7 @@ CheckPressureArcEvents();
 - "Master at Arms isn't seeing anyone right now" message
 - Forces player to address supply crisis before upgrading gear
 
-**See Also:** [Company Events - Pressure Arcs](../../Core/company-events.md#pressure-arc-events)
+**See Also:** [Company Events - Pressure Arcs](../Core/company-events.md#pressure-arc-events)
 
 ---
 

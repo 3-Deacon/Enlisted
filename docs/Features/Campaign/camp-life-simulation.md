@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-23  
-**Related Docs:** [Company Supply](../Equipment/company-supply-simulation.md), [Core Gameplay](../Core/core-gameplay.md), [Camp Fatigue](../Core/camp-fatigue.md)
+**Related Docs:** [Company Supply](../Equipment/company-supply-simulation.md), [Core Gameplay](../Core/core-gameplay.md)
 
 ---
 
@@ -508,7 +508,7 @@ Every day at daily tick, multiple systems run:
 ## System Integrations
 
 ### Orders System
-**Integration Point:** `OrderManager.ApplyOrderOutcome()`
+**Integration Point:** activity/storylet outcome effects
 
 Orders have `CompanyNeeds` effects defined in JSON:
 ```json

@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-03  
-**Related Docs:** [Event System Schemas](../Content/event-system-schemas.md), [Encounter Safety](encounter-safety.md), [Content System Architecture](../Content/content-system-architecture.md), [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md), [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Encounter Safety](encounter-safety.md), [Content Overview](../Content/README.md)
 
 ---
 
@@ -363,7 +363,7 @@ Patches are auto-categorized by type name:
 - ⚠️ **Breaking Change:** `CampOpportunityGenerator.GenerateCampLife()` now internal, only Orchestrator calls it
 - ⚠️ **Deprecated:** `DecisionManager.GetAvailableOpportunities()` replaced by Orchestrator queries
 
-**Related Documentation:** [Orchestrator Opportunity Unification Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)
+**Related Documentation:** [Storylet Backbone](../Content/storylet-backbone.md)
 
 ### Bug Fixes Applied
 
@@ -386,7 +386,7 @@ Patches are auto-categorized by type name:
 | **RetinueManager** | Commander's retinue management (T7+) | Pay system, formation assignment, baggage access |
 | **CompanySimulationBehavior** | Background camp life simulation | Daily tick, news feed integration |
 
-**For Full System Analysis:** See [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md) for comprehensive analysis of all tracking systems (Supply, Morale, Reputation, Escalation) and how they integrate with ContentOrchestrator.
+**System Analysis:** This document covers the relevant tracking systems (Supply, Morale, Reputation, Escalation) and how they integrate with ContentOrchestrator.
 
 ---
 
@@ -541,7 +541,7 @@ if (Hero.MainHero.IsPrisoner) return false;
 - Run before committing content changes: `python Tools/Validation/validate_content.py`
 - Use `--strict` mode for pre-merge validation: `python Tools/Validation/validate_content.py --strict`
 - See [../../../Tools/README.md](../../../Tools/README.md) for complete usage guide
-- Add `hint` or `hintId` to camp opportunities for news integration (see [Event System Schemas](../Content/event-system-schemas.md#narrative-hints-orchestrator-pre-scheduling))
+- Add `hint` or `hintId` to camp opportunities for news integration.
 
 ---
 
@@ -564,7 +564,7 @@ This matrix shows where systems interact and potential conflict points.
 
 **Key Rule:** ContentOrchestrator owns all opportunity state. CampOpportunityGenerator only generates candidates on request.
 
-**Related Documentation:** [Orchestrator Opportunity Unification Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)
+**Related Documentation:** [Storylet Backbone](../Content/storylet-backbone.md)
 
 ### Enlistment × Equipment
 
@@ -633,7 +633,7 @@ This matrix shows where systems interact and potential conflict points.
 - 2026-01-03: Decisions correctly disappear after selection (improved consumption)
 - 2026-01-04: Decisions no longer fire as popups (filtered from MapIncidentManager)
 
-**Related Documentation:** [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)
+**Related Documentation:** [Storylet Backbone](../Content/storylet-backbone.md)
 
 ### Orders × Other Systems
 
@@ -753,7 +753,7 @@ When multiple systems want to modify the same state, these rules determine prior
 - `WorldStateAnalyzer` reads Company Needs to determine `LifePhase` (Routine/Strained/Crisis)
 - `SimulationPressureCalculator` tracks sustained pressure (days below threshold)
 - Activity level affects opportunity budget (fewer opportunities when stressed)
-- **Future Enhancement:** Gradient need influence on opportunity fitness scoring (see [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md))
+- **Future Enhancement:** Gradient need influence on opportunity fitness scoring.
 
 ### Gold (Player Treasury)
 
@@ -1474,16 +1474,13 @@ Errors are logged via `ModLogger.Surfaced()` which includes:
 
 ### Core Architecture
 - [BLUEPRINT.md](../../BLUEPRINT.md) - Core patterns and standards
-- [Content System Architecture](../Content/content-system-architecture.md) - Event delivery pipeline
-- [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) - **NEW:** Opportunity scheduling system
-- [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md) - **NEW:** How all tracking systems integrate
+- [Storylet Backbone](../Content/storylet-backbone.md) - Storylet and activity delivery pipeline
 
 ### Content & Events
-- [Event System Schemas](../Content/event-system-schemas.md) - JSON field definitions, narrative hints
-- [Content Index](../Content/content-index.md) - All content organized by category
+- [Content Overview](../Content/README.md) - Current content entry point
 - [Camp Simulation System](../Campaign/camp-simulation-system.md) - Background simulation + opportunities
 
 ### Safety & Validation
 - [Encounter Safety](encounter-safety.md) - Party state conflicts and edge cases
-- [Content Validation Tools](../../Tools/README.md) - Validation scripts and usage
+- [Content Validation Tools](../../../Tools/README.md) - Validation scripts and usage
 

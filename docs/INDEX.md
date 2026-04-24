@@ -193,7 +193,7 @@
 
 | Document | Topic | Status |
 | --- | --- | --- |
-| [README.md](Features/Content/README.md) | Content folder overview | ✅ Current |
+| [README.md](Features/Content/README.md) | Content authoring overview for storylets, activities, decisions, events, effects, triggers, qualities, and flags | ✅ Current |
 | [injury-system.md](Features/Content/injury-system.md) | Unified medical condition system: injuries (3 types), illnesses (4 types), medical risk escalation (0-5), context-aware treatment (land vs sea), illness onset triggers, recovery tracking, maritime illness variants, condition worsening mechanics. Fully integrated with ContentOrchestrator. | ✅ Implemented |
 | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Bannerlord RP writing guide: voice and tone (terse military prose), tense/perspective rules, vocabulary (medieval military register, avoid anachronisms), setup/option/result text patterns, tooltip formatting, **opportunity hints** (camp rumors vs personal hints, placeholder usage, categorization), dialogue patterns by rank, common mistakes to avoid, examples and checklists | ✅ Current |
 | [home-surface.md](Features/Content/home-surface.md) | Living reference for the Enlisted Home Surface (Spec 1, Phases A–D complete). HomeActivity lifecycle, 4-phase flow, 5-intent Evening menu provider, 34 HomeTriggers predicates, 50-storylet corpus, save offset 45, integration points with the storylet backbone. | ✅ Current |

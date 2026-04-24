@@ -696,7 +696,7 @@ The muster system integrates with numerous systems across the mod:
 | **All orders completed** | Show count with positive tone: "Orders: 3 completed, 0 failed - Exemplary service." |
 | **All orders failed** | Show count with warning: "Orders: 0 completed, 2 failed - Command is displeased." |
 | **No events this period** | Show "A quiet period. No significant events." |
-| **OrderManager unavailable** | Show "Order records unavailable." Log warning. |
+| **OrderActivity unavailable** | Show "Order records unavailable." Log warning. |
 
 ### Fatigue and Health
 

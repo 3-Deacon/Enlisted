@@ -60,13 +60,13 @@ Then select the "Muster" menu option on return from a long mission.
 
 **Expected:** The muster intro digest (implemented in Phase 2 Task 15) shows a severity-filtered summary of DispatchItems under "Since your last muster:".
 
-### Scenario 6 — Headlines accordion
+### Scenario 6 — Camp YOU unread marker
 
-Trigger at least one high-severity DispatchItem (easiest: let an escalation threshold fire, or let the company supply pressure stage_1 event land in the accordion per Task 24).
+Trigger at least one high-severity DispatchItem (easiest: let an escalation threshold fire, or let the company supply pressure stage_1 event land in the feed per Task 24).
 
 Open `enlisted_status` from the map menu.
 
-**Expected:** A "Headlines" drilldown appears showing unviewed high-severity items (`Severity >= 2`) from the last 7 days. Entries marked `[NEW]` until the player clicks through them.
+**Expected:** Camp `YOU` shows unviewed high-severity items from the last 7 days with inline `NEW:` markers until the player opens the relevant feed surface.
 
 ### Scenario 7 — Save/load with deferred queue
 
@@ -85,7 +85,7 @@ Let a war be declared between two distant AI factions (neither is the player's k
 **Expected:**
 - No modal fires
 - No DispatchItem created
-- No Headlines entry appears
+- No high-priority personal feed entry appears
 - Session log shows the filter-drop trace in `RelevanceFilter.Passes` (if debug logging is enabled)
 
 ## Phase 3 Call-Site Migration Ledger

@@ -1,7 +1,7 @@
 # Orders Surface — Design Spec
 
 **Date:** 2026-04-20
-**Status:** Design draft, revised once after adversarial review (2026-04-20). Awaiting user re-review.
+**Status:** Superseded implementation design. The old Orders subsystem was deleted in `a8719bb`; current code lives under `src/Features/Activities/Orders/` with order content authored through activities and storylets. Remaining work moved to the 2026-04-21 integration roadmap.
 **Scope:** Spec 2 in the 6-spec cycle. Replaces the existing 11-file `src/Features/Orders/` subsystem with a single `OrderActivity` running on the Spec 0 storylet backbone. Reframes "Orders" as the **career-arc text RPG** that hums in the background while Bannerlord's foreground campaign plays out — making enlistment a replayable rise from peasant to commander, with real Bannerlord-native progression rewards (skill XP, focus points, attribute points, traits, renown, relations, native-issue loot from the lord's faction troop tree).
 
 Depends on Spec 0 (Storylet Backbone, landed `45b38bf`) and Spec 1 (Enlisted Home Surface, landed `0390fdf`). Spec 1's `ActivityTypeCatalog`, `Storylet → InteractiveEvent` adapter, and `PhaseDelivery.PlayerChoice` runtime are inherited unchanged. Spec 2 adds **twelve scripted-effect primitives** (eight character-development reward currencies plus four runtime-control), a duty-profile sampling subsystem, an arc-storylet variant with explicit save-load reconstruction, a path-progression accumulator, a faction-troop-tree-aware loot resolver, **a thin `EnlistmentBehavior.OnTierChanged` event**, and **migration of eight consumer call sites** that today read `OrderManager.Instance` directly.

@@ -5,7 +5,7 @@
 **Status:** ✅ Implemented  
 **Last Updated:** 2026-01-03 (Bug fixes: opportunities persist when lord leaves, decisions correctly disappear after selection)  
 **Implementation:** `src/Features/Camp/CompanySimulationBehavior.cs`, `src/Features/Camp/CampOpportunityGenerator.cs`  
-**Related Docs:** [Content System Architecture](../Content/content-system-architecture.md), [News Reporting System](../UI/news-reporting-system.md), [Company Needs](../Core/company-needs.md), [Camp Routine Schedule](camp-routine-schedule-spec.md), [Orchestrator Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [News Reporting System](../UI/news-reporting-system.md), [Camp Routine Schedule](camp-routine-schedule-spec.md)
 
 ---
 
@@ -98,7 +98,7 @@ Daily Tick (6am)
 
 **Key Design Principle:** Opportunities are scheduled once at daily tick and **locked**. Context changes (lord leaving castle, phase transitions) do NOT regenerate opportunities. This prevents jarring disappearance of content the player was about to interact with.
 
-**Architecture Reference:** See [Orchestrator Opportunity Unification Spec](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) for full details.
+**Architecture Reference:** See [Storylet Backbone](../Content/storylet-backbone.md) for current activity and storylet scheduling details.
 
 ---
 
@@ -809,7 +809,7 @@ CampRoutineProcessor.ProcessPhaseTransition(completedPhase, schedule);
 // → Applies XP, gold, supply changes
 ```
 
-**Related Docs:** [Camp Routine Schedule](camp-routine-schedule-spec.md), [Content System Architecture](../Content/content-system-architecture.md#camp-routine-orchestration)
+**Related Docs:** [Camp Routine Schedule](camp-routine-schedule-spec.md), [Storylet Backbone](../Content/storylet-backbone.md)
 
 ---
 
@@ -935,7 +935,7 @@ public float GetHoursUntilCommitment(ScheduledCommitment c) { ... }
 
 **See Also:**  
 - [Camp Routine Schedule](camp-routine-schedule-spec.md) - Daily schedule baseline  
-- [Event System Schemas](../Content/event-system-schemas.md) - Opportunity definitions
+- [Storylet Backbone](../Content/storylet-backbone.md) - Current storylet and activity definitions
 
 ---
 
