@@ -217,7 +217,7 @@
 | [ui-systems-master.md](Features/UI/ui-systems-master.md) | Complete UI reference: all menus, screens, and interfaces (camp menu, muster menu, QM interfaces, equipment grids, dialogue flows), Gauntlet implementation patterns, UI technical requirements | ✅ Current |
 | [enlisted-combat-log.md](Features/UI/enlisted-combat-log.md) | Custom combat log widget: native-styled scrollable feed (right side, 5min persistence, 50 message history), smart auto-scroll (pauses on manual scroll), inactivity fade (35% after 10s), clickable encyclopedia links with faction-specific colors (kingdoms display in banner colors: Vlandia=red, Sturgia=blue, Battania=green, etc.), suppresses native log while enlisted via Harmony patch, color-coded messages with shadows | ✅ Current |
 | [color-scheme.md](Features/UI/color-scheme.md) | Professional color palette: hex codes for all UI elements (backgrounds, text, buttons, status indicators), quality tier colors, reputation colors, accessibility considerations | ✅ Current |
-| [news-reporting-system.md](Features/UI/news-reporting-system.md) | News feeds and dispatch routing: event logging, combat summaries, period recaps, camp activity outcomes, and status/Camp menu consumers | ✅ Current |
+| [news-reporting-system.md](Features/UI/news-reporting-system.md) | News feeds and dispatch routing: event logging, combat summaries, period recaps, camp activity outcomes, compact Status glance, action-first Camp Hub, and Reports views | ✅ Current |
 
 ---
 

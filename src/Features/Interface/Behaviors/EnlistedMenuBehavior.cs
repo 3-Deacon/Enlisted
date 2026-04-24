@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 // Removed: using Enlisted.Features.Camp.UI.Bulletin; (old Bulletin UI deleted)
 using Enlisted.Debugging.Behaviors;
+using Enlisted.Features.Agency;
 using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
@@ -41,9 +42,12 @@ namespace Enlisted.Features.Interface.Behaviors
     public sealed class EnlistedMenuBehavior : CampaignBehaviorBase
     {
         private const string OrdersDetailMenuId = "enlisted_orders_detail";
+        private const string ServiceStanceMenuId = "enlisted_service_stance";
         private const string CampHubMenuId = "enlisted_camp_hub";
         private const string CampActivitiesMenuId = "enlisted_camp_activities";
         private const string CampActivityDetailMenuId = "enlisted_camp_activity_detail";
+        private const string ReportsMenuId = "enlisted_reports";
+        private const string ReportDetailMenuId = "enlisted_report_detail";
 
         /// <summary>
         ///     Minimum time interval between menu updates, in seconds.
@@ -108,6 +112,8 @@ namespace Enlisted.Features.Interface.Behaviors
         private CampaignTime _cachedDecisionsTime = CampaignTime.Zero;
         private DecisionAvailability _activeCampActivityAvailability;
         private DecisionDefinition _activeCampActivityDecision;
+        private string _activeReportTitle = string.Empty;
+        private string _activeReportBody = string.Empty;
 
         // Cached narrative text to prevent flickering from frequent rebuilds.
         // Only updates when the underlying data changes.
@@ -758,10 +764,10 @@ namespace Enlisted.Features.Interface.Behaviors
         {
             AddMainEnlistedStatusMenu(starter);
             RegisterOrdersDetailMenu(starter);
+            RegisterServiceStanceMenu(starter);
             RegisterCampHubMenu(starter);
-            // NOTE: Decisions, Reports, Status submenus removed.
-            // - Decisions is now an accordion on the main menu
-            // - Reports/Status info is integrated into Camp Hub
+            RegisterReportsMenu(starter);
+            RegisterReportDetailMenu(starter);
 
             // Siege interaction is handled by native Bannerlord menus (join_siege_event / siege assault).
             // We intentionally do not add an enlisted-menu fallback button here, to keep siege flow vanilla.
@@ -1002,6 +1008,23 @@ namespace Enlisted.Features.Interface.Behaviors
                 },
                 false, 2);
 
+            starter.AddGameMenuOption("enlisted_status", "enlisted_service_stance",
+                "{=enlisted_service_stance_option}Service Stance",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    var current = ServiceStanceManager.Instance?.Current;
+                    args.Tooltip = new TextObject("{=enlisted_service_stance_tooltip}Choose your persistent posture between orders. Current: {STANCE}")
+                        .SetTextVariable("STANCE", current?.Label ?? "Routine Service");
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(ServiceStanceMenuId);
+                },
+                false, 3);
+
             // Evening intent slots - visible only when HomeActivity is in the evening phase.
             // Indices 9..13 (one per slot) so Evening sits above camp_hub (index 14) during its
             // phase. GameMenu.AddOption uses positional insertion, not priority sorting, so
@@ -1049,6 +1072,21 @@ namespace Enlisted.Features.Interface.Behaviors
                     GameMenu.SwitchToMenu(CampHubMenuId);
                 },
                 false, 14);
+
+            starter.AddGameMenuOption("enlisted_status", "enlisted_reports",
+                "{=enlisted_reports_option}Reports",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    args.Tooltip = new TextObject("{=enlisted_reports_tooltip}Review service history, personal dispatches, company log, and kingdom dispatches.");
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(ReportsMenuId);
+                },
+                false, 15);
 
             // Debug tools (QA only): grant gold/XP - at very bottom
             // DISABLED FOR PRODUCTION - change to true in settings.json to enable for testing
@@ -1308,6 +1346,267 @@ namespace Enlisted.Features.Interface.Behaviors
             return sb.ToString().TrimEnd();
         }
 
+        private void RegisterServiceStanceMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(ServiceStanceMenuId,
+                "{=enlisted_service_stance_title}{SERVICE_STANCE_TEXT}",
+                OnServiceStanceInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            for (var i = 0; i < 7; i++)
+            {
+                var slotIndex = i;
+                starter.AddGameMenuOption(ServiceStanceMenuId, $"service_stance_{i}",
+                    $"{{SERVICE_STANCE_{i}_TEXT}}",
+                    args => IsServiceStanceOptionAvailable(args, slotIndex),
+                    _ => OnServiceStanceSelected(slotIndex),
+                    false, 1 + i);
+            }
+
+            starter.AddGameMenuOption(ServiceStanceMenuId, "service_stance_back",
+                "{=enlisted_service_stance_back}Back to Status",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu("enlisted_status");
+                },
+                false, 100);
+        }
+
+        private static void OnServiceStanceInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+                MBTextManager.SetTextVariable("SERVICE_STANCE_TEXT", BuildServiceStanceText());
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Error initializing service stance menu", ex);
+                MBTextManager.SetTextVariable("SERVICE_STANCE_TEXT", "Service stance unavailable.");
+            }
+        }
+
+        private static bool IsServiceStanceOptionAvailable(MenuCallbackArgs args, int slotIndex)
+        {
+            var stances = ServiceStanceManager.Instance?.Stances ?? new List<ServiceStanceDefinition>();
+            if (slotIndex < 0 || slotIndex >= stances.Count)
+            {
+                return false;
+            }
+
+            var stance = stances[slotIndex];
+            var currentId = ServiceStanceManager.Instance?.CurrentStanceId ?? ServiceStanceManager.DefaultStanceId;
+            var isCurrent = string.Equals(stance.Id, currentId, StringComparison.OrdinalIgnoreCase);
+            var label = isCurrent ? $"    [Current] {stance.Label}" : $"    {stance.Label}";
+            MBTextManager.SetTextVariable($"SERVICE_STANCE_{slotIndex}_TEXT", label, false);
+
+            args.optionLeaveType = GameMenuOption.LeaveType.Continue;
+            args.IsEnabled = !isCurrent;
+            args.Tooltip = new TextObject(stance.Tooltip ?? stance.Preview ?? stance.Summary ?? stance.Label);
+            return true;
+        }
+
+        private static void OnServiceStanceSelected(int slotIndex)
+        {
+            var stances = ServiceStanceManager.Instance?.Stances ?? new List<ServiceStanceDefinition>();
+            if (slotIndex < 0 || slotIndex >= stances.Count)
+            {
+                return;
+            }
+
+            var selected = stances[slotIndex];
+            if (ServiceStanceManager.Instance?.SetCurrentStance(selected.Id) == true)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=enlisted_service_stance_changed}Stance changed: {STANCE}.")
+                        .SetTextVariable("STANCE", selected.Label)
+                        .ToString(),
+                    Colors.Green));
+            }
+
+            QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+            GameMenu.SwitchToMenu(ServiceStanceMenuId);
+        }
+
+        private static string BuildServiceStanceText()
+        {
+            var current = ServiceStanceManager.Instance?.Current;
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(new TextObject("{=enlisted_service_stance_current}Current stance: {STANCE}")
+                .SetTextVariable("STANCE", current?.Label ?? "Routine Service")
+                .ToString());
+            _ = sb.AppendLine(new TextObject("{=enlisted_service_stance_orders_override}Direct orders temporarily override your stance.").ToString());
+
+            if (!string.IsNullOrWhiteSpace(current?.Preview))
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(current.Preview);
+            }
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private void RegisterReportsMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(ReportsMenuId,
+                "{=enlisted_reports_title}{REPORTS_TEXT}",
+                OnReportsInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            starter.AddGameMenuOption(ReportsMenuId, "reports_since_muster",
+                "{=enlisted_reports_since_muster}Since Last Muster",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    args.Tooltip = new TextObject("{=enlisted_reports_since_muster_tt}Review orders, battles, incidents, and muster countdown.");
+                    return true;
+                },
+                _ => OpenReportDetail("Since Last Muster", BuildPeriodRecapSection(EnlistmentBehavior.Instance)),
+                false, 1);
+
+            starter.AddGameMenuOption(ReportsMenuId, "reports_personal_dispatches",
+                "{=enlisted_reports_personal}Personal Dispatches",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    args.Tooltip = new TextObject("{=enlisted_reports_personal_tt}Review player-specific outcomes, stance summaries, wounds, and pay notes.");
+                    return true;
+                },
+                _ => OpenReportDetail("Personal Dispatches", BuildPersonalDispatchReport()),
+                false, 2);
+
+            starter.AddGameMenuOption(ReportsMenuId, "reports_company_log",
+                "{=enlisted_reports_company}Company Log",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    args.Tooltip = new TextObject("{=enlisted_reports_company_tt}Review company, camp, supply, and baggage updates.");
+                    return true;
+                },
+                _ => OpenReportDetail("Company Log", BuildCompanyLogReport()),
+                false, 3);
+
+            starter.AddGameMenuOption(ReportsMenuId, "reports_kingdom_dispatches",
+                "{=enlisted_reports_kingdom}Kingdom Dispatches",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    args.Tooltip = new TextObject("{=enlisted_reports_kingdom_tt}Review realm-level war, siege, prisoner, and political dispatches.");
+                    return true;
+                },
+                _ => OpenReportDetail("Kingdom Dispatches", BuildKingdomDispatchReport()),
+                false, 4);
+
+            starter.AddGameMenuOption(ReportsMenuId, "reports_back",
+                "{=enlisted_reports_back}Back to Status",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu("enlisted_status");
+                },
+                false, 100);
+        }
+
+        private void RegisterReportDetailMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(ReportDetailMenuId,
+                "{REPORT_DETAIL_TEXT}",
+                OnReportDetailInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            starter.AddGameMenuOption(ReportDetailMenuId, "report_detail_back",
+                "{=enlisted_report_detail_back}Back to Reports",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(ReportsMenuId);
+                },
+                false, 100);
+        }
+
+        private static void OnReportsInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+                MBTextManager.SetTextVariable("REPORTS_TEXT", BuildReportsText());
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Error initializing reports menu", ex);
+                MBTextManager.SetTextVariable("REPORTS_TEXT", "Reports unavailable.");
+            }
+        }
+
+        private void OnReportDetailInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+                var title = string.IsNullOrWhiteSpace(_activeReportTitle) ? "Report" : _activeReportTitle;
+                var body = string.IsNullOrWhiteSpace(_activeReportBody) ? "Nothing to report." : _activeReportBody;
+                MBTextManager.SetTextVariable("REPORT_DETAIL_TEXT", $"<span style=\"Header\">{title}</span>\n{body}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Error initializing report detail", ex);
+                MBTextManager.SetTextVariable("REPORT_DETAIL_TEXT", "Report unavailable.");
+            }
+        }
+
+        private void OpenReportDetail(string title, string body)
+        {
+            _activeReportTitle = title ?? string.Empty;
+            _activeReportBody = string.IsNullOrWhiteSpace(body) ? "Nothing to report." : body;
+            QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+            GameMenu.SwitchToMenu(ReportDetailMenuId);
+        }
+
+        private static string BuildReportsText()
+        {
+            return new TextObject("{=enlisted_reports_intro}Review history and dispatches here. The main status screen only shows what matters now.").ToString();
+        }
+
         private void RegisterCampHubMenu(CampaignGameStarter starter)
         {
             starter.AddWaitGameMenu(CampHubMenuId,
@@ -1347,6 +1646,23 @@ namespace Enlisted.Features.Interface.Behaviors
                     GameMenu.SwitchToMenu(CampActivitiesMenuId);
                 },
                 false, 1);
+
+            starter.AddGameMenuOption(CampHubMenuId, "camp_hub_change_stance",
+                "{=enlisted_camp_change_stance}Change Service Stance",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    var current = ServiceStanceManager.Instance?.Current;
+                    args.Tooltip = new TextObject("{=enlisted_camp_change_stance_tt}Change your persistent posture between direct orders. Current: {STANCE}")
+                        .SetTextVariable("STANCE", current?.Label ?? "Routine Service");
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(ServiceStanceMenuId);
+                },
+                false, 2);
 
             // Service Records
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_service_records",
@@ -1681,50 +1997,8 @@ namespace Enlisted.Features.Interface.Behaviors
                 var lordParty = lord?.PartyBelongedTo;
                 var sb = new StringBuilder();
 
-                // === COMPANY STATUS (Flowing summary combining atmosphere, strength, needs) ===
-                var companyStatus = BuildCompanyStatusSummary(enlistment, lord, lordParty);
-                if (!string.IsNullOrWhiteSpace(companyStatus))
-                {
-                    _ = sb.AppendLine(companyStatus);
-                    _ = sb.AppendLine();
-                }
-
-                // === PERIOD RECAP (Since last muster - orders, battles, training) ===
-                var periodRecap = BuildPeriodRecapSection(enlistment);
-                if (!string.IsNullOrWhiteSpace(periodRecap))
-                {
-                    var headerText = new TextObject("{=status_header_since_muster}SINCE LAST MUSTER").ToString();
-                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    _ = sb.AppendLine(periodRecap);
-                    _ = sb.AppendLine();
-                }
-
-                // === UPCOMING (Scheduled activities, expected orders) ===
-                var upcoming = BuildUpcomingSection();
-                if (!string.IsNullOrWhiteSpace(upcoming))
-                {
-                    var headerText = new TextObject("{=status_header_upcoming}UPCOMING").ToString();
-                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    _ = sb.AppendLine(upcoming);
-                    _ = sb.AppendLine();
-                }
-
-                // === YOU (Player status and personal activity) ===
-                var playerStatus = BuildPlayerPersonalStatus(enlistment);
-                var recentActivities = BuildRecentActivitiesNarrative(enlistment);
-                if (!string.IsNullOrWhiteSpace(playerStatus) || !string.IsNullOrWhiteSpace(recentActivities))
-                {
-                    var headerText = new TextObject("{=status_header_you}YOU").ToString();
-                    _ = sb.AppendLine($"<span style=\"Header\">{headerText}</span>");
-                    if (!string.IsNullOrWhiteSpace(playerStatus))
-                    {
-                        _ = sb.AppendLine(playerStatus);
-                    }
-                    if (!string.IsNullOrWhiteSpace(recentActivities))
-                    {
-                        _ = sb.AppendLine(recentActivities);
-                    }
-                }
+                _ = sb.AppendLine(BuildCampActionSummary(enlistment, lordParty));
+                _ = sb.AppendLine(BuildCampActionCounts());
 
                 return sb.ToString().TrimEnd();
             }
@@ -1732,6 +2006,52 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 ModLogger.Debug("INTERFACE", $"Error building camp hub text: {ex.Message}");
                 return new TextObject("{=enl_camp_hub_unavailable}Camp unavailable.").ToString();
+            }
+        }
+
+        private static string BuildCampActionSummary(EnlistmentBehavior enlistment, MobileParty lordParty)
+        {
+            var location = lordParty?.CurrentSettlement != null
+                ? new TextObject("{=camp_action_encamped_at}Encamped at {SETTLEMENT}")
+                    .SetTextVariable("SETTLEMENT", lordParty.CurrentSettlement.Name)
+                    .ToString()
+                : new TextObject("{=camp_action_with_company}With the company.").ToString();
+
+            var companyNeeds = enlistment?.CompanyNeeds;
+            if (companyNeeds == null)
+            {
+                return location;
+            }
+
+            var supply = GetSupplyPhrase(companyNeeds.Supplies);
+            var readiness = GetReadinessPhrase(companyNeeds.Readiness);
+            var status = string.Join(" ", new[] { supply, readiness }.Where(s => !string.IsNullOrWhiteSpace(s)));
+            return string.IsNullOrWhiteSpace(status) ? location : $"{location} {status}";
+        }
+
+        private static string BuildCampActionCounts()
+        {
+            var activities = GetCampActionCountForSummary();
+            var current = ServiceStanceManager.Instance?.Current?.Label ?? "Routine Service";
+            return new TextObject("{=camp_action_counts}{COUNT} activities available. Current stance: {STANCE}.")
+                .SetTextVariable("COUNT", activities.ToString())
+                .SetTextVariable("STANCE", current)
+                .ToString();
+        }
+
+        private static int GetCampActionCountForSummary()
+        {
+            try
+            {
+                var scheduled = ContentOrchestrator.Instance?.GetAllTodaysOpportunities()?.Count ?? 0;
+                var logistics = DecisionManager.Instance?.GetAvailableDecisionsForSection("logistics")
+                    .Count(d => d.IsVisible && d.IsAvailable) ?? 0;
+                return scheduled + logistics;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Failed to count Camp Hub activities", ex);
+                return 0;
             }
         }
 
@@ -1789,6 +2109,64 @@ namespace Enlisted.Features.Interface.Behaviors
             }
 
             return sb.ToString().TrimEnd();
+        }
+
+        private static string BuildPersonalDispatchReport()
+        {
+            var news = EnlistedNewsBehavior.Instance;
+            var items = news?.GetVisiblePersonalFeedItems(8)
+                ?.Where(item => item.Route.IsPersonalForYou || item.Route.CountsForMusterRecap)
+                .Take(5)
+                .ToList() ?? new List<DispatchItem>();
+
+            if (items.Count == 0)
+            {
+                return new TextObject("{=enlisted_reports_personal_empty}No personal dispatches recorded.").ToString();
+            }
+
+            return string.Join("\n", items.Select(item => "- " + EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true)));
+        }
+
+        private static string BuildCompanyLogReport()
+        {
+            var parts = new List<string>();
+            var enlistment = EnlistmentBehavior.Instance;
+            var lord = enlistment?.CurrentLord;
+            var company = BuildCompanyStatusSummary(enlistment, lord, lord?.PartyBelongedTo);
+            if (!string.IsNullOrWhiteSpace(company))
+            {
+                parts.Add(company);
+            }
+
+            var news = EnlistedNewsBehavior.Instance;
+            var campItems = GetCampActivityItems(news, 5);
+            foreach (var item in campItems)
+            {
+                var line = EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true);
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    parts.Add("- " + line);
+                }
+            }
+
+            if (parts.Count == 0)
+            {
+                return new TextObject("{=enlisted_reports_company_empty}No company log entries recorded.").ToString();
+            }
+
+            return string.Join("\n", parts.Take(6));
+        }
+
+        private static string BuildKingdomDispatchReport()
+        {
+            var news = EnlistedNewsBehavior.Instance;
+            var items = news?.GetVisibleKingdomFeedItems(8)?.Take(5).ToList() ?? new List<DispatchItem>();
+            if (items.Count == 0)
+            {
+                return new TextObject("{=enlisted_reports_kingdom_empty}No kingdom dispatches recorded.").ToString();
+            }
+
+            return string.Join("\n", items.Select(item => "- " + EnlistedNewsBehavior.FormatDispatchForDisplay(item, includeColor: true)));
         }
 
         /// <summary>
@@ -3488,42 +3866,20 @@ namespace Enlisted.Features.Interface.Behaviors
         }
 
         /// <summary>
-        /// Builds the main menu narrative with section headers for Kingdom Reports, Company Reports, and Player Status.
-        /// Order: Kingdom (macro) → Camp (local) → Player (personal)
+        /// Builds the compact top-level status scan. History lives under Reports; actions live under Camp.
         /// </summary>
         private static string BuildMainMenuNarrative(EnlistmentBehavior enlistment, Hero lord)
         {
             try
             {
                 var lordParty = lord?.PartyBelongedTo;
-                var news = EnlistedNewsBehavior.Instance;
                 var sb = new StringBuilder();
 
-                // SECTION 1: Kingdom Reports (macro - what's happening in the realm)
-                var kingdomParagraph = BuildKingdomNarrativeParagraph(enlistment, news);
-                if (!string.IsNullOrWhiteSpace(kingdomParagraph))
-                {
-                    _ = sb.AppendLine("<span style=\"Header\">KINGDOM REPORTS</span>");
-                    _ = sb.AppendLine(kingdomParagraph);
-                    _ = sb.AppendLine();
-                }
-
-                // SECTION 2: Company Reports (local - color-coded keywords)
-                var campParagraph = BuildCampNarrativeParagraph(enlistment, lord, lordParty);
-                if (!string.IsNullOrWhiteSpace(campParagraph))
-                {
-                    _ = sb.AppendLine("<span style=\"Header\">COMPANY REPORTS</span>");
-                    _ = sb.AppendLine(campParagraph);
-                    _ = sb.AppendLine();
-                }
-
-                // SECTION 3: Player Status (personal - duty, health, notable conditions)
-                var youParagraph = BuildPlayerNarrativeParagraph(enlistment);
-                if (!string.IsNullOrWhiteSpace(youParagraph))
-                {
-                    _ = sb.AppendLine("<span style=\"Header\">PLAYER STATUS</span>");
-                    _ = sb.AppendLine(youParagraph);
-                }
+                AppendStatusLine(sb, "ORDERS", BuildOrderStatusLine());
+                AppendStatusLine(sb, "STANCE", ServiceStanceManager.Instance?.Current?.Summary ?? "Routine Service.");
+                AppendStatusLine(sb, "YOU", BuildYouStatusLine(enlistment));
+                AppendStatusLine(sb, "COMPANY", BuildCompanyScanLine(enlistment, lordParty));
+                AppendStatusLine(sb, "SIGNALS", BuildSignalScanLine());
 
                 var result = sb.ToString().TrimEnd();
                 return string.IsNullOrWhiteSpace(result) ? "The camp awaits your orders." : result;
@@ -3532,6 +3888,114 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 return "Status unavailable.";
             }
+        }
+
+        private static void AppendStatusLine(StringBuilder sb, string header, string body)
+        {
+            if (string.IsNullOrWhiteSpace(body))
+            {
+                return;
+            }
+
+            _ = sb.AppendLine($"<span style=\"Header\">{header}</span>");
+            _ = sb.AppendLine(body.Trim());
+            _ = sb.AppendLine();
+        }
+
+        private static string BuildOrderStatusLine()
+        {
+            var display = OrderDisplayHelper.GetCurrent();
+            if (display == null)
+            {
+                return new TextObject("{=status_orders_none}No active orders.").ToString();
+            }
+
+            if (display.HoursTotal > 0)
+            {
+                return new TextObject("{=status_orders_active_progress}{TITLE}. Progress: {ELAPSED}/{TOTAL} hours.")
+                    .SetTextVariable("TITLE", display.Title)
+                    .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
+                    .SetTextVariable("TOTAL", display.HoursTotal.ToString())
+                    .ToString();
+            }
+
+            return display.Title;
+        }
+
+        private static string BuildYouStatusLine(EnlistmentBehavior enlistment)
+        {
+            var hero = Hero.MainHero;
+            var condition = Conditions.PlayerConditionBehavior.Instance?.State;
+            if (condition?.HasInjury == true)
+            {
+                return $"<span style=\"Alert\">Injured.</span> {condition.InjuryDaysRemaining} days recovery.";
+            }
+
+            if (condition?.HasIllness == true)
+            {
+                return $"<span style=\"Alert\">Ill.</span> {condition.IllnessDaysRemaining} days recovery.";
+            }
+
+            if (hero?.IsWounded == true)
+            {
+                return new TextObject("{=status_you_wounded}Wounded. Rest before the next call.").ToString();
+            }
+
+            var days = enlistment != null ? (int)(CampaignTime.Now - enlistment.EnlistmentDate).ToDays : 0;
+            return new TextObject("{=status_you_fit}Fit for duty. Serving {DAYS} days.")
+                .SetTextVariable("DAYS", days.ToString())
+                .ToString();
+        }
+
+        private static string BuildCompanyScanLine(EnlistmentBehavior enlistment, MobileParty lordParty)
+        {
+            var parts = new List<string>();
+            if (lordParty?.MemberRoster != null)
+            {
+                var total = lordParty.MemberRoster.TotalManCount;
+                var wounded = lordParty.MemberRoster.TotalWounded;
+                parts.Add($"{total} soldiers");
+                if (wounded > 0)
+                {
+                    parts.Add($"<span style=\"Warning\">{wounded} wounded</span>");
+                }
+            }
+
+            var needs = enlistment?.CompanyNeeds;
+            if (needs != null)
+            {
+                parts.Add(GetSupplyPhrase(needs.Supplies));
+                parts.Add(GetReadinessPhrase(needs.Readiness));
+            }
+
+            if (lordParty?.CurrentSettlement != null)
+            {
+                parts.Add($"Encamped at {lordParty.CurrentSettlement.Name}");
+            }
+            else if (lordParty?.TargetSettlement != null)
+            {
+                parts.Add($"Marching toward {lordParty.TargetSettlement.Name}");
+            }
+
+            return string.Join(". ", parts.Where(p => !string.IsNullOrWhiteSpace(p))) + ".";
+        }
+
+        private static string BuildSignalScanLine()
+        {
+            var news = EnlistedNewsBehavior.Instance;
+            var kingdom = news?.GetVisibleKingdomFeedItems(1)?.FirstOrDefault();
+            if (kingdom.HasValue)
+            {
+                return EnlistedNewsBehavior.FormatDispatchForDisplay(kingdom.Value, includeColor: true);
+            }
+
+            var forecast = BuildBriefPlayerForecast();
+            if (!string.IsNullOrWhiteSpace(forecast))
+            {
+                return forecast;
+            }
+
+            return new TextObject("{=status_signals_quiet}No urgent signals.").ToString();
         }
 
         /// <summary>

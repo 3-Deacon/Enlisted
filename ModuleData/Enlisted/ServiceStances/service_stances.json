@@ -1,0 +1,53 @@
+{
+  "stances": [
+    {
+      "id": "routine_service",
+      "label": "Routine Service",
+      "summary": "Routine Service. Follow the column and keep your kit ready.",
+      "preview": "Default soldier routine. No special path bias.",
+      "tooltip": "Default posture. Wages and ordinary duty continue; orders override it."
+    },
+    {
+      "id": "drill_line",
+      "label": "Drill with the Line",
+      "summary": "Drill with the Line. You spend spare hours under the sergeant's eye.",
+      "preview": "Small combat and Athletics drift. Readiness may improve. Fatigue and training-injury risk.",
+      "tooltip": "Improve fighting competence over time. Minor XP drift, readiness help, fatigue risk."
+    },
+    {
+      "id": "scout_ahead",
+      "label": "Scout Ahead",
+      "summary": "Scout Ahead. You keep an eye on roads, tracks, and bad ground.",
+      "preview": "Scouting and Riding drift. Ranger path bias. Risk of patrol trouble or bad reports.",
+      "tooltip": "Lean into reconnaissance. Scouting/Riding drift, ranger bias, patrol risk."
+    },
+    {
+      "id": "stay_close_lord",
+      "label": "Stay Close to the Lord",
+      "summary": "Stay Close to the Lord. You remain useful near command.",
+      "preview": "Small relation or rank-XP chances. Political errands and favoritism backlash risk.",
+      "tooltip": "Build proximity and trust. Relation/rank chances, political complications."
+    },
+    {
+      "id": "keep_head_down",
+      "label": "Keep Your Head Down",
+      "summary": "Keep Your Head Down. You avoid notice and do only what is required.",
+      "preview": "Slow scrutiny relief and fewer social openings. Risk of being marked as shirking.",
+      "tooltip": "Avoid attention. Slow scrutiny relief, fewer openings, shirking risk."
+    },
+    {
+      "id": "help_wounded",
+      "label": "Help the Wounded",
+      "summary": "Help the Wounded. You spend spare hours near the surgeon and sick tents.",
+      "preview": "Medicine drift and recovery help. Fever, supply shortage, and mercy-choice risks.",
+      "tooltip": "Support the wounded. Medicine drift, recovery help, medical interruption risk."
+    },
+    {
+      "id": "forage_hustle",
+      "label": "Forage and Hustle",
+      "summary": "Forage and Hustle. You look for food, coin, and useful gaps.",
+      "preview": "Supplies may stabilize and tiny gold chances appear. Rogue edge and accusation risk.",
+      "tooltip": "Work the margins. Supply help, tiny gold chance, rogue bias, accusation risk."
+    }
+  ]
+}

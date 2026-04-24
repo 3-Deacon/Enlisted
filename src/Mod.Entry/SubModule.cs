@@ -366,6 +366,9 @@ namespace Enlisted.Mod.Entry
                     // skill-XP gains, capped at 100 per path via path_{name}_score qualities.
                     campaignStarter.AddBehavior(new Features.Activities.Orders.PathScorer());
 
+                    // Persistent service stance: the player's default posture between direct orders.
+                    campaignStarter.AddBehavior(new Features.Agency.ServiceStanceManager());
+
                     // Campaign Intelligence backbone: hourly recompute of the enlisted lord's strategic
                     // situation. Exposes a read-only snapshot via EnlistedCampaignIntelligenceBehavior.Instance.Current.
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());

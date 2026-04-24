@@ -7771,5 +7771,41 @@
     <string id="duty_raid_split_loot_trait_1_opt_take_tt" text="+30 gold, rank XP." />
     <string id="duty_raid_split_loot_trait_1_setup" text="Your lord will not touch the pile until every man has his share marked out in full view. Coin, cloth, a single good mail-shirt. The sergeant calls the count and each man steps up when his name is read. You watch the ritual work." />
     <string id="duty_raid_split_loot_trait_1_title" text="The share by the old measure" />
+    <string id="enlisted_service_stance_option" text="Service Stance" />
+    <string id="enlisted_service_stance_tooltip" text="Choose your persistent posture between orders. Current: {STANCE}" />
+    <string id="enlisted_service_stance_title" text="{SERVICE_STANCE_TEXT}" />
+    <string id="enlisted_service_stance_back" text="Back to Status" />
+    <string id="enlisted_service_stance_changed" text="Stance changed: {STANCE}." />
+    <string id="enlisted_service_stance_current" text="Current stance: {STANCE}" />
+    <string id="enlisted_service_stance_orders_override" text="Direct orders temporarily override your stance." />
+    <string id="enlisted_reports_option" text="Reports" />
+    <string id="enlisted_reports_tooltip" text="Review service history, personal dispatches, company log, and kingdom dispatches." />
+    <string id="enlisted_reports_title" text="{REPORTS_TEXT}" />
+    <string id="enlisted_reports_since_muster" text="Since Last Muster" />
+    <string id="enlisted_reports_since_muster_tt" text="Review orders, battles, incidents, and muster countdown." />
+    <string id="enlisted_reports_personal" text="Personal Dispatches" />
+    <string id="enlisted_reports_personal_tt" text="Review player-specific outcomes, stance summaries, wounds, and pay notes." />
+    <string id="enlisted_reports_company" text="Company Log" />
+    <string id="enlisted_reports_company_tt" text="Review company, camp, supply, and baggage updates." />
+    <string id="enlisted_reports_kingdom" text="Kingdom Dispatches" />
+    <string id="enlisted_reports_kingdom_tt" text="Review realm-level war, siege, prisoner, and political dispatches." />
+    <string id="enlisted_reports_back" text="Back to Status" />
+    <string id="enlisted_report_detail_back" text="Back to Reports" />
+    <string id="enlisted_reports_intro" text="Review history and dispatches here. The main status screen only shows what matters now." />
+    <string id="enlisted_reports_personal_empty" text="No personal dispatches recorded." />
+    <string id="enlisted_reports_company_empty" text="No company log entries recorded." />
+    <string id="enlisted_reports_kingdom_empty" text="No kingdom dispatches recorded." />
+    <string id="enlisted_camp_change_stance" text="Change Service Stance" />
+    <string id="enlisted_camp_change_stance_tt" text="Change your persistent posture between direct orders. Current: {STANCE}" />
+    <string id="camp_action_encamped_at" text="Encamped at {SETTLEMENT}" />
+    <string id="camp_action_with_company" text="With the company." />
+    <string id="camp_action_counts" text="{COUNT} activities available. Current stance: {STANCE}." />
+    <string id="status_orders_none" text="No active orders." />
+    <string id="status_orders_active_progress" text="{TITLE}. Progress: {ELAPSED}/{TOTAL} hours." />
+    <string id="status_you_wounded" text="Wounded. Rest before the next call." />
+    <string id="status_you_fit" text="Fit for duty. Serving {DAYS} days." />
+    <string id="status_signals_quiet" text="No urgent signals." />
+    <string id="menu_qm_hero_unavailable" text="The quartermaster could not be reached. This is a bug - please report it." />
+    <string id="menu_qm_open_failed" text="Failed to open the quartermaster conversation. Check the log for details." />
   </strings>
 </base>

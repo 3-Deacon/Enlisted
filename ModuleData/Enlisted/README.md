@@ -281,6 +281,10 @@ Order content is no longer stored in a dedicated `Orders/` folder. Current milit
 | `Effects/` | Scripted effects reused by activity and storylet options. |
 | `Qualities/` | Numeric state used by storylet triggers and effects. |
 
+### ServiceStances Folder
+
+`ServiceStances/service_stances.json` defines the persistent soldier postures shown in the Enlisted Status and Camp Hub menus. Each stance has a label, summary, preview, and hover tooltip. Direct orders temporarily override the selected stance; when the order ends, the saved stance remains the default posture.
+
 ### Decisions Folder
 
 Contains player-initiated decisions from camp menu.
@@ -459,6 +463,9 @@ Complete inventory of all JSON configuration and content files.
 - `Decisions/camp_opportunities.json` - Camp opportunity decisions
 - `Decisions/decisions.json` - Player-initiated decisions
 
+### Service Stances (1)
+- `ServiceStances/service_stances.json` - Persistent soldier posture definitions for the status and camp menus
+
 ### Dialogue (4)
 - `Dialogue/qm_baggage.json` - Quartermaster baggage dialogue
 - `Dialogue/qm_dialogue.json` - Quartermaster main dialogue
@@ -503,6 +510,6 @@ Order content is authored through `Activities/`, `Storylets/`, `Effects/`, and `
 
 ---
 
-**Last Updated:** 2026-01-03 (Added promotion effect documentation)  
+**Last Updated:** 2026-04-23 (Added service stance content documentation)
 **Mod Version:** 0.9.0  
 **For full documentation, see:** `docs/index.md`

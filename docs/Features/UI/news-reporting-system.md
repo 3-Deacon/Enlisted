@@ -1,6 +1,6 @@
 # News & Reporting System
 
-**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages kingdom-wide, personal, and camp-routed dispatches. Enlisted Status and Camp consume those feeds directly: routine camp activity outcomes go to Recent Activities/news surfaces instead of modal popups, while true blocking story events still route through StoryDirector and EventDeliveryManager. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
+**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages kingdom-wide, personal, and camp-routed dispatches. Enlisted Status now shows a compact soldier-facing glance only: orders, service stance, personal condition, company state, and urgent signals. Camp Hub is action-first for available activities, Quartermaster access, and stance changes. The heavier feed/history views live under Reports: Since Last Muster, Personal Dispatches, Company Log, and Kingdom Dispatches. Routine camp outcomes go to Reports/news surfaces instead of modal popups, while true blocking story events still route through StoryDirector and EventDeliveryManager. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
 
 **2025-12-31 MAJOR UPDATE:** Menu narratives now comprehensively integrate with `WorldStateAnalyzer`, `CampLifeBehavior` pressures, and `CompanySimulationBehavior` for rich, context-aware storytelling that reflects actual simulated world state. Order outcomes now use RP-appropriate fallback text when JSON text is missing. XP displays removed from recaps in favor of narrative summaries.
 
@@ -11,7 +11,7 @@
 **2026-01-03 BUG FIX:** Routine activity "Poor" outcomes now correctly display in yellow (Attention) instead of green (Positive). Previously, negative events like "A soldier reports fever this morning" appeared in green alongside "Excellent performance today" due to incorrect severity mapping. Fixed severity assignment: Poor → 2 (Attention/Yellow), Mishap → 2 (Attention/Yellow).
 
 **Status:** ✅ Current - Native menu/news integration
-**Last Updated:** 2026-04-23 (Camp activity menu routing)
+**Last Updated:** 2026-04-23 (Status/Camp/Reports split and service stance menu)
 **Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Storylet Backbone](../Content/storylet-backbone.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
 
 ---
@@ -46,14 +46,16 @@ Dispatch items carry typed routing metadata so the menu builders do not infer di
 
 The route is advisory for display, not an effects gate. State mutation rules still live with the emitting system and storylet validation. Native kingdom feed producers write kingdom-domain items into `_kingdomFeed`; routed storylet emissions currently still enter the personal dispatch path.
 
-Surface consumers use the route consistently:
+Surface consumers use the route consistently. The main status menu intentionally shows only compact summaries; detailed history is one click deeper under Reports.
 
 | Surface | Route consumed |
 | :--- | :--- |
-| `DISPATCHES` | Kingdom-domain items from native kingdom feed producers, usually `SurfaceHint.Dispatches` or `Auto` |
-| Camp `YOU` | Personal items intended for the player, usually `SurfaceHint.You` or `Auto` |
-| `SINCE LAST MUSTER` | The route predicate includes period-bounded personal outcomes; current rendering adds `ServiceStance` dispatch summaries there while muster-specific records continue to come from the muster ledger |
-| `CAMP ACTIVITIES` | Camp-domain items and activity-override outcomes |
+| Main Status | Current order, current service stance, personal condition, company scan, urgent kingdom signal |
+| Camp Hub | Available activities, Quartermaster, service stance change, and other camp actions |
+| `SINCE LAST MUSTER` report | Period-bounded personal outcomes; current rendering includes `ServiceStance` dispatch summaries while muster-specific records continue to come from the muster ledger |
+| `PERSONAL DISPATCHES` report | Personal-domain items intended for the player, usually `SurfaceHint.You` or `Auto` |
+| `COMPANY LOG` report | Camp-domain items, activity-override outcomes, and company status detail |
+| `KINGDOM DISPATCHES` report | Kingdom-domain items from native kingdom feed producers, usually `SurfaceHint.Dispatches` or `Auto` |
 
 Saved entries that lack routing are treated as personal `Unknown` / `Auto` dispatches during load so older saves remain readable.
 
@@ -67,13 +69,15 @@ The news system operates as a read-only observer of campaign events. It listens 
 1. **Kingdom Feed** - Kingdom-wide events (wars, battles, settlements, captures)
 2. **Personal Feed** - Your enlisted lord's events and your direct participation
 
-**Two Report Types:**
-1. **Status/Camp menu summaries** - Native menu text assembled from dispatches, company state, and player context
-2. **Company Status Report** - Company needs (Readiness, Supplies) with context-aware descriptions
+**Menu Surfaces:**
+1. **Status glance** - Native menu text assembled from current order, service stance, condition, company state, and urgent signals
+2. **Camp Hub** - Action-first surface for camp activities, Quartermaster, and changing service stance
+3. **Reports** - Historical and detailed feeds: Since Last Muster, Personal Dispatches, Company Log, Kingdom Dispatches
+4. **Company Status Report** - Company needs (Readiness, Supplies) with context-aware descriptions inside the Company Log report
 
 **Key Behavior:**
 - All feeds use `DispatchItem` struct (primitives only for save compatibility)
-- Daily Brief helpers are retained as internals, but the current native menu surface reads dispatches and summaries directly
+- Daily Brief helpers are retained as internals, but current native menu surfaces read dispatches and summaries directly
 - Company Status generates on-demand when menu opens
 - Records track outcomes for display in reports (orders, events, reputation changes)
 
@@ -735,15 +739,14 @@ Updated in `CheckPlayerBattleParticipation()` called from `OnMapEventEnded()`.
 Company status information appears in two locations, both generated on-demand:
 
 **Display Locations:**
-1. **Main enlisted_status menu** → "COMPANY REPORTS" section (via `BuildCampNarrativeParagraph()`)
-   - Atmospheric narrative paragraph blending world state, company needs, baggage status, and location context
-   - Uses world-state-aware generation with activity levels and lord situation
-   - Includes baggage train status when notable (raids, delays, arrivals)
-   
-2. **Camp Hub menu** → "COMPANY STATUS" summary (via `BuildCompanyStatusSummary()`)
+1. **Main enlisted_status menu** -> compact `COMPANY` line (via `BuildCompanyScanLine()`)
+   - One-line readiness/supply scan so the status menu stays readable
+   - Detailed history is intentionally moved to Reports
+
+2. **Reports -> Company Log** -> "COMPANY STATUS" summary (via `BuildCompanyStatusSummary()`)
    - Flowing prose combining atmosphere, troop strength/composition, company needs, and location
    - Includes baggage train status when notable
-   - More detailed than main menu version
+   - More detailed than the main status glance
 
 ### Specialized Builders
 
