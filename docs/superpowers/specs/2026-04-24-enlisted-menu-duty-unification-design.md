@@ -1,6 +1,6 @@
 # Enlisted Menu + Duty Unification — Design
 
-**Status:** Draft v3 (2026-04-24). Consolidates the menu restructure, the news-unification body layout, and the Routine→Duty reframe into one surface design. Supersedes parts of three prior docs (see "Relation to prior specs"). V2 corrected eight factual errors from a first round of adversarial review; v3 adds two blocking architecture fixes (Support-patch result type; formation-before-gear dependency) + a minor wording polish from a second round. See Changelog at the bottom.
+**Status:** Draft v4 (2026-04-24). Consolidates the menu restructure, the news-unification body layout, and the Routine→Duty reframe into one surface design. Supersedes parts of three prior docs (see "Relation to prior specs"). V2 corrected eight factual errors from adversarial review; v3 added two blocking architecture fixes; v4 corrects the gear-progression model — the QM is already a shop in the existing codebase, so Duty changes shop *stock* rather than auto-swapping equipment. See Changelog at the bottom.
 
 ## Problem statement
 
@@ -92,7 +92,7 @@ A **Duty** is one-of-one: the player's single declared job at any moment. Persis
    - `Current` — what the player chose. Source of truth for PROSPECTS prose, menu render, Duty-event pool eligibility.
    - `EffectiveCombatDuty` — what's actually in effect for formation purposes given current equipment. Computed: if `Current` is a Combat Duty AND the player's equipment matches (mounted if Cavalry/HA; ranged weapon if Archer/Crossbowman/HA), return `Current`; otherwise fall back to equipment-derived class.
 
-   Rationale: the gear-reissue contract (below) allows Duty change to persist while reissue is blocked (e.g. company supplies <15%). Without the gear-awareness rule, a player who picks Cavalry during a supply shortage would be assigned to the cavalry formation on foot — visibly broken. With `EffectiveCombatDuty`, the chosen Duty persists (PROSPECTS shows "Your duty is Cavalry, awaiting reissue"), but battle formation reads the degraded effective class until equipment catches up.
+   Rationale: gear progression is purchase-based at the QM (see "Gear progression" below) — picking a Combat Duty changes QM stock but doesn't auto-equip the player. The player still has to buy + equip the new gear with their wages. Without the gear-awareness rule, a player who picks Cavalry but hasn't yet bought a horse would be assigned to the cavalry formation on foot — visibly broken. With `EffectiveCombatDuty`, the chosen Duty persists (PROSPECTS prose can show "Your duty is Cavalry — visit the quartermaster for a horse"), but battle formation reads the degraded effective class until the player's equipment actually matches.
 2. **Party role** — Support Duties claim the relevant party role (Surgeon / Scout / Quartermaster / Engineer). **This requires new wiring.** Today `DutiesOfficerRolePatches.cs` contains four prefix patches for `MobileParty.EffectiveEngineer/Scout/Quartermaster/Surgeon` getters, but each prefix unconditionally `return true`s after its enlistment-state guard (see lines 57, 104, 150, 192) — the patches run vanilla behavior with no Duty claim. Phase 1 replaces the trailing `return true;` in each patch with a `DutyManager.Current == <support duty>` check; on match, the prefix sets `__result = Hero.MainHero` (these properties return `Hero`, not `CharacterObject` — verified against `MobileParty.cs:777-815` in the decompile) and returns `false` to suppress vanilla. On miss, the patch keeps `return true;` as today. Harmony prefix signature requires `ref Hero __result`.
 3. **Gear issue** — on Duty change or rank-up, the Quartermaster re-issues equipment drawn from the faction's troop tree at the player's current tier (see "Gear re-issue ritual" below).
 4. **Storylet pool** — each Duty owns an authored storylet pool; ambient events fire with frequency keyed to the Duty's intent. Event outcomes drift player state via `StateMutator` (the envelope/gate model from agency v3 survives; only the stance/routine vocabulary is replaced).
@@ -138,36 +138,38 @@ For the Combat section, the Duty menu queries the enlisted faction's troop tree 
 
 An id-suffix filter would misclassify both. A `default_group`-based filter gets both right.
 
-### Gear re-issue ritual
+### Gear progression — QM stock refresh + one free starter kit
 
-Owned by a new `Quartermaster.ReissueForDuty(DutyId duty, int tier)` method. Fires on:
+The Quartermaster is **already a shop** in the existing codebase (see `QuartermasterUpgradeVm`, `QuartermasterEquipmentSelectorBehavior`, `CalculateQuartermasterPrice` at `QuartermasterManager.cs:1058`, comment at `:1031-1032`: *"Purchase-based: cost is derived from the item's base value and quartermaster pricing rules"*). The player buys gear from the QM's stock; there is no auto-swap mechanism, and we don't add one.
 
-- Duty change via the Duty menu.
-- Rank-up that moves the player into a different troop tier on their current Duty.
+The Duty system feeds this existing shop instead.
 
-**What gets swapped.** The player's battle equipment (weapons, armor, mount if applicable) is replaced with the default loadout for the `(faction, duty, tier)` combination, read from the troop's `equipment` slots in `spnpccharacters.xml`.
+**Stock refresh — what the QM has in stock changes when:**
 
-**What is preserved.** Follows the precedent of `TroopSelectionManager.cs:500`:
+- **Duty change** — player picks a different Combat Duty. Stock now features gear appropriate for the new `(faction, duty, tier)` combination (e.g. picking Cavalry at Vlandia T3 pulls Vlandian Squire kit into stock). Items belonging to the prior Duty roll out of stock (those you already bought stay in your inventory; you can re-equip them manually).
+- **Rank-up** — promotion to the next tier refreshes stock to the new tier's troop in the current Duty's branch.
 
-- **Quest items** — never touched; persist across Duty changes.
-- **Civilian equipment set** — preserved separately (lives in a different equipment slot); unaffected.
-- **Previously-upgraded items the player paid gold for** — returned to the player's personal inventory. Not destroyed, not refunded.
+The player must walk up to the QM, see the new stock, and **purchase with their wages** to actually upgrade their gear. Currently-equipped gear stays equipped until the player buys + equips replacements. Existing QM upgrade UI handles the buy + swap flow unchanged.
 
-**Overflow handling.** If the player's personal inventory is full when upgraded items are returned:
+**Free starter kit — one-time, on initial enlistment.**
 
-1. Overflow items spill into the party inventory.
-2. If the party inventory is also full, remaining items are sold back to the QM at 50% of their base value, gold credited to the player, and a narrative line fires in COMPANY NEWS (*"The quartermaster took your old sword at half-price — no room in the wagons."*).
+When the player first enlists (the moment `EnlistmentBehavior.IsEnlisted` flips to true), the QM issues one free basic-Infantry kit at the enlisting faction's T1. This is the only auto-issue in the design. After that, every gear acquisition routes through the existing purchase flow.
 
-**Critical-supply block.** When `CompanySupplyManager.Supplies < 15%` (the existing QM-block threshold from `EnlistedMenuBehavior.cs:1419-1433`), `ReissueForDuty` is blocked:
+Concretely:
 
-- The Duty-change itself still succeeds (the choice persists in `DutyManager`).
-- Equipment swap is deferred; old gear stays equipped.
-- A narrative line in COMPANY NEWS informs the player: *"The quartermaster is tight with stores — new kit will wait until supplies recover."*
-- The player can retry the reissue from the Quartermaster option once supplies recover to ≥15%.
+- New enlistee (Vlandia) → DutyManager.Current = Infantry (default), tier = 1.
+- Free issue: Vlandian Recruit's default loadout (basic shield, sword/spear, gambeson, no mount).
+- From then on: every weapon/armor change is bought from QM stock with the player's gold.
 
-**Confirmation modal.** None in Phase 1. If playtest feedback shows the swap feels abrupt, a Phase 2 follow-up can add one.
+**No starter kit on Duty switches.** Picking Cavalry at T3 changes QM stock; you go shopping. If you can't afford a horse + lance + mail, you wear what you have until you can. `EffectiveCombatDuty` (see Battle formation above) handles the gap between Duty choice and gear catching up — your formation is whatever your equipment supports until you buy the right kit.
 
-**No refund of gold spent on past upgrades.** Items return to inventory at no gold cost; gold previously spent is not refunded.
+**Existing QM behaviors stay as-is:**
+
+- Critical-supply block at `EnlistedMenuBehavior.cs:1419-1433`: when company supplies < 15%, the *Visit Quartermaster* option is disabled entirely. The player can't shop until supplies recover. This already exists; the Duty system doesn't bypass it.
+- Pricing model (`CalculateQuartermasterPriceFromBase`, supply/rep/camp modifiers): unchanged. Duty just changes which items appear.
+- Provisions / upgrades / the rest of the QM apparatus: unchanged.
+
+**No auto-swap, no inventory-overflow handling, no 50% sellback, no confirmation modal.** None of those mechanisms are needed under the shop-stock model — the player simply buys what they can afford and what they don't buy doesn't exist on their character.
 
 ### Duty event framework (CK3-style popups)
 
@@ -265,7 +267,7 @@ This spec is the single design of record. Implementation is split into eight nam
 | **C — Duty core** | `DutyId` enum, `DutyRegistry`, `DutyManager` (claims save-definer class offset 51) exposing both `Current` and `EffectiveCombatDuty` properties, `DutyActivity`, persistence + transition rules, faction filter reading `default_group` from troop XML, Duty selection menu wired to the Camp option, PROSPECTS + STATUS prose consume current Duty. No formation change, no party-role claim, no gear swap yet. | — | Partial — menu appears, Duty persists, prose reads it. |
 | **D — Combat Duty → formation** | `CombatClassResolver.Resolve(hero)` queries `DutyManager.EffectiveCombatDuty` first for the player, falls back to equipment-derived class for non-player heroes or when Duty/gear mismatch. Smoke tests across all four formation classes, mixed-culture battles, AND the degraded-state scenario (pick Cavalry during supply shortage → formation stays Infantry until reissue completes). | C, F | Yes — first battle after a successful reissue reflects the new Duty. |
 | **E — Support Duty → party roles** | Replace the four `return true` shells in `DutiesOfficerRolePatches` (`EffectiveEngineer / Scout / Quartermaster / Surgeon`) with `DutyManager.Current == <support duty>` checks that substitute `Hero.MainHero` into `ref Hero __result` and return `false` on match. Per-role smoke test verifies the player's skill actually claims the party role. | C | Yes — skill bonuses visible. |
-| **F — Gear reissue via Quartermaster** | `Quartermaster.ReissueForDuty(DutyId, int tier)`. Full preservation contract per the "Gear re-issue ritual" section above (quest items / civilian gear preserved; upgraded items return to inventory with party-inventory overflow + 50% sellback; critical-supply block defers reissue). Rank-up hook. | C | Yes — visible gear change on Duty pick. |
+| **F — QM stock refresh + starter kit** | New `Quartermaster.RefreshStockForDuty(DutyId, int tier)` filters/feeds shop stock for the current `(faction, duty, tier)` combination — fires on Duty change and rank-up. New `Quartermaster.IssueStarterKit()` fires once on initial enlistment and gives the player the basic Vlandian-Recruit-equivalent loadout for their faction. No auto-equip on Duty switches; player buys upgrades from existing shop UI. | C | Yes — Duty pick changes shop stock, rank-up changes shop stock, enlistment grants the starter kit. |
 | **G — Duty storylet pools + content authoring** | Initial Phase 1 content pass: ~30 events across 9 Duties (6 Infantry, 4 Field Medic, 4 Pathfinder, 2 each for Archer/Crossbowman/Cavalry/Provisioner/Siegewright, 1 HA flavor). Each event declares `agency.role` and uses the preview schema. Routed through agency substrate. | B, C | Yes — CK3-style popups begin firing. |
 | **H — Doc amendments** | News-v2 amendment note (section renames: UPCOMING → PROSPECTS; YOU → STATUS; SINCE LAST MUSTER + CAMP ACTIVITIES → merged into COMPANY NEWS). Agency-v3 amendment ("stance envelope" → "Duty envelope" throughout; stance list replaced by pointer to this spec). Integration-plan amendment (`DispatchSurfaceHint.Upcoming` → `Prospects`; `DispatchSourceKind.ServiceStance` → `Duty`). | — | No (docs only). |
 
@@ -340,7 +342,8 @@ Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band c
 - Enlist with Vlandia at T1. Open `enlisted_status` → body shows DISPATCHES + PROSPECTS; option list is Orders / Audience / Camp / Visit settlement.
 - Open Camp → body shows COMPANY NEWS + STATUS; option list is Duty / Quartermaster / Records / Companions / Retinue / Back.
 - Open Duty → Combat section shows Infantry / Crossbowman / Cavalry as available; Archer greyed with *"Vlandia uses crossbow"* tooltip; HA greyed with *"Khuzait only"*. Support section shows all four.
-- At T1/T2, confirm Cavalry is greyed with *"Vlandian cavalry requires T3"* (Vlandian cavalry branch starts T3 with Squire — no cavalry troop exists at T1/T2). Rank up to T3 and re-open Duty → Cavalry is available → pick Cavalry → return to Camp → COMPANY NEWS prose mentions the QM re-issue → equipment slot swapped to Vlandian Squire (T3) loadout.
+- Fresh enlistment with Vlandia → confirm starter kit issued: Vlandian Recruit T1 loadout (sword/spear, basic shield, gambeson, no mount).
+- At T1/T2, confirm Cavalry is greyed with *"Vlandian cavalry requires T3"* (Vlandian cavalry branch starts T3 with Squire — no cavalry troop exists at T1/T2). Rank up to T3 and re-open Duty → Cavalry is available → pick Cavalry → DutyManager.Current = Cavalry but no auto-equip → walk to Quartermaster → confirm shop stock now features Vlandian Squire kit (horse, lance, mail, kite shield) and previous infantry items have rolled out of stock → buy at least one piece → confirm equipped after purchase. Until the player buys + equips a horse, `EffectiveCombatDuty` returns Infantry and the next battle assigns the Infantry formation; once mounted, formation flips to Cavalry.
 - Fast-forward 3 in-game days in camp → at least one Infantry (after re-picking) ambient event fires as a modal with three choice options + inline effect previews.
 - Save → reload → Duty persists; active storylet pool state persists; formation assignment in next battle matches current Duty.
 - Enlist with Khuzait → Duty menu shows Horse Archer available; faction filter works.
@@ -380,3 +383,4 @@ Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band c
   1. **Support-patch result type.** Spec said `__result = Hero.MainHero.CharacterObject`. Verified against `Decompile/TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem.Party/MobileParty.cs:777` — `EffectiveScout / Quartermaster / Engineer / Surgeon` all return `Hero`, not `CharacterObject`. Corrected to `__result = Hero.MainHero` with `ref Hero __result` prefix signature. Two locations updated.
   2. **Formation-before-gear dependency.** If Plan D ships before Plan F (original ship order), a player picking Cavalry during a critical-supply QM block would persist Duty=Cavalry but keep infantry gear — resolving to Cavalry formation on foot. Fix: `DutyManager` now exposes two properties — `Current` (chosen) and `EffectiveCombatDuty` (effective, gear-aware). `CombatClassResolver` reads `EffectiveCombatDuty`. Ship order reordered from A → H → C → D → F → E → B → G to A → H → C → F → D → E → B → G with explicit rationale.
   3. **Problem statement wording** softened: the imprecise "several sections tick-rebuild every ~5 seconds" replaced with "The display refresh path runs frequently under fast-forward, and some content can rebuild often enough to churn while reading" — still accurate without overstating the cache-rebuild cadence.
+- **v4 (2026-04-24):** gear-progression model corrected per user feedback. Earlier drafts described "auto-swap" of the player's equipped loadout on Duty change. Verified against existing code (`QuartermasterUpgradeVm` shows `PlayerGoldText`; `QuartermasterManager.cs:1031-1032` comment: *"Purchase-based: cost is derived from the item's base value and quartermaster pricing rules"*; `:1058` `CalculateQuartermasterPrice`) — the QM is already a shop and there is no auto-swap mechanism in the codebase. Spec now says: Duty change refreshes QM **stock** (what's purchasable), not the player's equipped gear; player still buys with wages. One free starter kit is issued at the moment of initial enlistment (basic Infantry T1 of the enlisting faction); after that, every gear acquisition routes through the existing purchase flow. `EffectiveCombatDuty` rationale updated to "gear lags Duty until the player buys + equips matching items," not "auto-reissue can be blocked." Critical-supply block, inventory overflow handling, 50% sellback, and confirmation-modal language removed — all were artifacts of the auto-swap model and unnecessary under the shop-stock model. Plan F renamed and rescoped from "Gear reissue via Quartermaster" to "QM stock refresh + starter kit."
