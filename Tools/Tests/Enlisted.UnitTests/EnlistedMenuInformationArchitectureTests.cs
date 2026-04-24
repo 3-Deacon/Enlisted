@@ -42,6 +42,27 @@ public sealed class EnlistedMenuInformationArchitectureTests
         Assert.Contains("en_service_stance_current", manager, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void ReportsSurfaceIsSingleOrganizedPageWithOnlyBackOption()
+    {
+        var menu = ReadRepoFile("src", "Features", "Interface", "Behaviors", "EnlistedMenuBehavior.cs");
+        var addMenus = ExtractMethod(menu, "AddEnlistedMenus");
+        var reportsMenu = ExtractMethod(menu, "RegisterReportsMenu");
+        var reportsText = ExtractMethod(menu, "private static string BuildReportsText");
+
+        Assert.DoesNotContain("RegisterReportDetailMenu(starter);", addMenus, StringComparison.Ordinal);
+        Assert.DoesNotContain("reports_since_muster", reportsMenu, StringComparison.Ordinal);
+        Assert.DoesNotContain("reports_personal_dispatches", reportsMenu, StringComparison.Ordinal);
+        Assert.DoesNotContain("reports_company_log", reportsMenu, StringComparison.Ordinal);
+        Assert.DoesNotContain("reports_kingdom_dispatches", reportsMenu, StringComparison.Ordinal);
+        Assert.DoesNotContain("OpenReportDetail", menu, StringComparison.Ordinal);
+        Assert.DoesNotContain("ReportDetailMenuId", menu, StringComparison.Ordinal);
+        Assert.Contains("BuildPeriodRecapSection", reportsText, StringComparison.Ordinal);
+        Assert.Contains("BuildPersonalDispatchReport", reportsText, StringComparison.Ordinal);
+        Assert.Contains("BuildCompanyLogReport", reportsText, StringComparison.Ordinal);
+        Assert.Contains("BuildKingdomDispatchReport", reportsText, StringComparison.Ordinal);
+    }
+
     private static string ReadRepoFile(params string[] relativeParts)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

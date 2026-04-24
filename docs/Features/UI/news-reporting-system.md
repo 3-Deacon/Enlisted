@@ -1,6 +1,6 @@
 # News & Reporting System
 
-**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages kingdom-wide, personal, and camp-routed dispatches. Enlisted Status now shows a compact soldier-facing glance only: orders, service stance, personal condition, company state, and urgent signals. Camp Hub is action-first for available activities, Quartermaster access, and stance changes. The heavier feed/history views live under Reports: Since Last Muster, Personal Dispatches, Company Log, and Kingdom Dispatches. Routine camp outcomes go to Reports/news surfaces instead of modal popups, while true blocking story events still route through StoryDirector and EventDeliveryManager. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
+**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages kingdom-wide, personal, and camp-routed dispatches. Enlisted Status now shows a compact soldier-facing glance only: orders, service stance, personal condition, company state, and urgent signals. Camp Hub is action-first for available activities, Quartermaster access, and stance changes. The heavier feed/history views are organized directly on the Reports page: Since Last Muster, Personal Dispatches, Company Log, and Kingdom Dispatches, with only a Back option. Routine camp outcomes go to Reports/news surfaces instead of modal popups, while true blocking story events still route through StoryDirector and EventDeliveryManager. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
 
 **2025-12-31 MAJOR UPDATE:** Menu narratives now comprehensively integrate with `WorldStateAnalyzer`, `CampLifeBehavior` pressures, and `CompanySimulationBehavior` for rich, context-aware storytelling that reflects actual simulated world state. Order outcomes now use RP-appropriate fallback text when JSON text is missing. XP displays removed from recaps in favor of narrative summaries.
 
@@ -46,7 +46,7 @@ Dispatch items carry typed routing metadata so the menu builders do not infer di
 
 The route is advisory for display, not an effects gate. State mutation rules still live with the emitting system and storylet validation. Native kingdom feed producers write kingdom-domain items into `_kingdomFeed`; routed storylet emissions currently still enter the personal dispatch path.
 
-Surface consumers use the route consistently. The main status menu intentionally shows only compact summaries; detailed history is one click deeper under Reports.
+Surface consumers use the route consistently. The main status menu intentionally shows only compact summaries; detailed history is organized on the Reports page.
 
 | Surface | Route consumed |
 | :--- | :--- |

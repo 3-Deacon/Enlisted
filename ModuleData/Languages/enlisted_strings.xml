@@ -7782,16 +7782,12 @@
     <string id="enlisted_reports_tooltip" text="Review service history, personal dispatches, company log, and kingdom dispatches." />
     <string id="enlisted_reports_title" text="{REPORTS_TEXT}" />
     <string id="enlisted_reports_since_muster" text="Since Last Muster" />
-    <string id="enlisted_reports_since_muster_tt" text="Review orders, battles, incidents, and muster countdown." />
     <string id="enlisted_reports_personal" text="Personal Dispatches" />
-    <string id="enlisted_reports_personal_tt" text="Review player-specific outcomes, stance summaries, wounds, and pay notes." />
     <string id="enlisted_reports_company" text="Company Log" />
-    <string id="enlisted_reports_company_tt" text="Review company, camp, supply, and baggage updates." />
     <string id="enlisted_reports_kingdom" text="Kingdom Dispatches" />
-    <string id="enlisted_reports_kingdom_tt" text="Review realm-level war, siege, prisoner, and political dispatches." />
     <string id="enlisted_reports_back" text="Back to Status" />
-    <string id="enlisted_report_detail_back" text="Back to Reports" />
     <string id="enlisted_reports_intro" text="Review history and dispatches here. The main status screen only shows what matters now." />
+    <string id="enlisted_reports_section_empty" text="Nothing to report." />
     <string id="enlisted_reports_personal_empty" text="No personal dispatches recorded." />
     <string id="enlisted_reports_company_empty" text="No company log entries recorded." />
     <string id="enlisted_reports_kingdom_empty" text="No kingdom dispatches recorded." />

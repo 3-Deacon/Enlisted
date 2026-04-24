@@ -47,7 +47,6 @@ namespace Enlisted.Features.Interface.Behaviors
         private const string CampActivitiesMenuId = "enlisted_camp_activities";
         private const string CampActivityDetailMenuId = "enlisted_camp_activity_detail";
         private const string ReportsMenuId = "enlisted_reports";
-        private const string ReportDetailMenuId = "enlisted_report_detail";
 
         /// <summary>
         ///     Minimum time interval between menu updates, in seconds.
@@ -112,8 +111,6 @@ namespace Enlisted.Features.Interface.Behaviors
         private CampaignTime _cachedDecisionsTime = CampaignTime.Zero;
         private DecisionAvailability _activeCampActivityAvailability;
         private DecisionDefinition _activeCampActivityDecision;
-        private string _activeReportTitle = string.Empty;
-        private string _activeReportBody = string.Empty;
 
         // Cached narrative text to prevent flickering from frequent rebuilds.
         // Only updates when the underlying data changes.
@@ -767,7 +764,6 @@ namespace Enlisted.Features.Interface.Behaviors
             RegisterServiceStanceMenu(starter);
             RegisterCampHubMenu(starter);
             RegisterReportsMenu(starter);
-            RegisterReportDetailMenu(starter);
 
             // Siege interaction is handled by native Bannerlord menus (join_siege_event / siege assault).
             // We intentionally do not add an enlisted-menu fallback button here, to keep siege flow vanilla.
@@ -1474,50 +1470,6 @@ namespace Enlisted.Features.Interface.Behaviors
                 OnCampHubTick,
                 GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
 
-            starter.AddGameMenuOption(ReportsMenuId, "reports_since_muster",
-                "{=enlisted_reports_since_muster}Since Last Muster",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    args.Tooltip = new TextObject("{=enlisted_reports_since_muster_tt}Review orders, battles, incidents, and muster countdown.");
-                    return true;
-                },
-                _ => OpenReportDetail("Since Last Muster", BuildPeriodRecapSection(EnlistmentBehavior.Instance)),
-                false, 1);
-
-            starter.AddGameMenuOption(ReportsMenuId, "reports_personal_dispatches",
-                "{=enlisted_reports_personal}Personal Dispatches",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    args.Tooltip = new TextObject("{=enlisted_reports_personal_tt}Review player-specific outcomes, stance summaries, wounds, and pay notes.");
-                    return true;
-                },
-                _ => OpenReportDetail("Personal Dispatches", BuildPersonalDispatchReport()),
-                false, 2);
-
-            starter.AddGameMenuOption(ReportsMenuId, "reports_company_log",
-                "{=enlisted_reports_company}Company Log",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    args.Tooltip = new TextObject("{=enlisted_reports_company_tt}Review company, camp, supply, and baggage updates.");
-                    return true;
-                },
-                _ => OpenReportDetail("Company Log", BuildCompanyLogReport()),
-                false, 3);
-
-            starter.AddGameMenuOption(ReportsMenuId, "reports_kingdom_dispatches",
-                "{=enlisted_reports_kingdom}Kingdom Dispatches",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    args.Tooltip = new TextObject("{=enlisted_reports_kingdom_tt}Review realm-level war, siege, prisoner, and political dispatches.");
-                    return true;
-                },
-                _ => OpenReportDetail("Kingdom Dispatches", BuildKingdomDispatchReport()),
-                false, 4);
-
             starter.AddGameMenuOption(ReportsMenuId, "reports_back",
                 "{=enlisted_reports_back}Back to Status",
                 args =>
@@ -1529,35 +1481,6 @@ namespace Enlisted.Features.Interface.Behaviors
                 {
                     QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
                     GameMenu.SwitchToMenu("enlisted_status");
-                },
-                false, 100);
-        }
-
-        private void RegisterReportDetailMenu(CampaignGameStarter starter)
-        {
-            starter.AddWaitGameMenu(ReportDetailMenuId,
-                "{REPORT_DETAIL_TEXT}",
-                OnReportDetailInit,
-                args =>
-                {
-                    _ = args;
-                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
-                },
-                null,
-                OnCampHubTick,
-                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
-
-            starter.AddGameMenuOption(ReportDetailMenuId, "report_detail_back",
-                "{=enlisted_report_detail_back}Back to Reports",
-                args =>
-                {
-                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
-                    return true;
-                },
-                _ =>
-                {
-                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
-                    GameMenu.SwitchToMenu(ReportsMenuId);
                 },
                 false, 100);
         }
@@ -1577,34 +1500,34 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-        private void OnReportDetailInit(MenuCallbackArgs args)
-        {
-            try
-            {
-                args.MenuContext.GameMenu.StartWait();
-                Campaign.Current.SetTimeControlModeLock(false);
-                var title = string.IsNullOrWhiteSpace(_activeReportTitle) ? "Report" : _activeReportTitle;
-                var body = string.IsNullOrWhiteSpace(_activeReportBody) ? "Nothing to report." : _activeReportBody;
-                MBTextManager.SetTextVariable("REPORT_DETAIL_TEXT", $"<span style=\"Header\">{title}</span>\n{body}");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("INTERFACE", "Error initializing report detail", ex);
-                MBTextManager.SetTextVariable("REPORT_DETAIL_TEXT", "Report unavailable.");
-            }
-        }
-
-        private void OpenReportDetail(string title, string body)
-        {
-            _activeReportTitle = title ?? string.Empty;
-            _activeReportBody = string.IsNullOrWhiteSpace(body) ? "Nothing to report." : body;
-            QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
-            GameMenu.SwitchToMenu(ReportDetailMenuId);
-        }
-
         private static string BuildReportsText()
         {
-            return new TextObject("{=enlisted_reports_intro}Review history and dispatches here. The main status screen only shows what matters now.").ToString();
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(new TextObject("{=enlisted_reports_intro}Review history and dispatches here. The main status screen only shows what matters now.").ToString());
+
+            AppendReportSection(sb, new TextObject("{=enlisted_reports_since_muster}Since Last Muster").ToString(),
+                BuildPeriodRecapSection(EnlistmentBehavior.Instance));
+            AppendReportSection(sb, new TextObject("{=enlisted_reports_personal}Personal Dispatches").ToString(),
+                BuildPersonalDispatchReport());
+            AppendReportSection(sb, new TextObject("{=enlisted_reports_company}Company Log").ToString(),
+                BuildCompanyLogReport());
+            AppendReportSection(sb, new TextObject("{=enlisted_reports_kingdom}Kingdom Dispatches").ToString(),
+                BuildKingdomDispatchReport());
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private static void AppendReportSection(StringBuilder sb, string title, string body)
+        {
+            if (sb.Length > 0)
+            {
+                _ = sb.AppendLine();
+            }
+
+            _ = sb.AppendLine($"<span style=\"Header\">{title}</span>");
+            _ = sb.AppendLine(string.IsNullOrWhiteSpace(body)
+                ? new TextObject("{=enlisted_reports_section_empty}Nothing to report.").ToString()
+                : body.Trim());
         }
 
         private void RegisterCampHubMenu(CampaignGameStarter starter)
