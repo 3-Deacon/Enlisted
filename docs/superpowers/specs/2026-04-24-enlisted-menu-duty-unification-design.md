@@ -1,12 +1,12 @@
 # Enlisted Menu + Duty Unification — Design
 
-**Status:** Draft v1 (2026-04-24). Consolidates the menu restructure, the news-unification body layout, and the Routine→Duty reframe into one surface design. Supersedes parts of three prior docs (see "Relation to prior specs").
+**Status:** Draft v2 (2026-04-24). Consolidates the menu restructure, the news-unification body layout, and the Routine→Duty reframe into one surface design. Supersedes parts of three prior docs (see "Relation to prior specs"). V2 corrects eight factual errors flagged by adversarial review — see Changelog at the bottom.
 
 ## Problem statement
 
 Today's enlisted menu has three layered problems:
 
-1. **Body flood.** `enlisted_status` body concatenates 15–20 short lines across four named sections (KINGDOM REPORTS / COMPANY REPORTS / PLAYER STATUS / UPCOMING). On fast-forward, several sections tick-rebuild every ~5 seconds and the eye cannot land. See `EnlistedMenuBehavior.cs:~3320-3491` for the current render path.
+1. **Body flood.** `enlisted_status` body concatenates 15+ short lines across three named sections (KINGDOM REPORTS / COMPANY REPORTS / PLAYER STATUS — see `EnlistedMenuBehavior.cs:3315-3347`). The Camp hub body adds five more sections (SINCE LAST MUSTER / UPCOMING / RECENT ACTIVITY / STATUS + smaller variants — see `EnlistedMenuBehavior.cs:1595-1628`). On fast-forward, several sections tick-rebuild every ~5 seconds and the eye cannot land.
 2. **Routine concept was abstract.** The player-agency redesign (v3) proposed seven abstract service stances — *Drill with the Line / Scout Ahead / Keep Your Head Down* etc. — that drift skills through `StateMutator`. The names felt off-register for a soldier-career sim, several overlapped with already-shipped concepts, and the "posture" abstraction didn't answer the grounded question *"what's my job in this army?"*
 3. **"Duty" is already the right word, overloaded.** `EnlistedFormationAssignmentBehavior.cs:18-19` comments name the player's combat-class choice as their *"duty"*. `DutiesOfficerRolePatches.cs` uses *"duty"* for party-role assignments (Field Medic / Pathfinder / Provisioner / Siegewright's Aide). The abstract "stance" of v3 was inventing a parallel term for something the code had already landed.
 
@@ -86,8 +86,8 @@ Duty sits first in Camp because a Duty change cascades into a QM gear re-issue �
 
 A **Duty** is one-of-one: the player's single declared job at any moment. Persists across orders (orders may override temporarily and restore on resolve), saves with the player, and drives four systems:
 
-1. **Battle formation** — Combat Duties set the player's formation slot (Infantry / Ranged / Cavalry / Horse Archer) via `EnlistedFormationAssignmentBehavior`. Already wired; the Duty system just supplies the class.
-2. **Party role** — Support Duties claim the relevant party role (Surgeon / Scout / Quartermaster / Engineer) via the Harmony patches in `DutiesOfficerRolePatches.cs`. Already wired; the Duty system just claims the role.
+1. **Battle formation** — Combat Duties set the player's formation slot (Infantry / Ranged / Cavalry / Horse Archer). **This requires new wiring.** Today `CombatClassResolver.Resolve(hero)` at `CombatClassResolver.cs:25-40` reads `character.IsRanged` / `character.IsMounted` (equipment-derived); `EnlistedFormationAssignmentBehavior.cs:466-470` then assigns the player to the formation that class maps to. Phase 1 changes `CombatClassResolver` to query `DutyManager.Current` first for the player, falling back to equipment-derived class when no Duty is set or for non-player heroes. `EnlistedFormationAssignmentBehavior` keeps its in-battle assignment role; only the class-lookup source changes.
+2. **Party role** — Support Duties claim the relevant party role (Surgeon / Scout / Quartermaster / Engineer). **This requires new wiring.** Today `DutiesOfficerRolePatches.cs` contains four prefix patches for `MobileParty.EffectiveEngineer/Scout/Quartermaster/Surgeon` getters, but each prefix unconditionally `return true`s after its enlistment-state guard (see lines 57, 104, 150, 192) — the patches run vanilla behavior with no Duty claim. Phase 1 replaces the trailing `return true;` in each patch with a `DutyManager.Current == <support duty>` check; on match, the prefix sets `__result = Hero.MainHero.CharacterObject` and returns `false` to suppress vanilla. On miss, the patch keeps `return true;` as today.
 3. **Gear issue** — on Duty change or rank-up, the Quartermaster re-issues equipment drawn from the faction's troop tree at the player's current tier (see "Gear re-issue ritual" below).
 4. **Storylet pool** — each Duty owns an authored storylet pool; ambient events fire with frequency keyed to the Duty's intent. Event outcomes drift player state via `StateMutator` (the envelope/gate model from agency v3 survives; only the stance/routine vocabulary is replaced).
 
@@ -103,7 +103,7 @@ Grouped into two sections in the Duty menu. Combat Duties are filtered by the pl
 | `duty.archer` | Archer | Ranged | Universal EXCEPT Vlandia (whose ranged tree is crossbow). |
 | `duty.crossbowman` | Crossbowman | Ranged | Vlandia specialty. |
 | `duty.cavalry` | Cavalry | Cavalry | Universal but troop quality varies heavily (Aserai Mameluke, Empire Cataphract, Vlandian Banner Knight are strong; Battanian / Sturgian cavalry weaker). |
-| `duty.horse_archer` | Horse Archer | HorseArcher | **Khuzait only** (verified against `SandBoxCore/ModuleData/spnpccharacters.xml` — only `khuzait_horse_archer` and `khuzait_heavy_horse_archer` exist in the troop data). |
+| `duty.horse_archer` | Horse Archer | HorseArcher | **Faction-filtered by `default_group` attribute, not by culture hardcoding.** Three factions have HA troops in Native data: Khuzait (8 troops, dominant branch); Aserai (Mameluke Cavalry + Mameluke Heavy Cavalry — ids say `..._cavalry`, but `default_group="HorseArcher"`); Empire (Bucellarii, specialty tier-5). Battania / Sturgia / Vlandia have none in the main trees. |
 
 Faction specialties (Fian-path / Ulfhednar / Mameluke / Cataphract) are handled as **named variants of the base combat duty** rather than separate duty ids — e.g. selecting `duty.infantry` as a Sturgian player issues Ulfhednar-branch gear. Specialty-branch display labels can be authored per culture into a `duty_culture_labels.json` lookup; not required for ship.
 
@@ -118,25 +118,50 @@ Faction specialties (Fian-path / Ulfhednar / Mameluke / Cataphract) are handled 
 
 ### Faction filtering
 
-For the Combat section, the Duty menu must query the enlisted lord's culture and display only duties whose troop branch exists in that culture. Implementation note:
+For the Combat section, the Duty menu queries the enlisted faction's troop tree and displays only duties whose troop branch exists. Implementation rule:
 
 - Enumerate the current faction's troop tree from the lord's culture at menu-init.
-- For each combat duty, check whether the culture has a troop at the player's tier in that branch.
-- **If yes** — show the option, label with the troop's display name at that tier (e.g. *"Infantry · Vlandian Sergeant (T3)"*).
-- **If no** — grey the option and show the reason inline (e.g. *"Archer — Vlandia uses crossbow"*, *"Horse Archer — Khuzait only"*).
+- For each combat duty, scan the tree for a troop whose `default_group` attribute matches the duty's formation class (`Infantry` / `Ranged` / `Cavalry` / `HorseArcher`) AND whose tier equals the player's tier.
+- **If found** — show the option, label with the troop's display name (e.g. *"Infantry · Vlandian Sergeant (T3)"*).
+- **If not found at the player's tier** — grey the option and show the reason inline (e.g. *"Archer — Vlandia uses crossbow"*, *"Horse Archer — not in Sturgian troop tree"*, *"Cavalry — Vlandia requires T3"*).
 
-**Vlandia id-vs-name caveat** (discovered during verification): the Vlandian militia troop `vlandian_militia_archer` has id `…_archer` but display name *"Vlandian Militia Crossbowman"*. The filter must inspect the troop's actual equipment / weapon class, not the id suffix, to classify the branch correctly.
+**Filter rule: read `default_group` from troop XML, not the id suffix.** This is the same attribute Bannerlord uses for its own battle-time formation assignment. Two otherwise-misleading cases settle correctly under this rule:
 
-### Gear re-issue ritual (first-cut, deliberately narrow)
+- Vlandian militia troop `vlandian_militia_archer` has id ending `_archer` and display name *"Vlandian Militia Crossbowman"* — both reconcile via `default_group="Ranged"`.
+- Aserai troops `aserai_mameluke_cavalry` and `aserai_mameluke_heavy_cavalry` have ids ending `_cavalry` but `default_group="HorseArcher"` — Aserai therefore offers Horse Archer duty, not Cavalry-branded Mameluke.
 
-On Duty change or rank-up that moves the player into a different troop tier:
+An id-suffix filter would misclassify both. A `default_group`-based filter gets both right.
 
-1. Quartermaster silently swaps the player's equipped loadout to the troop's default equipment for the new (faction, duty, tier) combination.
-2. Any previously-upgraded items the player paid gold for return to the player's inventory (not destroyed). The player can re-equip them manually at the QM.
-3. No confirmation modal fires. The change is narrated in the Camp body's COMPANY NEWS section *"The quartermaster re-issued your kit — Vlandian Sergeant by rank, mail and kite shield."*
-4. Gold cost of past upgrades is **not** refunded.
+### Gear re-issue ritual
 
-This is deliberately minimal. A richer ritual — confirmation modal, gear-preservation negotiation, "keep the old sword" option — is a follow-up if the minimal version feels too abrupt.
+Owned by a new `Quartermaster.ReissueForDuty(DutyId duty, int tier)` method. Fires on:
+
+- Duty change via the Duty menu.
+- Rank-up that moves the player into a different troop tier on their current Duty.
+
+**What gets swapped.** The player's battle equipment (weapons, armor, mount if applicable) is replaced with the default loadout for the `(faction, duty, tier)` combination, read from the troop's `equipment` slots in `spnpccharacters.xml`.
+
+**What is preserved.** Follows the precedent of `TroopSelectionManager.cs:500`:
+
+- **Quest items** — never touched; persist across Duty changes.
+- **Civilian equipment set** — preserved separately (lives in a different equipment slot); unaffected.
+- **Previously-upgraded items the player paid gold for** — returned to the player's personal inventory. Not destroyed, not refunded.
+
+**Overflow handling.** If the player's personal inventory is full when upgraded items are returned:
+
+1. Overflow items spill into the party inventory.
+2. If the party inventory is also full, remaining items are sold back to the QM at 50% of their base value, gold credited to the player, and a narrative line fires in COMPANY NEWS (*"The quartermaster took your old sword at half-price — no room in the wagons."*).
+
+**Critical-supply block.** When `CompanySupplyManager.Supplies < 15%` (the existing QM-block threshold from `EnlistedMenuBehavior.cs:1419-1433`), `ReissueForDuty` is blocked:
+
+- The Duty-change itself still succeeds (the choice persists in `DutyManager`).
+- Equipment swap is deferred; old gear stays equipped.
+- A narrative line in COMPANY NEWS informs the player: *"The quartermaster is tight with stores — new kit will wait until supplies recover."*
+- The player can retry the reissue from the Quartermaster option once supplies recover to ≥15%.
+
+**Confirmation modal.** None in Phase 1. If playtest feedback shows the swap feels abrupt, a Phase 2 follow-up can add one.
+
+**No refund of gold spent on past upgrades.** Items return to inventory at no gold cost; gold previously spent is not refunded.
 
 ### Duty event framework (CK3-style popups)
 
@@ -204,7 +229,7 @@ Three docs from 2026-04-23 have parts that this spec supersedes. Each requires e
 ### `2026-04-23-player-agency-redesign.md` (v3)
 
 - **Supersedes:** Service stance model (section "Service stances" entirely), `ServiceStance`, `ServiceStanceManager`, `service_stances.json`, `EnvelopeKind.ServiceStance`.
-- **Preserves:** `MutationCategory` / `MagnitudeBand` / `Envelope` / `AgencyGate` / `StateMutator` / `EnvelopeAcceptancePreview`, the `preview` schema addendum on storylets, the observer→enforce phasing plan, the validator Phase 16 "preview required on high-stakes" rule, `ChoreThrottle` for short activity overrides. These are the substrate; what sits on top changes, the substrate doesn't.
+- **Depends on (not-yet-built substrate):** `MutationCategory` / `MagnitudeBand` / `Envelope` / `AgencyGate` / `StateMutator` / `EnvelopeAcceptancePreview`, the storylet `preview` schema addendum, the observer→enforce phasing plan, the validator Phase 16 "preview required on high-stakes" rule, `ChoreThrottle`. **V3 proposed these; none have been built.** `src/Features/Agency/` does not exist; grep for `class StateMutator|class AgencyGate|class Envelope` in `src/` returns no matches. Every trait/gold/health/scrutiny effect in this spec's sample events assumes the substrate exists. Building it is Plan B in the Implementation plans section below, and it is a hard dependency for Plan G (storylet content authoring).
 - **Disposition:** v3 requires an amendment commit renaming *"service stance envelope"* to *"Duty envelope"* throughout and replacing the stance list with a pointer to this spec's Duty list. V3 had reserved class offsets 51 (`CampActivityActivity`) and 52 (`ChoreThrottleStore`) in the spec but neither type was ever built. This spec reclaims offset 51 for `DutyActivity`. Offset 52 remains reserved for `ChoreThrottleStore` if a Phase 2 cooldown subsystem is built.
 
 ### `2026-04-23-agency-news-status-integration.md` (plan, 1262 lines, committed 2026-04-23)
@@ -223,56 +248,71 @@ Renaming these to `ArmySituation*` is ~12 C# files, 7 JSON ids, a save-offset au
 
 Also unrenamed: the "on duty" / "off duty" wording used by opportunity detection (e.g. `CampOpportunityGenerator.cs:1498`). That refers to whether the player has an active order and is unrelated to both the army situation and the player's Duty. Code comments can clarify; no behavioral change.
 
-## Phasing
+## Implementation plans + dependencies
 
-This spec describes **Phase 1** of the larger design: the menu shell + Duty reframe. The open items below are intentional deferrals, not gaps.
+This spec is the single design of record. Implementation is split into eight named plans that can be written, reviewed, and shipped separately. Each plan becomes its own doc under `docs/superpowers/plans/`.
 
-### In scope (Phase 1)
-
-- `enlisted_status` body rewrite: DISPATCHES (frozen weekly) + PROSPECTS (live).
-- `enlisted_camp_hub` body rewrite: COMPANY NEWS + STATUS.
-- Main menu option list: Orders / Audience / Camp / Visit settlement.
-- Camp menu option list: Duty / Quartermaster / Records / Companions / Retinue / Back.
-- Duty system: `DutyId` enum, `DutyRegistry`, `DutyActivity` (claims next-available save-definer class offset 51; v3 had proposed 51 for `CampActivityActivity` but nothing was built, so the offset is free), `DutyManager` for persistence and transitions, combat faction filter, minimal gear re-issue ritual.
-- Duty → formation wire (replaces hardcoded mapping in `EnlistedFormationAssignmentBehavior`).
-- Duty → party role wire (replaces hardcoded mapping in `DutiesOfficerRolePatches`).
-- Minimum 1 Combat Duty storylet pool (`duty.infantry` — ~6 events to start) + 1 Support Duty pool (`duty.field_medic` — ~4 events) authored as proof-of-content. Other duty pools get 1 sample each; full content fill is phase 3.
-- News-spec v2 amendment for section renames.
-- Agency v3 amendment for "stance envelope" → "Duty envelope" language.
-- Integration plan amendment for `Upcoming` → `Prospects`, `ServiceStance` → `Duty` rename.
-
-### Deferred to Phase 2+ (sub-menu design + content)
-
-- **Orders sub-menu** — active + proposed orders list, accept flow, preview rendering. Inherits preview contract from agency v3.
-- **Records sub-menu** — scope TBD. Candidate content: rank history, orders tally, paths walked, commendations, discipline record. Needs its own mini-design.
-- **Companions sub-menu** — wraps `CompanionAssignmentManager`. Role-assignment UI.
-- **Retinue sub-menu** — wraps `RetinueManager`. Recruitment-grant log, casualty report, retinue equipment surface.
-- **Per-Duty event cadence tuning** — initial values proposed below; Phase 1 logs inform Phase 2 numbers.
-- **Storylet pool authoring** — ~8–12 events per Duty pool. Authoring work for Phase 3.
-- **Gear re-issue confirmation modal + upgrade preservation** — richer ritual if the minimal silent swap feels too abrupt.
-
-### Deferred to later phases (explicitly out of scope)
-
-- Formation-choice as its own menu option (absorbed into Combat Duty).
-- Medic NPC + chronic health system + buy-medicine subsystem.
-- Faction-specialty Duties as distinct ids (`duty.ulfhednar` / `duty.fian_path` etc.). Phase 1 uses faction-variant labels only.
-- `DutyProfile` → `ArmySituation` internal rename.
-
-## Proposed Duty tuning (Phase 1 defaults — revise from log data)
-
-| Duty | Primary skills (Trivial XP drift) | Event cadence | Storylet pool size (Phase 1) |
+| Plan | Scope | Depends on | Visible to player? |
 | :--- | :--- | :--- | :--- |
-| Infantry | One-Handed, Two-Handed, Polearm, Athletics | ~3 days | 6 events |
-| Archer | Bow, Throwing | ~3 days | 2 events |
-| Crossbowman | Crossbow, Athletics | ~3 days | 2 events |
-| Cavalry | Riding, Polearm | ~3 days | 2 events |
-| Horse Archer | Bow, Riding | ~3 days | 1 event (Khuzait-only flavor) |
-| Pathfinder | Scouting, Riding | ~2 days (scout events are more frequent) | 4 events |
-| Field Medic | Medicine | ~2 days | 4 events |
-| Provisioner | Trade, Steward | ~4 days | 2 events |
-| Siegewright's Aide | Engineering | ~4 days | 2 events |
+| **A — Menu body restructure** | `enlisted_status` body: DISPATCHES (frozen weekly per news-v2 regen triggers) + PROSPECTS (live, replaces UPCOMING). `enlisted_camp_hub` body: COMPANY NEWS + STATUS (merges SINCE LAST MUSTER + UPCOMING + CAMP ACTIVITIES into COMPANY NEWS; merges YOU + RECENT ACTIVITY + STATUS into STATUS). Main menu options: Orders / Audience / Camp / Visit settlement (delete HEADLINES option + submenu, fold Equipment into Camp → Quartermaster). Camp menu options: Duty (greyed "coming with Plan C") / Quartermaster / Records (coming soon) / Companions (coming soon) / Retinue (coming soon) / Back. | — | Yes — immediate. |
+| **B — Agency substrate** | `MutationCategory`, `MagnitudeBand`, `Envelope`, `AgencyGate`, `StateMutator`, `EnvelopeAcceptancePreview`, storylet `preview` schema, validator Phase 16. Observer-mode rollout per v3's Phase 1 plan: log what would be rejected before enforcing. | — | No (substrate). |
+| **C — Duty core** | `DutyId` enum, `DutyRegistry`, `DutyManager` (claims save-definer class offset 51), `DutyActivity`, persistence + transition rules, faction filter reading `default_group` from troop XML, Duty selection menu wired to the Camp option, PROSPECTS + STATUS prose consume current Duty. No formation change, no party-role claim, no gear swap yet. | — | Partial — menu appears, Duty persists, prose reads it. |
+| **D — Combat Duty → formation** | `CombatClassResolver.Resolve(hero)` queries `DutyManager.Current` first for the player, falls back to equipment-derived class for non-player heroes or when no Duty. Smoke tests across all four formation classes and mixed-culture battles. | C | Yes — first battle after a Duty change reflects it. |
+| **E — Support Duty → party roles** | Replace the four `return true` shells in `DutiesOfficerRolePatches` (`EffectiveEngineer / Scout / Quartermaster / Surgeon`) with `DutyManager.Current == <support duty>` checks that substitute `Hero.MainHero.CharacterObject` into `__result` and return `false` on match. Per-role smoke test verifies the player's skill actually claims the party role. | C | Yes — skill bonuses visible. |
+| **F — Gear reissue via Quartermaster** | `Quartermaster.ReissueForDuty(DutyId, int tier)`. Full preservation contract per the "Gear re-issue ritual" section above (quest items / civilian gear preserved; upgraded items return to inventory with party-inventory overflow + 50% sellback; critical-supply block defers reissue). Rank-up hook. | C | Yes — visible gear change on Duty pick. |
+| **G — Duty storylet pools + content authoring** | Initial Phase 1 content pass: ~30 events across 9 Duties (6 Infantry, 4 Field Medic, 4 Pathfinder, 2 each for Archer/Crossbowman/Cavalry/Provisioner/Siegewright, 1 HA flavor). Each event declares `agency.role` and uses the preview schema. Routed through agency substrate. | B, C | Yes — CK3-style popups begin firing. |
+| **H — Doc amendments** | News-v2 amendment note (section renames: UPCOMING → PROSPECTS; YOU → STATUS; SINCE LAST MUSTER + CAMP ACTIVITIES → merged into COMPANY NEWS). Agency-v3 amendment ("stance envelope" → "Duty envelope" throughout; stance list replaced by pointer to this spec). Integration-plan amendment (`DispatchSurfaceHint.Upcoming` → `Prospects`; `DispatchSourceKind.ServiceStance` → `Duty`). | — | No (docs only). |
 
-Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band ceiling. Event-choice XP magnitudes: 2–10 in the primary skill, never above Minor-band without a preview.
+### Ship order (recommended)
+
+1. **A** — quickest visible win; fixes the body flood that was the original pain. No dependencies. Ships the menu shell.
+2. **H** — in parallel with A since A changes the vocabulary those docs describe.
+3. **C** — Duty persistence + Duty menu; unblocks D/E/F/G.
+4. **D** — Combat Duty → formation. First real in-battle consequence of picking a Duty.
+5. **F** — Gear reissue. Closes the "I look like my Duty" loop.
+6. **E** — Support Duty → party roles. Rounds out the Duty experience.
+7. **B** — Agency substrate. Observer mode first, collect logs, tune.
+8. **G** — Content authoring. CK3-style events land once substrate + Duty core are stable.
+
+Alternative: **B** can run in parallel with **A** and **C** if two tracks are available. B is invisible to the player either way; putting it earlier reduces wait for Plan G.
+
+### Explicit non-goals
+
+- Formation-choice as its own menu option (absorbed into Combat Duty; no separate picker).
+- Medic NPC + chronic health system + buy-medicine subsystem (explicitly deferred by the user earlier in the design conversation).
+- Faction-specialty Duties as distinct ids (`duty.ulfhednar` / `duty.fian_path` etc.). The `default_group`-based filter labels them as culture-variants of the base Duty; distinct ids can come later.
+- `DutyProfile` → `ArmySituation` internal rename. Three-way overload documented; rename deferred.
+- Orders / Records / Companions / Retinue sub-menus. Each needs its own small design pass before its plan is written.
+
+## Proposed Duty tuning (initial defaults — revise from Plan B / G log data)
+
+**Pacing is governed by the existing `DensitySettings` in `src/Features/Content/DensitySettings.cs`** — this spec does not invent its own cadence knobs. Live values:
+
+| Knob | Default | Tunable via |
+| :--- | :--- | :--- |
+| `ModalFloorInGameDays` | **5** (normal) / 3 (dense) / 7 (sparse) | `event_density` in `enlisted_config.json` |
+| `ModalFloorWallClockSeconds` | **60** | code default today (Phase 2+ may expose to JSON) |
+| `QuietStretchDays` | **14** | code default |
+| `CategoryCooldownDays` | **12** | code default |
+| `SpeedDownshiftOnModal` | **true** | `speed_downshift_on_modal` in `enlisted_config.json` |
+
+**What this means for Duty events at fast-forward.** Duty-pool events share a single category (working name `duty.event`). The category cooldown is 12 game days. At `SpeedUpMultiplier = 4` (FF default), that's ~3 real minutes minimum between Duty modals. The wall-clock 60-second floor is an additional hard brake. And `SpeedDownshiftOnModal = true` means fast-forward auto-drops to 1× the instant a modal fires — the player is never surprised mid-FF; they see the menu slide in at readable speed.
+
+**Duty tuning inputs — pool weight and drift, not cadence.** Per-duty numbers below control (a) how big each pool is and (b) what the Trivial-band passive XP drift looks like. The actual modal firing rate is bounded by the DensitySettings rails above, not by these entries.
+
+| Duty | Primary skills (Trivial XP drift) | Modal pool size (initial) |
+| :--- | :--- | :--- |
+| Infantry | One-Handed, Two-Handed, Polearm, Athletics | 6 events |
+| Archer | Bow, Throwing | 2 events |
+| Crossbowman | Crossbow, Athletics | 2 events |
+| Cavalry | Riding, Polearm | 2 events |
+| Horse Archer | Bow, Riding | 1 event (faction-flavored variants — Khuzait steppe, Aserai mamluke, Empire bucellarii) |
+| Pathfinder | Scouting, Riding | 4 events |
+| Field Medic | Medicine | 4 events |
+| Provisioner | Trade, Steward | 2 events |
+| Siegewright's Aide | Engineering | 2 events |
+
+Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band ceiling. Drift ticks fire on the hourly / daily tick — they are NOT Modal, so they bypass the pacing rails entirely and accumulate quietly into STATUS prose. Event-choice XP magnitudes (when a modal resolves): 2–10 in the primary skill, never above Minor-band without a preview.
 
 ## Validation
 
@@ -283,7 +323,7 @@ Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band c
 
 ### New validator rails
 
-- **Duty pool coverage** — every combat duty in a faction's available list has at least one authored event in Phase 1. Warning-only for Phase 1 content; error in Phase 3.
+- **Duty pool coverage** — every combat duty in a faction's available list has at least one authored event after Plan G's initial content pass. Warning-only during Plan G; error once content saturates.
 - **Duty-storylet agency metadata** — every authored Duty-pool storylet must declare `agency.role` ∈ {`duty_drift`, `duty_event`}, `agency.source_kind = "Duty"`, and a `duty_id` matching a registered `DutyId`.
 - **Trait references** — any storylet effect referencing a trait must use one of the vanilla five (Mercy / Valor / Honor / Generosity / Calculating). Custom trait ids rejected.
 
@@ -292,7 +332,7 @@ Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band c
 - Enlist with Vlandia at T1. Open `enlisted_status` → body shows DISPATCHES + PROSPECTS; option list is Orders / Audience / Camp / Visit settlement.
 - Open Camp → body shows COMPANY NEWS + STATUS; option list is Duty / Quartermaster / Records / Companions / Retinue / Back.
 - Open Duty → Combat section shows Infantry / Crossbowman / Cavalry as available; Archer greyed with *"Vlandia uses crossbow"* tooltip; HA greyed with *"Khuzait only"*. Support section shows all four.
-- Pick Cavalry → return to Camp → COMPANY NEWS prose mentions the QM re-issue → equipment slot swapped to Vlandian T1 cavalry loadout.
+- At T1/T2, confirm Cavalry is greyed with *"Vlandian cavalry requires T3"* (Vlandian cavalry branch starts T3 with Squire — no cavalry troop exists at T1/T2). Rank up to T3 and re-open Duty → Cavalry is available → pick Cavalry → return to Camp → COMPANY NEWS prose mentions the QM re-issue → equipment slot swapped to Vlandian Squire (T3) loadout.
 - Fast-forward 3 in-game days in camp → at least one Infantry (after re-picking) ambient event fires as a modal with three choice options + inline effect previews.
 - Save → reload → Duty persists; active storylet pool state persists; formation assignment in next battle matches current Duty.
 - Enlist with Khuzait → Duty menu shows Horse Archer available; faction filter works.
@@ -309,11 +349,22 @@ Trivial XP magnitudes: 1–3 XP per drift tick, per the agency v3 Trivial-band c
 
 ## Open questions
 
-1. **Duty-transition cooldown.** Should switching Duty have a cost (gold? time? relation dip with the lord? muster-gated)? Default for Phase 1: free and instant. Defer tuning to Phase 2 log data.
-2. **Support Duty × battle formation.** When a Support Duty (e.g. Field Medic) is active and the army enters battle, what formation does the player join? Default for Phase 1: Infantry formation. Phase 2 may add a second-tier "combat fallback" preference in each Support Duty's definition.
-3. **Concurrent Support + Combat?** Could the player claim both a Support role and a Combat Duty simultaneously (e.g. Field Medic + Infantry)? Phase 1: no — one Duty at a time. Phase 2 might allow Support as a secondary if the code supports it.
-4. **Per-faction gear-preservation on Duty change.** The minimal ritual returns upgraded items to inventory. Should those items persist across Duty → Duty changes, or get sold back to the QM at book value on the second swap? Phase 1: persist in inventory indefinitely.
+1. **Duty-transition cooldown.** Should switching Duty have a cost (gold? time? relation dip with the lord? muster-gated)? Initial default (Plan C): free and instant. Tuning deferred to post-D log data.
+2. **Support Duty × battle formation.** When a Support Duty (e.g. Field Medic) is active and the army enters battle, what formation does the player join? Initial default (Plan D): Infantry formation. A follow-up may add a second-tier "combat fallback" preference in each Support Duty's definition.
+3. **Concurrent Support + Combat?** Could the player claim both a Support role and a Combat Duty simultaneously (e.g. Field Medic + Infantry)? Initial: no — one Duty at a time. A follow-up might allow Support as a secondary if the code supports it.
+4. **Per-faction gear-preservation on Duty change.** The minimal ritual returns upgraded items to inventory. Should those items persist across Duty → Duty changes, or get sold back to the QM at book value on the second swap? Initial (Plan F): persist in inventory indefinitely.
 
 ## Changelog
 
 - **v1 (2026-04-24):** initial draft. Consolidates news v2, agency v3, integration plan. Faction-troop + trait claims verified against `SandBoxCore/ModuleData/spnpccharacters.xml` and `TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem.CharacterDevelopment/DefaultTraits.cs`.
+- **v2 (2026-04-24):** corrections from adversarial review (ChatGPT) re-verified against primary sources. Fixes:
+  1. **Problem statement** — main `enlisted_status` body has 3 sections (not 4); UPCOMING lives in Camp hub body, not main. Corrected line cites (`EnlistedMenuBehavior.cs:3315-3347` for main; `:1595-1628` for Camp).
+  2. **Horse Archer availability** — not Khuzait-only. Khuzait dominant, Aserai (Mameluke Cavalry + Mameluke Heavy Cavalry, id misleading), Empire (Bucellarii). Confirmed via `grep 'default_group="HorseArcher"'` in `spnpccharacters.xml`. Battania/Sturgia/Vlandia truly none.
+  3. **Faction-filter rule** — read `default_group` attribute from troop XML, not id suffix or equipment. Handles both Vlandian militia-archer and Aserai mameluke-cavalry id-vs-`default_group` mismatches in one rule.
+  4. **Battle formation wiring** — corrected "already wired" to "requires new wiring". Today's path is `CombatClassResolver.cs:25-40` reading equipment flags → `EnlistedFormationAssignmentBehavior.cs:466-470`. Phase 1 change: resolver queries `DutyManager.Current` first.
+  5. **Party role wiring** — corrected "already wired" to "requires new wiring". `DutiesOfficerRolePatches` lines 57, 104, 150, 192 all show `return true;` shells — patches currently run vanilla. Phase 1 replaces the returns with Duty-match checks.
+  6. **Agency substrate status** — corrected "preserves" to "depends on (not-yet-built substrate)". `src/Features/Agency/` does not exist; nothing from v3 was built. Plan B in Implementation plans builds it; Plan G depends on it.
+  7. **Gear reissue contract** — expanded from 4 bullets to a full contract: preservation rules (quest items / civilian set / upgraded items), overflow handling (party inventory → 50% sellback), critical-supply block interaction, explicit no-confirmation-modal decision.
+  8. **Vlandia T1 cavalry smoke test** — invalid under tier rule (Vlandian cavalry branch starts T3). Changed to verify Cavalry greyed at T1/T2 with reason tooltip, then rank up and retest at T3.
+- **v2 scope shift:** "Phase 1 / Phase 2+" structure replaced with "Implementation plans + dependencies" — per user request, one big spec, multiple named plans (A-H) ship separately. No single-phase boundary.
+- **v2 pacing correction (user feedback):** original tuning table fabricated per-Duty cadence values (~2-3 game days) that would trigger modals every ~30-60 real seconds at fast-forward. Pacing is already governed by the existing `DensitySettings` in `src/Features/Content/DensitySettings.cs` (5-day in-game floor, 60-sec wall-clock floor, 12-day category cooldown, `SpeedDownshiftOnModal = true`). Duty events share the `duty.event` category and inherit those rails; spec no longer invents its own. Table now shows pool size + XP drift only.
