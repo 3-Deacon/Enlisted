@@ -1,6 +1,6 @@
 # News & Reporting System
 
-**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages two feed types (kingdom-wide and personal), a daily brief with company/player/kingdom context, and a company needs status report showing Readiness and Supplies. Event and order outcomes are displayed in Recent Activities using a queue system instead of popups to reduce UI interruption. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
+**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages kingdom-wide, personal, and camp-routed dispatches. Enlisted Status and Camp consume those feeds directly: routine camp activity outcomes go to Recent Activities/news surfaces instead of modal popups, while true blocking story events still route through StoryDirector and EventDeliveryManager. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
 
 **2025-12-31 MAJOR UPDATE:** Menu narratives now comprehensively integrate with `WorldStateAnalyzer`, `CampLifeBehavior` pressures, and `CompanySimulationBehavior` for rich, context-aware storytelling that reflects actual simulated world state. Order outcomes now use RP-appropriate fallback text when JSON text is missing. XP displays removed from recaps in favor of narrative summaries.
 
@@ -10,8 +10,8 @@
 
 **2026-01-03 BUG FIX:** Routine activity "Poor" outcomes now correctly display in yellow (Attention) instead of green (Positive). Previously, negative events like "A soldier reports fever this morning" appeared in green alongside "Excellent performance today" due to incorrect severity mapping. Fixed severity assignment: Poor → 2 (Attention/Yellow), Mishap → 2 (Attention/Yellow).
 
-**Status:** ✅ Current - Comprehensive Integration Complete  
-**Last Updated:** 2026-01-03 (Routine outcome severity fix)  
+**Status:** ✅ Current - Native menu/news integration
+**Last Updated:** 2026-04-23 (Camp activity menu routing)
 **Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Storylet Backbone](../Content/storylet-backbone.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
 
 ---
@@ -24,7 +24,7 @@
 - [Event & Order Outcome Queue System](#event--order-outcome-queue-system)
 - [Kingdom Feed](#kingdom-feed)
 - [Personal Feed](#personal-feed)
-- [Daily Brief](#daily-brief)
+- [Daily Brief Internals](#daily-brief)
 - [Company Status Report](#company-status-report)
 - [Retinue Integration](#retinue-integration-t7-commanders)
 - [Promotion Integration](#promotion-integration)
@@ -68,12 +68,12 @@ The news system operates as a read-only observer of campaign events. It listens 
 2. **Personal Feed** - Your enlisted lord's events and your direct participation
 
 **Two Report Types:**
-1. **Daily Brief** - Once-per-day narrative paragraph combining company situation, player status, and kingdom news
-2. **Company Status Report** - Two company needs (Readiness, Supplies) with context-aware descriptions
+1. **Status/Camp menu summaries** - Native menu text assembled from dispatches, company state, and player context
+2. **Company Status Report** - Company needs (Readiness, Supplies) with context-aware descriptions
 
 **Key Behavior:**
 - All feeds use `DispatchItem` struct (primitives only for save compatibility)
-- Daily Brief caches at daily tick (stable for 24 hours to prevent jitter)
+- Daily Brief helpers are retained as internals, but the current native menu surface reads dispatches and summaries directly
 - Company Status generates on-demand when menu opens
 - Records track outcomes for display in reports (orders, events, reputation changes)
 
@@ -1036,7 +1036,7 @@ Tracks scheduled chain events for Daily Brief hints.
 - `SourceEventId`: Original event
 - `ChainEventId`: Follow-up event identifier
 - `ContextHint`: Text hint for brief
-- `ScheduledDay`: When it will fire
+- `ScheduledDay`: When it is ready for delivery
 - `CreatedDay`: When scheduled
 
 **Added via:** `SchedulePendingChainEvent()` (called by EventDeliveryManager)

@@ -647,7 +647,10 @@ public bool CanHaltColumn()
 
 ### Overview
 
-Baggage access appears as a Camp Activities button. When clicked, it **bypasses the popup** and routes directly to either the baggage stash or the QM dialogue based on current access state. This provides seamless access without unnecessary confirmation popups.
+Baggage access appears under `Camp -> Available Activities`. When clicked, it
+**bypasses the activity detail popup/menu** and routes directly to either the
+baggage stash or the QM dialogue based on current access state. This provides
+seamless access without unnecessary confirmation popups.
 
 ### Implementation
 
@@ -673,10 +676,9 @@ Baggage access appears as a Camp Activities button. When clicked, it **bypasses 
 
 ### Routing Logic
 
-**Direct Bypass (EnlistedMenuBehavior.OnDecisionSelected):**
+**Direct Bypass (`EnlistedMenuBehavior.OnCampHubActivitySlotSelected`):**
 
 ```csharp
-// Special handling: Route baggage access directly to QM dialogue (bypass popup)
 if (decision.Id.Equals("dec_baggage_access", StringComparison.OrdinalIgnoreCase))
 {
     OnBaggageTrainSelected(null);

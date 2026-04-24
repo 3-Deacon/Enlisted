@@ -222,7 +222,7 @@ namespace Enlisted.Features.Camp
 
         /// <summary>
         /// Commits the player to an opportunity at its scheduled phase.
-        /// The opportunity will grey out in the menu and fire automatically at the scheduled time.
+        /// The opportunity greys out until the scheduled phase, then resolves from Camp activities.
         /// </summary>
         public void CommitToOpportunity(CampOpportunity opportunity)
         {

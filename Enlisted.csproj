@@ -257,6 +257,7 @@
     <Compile Include="src\Features\Interface\Behaviors\EnlistedNewsBehavior.cs"/>
     <Compile Include="src\Features\Interface\Behaviors\EnlistedCombatLogBehavior.cs"/>
     <Compile Include="src\Features\Interface\MainMenuNewsCache.cs"/>
+    <Compile Include="src\Features\Interface\Models\CampActivityMenuPolicy.cs"/>
     <Compile Include="src\Features\Interface\Models\DispatchRouting.cs"/>
     
     <!-- Combat Log ViewModels -->

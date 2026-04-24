@@ -585,20 +585,6 @@
     <string id="enl_ui_na" text="N/A" />
     <string id="enl_ui_opportunity" text="Opportunity" />
     <string id="enl_ui_available" text="Available" />
-    <string id="enl_reports_no_recent_outcomes" text="No recent outcomes." />
-    <string id="enl_reports_outcomes_placeholder" text="Resolved decision outcomes will appear here." />
-    <string id="enl_reports_chosen_line" text="Chosen: {CHOICE}" />
-    <string id="enl_reports_no_opportunities_not_enlisted" text="No opportunities while not enlisted." />
-    <string id="enl_reports_opportunities_not_enlisted_detail" text="Opportunities appear when you are enlisted and there are player-initiated decisions available." />
-    <string id="enl_reports_no_matters_today" text="No matters await your decision today." />
-    <string id="enl_reports_no_player_decisions" text="No player-initiated decisions are currently available." />
-    <string id="enl_reports_title" text="Reports" />
-    <string id="enl_reports_general_orders" text="General Orders" />
-    <string id="enl_reports_opportunities" text="Opportunities" />
-    <string id="enl_reports_recent_outcomes" text="Recent Outcomes" />
-    <string id="enl_reports_squad_reports" text="Camp Reports" />
-    <string id="enl_reports_company_reports" text="Company Reports" />
-    <string id="enl_reports_kingdom_reports" text="Kingdom Reports" />
 
     <!-- Camp Squad tab -->
     <string id="enl_camp_squad_type" text="Type" />
@@ -608,8 +594,8 @@
 
     <!-- Camp hub (enlisted_camp_hub / enlisted_status menu body text) -->
     <string id="enl_camp_hub_not_enlisted" text="You are not currently enlisted." />
-    <string id="enl_camp_hub_unavailable" text="Service Status unavailable." />
-    <string id="enl_camp_hub_title" text="Service Status" />
+    <string id="enl_camp_hub_unavailable" text="Camp unavailable." />
+    <string id="enl_camp_hub_title" text="Camp" />
     <string id="enl_camp_hub_lord_line" text="Lord: {LORD_NAME}" />
     <string id="enl_camp_hub_fatigue_line" text="Fatigue: {FAT_CUR}/{FAT_MAX} | {RANK} (T{TIER})" />
     <string id="enl_camp_hub_objective_line" text="Lord's Work: {OBJECTIVE}" />
@@ -884,8 +870,26 @@
     <!-- PHASE 4: ESCALATION UI (Standing) -->
     <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <string id="enlisted_standing_header" text="â€” YOUR STANDING â€”" />
-    <string id="enlisted_camp_status_header" text="â€” CAMP STATUS â€”" />
     <string id="enlisted_camp_status_line" text="Supplies: {SUP} | Morale: {MOR} | Pay: {PAY}" />
+    <string id="enlisted_camp" text="Camp" />
+    <string id="enlisted_camp_activities" text="Camp Activities" />
+    <string id="enlisted_camp_available_activities" text="Available Activities" />
+    <string id="enlisted_camp_available_activities_empty" text="No camp activities are available right now." />
+    <string id="enlisted_camp_available_activities_tooltip" text="Review training, medical, logistics, and camp-life choices." />
+    <string id="enlisted_camp_activities_title" text="Available Activities" />
+    <string id="enlisted_camp_activities_unavailable" text="Camp activities unavailable." />
+    <string id="enlisted_camp_activities_none" text="No personal camp activities are available right now. Stay with the company and wait for the next opening." />
+    <string id="enlisted_camp_activities_intro" text="Choose what to do with the time your lord's party gives you. Some activities can be reserved for later in the day." />
+    <string id="enlisted_camp_activities_phase" text="Current phase: {PHASE}" />
+    <string id="enlisted_camp_activities_count" text="Available: {COUNT}" />
+    <string id="enlisted_camp_activity_missing" text="No activity selected." />
+    <string id="enlisted_camp_activity_phase" text="Scheduled phase: {PHASE}" />
+    <string id="enlisted_camp_activity_detail_back" text="Back to Activities" />
+    <string id="enlisted_camp_activity_detail_unavailable" text="Activity unavailable." />
+    <string id="enlisted_camp_activity_resolve_failed" text="Unable to resolve activity." />
+    <string id="enlisted_orders_details_back" text="Back to Status" />
+    <string id="enlisted_orders_details_unavailable" text="Order details unavailable." />
+    <string id="enlisted_orders_details_none" text="No active orders." />
     <string id="enlisted_camp_supply_stable" text="Stable" />
     <string id="enlisted_camp_supply_tight" text="Tight" />
     <string id="enlisted_camp_morale_steady" text="Steady" />

@@ -40,7 +40,10 @@ namespace Enlisted.Features.Interface.Behaviors
     /// </summary>
     public sealed class EnlistedMenuBehavior : CampaignBehaviorBase
     {
+        private const string OrdersDetailMenuId = "enlisted_orders_detail";
         private const string CampHubMenuId = "enlisted_camp_hub";
+        private const string CampActivitiesMenuId = "enlisted_camp_activities";
+        private const string CampActivityDetailMenuId = "enlisted_camp_activity_detail";
 
         /// <summary>
         ///     Minimum time interval between menu updates, in seconds.
@@ -103,6 +106,8 @@ namespace Enlisted.Features.Interface.Behaviors
         // disappear mid-interaction because the game phase advanced.
         private List<DecisionAvailability> _cachedDecisionsForCurrentMenu = new List<DecisionAvailability>();
         private CampaignTime _cachedDecisionsTime = CampaignTime.Zero;
+        private DecisionAvailability _activeCampActivityAvailability;
+        private DecisionDefinition _activeCampActivityDecision;
 
         // Cached narrative text to prevent flickering from frequent rebuilds.
         // Only updates when the underlying data changes.
@@ -752,6 +757,7 @@ namespace Enlisted.Features.Interface.Behaviors
         private void AddEnlistedMenus(CampaignGameStarter starter)
         {
             AddMainEnlistedStatusMenu(starter);
+            RegisterOrdersDetailMenu(starter);
             RegisterCampHubMenu(starter);
             // NOTE: Decisions, Reports, Status submenus removed.
             // - Decisions is now an accordion on the main menu
@@ -982,14 +988,18 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     args.optionLeaveType = GameMenuOption.LeaveType.Mission;
                     args.IsEnabled = true;
-                    args.Tooltip = new TextObject("{=enlisted_orders_tooltip_active_row}Click to view order details.");
+                    args.Tooltip = new TextObject("{=enlisted_orders_tooltip_active_row}Open order details.");
 
                     var row = $"    {display.Title}";
                     MBTextManager.SetTextVariable("ACTIVE_ORDER_TEXT", row);
 
                     return true;
                 },
-                _ => ShowOrdersMenu(),
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(OrdersDetailMenuId);
+                },
                 false, 2);
 
             // Evening intent slots - visible only when HomeActivity is in the evening phase.
@@ -1026,11 +1036,11 @@ namespace Enlisted.Features.Interface.Behaviors
             // slots were to register at 9+i, Camp at 10 would splice in between them. We give
             // Camp a position past the entire evening block.
             starter.AddGameMenuOption("enlisted_status", "enlisted_camp_hub",
-                "{=enlisted_camp_activities}Camp Activities",
+                "{=enlisted_camp}Camp",
                 args =>
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
-                    args.Tooltip = new TextObject("{=enlisted_camp_tooltip}Rest, train, manage equipment, and visit the medical tent.");
+                    args.Tooltip = new TextObject("{=enlisted_camp_tooltip}Open camp activities, records, equipment, companions, and lord access.");
                     return true;
                 },
                 _ =>
@@ -1219,6 +1229,85 @@ namespace Enlisted.Features.Interface.Behaviors
         // NOTE: RegisterDecisionsMenu, RegisterReportsMenu, RegisterStatusMenu removed.
         // Camp choices, reports, and status now live in Camp Hub.
 
+        private void RegisterOrdersDetailMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(OrdersDetailMenuId,
+                "{ORDERS_DETAIL_TEXT}",
+                OnOrdersDetailInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            starter.AddGameMenuOption(OrdersDetailMenuId, "orders_detail_back",
+                "{=enlisted_orders_details_back}Back to Status",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu("enlisted_status");
+                },
+                false, 100);
+        }
+
+        private static void OnOrdersDetailInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+
+                var captured = QuartermasterManager.CapturedTimeMode ?? Campaign.Current.TimeControlMode;
+                var normalized = QuartermasterManager.NormalizeToStoppable(captured);
+                Campaign.Current.TimeControlMode = normalized;
+
+                MBTextManager.SetTextVariable("ORDERS_DETAIL_TEXT", BuildOrdersDetailText());
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("INTERFACE", "Error showing orders menu", ex);
+                MBTextManager.SetTextVariable("ORDERS_DETAIL_TEXT",
+                    new TextObject("{=enlisted_orders_details_unavailable}Order details unavailable.").ToString());
+            }
+        }
+
+        private static string BuildOrdersDetailText()
+        {
+            var display = OrderDisplayHelper.GetCurrent();
+            if (display == null)
+            {
+                return new TextObject("{=enlisted_orders_details_none}No active orders.").ToString();
+            }
+
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(display.Title);
+
+            if (!string.IsNullOrEmpty(display.Intent))
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_intent}Intent: {INTENT}")
+                    .SetTextVariable("INTENT", display.Intent).ToString());
+            }
+
+            if (display.HoursTotal > 0)
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_progress}Progress: {ELAPSED} of {TOTAL} hours")
+                    .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
+                    .SetTextVariable("TOTAL", display.HoursTotal.ToString()).ToString());
+            }
+
+            return sb.ToString().TrimEnd();
+        }
+
         private void RegisterCampHubMenu(CampaignGameStarter starter)
         {
             starter.AddWaitGameMenu(CampHubMenuId,
@@ -1233,17 +1322,31 @@ namespace Enlisted.Features.Interface.Behaviors
                 OnCampHubTick,
                 GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
 
-            // NOTE: Rest & Recover, Train Skills, and Morale Boost are surfaced through Camp Hub.
+            // Available Activities
+            starter.AddGameMenuOption(CampHubMenuId, "camp_hub_activities",
+                "{=enlisted_camp_available_activities}Available Activities",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+                    var activities = EnsureCampActivityCache();
+                    if (activities.Count == 0)
+                    {
+                        args.IsEnabled = false;
+                        args.Tooltip = new TextObject("{=enlisted_camp_available_activities_empty}No camp activities are available right now.");
+                    }
+                    else
+                    {
+                        args.Tooltip = new TextObject("{=enlisted_camp_available_activities_tooltip}Review training, medical, logistics, and camp-life choices.");
+                    }
 
-            for (var i = 0; i < 3; i++)
-            {
-                var slotIndex = i;
-                starter.AddGameMenuOption(CampHubMenuId, $"camp_hub_activity_slot_{i}",
-                    $"{{CAMP_ACTIVITY_SLOT_{i}_TEXT}}",
-                    args => IsCampHubActivitySlotAvailable(args, slotIndex),
-                    args => OnCampHubActivitySlotSelected(args, slotIndex),
-                    false, 1 + i);
-            }
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(CampActivitiesMenuId);
+                },
+                false, 1);
 
             // Service Records
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_service_records",
@@ -1367,6 +1470,88 @@ namespace Enlisted.Features.Interface.Behaviors
                     GameMenu.SwitchToMenu("enlisted_status");
                 },
                 false, 100);
+
+            RegisterCampActivitiesMenu(starter);
+            RegisterCampActivityDetailMenu(starter);
+        }
+
+        private void RegisterCampActivitiesMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(CampActivitiesMenuId,
+                "{=enlisted_camp_activities_title}{CAMP_ACTIVITIES_TEXT}",
+                OnCampActivitiesInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            for (var i = 0; i < CampActivityMenuPolicy.ActivitySlotCount; i++)
+            {
+                var slotIndex = i;
+                starter.AddGameMenuOption(CampActivitiesMenuId, $"camp_activity_slot_{i}",
+                    $"{{CAMP_ACTIVITY_SLOT_{i}_TEXT}}",
+                    args => IsCampHubActivitySlotAvailable(args, slotIndex),
+                    args => OnCampHubActivitySlotSelected(args, slotIndex),
+                    false, 1 + i);
+            }
+
+            starter.AddGameMenuOption(CampActivitiesMenuId, "camp_activities_back",
+                "{=enlisted_camp_back}Back",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(CampHubMenuId);
+                },
+                false, 100);
+        }
+
+        private void RegisterCampActivityDetailMenu(CampaignGameStarter starter)
+        {
+            starter.AddWaitGameMenu(CampActivityDetailMenuId,
+                "{CAMP_ACTIVITY_DETAIL_TEXT}",
+                OnCampActivityDetailInit,
+                args =>
+                {
+                    _ = args;
+                    return EnlistmentBehavior.Instance?.IsEnlisted == true;
+                },
+                null,
+                OnCampHubTick,
+                GameMenu.MenuAndOptionType.WaitMenuHideProgressAndHoursOption);
+
+            for (var i = 0; i < CampActivityMenuPolicy.DecisionOptionSlotCount; i++)
+            {
+                var optionIndex = i;
+                starter.AddGameMenuOption(CampActivityDetailMenuId, $"camp_activity_option_{i}",
+                    $"{{CAMP_ACTIVITY_OPTION_{i}_TEXT}}",
+                    args => IsCampActivityOptionAvailable(args, optionIndex),
+                    args => OnCampActivityOptionSelected(args, optionIndex),
+                    false, 1 + i);
+            }
+
+            starter.AddGameMenuOption(CampActivityDetailMenuId, "camp_activity_detail_back",
+                "{=enlisted_camp_activity_detail_back}Back to Activities",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+                    return true;
+                },
+                _ =>
+                {
+                    ClearActiveCampActivity();
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu(CampActivitiesMenuId);
+                },
+                false, 100);
         }
 
         private void OnCampHubInit(MenuCallbackArgs args)
@@ -1391,6 +1576,49 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 ModLogger.Caught("INTERFACE", "Error initializing Camp hub", ex);
                 MBTextManager.SetTextVariable("CAMP_HUB_TEXT", "Camp hub unavailable.");
+            }
+        }
+
+        private void OnCampActivitiesInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+
+                var captured = QuartermasterManager.CapturedTimeMode ?? Campaign.Current.TimeControlMode;
+                var normalized = QuartermasterManager.NormalizeToStoppable(captured);
+                Campaign.Current.TimeControlMode = normalized;
+
+                RefreshCampHubActivitySlots();
+                MBTextManager.SetTextVariable("CAMP_ACTIVITIES_TEXT", BuildCampActivitiesText());
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Error initializing Camp activities", ex);
+                MBTextManager.SetTextVariable("CAMP_ACTIVITIES_TEXT",
+                    new TextObject("{=enlisted_camp_activities_unavailable}Camp activities unavailable.").ToString());
+            }
+        }
+
+        private void OnCampActivityDetailInit(MenuCallbackArgs args)
+        {
+            try
+            {
+                args.MenuContext.GameMenu.StartWait();
+                Campaign.Current.SetTimeControlModeLock(false);
+
+                var captured = QuartermasterManager.CapturedTimeMode ?? Campaign.Current.TimeControlMode;
+                var normalized = QuartermasterManager.NormalizeToStoppable(captured);
+                Campaign.Current.TimeControlMode = normalized;
+
+                MBTextManager.SetTextVariable("CAMP_ACTIVITY_DETAIL_TEXT", BuildCampActivityDetailText());
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("INTERFACE", "Error initializing Camp activity detail", ex);
+                MBTextManager.SetTextVariable("CAMP_ACTIVITY_DETAIL_TEXT",
+                    new TextObject("{=enlisted_camp_activity_detail_unavailable}Activity unavailable.").ToString());
             }
         }
 
@@ -1503,8 +1731,64 @@ namespace Enlisted.Features.Interface.Behaviors
             catch (Exception ex)
             {
                 ModLogger.Debug("INTERFACE", $"Error building camp hub text: {ex.Message}");
-                return new TextObject("{=enl_camp_hub_unavailable}Service Status unavailable.").ToString();
+                return new TextObject("{=enl_camp_hub_unavailable}Camp unavailable.").ToString();
             }
+        }
+
+        private string BuildCampActivitiesText()
+        {
+            var activities = EnsureCampActivityCache();
+            if (activities.Count == 0)
+            {
+                return new TextObject("{=enlisted_camp_activities_none}No personal camp activities are available right now. Stay with the company and wait for the next opening.").ToString();
+            }
+
+            var currentPhase = GetLocalizedPhaseName(WorldStateAnalyzer.GetCurrentDayPhase());
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(new TextObject("{=enlisted_camp_activities_intro}Choose what to do with the time your lord's party gives you. Some activities can be reserved for later in the day.")
+                .ToString());
+            _ = sb.AppendLine();
+            _ = sb.AppendLine(new TextObject("{=enlisted_camp_activities_phase}Current phase: {PHASE}")
+                .SetTextVariable("PHASE", currentPhase).ToString());
+            _ = sb.AppendLine(new TextObject("{=enlisted_camp_activities_count}Available: {COUNT}")
+                .SetTextVariable("COUNT", activities.Count.ToString()).ToString());
+
+            return sb.ToString().TrimEnd();
+        }
+
+        private string BuildCampActivityDetailText()
+        {
+            var decision = _activeCampActivityDecision;
+            if (decision == null)
+            {
+                return new TextObject("{=enlisted_camp_activity_missing}No activity selected.").ToString();
+            }
+
+            var sb = new StringBuilder();
+            _ = sb.AppendLine(GetDecisionDisplayName(decision));
+
+            var description = ResolveDecisionSetupText(decision);
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(description);
+            }
+
+            var availability = _activeCampActivityAvailability;
+            if (availability?.ScheduledOpportunity != null)
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=enlisted_camp_activity_phase}Scheduled phase: {PHASE}")
+                    .SetTextVariable("PHASE", availability.ScheduledOpportunity.Phase.ToString()).ToString());
+            }
+
+            if (availability?.IsRisky == true && !string.IsNullOrWhiteSpace(availability.RiskyTooltip))
+            {
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(availability.RiskyTooltip);
+            }
+
+            return sb.ToString().TrimEnd();
         }
 
         /// <summary>
@@ -4268,14 +4552,8 @@ namespace Enlisted.Features.Interface.Behaviors
 
         #region Decision Handlers
 
-        // NOTE: The dedicated "enlisted_decisions" submenu and main-menu accordion are removed.
-        // The following methods remain for camp-hub activity slots.
-
-        // REMOVED: ToggleDecisionsSection, EnsureDecisionsAccordionInitialized, CollapseAllDecisionsSections,
-        // IsDecisionsSectionCollapsed, SetDecisionsSectionCollapsed, OnDecisionsMenuInit, BuildDecisionsMenuEntries,
-        // BuildDecisionsStatusText, AddSectionDecisions, AddDecisionEntry, OnScheduledDecisionClicked,
-        // DecisionsMenuEntry, DecisionsMenuSection - all dead code from old dedicated submenu.
-        // Camp-hub activity slots call the remaining decision utilities directly.
+        // Camp activity utilities remain here because the Camp Hub owns title, tooltip,
+        // phase, and inline-resolution behavior for activity menu entries.
 
 
         /// <summary>
@@ -4395,179 +4673,49 @@ namespace Enlisted.Features.Interface.Behaviors
             return !string.IsNullOrEmpty(description) ? description : "Select to begin.";
         }
 
-        /// <summary>
-        /// Gets the appropriate menu leave type icon for a section.
-        /// </summary>
-        /// <summary>
-        /// Handles when a decision is selected from the menu.
-        /// Shows the decision popup using EventDeliveryManager.
-        /// </summary>
-        private void OnDecisionSelected(DecisionDefinition decision)
+        private static string ResolveDecisionSetupText(DecisionDefinition decision)
         {
             if (decision == null)
             {
-                return;
+                return string.Empty;
             }
 
-            try
+            if (!string.IsNullOrEmpty(decision.SetupId))
             {
-                ModLogger.Info("INTERFACE", $"Decision selected: {decision.Id}");
-
-                // Mark this decision as currently showing to prevent spam-clicking
-                DecisionManager.Instance?.MarkDecisionAsShowing(decision.Id);
-
-                // Special handling: Route baggage access directly to stash (bypass popup)
-                if (decision.Id.Equals("dec_baggage_access", StringComparison.OrdinalIgnoreCase))
+                var setupText = new TextObject($"{{={decision.SetupId}}}{decision.SetupFallback}").ToString();
+                if (!string.IsNullOrWhiteSpace(setupText) && !setupText.StartsWith("{="))
                 {
-                    ModLogger.Info("INTERFACE", "Decision selected: baggage access (routing to stash)");
-                    OnBaggageTrainSelected(null);
-
-                    // Clear the "currently showing" mark since we bypassed the event popup
-                    // (normally this is done when the popup closes in EventDeliveryManager)
-                    DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                    ModLogger.Debug("INTERFACE", "Baggage access completed, showing mark cleared");
-                    return;
-                }
-
-                // Look up the opportunity from the Orchestrator's locked schedule (not the generator)
-                // This ensures we use the pre-scheduled opportunities that won't change when context changes
-                CampOpportunity opportunity = null;
-                var orchestrator = ContentOrchestrator.Instance;
-                var generator = CampOpportunityGenerator.Instance;
-                if (orchestrator != null)
-                {
-                    var scheduled = orchestrator.GetCurrentPhaseOpportunities()
-                        .FirstOrDefault(s => s.TargetDecisionId == decision.Id);
-                    opportunity = scheduled?.SourceOpportunity;
-                }
-
-                if (opportunity != null)
-                {
-                    // Check if this is a scheduled (not immediate) activity
-                    if (!opportunity.Immediate)
-                    {
-                        // Schedule the activity instead of firing immediately
-                        if (generator != null)
-                        {
-                            ModLogger.Info("INTERFACE", $"Scheduling opportunity '{opportunity.Id}' (phase: {opportunity.GetEffectiveScheduledPhase()}, decision: {decision.Id}, cooldown: {opportunity.CooldownHours}h)");
-                            generator.CommitToOpportunity(opportunity);
-
-                            // Clear the "currently showing" mark since we're scheduling, not showing a popup
-                            DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                            ModLogger.Debug("INTERFACE", $"Opportunity scheduled, showing mark cleared for {decision.Id}");
-
-                            // Refresh the main status menu to show the scheduled state
-                            var menuContext = Campaign.Current?.CurrentMenuContext;
-                            if (Campaign.Current != null && menuContext?.GameMenu != null)
-                            {
-                                Campaign.Current.GameMenuManager.RefreshMenuOptions(menuContext);
-                            }
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        // Immediate opportunity - will show popup immediately
-                        ModLogger.Debug("INTERFACE", $"Processing immediate opportunity: {opportunity.Id} (decision: {decision.Id})");
-                    }
-
-                    // Check if risky while on duty
-                    var campContext = CampOpportunityGenerator.Instance?.AnalyzeCampContext();
-                    if (campContext?.PlayerOnDuty == true)
-                    {
-                        var compat = opportunity.GetOrderCompatibility("");
-                        if (compat == "risky")
-                        {
-                            // Perform detection check before proceeding
-                            if (generator != null)
-                            {
-                                var success = generator.AttemptRiskyOpportunity(opportunity);
-                                if (!success)
-                                {
-                                    // Player was caught - don't show the event, already showed notification
-                                    ModLogger.Info("INTERFACE", $"Player caught attempting risky opportunity: {opportunity.Id}");
-
-                                    // Clear the "currently showing" mark since we're not showing a popup
-                                    DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    // Record engagement for immediate opportunities (scheduled opportunities are recorded in CommitToOpportunity)
-                    // This ensures the opportunity cooldown is tracked properly and prevents immediate re-appearance
-                    if (opportunity.Immediate)
-                    {
-                        generator?.RecordEngagement(opportunity.Id, opportunity.Type);
-                        ModLogger.Debug("INTERFACE", $"Recorded engagement for immediate opportunity: {opportunity.Id} (cooldown: {opportunity.CooldownHours}h)");
-                    }
-                }
-                else
-                {
-                    // Not an opportunity - likely a standalone decision (e.g., baggage access, quest decision)
-                    ModLogger.Debug("INTERFACE", $"Processing non-opportunity decision: {decision.Id}");
-                }
-
-                // NOTE: Cooldown is NOT recorded here. It will be recorded in EventDeliveryManager
-                // only when the player selects a non-cancel option to prevent cooldown abuse.
-                // The menu will be automatically refreshed when the event closes to show updated cooldowns.
-
-                // Convert to EventDefinition and deliver via StoryDirector
-                var eventDef = ConvertDecisionToEvent(decision);
-                if (eventDef != null)
-                {
-                    var director = StoryDirector.Instance;
-                    if (director != null)
-                    {
-                        ModLogger.Info("INTERFACE", $"Routing decision event through StoryDirector: {decision.Id} (immediate={opportunity?.Immediate ?? false})");
-                        director.EmitCandidate(new StoryCandidate
-                        {
-                            SourceId = "menu.decision_click." + decision.Id,
-                            CategoryId = "opportunity." + (decision.Category ?? "unknown"),
-                            ProposedTier = StoryTier.Modal,
-                            SeverityHint = 0.5f,
-                            Beats = { StoryBeat.OrderPhaseTransition },
-                            Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-                            EmittedAt = CampaignTime.Now,
-                            InteractiveEvent = eventDef,
-                            RenderedTitle = eventDef.TitleFallback,
-                            RenderedBody = eventDef.SetupFallback,
-                            StoryKey = eventDef.Id
-                        });
-                    }
-                    else
-                    {
-                        var deliveryManager = EventDeliveryManager.Instance;
-                        if (deliveryManager != null)
-                        {
-                            ModLogger.Info("INTERFACE", $"Queuing decision event directly (director unavailable): {decision.Id}");
-                            deliveryManager.QueueEvent(eventDef);
-                        }
-                        else
-                        {
-                            ModLogger.Warn("INTERFACE", "EventDeliveryManager not available, showing simple popup");
-                            ShowSimpleDecisionPopup(decision);
-                        }
-                    }
-                }
-                else
-                {
-                    ModLogger.Warn("INTERFACE", $"Failed to convert decision to event: {decision.Id}, showing simple popup");
-                    ShowSimpleDecisionPopup(decision);
+                    return setupText;
                 }
             }
-            catch (Exception ex)
+
+            return decision.SetupFallback ?? string.Empty;
+        }
+
+        private static string ResolveOptionTextForMenu(EventOption option)
+        {
+            if (option == null)
             {
-                ModLogger.Caught("INTERFACE", $"Error handling decision selection: {decision.Id}", ex);
-                InformationManager.DisplayMessage(new InformationMessage($"Error: {ex.Message}"));
+                return string.Empty;
             }
+
+            if (!string.IsNullOrEmpty(option.TextId))
+            {
+                var optionText = new TextObject($"{{={option.TextId}}}{option.TextFallback}").ToString();
+                if (!string.IsNullOrWhiteSpace(optionText) && !optionText.StartsWith("{="))
+                {
+                    return optionText;
+                }
+            }
+
+            return !string.IsNullOrWhiteSpace(option.TextFallback) ? option.TextFallback : option.Id;
         }
 
         /// <summary>
-        /// Converts a DecisionDefinition to EventDefinition for delivery.
+        /// Converts a DecisionDefinition to an event payload so EventDeliveryManager can resolve
+        /// effects/news without showing a modal popup.
         /// </summary>
-        private static EventDefinition ConvertDecisionToEvent(DecisionDefinition decision)
+        private static EventDefinition ConvertDecisionToEvent(DecisionDefinition decision, DecisionAvailability availability)
         {
             if (decision == null)
             {
@@ -4584,65 +4732,12 @@ namespace Enlisted.Features.Interface.Behaviors
                 Category = decision.Category,
                 Requirements = decision.Requirements,
                 Timing = decision.Timing,
-                Options = decision.Options
+                Options = decision.Options,
+                OriginatingOpportunityId = availability?.CampOpportunity?.Id ??
+                                           availability?.ScheduledOpportunity?.OpportunityId,
+                OriginatingOpportunityType = availability?.CampOpportunity?.Type.ToString() ??
+                                             availability?.ScheduledOpportunity?.SourceOpportunity?.Type.ToString()
             };
-        }
-
-        /// <summary>
-        /// Shows a simple popup for decisions when EventDeliveryManager isn't available.
-        /// </summary>
-        private static void ShowSimpleDecisionPopup(DecisionDefinition decision)
-        {
-            var title = GetDecisionDisplayName(decision);
-            var body = !string.IsNullOrEmpty(decision.SetupId)
-                ? new TextObject($"{{={decision.SetupId}}}").ToString()
-                : "Make your choice.";
-
-            if (body.StartsWith("{="))
-            {
-                body = $"Decision: {title}";
-            }
-
-            var options = new List<InquiryElement>();
-            foreach (var opt in decision.Options)
-            {
-                var optText = !string.IsNullOrEmpty(opt.TextId)
-                    ? new TextObject($"{{={opt.TextId}}}").ToString()
-                    : opt.Id;
-
-                if (optText.StartsWith("{="))
-                {
-                    optText = opt.Id;
-                }
-
-                options.Add(new InquiryElement(opt.Id, optText, null, true, opt.Tooltip));
-            }
-
-            if (options.Count == 0)
-            {
-                options.Add(new InquiryElement("ok", "Acknowledge", null, true, null));
-            }
-
-            var inquiry = new MultiSelectionInquiryData(
-                title,
-                body,
-                options,
-                true,  // isExitShown
-                1,     // minSelectableOptionCount
-                1,     // maxSelectableOptionCount
-                "Confirm",
-                "Cancel",
-                selectedElements =>
-                {
-                    if (selectedElements != null && selectedElements.Count > 0)
-                    {
-                        var selectedId = selectedElements[0].Identifier as string;
-                        InformationManager.DisplayMessage(new InformationMessage($"Selected: {selectedId}"));
-                    }
-                },
-                null);  // negativeAction
-
-            MBInformationManager.ShowMultiSelectionInquiry(inquiry, true);
         }
 
         #endregion
@@ -4702,28 +4797,9 @@ namespace Enlisted.Features.Interface.Behaviors
 
         private void RefreshCampHubActivitySlots()
         {
-            // Use already-cached activities if available and fresh (within 1 game hour).
-            // Otherwise fetch and cache new activities.
-            var decisions = _cachedDecisionsForCurrentMenu;
-            var isFresh = _cachedDecisionsTime.ElapsedHoursUntilNow < 1.0f;
+            var decisions = EnsureCampActivityCache();
 
-            if (decisions == null || decisions.Count == 0 || !isFresh)
-            {
-                decisions = GetCurrentCampActivities();
-
-                // CACHE the activity list - used by click handlers to prevent race condition
-                // where phase changes between render and click cause index mismatch
-                _cachedDecisionsForCurrentMenu = decisions;
-                _cachedDecisionsTime = CampaignTime.Now;
-
-                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities FETCHED and cached");
-            }
-            else
-            {
-                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities from cache");
-            }
-
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < CampActivityMenuPolicy.ActivitySlotCount; i++)
             {
                 var slotText = string.Empty;
                 if (i < decisions.Count)
@@ -4750,6 +4826,27 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
+        private List<DecisionAvailability> EnsureCampActivityCache()
+        {
+            var decisions = _cachedDecisionsForCurrentMenu;
+            var isFresh = _cachedDecisionsTime.ElapsedHoursUntilNow < 1.0f;
+
+            if (decisions == null || decisions.Count == 0 || !isFresh)
+            {
+                decisions = GetCurrentCampActivities();
+                _cachedDecisionsForCurrentMenu = decisions;
+                _cachedDecisionsTime = CampaignTime.Now;
+
+                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities fetched and cached");
+            }
+            else
+            {
+                ModLogger.Debug("INTERFACE", $"RefreshCampHubActivitySlots: {decisions.Count} activities from cache");
+            }
+
+            return decisions ?? new List<DecisionAvailability>();
+        }
+
         /// <summary>
         /// Gets current Camp Hub activities directly from the Orchestrator (no caching).
         /// Shows ALL today's opportunities - available ones are clickable, committed ones are greyed.
@@ -4774,8 +4871,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         $"GetCurrentCampActivities: Orchestrator returned {allTodaysOpps.Count} opportunities for today " +
                         $"(committed={allTodaysOpps.Count(o => o.PlayerCommitted)}, available={allTodaysOpps.Count(o => o.IsAvailableToCommit)})");
 
-                    // Camp Hub has three fixed activity slots.
-                    foreach (var scheduled in allTodaysOpps.Take(3))
+                    foreach (var scheduled in allTodaysOpps.Take(CampActivityMenuPolicy.ActivitySlotCount))
                     {
                         var availability = ConvertScheduledToDecisionAvailability(scheduled, currentPhase);
                         if (availability != null)
@@ -4836,7 +4932,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// This bridges the new Orchestrator scheduling system with the existing menu infrastructure.
         /// </summary>
         /// <param name="scheduled">The scheduled opportunity from the Orchestrator.</param>
-        /// <param name="currentPhase">The current day phase, used to determine if the opportunity is ready to fire.</param>
+        /// <param name="currentPhase">The current day phase, used to determine if the opportunity is ready in Camp.</param>
         private DecisionAvailability ConvertScheduledToDecisionAvailability(ScheduledOpportunity scheduled, DayPhase currentPhase = DayPhase.Dawn)
         {
             if (scheduled?.SourceOpportunity == null)
@@ -4887,14 +4983,13 @@ namespace Enlisted.Features.Interface.Behaviors
 
             if (scheduled.PlayerCommitted)
             {
-                // Player already committed - greyed out, waiting to fire
-                isAvailable = false;
-                if (isCurrentPhase)
+                if (isCurrentPhase || isPastPhase)
                 {
-                    unavailableReason = "[FIRING NOW]";
+                    decision.TitleFallback = $"{decision.TitleFallback ?? decision.TitleId} (Ready)";
                 }
                 else
                 {
+                    isAvailable = false;
                     unavailableReason = $"[SCHEDULED - {scheduled.Phase}]";
                 }
             }
@@ -5014,33 +5109,32 @@ namespace Enlisted.Features.Interface.Behaviors
 
                 ModLogger.Info("INTERFACE", $"Processing camp activity from slot {slotIndex}: {availability.Decision.Id}");
 
-                // Check if this is a scheduled opportunity with commitment model
+                // Check if this is a scheduled opportunity with commitment model.
                 var scheduled = availability.ScheduledOpportunity;
                 var currentPhase = WorldStateAnalyzer.GetCurrentDayPhase();
 
                 if (scheduled != null)
                 {
-                    // Already committed - shouldn't be clickable, but handle gracefully
-                    if (scheduled.PlayerCommitted)
+                    bool isCurrentPhase = scheduled.Phase == currentPhase;
+                    bool isFuturePhase = IsPhaseFuture(scheduled.Phase, currentPhase);
+                    bool isPastPhase = !isCurrentPhase && !isFuturePhase;
+
+                    // Already committed future work stays disabled until its phase arrives.
+                    if (scheduled.PlayerCommitted && isFuturePhase)
                     {
                         ModLogger.Debug("INTERFACE", $"Opportunity {scheduled.OpportunityId} already committed, ignoring click");
                         return;
                     }
 
-                    bool isCurrentPhase = scheduled.Phase == currentPhase;
-                    bool isFuturePhase = IsPhaseFuture(scheduled.Phase, currentPhase);
-                    bool isPastPhase = !isCurrentPhase && !isFuturePhase;
-
                     if (!isCurrentPhase && isFuturePhase)
                     {
                         // FUTURE PHASE: Commit to this opportunity (schedule it)
-                        // It will fire automatically when that phase arrives
                         var committed = ContentOrchestrator.Instance?.CommitToOpportunity(scheduled.OpportunityId) ?? false;
 
                         if (committed)
                         {
                             ModLogger.Info("INTERFACE",
-                                $"✓ Player committed to {scheduled.OpportunityId} (will fire at {scheduled.Phase})");
+                                $"✓ Player committed to {scheduled.OpportunityId} (ready in Camp activities at {scheduled.Phase})");
 
                             // Show confirmation to player
                             var phaseName = scheduled.Phase.ToString();
@@ -5056,6 +5150,8 @@ namespace Enlisted.Features.Interface.Behaviors
 
                         // Refresh menu to show greyed-out state
                         ModLogger.Info("INTERFACE", $"Refreshing menu after commitment...");
+                        _cachedDecisionsForCurrentMenu = new List<DecisionAvailability>();
+                        _cachedDecisionsTime = CampaignTime.Zero;
                         RefreshCampHubActivitySlots();
                         var menuContext = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
                         if (Campaign.Current != null && menuContext?.GameMenu != null)
@@ -5078,31 +5174,20 @@ namespace Enlisted.Features.Interface.Behaviors
                             $"Past-phase opportunity clicked: {scheduled.OpportunityId} (was for {scheduled.Phase}, now {currentPhase}) - firing immediately");
                     }
 
-                    // CURRENT OR PAST PHASE: Fire immediately
-                    // Mark as consumed so it disappears
-                    ContentOrchestrator.Instance?.ConsumeOpportunity(scheduled.OpportunityId);
-                }
-                else if (availability.CampOpportunity != null)
-                {
-                    // Non-scheduled opportunity (e.g., baggage access) - consume immediately
-                    ContentOrchestrator.Instance?.ConsumeOpportunity(availability.CampOpportunity.Id);
-                }
-                else
-                {
-                    // Fallback: Try to consume by decision ID
-                    ContentOrchestrator.Instance?.ConsumeOpportunityByDecisionId(availability.Decision.Id);
+                    // Current or past phase: open the native detail menu. The opportunity is consumed
+                    // only after the player picks a non-cancel option.
                 }
 
-                // IMMEDIATE MENU REFRESH: Refresh slots NOW so consumed decision disappears
-                RefreshCampHubActivitySlots();
-                var ctx = args?.MenuContext ?? Campaign.Current?.CurrentMenuContext;
-                if (Campaign.Current != null && ctx?.GameMenu != null)
+                if (availability.Decision.Id.Equals("dec_baggage_access", StringComparison.OrdinalIgnoreCase))
                 {
-                    Campaign.Current.GameMenuManager.RefreshMenuOptions(ctx);
+                    OnBaggageTrainSelected(null);
+                    return;
                 }
 
-                // Fire the activity event.
-                OnDecisionSelected(availability.Decision);
+                _activeCampActivityAvailability = availability;
+                _activeCampActivityDecision = availability.Decision;
+                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                GameMenu.SwitchToMenu(CampActivityDetailMenuId);
             }
             catch (Exception ex)
             {
@@ -5111,60 +5196,94 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
-        /// <summary>
-        /// Shows a read-only details dialog for the currently active named order.
-        /// The outer accordion row is gated on an active order, so this method is
-        /// only reachable when a named order is in flight; the internal null guard
-        /// is defensive against races between row render and click handler.
-        /// Named orders run to completion via the storylet arc — there is no
-        /// accept/decline surface in the new model.
-        /// </summary>
-        private void ShowOrdersMenu()
+        private bool IsCampActivityOptionAvailable(MenuCallbackArgs args, int optionIndex)
+        {
+            var decision = _activeCampActivityDecision;
+            if (decision?.Options == null || optionIndex >= decision.Options.Count)
+            {
+                return false;
+            }
+
+            var option = decision.Options[optionIndex];
+            MBTextManager.SetTextVariable($"CAMP_ACTIVITY_OPTION_{optionIndex}_TEXT", ResolveOptionTextForMenu(option));
+
+            args.optionLeaveType = CampActivityMenuPolicy.IsCancelOptionId(option.Id)
+                ? GameMenuOption.LeaveType.Leave
+                : GameMenuOption.LeaveType.Continue;
+            args.IsEnabled = EventDeliveryManager.Instance?.CanSelectOption(option) ?? true;
+            args.Tooltip = new TextObject(EventDeliveryManager.Instance?.GetOptionHintForMenu(option) ??
+                                          EventDeliveryManager.GenerateDynamicTooltip(option));
+            return true;
+        }
+
+        private void OnCampActivityOptionSelected(MenuCallbackArgs args, int optionIndex)
         {
             try
             {
-                var display = OrderDisplayHelper.GetCurrent();
-                if (display == null)
+                var decision = _activeCampActivityDecision;
+                if (decision?.Options == null || optionIndex >= decision.Options.Count)
                 {
+                    ModLogger.Warn("INTERFACE", $"Camp activity option {optionIndex} out of range");
                     return;
                 }
 
-                var sb = new StringBuilder();
-                _ = sb.AppendLine(display.Title);
+                var option = decision.Options[optionIndex];
+                var isCancel = CampActivityMenuPolicy.IsCancelOptionId(option.Id);
+                var availability = _activeCampActivityAvailability;
+                var eventDef = ConvertDecisionToEvent(decision, availability);
 
-                if (!string.IsNullOrEmpty(display.Intent))
+                var deliveryManager = EventDeliveryManager.Instance;
+                var resolved = isCancel;
+                if (deliveryManager != null && eventDef != null)
                 {
-                    _ = sb.AppendLine();
-                    _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_intent}Intent: {INTENT}")
-                        .SetTextVariable("INTENT", display.Intent).ToString());
+                    resolved = deliveryManager.ResolveInlineEventOption(eventDef, option);
+                }
+                else if (!isCancel)
+                {
+                    ModLogger.Surfaced("INTERFACE", "Unable to resolve camp activity option", null);
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=enlisted_camp_activity_resolve_failed}Unable to resolve activity.").ToString(),
+                        Colors.Red));
                 }
 
-                if (display.HoursTotal > 0)
+                if (!isCancel && resolved)
                 {
-                    _ = sb.AppendLine();
-                    _ = sb.AppendLine(new TextObject("{=enlisted_orders_details_progress}Progress: {ELAPSED} of {TOTAL} hours")
-                        .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
-                        .SetTextVariable("TOTAL", display.HoursTotal.ToString()).ToString());
+                    ConsumeCampActivity(availability, decision.Id);
                 }
 
-                var title = new TextObject("{=enlisted_orders_details_title}Order Details").ToString();
-                var closeText = new TextObject("{=enlisted_orders_details_close}Close").ToString();
-
-                InformationManager.ShowInquiry(new InquiryData(
-                    titleText: title,
-                    text: sb.ToString(),
-                    isAffirmativeOptionShown: true,
-                    isNegativeOptionShown: false,
-                    affirmativeText: closeText,
-                    negativeText: null,
-                    affirmativeAction: null,
-                    negativeAction: null
-                ), true);
+                ClearActiveCampActivity();
+                _cachedDecisionsForCurrentMenu = new List<DecisionAvailability>();
+                _cachedDecisionsTime = CampaignTime.Zero;
+                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                GameMenu.SwitchToMenu(CampActivitiesMenuId);
             }
             catch (Exception ex)
             {
-                ModLogger.Surfaced("INTERFACE", "Error showing orders menu", ex);
+                ModLogger.Surfaced("INTERFACE", "Failed to resolve camp activity option", ex,
+                    ctx: LogCtx.Of("OptionIndex", optionIndex));
             }
+        }
+
+        private static void ConsumeCampActivity(DecisionAvailability availability, string decisionId)
+        {
+            if (availability?.ScheduledOpportunity != null)
+            {
+                ContentOrchestrator.Instance?.ConsumeOpportunity(availability.ScheduledOpportunity.OpportunityId);
+            }
+            else if (availability?.CampOpportunity != null)
+            {
+                ContentOrchestrator.Instance?.ConsumeOpportunity(availability.CampOpportunity.Id);
+            }
+            else if (!string.IsNullOrEmpty(decisionId))
+            {
+                ContentOrchestrator.Instance?.ConsumeOpportunityByDecisionId(decisionId);
+            }
+        }
+
+        private void ClearActiveCampActivity()
+        {
+            _activeCampActivityAvailability = null;
+            _activeCampActivityDecision = null;
         }
 
         #endregion

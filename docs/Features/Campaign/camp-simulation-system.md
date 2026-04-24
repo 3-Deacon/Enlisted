@@ -86,11 +86,11 @@ Daily Tick (6am)
                      ↓
          _scheduledOpportunities[phase] = LOCKED
                      ↓
-         Daily Brief shows hints:
+         Status news shows hints:
          Camp Rumors: "Torgan mentioned a card game tonight." (lavender)
          Your Status: "Your condition needs attention." (default)
                      ↓
-         Player opens DECISIONS menu
+         Player opens Camp -> Available Activities
                      ↓
          Shows LOCKED opportunities for current phase
          (persist until consumed or phase ends)

@@ -54,12 +54,12 @@ The unit's experience is now strategically aware. Your orders and events reflect
 - Doc: **[Core Gameplay](core-gameplay.md)** (Strategic Context section)
 
 ### 6) Monitor Company Status
-The unit's effectiveness is tracked via four core needs: Readiness, Morale, Supplies, and Rest. The **Company Status Report** provides immersive descriptions of each need with contextual explanations.
+The unit's effectiveness is tracked through company needs such as Readiness and Supplies. Enlisted Status and Camp summaries provide immersive descriptions with contextual explanations.
 - Doc: **[News & Reporting System](../UI/news-reporting-system.md)** (Company Status section)
 
-### 7) Read the Daily Brief
-Each day, the **Daily Brief** summarizes your company's situation, casualties, supply status, recent events, and kingdom news in immersive narrative form.
-- Doc: **[News & Reporting System](../UI/news-reporting-system.md)** (Daily Brief section)
+### 7) Read Status And Camp Dispatches
+Enlisted Status and Camp summarize your company's situation, casualties, supply status, recent outcomes, and kingdom news in immersive narrative form.
+- Doc: **[News & Reporting System](../UI/news-reporting-system.md)** (routing and menu consumers)
 
 ### 8) Visit the Quartermaster
 The Quartermaster is your primary contact for gear and provisions. Access is gated by your reputation and the unit's supply levels.

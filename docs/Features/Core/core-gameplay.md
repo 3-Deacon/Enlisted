@@ -122,18 +122,20 @@ Reputation with your lord is tracked using native Bannerlord's relation system (
 ## Native Game Menu (Interface)
 
 All interactions occur through the **Enlisted Status** menu hub:
--   **Enlisted Status**: View rank, active orders, and immersive narrative reports (Kingdom Reports, Company Reports, Player Status).
--   **Camp Hub**: Access Service Records, Quartermaster, and Personal Retinue management.
--   **Camp Activities**: Handle pending camp opportunities, personal commitments, and medical care from the Camp Hub.
+-   **Enlisted Status**: View rank, active orders, and the current campaign/company narrative.
+-   **Order Details**: Active orders open as a native submenu from the Orders row, not a popup.
+-   **Camp**: Access available activities, service records, companions, retinue management, quartermaster access, and lord conversation.
+-   **Available Activities**: Handle camp opportunities, personal commitments, logistics, and medical care from the Camp menu.
 
-### Daily Brief & Company Reports
-The main **Enlisted Status** menu displays three narrative sections:
+### Status & Camp Reports
+The main **Enlisted Status** menu is the fast-read surface for active orders and
+the current strategic/company situation. The **Camp** menu owns detailed service
+surfaces: available activities, service records, companions, retinue, equipment,
+and recent personal outcomes.
 
-1. **Kingdom Reports** - Macro-level: realm politics, wars, recent battles
-2. **Company Reports** - Local: camp atmosphere, troop status, supplies, baggage train, lord's situation
-3. **Player Status** - Personal: duty status, health, fatigue, notable conditions
-
-The **Camp Hub** provides a detailed "COMPANY STATUS" summary with troop composition, needs analysis, recent activity, and upcoming events.
+Routine camp activities resolve inside native menu submenus and write outcomes
+to the news/recent-activity system. They do not open modal event popups unless a
+separate story system explicitly routes a blocking narrative event.
 
 All reports use immersive narrative style with world-state-aware generation (activity levels, lord situation, campaign context).
 
@@ -150,7 +152,7 @@ The company's effectiveness is tracked via two core needs:
 **Note:** Company Rest was removed (2026-01-11) as redundant with the Player Fatigue system (0-24 budget). Player fatigue still gates camp decisions and has health penalties - only the company-wide Rest metric was removed.
 
 ### Status Reporting
-Company Needs are displayed in the **Reports → Company Status** menu with immersive, context-aware descriptions that explain what's affecting each stat:
+Company Needs are displayed through Enlisted Status and Camp summaries with immersive, context-aware descriptions that explain what's affecting each stat:
 - **Descriptive states** instead of raw percentages (e.g., "The company is battle-ready, formations tight and weapons sharp" vs "85%")
 - **Contextual factors** explaining why stats are changing (long marches draining rest, supply shortages affecting readiness)
 - **5 severity levels** per need: Excellent → Good → Fair → Poor → Critical

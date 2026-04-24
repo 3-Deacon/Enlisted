@@ -1,69 +1,34 @@
 # Decisions/
 
-Player-initiated actions from the Camp Hub menu.
+Decision JSON backs player-invoked camp activity choices. These are loaded by
+`EventCatalog`, indexed by `DecisionCatalog`, and surfaced through the native
+Camp menu.
 
-**Spec:** `docs/Content/content-index.md` §Decisions
+## Current Flow
 
----
+1. Player opens `Enlisted Status`.
+2. Player opens `Camp`.
+3. Player opens `Available Activities`.
+4. A scheduled/logistics activity opens a native activity detail menu.
+5. The selected option resolves inline through `EventDeliveryManager` so effects,
+   cooldowns, and news outcomes stay shared with event delivery.
 
-## How It Works
+Routine camp decisions should not queue modal popups. Reserve modal delivery for
+true blocking story events routed through `StoryDirector`.
 
-**Delivery Method:** Player-initiated from Camp Hub menu  
-**Trigger:** Player presses 'C' → navigates to category → selects action  
-**System:** Loaded by `EventCatalog` → filtered by `DecisionCatalog` → displayed in Camp Hub menu
+## Files
 
-**Decision Flow:**
-```
-1. Player opens Camp Hub (C key)
-2. Navigates to category (Training, Social, Economic, etc.)
-3. Sees available decisions (filtered by tier, cooldown, requirements)
-4. Selects decision → sees setup text → chooses option → gets result
-5. Cooldown applied, effects processed
-```
+| File | Purpose |
+| --- | --- |
+| `camp_opportunities.json` | Scheduled camp opportunities and their target decision IDs. |
+| `camp_decisions.json` | Training, social, rest, logistics, and camp-life decisions. |
+| `decisions.json` | General player-initiated decisions still used by camp/opportunity routing. |
+| `medical_decisions.json` | Medical and recovery choices shown as camp activities when eligible. |
 
-**Recognition:** Decisions use `dec_` ID prefix (e.g., `dec_rest`, `dec_spar`)
+## Authoring Rules
 
----
-
-## File
-
-| File | Content | Count |
-|------|---------|-------|
-| `decisions.json` | All player decisions | 34 |
-
-## Categories
-
-| Category | Count | Decisions |
-|----------|-------|-----------|
-| Self-Care | 3 | Rest, Extended Rest, Seek Treatment |
-| Training | 9 | Weapon Drill, Spar, Endurance, Study Tactics, Practice Medicine, Train Troops, Combat Drill, Weapon Specialization, Lead Drill |
-| Social | 6 | Join the Men, Join Drinking, Seek Officers, Keep to Self, Write Letter, Confront Rival |
-| Economic | 5 | Gamble Low, Gamble High, Side Work, Shady Deal, Visit Market |
-| Career | 3 | Request Audience, Volunteer for Duty, Request Leave |
-| Information | 3 | Listen to Rumors, Scout Area, Check Supplies |
-| Equipment | 2 | Maintain Gear, Visit Quartermaster |
-| Risk-Taking | 3 | Dangerous Wager, Prove Courage, Challenge |
-
-## Not in This Folder
-
-The following are **triggered events** (game-initiated based on conditions), not Camp Hub decisions. They remain in `Events/`:
-
-### Automatic Decision Events (`events_decisions.json`)
-**Delivery:** Game triggers as popup inquiry based on conditions  
-**Examples:** Lord's hunt invitation, training offers from NCO, quartermaster deals  
-**Recognition:** `decision_*` prefix
-
-### Player-Initiated Event Popups (`events_player_decisions.json`)
-**Delivery:** Player initiates from menu, but delivered as popup inquiry  
-**Examples:** Organize dice game, request extra training, visit wounded  
-**Recognition:** `player_*` prefix  
-**Difference from Camp Hub decisions:** These open as popup dialogs rather than inline menu selections
-
-## Summary
-
-| Type | File | Prefix | Delivery | Player Control |
-|------|------|--------|----------|----------------|
-| **Camp Hub Decisions** | `Decisions/decisions.json` | `dec_` | Inline menu selection | Full (when to trigger) |
-| **Player-Initiated Event Popups** | `Events/events_player_decisions.json` | `player_` | Popup inquiry | Full (when to trigger) |
-| **Automatic Decision Events** | `Events/events_decisions.json` | `decision_` | Popup inquiry | Partial (only response) |
-
+- Use `dec_` IDs for player-initiated camp decisions.
+- Keep fallback text immediately after each localization ID.
+- Add tooltips to every option.
+- Use cancel-like option IDs (`cancel`, `not_now`, `back`, `decline`, etc.) for
+  choices that should not commit a decision cooldown.

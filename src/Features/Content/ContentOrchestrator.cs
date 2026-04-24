@@ -41,7 +41,7 @@ namespace Enlisted.Features.Content
 
         /// <summary>
         /// True if player has committed to this opportunity (clicked to schedule).
-        /// Committed opportunities are greyed out in menu and will fire when their phase arrives.
+        /// Committed opportunities stay in the Camp menu and become selectable when their phase arrives.
         /// </summary>
         public bool PlayerCommitted { get; set; }
 
@@ -57,7 +57,7 @@ namespace Enlisted.Features.Content
         public bool IsAvailableToCommit => !Consumed && !PlayerCommitted;
 
         /// <summary>
-        /// Returns true if this opportunity is waiting to fire (committed but not consumed).
+        /// Returns true if this opportunity is committed and ready for the player to resolve.
         /// </summary>
         public bool IsScheduledToFire => PlayerCommitted && !Consumed;
     }
@@ -67,7 +67,7 @@ namespace Enlisted.Features.Content
     /// Analyzes world state and provides activity levels to OrderProgressionBehavior.
     /// Generates forecasts for UI and updates camp opportunities for player decisions.
     /// Does NOT fire automatic events - content delivery happens through order events (during duty) 
-    /// and player-initiated camp decisions (DECISIONS menu).
+    /// and player-initiated camp decisions (Camp activities menu).
     /// </summary>
     public class ContentOrchestrator : CampaignBehaviorBase
     {
@@ -211,7 +211,7 @@ namespace Enlisted.Features.Content
             var previousPhase = GetPreviousPhase(newPhase);
             CleanupMissedOpportunities(previousPhase);
 
-            // Fire committed opportunities for the new phase
+            // Mark committed opportunities as ready for the Camp menu.
             FireCommittedOpportunities(newPhase);
 
             // Notify camp life systems to refresh for new phase
@@ -234,7 +234,7 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Fires all committed opportunities for the given phase.
+        /// Surfaces committed opportunities for the given phase.
         /// Called when a phase boundary is crossed.
         /// </summary>
         private void FireCommittedOpportunities(DayPhase phase)
@@ -243,82 +243,14 @@ namespace Enlisted.Features.Content
 
             foreach (var opp in toFire)
             {
-                try
-                {
-                    ModLogger.Info(LogCategory, $"⚡ Auto-firing committed opportunity: {opp.OpportunityId}");
-
-                    // Mark as consumed
-                    opp.Consumed = true;
-
-                    // Fire the decision event
-                    if (!string.IsNullOrEmpty(opp.TargetDecisionId))
-                    {
-                        var decision = DecisionCatalog.GetDecision(opp.TargetDecisionId);
-                        if (decision != null)
-                        {
-                            // Convert to event and queue for delivery
-                            var eventDef = new EventDefinition
-                            {
-                                Id = decision.Id,
-                                TitleId = decision.TitleId,
-                                TitleFallback = decision.TitleFallback,
-                                SetupId = decision.SetupId,
-                                SetupFallback = decision.SetupFallback,
-                                Category = decision.Category,
-                                Requirements = decision.Requirements,
-                                Timing = decision.Timing,
-                                Options = decision.Options
-                            };
-                            var director = StoryDirector.Instance;
-                            if (director != null)
-                            {
-                                director.EmitCandidate(new StoryCandidate
-                                {
-                                    SourceId = "content.committed_opportunity." + (opp.SourceOpportunity?.Type.ToString() ?? "unknown"),
-                                    CategoryId = "opportunity." + (opp.SourceOpportunity?.Type.ToString() ?? "unknown"),
-                                    ProposedTier = StoryTier.Modal,
-                                    SeverityHint = 0.5f,
-                                    Beats = { StoryBeat.OrderPhaseTransition },
-                                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-                                    EmittedAt = CampaignTime.Now,
-                                    InteractiveEvent = eventDef,
-                                    RenderedTitle = eventDef.TitleFallback,
-                                    RenderedBody = eventDef.SetupFallback,
-                                    StoryKey = eventDef.Id
-                                });
-                            }
-                            else
-                            {
-                                EventDeliveryManager.Instance?.QueueEvent(eventDef);
-                            }
-                            ModLogger.Info(LogCategory, $"  ✓ Queued decision event: {opp.TargetDecisionId}");
-                        }
-                        else
-                        {
-                            ModLogger.Warn(LogCategory, $"  Decision not found: {opp.TargetDecisionId}");
-                        }
-                    }
-                    else
-                    {
-                        ModLogger.Warn(LogCategory, $"  No target decision for: {opp.OpportunityId}");
-                    }
-
-                    // Record engagement
-                    if (opp.SourceOpportunity != null)
-                    {
-                        CampOpportunityGenerator.Instance?.RecordEngagement(
-                            opp.OpportunityId, opp.SourceOpportunity.Type);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModLogger.Caught("ORCHESTRATOR", $"Failed to fire opportunity {opp.OpportunityId}", ex);
-                }
+                ModLogger.Info(LogCategory,
+                    $"Committed opportunity ready in Camp activities: {opp.OpportunityId}");
             }
 
             if (toFire.Count > 0)
             {
-                ModLogger.Info(LogCategory, $"Phase {phase}: Fired {toFire.Count} committed opportunities");
+                ModLogger.Info(LogCategory,
+                    $"Phase {phase}: {toFire.Count} committed opportunities ready in Camp activities");
             }
         }
 
@@ -1368,8 +1300,8 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Player commits to an opportunity (schedules it to fire at its designated phase).
-        /// The opportunity will grey out in the menu and fire automatically when its phase arrives.
+        /// Player commits to an opportunity at its designated phase.
+        /// The opportunity greys out until that phase, then becomes selectable in Camp activities.
         /// </summary>
         /// <returns>True if successfully committed, false if not found or already committed/consumed.</returns>
         public bool CommitToOpportunity(string opportunityId)
@@ -1406,7 +1338,7 @@ namespace Enlisted.Features.Content
 
                     opp.PlayerCommitted = true;
                     ModLogger.Info(LogCategory,
-                        $"✓ Player committed to: {opportunityId} (will fire at {phaseEntry.Key})");
+                        $"✓ Player committed to: {opportunityId} (ready in Camp activities at {phaseEntry.Key})");
                     return true;
                 }
             }
@@ -1433,7 +1365,7 @@ namespace Enlisted.Features.Content
 
                         opp.PlayerCommitted = true;
                         ModLogger.Info(LogCategory,
-                            $"✓ Player committed to: {opportunityId} (will fire tomorrow at {phaseEntry.Key})");
+                            $"✓ Player committed to: {opportunityId} (ready in Camp activities tomorrow at {phaseEntry.Key})");
                         return true;
                     }
                 }
@@ -1494,9 +1426,9 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Fires all committed opportunities for the current phase.
+        /// Finds all committed opportunities for the current phase.
         /// Called when a phase boundary is crossed.
-        /// Returns the opportunities that should fire now.
+        /// Returns the opportunities that should become selectable in Camp activities.
         /// </summary>
         public List<ScheduledOpportunity> GetOpportunitiesToFireNow()
         {
@@ -1517,7 +1449,7 @@ namespace Enlisted.Features.Content
                 if (toFire.Count > 0)
                 {
                     ModLogger.Info(LogCategory,
-                        $"Phase {currentPhase}: {toFire.Count} committed opportunities ready to fire: " +
+                        $"Phase {currentPhase}: {toFire.Count} committed opportunities ready in Camp activities: " +
                         $"[{string.Join(", ", toFire.Select(o => o.OpportunityId))}]");
                 }
             }

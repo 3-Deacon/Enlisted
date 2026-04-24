@@ -662,8 +662,8 @@ namespace Enlisted.Features.Retinue.Systems
             // Record veteran death in news feed for Personal Feed display
             EnlistedNewsBehavior.Instance?.AddVeteranDeath(veteran.Name, veteran.BattlesSurvived, veteran.Kills);
 
-            // Memorial as accordion entry — flavor, not crisis. Route through Director as
-            // Pertinent (no InteractiveEvent) so the Headlines drilldown picks it up.
+            // Memorial as feed entry: flavor, not crisis. Route through Director as
+            // Pertinent (no InteractiveEvent) so status/Camp news surfaces pick it up.
             var evt = EventCatalog.GetEvent("evt_ret_veteran_memorial");
             if (evt == null)
             {

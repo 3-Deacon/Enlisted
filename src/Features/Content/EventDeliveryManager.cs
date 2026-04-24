@@ -10,6 +10,7 @@ using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
 using Enlisted.Features.Interface.Behaviors;
+using Enlisted.Features.Interface.Models;
 using Enlisted.Features.Logistics;
 using Enlisted.Features.Ranks;
 using Enlisted.Features.Ranks.Behaviors;
@@ -116,6 +117,49 @@ namespace Enlisted.Features.Content
             {
                 TryDeliverNextEvent();
             }
+        }
+
+        /// <summary>
+        /// Resolves a selected event option without showing the modal event popup.
+        /// Used by native menu surfaces that already displayed the choice.
+        /// </summary>
+        public bool ResolveInlineEventOption(EventDefinition evt, EventOption option)
+        {
+            if (evt == null)
+            {
+                ModLogger.Expected(LogCategory, "inline_event_null", "Attempted to resolve null inline event");
+                return false;
+            }
+
+            if (option == null)
+            {
+                ModLogger.Expected(LogCategory, "inline_option_null", "Attempted to resolve null inline option");
+                return false;
+            }
+
+            try
+            {
+                _currentEvent = evt;
+                _isShowingEvent = true;
+                ResolveSelectedOption(option);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("EVENTDELIVERY", "Error resolving inline event option", ex);
+                OnEventClosed();
+                return false;
+            }
+        }
+
+        public bool CanSelectOption(EventOption option)
+        {
+            return option != null && MeetsRequirements(option.Requirements, Hero.MainHero);
+        }
+
+        public string GetOptionHintForMenu(EventOption option)
+        {
+            return option == null ? string.Empty : GetOptionHint(option, Hero.MainHero);
         }
 
         /// <summary>
@@ -426,6 +470,11 @@ namespace Enlisted.Features.Content
                 return;
             }
 
+            ResolveSelectedOption(option);
+        }
+
+        private void ResolveSelectedOption(EventOption option)
+        {
             ModLogger.Info(LogCategory, $"Option selected: {option.Id}");
 
             // Record cooldown for player-initiated decisions ONLY if they commit to an action
@@ -433,12 +482,7 @@ namespace Enlisted.Features.Content
             if (_currentEvent != null && _currentEvent.Category != null &&
                 _currentEvent.Category.Equals("decision", StringComparison.OrdinalIgnoreCase))
             {
-                // Check if this is a cancel option (common patterns: cancel, nevermind, not_now, decline, skip, back)
-                var isCancelOption = option.Id.IndexOf("cancel", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     option.Id.IndexOf("nevermind", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     option.Id.IndexOf("not_now", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     option.Id.IndexOf("skip", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                     option.Id.IndexOf("back", StringComparison.OrdinalIgnoreCase) >= 0;
+                var isCancelOption = CampActivityMenuPolicy.IsCancelOptionId(option.Id);
 
                 if (!isCancelOption)
                 {
