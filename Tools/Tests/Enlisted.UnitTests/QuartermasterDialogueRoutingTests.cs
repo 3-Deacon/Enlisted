@@ -29,6 +29,16 @@ public sealed class QuartermasterDialogueRoutingTests
         Assert.Contains("public List<EquipmentVariantOption> GetAccessoryVariantsForBrowsing()", quartermasterManager, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void QuartermasterEquipmentGridBindingsHaveViewModelProperties()
+    {
+        var equipmentSelectorVm = ReadRepoFile("src", "Features", "Equipment", "UI", "QuartermasterEquipmentSelectorVM.cs");
+
+        Assert.Contains("public string HeaderText { get; private set; }", equipmentSelectorVm, StringComparison.Ordinal);
+        Assert.Contains("public string CurrentEquipmentText { get; private set; }", equipmentSelectorVm, StringComparison.Ordinal);
+        Assert.Contains("public string PlayerGoldText { get; private set; }", equipmentSelectorVm, StringComparison.Ordinal);
+    }
+
     private static string ReadRepoFile(params string[] relativeParts)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);

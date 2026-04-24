@@ -23,6 +23,14 @@ namespace Enlisted.Features.Equipment.UI
         [DataSourceProperty]
         public MBBindingList<QuartermasterEquipmentRowVm> EquipmentRows { get; }
 
+        [DataSourceProperty]
+        public string HeaderText { get; private set; }
+
+        [DataSourceProperty]
+        public string CurrentEquipmentText { get; private set; }
+
+        [DataSourceProperty]
+        public string PlayerGoldText { get; private set; }
 
         // CharacterViewModel for displaying character preview with equipment (set only during construction)
         [DataSourceProperty]
@@ -39,8 +47,10 @@ namespace Enlisted.Features.Equipment.UI
                 throw new ArgumentNullException(nameof(availableVariants));
             }
             _ = targetSlot;
-            // Discard equipmentType - kept for API compatibility and future use (e.g. header customization)
-            _ = equipmentType;
+
+            HeaderText = GetHeaderText(equipmentType);
+            CurrentEquipmentText = "Your Current Equipment";
+            PlayerGoldText = GetPlayerGoldText(Hero.MainHero);
 
             // Organize equipment items into rows with 4 cards per row for grid display
             EquipmentRows = new MBBindingList<QuartermasterEquipmentRowVm>();
@@ -97,6 +107,7 @@ namespace Enlisted.Features.Equipment.UI
                 // Recalculate ALL variant states based on current gold/equipment.
                 // This ensures buttons enable/disable correctly after purchases.
                 RecalculateAllVariantStates(hero);
+                PlayerGoldText = GetPlayerGoldText(hero);
 
                 // Refresh the character model to show updated equipment
                 RefreshCharacterModel(hero);
@@ -109,6 +120,10 @@ namespace Enlisted.Features.Equipment.UI
                         card.RefreshValues();
                     }
                 }
+
+                OnPropertyChanged(nameof(HeaderText));
+                OnPropertyChanged(nameof(CurrentEquipmentText));
+                OnPropertyChanged(nameof(PlayerGoldText));
             }
             catch (Exception ex)
             {
@@ -162,8 +177,7 @@ namespace Enlisted.Features.Equipment.UI
                         variant.IsAtLimit = false;
 
                         // Update IsCurrent based on what's actually equipped now (slot-based).
-                        var currentItemForSlot = hero.BattleEquipment[variant.Slot].Item;
-                        variant.IsCurrent = variant.Item == currentItemForSlot;
+                        variant.IsCurrent = IsEquipped(hero, variant.Item, variant.Slot);
 
                         // Purchase affordability.
                         variant.CanAfford = hero.Gold >= variant.Cost;
@@ -211,6 +225,47 @@ namespace Enlisted.Features.Equipment.UI
             {
                 ModLogger.Caught("QUARTERMASTERUI", "Error applying selected equipment", ex);
             }
+        }
+
+        private static string GetHeaderText(string equipmentType)
+        {
+            return equipmentType switch
+            {
+                "weapons" => "Quartermaster Weapons",
+                "armor" => "Quartermaster Armor",
+                "accessories" => "Quartermaster Accessories",
+                "mounts" => "Quartermaster Mounts",
+                "harness" => "Quartermaster Harness",
+                _ => "Quartermaster Equipment"
+            };
+        }
+
+        private static string GetPlayerGoldText(Hero hero)
+        {
+            return hero != null ? $"Your Gold: {hero.Gold} denars" : "Gold unavailable";
+        }
+
+        private static bool IsEquipped(Hero hero, ItemObject item, EquipmentIndex slot)
+        {
+            if (hero == null || item == null)
+            {
+                return false;
+            }
+
+            if (slot >= EquipmentIndex.Weapon0 && slot <= EquipmentIndex.Weapon3)
+            {
+                for (var weaponSlot = EquipmentIndex.Weapon0; weaponSlot <= EquipmentIndex.Weapon3; weaponSlot++)
+                {
+                    if (hero.BattleEquipment[weaponSlot].Item == item)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            return hero.BattleEquipment[slot].Item == item;
         }
 
         /// <summary>
