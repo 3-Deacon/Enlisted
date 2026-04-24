@@ -1,6 +1,6 @@
 # Career Loop Closure Implementation Plan (Plan 5 of 5)
 
-> **Status:** 🟡 **Half A partial** — Tasks T1-T9 shipped locally on `development` 2026-04-22 (commits `4f66604` → `e35f445`, 10 commits; not yet pushed to origin). T8 was verified no-op (`prior_service_*` flags already emitted at `EnlistmentLifecycleListener.cs:100-101`). Pending: T10 (in-game smoke — human operator). Half B (T11-T22) has not been started; prerequisites remain met (Plan 4 Phase F shipped 2026-04-22). See the Shipped Status Appendix at the bottom of this file for per-commit detail.
+> **Status:** 🟡 **Code-level complete, human smoke pending** — Plan 5 shipped on `development` 2026-04-22. Half A (`4f66604` → `e35f445`) added the path-crossroads system, `commit_path` / `resist_path`, T7+ committed-path variants, and Phase 15 enforcement. Half B then shipped culture overlays, lord-trait storylets, debug hotkeys, the verification doc, and the playtest runbook through `2b3fb2e`, with later docs/status closure pushed to `origin/development`. Remaining work is human-operated smoke: T10, T17, and T19-T21 as tracked in [`2026-04-21-career-loop-verification.md`](2026-04-21-career-loop-verification.md) and [`2026-04-21-career-loop-playtest-scenarios.md`](2026-04-21-career-loop-playtest-scenarios.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,10 +8,10 @@
 
 **Half A / Half B split:**
 
-- **Half A (Path crossroads system)** — Phases A-F, Tasks T1-T10. Independent of Plan 1 snapshot; fires on existing `PathScorer` + `EnlistmentBehavior.OnTierChanged` events that already exist. **Parallelizable with Plans 2/3/4 after Plan 1 ships.** Does not need to wait for any downstream plan.
-- **Half B (Polish + integration closure)** — Phases G-L, Tasks T11-T22. Culture/trait overlays operate on content authored in Plan 4. **Plan 4 Phase F shipped 2026-04-22 — Half B is unblocked.** Debug hotkeys, save-load test, playtest scenarios, and verification doc do not require Plan 4 content but follow after it to test the full loop.
+- **Half A (Path crossroads system)** — Phases A-F, Tasks T1-T10. Code shipped; T10 in-game smoke remains pending human operator.
+- **Half B (Polish + integration closure)** — Phases G-L, Tasks T11-T22. Code/docs shipped; T17 and T19-T21 human playtest verification remains pending.
 
-**Goal:** Close the career arc — give players a meaningful T4/T6/T9 crossroads moment where their skill-gain pattern commits them to a path (or they resist and earn the flag), author T7+ named-order variants that reflect committed-path character, overlay culture/trait variants on hot-path storylets, ship debug hotkeys for Spec 2+ inspection, verify save-load reconstructs the full loop, run final playtest scenarios A-G across the integrated Plans 1-5 surface, and write the final verification doc that closes the Enlisted v2 redesign.
+**Goal:** Close the career arc — give players a meaningful T4/T6/T9 crossroads moment where their skill-gain pattern commits them to a path (or they resist and earn the flag), author T7+ named-order variants that reflect committed-path character, overlay culture/trait variants on hot-path storylets, ship debug hotkeys for Spec 2+ inspection, verify save-load reconstructs the full loop, run final playtest scenarios A-H across the integrated Plans 1-5 surface, and write the final verification doc that closes the Enlisted v2 redesign.
 
 **Architecture:**
 
@@ -1075,20 +1075,20 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 - [ ] T10 — in-game smoke (human operator pending)
 
 **Half B (Plan 4 Phase F shipped 2026-04-22; no longer queued):**
-- [ ] T11-T12 — hot-path identification + culture overlays (~45 storylets)
-- [ ] T13-T14 — lord-trait gate targets + overlays (~15 storylets)
-- [ ] T15-T16 — debug hotkeys behavior + registration
-- [ ] T17 — save-load arc reconstruction test
-- [ ] T18-T21 — playtest scenarios A-G doc + execution
-- [ ] T22 — final verification doc + CLAUDE.md closure
+- [x] T11-T12 — hot-path identification + culture overlays (~45 storylets)
+- [x] T13-T14 — lord-trait gate targets + overlays (~15 storylets)
+- [x] T15-T16 — debug hotkeys behavior + registration
+- [ ] T17 — save-load arc reconstruction test (human operator pending)
+- [ ] T18-T21 — playtest scenarios A-H execution (human operator pending)
+- [x] T22 — final verification doc + CLAUDE.md closure
 
-Total: 22 tasks. Estimated effort: Half A — 2-3 implementation sessions; Half B — 3-4 sessions; Plan 4 Phase F already shipped 2026-04-22.
+Total: 22 tasks. Implementation is code-complete; remaining work is human-operated smoke recorded in the verification doc.
 
 ---
 
 ## Shipped status appendix (updated 2026-04-22)
 
-Half A tasks T1-T7 shipped locally on `development` 2026-04-22 across 8 commits. Not pushed to `origin/development` at appendix-time; `git push` is user-controlled.
+Half A tasks T1-T7 shipped locally on `development` 2026-04-22 across 8 commits. The Plan 5 implementation and closure docs have since been pushed to `origin/development`; this appendix remains as historical implementation detail.
 
 | Commit | Task | What landed |
 | --- | --- | --- |
@@ -1118,8 +1118,7 @@ Half A tasks T1-T7 shipped locally on `development` 2026-04-22 across 8 commits.
 
 ### Next-session starting point
 
-T1-T9 all landed this session. T8 was verified no-op; T9 shipped at `e35f445`. The only Half A action remaining is a human-operator smoke (T10), plus an optional `git push origin development` once the session owner approves.
+Implementation has landed. The remaining work is human-operated smoke: T10 for Half A, then T17 and T19-T21 via the verification doc and A-H playtest runbook.
 
 1. **T10 — in-game smoke (human only).** Grind to T4 crossroads on a save with a pre-existing path-score lean; commit one path + verify `committed_path_<path>` flag set + reward effects applied + indicator quality `committed_path == 1` + a T6 re-fire for the same path with attribute-grant reward. Separately on a fresh save: resist at T4 and verify `path_resisted_<path>` flag set + `PathScorer.BumpPath` halves future bumps to that path (watch session-log `PATH` entries). Then grind past T7 with the committed path and verify a `order_scout_<path>_t7` or `order_escort_<path>_t7` variant fires in place of the base scout/escort order.
-2. **Half B (T11-T22).** Culture overlays, lord-trait gates, debug hotkeys, save-load test, playtest scenarios A-G, verification doc. Prerequisites (Plan 4 Phase F content) already met.
-3. **Optional:** `git push origin development` — session is 11 commits ahead of origin and no commits have been published. Push is deferred to user consent per CLAUDE.md policy.
+2. **T17 and T19-T21 smoke (human only).** Use the verification doc and A-H playtest runbook to exercise save-load reconstruction plus the integrated cross-plan scenarios.

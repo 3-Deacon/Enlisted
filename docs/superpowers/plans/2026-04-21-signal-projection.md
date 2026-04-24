@@ -1,6 +1,6 @@
 # Signal Projection Implementation Plan (Plan 3 of 5)
 
-> **Status:** Ready to start. Plan 1 (Campaign Intelligence Backbone) shipped 2026-04-22 — the `EnlistedCampaignIntelligenceBehavior.Current` accessor this plan consumes is live.
+> **Status:** ✅ Code-level implementation shipped on `development` 2026-04-22 (`5fedf88` → `189e75c`) and is summarized in [`2026-04-21-signal-projection-verification.md`](2026-04-21-signal-projection-verification.md). T28 14-day in-game smoke remains pending human operator, so this plan stays active until that verification is recorded.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -468,7 +468,7 @@ Document which snapshot fields + RecentChangeFlags produce which signal families
 | Trigger (snapshot state or flag) | Signal family | Default confidence | Example inference |
 |---|---|---|---|
 | `SupplyPressure >= Strained` | QuartermasterWarning | Medium | "Stores may need to move sooner than expected." |
-| `ArmyStrain >= High AND not in settlement` | TensionIncident | Medium | "The men are restless at the campfires." |
+| `ArmyStrain >= Elevated AND not in settlement` | TensionIncident | Medium | "The men are restless at the campfires." |
 | `FrontPressure >= High` | Rumor | Low | "Enemy riders seen to the east — unconfirmed." |
 | `RecentChangeFlags has SiegeTransition` | Dispatch | High | "The army marches; camp breaks by dawn." |
 | `RecentChangeFlags has ConfirmedScoutInfo` | ScoutReturn | High | "Scouts returned; numbers confirmed." |
@@ -1835,17 +1835,6 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ---
 
-## Shipping checklist
+## Shipping status
 
-- [ ] Plan 1 shipped (Intelligence Backbone accessor available)
-- [ ] Phase 0 T1 — offsets claimed, csproj entries
-- [ ] Phase A T2-T4 — enums + POCOs
-- [ ] Phase B T5-T7 — SignalBuilder pure projector + mapping ref doc
-- [ ] Phase C T8-T9 — StoryCandidate field additions
-- [ ] Phase D T10-T13 — Emitter behavior + cooldown + picker
-- [ ] Phase E T14-T15 — DailyDriftApplicator rewire
-- [ ] Phase F T16-T25 — 10 floor-storylet family files authored
-- [ ] Phase G T26-T27 — Observability polish + error codes
-- [ ] Phase H T28-T29 — 14-day smoke + verification doc
-
-Total: 29 tasks. Estimated effort: 2-3 implementation sessions for code + content, 1 session for smoke.
+Code-level implementation shipped on `development` 2026-04-22 (`5fedf88` → `189e75c`). The authoritative closure and remaining smoke queue live in [`2026-04-21-signal-projection-verification.md`](2026-04-21-signal-projection-verification.md): T28 14-day in-game smoke remains pending human operator. Treat the task bodies above as implementation history, not an open checklist.

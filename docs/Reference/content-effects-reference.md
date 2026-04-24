@@ -4,7 +4,7 @@
 
 **Status:** Reference  
 **Last Updated:** 2026-01-03  
-**Related Docs:** [Native Skill XP](native-skill-xp.md), [Event System Schemas](../Features/Content/event-system-schemas.md), [Content Index](../Features/Content/content-index.md)
+**Related Docs:** [Native Skill XP](native-skill-xp.md), [Storylet Backbone](../Features/Content/storylet-backbone.md), [Content Reference](../Features/Content/README.md)
 
 ---
 

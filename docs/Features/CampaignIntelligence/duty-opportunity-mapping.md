@@ -44,3 +44,14 @@ Each duty-profile pool carries class-affinity multipliers on its authored storyl
 ## Cooldown Defaults
 
 Storylets default to a 36 in-game-hour cooldown, tracked per storylet ID in `DutyCooldownStore`. Authors may override per storylet via the `cooldown_days` schema field.
+
+## Runtime Contract
+
+- Authored corpus: 140 storylets across seven `duty_<profile>.json` files plus `transition.json`.
+- `EnlistedDutyOpportunityBuilder` is pure and stable-sorts by descending priority. Equal priorities preserve insertion order, so ArcScale candidates win ties.
+- ArcScale opportunities resolve a specific accept storylet id, not a prefix scan. Modal candidates must call `StoryletEventAdapter.BuildModal` and set `candidate.InteractiveEvent`, or they fall through to Log.
+- `EnlistedDutyEmitterBehavior` filters ArcScale opportunities out while `OrderActivity.ActiveNamedOrder != null`.
+- Transition interrupts fire from `DutyProfileBehavior.CommitTransition` with fallback order: `transition_<old>_to_<new>_mid_<orderId>` -> `transition_<old>_to_<new>_generic` -> `transition_generic_interrupted`.
+- Transition candidates use `ChainContinuation = true` to bypass the in-game floor and category cooldown while retaining wall-clock pacing.
+- Validator coverage for `(profile, skill)` cells is warning-level `>=1`. Known accepted gaps are imprisoned combat/mounted skills and wandering Leadership.
+- Expected smoke markers: `DUTY heartbeat`, `DUTY daily_counts`, `DUTY emitted Episodic`, `DUTY emitted ArcScale`, and `DUTYPROFILE transition_emitted`.

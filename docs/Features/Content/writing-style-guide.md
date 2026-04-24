@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-03 (Added Status Forecasts section for meaningful player status text)  
-**Related Docs:** [Event System Schemas](event-system-schemas.md), [Content Index](content-index.md), [Content System Architecture](content-system-architecture.md), [Content Organization Map](content-organization-map.md)
+**Related Docs:** [Storylet Backbone](storylet-backbone.md), [Content Reference](README.md)
 
 ---
 
@@ -677,7 +677,7 @@ Tokens are resolved at runtime by multiple systems:
 ❌ "{SERGEANT} {SERGEANT} {SERGEANT}"  (token spam - varies once)
 ```
 
-**See:** [Event System Schemas - Text Placeholder Variables](event-system-schemas.md#text-placeholder-variables) for complete technical reference.
+**See:** [Dynamic Tokens](#dynamic-tokens) for placeholder guidance.
 
 **Implementation:** Tokens use Bannerlord's native `TextObject.SetTextVariable(key, value)` API with null-safe fallbacks (`?.ToString() ?? "fallback"`).
 
@@ -991,9 +991,9 @@ Order events use `world_state` for context filtering:
 
 | Topic | Document | Key Sections |
 |-------|----------|--------------|
-| Complete JSON schema | [event-system-schemas.md](event-system-schemas.md) | All field definitions |
+| Storylet schema and runtime | [storylet-backbone.md](storylet-backbone.md) | Current content fields, triggers, effects, and save offsets |
 | All placeholder tokens | This document (see Dynamic Tokens section above) | Complete variable list |
-| Content architecture | [content-system-architecture.md](content-system-architecture.md) | Pipeline overview |
+| Content entry point | [README.md](README.md) | Pipeline overview |
 | Order event structure | [orders-content.md](orders-content.md) | Order-specific rules |
 | Validation tools | [../../Tools/README.md](../../Tools/README.md) | How to validate |
 

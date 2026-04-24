@@ -10,7 +10,7 @@ Living reference mapping Plan 1 campaign-intelligence snapshot state (and its `R
 | Trigger (snapshot state or flag) | Signal family | Default confidence | Example inference |
 |---|---|---|---|
 | `SupplyPressure >= Strained` | QuartermasterWarning | Medium | "Stores may need to move sooner than expected." |
-| `ArmyStrain >= High AND not in settlement` | TensionIncident | Medium | "The men are restless at the campfires." |
+| `ArmyStrain >= Elevated` | TensionIncident | Medium | "The men are restless at the campfires." |
 | `FrontPressure >= High` | Rumor | Low | "Enemy riders seen to the east — unconfirmed." |
 | `RecentChangeFlags has SiegeTransition` | Dispatch | High | "The army marches; camp breaks by dawn." |
 | `RecentChangeFlags has ConfirmedScoutInfo` | ScoutReturn | High | "Scouts returned; numbers confirmed." |
@@ -34,3 +34,13 @@ Living reference mapping Plan 1 campaign-intelligence snapshot state (and its `R
 | AftermathNotice | Narrator |
 | TensionIncident | OwnObservation |
 | SilenceWithImplication | Narrator |
+
+## Runtime Contract
+
+- `EnlistedCampaignSignalBuilder` is pure: snapshot in, candidate signal list out. It does not read campaign state or mutate cooldowns.
+- `EnlistedSignalEmitterBehavior` owns hourly emission, `OrdersNewsFeedThrottle`, per-storylet cooldown, weighted diversity, and `StoryDirector.EmitCandidate`.
+- Authored corpus: 48 floor storylets across 10 `floor_<family>.json` files.
+- Cooldown state persists in `SignalEmissionRecord` at class offset 49. Signal/content enums use offsets 99-103.
+- `DailyDriftApplicator.FlushSummary` routes through the signal emitter and only clears pending XP after `EmitExternalSignal` returns true.
+- Current floor-storylet triggers are intentionally broad (`is_enlisted`). Snapshot predicates now exist, so future authoring can tighten per-storylet relevance.
+- Expected log markers: `SIGNAL` family counters, throttle rejections, and no cooldown stamp when `StoryDirector` is unavailable.

@@ -1404,19 +1404,6 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 
 ---
 
-## Shipping checklist
+## Shipping status
 
-- [ ] Plan 1 shipped
-- [ ] Phase 0 T1 — offset 50 claimed
-- [ ] Phase A T2-T3 — types
-- [ ] Phase B T4-T5 — Builder + mapping ref
-- [ ] Phase B.5 T6-T7 — snapshot trigger predicates
-- [ ] Phase C T8-T11 — episodic emission behavior
-- [ ] Phase D T12-T13 — arc-scale Modal emission
-- [ ] Phase E T14 — transition hook
-- [ ] Phase F T15-T22 — 7 authored profile pools + transitions
-- [ ] Phase G T23 — Phase 13 validator
-- [ ] Phase H T24-T25 — observability + error codes
-- [ ] Phase I T26-T28 — smoke + verification
-
-Total: 28 tasks.
+Code-level implementation shipped on `development` 2026-04-22 (`ca22111..0c519d3`). The authoritative closure and remaining smoke queue live in [`2026-04-21-duty-opportunities-verification.md`](2026-04-21-duty-opportunities-verification.md): T26 14-day full-profile smoke and T27 fast-forward soak remain pending human operator. Treat the task bodies above as implementation history, not an open checklist.

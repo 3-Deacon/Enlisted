@@ -1,8 +1,8 @@
 # Plan 5 — Career Loop Closure — Code Verification
 
-**Status:** Code-level verification complete. T10 (Half A in-game smoke), T17 (save-load mid-arc reconstruction), and T19-T21 (playtest scenarios A-G execution) pending human operator.
+**Status:** Code-level verification complete. T10 (Half A in-game smoke), T17 (save-load mid-arc reconstruction), and T19-T21 (playtest scenarios A-H execution) pending human operator.
 
-**Shipped:** 2026-04-22 on `development`, commit range `4f66604` → `2b3fb2e` (17 commits shipped + this status-closure commit = 18 total). Not yet pushed to `origin/development` — `git push` is user-controlled.
+**Shipped:** 2026-04-22 on `development`, commit range `4f66604` → `2b3fb2e` (17 commits shipped + this status-closure commit = 18 total). Plan 5 implementation and closure docs have since been pushed to `origin/development`; later local docs commits may still be ahead.
 
 **Plan doc:** [docs/superpowers/plans/2026-04-21-career-loop-closure.md](2026-04-21-career-loop-closure.md)
 **Playtest runbook:** [docs/superpowers/plans/2026-04-21-career-loop-playtest-scenarios.md](2026-04-21-career-loop-playtest-scenarios.md)

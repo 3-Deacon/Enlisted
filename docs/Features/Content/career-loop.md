@@ -1,6 +1,6 @@
 # Career Loop Closure — Reference
 
-**Status:** Live (Half A code-complete). Day-to-day reference for the shipped Plan 5 career-loop surface: path scoring, T4/T6/T9 crossroads, committed-path gating, T7+ named-order variants, culture + lord-trait overlays, and debug hotkeys. Plan 5 Half A shipped on `development` 2026-04-22 (commits `4f66604` → `e35f445`, 10 commits). Half B authoring (overlays + debug hotkeys + verification doc) landed in the same window; T10 in-game smoke is pending a human operator.
+**Status:** Code-level complete; human smoke pending for T10, T17, and playtest Scenarios A-H. Day-to-day reference for the shipped Plan 5 career-loop surface: path scoring, T4/T6/T9 crossroads, committed-path gating, T7+ named-order variants, culture + lord-trait overlays, and debug hotkeys. Plan 5 Half A shipped on `development` 2026-04-22 (commits `4f66604` → `e35f445`, 10 commits). Half B authoring (overlays + debug hotkeys + verification doc) landed in the same window.
 
 **For design rationale / problem framing:** see the plan at [`../../superpowers/plans/2026-04-21-career-loop-closure.md`](../../superpowers/plans/2026-04-21-career-loop-closure.md).
 
@@ -275,3 +275,11 @@ Save registration: **no new class or enum offsets.** The career loop persists th
 - In-game smoke — see [`../../superpowers/plans/2026-04-21-career-loop-playtest-scenarios.md`](../../superpowers/plans/2026-04-21-career-loop-playtest-scenarios.md) (Scenario G covers the T4/T6/T9 + resist full-career arc; Scenario F covers cross-culture overlay firing).
 - Log markers to expect: `PATH session_heartbeat`, `PATH crossroads_emitted`, `PATH committed path=<id>`, `PATH resisted path=<id>`, `Expected("PATH", "bump_resisted_<path>", …)`, `CAREER-DEBUG` dumps from the hotkeys.
 - Zero `Surfaced` calls during nominal play.
+
+## Known deferred scope
+
+- T7+ variants currently cover scout + escort across five paths; the remaining named-order archetypes are polish.
+- T7 entry options cover the minimum viable intent set; additional intent variants are polish.
+- Culture overlays currently cover 15 hot-path bases across three cultures; broader culture coverage is polish.
+- Signal emitter does not apply culture/trait gates. Only the duty emitter consumes those fields today.
+- Phase 15 enforces the 15 crossroads ids plus at least one T7+ variant per path, not the full per-archetype matrix.

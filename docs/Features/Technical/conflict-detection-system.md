@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-03  
-**Related Docs:** [Event System Schemas](../Content/event-system-schemas.md), [Encounter Safety](encounter-safety.md), [Content System Architecture](../Content/content-system-architecture.md), [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md), [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Encounter Safety](encounter-safety.md), [Content Reference](../Content/README.md), [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md), [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md)
 
 ---
 
@@ -541,7 +541,7 @@ if (Hero.MainHero.IsPrisoner) return false;
 - Run before committing content changes: `python Tools/Validation/validate_content.py`
 - Use `--strict` mode for pre-merge validation: `python Tools/Validation/validate_content.py --strict`
 - See [../../../Tools/README.md](../../../Tools/README.md) for complete usage guide
-- **NEW:** Add `hint` or `hintId` to camp opportunities for Daily Brief integration (see [Event System Schemas](../Content/event-system-schemas.md#narrative-hints-orchestrator-pre-scheduling))
+- **NEW:** Add `hint` or `hintId` to camp opportunities for feed/status integration (see [Storylet Backbone](../Content/storylet-backbone.md))
 
 **Legacy Tool:** `Tools/Validation/validate_events.py` (basic ID/option count checks, use enhanced tool instead)
 
@@ -1476,13 +1476,13 @@ Errors are logged via `ModLogger.Surfaced()` which includes:
 
 ### Core Architecture
 - [BLUEPRINT.md](../../BLUEPRINT.md) - Core patterns and standards
-- [Content System Architecture](../Content/content-system-architecture.md) - Event delivery pipeline
+- [Storylet Backbone](../Content/storylet-backbone.md) - Current storylet authoring and delivery substrate
 - [Orchestrator Opportunity Unification](../../ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) - **NEW:** Opportunity scheduling system
 - [Systems Integration Analysis](../../ANEWFEATURE/systems-integration-analysis.md) - **NEW:** How all tracking systems integrate
 
 ### Content & Events
-- [Event System Schemas](../Content/event-system-schemas.md) - JSON field definitions, narrative hints
-- [Content Index](../Content/content-index.md) - All content organized by category
+- [Storylet Backbone](../Content/storylet-backbone.md) - JSON field definitions, triggers, slots, effects, and chains
+- [Content Reference](../Content/README.md) - Current and historical content docs
 - [Camp Simulation System](../Campaign/camp-simulation-system.md) - Background simulation + opportunities
 
 ### Safety & Validation

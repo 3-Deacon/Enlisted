@@ -1,6 +1,6 @@
 # Player Agency Redesign — Design (v3)
 
-**Status:** Draft v3 (2026-04-23). Revised after game-design feedback clarified the target pattern: CK3 / Viking Conquest-style long-running postures, not repeated short camp clicks. v2's envelope model stays; the core loop is now persistent **service stances** with short camp activities demoted to optional interventions.
+**Status:** Draft v3 (2026-04-23), partially superseded 2026-04-24. [`2026-04-24-enlisted-menu-duty-unification-design.md`](2026-04-24-enlisted-menu-duty-unification-design.md) replaces the unshipped **service stance** layer with player **Duty**; the envelope/gate substrate, preview schema, observer-to-enforce phasing, and high-stakes validation concepts remain useful. Revised after game-design feedback clarified the target pattern: CK3 / Viking Conquest-style long-running postures, not repeated short camp clicks.
 
 **North star (unchanged):** the mod should stop silently changing the player's soldier as if they were an NPC. The "orders over duties" vision holds.
 

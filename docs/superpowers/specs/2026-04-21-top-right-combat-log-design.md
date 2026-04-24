@@ -1,7 +1,7 @@
 # Top-Right Combat Log Redesign - Design Spec
 
 **Date:** 2026-04-21
-**Status:** Draft written for user review. Awaiting review before implementation planning.
+**Status:** Frozen design; implemented on `development`. Living reference: [docs/Features/UI/enlisted-combat-log.md](../../Features/UI/enlisted-combat-log.md). Execution plan archived at [docs/superpowers/plans/archive/2026-04-21-top-right-combat-log.md](../plans/archive/2026-04-21-top-right-combat-log.md).
 **Scope:** Redesign the custom Enlisted campaign-map combat log so it remains a visible live feed, moves from the crowded bottom-right corner to the top-right corner, and gains a manual native-style expanded/inspect mode with remembered expanded size.
 
 Grounding sources for this design:

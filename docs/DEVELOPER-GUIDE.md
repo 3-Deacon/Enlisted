@@ -572,7 +572,7 @@ if (eb?.IsEnlisted == true)
 | [BLUEPRINT.md](BLUEPRINT.md) | Architecture, patterns, standards |
 | [Features/Core/index.md](Features/Core/index.md) | Feature specs and gameplay systems |
 | [Reference/campaignsystem-apis.md](Reference/campaignsystem-apis.md) | API notes and research |
-| [Content/content-index.md](Content/content-index.md) | Content catalog (events, orders, decisions) |
+| [Features/Content/README.md](Features/Content/README.md) | Content authoring entry point and current catalog references |
 
 ---
 

@@ -1,5 +1,7 @@
 # Enlisted Home Surface Implementation Plan
 
+> **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. The home surface implementation completed on `development` 2026-04-20; current day-to-day behavior is documented in [`docs/Features/Content/home-surface.md`](../../Features/Content/home-surface.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship Spec 1 — the enlisted-home surface. When the lord's party parks at a friendly town/castle/village, run a four-phase `HomeActivity` (Arrive / Settle / Evening / Break Camp) with five player-choice intents (`unwind` / `train_hard` / `brood` / `commune` / `scheme`). Content is data-driven via storylets; triggers read live engine state; the Evening-phase intents surface through a preallocated 5-slot menu bank that mirrors the existing decisions-slot pattern.
@@ -10,7 +12,7 @@
 
 **Spec:** [docs/superpowers/specs/2026-04-19-enlisted-home-surface-design.md](../specs/2026-04-19-enlisted-home-surface-design.md) (commits `133a147` + `46272c1` on `development`).
 
-**Status:** Phase A (Tasks 1–5) complete 2026-04-19 on `development` (commits `fc93285` → `24b7e50`). Phase B (Tasks 6–9: HomeActivity + save registration + triggers + starter) complete 2026-04-20 on `development` (commits `e4b6806` → `a48983c`). Phase C (Tasks 10–12: menu integration + smoke) complete 2026-04-20 on `development` (commits `18b4021` → `19391a4`, includes two bug-fix commits for latent Phase B/0 issues discovered on first boot — `0ff3a2d` unsupported `HashSet<StoryBeat>` container, `19391a4` eager `DefaultTraits` lookup at `OnGameStart`). Phase D (Tasks 13–18: content authoring) complete 2026-04-20 on `development` (commits `8b96294` → `d9bcf8b`). Phase E (Tasks 19–21: debug/validator/acceptance) not yet started.
+**Status:** Implementation complete 2026-04-20 on `development`. Full commit trail `fc93285` → `0390fdf`: Phases A-D shipped the substrate, `HomeActivity`, menu integration, and 50 storylets; Phase E shipped debug hotkeys, validator coverage, and in-game acceptance smoke (`1d0fb52` → `b563834`); post-Phase-E fixes added ModuleData mirroring, rebound the home debug hotkey to `Ctrl+Shift+Y`, and added `ActivityRuntime.ForceAdvancePhase` for Auto-phase debug traversal.
 
 ---
 

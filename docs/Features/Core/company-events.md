@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-06 (Added pressure arc events documentation)
-**Related Docs:** [Content System Architecture](../Content/content-system-architecture.md), [Core Gameplay](core-gameplay.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md#supply-pressure-arc-events)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Core Gameplay](core-gameplay.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md#supply-pressure-arc-events)
 
 ---
 

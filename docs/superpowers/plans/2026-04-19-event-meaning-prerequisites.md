@@ -1,5 +1,7 @@
 # Event Meaning Prerequisites — Implementation Plan
 
+> **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. The prerequisite work shipped on `development`: PR-b persisted `EventDeliveryManager` pending queues (`1551e7c` + `546a426`), and PR-c added typed `DispatchItem` fields (`Tier`, `Beats`, `Body`) plus consumer migrations (`a26a977` + `13e2333`). Current behavior is owned by `StoryDirector`, `EventDeliveryManager`, and `EnlistedNewsBehavior.DispatchItem`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Land the three Director-plumbing prerequisites from the Event Meaning Design spec (§5) so Plan 1 (Foundations) can build on a clean foundation and downstream arcs/variants inherit no pre-existing bugs.

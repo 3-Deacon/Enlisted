@@ -1490,8 +1490,7 @@ git commit -m "refactor(logging): remove deprecated ErrorCode/WarnCode wrappers"
 - Modify: `Tools/TECHNICAL-REFERENCE.md` — remove the deprecated `ErrorCode` / `WarnCode` / `ErrorCodeOnce` examples (currently kept alongside the new API during migration); leave only the three-tier `Surfaced` / `Caught` / `Expected` block.
 - Modify: `docs/BLUEPRINT.md` — the format-neutral pointers added during mid-Phase-3 can be replaced with a direct one-liner referencing the finalized API.
 - Modify: `docs/Features/Technical/conflict-detection-system.md` — the embedded error-code tables (lines ~1452-1488) cite `E-MUSTER-NNN` / `E-INCIDENT-NNN` / `E-ORCHESTRATOR-NNN` / `E-EVENT-NNN` / `E-DECISION-NNN` in the old numeric-suffix format. Replace with a pointer to the regenerated `docs/error-codes.md`, OR strike-through the table and add a single-line note directing readers to the live registry.
-- Modify: `docs/Features/Content/content-system-architecture.md` — same treatment for the embedded table around line 1430 (`E-CAMP-NNN` / `E-EVT-001` / `E-MAP-001`).
-- Modify: `docs/Features/Content/content-index.md` — line ~9 references "searchable error codes"; update the link target if the pointed-to section ID changes.
+- Historical note: the old content architecture/index docs named in the original task were retired after the Storylet Backbone migration. Current content references live in `docs/Features/Content/storylet-backbone.md` and `docs/Features/Content/README.md`.
 
 - [ ] **Step 1: Find the error-code guidance in `AGENTS.md`**
 

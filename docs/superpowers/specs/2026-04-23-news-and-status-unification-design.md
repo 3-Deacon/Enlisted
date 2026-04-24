@@ -1,6 +1,6 @@
 # News + Status Unification — Design (v2)
 
-**Status:** Draft v2 (2026-04-23). Revised after spec-review feedback flagged v1's incorrect feed-collapsing, missing `SINCE LAST MUSTER` section, regressed `UPCOMING` contract, and wrong `CampaignTimeControlMode` enum surface.
+**Status:** Draft v2 (2026-04-23), amended 2026-04-24. [`2026-04-24-enlisted-menu-duty-unification-design.md`](2026-04-24-enlisted-menu-duty-unification-design.md) supersedes this spec's final section names (`UPCOMING` -> `PROSPECTS`, `YOU` -> `STATUS`, `CAMP ACTIVITIES` + `SINCE LAST MUSTER` -> `COMPANY NEWS`) while preserving the two-feed separation and frozen weekly dispatch contract. Revised after spec-review feedback flagged v1's incorrect feed-collapsing, missing `SINCE LAST MUSTER` section, regressed `UPCOMING` contract, and wrong `CampaignTimeControlMode` enum surface.
 
 **Problem statement.** The Enlisted UI surfaces news across multiple touchpoints with inconsistent cadence and overlapping scope:
 

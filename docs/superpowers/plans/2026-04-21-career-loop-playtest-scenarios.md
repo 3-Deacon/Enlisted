@@ -1,4 +1,4 @@
-# Plan 5 — Career Loop Playtest Scenarios A–G
+# Plan 5 — Career Loop Playtest Scenarios A-H
 
 **Purpose:** Human-operator smoke runbook for the integrated Plans 1-5 surface. Each scenario is designed to exercise one intended interaction pattern and produce observable session-log markers that prove the wiring.
 
@@ -168,7 +168,7 @@
    - `PATH session_heartbeat: ...` — should continue per its cadence.
 6. Drop back to 1×. News-feed entries should resume immediately.
 
-**Expected log markers:** same set as Scenarios A-G; the difference at 16× is the news-feed entries specifically go silent while tick logs continue.
+**Expected log markers:** same set as the previous scenarios; the difference at 16× is the news-feed entries specifically go silent while tick logs continue.
 
 **Pass criteria:** at 16×, news-feed entries stop appearing. Tick-driven heartbeats continue without gaps. Returning to 1× immediately restores news-feed output. Zero `Surfaced`.
 

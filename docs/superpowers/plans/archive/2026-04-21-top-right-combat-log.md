@@ -1,5 +1,7 @@
 # Top-Right Combat Log Implementation Plan
 
+> **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. The top-right live feed, drag/resize behavior, persisted UI state, background modes, and updated feature documentation shipped on `development` in the combat-log work chain (`d963c56`, `424cffc`, `2d64497`, `69927f9`, `5f595c1`). Current behavior is documented at [`docs/Features/UI/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Move the Enlisted campaign-map combat log to the top-right corner, keep it as an always-visible scrollable live feed, and add a manual expanded mode with remembered expanded size.
@@ -8,7 +10,7 @@
 
 **Tech Stack:** C# on .NET Framework 4.7.2, Bannerlord v1.3.13 TaleWorlds UI APIs (`TaleWorlds.GauntletUI`, `TaleWorlds.Engine.GauntletUI`, `TaleWorlds.InputSystem`, `TaleWorlds.ScreenSystem`), existing Enlisted Gauntlet XML prefabs/brushes, Newtonsoft.Json for lightweight per-user UI-state persistence. No unit-test framework in this repo; verification is `dotnet build`, `python Tools/Validation/validate_content.py`, and in-game smoke using the existing custom combat log flow.
 
-**Design spec:** [docs/superpowers/specs/2026-04-21-top-right-combat-log-design.md](../specs/2026-04-21-top-right-combat-log-design.md)
+**Design spec:** [docs/superpowers/specs/2026-04-21-top-right-combat-log-design.md](../../specs/2026-04-21-top-right-combat-log-design.md)
 
 ---
 

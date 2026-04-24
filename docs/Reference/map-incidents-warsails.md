@@ -4,7 +4,7 @@
 
 **Status:** 📚 Reference  
 **Last Updated:** 2025-12-22  
-**Related Docs:** [Content Index](../Features/Content/content-index.md), [Content System Architecture](../Features/Content/content-system-architecture.md)
+**Related Docs:** [Content Reference](../Features/Content/README.md), [Storylet Backbone](../Features/Content/storylet-backbone.md)
 
 > **Note**: Written against local decompile in `C:\Dev\Enlisted\Decompile\` (see `docs/blueprint.md` → Native Reference).
 

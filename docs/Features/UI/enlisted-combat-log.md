@@ -54,6 +54,8 @@ Expanded mode is entered manually through the header button.
 - inactivity still dims the surface,
 - messages still age out after five minutes,
 - encyclopedia links still work inside message text.
+- personal progression/reward toasts are intentionally excluded. `InformationManagerDisplayMessagePatch` suppresses XP, trait XP, enlistment XP, and "Past few days" updates from known Enlisted systems; those belong to the news/feed surfaces.
+- the combat log remains for combat/system information and immediate decision feedback, not player progression recap spam.
 
 ---
 

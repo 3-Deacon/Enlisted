@@ -747,7 +747,7 @@ This allows orders like "Firewood Collection" → "Deck Scrubbing" to use the sa
 
 **Implementation:** `OrderProgressionBehavior.SelectOrderEvent()` uses `EventRequirementChecker.MeetsRequirements()` to validate all requirement fields including `notAtSea`/`atSea`, tier, role, and other constraints. After filtering by `world_state` (via `FilterByWorldState()`), all remaining requirements are checked comprehensively.
 
-**See:** [Event System Schemas - Order Event Requirements](event-system-schemas.md#order-event-requirements) for complete documentation on order event filtering.
+**See:** [Storylet Backbone](storylet-backbone.md) for current trigger and delivery rules.
 
 ---
 

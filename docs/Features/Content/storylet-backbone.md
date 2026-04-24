@@ -63,7 +63,7 @@ Canonical terms. Surface specs use these names; legacy terms are migrated out, n
 | Quality subsystem | `src/Features/Qualities/QualityStore.cs`, `QualityCatalog.cs`, `QualityBehavior.cs` (reads `ModuleData/Enlisted/Qualities/quality_defs.json`) |
 | Flag subsystem | `src/Features/Flags/FlagStore.cs`, `FlagBehavior.cs` |
 | Activity subsystem | `src/Features/Activities/Activity.cs`, `ActivityRuntime.cs`, `Phase.cs`, `ActivityTypeDefinition.cs`, `ActivityContext.cs`, `ActivityEndReason.cs`, `PhaseDelivery.cs` |
-| Save registrations | `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` — class offsets 40, 41, 43, 44; enum offsets 82, 83 |
+| Save registrations | `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` — class offsets 40-50 currently claimed by backbone, Home, Orders, Campaign Intelligence, Signal Projection, and Duty Opportunities; enum offsets 82, 83, 85, 86-103 currently claimed |
 | Validator phase | `Tools/Validation/validate_content.py` Phase 12 (scripted-effect refs + quality ids) |
 
 `Enlisted.csproj` registers every `.cs` file (AGENTS.md §2). New `.cs` files must be added before building.
@@ -123,8 +123,14 @@ Seed quality definitions. `Stored` = data lives in `QualityStore`. `ReadThrough`
 | `rank_gte:<n>` | 1 arg | `EnlistmentBehavior.EnlistmentTier >= n` |
 | `veteran_has_flag:<name>` | 1 arg | `ctx.ResolvedSlots["veteran"]` exists and has the hero-scoped flag |
 | `beat:<name>` | 1 arg | Marker only — returns `true`; beat matching is upstream at emission |
+| `snapshot_supply_pressure_gte:<n>` | 1 arg | `(int)EnlistedCampaignIntelligenceBehavior.Current.SupplyPressure >= n`; false if no snapshot |
+| `snapshot_army_strain_gte:<n>` | 1 arg | `(int)EnlistedCampaignIntelligenceBehavior.Current.ArmyStrain >= n`; false if no snapshot |
+| `snapshot_front_pressure_gte:<n>` | 1 arg | `(int)EnlistedCampaignIntelligenceBehavior.Current.FrontPressure >= n`; false if no snapshot |
+| `snapshot_recent_change:<flag>` | 1 arg | `Current.RecentChanges.HasFlag(flag)`; false for unknown flag or no snapshot |
 
 Register additional named predicates via `TriggerRegistry.Register(name, predicate)` at boot. Keep predicates flat (static delegates); cap one file per surface spec for ownership clarity.
+
+Snapshot triggers support the same `not:` prefix as other triggers. They are intended for snapshot-backed storylet relevance, not as a replacement for `DutyProfileSelector`.
 
 ---
 
@@ -228,7 +234,9 @@ Defined in `ModuleData/Enlisted/Effects/scripted_effects.json`:
 | Enum | 82 | `QualityScope` |
 | Enum | 83 | `ActivityEndReason` |
 | Enum | 85 | `DutyProfileId` (Spec 2) |
-| **Enum** | **86+** | **Reserved** for Specs 3–5 |
+| Enum | 86-98 | Plan 1 Campaign Intelligence enums |
+| Enum | 99-103 | Plan 3 Signal/Content metadata enums |
+| **Enum** | **104+** | **Reserved** for future surface specs after grepping the definer |
 
 Surface specs claim their class offset from the 45–60 range in their owning spec (Activity subclasses AND closely-related surface-spec persistent state per AGENTS.md Rule #11). Current claims: `HomeActivity` at **45** (Spec 1); `OrderActivity` at **46** + `NamedOrderState` at **47** (Spec 2); `EnlistedLordIntelligenceSnapshot` at **48** (Plan 1); `SignalEmissionRecord` at **49** (Plan 3); `DutyCooldownStore` at **50** (Plan 4). Spec 2 also claims enum offset **85** (`DutyProfileId`); Plan 1 claims enum offsets 86-98; Plan 3 claims enum offsets 99-103. `TaleWorlds.Core.FormationClass` is referenced by `OrderActivity.CachedCombatClass` and `NamedOrderState.CombatClassAtAccept` but is NOT registered in our definer — `TaleWorlds.Core.SaveableCoreTypeDefiner` already registers it at id 2008, and the shared `DefinitionContext` dictionary throws on duplicate `Type` keys (crashes `Module.Initialize` natively, no mod log). Reserved next claims in the 51–60 / 86+ band: `LandSeaActivity` (Spec 3), `MusterActivity` (Spec 4), `QuartermasterActivity` (Spec 5). Grep `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` before claiming — collisions corrupt saves silently.
 
@@ -306,6 +314,8 @@ Spec 1 Phase A (Tasks 1–5, `development` commits `fc93285`→`24b7e50`) shippe
 ### `StoryletEventAdapter.BuildModal(Storylet, StoryletContext, Activity)`
 
 **What it returns:** an `EventDefinition` (not `InteractiveEvent` — the mod's Modal delivery unit is `EventDefinition`, placed in `StoryCandidate.InteractiveEvent`). `StoryDirector.Route` requires `candidate.InteractiveEvent != null` to take the Modal path (`StoryDirector.cs:218`); the adapter fills this field.
+
+Storylets that emit `StoryCandidate`s can reach either Modal delivery or dispatch/news delivery. Modal delivery uses `EventDeliveryManager`; dispatch delivery writes `DispatchItem` entries through `StoryDirector.WriteDispatchItem(...)` and `EnlistedNewsBehavior.AddPersonalDispatch(...)`. Downstream UI should prefer typed dispatch fields (`Tier`, `Beats`, `Body`) over parsing `HeadlineKey`, category strings, or formatted English. `DispatchItem.Beats` persistence is handled inside `EnlistedNewsBehavior` save/load; do not claim a new save-definer offset or a generic `HashSet<StoryBeat>` container for it.
 
 **Typical call pattern** (in a menu provider or phase-fire handler):
 
@@ -423,4 +433,4 @@ Lord-trait-gated storylets don't use the `__` convention — they're authored as
 - [Event Pacing (delivery layer, Spec above this one)](../../superpowers/specs/2026-04-18-event-pacing-design.md)
 - [Writing Style Guide](writing-style-guide.md) — voice, tone, tooltip format
 - [Error Code Registry](../../error-codes.md) — auto-generated
-- [Content System Architecture (legacy, pre-Spec-0)](content-system-architecture.md) — scheduled for replacement by surface specs 1–5
+- [Content Reference](README.md) — content documentation entry point

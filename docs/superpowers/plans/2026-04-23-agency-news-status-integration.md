@@ -1,5 +1,7 @@
 # Agency News Status Integration Implementation Plan
 
+> **Status:** Active branch-scoped plan. Current `development` has not merged the typed agency/news routing implementation; the work exists on `feature/agency-news-status-integration`, where the task checklist has drifted behind branch commits. Before merging or resuming, refresh this plan against the branch history and current `development`; do not archive it yet.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add typed agency/news routing so service stance, order, camp override, modal, and realm story content reaches the correct Enlisted news and status surfaces without string-guessing.

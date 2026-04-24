@@ -24,12 +24,12 @@
 | --- | --- | --- |
 | **Runtime debug logs** | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | ModLogger output, error codes, save diagnostics |
 | **Steam Workshop upload** | `Tools/Steam/WORKSHOP_UPLOAD.md` | VDF char limits, run `.\Tools\Steam\upload.ps1` in interactive PS |
-| **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, JSON schema |
+| **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, storylet/content rules |
 | **Understand a feature** | `docs/Features/Core/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
 | **Code quality issues** | `.editorconfig`, `ruff.toml`, `PSScriptAnalyzerSettings.psd1`, `Tools/Validation/lint_repo.ps1` | ReSharper settings in .sln.DotSettings |
 | **Validation errors** | `Tools/README.md` | Run `.\Tools\Validation\lint_repo.ps1` for full repo checks or `python Tools/Validation/validate_content.py` for content-only checks |
 | **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.3.13 specific, don't use online docs |
-| **Opportunity/orchestration** | `docs/ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md` | Commitment model, phase scheduling |
+| **Opportunity/orchestration** | `docs/Features/Content/storylet-backbone.md` | Storylet runtime, activities, triggers, effects |
 
 ## ⚡ QUICK COMMANDS
 
@@ -73,10 +73,10 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | Full doc catalog | [docs/INDEX.md](INDEX.md) |
 | Core gameplay | [docs/Features/Core/core-gameplay.md](Features/Core/core-gameplay.md) |
 | Enlistment system | [docs/Features/Core/enlistment.md](Features/Core/enlistment.md) |
-| All content files | [docs/Features/Content/content-index.md](Features/Content/content-index.md) |
+| Content authoring | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
 | Writing style | [docs/Features/Content/writing-style-guide.md](Features/Content/writing-style-guide.md) |
-| JSON schemas | [docs/Features/Content/event-system-schemas.md](Features/Content/event-system-schemas.md) |
-| Orchestrator | [docs/ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) |
+| Storylet/content schema | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
+| Content entry point | [docs/Features/Content/README.md](Features/Content/README.md) |
 | Steam upload | [Tools/Steam/WORKSHOP_UPLOAD.md](../Tools/Steam/WORKSHOP_UPLOAD.md) |
 | Tooling guide | [Tools/README.md](../Tools/README.md) |
 | Technical patterns | [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) |
@@ -190,7 +190,7 @@ python Tools/Validation/sync_event_strings.py
 5. **For opportunities:** Add `hintId`/`hint` fields for Daily Brief foreshadowing (see [Opportunity Hints](Features/Content/writing-style-guide.md#opportunity-hints))
 6. Run validation: `python Tools/Validation/validate_content.py`
 7. Sync strings: `python Tools/Validation/sync_event_strings.py --check`
-8. Update [content-index.md](Features/Content/content-index.md) if adding new content type
+8. Update [Features/Content/README.md](Features/Content/README.md) or [storylet-backbone.md](Features/Content/storylet-backbone.md) if adding a new content type
 
 ### Check If Feature Exists
 
@@ -450,7 +450,7 @@ These mistakes cause real problems. Avoid them.
 **Solution:**
 
 1. All order event options must include `effects.skillXp`
-2. Match XP to activity type (see [event-system-schemas.md](Features/Content/event-system-schemas.md))
+2. Match XP to activity type (see [storylet-backbone.md](Features/Content/storylet-backbone.md))
 3. Failed skill checks should grant reduced XP (50% of success)
 
 ### 16. Not Persisting In-Progress State Flags

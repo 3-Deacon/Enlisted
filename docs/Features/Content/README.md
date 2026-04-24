@@ -1,6 +1,6 @@
 # Content System Documentation
 
-**Summary:** Narrative content authoring for the Enlisted mod. As of 2026-04-19, all new content targets the **storylet backbone** (Spec 0). Pre-storylet content (legacy `EventDefinition` JSON under `ModuleData/Enlisted/Events/`, `Decisions/`, and the Orders event pools) still runs at runtime but is not the target for new authoring.
+**Summary:** Narrative content authoring for the Enlisted mod. As of 2026-04-19, all new content targets the **storylet backbone** (Spec 0). Pre-storylet `EventDefinition` JSON under `ModuleData/Enlisted/Events/` and `Decisions/` still runs at runtime through `StoryDirector`; the old Orders event pools were retired with the legacy Orders subsystem and are historical reference only.
 
 ---
 
@@ -28,4 +28,4 @@
 
 ## Legacy content runtime (reference only)
 
-`ModuleData/Enlisted/Events/*.json`, `ModuleData/Enlisted/Decisions/*.json`, and `ModuleData/Enlisted/Orders/order_events/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. New authoring should target storylets per above, not these.
+`ModuleData/Enlisted/Events/*.json` and `ModuleData/Enlisted/Decisions/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. `ModuleData/Enlisted/Orders/` was deleted with the retired Orders subsystem; new order authoring targets `OrderActivity` storylet pools instead.

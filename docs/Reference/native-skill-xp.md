@@ -4,7 +4,7 @@
 
 **Status:** Reference  
 **Last Updated:** 2026-01-03 (expanded with native decompile details, attribute-skill hierarchy, content aliases)  
-**Related Docs:** [Training System](../Features/Combat/training-system.md), [Content System Architecture](../Features/Content/content-system-architecture.md)
+**Related Docs:** [Training System](../Features/Combat/training-system.md), [Storylet Backbone](../Features/Content/storylet-backbone.md)
 
 ---
 
