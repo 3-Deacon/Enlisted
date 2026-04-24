@@ -652,6 +652,238 @@ namespace Enlisted.Features.Equipment.Behaviors
         }
 
         /// <summary>
+        /// Get weapon variants for the UI browser, using cross-formation discovery.
+        /// Shields are excluded because they are shown under accessories.
+        /// </summary>
+        public List<EquipmentVariantOption> GetWeaponVariantsForBrowsing()
+        {
+            try
+            {
+                var slots = new[]
+                {
+                    EquipmentIndex.Weapon0,
+                    EquipmentIndex.Weapon1,
+                    EquipmentIndex.Weapon2,
+                    EquipmentIndex.Weapon3
+                };
+
+                return GetEquipmentVariantsForBrowsing(slots,
+                    (slot, item) =>
+                    {
+                        _ = slot;
+                        var weapon = item?.WeaponComponent?.PrimaryWeapon;
+                        return weapon != null && !weapon.IsShield;
+                    });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error in GetWeaponVariantsForBrowsing", ex);
+                return new List<EquipmentVariantOption>();
+            }
+        }
+
+        /// <summary>
+        /// Get armor variants for the UI browser, combining helmet, body, gloves, and boots.
+        /// Capes are excluded because they are shown under accessories.
+        /// </summary>
+        public List<EquipmentVariantOption> GetArmorVariantsForBrowsing()
+        {
+            try
+            {
+                var slots = new[]
+                {
+                    EquipmentIndex.Head,
+                    EquipmentIndex.Body,
+                    EquipmentIndex.Gloves,
+                    EquipmentIndex.Leg
+                };
+
+                return GetEquipmentVariantsForBrowsing(slots,
+                    (slot, item) =>
+                    {
+                        _ = slot;
+                        return item?.ArmorComponent != null;
+                    });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error in GetArmorVariantsForBrowsing", ex);
+                return new List<EquipmentVariantOption>();
+            }
+        }
+
+        /// <summary>
+        /// Get accessory variants for the UI browser: capes, shields, and horse harness.
+        /// </summary>
+        public List<EquipmentVariantOption> GetAccessoryVariantsForBrowsing()
+        {
+            try
+            {
+                var slots = new[]
+                {
+                    EquipmentIndex.Weapon0,
+                    EquipmentIndex.Weapon1,
+                    EquipmentIndex.Weapon2,
+                    EquipmentIndex.Weapon3,
+                    EquipmentIndex.Cape,
+                    EquipmentIndex.HorseHarness
+                };
+
+                return GetEquipmentVariantsForBrowsing(slots,
+                    (slot, item) =>
+                    {
+                        if (item == null)
+                        {
+                            return false;
+                        }
+
+                        if (slot is EquipmentIndex.Cape or EquipmentIndex.HorseHarness)
+                        {
+                            return true;
+                        }
+
+                        return item.WeaponComponent?.PrimaryWeapon?.IsShield == true;
+                    });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error in GetAccessoryVariantsForBrowsing", ex);
+                return new List<EquipmentVariantOption>();
+            }
+        }
+
+        /// <summary>
+        /// Get armor variants for one specific armor slot.
+        /// </summary>
+        public List<EquipmentVariantOption> GetArmorVariantsForBrowsing(EquipmentIndex slot)
+        {
+            try
+            {
+                if (slot is not (EquipmentIndex.Head or EquipmentIndex.Body or EquipmentIndex.Gloves or EquipmentIndex.Leg or EquipmentIndex.Cape))
+                {
+                    return new List<EquipmentVariantOption>();
+                }
+
+                return GetEquipmentVariantsForBrowsing(new[] { slot },
+                    (_, item) => item?.ArmorComponent != null);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error in GetArmorVariantsForBrowsing(slot)", ex);
+                return new List<EquipmentVariantOption>();
+            }
+        }
+
+        private List<EquipmentVariantOption> GetEquipmentVariantsForBrowsing(
+            IEnumerable<EquipmentIndex> slots,
+            Func<EquipmentIndex, ItemObject, bool> includeItem)
+        {
+            var enlistment = EnlistmentBehavior.Instance;
+            if (enlistment?.IsEnlisted != true)
+            {
+                return new List<EquipmentVariantOption>();
+            }
+
+            var culture = enlistment.EnlistedLord?.Culture;
+            var hero = Hero.MainHero;
+            if (culture == null || hero == null)
+            {
+                return new List<EquipmentVariantOption>();
+            }
+
+            var allEquipment = GetAvailableEquipmentAllFormations(enlistment.EnlistmentTier, culture);
+            var options = new List<EquipmentVariantOption>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var slot in slots)
+            {
+                if (!allEquipment.TryGetValue(slot, out var items))
+                {
+                    continue;
+                }
+
+                foreach (var item in items)
+                {
+                    if (item == null || !includeItem(slot, item) || !seen.Add(item.StringId))
+                    {
+                        continue;
+                    }
+
+                    options.Add(CreateBrowsingOption(hero, item, slot));
+                }
+            }
+
+            return options
+                .OrderBy(o => o.IsCurrent ? 0 : 1)
+                .ThenBy(o => o.Item?.Name?.ToString())
+                .ToList();
+        }
+
+        private EquipmentVariantOption CreateBrowsingOption(Hero hero, ItemObject item, EquipmentIndex slot)
+        {
+            var rolledQuality = RollItemQualityByReputation();
+            var (modifier, actualQuality) = GetRandomModifierForQuality(item, rolledQuality);
+
+            var basePrice = item.Value;
+            if (modifier != null)
+            {
+                basePrice = (int)(basePrice * modifier.PriceMultiplier);
+            }
+
+            var price = CalculateQuartermasterPriceFromBase(basePrice);
+            var quantityAvailable = _inventoryState?.GetAvailableQuantity(item.StringId) ?? 999;
+            var isInStock = IsItemInStock(item) && quantityAvailable > 0;
+            var allowsDuplicate = IsWeaponSlot(slot) || IsConsumableItem(item);
+
+            string modifiedName = null;
+            if (modifier != null)
+            {
+                modifiedName = $"{modifier.Name} {item.Name}";
+            }
+
+            return new EquipmentVariantOption
+            {
+                Item = item,
+                Cost = price,
+                IsCurrent = IsEquipped(hero, item, slot),
+                CanAfford = hero.Gold >= price,
+                Slot = slot,
+                IsOfficerExclusive = false,
+                AllowsDuplicatePurchase = allowsDuplicate,
+                IsAtLimit = false,
+                IsNewlyUnlocked = IsNewlyUnlockedItem(item),
+                IsInStock = isInStock,
+                QuantityAvailable = quantityAvailable,
+                Modifier = modifier,
+                Quality = actualQuality,
+                ModifiedName = modifiedName
+            };
+        }
+
+        private static bool IsEquipped(Hero hero, ItemObject item, EquipmentIndex slot)
+        {
+            if (hero == null || item == null)
+            {
+                return false;
+            }
+
+            if (IsWeaponSlot(slot))
+            {
+                for (var weaponSlot = EquipmentIndex.Weapon0; weaponSlot <= EquipmentIndex.Weapon3; weaponSlot++)
+                {
+                    if (hero.BattleEquipment[weaponSlot].Item == item)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            return hero.BattleEquipment[slot].Item == item;
+        }
+
+        /// <summary>
         /// Get equipment available for a specific formation+tier+culture combination.
         /// This is the formation-filtered version for cases where you need only one formation's equipment.
         /// 

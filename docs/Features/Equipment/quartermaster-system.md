@@ -3,10 +3,11 @@
 **Summary:** The Quartermaster manages all military logistics for the player's company including equipment purchases with quality modifiers, provisions/rations, buyback services, baggage inspections, and the Officers Armory. The system uses a data-driven dialogue engine with dynamic runtime context evaluation, allowing the Quartermaster to react to supply levels, reputation, and company events in real-time.
 
 **Status:** ✅ Current
-**Last Updated:** 2026-01-03 (Fixed baggage stowage trigger logic; Fixed stock refresh to use cross-formation equipment discovery)
+**Last Updated:** 2026-04-24 (Restored direct category browsing APIs for weapons, armor, and accessories; no reflection)
 **Related Docs:** [Company Supply Simulation](company-supply-simulation.md), [Provisions & Rations System](provisions-rations-system.md)
 
 **RECENT FIXES:**
+- **(2026-04-24)** Restored Quartermaster category browsing from conversation. Dialogue actions now call direct `QuartermasterManager` APIs for weapons, armor, and accessories instead of reflecting into retired private builder methods. Category browsers use the same cross-formation equipment discovery, stock state, quality rolls, and pricing path as the rest of the Quartermaster system.
 - **(2026-01-03)** Fixed critical bug where Quartermaster stock was not updating after initial enlistment. The `RefreshInventoryAtMuster()` and `RollStockAvailability()` methods relied on a deprecated `_troopEquipmentVariants` cache that was no longer being populated by the UI. Implemented new cross-formation equipment discovery via `GetAvailableEquipmentAllFormations()`, which scans all troop types (infantry, archer, cavalry, horse archer) for the player's culture and tier. Players now see equipment from all formations, not just their specific formation type. This resolves the reported issue where equipment "gets a preset once you Enlist and then never updates again."
 - **(2025-12-29)** Provisions system updated: T7+ gate enforced, pricing scaled to 2.0-3.2x market rates based on reputation. Upgrade screen redesigned with grid layout and sequential upgrade paths. Armor browsing simplified to open Gauntlet UI directly without slot picker.
 
@@ -1314,8 +1315,12 @@ Using non-existent brush names (like `Popup.Background.Medium`) causes UI to ren
 // Ensures at least 1 item per major slot (Weapon0, Head, Body, Leg, Horse) remains available
 ```
 
-**Mount/Harness Browsing (Direct API, no reflection):**
+**Category Browsing (Direct API, no reflection):**
 ```csharp
+// QuartermasterManager.GetWeaponVariantsForBrowsing()
+// QuartermasterManager.GetArmorVariantsForBrowsing()
+// QuartermasterManager.GetArmorVariantsForBrowsing(slot)
+// QuartermasterManager.GetAccessoryVariantsForBrowsing()
 // QuartermasterManager.GetMountVariantsForBrowsing()
 // QuartermasterManager.GetHarnessVariantsForBrowsing()
 // Returns EquipmentVariantOption lists with pricing, quality, and stock status

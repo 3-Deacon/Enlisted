@@ -3072,24 +3072,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             try
             {
-                var method = typeof(QuartermasterManager).GetMethod("BuildWeaponOptionsFromCurrentTroop",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (method == null)
-                {
-                    return new List<EquipmentVariantOption>();
-                }
-
-                var options = method.Invoke(qm, null) as Dictionary<EquipmentIndex, List<EquipmentVariantOption>>;
-                if (options == null)
-                {
-                    return new List<EquipmentVariantOption>();
-                }
-
-                // Flatten all weapon variants into one list, excluding shields (shields go to accessories)
-                return options
-                    .SelectMany(kvp => kvp.Value)
-                    .Where(opt => opt.Item?.WeaponComponent?.PrimaryWeapon?.IsShield != true)
-                    .ToList();
+                return qm.GetWeaponVariantsForBrowsing();
             }
             catch (Exception ex)
             {
@@ -3105,33 +3088,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             try
             {
-                var combined = new List<EquipmentVariantOption>();
-
-                // Get capes from armor options
-                var armorMethod = typeof(QuartermasterManager).GetMethod("BuildArmorOptionsFromCurrentTroop",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (armorMethod != null)
-                {
-                    var armorOptions = armorMethod.Invoke(qm, null) as Dictionary<EquipmentIndex, List<EquipmentVariantOption>>;
-                    if (armorOptions?.TryGetValue(EquipmentIndex.Cape, out var capeOptions) == true)
-                    {
-                        combined.AddRange(capeOptions);
-                    }
-                }
-
-                // Get shields from weapon slots
-                var shieldMethod = typeof(QuartermasterManager).GetMethod("BuildShieldOptionsFromWeapons",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (shieldMethod != null)
-                {
-                    var shieldOptions = shieldMethod.Invoke(qm, null) as List<EquipmentVariantOption>;
-                    if (shieldOptions != null)
-                    {
-                        combined.AddRange(shieldOptions);
-                    }
-                }
-
-                return combined;
+                return qm.GetAccessoryVariantsForBrowsing();
             }
             catch (Exception ex)
             {
@@ -3165,20 +3122,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             try
             {
-                var method = typeof(QuartermasterManager).GetMethod("BuildArmorOptionsFromCurrentTroop",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (method == null)
-                {
-                    return new List<EquipmentVariantOption>();
-                }
-
-                var options = method.Invoke(qm, null) as Dictionary<EquipmentIndex, List<EquipmentVariantOption>>;
-                if (options?.TryGetValue(slot, out var slotVariants) == true)
-                {
-                    return slotVariants;
-                }
-
-                return new List<EquipmentVariantOption>();
+                return qm.GetArmorVariantsForBrowsing(slot);
             }
             catch (Exception ex)
             {
@@ -3195,38 +3139,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             try
             {
-                var method = typeof(QuartermasterManager).GetMethod("BuildArmorOptionsFromCurrentTroop",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                if (method == null)
-                {
-                    return new List<EquipmentVariantOption>();
-                }
-
-                var options = method.Invoke(qm, null) as Dictionary<EquipmentIndex, List<EquipmentVariantOption>>;
-                if (options == null)
-                {
-                    return new List<EquipmentVariantOption>();
-                }
-
-                // Combine all armor slots into a single list (cape goes to accessories)
-                var combined = new List<EquipmentVariantOption>();
-                var armorSlots = new[]
-                {
-                    EquipmentIndex.Head,
-                    EquipmentIndex.Body,
-                    EquipmentIndex.Gloves,
-                    EquipmentIndex.Leg
-                };
-
-                foreach (var slot in armorSlots)
-                {
-                    if (options.TryGetValue(slot, out var slotVariants))
-                    {
-                        combined.AddRange(slotVariants);
-                    }
-                }
-
-                return combined;
+                return qm.GetArmorVariantsForBrowsing();
             }
             catch (Exception ex)
             {
