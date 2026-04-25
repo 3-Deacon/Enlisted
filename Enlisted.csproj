@@ -463,6 +463,7 @@
     <Compile Include="src\Features\Lifestyles\LifestyleUnlockBehavior.cs"/>
     <Compile Include="src\Features\Ceremonies\RankCeremonyBehavior.cs"/>
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
+    <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
@@ -713,6 +714,11 @@
     <QualitiesData Include="ModuleData\Enlisted\Qualities\*.json"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Companions (Plan 2 — archetype catalog driving CompanionSpawnFactory) -->
+    <CompanionsData Include="ModuleData\Enlisted\Companions\*.json"/>
+  </ItemGroup>
+
   <!-- ========================================================================
        DOCUMENTATION & PROJECT FILES
        ======================================================================== -->
@@ -784,6 +790,7 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Storylets"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Qualities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Loot"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Companions"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Languages"/>
     
     <!-- COPY MODULE CONFIGURATION -->
@@ -800,7 +807,8 @@
     <Copy SourceFiles="@(LootData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Loot\"/>
     <Copy SourceFiles="@(StoryletsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Storylets\"/>
     <Copy SourceFiles="@(QualitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Qualities\"/>
-    
+    <Copy SourceFiles="@(CompanionsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Companions\"/>
+
     <!-- COPY LOCALIZATION FILES (XML) -->
     <Copy SourceFiles="ModuleData\Languages\enlisted_strings.xml" DestinationFolder="$(OutputPath)..\..\ModuleData\Languages\"/>
     <Copy SourceFiles="ModuleData\Languages\language_data.xml" DestinationFolder="$(OutputPath)..\..\ModuleData\Languages\"/>

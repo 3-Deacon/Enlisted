@@ -37,6 +37,24 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-CAMP-c8fb | Error initializing Faction Detail | src/Features/Camp/CampMenuHandler.cs:696 |
 | E-CAMP-db74 | Error initializing Retinue menu | src/Features/Camp/CampMenuHandler.cs:1129 |
 
+## COMPANION
+
+| Code | Summary | Source |
+|---|---|---|
+| E-COMPANION-1a21 | schema_version_mismatch | src/Features/Companions/CompanionSpawnFactory.cs:79 |
+| E-COMPANION-1dad | duplicate_companion_type | src/Features/Companions/CompanionSpawnFactory.cs:103 |
+| E-COMPANION-3c31 | companion_type_no_archetypes | src/Features/Companions/CompanionSpawnFactory.cs:303 |
+| E-COMPANION-56bb | unknown_companion_type | src/Features/Companions/CompanionSpawnFactory.cs:162 |
+| E-COMPANION-6309 | spawn_no_template | src/Features/Companions/CompanionSpawnFactory.cs:198 |
+| E-COMPANION-7de6 | no_archetype | src/Features/Companions/CompanionSpawnFactory.cs:186 |
+| E-COMPANION-7ee5 | companion_type_missing_id | src/Features/Companions/CompanionSpawnFactory.cs:270 |
+| E-COMPANION-aad7 | main_party_missing | src/Features/Companions/CompanionSpawnFactory.cs:246 |
+| E-COMPANION-aaee | archetype_missing_id | src/Features/Companions/CompanionSpawnFactory.cs:339 |
+| E-COMPANION-e4a8 | empty_catalog | src/Features/Companions/CompanionSpawnFactory.cs:88 |
+| E-COMPANION-ed13 | spawn_no_clan | src/Features/Companions/CompanionSpawnFactory.cs:169 |
+| E-COMPANION-edd6 | catalog_load_failed | src/Features/Companions/CompanionSpawnFactory.cs:116 |
+| E-COMPANION-fe1f | companion_type_no_valid_archetypes | src/Features/Companions/CompanionSpawnFactory.cs:320 |
+
 ## COMPANYNEEDS
 
 | Code | Summary | Source |
