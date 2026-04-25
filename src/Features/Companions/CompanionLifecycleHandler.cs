@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
@@ -187,15 +187,24 @@ namespace Enlisted.Features.Companions
         private void OnHeroKilled(Hero victim, Hero killer,
             KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)
         {
-            if (victim == null) return;
+            if (victim == null)
+            {
+                return;
+            }
 
             try
             {
                 var enlistment = EnlistmentBehavior.Instance;
-                if (enlistment == null) return;
+                if (enlistment == null)
+                {
+                    return;
+                }
 
                 var typeId = enlistment.GetCompanionTypeId(victim);
-                if (string.IsNullOrEmpty(typeId)) return;
+                if (string.IsNullOrEmpty(typeId))
+                {
+                    return;
+                }
 
                 if (enlistment.ClearCompanionSlot(victim))
                 {

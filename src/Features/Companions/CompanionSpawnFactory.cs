@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,12 +9,10 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using TaleWorlds.ObjectSystem;
 
 namespace Enlisted.Features.Companions
 {
@@ -510,10 +508,19 @@ namespace Enlisted.Features.Companions
 
         private static void ApplyName(Hero hero, ArchetypeEntry archetype)
         {
-            if (hero == null || archetype == null) return;
-            if (archetype.NamePool == null || archetype.NamePool.Count == 0) return;
+            if (hero == null || archetype == null)
+            {
+                return;
+            }
+            if (archetype.NamePool == null || archetype.NamePool.Count == 0)
+            {
+                return;
+            }
             var picked = archetype.NamePool[MBRandom.RandomInt(archetype.NamePool.Count)];
-            if (string.IsNullOrEmpty(picked)) return;
+            if (string.IsNullOrEmpty(picked))
+            {
+                return;
+            }
             var nameObj = new TextObject(picked);
             hero.SetName(nameObj, nameObj);
         }

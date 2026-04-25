@@ -53,7 +53,11 @@ namespace Enlisted.Features.Conversations.Data
                 return;
             }
 
-            var jsonFiles = Directory.GetFiles(dialoguePath, "*.json", SearchOption.TopDirectoryOnly);
+            // Filter to QM catalogs only — the Dialogue/ directory now also hosts
+            // companion_*.json from the wanderer companion substrate (Plan 2),
+            // which use dialogueType="companion" and would otherwise warn on
+            // every launch when the QM-type check rejects them.
+            var jsonFiles = Directory.GetFiles(dialoguePath, "qm_*.json", SearchOption.TopDirectoryOnly);
             var filesLoaded = 0;
 
             foreach (var filePath in jsonFiles)

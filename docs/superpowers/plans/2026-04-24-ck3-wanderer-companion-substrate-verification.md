@@ -18,6 +18,8 @@
 | `da67462` | Phase 2 | T4-T11 | spawn slots + lifecycle handler |
 | `8cbe9f7` | Phase 3 | T12-T18 | six archetype dialog catalogs + loader |
 | `11d7d82` | Phase 4 | T19-T20 | Camp menu Talk-to companion option |
+| `f5f226c` | Phase 5 | T25 | verification doc + CLAUDE.md status |
+| (this) | Phase 5+ | follow-up | lint cleanup, QM catalog glob narrowing |
 
 ### New files (12)
 
@@ -72,7 +74,8 @@ Save-class offset budget for Plans 3-7 (54-58 + enum 84) was claimed by Plan 1; 
 - ✅ `MSBuild.exe Enlisted.sln -p:Configuration='Enlisted RETAIL' -p:Platform=x64` — clean (0 warnings, 0 errors) after each of the four phase commits
 - ✅ `python Tools/Validation/validate_content.py` — passes; Phase 18 reports `OK: 6 companion dialog catalog(s) validated, 120 nodes total.`
 - ✅ `python Tools/Validation/generate_error_codes.py` — registry regenerated; 124 Surfaced call sites across 29 categories; staged
-- ✅ All new C# files normalized to CRLF via `Tools/normalize_crlf.ps1`
+- ✅ `dotnet format Enlisted.sln whitespace --verify-no-changes` and `style --severity warn` — both exit 0 for `src/Features/Companions/**` (the three new C# files and the inherited Conversations/Data/QMDialogueCatalog.cs glob narrowing). Pre-existing CHARSET pollution across the wider codebase (Plan 1 wanderer substrate, Career-loop family Plan 1) is out of Plan 2 scope; tracked separately.
+- ✅ All new C# files normalized to CRLF via `Tools/normalize_crlf.ps1` AND BOM-stripped via PowerShell to satisfy the `.editorconfig charset = utf-8` rule. (The `normalize_crlf.ps1` script unconditionally prepends a UTF-8 BOM per CLAUDE.md known footgun; lint enforcement requires UTF-8 without BOM.)
 - ✅ Six archetype JSON catalogs deploy to `Modules\Enlisted\ModuleData\Enlisted\Dialogue\` via the existing `<DialogueData>` glob
 - ✅ `archetype_catalog.json` deploys to `Modules\Enlisted\ModuleData\Enlisted\Companions\` via the new `<CompanionsData>` ItemGroup + Copy step
 - ✅ `CompanionSpawnFactory.SpawnCompanion` API verified against decompile: `HeroCreator.CreateSpecialHero(template, settlement, faction, supporterOfClan, age)`, `HeroDeveloper.SetInitialSkillLevel(skill, value)`, `HeroDeveloper.AddAttribute(attr, value, checkUnspentPoints)`, `Hero.SetTraitLevel(trait, value)`, `Hero.SetName(fullName, firstName)`, `Hero.SetNewOccupation(Occupation.Soldier)`, `AddCompanionAction.Apply(clan, hero)`, `MobileParty.MainParty.MemberRoster.AddToCounts(co, count)`
@@ -150,6 +153,8 @@ The plan v1 prescribes 25 sequential tasks. Several were collapsed during execut
 | T12-T17 — six archetype dialog catalogs | shipped | One consolidated `companion_<id>.json` per companion instead of plan's three-file split (`<id>_intro.json` / `<id>_dialogue.json` / `<id>_advice.json`). Single file is cleaner to validate and navigate; topic separation lives in node-id prefixes (`<id>_intro_*` / `<id>_topic_*` / `<id>_goodbye`). Six topics covered per catalog: introduction (3 archetype variants), introduction acknowledgement (3), root hub (1), two archetype-flavored topics (3+3), recent-battle gated on `has_recent_battle: true` (3), advice (3), goodbye (1). 20 nodes per catalog × 6 catalogs = 120 nodes. Authored via parallel implementer subagents using Sergeant as the structural template. |
 | T18 — `CompanionDialogueCatalog` loader + Phase 18 validator | shipped | Plan 1 collapsed the loader stub and pushed it to Plan 2 (Plan 1 verification §4). Plan 2 ships the full loader with eight context fields specific to companions (companion_type, archetype, is_introduced, relationship_tier, player_tier, tier_min, tier_max, has_recent_battle). Phase 18 validates schemaVersion=1, dialogueType="companion", node ids present, archetype + companion_type values match `archetype_catalog.json` whitelist, and every option's next_node resolves within the same file. |
 | T19-T20 — Camp menu Talk-to surface | shipped | Index 6 confirmed free; ShowCompanionSelectionInquiry mirrors ShowLordSelectionInquiry; StartConversationWithCompanion mirrors StartConversationWithLord (sea-aware via `MobileParty.MainParty.IsCurrentlyAtSea` + `conversation_scene_sea_multi_agent`). |
+| Post-T25 — QM catalog log pollution fix | shipped | `QMDialogueCatalog.LoadFromJson` previously scanned `*.json` and warned six times per launch on the new `companion_*.json` files (rejected by its `dialogueType == "quartermaster"` check). Glob narrowed to `qm_*.json` to match the catalog scope. Verified by reading the new line at `QMDialogueCatalog.cs:56-60`. |
+| Post-T25 — lint cleanup | shipped | IDE0011 (single-line if without braces, AGENTS.md Code Standards), IDE0005 (unused `TaleWorlds.Roster` + `TaleWorlds.ObjectSystem` usings) cleaned in `CompanionSpawnFactory.cs` and `CompanionLifecycleHandler.cs`. IDE0058 (Expression value never used) on `GetOrCreateX()` calls left in place — those return Hero for callers that need it; current call sites are fire-and-forget by design (matches the QM precedent). |
 | T21-T24 — runtime smokes | pending human | This is a code-only verification at this stage. Smokes require a running game session and Debug Tools — see §3 for the four recipes. |
 | T25 — verification report | this file | Status 🟡 mirroring Plan 1's verification format. Closes to ✅ when human operator signs off on T21-T24. |
 
