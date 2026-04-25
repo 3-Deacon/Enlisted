@@ -5,6 +5,22 @@
 **Source spec:** [CK3 Wanderer Mechanics Systems Analysis (v6)](../superpowers/specs/2026-04-24-ck3-wanderer-systems-analysis.md).
 **Owning plan:** [Plan 1 — Architecture Foundation](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation.md).
 
+**Plan family progress (2026-04-25):**
+
+| Plan | Status | Verification |
+| :-- | :-- | :-- |
+| Plan 1 — Architecture Foundation | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) |
+| Plan 2 — Companion Substrate | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) |
+| Plans 3-7 | not started | — |
+
+**Plan 2 hand-off surface (Plans 3-7 may use):**
+- `Enlisted.Features.Companions.CompanionLifecycleHandler.Instance.GetSpawnedCompanions()` — `List<Hero>` of currently-spawned, alive companions. Plan 3 ceremony witness selection reads this.
+- `Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior.Instance.GetSpawnedCompanions()` — same data, accessed without going through the lifecycle handler.
+- `Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior.Instance.GetCompanionTypeId(Hero)` — returns "sergeant" / "field_medic" / "pathfinder" / "veteran" / "qm_officer" / "junior_officer" / null.
+- `Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior.Instance.ClearCompanionSlot(Hero)` — null the slot matching a hero. Plan 6 patron loaned-knight cleanup uses its own pathway, but the helper is available for plans that need to remove a Plan-2 companion outside the death/discharge defaults.
+- `Enlisted.Features.Companions.Data.CompanionDialogueCatalog.Instance.GetNode(nodeId, ctx)` — specificity-ranked variant lookup. Plans 3-7 hooking conversation rendering against the catalog use this directly.
+- Six archetype catalogs at `ModuleData/Enlisted/Dialogue/companion_<id>.json` with stable node-id prefixes (`companion_<id>_intro_greeting`, `_root`, `_topic_*`, `_goodbye`). Plans 3-7 may add new `companion_*.json` files; the loader picks them all up.
+
 ---
 
 ## 1. Save-definer offset ledger
@@ -85,6 +101,18 @@ Dialog token namespace is global per session. Tokens use these prefixes to avoid
 | `lifestyle_*` | Lifestyle unlock branches | §3.6 |
 
 **Vanilla token reuse rule.** Always layer mod player-lines on existing vanilla input tokens (`lord_pretalk`, `lord_talk_speak_diplomacy_2`, `notable_pretalk`, `hero_main_options`, `companion_role_pretalk`). Use mod-prefixed *output* tokens to keep our sub-trees isolated.
+
+**Text-variable interpolation contract (Plan 2 established, Plans 3-7 inherit).** Every dialog catalog node's `text` and `options[].text` may reference these tokens; the wiring code populates them via `MBTextManager.SetTextVariable` before opening the conversation:
+
+| Token | Source | Notes |
+| :-- | :-- | :-- |
+| `{PLAYER_NAME}` | `Hero.MainHero.Name` | Must use the dialog token, not literal "soldier" / "lad" / etc. |
+| `{PLAYER_RANK}` | `RankHelper.GetCurrentRank(EnlistmentBehavior.Instance)` | **Culture-aware** — reads `progression_config.json` for per-kingdom rank titles. Hard-coding "Sergeant" silently strips the mod's culture-rank work. |
+| `{LORD_NAME}` | `EnlistmentBehavior.Instance.EnlistedLord.Name` | Use instead of "the lord" / "the commander" / "him" when the speaker is referencing the enlisted lord. |
+| `{PLAYER_TIER}` | `EnlistmentBehavior.Instance.EnlistmentTier` (numeric 1-9) | Rarely surfaces inline; useful for context conditions in storylet schemas. |
+| `{COMPANION_NAME}` / `{COMPANION_FIRST_NAME}` | The currently-spoken-to companion (Plan 2 surface) | `COMPANION_NAME` preserves title prefixes ("Brother Eadric"); `COMPANION_FIRST_NAME` strips them ("Eadric"). |
+
+Wiring precedents: `EnlistedDialogManager.SetCommonDialogueVariables` for the QM flow; `EnlistedMenuBehavior.SetCompanionConversationTokens` for the Plan 2 Talk-to flow. Plans 3-7 firing modal storylets via `ModalEventBuilder` automatically inherit the QM-set variables (the global `MBTextManager` bag persists across calls); ceremony / endeavor / patron flows that open NEW conversations need their own SetCompanionConversationTokens-equivalent helper. Plan 2 Phase 5++ (commit `4dfe719`) added the AGENTS.md pitfall #23 codifying this rule.
 
 ---
 

@@ -1,6 +1,8 @@
 # Plan 3 — CK3 Wanderer Mechanics: Rank-Ceremony Arc
 
-**Status:** Draft v1 (2026-04-24). Third of seven plans implementing the [CK3 Wanderer Mechanics Systems Analysis (v6)](../specs/2026-04-24-ck3-wanderer-systems-analysis.md). See spec §8 for the full plan structure.
+**Status:** Draft v2 (2026-04-25). Third of seven plans implementing the [CK3 Wanderer Mechanics Systems Analysis (v6)](../specs/2026-04-24-ck3-wanderer-systems-analysis.md). See spec §8 for the full plan structure.
+
+**v2 changes from v1:** flag-key naming aligned with architecture brief §4 rule 6 (flat underscore, not dotted); scripted-effects schema corrected to match the actual `{ "effects": { "<id>": [<primitives>] } }` shape with `apply` keys; explicit Plan 2 hand-off surface listed; dialog token interpolation contract called out for ceremony storylet authoring (per AGENTS.md pitfall #23, established by Plan 2 Phase 5++); Phase 20 validator reframed as "created from scratch" since Plan 1 verification §5 confirms no Phase 20 stub shipped (Plan 1 deferred validator phases 18-20 to the plans that need them).
 
 **Scope:** Eight character-defining ceremony storylets at tier transitions (T1→T2 through T8→T9). Each fires as a modal popup via the canonical pipeline (`StoryletEventAdapter.BuildModal` + `StoryDirector.EmitCandidate`). Choice memory persists across the career via `FlagStore`; trait drift applies vanilla `DefaultTraits` (Mercy/Valor/Honor/Generosity/Calculating); companion witnesses (from Plan 2) react via `ChangeRelationAction.ApplyPlayerRelation`. **NO endeavors, NO officer equipment, NO patron favors** — those are Plans 4, 5, 6.
 
@@ -149,12 +151,14 @@ After Plan 3 ships, the codebase is in a state where:
 
 | Flag key pattern | Type | Purpose |
 | :-- | :-- | :-- |
-| `ceremony.fired.t{N}` | bool | Dedup. Set to `true` after ceremony fires for tier-up to N. Subsequent `OnTierChanged(N-1, N)` events check this flag and short-circuit if set. |
-| `ceremony.t{N}.choice` | string | Player's choice ID at ceremony N. E.g. `ceremony.t3.choice = "frugal"`. |
-| `ceremony.t{N}.witness.<archetype>.reaction` | string | Witness reaction at ceremony N. E.g. `ceremony.t4.witness.sergeant.reaction = "approve"`. |
-| `ceremony.t{N}.culture_variant` | string | Which cultural variant fired (Vlandian / Sturgian / etc.). For replay analysis only; no game logic reads this. |
+| `ceremony_fired_t{N}` | bool | Dedup. Set to `true` after ceremony fires for tier-up to N. Subsequent `OnTierChanged(N-1, N)` events check this flag and short-circuit if set. |
+| `ceremony_t{N}_choice` | string | Player's choice ID at ceremony N. E.g. `ceremony_t3_choice = "frugal"`. |
+| `ceremony_t{N}_witness_<archetype>_reaction` | string | Witness reaction at ceremony N. E.g. `ceremony_t4_witness_sergeant_reaction = "approve"`. |
+| `ceremony_t{N}_culture_variant` | string | Which cultural variant fired (Vlandian / Sturgian / etc.). For replay analysis only; no game logic reads this. |
 
 All flags persist via `FlagStore`'s existing serialization. No new save-offset needed.
+
+**Naming convention enforced.** The architecture brief §4 rule 6 (and Plan 1 verification §5) lock all flag and quality keys to flat underscore namespace (`<system>_<scope>_<id>`). Earlier draft v1 of this plan used dotted notation (`ceremony.fired.t{N}`); v2 corrects to match the brief and the existing `FlagStore` precedent.
 
 ### §4.3 Cultural variant strategy (LOCKED)
 
@@ -189,14 +193,20 @@ This keeps content authoring tractable: 8 ceremonies × 4 storylet objects each 
 
 Choice options apply trait drift via direct `Hero.SetTraitLevel(trait, currentLevel + delta)` on Hero.MainHero. Magnitudes: ±1 per ceremony (compounds across 8 ceremonies = ±8 max range, within vanilla trait clamp).
 
-**Implementation via scripted effects** (added to `ModuleData/Enlisted/Effects/scripted_effects.json` in T6):
+**Implementation via scripted effects** (added to `ModuleData/Enlisted/Effects/scripted_effects.json` in T6).
+
+The actual `scripted_effects.json` shape is `{ "effects": { "<id>": [ <list of primitives> ] } }`. Each primitive uses `apply` plus its own args. New ceremony entries land in this shape:
 
 ```json
 {
-  "id": "ceremony_trait_drift_valor_up",
-  "kind": "trait_drift",
-  "trait": "Valor",
-  "delta": 1
+  "effects": {
+    "ceremony_trait_drift_valor_up": [
+      { "apply": "trait_drift", "trait": "Valor", "delta": 1 }
+    ],
+    "ceremony_trait_drift_mercy_down": [
+      { "apply": "trait_drift", "trait": "Mercy", "delta": -1 }
+    ]
+  }
 }
 ```
 
@@ -209,12 +219,14 @@ Storylet option references the effect by ID:
   "effects": [
     { "apply": "ceremony_trait_drift_valor_up" },
     { "apply": "ceremony_witness_reaction_sergeant_approve" },
-    { "apply": "set_flag", "args": ["ceremony.t3.choice", "fight"] }
+    { "apply": "set_flag", "name": "ceremony_t3_choice", "value": "fight" }
   ]
 }
 ```
 
-`EffectExecutor` (existing) handles dispatch. Plan 3 adds the ~10 ceremony-specific scripted effects; primitives (`set_flag`, etc.) are existing.
+`EffectExecutor` (existing) handles dispatch. Plan 3 adds the ~10 ceremony-specific scripted effects (one per trait × direction); the new `trait_drift` primitive needs an `EffectExecutor` handler in T6 (calls `Hero.MainHero.SetTraitLevel(trait, currentLevel + delta)`). Existing primitives (`set_flag`, `quality_add`, etc.) are reused. **The `kind:` / `primitive:` field shapes from earlier draft v1 of this plan don't match the actual schema; v2 corrects to `apply:` inside an array per id.**
+
+**Storylet text token usage.** Per AGENTS.md pitfall #23 + architecture brief §3 text-variable interpolation contract, ceremony storylet `setup` and `options[].text` strings should reference `{PLAYER_NAME}`, `{PLAYER_RANK}` (culture-aware via `RankHelper.GetCurrentRank`), `{LORD_NAME}`, `{PLAYER_TIER}` rather than hard-coding "soldier" / "the lord" / etc. Token resolution requires the conversation-opener to populate the variables; ceremony modals fired through `ModalEventBuilder.FireCeremony` inherit whatever variables the wider session has set, so most cases work automatically — but if a ceremony fires before the QM flow has set the tokens (early enlistment), `RankCeremonyBehavior.OnTierChanged` may need to call its own SetTextVariable batch. T18 smoke verifies token resolution at T1→T2 (the earliest ceremony).
 
 ### §4.6 Witness reaction mechanism (LOCKED)
 
@@ -454,15 +466,40 @@ public static class CeremonyWitnessSelector
 
 **Files:**
 - New `src/Features/Ceremonies/CeremonyWitnessReactor.cs` (helper)
-- Edit `scripted_effects.json` — add per-archetype reaction effects:
+- Edit `scripted_effects.json` — add per-archetype reaction effects in the canonical shape:
 
 ```json
-{ "id": "ceremony_witness_reaction_sergeant_approve", "primitive": "companion_relation", "archetype": "sergeant", "delta": 5 },
-{ "id": "ceremony_witness_reaction_sergeant_disapprove", "primitive": "companion_relation", "archetype": "sergeant", "delta": -5 },
-// 6 archetypes × 2 directions × 2 magnitudes (5/10) = ~24 entries
+{
+  "effects": {
+    "ceremony_witness_reaction_sergeant_approve": [
+      { "apply": "companion_relation", "archetype": "sergeant", "delta": 5 }
+    ],
+    "ceremony_witness_reaction_sergeant_disapprove": [
+      { "apply": "companion_relation", "archetype": "sergeant", "delta": -5 }
+    ]
+  }
+}
 ```
 
-- Edit `EffectExecutor.cs` — add `companion_relation` primitive handler (resolves archetype to spawned hero via `CompanionLifecycleHandler`, calls `ChangeRelationAction.ApplyPlayerRelation`)
+6 archetypes × 2 directions × 2 magnitudes (5/10) = ~24 entries.
+
+- Edit `EffectExecutor.cs` — add `companion_relation` primitive handler (resolves archetype to spawned hero via `EnlistmentBehavior.Instance.GetSpawnedCompanions()` filtered by `EnlistmentBehavior.Instance.GetCompanionTypeId(hero)` matching the archetype string; calls `ChangeRelationAction.ApplyPlayerRelation`).
+
+The Plan 2 hand-off surface for archetype → hero lookup:
+
+```csharp
+var enlistment = EnlistmentBehavior.Instance;
+var hero = enlistment?.GetSpawnedCompanions()
+    .FirstOrDefault(h => enlistment.GetCompanionTypeId(h) == archetype);
+if (hero == null) {
+    ModLogger.Expected("CEREMONY", "witness_not_spawned",
+        $"Witness archetype '{archetype}' not currently spawned; skipping reaction");
+    return;
+}
+ChangeRelationAction.ApplyPlayerRelation(hero, delta, showQuickNotification: true);
+```
+
+`CompanionLifecycleHandler.Instance.GetSpawnedCompanions()` is an equivalent accessor (delegates to EnlistmentBehavior). Either is fine.
 
 **Verification:** Smoke: storylet option with `{ "apply": "ceremony_witness_reaction_sergeant_approve" }` increases Sergeant's relation with MainHero by 5. Vanilla notification ("Sergeant approves of your decision") fires automatically.
 
@@ -553,21 +590,25 @@ Brief sketches:
 
 ---
 
-### T17 — Phase 20 validator populated
+### T17 — Phase 20 validator created
 
-**Goal:** Replace Plan 1 T14's stub Phase 20 with real validation: confirm all 8 tier transitions have at least one ceremony storylet authored, with at least the "base" cultural variant.
+**Goal:** Create Phase 20 in `validate_content.py` from scratch (Plan 1 verification §5 confirms no Phase 20 stub shipped — Plan 1 deferred validator phases 18-20 to the plans that need them; Plan 2 created Phase 18 from scratch using the same pattern). Phase 20 confirms all 8 tier transitions have at least one ceremony storylet authored, with at least the "base" cultural variant.
 
 **Files:** Edit `Tools/Validation/validate_content.py`
 
 **Concrete check:**
 
 ```python
-print("[Phase 20] Validating ceremony storylet completeness...")
-required_tiers = [(1,2), (2,3), (3,4), (4,5), (5,6), (6,7), (7,8), (8,9)]
-required_variants = ["base", "vlandian", "sturgian", "imperial"]
-# For each (prev, curr) tier pair, verify ceremony.t{prev}_to_t{curr}.<variant> exists
-# for at least the "base" variant (the 3 cultural variants are recommended but not strictly required for ship)
+def phase20_ceremony_storylets(storylet_entries, ctx):
+    """Plan 3 §6 T17. Confirm all 8 tier transitions have ceremony storylets authored."""
+    print("[Phase 20] Validating ceremony storylet completeness...")
+    required_tiers = [(1,2), (2,3), (3,4), (4,5), (5,6), (6,7), (7,8), (8,9)]
+    # For each (prev, curr) tier pair, verify ceremony_t{prev}_to_t{curr}_base
+    # exists; the 3 cultural variants are recommended but not strictly required
+    # for ship (covered by Plan 7 polish pass).
 ```
+
+Pattern mirrors `phase18_companion_dialogue` (Plan 2) — register the function before `main()`, call from `main()` after Phase 19 (or after Phase 17 if Phase 19 doesn't exist yet — check the latest validator state).
 
 **Verification:** `validate_content.py` Phase 20 passes after T9-T16 all ship.
 
