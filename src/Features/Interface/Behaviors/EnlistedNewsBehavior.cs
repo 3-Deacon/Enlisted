@@ -800,51 +800,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// </summary>
         private string BuildCommitmentLine()
         {
-            try
-            {
-                var generator = CampOpportunityGenerator.Instance;
-                if (generator == null)
-                {
-                    return string.Empty;
-                }
-
-                var nextCommitment = generator.GetNextCommitment();
-                if (nextCommitment == null)
-                {
-                    return string.Empty;
-                }
-
-                var hoursUntil = generator.GetHoursUntilCommitment(nextCommitment);
-                var activityName = nextCommitment.Title?.ToLower() ?? "an activity";
-                var phase = nextCommitment.ScheduledPhase?.ToLower() ?? "later";
-
-                // Build the commitment line
-                TextObject text;
-                if (hoursUntil <= 1)
-                {
-                    text = new TextObject("{=commitment_soon}You've committed to {ACTIVITY}. It's almost time.");
-                    _ = text.SetTextVariable("ACTIVITY", activityName);
-                }
-                else if (hoursUntil <= 6)
-                {
-                    text = new TextObject("{=commitment_today}You've committed to {ACTIVITY} this {PHASE}.");
-                    _ = text.SetTextVariable("ACTIVITY", activityName);
-                    _ = text.SetTextVariable("PHASE", phase);
-                }
-                else
-                {
-                    text = new TextObject("{=commitment_tomorrow}You've committed to {ACTIVITY} tomorrow at {PHASE}.");
-                    _ = text.SetTextVariable("ACTIVITY", activityName);
-                    _ = text.SetTextVariable("PHASE", phase);
-                }
-
-                return $"<span style=\"Link\">{text}</span>";
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug(LogCategory, $"Error building commitment line: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>
@@ -1123,56 +1079,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// </summary>
         private static string BuildCampRumorsLine()
         {
-            try
-            {
-                // Use Orchestrator's pre-scheduled hints for stability (won't disappear mid-session)
-                var orchestrator = ContentOrchestrator.Instance;
-                IEnumerable<string> hints = null;
-
-                if (orchestrator != null)
-                {
-                    hints = orchestrator.GetUpcomingHints()?.ToList();
-                }
-
-                // Fall back to generator if orchestrator not available
-                if (hints == null || !hints.Any())
-                {
-                    var generator = CampOpportunityGenerator.Instance;
-                    if (generator == null)
-                    {
-                        return string.Empty;
-                    }
-                    hints = generator.GetUpcomingHints()?.ToList();
-                }
-
-                if (hints == null || !hints.Any())
-                {
-                    return string.Empty;
-                }
-
-                // Filter for camp rumors (social activities - hints about others, not "Your...")
-                var campRumors = hints
-                    .Select(h => ResolveHintTokens(h))
-                    .Where(h => !string.IsNullOrWhiteSpace(h) && !IsPersonalHint(h))
-                    .Take(2)
-                    .ToList();
-
-                if (campRumors.Count == 0)
-                {
-                    ModLogger.Debug(LogCategory, "BuildCampRumorsLine: No camp rumors to display (all personal hints)");
-                    return string.Empty;
-                }
-
-                ModLogger.Debug(LogCategory, $"BuildCampRumorsLine: {campRumors.Count} camp rumors displayed");
-
-                // Apply Rumor styling to camp chatter
-                return $"<span style=\"Rumor\">{string.Join(" ", campRumors)}</span>";
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug(LogCategory, $"Error building camp rumors: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>
@@ -1181,55 +1088,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// </summary>
         private static string BuildPersonalHintsLine()
         {
-            try
-            {
-                // Use Orchestrator's pre-scheduled hints for stability (won't disappear mid-session)
-                var orchestrator = ContentOrchestrator.Instance;
-                IEnumerable<string> hints = null;
-
-                if (orchestrator != null)
-                {
-                    hints = orchestrator.GetUpcomingHints()?.ToList();
-                }
-
-                // Fall back to generator if orchestrator not available
-                if (hints == null || !hints.Any())
-                {
-                    var generator = CampOpportunityGenerator.Instance;
-                    if (generator == null)
-                    {
-                        return string.Empty;
-                    }
-                    hints = generator.GetUpcomingHints()?.ToList();
-                }
-
-                if (hints == null || !hints.Any())
-                {
-                    return string.Empty;
-                }
-
-                // Filter for personal hints (things about the player)
-                var personalHints = hints
-                    .Select(h => ResolveHintTokens(h))
-                    .Where(h => !string.IsNullOrWhiteSpace(h) && IsPersonalHint(h))
-                    .Take(2)
-                    .ToList();
-
-                if (personalHints.Count == 0)
-                {
-                    ModLogger.Debug(LogCategory, "BuildPersonalHintsLine: No personal hints to display (all camp rumors)");
-                    return string.Empty;
-                }
-
-                ModLogger.Debug(LogCategory, $"BuildPersonalHintsLine: {personalHints.Count} personal hints displayed");
-
-                return string.Join(" ", personalHints);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug(LogCategory, $"Error building personal hints: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>
@@ -2482,58 +2341,7 @@ namespace Enlisted.Features.Interface.Behaviors
         /// </summary>
         private string GetCampActivityFlavor()
         {
-            try
-            {
-                // Use Orchestrator's pre-scheduled opportunities (the source of truth)
-                var orchestrator = ContentOrchestrator.Instance;
-                if (orchestrator == null)
-                {
-                    return string.Empty;
-                }
-
-                // Get current phase opportunities from the Orchestrator
-                var scheduledOpps = orchestrator.GetCurrentPhaseOpportunities();
-                if (scheduledOpps == null || scheduledOpps.Count == 0)
-                {
-                    return string.Empty;
-                }
-
-                // Return the first opportunity's hint or description as camp flavor
-                var firstOpp = scheduledOpps[0];
-
-                // Prefer the narrative hint if available
-                if (!string.IsNullOrEmpty(firstOpp.NarrativeHint))
-                {
-                    return firstOpp.NarrativeHint;
-                }
-
-                // Fall back to display name
-                if (!string.IsNullOrEmpty(firstOpp.DisplayName))
-                {
-                    return firstOpp.DisplayName;
-                }
-
-                // Final fallback: describe by source opportunity type
-                var sourceOpp = firstOpp.SourceOpportunity;
-                if (sourceOpp != null)
-                {
-                    return sourceOpp.Type switch
-                    {
-                        OpportunityType.Training => new TextObject("{=menu_camp_drilling}Veterans drilling by the wagons.").ToString(),
-                        OpportunityType.Social => new TextObject("{=menu_camp_cards}Card game forming tonight by the fire.").ToString(),
-                        OpportunityType.Economic => new TextObject("{=menu_camp_trading}Some trading happening in camp.").ToString(),
-                        OpportunityType.Recovery => new TextObject("{=menu_camp_rest}A quiet moment in camp.").ToString(),
-                        _ => string.Empty
-                    };
-                }
-
-                return string.Empty;
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Debug("News", $"GetCampActivityFlavor failed: {ex.Message}");
-                return string.Empty;
-            }
+            return string.Empty;
         }
 
         /// <summary>

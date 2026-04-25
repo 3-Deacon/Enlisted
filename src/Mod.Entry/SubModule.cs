@@ -377,6 +377,17 @@ namespace Enlisted.Mod.Entry
                     // where the player commits, resists, or defers the career direction.
                     campaignStarter.AddBehavior(new Features.CampaignIntelligence.Career.PathCrossroadsBehavior());
 
+                    // CK3 wanderer mechanics — Plan 1 substrate. PatronRoll +
+                    // LifestyleUnlockStore are POCO save-classes hosted by their
+                    // respective behaviors; RankCeremony + PersonalKit have no
+                    // own save state (FlagStore + QualityStore respectively).
+                    // Plans 2-7 layer mechanic logic onto these wired hosts.
+                    // Brief: docs/architecture/ck3-wanderer-architecture-brief.md
+                    campaignStarter.AddBehavior(new Features.Patrons.PatronRollBehavior());
+                    campaignStarter.AddBehavior(new Features.Lifestyles.LifestyleUnlockBehavior());
+                    campaignStarter.AddBehavior(new Features.Ceremonies.RankCeremonyBehavior());
+                    campaignStarter.AddBehavior(new Features.PersonalKit.PersonalKitTickHandler());
+
                     // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
                     // that bias target choice, army formation, and pursuit for
                     // the enlisted lord only. Every wrapper calls EnlistedAiGate
@@ -473,19 +484,11 @@ namespace Enlisted.Mod.Entry
                     // recovering, equipment degrading, and incidents occurring. Feeds the news system.
                     campaignStarter.AddBehavior(new CompanySimulationBehavior());
 
-                    // Camp Opportunity Generator: generates context-aware camp life opportunities
-                    // using 4-layer intelligence (world, camp, player, history) for the living camp experience.
-                    campaignStarter.AddBehavior(new CampOpportunityGenerator());
-
                     // Escalation tracks for scrutiny, discipline, lance reputation, and medical risk. This feature is feature-flagged.
                     campaignStarter.AddBehavior(new EscalationManager());
 
                     // Event delivery system: queues and delivers narrative events to the player via UI popups.
                     campaignStarter.AddBehavior(new EventDeliveryManager());
-
-                    // Content Orchestrator: central coordinator for all content delivery.
-                    // Analyzes world state, calculates appropriate content frequency, and coordinates timing.
-                    campaignStarter.AddBehavior(new ContentOrchestrator());
 
                     // Event pacing system: fires narrative events every 3-5 days based on player role, context, and cooldowns.
                     campaignStarter.AddBehavior(new EventPacingManager());
@@ -496,9 +499,6 @@ namespace Enlisted.Mod.Entry
                     // Story director: central broker that receives StoryCandidate emissions, filters by relevance,
                     // classifies by severity, and routes to Modal or Observational delivery. Route is a no-op in Phase 1.
                     campaignStarter.AddBehavior(new StoryDirector());
-
-                    // Decision system: loads player-initiated decisions from JSON and provides them to the Decisions menu.
-                    campaignStarter.AddBehavior(new DecisionManager());
 
                     // Legacy OrderManager + OrderProgressionBehavior registrations removed;
                     // Spec 2 replaces the imperative order flow with OrderActivity +

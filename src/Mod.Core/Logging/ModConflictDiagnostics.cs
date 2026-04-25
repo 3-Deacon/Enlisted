@@ -203,21 +203,8 @@ namespace Enlisted.Mod.Core.Logging
                 }
                 catch { catalogStatus.Add(("Events", 0, "ERROR")); }
 
-                // Decision Catalog
-                try
-                {
-                    var decisionCatalogType = Type.GetType("Enlisted.Features.Content.DecisionCatalog, Enlisted");
-                    if (decisionCatalogType != null)
-                    {
-                        var countProp = decisionCatalogType.GetProperty("DecisionCount", BindingFlags.Public | BindingFlags.Static);
-                        var count = (int)(countProp?.GetValue(null) ?? 0);
-                        catalogStatus.Add(("Decisions", count, count > 0 ? "OK" : "EMPTY"));
-                    }
-                }
-                catch { catalogStatus.Add(("Decisions", 0, "ERROR")); }
-
-                // Order Catalog probe removed — legacy OrderManager subsystem retired;
-                // Spec 2 OrderActivity is tracked separately via ActivityRuntime.
+                // Decision and Order catalog probes removed — both subsystems retired;
+                // Spec 0 storylet backbone + Spec 2 OrderActivity track current content.
 
                 // Storylet Catalog (Spec 0 backbone)
                 try
@@ -759,24 +746,6 @@ namespace Enlisted.Mod.Core.Logging
                 {
                     issues.Add("Decisions directory missing");
                     WriteLine("    Decision Files: MISSING");
-                }
-
-                // Check Orders JSON files
-                WriteLine("  [Order System]");
-                var ordersPath = ModulePaths.GetContentPath("Orders");
-                if (Directory.Exists(ordersPath))
-                {
-                    var orderFiles = Directory.GetFiles(ordersPath, "*.json").Length;
-                    WriteLine($"    Order Files: {orderFiles}");
-                    if (orderFiles == 0)
-                    {
-                        warnings.Add("No order files found");
-                    }
-                }
-                else
-                {
-                    issues.Add("Orders directory missing");
-                    WriteLine("    Order Files: MISSING");
                 }
 
                 // Check Storylets JSON files (Spec 0 backbone)

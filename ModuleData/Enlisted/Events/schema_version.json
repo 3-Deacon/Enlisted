@@ -1,15 +1,9 @@
 {
   "schemaVersion": 2,
-  "description": "Event, decision, order, and map incident content files for Enlisted mod",
+  "description": "Event and map incident content files for Enlisted mod",
   "schema_doc": "docs/Features/Content/event-system-schemas.md",
-  "last_updated": "2025-12-22",
+  "last_updated": "2026-04-25",
   "content_types": {
-    "decisions": {
-      "folder": "Decisions/",
-      "id_prefix": "dec_",
-      "delivery": "Camp Hub inline menu",
-      "count": 34
-    },
     "player_events": {
       "folder": "Events/",
       "id_prefix": "player_",
@@ -38,26 +32,6 @@
         "incidents_leaving.json (6 - leaving_settlement)",
         "incidents_waiting.json (4 - waiting_in_settlement)"
       ]
-    },
-    "orders": {
-      "folder": "Orders/",
-      "id_prefix": "order_",
-      "delivery": "Chain of command periodic issuance",
-      "count": 17,
-      "outcome_types": ["success", "failure", "critical_failure", "decline"],
-      "effect_fields": {
-        "skill_xp": "object - skill name to XP value",
-        "trait_xp": "object - trait name to XP value",
-        "reputation": "object - lord/officer/soldier reputation changes",
-        "company_needs": "object - need name to delta value",
-        "escalation": "object - scrutiny/discipline changes",
-        "medical_risk": "int - medical risk escalation delta",
-        "denars": "int - gold reward/penalty",
-        "renown": "int - renown reward/penalty",
-        "hp_loss": "int - player HP damage",
-        "troop_loss": "object - min/max troop casualties",
-        "text": "string - narrative feedback"
-      }
     }
   }
 }

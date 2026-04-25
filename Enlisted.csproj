@@ -373,23 +373,12 @@
     <Compile Include="src\Features\Camp\CampMenuHandler.cs"/>
     <Compile Include="src\Features\Camp\CampLifeBehavior.cs"/>
     <Compile Include="src\Features\Camp\CompanySimulationBehavior.cs"/>
-    <Compile Include="src\Features\Camp\CampOpportunityGenerator.cs"/>
-    <Compile Include="src\Features\Camp\CampScheduleManager.cs"/>
-    <Compile Include="src\Features\Camp\CampRoutineProcessor.cs"/>
-    
+
     <!-- Camp Models -->
     <Compile Include="src\Features\Camp\Models\CampIncident.cs"/>
-    <Compile Include="src\Features\Camp\Models\CampContext.cs"/>
-    <Compile Include="src\Features\Camp\Models\CampMood.cs"/>
-    <Compile Include="src\Features\Camp\Models\CampOpportunity.cs"/>
-    <Compile Include="src\Features\Camp\Models\OpportunityHistory.cs"/>
-    <Compile Include="src\Features\Camp\Models\OpportunityType.cs"/>
-    <Compile Include="src\Features\Camp\Models\PlayerCommitments.cs"/>
     <Compile Include="src\Features\Camp\Models\CompanyPressure.cs"/>
     <Compile Include="src\Features\Camp\Models\CompanyRoster.cs"/>
     <Compile Include="src\Features\Camp\Models\SimulationDayResult.cs"/>
-    <Compile Include="src\Features\Camp\Models\ScheduledPhase.cs"/>
-    <Compile Include="src\Features\Camp\Models\ScheduleForecast.cs"/>
     <Compile Include="src\Features\Camp\Models\RoutineOutcome.cs"/>
     
     <!-- Camp Activities (Wildcard - all .cs files) -->
@@ -458,6 +447,24 @@
     <Compile Include="src\Features\CampaignIntelligence\Career\PathCrossroadsBehavior.cs"/>
 
     <!-- ====================================================================
+         CK3 WANDERER MECHANICS — PLAN 1 (Architecture Foundation)
+         Substrate for Plans 2-7 of the wanderer cluster. Save-definer offsets
+         54-58 + enum 84 claimed in EnlistedSaveDefiner. Brief contract:
+         docs/architecture/ck3-wanderer-architecture-brief.md
+         ==================================================================== -->
+    <Compile Include="src\Mod.Core\Helpers\ModalEventBuilder.cs"/>
+    <Compile Include="src\Features\Patrons\FavorKind.cs"/>
+    <Compile Include="src\Features\Patrons\PatronEntry.cs"/>
+    <Compile Include="src\Features\Patrons\PatronRoll.cs"/>
+    <Compile Include="src\Features\Patrons\PatronRollBehavior.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorActivity.cs"/>
+    <Compile Include="src\Features\Contracts\ContractActivity.cs"/>
+    <Compile Include="src\Features\Lifestyles\LifestyleUnlockStore.cs"/>
+    <Compile Include="src\Features\Lifestyles\LifestyleUnlockBehavior.cs"/>
+    <Compile Include="src\Features\Ceremonies\RankCeremonyBehavior.cs"/>
+    <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
+
+    <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
          ==================================================================== -->
     <Compile Include="src\Features\Conditions\PlayerConditionModels.cs"/>
@@ -491,8 +498,6 @@
          CONTENT DELIVERY SYSTEM (Events, Decisions, Orchestration)
          ==================================================================== -->
     <!-- Content Orchestration -->
-    <Compile Include="src\Features\Content\ContentOrchestrator.cs" />
-    <Compile Include="src\Features\Content\OrchestratorOverride.cs" />
     <Compile Include="src\Features\Content\PlayerBehaviorTracker.cs" />
     <Compile Include="src\Features\Content\SimulationPressureCalculator.cs" />
     <Compile Include="src\Features\Content\WorldStateAnalyzer.cs" />
@@ -540,10 +545,6 @@
     <Compile Include="src\Features\Content\StoryAggregator.cs"/>
     <Compile Include="src\Features\Content\DensitySettings.cs"/>
 
-    <!-- Decisions System -->
-    <Compile Include="src\Features\Content\DecisionCatalog.cs"/>
-    <Compile Include="src\Features\Content\DecisionManager.cs"/>
-    
     <!-- Content Helpers -->
     <Compile Include="src\Features\Content\SkillCheckHelper.cs"/>
     <Compile Include="src\Features\Content\WeaponSkillHelper.cs"/>
@@ -680,12 +681,7 @@
     <DialogueData Include="ModuleData\Enlisted\Dialogue\*.json"/>
   </ItemGroup>
   
-  <ItemGroup>
-    <!-- Decisions (Player-initiated Camp Hub choices) -->
-    <DecisionsData Include="ModuleData\Enlisted\Decisions\*.json"/>
-  </ItemGroup>
-  
-  <!-- Legacy ModuleData\Enlisted\Orders\ ItemGroups retired 2026-04-21; directory deleted. -->
+  <!-- Legacy ModuleData\Enlisted\Decisions\ + Orders\ ItemGroups retired; directories deleted. -->
 
   <ItemGroup>
     <!-- Content (Injuries and other dynamic content) -->
@@ -782,7 +778,6 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Conditions"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Dialogue"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Events"/>
-    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Decisions"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Content"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Activities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Effects"/>
@@ -798,7 +793,6 @@
     <Copy SourceFiles="@(ConfigData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Config\"/>
     <Copy SourceFiles="@(PlayerConditionData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Conditions\"/>
     <Copy SourceFiles="@(LanceLifeEventsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Events\"/>
-    <Copy SourceFiles="@(DecisionsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Decisions\"/>
     <Copy SourceFiles="@(DialogueData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Dialogue\"/>
     <Copy SourceFiles="@(ContentData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Content\"/>
     <Copy SourceFiles="@(ActivitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Activities\"/>

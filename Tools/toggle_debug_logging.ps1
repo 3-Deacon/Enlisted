@@ -83,7 +83,7 @@ if (-not $Category -or -not $Level) {
     Write-Status "   Or: .\toggle_debug_logging.ps1 -ShowCurrent" -ForegroundColor Yellow
     Write-Status ""
     Write-Status "Common categories:" -ForegroundColor Cyan
-    Write-Status "  Interface, Battle, Enlistment, Orders, Content, Equipment" -ForegroundColor Gray
+    Write-Status "  Interface, Battle, Enlistment, DUTYPROFILE, PATH, Content, Equipment" -ForegroundColor Gray
     Write-Status ""
     Write-Status "Log levels: Off, Error, Warn, Info, Debug, Trace" -ForegroundColor Cyan
     exit 1

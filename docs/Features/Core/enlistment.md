@@ -288,7 +288,7 @@ Level 10 Player, Returning (Deserter):
 - `ModuleData/Enlisted/enlisted_config.json`: Core gameplay config (grace period, wages, pacing, probation)
 - `ModuleData/Enlisted/progression_config.json`: Tier XP thresholds, culture-specific ranks, promotion benefits
   - **Note**: `xp_sources` section (daily_base, battle_participation, xp_per_kill) is legacy; XP is now awarded through order system and combat skill conversion
-- `ModuleData/Enlisted/Orders/*.json`: Order definitions (17 total orders across T1-T9)
+- `ModuleData/Enlisted/Storylets/*.json`: Storylet backbone — duty pools, named-order arcs, ceremonies, transitions (drives the Orders surface)
 - `ModuleData/Languages/enlisted_strings.xml`: All localized strings
 
 ## Edge Cases

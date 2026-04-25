@@ -185,9 +185,13 @@ namespace Enlisted.Features.Combat.Behaviors
         /// </summary>
         private void TryRemoveStayBackCompanion(Agent agent)
         {
-            // Only process companions from player's party at Commander tier (T7+).
+            // Stay-back enforcement is tier-wide. Companions reach the player's
+            // MainParty before T7 through clan recruitment and the wanderer-spec
+            // companion archetypes (Sergeant T1, Field Medic T3, Pathfinder T3),
+            // so the Stay Back toggle in the Camp companions menu must be honoured
+            // at every tier — not just at the T7+ retinue commander gate.
             var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment?.IsEnlisted != true || enlistment.EnlistmentTier < RetinueManager.CommanderTier1)
+            if (enlistment?.IsEnlisted != true)
             {
                 return;
             }

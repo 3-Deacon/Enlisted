@@ -28,7 +28,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
         private static readonly string[] PlayerUpdateSourceMarkers =
         {
             "Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior",
-            "Enlisted.Features.Camp.CampRoutineProcessor",
             "Enlisted.Features.Content.EventDeliveryManager",
             "Enlisted.Features.Activities.Orders.DailyDriftApplicator",
             "Enlisted.Features.Activities.TrainingXpScaler",

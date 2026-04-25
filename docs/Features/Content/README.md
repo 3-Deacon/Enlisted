@@ -15,7 +15,6 @@
 
 | Document | Purpose | Notes |
 |---|---|---|
-| [orders-content.md](orders-content.md) | 17 orders + 84 order events across 16 event pools | **Retired 2026-04-21.** Legacy content deleted in `a8719bb`; `src/Features/Orders/` + `ModuleData/Enlisted/Orders/` are gone. Replacement is `OrderActivity` + storylet pools, now owned by the five-plan integration roadmap ([integration spec](../../superpowers/specs/2026-04-21-plans-integration-design.md)). This document kept only for historical reference; do not author against it. |
 | [injury-system.md](injury-system.md) | Unified medical condition system (injuries, illnesses, context-aware treatment) | Implementation: `PlayerConditionBehavior`, `EventDeliveryManager`, `condition_defs.json` |
 
 ## Authoring new content
@@ -28,4 +27,4 @@
 
 ## Legacy content runtime (reference only)
 
-`ModuleData/Enlisted/Events/*.json` and `ModuleData/Enlisted/Decisions/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. `ModuleData/Enlisted/Orders/` was deleted with the retired Orders subsystem; new order authoring targets `OrderActivity` storylet pools instead.
+`ModuleData/Enlisted/Events/*.json` and `ModuleData/Enlisted/Decisions/*.json` are still loaded by `EventCatalog` + `EventDeliveryManager` and still fire at runtime through `StoryDirector`. The legacy `ModuleData/Enlisted/Orders/` directory was deleted on 2026-04-21 with the retired Orders subsystem; the current Orders surface (Spec 2) is driven by `OrderActivity` + `NamedOrderState` save-classes plus storylet pools at `ModuleData/Enlisted/Storylets/duty_*.json`.

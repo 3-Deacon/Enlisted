@@ -160,8 +160,10 @@ namespace Enlisted.Mod.Core.Logging
             }
 
             var heroName = Hero.MainHero?.Name?.ToString() ?? "Unknown";
-            var day = CampaignTime.Now.ToDays;
-            ModLogger.Info("SAVELOAD", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Day: {day:F1})");
+            var campaignDay = Campaign.Current?.Models?.CampaignTimeModel != null
+                ? Campaign.Current.Models.CampaignTimeModel.CampaignStartTime.ElapsedDaysUntilNow
+                : 0f;
+            ModLogger.Info("SAVELOAD", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Campaign Day: {campaignDay:F1})");
         }
 
         public static void OnSaveEnd()

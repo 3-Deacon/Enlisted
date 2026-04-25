@@ -1483,7 +1483,7 @@ Enlisted/
 src/Features/Interface/Behaviors/
 └── EnlistedMenuBehavior.cs               (KEEP AS-IS - registers all native submenus)
 
-ModuleData/Enlisted/Orders/               (KEEP AS-IS - native orders config)
+ModuleData/Enlisted/Storylets/            (KEEP AS-IS - storylet backbone, drives Orders surface)
 ModuleData/Enlisted/Decisions/            (KEEP AS-IS - native decisions config)
 ```
 

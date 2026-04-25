@@ -8,8 +8,12 @@ using TaleWorlds.CampaignSystem.Party;
 namespace Enlisted.Features.Retinue.Core
 {
     /// <summary>
-    /// Manages companion battle participation settings ("Fight" vs "Stay Back").
-    /// Companions marked "stay back" don't spawn in battle, making them immune to all battle outcomes.
+    /// Manages companion battle participation settings ("Fight" vs "Stay Back")
+    /// and endeavor-assignment settings (locked to a player-driven endeavor for
+    /// the duration of its run, per Plan 5 of the CK3 wanderer cluster).
+    /// Companions marked "stay back" don't spawn in battle; companions assigned
+    /// to an endeavor are unavailable for other endeavors until the active one
+    /// completes.
     /// </summary>
     public sealed class CompanionAssignmentManager : CampaignBehaviorBase
     {
@@ -20,17 +24,22 @@ namespace Enlisted.Features.Retinue.Core
         // Synced via SyncData, not SaveableField
         private Dictionary<string, bool> _companionBattleParticipation;
 
+        // Track endeavor assignment per companion (Plan 5 substrate)
+        // Key: Hero.StringId, Value: true = locked to active endeavor, false/missing = available
+        private Dictionary<string, bool> _companionEndeavorAssignment;
+
         public static CompanionAssignmentManager Instance { get; private set; }
 
         public CompanionAssignmentManager()
         {
             _companionBattleParticipation = new Dictionary<string, bool>();
+            _companionEndeavorAssignment = new Dictionary<string, bool>();
             Instance = this;
         }
 
         public override void RegisterEvents()
         {
-            // No events needed - state is managed via UI and checked during battle spawn
+            // No events needed - state is managed via UI and checked during battle spawn / endeavor selection
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -40,7 +49,10 @@ namespace Enlisted.Features.Retinue.Core
                 _ = dataStore.SyncData("_companionBattleParticipation", ref _companionBattleParticipation);
                 _companionBattleParticipation ??= new Dictionary<string, bool>();
 
-                ModLogger.Debug(LogCategory, $"SyncData: {_companionBattleParticipation.Count} companion assignments loaded");
+                _ = dataStore.SyncData("_companionEndeavorAssignment", ref _companionEndeavorAssignment);
+                _companionEndeavorAssignment ??= new Dictionary<string, bool>();
+
+                ModLogger.Debug(LogCategory, $"SyncData: {_companionBattleParticipation.Count} battle assignments, {_companionEndeavorAssignment.Count} endeavor assignments loaded");
             });
         }
 
@@ -145,14 +157,44 @@ namespace Enlisted.Features.Retinue.Core
         }
 
         /// <summary>
-        /// Clears all companion participation settings.
+        /// Returns true if the companion is currently locked to an active endeavor
+        /// (Plan 5). Default false (available) when no entry exists.
+        /// </summary>
+        public bool IsAssignedToEndeavor(Hero companion)
+        {
+            if (companion == null)
+            {
+                return false;
+            }
+            return _companionEndeavorAssignment.TryGetValue(companion.StringId, out var assigned) && assigned;
+        }
+
+        /// <summary>
+        /// Sets whether a companion is locked to an active endeavor. Plan 5 calls
+        /// this on endeavor start (true) and endeavor end (false).
+        /// </summary>
+        public void SetAssignedToEndeavor(Hero companion, bool assigned)
+        {
+            if (companion == null)
+            {
+                return;
+            }
+            _companionEndeavorAssignment[companion.StringId] = assigned;
+            ModLogger.Debug(LogCategory,
+                $"Set {companion.Name} endeavor assignment to {(assigned ? "Locked" : "Available")}");
+        }
+
+        /// <summary>
+        /// Clears all companion participation settings (battle + endeavor).
         /// Called on full retirement to start fresh next enlistment.
         /// </summary>
         public void ClearAllSettings()
         {
-            var count = _companionBattleParticipation.Count;
+            var battleCount = _companionBattleParticipation.Count;
+            var endeavorCount = _companionEndeavorAssignment.Count;
             _companionBattleParticipation.Clear();
-            ModLogger.Info(LogCategory, $"Cleared {count} companion participation settings");
+            _companionEndeavorAssignment.Clear();
+            ModLogger.Info(LogCategory, $"Cleared {battleCount} battle and {endeavorCount} endeavor assignments");
         }
     }
 }

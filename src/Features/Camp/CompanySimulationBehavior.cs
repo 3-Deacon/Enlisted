@@ -5,6 +5,7 @@ using System.Linq;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content;
+using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
@@ -38,6 +39,10 @@ namespace Enlisted.Features.Camp
         private Dictionary<string, int> _incidentCooldowns = new Dictionary<string, int>();
         private int _lastTickWounded;
         private int _lastProcessedDay = -1;
+
+        // Illness-onset throttle + escalation modifier (re-homed from ContentOrchestrator)
+        private int _lastIllnessOnsetDay = -10;
+        private int _consecutiveHighMedicalPressureDays;
 
         // Overlay tracking (saved/loaded)
         private int _sickCount;
@@ -78,6 +83,8 @@ namespace Enlisted.Features.Camp
                 _ = dataStore.SyncData("sim_deadThisCampaign", ref _deadThisCampaign);
                 _ = dataStore.SyncData("sim_lastTickWounded", ref _lastTickWounded);
                 _ = dataStore.SyncData("sim_lastProcessedDay", ref _lastProcessedDay);
+                _ = dataStore.SyncData("sim_lastIllnessOnsetDay", ref _lastIllnessOnsetDay);
+                _ = dataStore.SyncData("sim_consecutiveHighMedicalDays", ref _consecutiveHighMedicalPressureDays);
 
                 // Pressure tracking
                 int daysLowSupplies = _pressure?.DaysLowSupplies ?? 0;
@@ -233,8 +240,8 @@ namespace Enlisted.Features.Camp
             // Phase 6: News Generation
             GenerateNews(result);
 
-            // Check crisis triggers
-            CheckCrisisTriggers(result);
+            // Phase 7: Illness onset roll (medical-risk-driven modal)
+            CheckIllnessOnset(party);
 
             // Update cooldowns
             DecrementIncidentCooldowns();
@@ -839,40 +846,95 @@ namespace Enlisted.Features.Camp
             return "";
         }
 
-        private void CheckCrisisTriggers(SimulationDayResult result)
+        private void CheckIllnessOnset(MobileParty party)
         {
-            var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
-            if (needs == null)
+            var (analysis, pressureLevel) = SimulationPressureCalculator.GetMedicalPressure();
+
+            // Track consecutive high-pressure days for the escalation modifier.
+            if (pressureLevel >= MedicalPressureLevel.High)
+            {
+                _consecutiveHighMedicalPressureDays++;
+            }
+            else
+            {
+                _consecutiveHighMedicalPressureDays = 0;
+            }
+
+            if (analysis.HasCondition || analysis.MedicalRisk < 3)
             {
                 return;
             }
 
-            // Supply crisis: 3+ days at critical levels
-            if (_pressure.DaysLowSupplies >= 3 && needs.Supplies < 20)
+            int currentDay = (int)CampaignTime.Now.ToDays;
+            if (currentDay - _lastIllnessOnsetDay < 7)
             {
-                result.TriggeredCrises.Add("evt_supply_crisis");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_supply_crisis");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Supply crisis");
+                return;
             }
 
-            // Morale collapse crisis removed (morale system no longer exists)
-            // Exhaustion crisis removed 2026-01-11 (Rest system removed)
-
-            // Epidemic: high sickness rate for extended period
-            if (_pressure.DaysHighSickness >= 2 && _roster?.CasualtyRate > 0.2f)
+            var baseChance = analysis.MedicalRisk * 0.05f;
+            var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
+            if (worldSituation.LordIs == LordSituation.SiegeAttacking ||
+                worldSituation.LordIs == LordSituation.SiegeDefending)
             {
-                result.TriggeredCrises.Add("evt_epidemic");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_epidemic");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Epidemic");
+                baseChance += 0.12f;
+            }
+            baseChance += _consecutiveHighMedicalPressureDays * 0.05f;
+            baseChance = Math.Min(baseChance, 0.50f);
+
+            if (MBRandom.RandomFloat >= baseChance)
+            {
+                return;
             }
 
-            // Desertion wave: 5+ desertions in 3 days
-            if (_pressure.RecentDesertions >= 5)
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
+                          party.IsCurrentlyAtSea;
+            var contextSuffix = isAtSea ? "_sea" : "";
+
+            string baseEventId = analysis.MedicalRisk >= 5 ? "illness_onset_severe"
+                               : analysis.MedicalRisk >= 4 ? "illness_onset_moderate"
+                               : "illness_onset_minor";
+
+            var eventToQueue = baseEventId + contextSuffix;
+            var eventDef = EventCatalog.GetEvent(eventToQueue);
+            if (eventDef == null && !string.IsNullOrEmpty(contextSuffix))
             {
-                result.TriggeredCrises.Add("evt_desertion_wave");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_desertion_wave");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Desertion wave");
+                eventToQueue = baseEventId;
+                eventDef = EventCatalog.GetEvent(eventToQueue);
             }
+            if (eventDef == null)
+            {
+                ModLogger.Expected(LogCategory, "illness_event_missing",
+                    $"Illness onset event '{eventToQueue}' not in catalog");
+                return;
+            }
+
+            var director = StoryDirector.Instance;
+            if (director != null)
+            {
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "simulation.illness_onset." + eventToQueue,
+                    CategoryId = "company.illness",
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.70f,
+                    Beats = { StoryBeat.EscalationThreshold },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
+                ModLogger.Info(LogCategory,
+                    $"Illness onset event queued: {eventToQueue} (MedRisk={analysis.MedicalRisk}, chance={baseChance * 100:F1}%)");
+            }
+            else
+            {
+                EventDeliveryManager.Instance?.QueueEvent(eventDef);
+            }
+            _lastIllnessOnsetDay = currentDay;
         }
 
         private void DecrementIncidentCooldowns()

@@ -32,7 +32,6 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 XML_PATH = PROJECT_ROOT / "ModuleData" / "Languages" / "enlisted_strings.xml"
 EVENTS_DIR = PROJECT_ROOT / "ModuleData" / "Enlisted" / "Events"
 DECISIONS_DIR = PROJECT_ROOT / "ModuleData" / "Enlisted" / "Decisions"
-ORDERS_DIR = PROJECT_ROOT / "ModuleData" / "Enlisted" / "Orders"
 BACKUP_DIR = PROJECT_ROOT / "Debugging" / "fallback_backups"
 
 # Field mappings: ID field -> fallback field name
@@ -272,7 +271,7 @@ def main():
 
     # Collect all JSON files
     json_files = []
-    for directory in [EVENTS_DIR, DECISIONS_DIR, ORDERS_DIR]:
+    for directory in [EVENTS_DIR, DECISIONS_DIR]:
         if directory.exists():
             json_files.extend(directory.glob("*.json"))
 

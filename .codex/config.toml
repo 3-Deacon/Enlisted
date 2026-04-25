@@ -7,10 +7,12 @@
 # Personal overrides belong in AGENTS.override.md (gitignored), not here.
 
 # Use the default high-reasoning coding profile for this project.
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_context_window = 1050000
 model_reasoning_effort = "high"
+model_reasoning_summary = "auto"
 model_verbosity = "medium"
+personality = "pragmatic"
 
 # Never prompt in this project.
 approval_policy = "never"

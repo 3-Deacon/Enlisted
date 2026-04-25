@@ -632,15 +632,12 @@ namespace Enlisted.Features.Logistics
         /// <summary>
         /// Attempts to update baggage status during march.
         /// Updates state directly - no popup events. Players see status in Daily Brief flavor text.
-        /// Now uses world-state-aware probabilities from ContentOrchestrator.
+        /// Probabilities scale with world situation (lord activity, war stance).
         /// </summary>
         private void TryTriggerBaggageEvent()
         {
-            // Get world-state-aware probabilities
-            var worldState = Content.ContentOrchestrator.Instance?.GetCurrentWorldSituation();
-            var probs = worldState != null
-                ? CalculateEventProbabilities(worldState)
-                : GetDefaultProbabilities();
+            var worldState = Content.WorldStateAnalyzer.AnalyzeSituation();
+            var probs = CalculateEventProbabilities(worldState);
 
             var random = new Random();
             var roll = random.Next(100);

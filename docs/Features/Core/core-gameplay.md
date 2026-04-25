@@ -54,7 +54,7 @@ The mod is built on three core transformations introduced in v2.0:
 
 - **Config**: `ModuleData/Enlisted/enlisted_config.json`
 - **Progression**: `ModuleData/Enlisted/progression_config.json`
-- **Orders Catalog**: `ModuleData/Enlisted/Orders/*.json`
+- **Storylets Catalog**: `ModuleData/Enlisted/Storylets/*.json` (Spec 0 backbone — duty pools, ceremonies, named-order arcs, transitions)
 - **Events Catalog**: `ModuleData/Enlisted/Events/*.json` (Role-based & Contextual)
 - **Rank Titles**: `ModuleData/Enlisted/progression_config.json` (Culture-specific)
 

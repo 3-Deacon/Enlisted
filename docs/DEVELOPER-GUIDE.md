@@ -118,8 +118,8 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 | `settings.json` | Logging levels, encounter settings |
 | `enlisted_config.json` | Tiers, wages, retirement, feature flags |
 | `progression_config.json` | XP thresholds, culture-specific rank titles |
-| `Orders/*.json` | Order definitions for Chain of Command |
-| `Events/*.json` | Role-based narrative and social events |
+| `Storylets/*.json` | Storylet definitions (Spec 0 backbone) — duty pools, ceremonies, named orders, transitions |
+| `Events/*.json` | Role-based narrative and social events (legacy schema) |
 | `Decisions/*.json` | Decision definitions for Camp Hub |
 | `equipment_kits.json` | Culture-specific equipment loadouts |
 | `equipment_pricing.json` | Quartermaster costs |
@@ -492,11 +492,12 @@ if (eb?.IsEnlisted == true)
 - +25 XP per battle, +1 XP per kill
 - 252-day first term, 84-day renewals
 
-### Orders System
+### Orders System (Spec 2 — Activities/Orders)
 
-- JSON-defined in `ModuleData/Enlisted/Orders/*.json`
-- Tier-gated missions from lord
-- Completion affects reputation
+- Lord-issued duty profiles + named-order arcs running on the `Activity` backbone (Spec 0)
+- State: `OrderActivity` + `NamedOrderState` save-classes (offsets 46/47)
+- Phase content lives in `ModuleData/Enlisted/Storylets/duty_*.json` and named-order arc storylets
+- Tier-gated; completion routes through `EffectExecutor` and the storylet outcome system
 
 ### Equipment System
 

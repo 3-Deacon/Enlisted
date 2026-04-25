@@ -9771,7 +9771,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     : 0;
             }
 
-            ModLogger.Info("ENLISTMENT", $"Tier changed: {previousTier} ? {tier} (XP: {_enlistmentXP}, day: {_dayOfLastPromotion})");
+            int campaignDay = Campaign.Current?.Models?.CampaignTimeModel != null
+                ? (int)Campaign.Current.Models.CampaignTimeModel.CampaignStartTime.ElapsedDaysUntilNow
+                : 0;
+            ModLogger.Info("ENLISTMENT", $"Tier changed: {previousTier} -> {tier} (XP: {_enlistmentXP}, campaign day: {campaignDay})");
 
             // V2.0: Companions are now managed from T1 (enlistment start), not T4
             // Legacy reclaim kept for backward compatibility with older saves

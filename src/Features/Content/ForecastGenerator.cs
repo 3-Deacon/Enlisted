@@ -80,37 +80,6 @@ namespace Enlisted.Features.Content
                 _ = sb.Append(new TextObject("{=menu_you_wounded}You're wounded - movement impaired. Off duty until you recover.").ToString());
             }
 
-            // Player commitments (scheduled activities)
-            var generator = CampOpportunityGenerator.Instance;
-            var nextCommitment = generator?.GetNextCommitment();
-            if (nextCommitment != null)
-            {
-                _ = sb.Append(" ");
-                var hoursUntil = generator.GetHoursUntilCommitment(nextCommitment);
-                var activity = nextCommitment.Title?.ToLower() ?? "an activity";
-                var phase = nextCommitment.ScheduledPhase?.ToLower() ?? "later";
-
-                if (hoursUntil < 1f)
-                {
-                    _ = sb.Append(new TextObject("{=menu_you_commitment_soon}It's almost time for {ACTIVITY}.").SetTextVariable("ACTIVITY", activity).ToString());
-                }
-                else if (hoursUntil <= 6f)
-                {
-                    _ = sb.Append(new TextObject("{=menu_you_commitment_today}You've committed to {ACTIVITY} this {PHASE}.")
-                        .SetTextVariable("ACTIVITY", activity)
-                        .SetTextVariable("PHASE", phase)
-                        .ToString());
-                }
-                else
-                {
-                    _ = sb.Append(new TextObject("{=menu_you_commitment}You've committed to {ACTIVITY} at {PHASE} ({HOURS}h).")
-                        .SetTextVariable("ACTIVITY", activity)
-                        .SetTextVariable("PHASE", phase)
-                        .SetTextVariable("HOURS", ((int)hoursUntil).ToString())
-                        .ToString());
-                }
-            }
-
             return sb.ToString();
         }
 

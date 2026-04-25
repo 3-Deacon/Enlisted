@@ -159,7 +159,7 @@ When an option is selected, effects are applied through centralized managers:
 |------|---------|
 | `ModuleData/Enlisted/Events/` | Event JSON definitions (loaded recursively). |
 | `ModuleData/Enlisted/Decisions/` | Player-initiated decision definitions. |
-| `ModuleData/Enlisted/Orders/` | Chain of command order definitions (3 files by tier). |
+| `ModuleData/Enlisted/Storylets/` | Storylet backbone (Spec 0) — duty pools, named-order arcs, ceremonies, transitions; drives the current Orders surface. |
 | `ModuleData/Languages/enlisted_strings.xml` | Localized text and templates. |
 | `src/Features/Content/` | Event system implementation (EventCatalog, EventDeliveryManager, etc.). |
 

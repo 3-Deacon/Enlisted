@@ -138,7 +138,9 @@ Use `ChainContinuation = true` for player-opted continuations (promotions, bag c
 
 Content is authored as **storylets** (`ModuleData/Enlisted/Storylets/*.json`), not as legacy `EventDefinition` JSON. State lives in `QualityStore` (typed numeric, global or per-hero) and `FlagStore` (named booleans with expiry). Durable player engagements are `Activity` subclasses with phases and intent-biased storylet pools. Effects are either named scripted effects from `ModuleData/Enlisted/Effects/scripted_effects.json` (preferred — the seed catalog has 22 entries) or registered primitives (`quality_add`, `set_flag`, `give_gold`, etc.). Triggers are named C# predicates resolved by `TriggerRegistry`. Reference: [docs/Features/Content/storylet-backbone.md](docs/Features/Content/storylet-backbone.md) (living doc — seed catalogs, trigger/slot/primitive lists, save-definer offsets, pitfalls).
 
-**Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Class offsets **45-60** are reserved for concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) AND closely-related surface-spec persistent state that surface specs own (snapshots, accessors, compact POCOs serving as sources of truth). Intelligence backbone's `EnlistedLordIntelligenceSnapshot` holds offset 48 under this broadening; Spec 2's `OrderActivity` + `NamedOrderState` hold 46/47, Plan 3's `SignalEmissionRecord` holds 49 under this broadening, Plan 4's `DutyCooldownStore` holds 50. Grep the definer before claiming an offset — collisions corrupt saves silently. Offsets 10-14 were held by the legacy Orders subsystem (retired 2026-04-21, commit `a8719bb`) and remain reserved; do not reuse without audit.
+**Save-definer offset convention.** Spec 0 owns class offsets 40-44 and enum offsets 82-83 in `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs`. Class offsets **45-70** are reserved for concrete `Activity` subclasses from surface specs (Home / Orders / Land-Sea / Promotion+Muster / Quartermaster) AND closely-related surface-spec persistent state that surface specs own (snapshots, accessors, compact POCOs serving as sources of truth). Intelligence backbone's `EnlistedLordIntelligenceSnapshot` holds offset 48 under this broadening; Spec 2's `OrderActivity` + `NamedOrderState` hold 46/47, Plan 3's `SignalEmissionRecord` holds 49 under this broadening, Plan 4's `DutyCooldownStore` holds 50. Offsets **51-70** are shared between three sources: the menu+duty unification spec (offsets 51-52: `DutyActivity`, `ChoreThrottleStore` — see [docs/superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md](docs/superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md)); the CK3 wanderer mechanics cluster Plans 1-7 (offsets 54-58 + enum 84 — contract at [docs/architecture/ck3-wanderer-architecture-brief.md](docs/architecture/ck3-wanderer-architecture-brief.md)); and future surface specs 3-5 (offsets 60-70). Grep the definer before claiming an offset — collisions corrupt saves silently. Offsets 10-14 were held by the legacy Orders subsystem (retired 2026-04-21, commit `a8719bb`) and remain reserved; do not reuse without audit.
+
+**Enum offsets MUST stay disjoint from the class-offset numeric range.** TaleWorlds' `DefinitionContext.AddClassDefinition` and `AddEnumDefinition` both add to a shared `_allTypeDefinitionsWithId` dictionary keyed by `TypeSaveId` (which equals `BaseId + offset` as a plain integer — kind discriminator is NOT part of the key). A class at offset N and an enum at offset N produce the same key and crash `Module.Initialize()` with `Dictionary.Insert` `ArgumentException`, before any mod logging. Decompile reference: `Decompile/TaleWorlds.SaveSystem/TaleWorlds.SaveSystem.Definition/DefinitionContext.cs:118-124` (4 dict.Add calls including the shared `_allTypeDefinitionsWithId`). Enums in the mod live at offsets **80+** (currently 80-103 + 110-117). Class offsets 1-70 are reserved for class registrations only — never reuse those numbers for an enum. The retinue + logistics enums originally at 50-52 and Content Orchestrator + Camp Life Simulation enums originally at 60-71 were relocated to 110-119 on 2026-04-25 after this collision surfaced live. The Camp Life Simulation enums `OpportunityType` (118) + `CampMood` (119) were freed later that day when the legacy decisions / orchestrator / Camp* cluster retired. Free enum offsets going forward: 104-109, 118-119, and 120+.
 
 ---
 
@@ -206,7 +208,7 @@ Repo-specific rules generic AI defaults won't catch:
 
 ```
 src/Features/          C# gameplay features
-ModuleData/Enlisted/   JSON events, orders, decisions
+ModuleData/Enlisted/   JSON events, storylets, incidents
 ModuleData/Languages/  enlisted_strings.xml (localization)
 docs/                  All documentation (see docs/INDEX.md)
 Tools/Validation/      Validators (run before commit)
@@ -216,8 +218,7 @@ Tools/Validation/      Validators (run before commit)
 ### Key Feature Folders
 
 - `Enlistment/` — Service state, retirement
-- `Orders/` — Mission directives
-- `Content/` — Events, decisions, narrative, StoryDirector (pacing gate), storylets + triggers + effects + slots + scripted effects (Spec 0 backbone)
+- `Content/` — Events, narrative, StoryDirector (pacing gate), storylets + triggers + effects + slots + scripted effects (Spec 0 backbone). The Orders surface is driven by storylets; the legacy `Orders/` folder was retired 2026-04-21.
 - `Qualities/` — Typed numeric state (scrutiny, supplies, readiness, loyalty, lord_relation, rank_xp). Stored + read-through kinds. Single home; decays on daily tick
 - `Flags/` — Named boolean state, global + hero-scoped, with expiry
 - `Activities/` — Stateful ticking activities with intent-biased phase pools; Banner-Kings Feast pattern; ActivityRuntime hosts
@@ -290,12 +291,14 @@ Link, don't duplicate — open these for depth:
     `lord_relation_up_*`, `scrutiny_down_*`, etc.) over minting one-off names.
 15. Claiming a `SaveableTypeDefiner` offset without grepping
     `src/Mod.Core/SaveSystem/EnlistedSaveDefiner.cs` first. Offsets 40-44
-    (classes) and 82-83 (enums) are Spec 0. Offsets 45-60 are reserved for
-    concrete `Activity` subclasses AND closely-related surface-spec
-    persistent state (e.g. Intelligence snapshot at 48) — see the
-    save-definer offset convention under "Content authoring — route through
-    the storylet backbone" above. Offsets 10-14 are reserved (legacy Orders
-    subsystem retired 2026-04-21); do not reuse without audit.
+    (classes) and 82-83 (enums) are Spec 0. Offsets **45-70** are reserved
+    for concrete `Activity` subclasses AND closely-related surface-spec
+    persistent state — see the save-definer offset convention in Rule #11
+    above for the full table (Career-loop family at 48-50, menu+duty
+    unification at 51-52, CK3 wanderer at 54-58, surface specs 3-5 at
+    60-70). Offsets 10-14 (legacy Orders) reserved; offsets 118-119 freed
+    2026-04-25 (Camp* retirement). Do not reuse any reserved range
+    without audit.
 16. Authoring a scripted effect (in `ModuleData/Enlisted/Effects/scripted_effects.json`)
     whose body references another scripted effect that eventually references it
     back. `EffectExecutor` caps expansion at depth 8 and logs
@@ -308,7 +311,7 @@ Link, don't duplicate — open these for depth:
     starter holds the list directly). A diagnostic that iterates
     `Campaign.Current.GetCampaignBehaviors<T>()` at OnGameStart NREs in
     `Enumerable.OfType` or prints zero behaviors, depending on the call shape.
-18. Content catalogs (Storylet, Event, Decision, ActivityType, Scripted
+18. Content catalogs (Storylet, Event, ActivityType, Scripted
     Effects) initialize AFTER `OnGameStart`, during their owning behaviors'
     `OnSessionLaunchedEvent` handlers. A diagnostic that reads catalog counts
     at OnGameStart reports `0 loaded` even when load ultimately succeeds.

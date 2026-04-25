@@ -71,20 +71,6 @@ namespace Enlisted.Features.Content
                     ModLogger.Warn(LogCategory, $"Decisions directory not found: {decisionsPath}");
                 }
 
-                // Load from Order Events directory (for Order Progression System)
-                var orderEventsPath = GetOrderEventsBasePath();
-                if (!string.IsNullOrEmpty(orderEventsPath) && Directory.Exists(orderEventsPath))
-                {
-                    var (orderFiles, orderCount, orderWarnings) = LoadFromDirectory(orderEventsPath, "OrderEvents");
-                    filesLoaded += orderFiles;
-                    eventsLoaded += orderCount;
-                    migrationWarnings += orderWarnings;
-                }
-                else
-                {
-                    ModLogger.Warn(LogCategory, $"Order events directory not found: {orderEventsPath} - order phase events will not fire");
-                }
-
                 var warningMsg = migrationWarnings > 0 ? $" ({migrationWarnings} migration warnings)" : "";
                 ModLogger.Info(LogCategory, $"Loaded {eventsLoaded} events from {filesLoaded} files{warningMsg}");
                 _initialized = true;
@@ -245,7 +231,6 @@ namespace Enlisted.Features.Content
         /// Gets the base path for order event JSON files.
         /// Uses ModulePaths utility for correct resolution with both manual and Workshop installs.
         /// </summary>
-        private static string GetOrderEventsBasePath() => Path.Combine(ModulePaths.GetContentPath("Orders"), "order_events");
 
         /// <summary>
         /// Loads events from a single JSON file.

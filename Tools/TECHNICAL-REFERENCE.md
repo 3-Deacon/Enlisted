@@ -71,7 +71,7 @@ ModLogger.Expected("CATEGORY", "stable_throttle_key", "guard summary");
 
 ### Categories
 
-- **Core:** Enlistment, Combat, Equipment, Events, Orders, Reputation
+- **Core:** Enlistment, Combat, Equipment, Events, Activities (Home/Orders), Reputation
 - **Systems:** Identity, Company, Context, Interface, Ranks, Conversations
 - **Features:** Retinue, Camp, Conditions, Supply, Logistics, Naval
 - **Diagnostics:** SiegeIntegration, BattleIntegration, EncounterGuard, CaptivityStatus
@@ -293,9 +293,9 @@ starter.AddPlayerLine(
 |------|---------|
 | `enlisted_config.json` | Feature flags and core balancing |
 | `progression_config.json` | Tier XP thresholds and culture-specific rank titles |
-| `Orders/*.json` | Mission definitions for the Orders system |
+| `Storylets/*.json` | Storylet definitions (Spec 0 backbone) — duty pools, named-order arcs, ceremonies, transitions |
 | `Events/*.json` | Role-based narrative events, automatic decisions |
-| `Decisions/*.json` | Player-initiated Camp Hub decisions (34 total) |
+| `Decisions/*.json` | Player-initiated Camp Hub decisions |
 
 ### Code Quality Configuration
 

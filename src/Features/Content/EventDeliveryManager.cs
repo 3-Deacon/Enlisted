@@ -440,35 +440,7 @@ namespace Enlisted.Features.Content
                                      option.Id.IndexOf("skip", StringComparison.OrdinalIgnoreCase) >= 0 ||
                                      option.Id.IndexOf("back", StringComparison.OrdinalIgnoreCase) >= 0;
 
-                if (!isCancelOption)
-                {
-                    ModLogger.Info(LogCategory, $"Non-cancel option selected: {option.Id} - recording cooldown");
-
-                    // Player committed to an action - record decision cooldown
-                    DecisionManager.Instance?.RecordDecisionSelected(_currentEvent.Id);
-                    ModLogger.Info(LogCategory, $"Decision cooldown recorded for: {_currentEvent.Id}");
-
-                    // Also record opportunity engagement if this decision was triggered by a camp opportunity
-                    // This ensures non-immediate opportunities get their cooldown tracked properly
-                    if (!string.IsNullOrEmpty(_currentEvent.OriginatingOpportunityId) &&
-                        !string.IsNullOrEmpty(_currentEvent.OriginatingOpportunityType))
-                    {
-                        ModLogger.Debug(LogCategory, $"Recording opportunity engagement: {_currentEvent.OriginatingOpportunityId}");
-                        var generator = CampOpportunityGenerator.Instance;
-                        if (generator != null)
-                        {
-                            if (Enum.TryParse<OpportunityType>(_currentEvent.OriginatingOpportunityType, out var oppType))
-                            {
-                                generator.RecordEngagement(_currentEvent.OriginatingOpportunityId, oppType);
-                                ModLogger.Info(LogCategory, $"Opportunity engagement recorded for: {_currentEvent.OriginatingOpportunityId}");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    ModLogger.Info(LogCategory, $"Cancel option selected: {option.Id} - no cooldown recorded for {_currentEvent?.Id}");
-                }
+                ModLogger.Info(LogCategory, $"Option selected: {option.Id} (cancel={isCancelOption})");
             }
 
             // Track declined promotions (player chose "not ready" or "decline" in proving event)
@@ -2539,16 +2511,10 @@ namespace Enlisted.Features.Content
             var wasDecision = _currentEvent != null &&
                              _currentEvent.Category != null &&
                              _currentEvent.Category.Equals("decision", StringComparison.OrdinalIgnoreCase);
+            _ = wasDecision;
 
             _isShowingEvent = false;
             _currentEvent = null;
-
-            // If this was a decision, clear the "currently showing" mark and refresh the menu
-            if (wasDecision)
-            {
-                DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                RequestDecisionsMenuRefresh();
-            }
 
             // Try to deliver next event in queue
             if (_pendingEvents.Count > 0)

@@ -394,7 +394,7 @@ The injury severity scales naturally with character progression.
 
 Order outcomes can specify `injury_type` instead of `hp_loss`:
 
-```json:ModuleData/Enlisted/Orders/orders_t4_t6.json
+```json
 {
   "id": "order_scout_route",
   "consequences": {
@@ -419,7 +419,7 @@ OrderManager.ApplyOrderOutcomeEffects()
 
 Events can trigger injuries through outcome effects:
 
-```json:ModuleData/Enlisted/Events/order_events_scout.json
+```json
 {
   "id": "order_evt_scout_ambush",
   "options": [

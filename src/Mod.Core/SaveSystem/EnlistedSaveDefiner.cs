@@ -78,6 +78,18 @@ namespace Enlisted.Mod.Core.SaveSystem
 
             // Duty Opportunities (Plan 4 of 5) — offset 50
             AddClassDefinition(typeof(Features.CampaignIntelligence.Duty.DutyCooldownStore), 50);
+
+            // CK3 wanderer mechanics cluster (Plans 1-7 of the wanderer spec) — offsets 51-70
+            // Brief: docs/architecture/ck3-wanderer-architecture-brief.md
+            // Offsets 51-52 reserved for menu+duty unification spec (separate)
+            // Offset 53 reserved (Personal Kit state lives in QualityStore — no class)
+            AddClassDefinition(typeof(Features.Patrons.PatronRoll), 54);
+            AddClassDefinition(typeof(Features.Patrons.PatronEntry), 55);
+            AddClassDefinition(typeof(Features.Contracts.ContractActivity), 56);
+            AddClassDefinition(typeof(Features.Endeavors.EndeavorActivity), 57);
+            AddClassDefinition(typeof(Features.Lifestyles.LifestyleUnlockStore), 58);
+            // Offset 59 reserved (Rank Ceremony state lives in FlagStore — no class)
+            // Offsets 60-70 reserved for future surface specs (Specs 3-5)
         }
 
         /// <summary>
@@ -85,23 +97,32 @@ namespace Enlisted.Mod.Core.SaveSystem
         /// </summary>
         protected override void DefineEnumTypes()
         {
+            // SaveId numeric space is shared between class and enum dictionaries
+            // (decompile: TaleWorlds.SaveSystem.Definition.DefinitionContext.AddEnumDefinition
+            // calls _allTypeDefinitionsWithId.Add(SaveId, ...), same dict that
+            // AddClassDefinition uses). A class at offset N and an enum at
+            // offset N produce the same TypeSaveId(BaseId+N) and crash module
+            // init with Dictionary duplicate-key. The retinue + logistics enums
+            // below originally claimed 50-52, which collides with the Career
+            // Loop Plan 4 class at offset 50 (DutyCooldownStore) and the
+            // menu+duty unification spec's reserved class offsets 51-52.
+            // Re-numbered to 110-112 to keep enum offsets disjoint from the
+            // 0-70 class range used by surface specs.
             // Retinue enums
-            AddEnumDefinition(typeof(LoyaltyThreshold), 50);
-            AddEnumDefinition(typeof(BattleOutcome), 51);
+            AddEnumDefinition(typeof(LoyaltyThreshold), 110);
+            AddEnumDefinition(typeof(BattleOutcome), 111);
 
             // Logistics enums
-            AddEnumDefinition(typeof(BaggageAccessState), 52);
+            AddEnumDefinition(typeof(BaggageAccessState), 112);
 
-            // Content Orchestrator enums
-            AddEnumDefinition(typeof(DayPhase), 60);
-            AddEnumDefinition(typeof(LordSituation), 61);
-            AddEnumDefinition(typeof(LifePhase), 62);
-            AddEnumDefinition(typeof(ActivityLevel), 63);
-            AddEnumDefinition(typeof(WarStance), 64);
-
-            // Camp Life Simulation enums
-            AddEnumDefinition(typeof(OpportunityType), 70);
-            AddEnumDefinition(typeof(CampMood), 71);
+            // Content Orchestrator enums (moved from 60-64 — see SaveId
+            // numeric-space note above; class offsets 60-70 are reserved for
+            // future surface specs 3-5).
+            AddEnumDefinition(typeof(DayPhase), 113);
+            AddEnumDefinition(typeof(LordSituation), 114);
+            AddEnumDefinition(typeof(LifePhase), 115);
+            AddEnumDefinition(typeof(ActivityLevel), 116);
+            AddEnumDefinition(typeof(WarStance), 117);
 
             // Pacing subsystem enums
             AddEnumDefinition(typeof(Features.Content.StoryTier), 80);
@@ -141,6 +162,10 @@ namespace Enlisted.Mod.Core.SaveSystem
             // StoryCandidate signal-metadata enums (Plan 3 of 5) — offsets 102-103
             AddEnumDefinition(typeof(Features.Content.SourcePerspective), 102);
             AddEnumDefinition(typeof(Features.Content.SignalRecency), 103);
+
+            // CK3 wanderer mechanics — Roll of Patrons (Plan 6) — offset 84
+            // Stub None=0 only; full member list populated when Plan 6 ships.
+            AddEnumDefinition(typeof(Features.Patrons.FavorKind), 84);
         }
 
         /// <summary>
@@ -177,6 +202,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             // RecentChangeFlags decay tracker in EnlistedCampaignIntelligenceBehavior.SyncData.
             ConstructContainerDefinition(typeof(List<int>));
             ConstructContainerDefinition(typeof(List<TaleWorlds.CampaignSystem.CampaignTime>));
+
+            // CK3 wanderer mechanics — PatronRoll holds List<PatronEntry>;
+            // Endeavor + Contract activities hold List<MBGUID> for assigned-companion refs.
+            ConstructContainerDefinition(typeof(List<Features.Patrons.PatronEntry>));
+            ConstructContainerDefinition(typeof(List<TaleWorlds.ObjectSystem.MBGUID>));
         }
     }
 }

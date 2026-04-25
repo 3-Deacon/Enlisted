@@ -2,7 +2,7 @@
 """
 Enhanced Content Validation Tool for Enlisted Mod
 
-Validates events, decisions, orders, configs, and project structure against structural rules,
+Validates events, configs, and project structure against structural rules,
 logical constraints, and integration requirements from docs/Features/Content/event-system-schemas.md
 
 Usage:
@@ -14,7 +14,6 @@ Validation Phases:
     Phase 3: Logical validation (impossible combinations, reasonable values)
     Phase 4: Consistency checks (flags, multi-stage events, priorities)
     Phase 5: Orphan detection (unused XML strings)
-    Phase 5.5: Opportunity validation (hints, deprecated 'immediate' field)
     Phase 6: Config validation (baggage_config.json, etc.)
     Phase 7: Project structure validation (.csproj, file organization)
     Phase 8: Code quality validation (hardcoded paths, sea context detection)
@@ -1474,8 +1473,7 @@ def validate_csproj(ctx: ValidationContext):
         # Verify that all content subdirectories in ModuleData have corresponding
         # ItemGroup entries and AfterBuild copy commands in .csproj
         content_dirs_to_check = [
-            ("ModuleData/Enlisted/Orders/order_events", "OrderEventsData", "order_events/*.json"),
-            # Add other content subdirectories here as needed
+            # Add content subdirectories here as needed.
         ]
 
         csproj_content = csproj_path.read_text(encoding="utf-8")
@@ -3170,28 +3168,17 @@ def main():
     print("[Phase 0] Loading localization strings...")
     localization_ids = load_localization_strings()
 
-    # Collect all content files (Events, Decisions, Order Events)
+    # Collect all content files (Events). Decisions retired.
     event_files = sorted(glob.glob("ModuleData/Enlisted/Events/**/*.json", recursive=True))
-    decision_files = sorted(glob.glob("ModuleData/Enlisted/Decisions/**/*.json", recursive=True))
-    # Only validate order_events/*.json, not the order definition files (orders_*.json)
-    order_event_files = sorted(
-        glob.glob("ModuleData/Enlisted/Orders/order_events/**/*.json", recursive=True)
-    )
-    # Opportunity files (separate validation for hints - not treated as regular events)
-    opportunity_files = sorted(
-        glob.glob("ModuleData/Enlisted/Decisions/camp_opportunities*.json", recursive=True)
-    )
-    # Exclude opportunity files from regular event validation (they have different structure)
-    decision_files = [f for f in decision_files if not any(op in f for op in opportunity_files)]
-    all_files = event_files + decision_files + order_event_files
+    # schema_version.json is metadata, not an event file.
+    event_files = [f for f in event_files if not f.endswith("schema_version.json")]
+    all_files = event_files
 
     if not all_files:
         print("[ERROR] No content files found!")
         return 2
 
-    print(
-        f"[Phase 0] Found {len(all_files)} content files ({len(event_files)} events, {len(decision_files)} decisions, {len(order_event_files)} order events, {len(opportunity_files)} opportunity files)"
-    )
+    print(f"[Phase 0] Found {len(all_files)} event files")
     print()
 
     print("[Phase 1-4] Validating structure, references, logic, and consistency...")
@@ -3204,12 +3191,6 @@ def main():
     if args.check_orphans:
         print("[Phase 5] Detecting orphaned strings...")
         detect_orphan_strings(localization_ids, ctx)
-
-    # Validate opportunities with hint checks
-    if opportunity_files:
-        print("[Phase 5.5] Validating opportunities and hints...")
-        for opp_file in opportunity_files:
-            validate_opportunities(opp_file, ctx, localization_ids)
 
     validate_config_files(ctx)
 

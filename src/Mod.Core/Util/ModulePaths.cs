@@ -98,7 +98,7 @@ namespace Enlisted.Mod.Core.Util
 
         /// <summary>
         /// Gets path to a specific folder within ModuleData/Enlisted.
-        /// Example: GetContentPath("Orders") returns "C:\...\ModuleData\Enlisted\Orders"
+        /// Example: GetContentPath("Storylets") returns "C:\...\ModuleData\Enlisted\Storylets"
         /// </summary>
         public static string GetContentPath(string subFolder)
         {

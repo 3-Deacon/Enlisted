@@ -507,9 +507,9 @@ def print_analysis(data):
                 '  2. MakeDir:   <MakeDir Directories="$(OutputPath)..\\\\..\\\\path\\\\to\\\\"/>'
             )
             print('  3. Copy:      <Copy SourceFiles="@(YourDataName)" DestinationFolder="..."/>')
-            print("\nExample for order_events:")
+            print("\nExample for a content subdirectory (replace placeholder names):")
             print(
-                '  <OrderEventsData Include="ModuleData\\\\Enlisted\\\\Orders\\\\order_events\\\\*.json"/>'
+                '  <MyContentData Include="ModuleData\\\\Enlisted\\\\MySubdir\\\\*.json"/>'
             )
 
         gui_missing = project_issues.get("gui_missing", [])

@@ -55,7 +55,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | Path | Purpose |
 | --- | --- |
 | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | **Runtime mod logs** (ModLogger output, error codes) |
-| `src/Features/` | All gameplay code (Enlistment, Orders, Content, Combat, Equipment, Qualities, Flags, Activities) |
+| `src/Features/` | All gameplay code (Enlistment, Activities/Orders, Content, Combat, Equipment, Qualities, Flags, Activities) |
 | `src/Features/Qualities/` · `Flags/` · `Activities/` | Storylet Backbone runtime (Spec 0, 2026-04-19) — QualityStore (typed numeric state, stored + read-through), FlagStore (named booleans + expiry), ActivityRuntime (stateful phased activities) |
 | `ModuleData/Enlisted/` | JSON config, events, orders, decisions |
 | `ModuleData/Enlisted/Storylets/` · `Qualities/` · `Effects/` | Storylet Backbone content dirs — storylet definitions (populated by surface specs 1-5), quality_defs.json, scripted_effects.json |
@@ -93,9 +93,8 @@ Enlisted/
 │   ├── Mod.GameAdapters/   Harmony patches
 │   └── Features/           All gameplay features
 │       ├── Enlistment/     Core service state, retirement
-│       ├── MyNewFeature/   (example placeholder)
-│       ├── Orders/         Mission-driven directives
-│       ├── Content/        Events, Decisions, narrative delivery
+│       ├── Activities/     Activity backbone + Home/Orders subclasses (Spec 0/1/2)
+│       ├── Content/        Storylets, scripted effects, narrative delivery
 │       ├── Combat/         Battle participation, formation, Battle AI
 │       ├── Equipment/      Quartermaster and gear management
 │       └── ...             (see full list below)
@@ -124,8 +123,8 @@ Enlisted/
 | Folder | Purpose |
 | --- | --- |
 | Enlistment | Core service state, retirement |
-| Orders | Mission-driven directives (Chain of Command) |
-| Content | Events, Decisions, narrative delivery |
+| Activities | Stateful phased activities — `Activity` base, `HomeActivity` (Spec 1), `OrderActivity` + `NamedOrderState` (Spec 2 — current Orders surface) |
+| Content | Storylets, scripted effects, StoryDirector (pacing), event delivery |
 | Identity | Role detection (Traits), Reputation helpers |
 | Escalation | Lord/Officer/Soldier reputation, Scrutiny/Discipline |
 | Company | Company-wide Needs (Readiness, Supply) - Note: Rest removed 2026-01-11 |
