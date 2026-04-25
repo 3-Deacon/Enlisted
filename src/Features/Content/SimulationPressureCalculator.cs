@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content.Models;
@@ -7,7 +7,6 @@ using Enlisted.Features.Escalation;
 using Enlisted.Features.Ranks.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
-using TaleWorlds.CampaignSystem;
 
 // MedicalPressureLevel and MedicalPressureAnalysis are in Models namespace
 
@@ -114,7 +113,7 @@ namespace Enlisted.Features.Content
             // Check for active conditions (must have days remaining > 0)
             var hasCondition = state?.HasAnyCondition == true;
             var hasSevereCondition = false;
-            
+
             if (hasCondition && state != null)
             {
                 // Severe condition = Severe or Critical severity WITH days remaining
@@ -176,8 +175,8 @@ namespace Enlisted.Features.Content
             // Calculate how much scrutiny reduction is needed
             var currentTier = enlistment.EnlistmentTier;
             var targetTier = currentTier + 1;
-            var requirements = Features.Ranks.Behaviors.PromotionRequirements.GetForTier(targetTier);
-            
+            var requirements = PromotionRequirements.GetForTier(targetTier);
+
             var escalation = EscalationManager.Instance?.State;
             var currentScrutiny = escalation?.Scrutiny ?? 0;
             var maxScrutiny = requirements.MaxScrutiny;
@@ -185,7 +184,7 @@ namespace Enlisted.Features.Content
 
             if (scrutinyGap > 0)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Promotion scrutiny need detected: T{currentTier}→T{targetTier} max scrutiny {maxScrutiny}, player has {currentScrutiny} (gap: {scrutinyGap})");
                 return (true, scrutinyGap);
             }

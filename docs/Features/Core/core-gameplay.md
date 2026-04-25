@@ -3,7 +3,7 @@
 **Summary:** Comprehensive overview of the Enlisted mod's core gameplay loop covering enlistment, orders from chain of command, emergent identity through traits and reputation, and the native game menu interface. This is the main entry point for understanding how all systems fit together in the enlisted soldier experience.
 
 **Status:** ✅ Current  
-**Last Updated:** 2025-12-23  
+**Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities, Flags, Activities are now first-class state primitives; surface specs 1-5 will author content against them.)  
 **Related Docs:** [Enlistment](enlistment.md), [Order Progression System](order-progression-system.md), [Identity System](../Identity/identity-system.md), [Camp Simulation System](../Campaign/camp-simulation-system.md)
 
 ---
@@ -54,7 +54,7 @@ The mod is built on three core transformations introduced in v2.0:
 
 - **Config**: `ModuleData/Enlisted/enlisted_config.json`
 - **Progression**: `ModuleData/Enlisted/progression_config.json`
-- **Orders Catalog**: `ModuleData/Enlisted/Orders/*.json`
+- **Storylets Catalog**: `ModuleData/Enlisted/Storylets/*.json` (Spec 0 backbone — duty pools, ceremonies, named-order arcs, transitions)
 - **Events Catalog**: `ModuleData/Enlisted/Events/*.json` (Role-based & Contextual)
 - **Rank Titles**: `ModuleData/Enlisted/progression_config.json` (Culture-specific)
 
@@ -88,7 +88,7 @@ Replaces the legacy passive duties system with explicit, mission-driven tasks.
 -   **Discharge Risk**: Repeatedly declining optional orders (5+ times) triggers a risk of dishonorable discharge.
 -   **Camp Life Continues**: Being on duty doesn't block gameplay. Camp decisions remain available, with some flagged as risky (detection chance) or blocked while on duty.
 
-**Note:** Orders follow the same pacing system as narrative events. See [Event System Schemas](../Content/event-system-schemas.md#global-event-pacing-enlisted_configjson) for full pacing config details.
+**Note:** Orders follow the same pacing system as narrative events. See [Storylet Backbone](../Content/storylet-backbone.md) and the event pacing spec for current delivery details.
 
 **See:** [Order Progression System](order-progression-system.md) for complete technical details.
 

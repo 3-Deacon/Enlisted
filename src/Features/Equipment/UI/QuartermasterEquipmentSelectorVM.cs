@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
-using static TaleWorlds.Core.ViewModelCollection.CharacterViewModel;
 using TaleWorlds.Library;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Mod.Core.Logging;
+using static TaleWorlds.Core.ViewModelCollection.CharacterViewModel;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -28,9 +28,6 @@ namespace Enlisted.Features.Equipment.UI
         [DataSourceProperty]
         public CharacterViewModel UnitCharacter { get; }
 
-        // Internal state (readonly as set only in constructor)
-        private readonly EquipmentIndex _targetSlot;
-
         /// <summary>
         /// Initialize equipment selector with available variants.
         /// Sets up the ViewModel with equipment data and organizes items into rows for grid display.
@@ -41,7 +38,7 @@ namespace Enlisted.Features.Equipment.UI
             {
                 throw new ArgumentNullException(nameof(availableVariants));
             }
-            _targetSlot = targetSlot;
+            _ = targetSlot;
             // Discard equipmentType - kept for API compatibility and future use (e.g. header customization)
             _ = equipmentType;
 
@@ -77,7 +74,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error setting up character view model", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error setting up character view model", ex);
             }
             UnitCharacter = unitCharacter;
 
@@ -115,7 +112,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error refreshing equipment selector values", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error refreshing equipment selector values", ex);
             }
         }
 
@@ -212,7 +209,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error applying selected equipment", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error applying selected equipment", ex);
             }
         }
 
@@ -227,7 +224,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing equipment selector", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing equipment selector", ex);
             }
         }
 

@@ -1,8 +1,8 @@
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Conversation.Tags;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Mod.Core.Logging;
 
 // ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Local

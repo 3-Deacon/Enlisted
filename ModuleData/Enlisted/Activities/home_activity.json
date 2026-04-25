@@ -1,0 +1,89 @@
+{
+  "id": "home_activity",
+  "phases": [
+    {
+      "id": "arrive",
+      "duration_hours": 1,
+      "fire_interval_hours": 0,
+      "delivery": "auto",
+      "pool": [
+        "home_arrive_home_fief",
+        "home_arrive_lord_wounded_returning",
+        "home_arrive_grim_mood",
+        "home_arrive_post_defeat",
+        "home_arrive_faction_empire",
+        "home_arrive_faction_sturgia",
+        "home_arrive_faction_battania",
+        "home_arrive_faction_vlandia"
+      ],
+      "intent_bias": { "brood": 1.2, "unwind": 1.0, "commune": 1.3, "train_hard": 0.8, "scheme": 0.9 }
+    },
+    {
+      "id": "settle",
+      "duration_hours": 4,
+      "fire_interval_hours": 2,
+      "delivery": "auto",
+      "pool": [
+        "home_settle_food_anxiety_3d",
+        "home_settle_food_anxiety_5d",
+        "home_settle_wounded_tend",
+        "home_settle_stores_short",
+        "home_settle_weather_autumn",
+        "home_settle_weather_winter",
+        "home_settle_low_loyalty_town",
+        "home_settle_recent_threat",
+        "home_settle_lord_observation_mercy",
+        "home_settle_lord_observation_valor",
+        "home_settle_chaplain_passes",
+        "home_settle_siege_preparations"
+      ],
+      "intent_bias": { "brood": 1.0, "unwind": 1.0, "commune": 1.0, "train_hard": 1.1, "scheme": 1.0 }
+    },
+    {
+      "id": "evening",
+      "duration_hours": 0,
+      "fire_interval_hours": 0,
+      "delivery": "player_choice",
+      "pool": [
+        "home_evening_unwind_dice",
+        "home_evening_unwind_song",
+        "home_evening_unwind_sergeant",
+        "home_evening_unwind_firelit",
+        "home_evening_unwind_stars",
+        "home_evening_train_hard_sparring",
+        "home_evening_train_hard_drill",
+        "home_evening_train_hard_master",
+        "home_evening_train_hard_armor",
+        "home_evening_train_hard_foreign_form",
+        "home_evening_brood_dead_friend",
+        "home_evening_brood_lord_like_father",
+        "home_evening_brood_letter_home",
+        "home_evening_brood_cold_comfort",
+        "home_evening_brood_drift",
+        "home_evening_commune_lord_at_hearth",
+        "home_evening_commune_squadmate_confession",
+        "home_evening_commune_family_meal",
+        "home_evening_commune_chaplain",
+        "home_evening_commune_old_soldier",
+        "home_evening_scheme_skim_stores",
+        "home_evening_scheme_eavesdrop_hall",
+        "home_evening_scheme_bribe_gate",
+        "home_evening_scheme_tavern_rumors",
+        "home_evening_scheme_ghost_sentry"
+      ]
+    },
+    {
+      "id": "break_camp",
+      "duration_hours": 1,
+      "fire_interval_hours": 0,
+      "delivery": "auto",
+      "pool": [
+        "home_break_camp_parting_gate",
+        "home_break_camp_lord_mood_after_home",
+        "home_break_camp_supply_trains",
+        "home_break_camp_sword_edge",
+        "home_break_camp_rain_on_march"
+      ]
+    }
+  ]
+}

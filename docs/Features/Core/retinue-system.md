@@ -615,7 +615,7 @@ After each battle with casualties:
 
 **Memorial Event:**
 
-When a veteran dies, `evt_ret_veteran_memorial` is queued:
+When a veteran dies, `evt_ret_veteran_memorial` is emitted to `StoryDirector` as a `Pertinent`-tier (accordion-only) candidate — it surfaces in the `enlisted_status` Headlines drilldown, not as a modal popup (demoted in commit `a8d42bf`):
 
 ```
 Setup: "The men gather around the fire. [Veteran Name] is gone. [Count] 

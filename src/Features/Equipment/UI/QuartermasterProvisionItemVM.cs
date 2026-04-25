@@ -1,11 +1,11 @@
 using System;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.Util;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -77,7 +77,7 @@ namespace Enlisted.Features.Equipment.UI
 
         // Parent reference for purchase callbacks
         private readonly QuartermasterProvisionsVm _parent;
-        
+
         // Whether player is an officer (T7+) and can purchase provisions
         private readonly bool _isOfficer;
 
@@ -102,7 +102,7 @@ namespace Enlisted.Features.Equipment.UI
             {
                 Image = new ItemImageIdentifierVM(item);
             }
-            
+
             // Initialize display properties immediately
             RefreshValues();
         }
@@ -173,7 +173,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing provision item", ex);
+                ModLogger.Caught("QuartermasterUI", "Error refreshing provision item", ex);
                 SetEmptyValues();
             }
         }
@@ -315,7 +315,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error executing Buy One", ex);
+                ModLogger.Caught("QuartermasterUI", "Error executing Buy One", ex);
             }
         }
 
@@ -372,7 +372,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error executing Buy All", ex);
+                ModLogger.Caught("QuartermasterUI", "Error executing Buy All", ex);
             }
         }
     }

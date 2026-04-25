@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    { "id": "garrisoned",  "pool_prefix": "duty_garrisoned_",  "daily_drift_skill_count": 2, "daily_drift_xp_range": [5, 15] },
+    { "id": "marching",    "pool_prefix": "duty_marching_",    "daily_drift_skill_count": 2, "daily_drift_xp_range": [5, 15] },
+    { "id": "besieging",   "pool_prefix": "duty_besieging_",   "daily_drift_skill_count": 3, "daily_drift_xp_range": [8, 20] },
+    { "id": "raiding",     "pool_prefix": "duty_raiding_",     "daily_drift_skill_count": 3, "daily_drift_xp_range": [8, 20] },
+    { "id": "escorting",   "pool_prefix": "duty_escorting_",   "daily_drift_skill_count": 2, "daily_drift_xp_range": [5, 12] },
+    { "id": "wandering",   "pool_prefix": "duty_wandering_",   "daily_drift_skill_count": 2, "daily_drift_xp_range": [4, 10] },
+    { "id": "imprisoned",  "pool_prefix": "duty_imprisoned_",  "daily_drift_skill_count": 1, "daily_drift_xp_range": [2, 6] }
+  ]
+}

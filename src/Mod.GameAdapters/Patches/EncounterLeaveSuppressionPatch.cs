@@ -2,7 +2,6 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
-using TaleWorlds.CampaignSystem.GameMenus;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -18,7 +17,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         /// Returns false to override native condition and hide the option.
         /// </summary>
         [HarmonyPrefix]
-        public static bool Prefix(MenuCallbackArgs args, ref bool __result)
+        public static bool Prefix(ref bool __result)
         {
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment?.IsEnlisted == true)

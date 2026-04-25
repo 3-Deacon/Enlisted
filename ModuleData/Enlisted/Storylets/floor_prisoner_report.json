@@ -1,0 +1,80 @@
+{
+  "storylets": [
+    {
+      "id": "floor_prisoner_report_captive_noble",
+      "title": "{=floor_prisoner_report_captive_noble_title}A noble for coin",
+      "setup": "{=floor_prisoner_report_captive_noble_setup}A captured noble is traded for coin. A lord somewhere is pleased. The wagoner leads the man out on a short rope, and no one on the column meets his eye.",
+      "theme": "signal",
+      "category": "floor_prisoner_report",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_prisoner_report_captive_noble_opt}Note it.",
+          "tooltip": "{=floor_prisoner_report_captive_noble_tt}Acknowledge the news. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_prisoner_report_escape_attempt",
+      "title": "{=floor_prisoner_report_escape_attempt_title}Tried to walk out",
+      "setup": "{=floor_prisoner_report_escape_attempt_setup}Someone tried to walk out of the cell-wagon. He's back in it, quieter. The guards do not say what was done to him, and no one on the column asks.",
+      "theme": "signal",
+      "category": "floor_prisoner_report",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_prisoner_report_escape_attempt_opt}Do not look in.",
+          "tooltip": "{=floor_prisoner_report_escape_attempt_tt}Walk on. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_prisoner_report_interrogation",
+      "title": "{=floor_prisoner_report_interrogation_title}He said enough",
+      "setup": "{=floor_prisoner_report_interrogation_setup}The captive has been questioned. He said enough. What that means exactly no one on the column will explain, and the officers come back looking tired rather than pleased.",
+      "theme": "signal",
+      "category": "floor_prisoner_report",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_prisoner_report_interrogation_opt}Walk on.",
+          "tooltip": "{=floor_prisoner_report_interrogation_tt}Note it. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_prisoner_report_ransom_paid",
+      "title": "{=floor_prisoner_report_ransom_paid_title}A ransom paid",
+      "setup": "{=floor_prisoner_report_ransom_paid_setup}A ransom paid. Two saddles lighter, one life heavier. The coin goes into a chest, the man goes onto a horse, and the column goes on as before.",
+      "theme": "signal",
+      "category": "floor_prisoner_report",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_prisoner_report_ransom_paid_opt}File it away.",
+          "tooltip": "{=floor_prisoner_report_ransom_paid_tt}Acknowledge. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

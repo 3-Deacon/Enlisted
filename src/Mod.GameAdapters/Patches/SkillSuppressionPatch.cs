@@ -1,11 +1,11 @@
 using System;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -26,7 +26,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         {
             "OneHanded", "TwoHanded", "Polearm", "Bow", "Crossbow", "Throwing", "Athletics"
         };
-        
+
         // Track cumulative combat XP during a mission to batch the enlistment XP award
         // This prevents spamming AddEnlistmentXP for every single hit
         private static float _accumulatedCombatXp;
@@ -37,7 +37,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Called by Harmony via reflection")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Parameters required to match Harmony patch signature")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
-        private static bool Prefix(HeroDeveloper __instance, SkillObject skill, float rawXp, bool isAffectedByFocusFactor, bool shouldNotify)
+        private static bool Prefix(HeroDeveloper __instance, SkillObject skill, float rawXp)
         {
             try
             {
@@ -51,7 +51,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return true; // Allow normal skill assignment
                 }
-                
+
                 // Only suppress for the main hero when enlisted
                 var mainHero = CampaignSafetyGuard.SafeMainHero;
                 if (__instance?.Hero != mainHero || mainHero == null)
@@ -90,7 +90,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 return true; // Fail open - allow normal behavior on error
             }
         }
-        
+
         /// <summary>
         /// Postfix that tracks combat skill XP for enlistment progression.
         /// Native Bannerlord already scales combat XP based on enemy tier/power:
@@ -101,7 +101,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Called by Harmony via reflection")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Parameters required to match Harmony patch signature")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony convention: __instance is a special injected parameter")]
-        private static void Postfix(HeroDeveloper __instance, SkillObject skill, float rawXp, bool isAffectedByFocusFactor, bool shouldNotify)
+        private static void Postfix(HeroDeveloper __instance, SkillObject skill, float rawXp)
         {
             try
             {
@@ -109,7 +109,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return;
                 }
-                
+
                 // Must be in an active mission (battle) for this to be combat XP
                 if (Mission.Current == null)
                 {
@@ -121,7 +121,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return;
                 }
-                
+
                 // Only track for the main hero
                 var mainHero = CampaignSafetyGuard.SafeMainHero;
                 if (__instance?.Hero != mainHero || mainHero == null)
@@ -134,7 +134,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return;
                 }
-                
+
                 // Only track combat skills (weapon skills + athletics from unarmed)
                 bool isCombatSkill = false;
                 foreach (var combatSkill in CombatSkills)
@@ -145,12 +145,12 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         break;
                     }
                 }
-                
+
                 if (!isCombatSkill || rawXp <= 0f)
                 {
                     return;
                 }
-                
+
                 // Track accumulated XP for this mission
                 // Reset accumulator if this is a new mission
                 int currentMissionHash = Mission.Current.GetHashCode();
@@ -166,10 +166,10 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     _accumulatedCombatXp = 0f;
                     _lastMissionHash = currentMissionHash;
                 }
-                
+
                 // Accumulate the raw XP (native formula already scaled by enemy tier)
                 _accumulatedCombatXp += rawXp;
-                
+
                 // Award in batches of 10+ to reduce log spam and performance overhead
                 if (_accumulatedCombatXp >= 10f)
                 {
@@ -184,7 +184,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 ModLogger.Caught("CombatXP", "Error tracking combat XP for enlistment", ex);
             }
         }
-        
+
         /// <summary>
         /// Called when a battle ends to flush any remaining accumulated combat XP.
         /// Should be invoked by EnlistmentBehavior.OnPlayerBattleEnd().

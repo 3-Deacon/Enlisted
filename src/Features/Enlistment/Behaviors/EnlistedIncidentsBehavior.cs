@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Enlisted.Features.Camp;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Incidents;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.CampaignSystem.Incidents;
 using TaleWorlds.Core;
-using TaleWorlds.Localization;
-using TaleWorlds.CampaignSystem.GameState;
-using System.Linq;
 
 namespace Enlisted.Features.Enlistment.Behaviors
 {

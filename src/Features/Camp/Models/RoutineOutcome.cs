@@ -47,10 +47,10 @@ namespace Enlisted.Features.Camp.Models
         /// <summary>Gold or supplies found/earned. Can be negative for losses.</summary>
         public int GoldChange { get; set; }
 
-    /// <summary>Supply change from foraging or losses.</summary>
-    public int SupplyChange { get; set; }
+        /// <summary>Supply change from foraging or losses.</summary>
+        public int SupplyChange { get; set; }
 
-    /// <summary>Condition ID to apply (e.g., "minor_injury", "illness"). Null if none.</summary>
+        /// <summary>Condition ID to apply (e.g., "minor_injury", "illness"). Null if none.</summary>
         public string ConditionApplied { get; set; }
 
         /// <summary>Short flavor text for combat log display.</summary>
@@ -66,8 +66,8 @@ namespace Enlisted.Features.Camp.Models
         public string OverrideReason { get; set; }
 
         /// <summary>True if outcome is positive (Excellent, Good, or Normal without mishap).</summary>
-        public bool IsPositive => Outcome == OutcomeType.Excellent || 
-                                   Outcome == OutcomeType.Good || 
+        public bool IsPositive => Outcome == OutcomeType.Excellent ||
+                                   Outcome == OutcomeType.Good ||
                                    Outcome == OutcomeType.Normal;
 
         /// <summary>True if outcome resulted in injury or negative condition.</summary>
@@ -82,7 +82,7 @@ namespace Enlisted.Features.Camp.Models
 
             // Append gains/losses
             var gains = new System.Collections.Generic.List<string>();
-            
+
             if (XpGained > 0 && !string.IsNullOrEmpty(SkillAffected))
             {
                 gains.Add($"+{XpGained} {SkillAffected} XP");
@@ -95,12 +95,12 @@ namespace Enlisted.Features.Camp.Models
             {
                 gains.Add($"{GoldChange} denars");
             }
-        if (SupplyChange > 0)
-        {
-            gains.Add($"+{SupplyChange} supplies");
-        }
+            if (SupplyChange > 0)
+            {
+                gains.Add($"+{SupplyChange} supplies");
+            }
 
-        if (gains.Count > 0)
+            if (gains.Count > 0)
             {
                 result += " (" + string.Join(", ", gains) + ")";
             }

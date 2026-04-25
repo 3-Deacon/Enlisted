@@ -1,4 +1,3 @@
-﻿using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Triggers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;

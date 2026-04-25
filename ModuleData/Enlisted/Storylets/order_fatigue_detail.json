@@ -1,0 +1,392 @@
+{
+  "storylets": [
+    {
+      "id": "order_fatigue_detail_accept",
+      "title": "{=order_fatigue_detail_accept_title}On the work party",
+      "setup": "{=order_fatigue_detail_accept_setup}The sergeant waves you over with a grin that is not friendly. Latrines. Wood. Water. A long list of things that require a strong back and a shut mouth. How are you going to approach it?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "fatigue_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_fatigue_detail_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "fatigue_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_fatigue_detail_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_fatigue_detail_accept_diligent_text}Heads down, work done. No complaints.",
+          "tooltip": "{=order_fatigue_detail_accept_diligent_tt}Work hard. Small XP; quiet credit.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_fatigue_detail_accept_train_hard_text}Treat the labour as conditioning.",
+          "tooltip": "{=order_fatigue_detail_accept_train_hard_tt}Train through it. Athletics XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_fatigue_detail_accept_slack_text}Do the minimum. Lean on the veterans.",
+          "tooltip": "{=order_fatigue_detail_accept_slack_tt}Slack off. Scrutiny rises if caught.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_fatigue_detail_accept_scheme_text}Trade the shovel for a favour.",
+          "tooltip": "{=order_fatigue_detail_accept_scheme_tt}Scheme out of the work. Gold risk/reward.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_fatigue_detail_accept_decline_text}Refuse the detail.",
+          "tooltip": "{=order_fatigue_detail_accept_decline_tt}Refuse the work. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_mid_digging",
+      "title": "{=order_fatigue_detail_mid_digging_title}Digging work",
+      "setup": "{=order_fatigue_detail_mid_digging_setup}Cold earth, a dull shovel, and a line to dig before dusk. Your hands blister quickly. The ground does not care how tired you are.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 1.2,
+        "slack": 0.8,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "dig_steady",
+          "text": "{=order_fatigue_detail_mid_digging_steady_text}Dig steady. Finish your stretch.",
+          "tooltip": "{=order_fatigue_detail_mid_digging_steady_tt}Honest labour. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "dig_with_strength",
+          "text": "{=order_fatigue_detail_mid_digging_strength_text}Attack the ground. Make it count.",
+          "tooltip": "{=order_fatigue_detail_mid_digging_strength_tt}Push through. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_mid_hauling_water",
+      "title": "{=order_fatigue_detail_mid_hauling_water_title}Water from the well",
+      "setup": "{=order_fatigue_detail_mid_hauling_water_setup}Two buckets, a yoke, and half a mile to the cookpots. Again. The yoke leaves a raw stripe across your shoulders by the fourth trip.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 1.3,
+        "slack": 1.0,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "full_loads",
+          "text": "{=order_fatigue_detail_mid_hauling_water_full_text}Full buckets every trip.",
+          "tooltip": "{=order_fatigue_detail_mid_hauling_water_full_tt}Carry the weight. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        },
+        {
+          "id": "half_loads",
+          "text": "{=order_fatigue_detail_mid_hauling_water_half_text}Half loads. No one is counting trips.",
+          "tooltip": "{=order_fatigue_detail_mid_hauling_water_half_tt}Save your back. Minor scrutiny.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_mid_veteran_complaints",
+      "title": "{=order_fatigue_detail_mid_veteran_complaints_title}The old soldier's tale",
+      "setup": "{=order_fatigue_detail_mid_veteran_complaints_setup}An older soldier leans on his shovel and tells you, at length, how much better things were when he was young. He is wrong about most of it, but he expects agreement.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 0.9,
+        "train_hard": 0.7,
+        "slack": 1.3,
+        "scheme": 1.2
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "listen_patiently",
+          "text": "{=order_fatigue_detail_mid_veteran_complaints_listen_text}Nod along. Keep working.",
+          "tooltip": "{=order_fatigue_detail_mid_veteran_complaints_listen_tt}Earn a grain of goodwill.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "work_in_silence",
+          "text": "{=order_fatigue_detail_mid_veteran_complaints_silent_text}Ignore him. Work.",
+          "tooltip": "{=order_fatigue_detail_mid_veteran_complaints_silent_tt}Silent grind. Nothing gained or lost.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_mid_broken_tool",
+      "title": "{=order_fatigue_detail_mid_broken_tool_title}A snapped handle",
+      "setup": "{=order_fatigue_detail_mid_broken_tool_setup}Your shovel splinters mid-swing. The sergeant is not in sight. You can report it and face the lecture, or you can patch it rough and pretend nothing happened.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 0.9,
+        "slack": 1.1,
+        "scheme": 1.3
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "report_it",
+          "text": "{=order_fatigue_detail_mid_broken_tool_report_text}Report the broken tool.",
+          "tooltip": "{=order_fatigue_detail_mid_broken_tool_report_tt}Honest. Small credit; lecture absorbed.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "hide_the_break",
+          "text": "{=order_fatigue_detail_mid_broken_tool_hide_text}Wedge it back together. Hope no one notices.",
+          "tooltip": "{=order_fatigue_detail_mid_broken_tool_hide_tt}Concealment. Scrutiny up if caught.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_mid_sergeant_inspection",
+      "title": "{=order_fatigue_detail_mid_sergeant_inspection_title}The sergeant comes through",
+      "setup": "{=order_fatigue_detail_mid_sergeant_inspection_setup}The sergeant picks his way down the line, casting an eye on each man's work. His gaze stops on you. A pause too long for comfort.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.1,
+        "slack": 0.6,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "meet_his_eye",
+          "text": "{=order_fatigue_detail_mid_sergeant_inspection_meet_text}Straighten up. Meet his eye.",
+          "tooltip": "{=order_fatigue_detail_mid_sergeant_inspection_meet_tt}Stand tall. Small credit if work is solid.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "keep_head_down",
+          "text": "{=order_fatigue_detail_mid_sergeant_inspection_head_down_text}Keep your head down. Say nothing.",
+          "tooltip": "{=order_fatigue_detail_mid_sergeant_inspection_head_down_tt}Pass under notice. Nothing gained.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_resolve_diligent",
+      "title": "{=order_fatigue_detail_resolve_diligent_title}Blisters and credit",
+      "setup": "{=order_fatigue_detail_resolve_diligent_setup}The work is done. Your palms are raw and your back complains, but the sergeant nods once as you pass. That nod is worth more than he will ever say aloud.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_fatigue_detail_resolve_diligent_done_text}A hard day, honestly spent.",
+          "tooltip": "{=order_fatigue_detail_resolve_diligent_done_tt}XP + small relation up.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_resolve_train_hard",
+      "title": "{=order_fatigue_detail_resolve_train_hard_title}Sore, and stronger",
+      "setup": "{=order_fatigue_detail_resolve_train_hard_setup}You treated every bucket and every shovel-stroke as a drill. Your shoulders scream tonight. They will be the stronger for it tomorrow.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "low",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_fatigue_detail_resolve_train_hard_done_text}Earned the ache.",
+          "tooltip": "{=order_fatigue_detail_resolve_train_hard_done_tt}Athletics + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 40 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_resolve_slack",
+      "title": "{=order_fatigue_detail_resolve_slack_title}A half-dug ditch",
+      "setup": "{=order_fatigue_detail_resolve_slack_setup}The sergeant walks the line and his face sours when he reaches your stretch. The ditch is half what it should be. A word will reach the lord by morning.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_fatigue_detail_resolve_slack_absorb_text}Accept the grumble. Move on.",
+          "tooltip": "{=order_fatigue_detail_resolve_slack_absorb_tt}Scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_fatigue_detail_resolve_scheme",
+      "title": "{=order_fatigue_detail_resolve_scheme_title}Hands kept clean",
+      "setup": "{=order_fatigue_detail_resolve_scheme_setup}A few coins changed hands with a tired conscript who did your share. Your uniform is clean. Your palms are soft. Someone saw the transaction, or they did not.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "got_away",
+          "text": "{=order_fatigue_detail_resolve_scheme_away_text}Paid off. No one noticed.",
+          "tooltip": "{=order_fatigue_detail_resolve_scheme_away_tt}Cost coin. Small scrutiny + roguery XP.",
+          "effects": [
+            { "apply": "give_gold", "amount": -30 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "got_seen",
+          "text": "{=order_fatigue_detail_resolve_scheme_seen_text}The sergeant saw. A second bribe.",
+          "tooltip": "{=order_fatigue_detail_resolve_scheme_seen_tt}Larger cost, moderate scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": -60 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

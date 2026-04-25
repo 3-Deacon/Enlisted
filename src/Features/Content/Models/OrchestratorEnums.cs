@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Content.Models
+namespace Enlisted.Features.Content.Models
 {
     /// <summary>
     /// Military day cycle - maps directly to Order System's 4 phases.

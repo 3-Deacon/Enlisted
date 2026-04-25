@@ -1,6 +1,6 @@
-﻿using System;
-using Enlisted.Features.Retinue.Core;
+using System;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
@@ -70,9 +70,9 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // The player is a soldier in the lord's army - companions shouldn't command
                 if (hero.IsPlayerCompanion)
                 {
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"Blocked captain: {hero.Name} -> {__instance?.FormationIndex} | Companions cannot command formations while enlisted");
-                    
+
                     // Set value to null to prevent companion from becoming captain
                     // The setter will then early-return if current captain is already null
                     value = null;
@@ -84,7 +84,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // On error, fail open to vanilla behavior
-                ModLogger.Error(LogCategory, "Error checking captain assignment", ex);
+                ModLogger.Caught("CompanionCommand", "Error checking captain assignment", ex);
                 return true;
             }
         }
@@ -141,9 +141,9 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // The lord should be the general, not the player's companion
                 if (hero.IsPlayerCompanion)
                 {
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"Blocked general: {hero.Name} -> Team({__instance?.Side}) | Companions cannot be army general while enlisted");
-                    
+
                     // Set value to null to prevent companion from becoming general
                     value = null;
                     return true; // Continue with null value - another hero will be picked
@@ -154,7 +154,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             catch (Exception ex)
             {
                 // On error, fail open to vanilla behavior
-                ModLogger.Error(LogCategory, "Error checking general assignment", ex);
+                ModLogger.Caught("CompanionCommand", "Error checking general assignment", ex);
                 return true;
             }
         }

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -147,7 +146,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", $"Error refreshing upgrade card for {_item?.Name}", ex);
+                ModLogger.Caught("QuartermasterUI", $"Error refreshing upgrade card for {_item?.Name}", ex);
             }
         }
 
@@ -228,7 +227,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", $"Error calculating stat improvements for {_item?.Name}", ex);
+                ModLogger.Caught("QuartermasterUI", $"Error calculating stat improvements for {_item?.Name}", ex);
                 return "Improved stats";
             }
         }

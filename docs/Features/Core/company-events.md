@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-06 (Added pressure arc events documentation)
-**Related Docs:** [Content System Architecture](../Content/content-system-architecture.md), [Core Gameplay](core-gameplay.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md#supply-pressure-arc-events)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Core Gameplay](core-gameplay.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md#supply-pressure-arc-events)
 
 ---
 
@@ -73,7 +73,7 @@ Fires when supplies remain low for consecutive days, escalating from warnings to
 - **NCO (T5-T6):** Squad leader perspective - managing squad tensions
 - **Commander (T7+):** Strategic perspective - discipline breakdown, desertions
 
-**Implementation:** `CompanySimulationBehavior.CheckPressureArcEvents()` fires events at exact day thresholds using `_companyPressure.DaysLowSupplies` counter.
+**Implementation:** `CompanySimulationBehavior.CheckPressureArcEvents()` emits candidates at exact day thresholds using `_companyPressure.DaysLowSupplies` counter. Supply pressure events are demoted to `Pertinent` tier (accordion-only — they surface in the `enlisted_status` Headlines drilldown, not as modal popups). Migrated in commit `23dae6b`.
 
 **See Also:** [Company Supply Simulation](../Equipment/company-supply-simulation.md#pressure-tracking)
 
@@ -159,7 +159,7 @@ When an option is selected, effects are applied through centralized managers:
 |------|---------|
 | `ModuleData/Enlisted/Events/` | Event JSON definitions (loaded recursively). |
 | `ModuleData/Enlisted/Decisions/` | Player-initiated decision definitions. |
-| `ModuleData/Enlisted/Orders/` | Chain of command order definitions (3 files by tier). |
+| `ModuleData/Enlisted/Storylets/` | Storylet backbone (Spec 0) — duty pools, named-order arcs, ceremonies, transitions; drives the current Orders surface. |
 | `ModuleData/Languages/enlisted_strings.xml` | Localized text and templates. |
 | `src/Features/Content/` | Event system implementation (EventCatalog, EventDeliveryManager, etc.). |
 

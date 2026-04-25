@@ -2,27 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Enlisted.Features.Combat.Behaviors;
-using Enlisted.Features.Retinue.Core;
-using Enlisted.Features.Retinue.Systems;
 using Enlisted.Features.Camp;
-using Enlisted.Features.Conversations.Behaviors;
+using Enlisted.Features.CampaignIntelligence.Signals;
+using Enlisted.Features.Combat.Behaviors;
+using Enlisted.Features.Conditions;
 using Enlisted.Features.Content;
-using Enlisted.Features.Escalation;
+using Enlisted.Features.Conversations.Behaviors;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.UI;
+using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
-using Enlisted.Features.Logistics;
 using Enlisted.Features.Interface;
 using Enlisted.Features.Interface.Behaviors;
-using Enlisted.Features.Conditions;
-using Enlisted.Features.Orders.Behaviors;
+using Enlisted.Features.Logistics;
 using Enlisted.Features.Ranks.Behaviors;
+using Enlisted.Features.Retinue.Core;
+using Enlisted.Features.Retinue.Systems;
+using Enlisted.Mod.Core;
 // Phase 1: Assignments, Lances, Schedule systems deleted
 using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Triggers;
 using Enlisted.Mod.GameAdapters.Patches;
 using HarmonyLib;
@@ -98,7 +98,7 @@ namespace Enlisted.Mod.Entry
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error("NextFrameDispatcher", "Error processing next frame action", ex);
+                    ModLogger.Caught("NextFrameDispatcher", "Error processing next frame action", ex);
                 }
             }
         }
@@ -225,15 +225,15 @@ namespace Enlisted.Mod.Entry
 
                         try
                         {
-                            _harmony.CreateClassProcessor(type).Patch();
+                            _ = _harmony.CreateClassProcessor(type).Patch();
                             enabledCount++;
                         }
                         catch (Exception patchEx)
                         {
-                            ModLogger.Error("Bootstrap", $"Failed to patch {type.Name}", patchEx);
+                            ModLogger.Caught("Bootstrap", $"Failed to patch {type.Name}", patchEx);
                             if (patchEx.InnerException != null)
                             {
-                                ModLogger.Error("Bootstrap", "Inner exception during patch", patchEx.InnerException);
+                                ModLogger.Caught("Bootstrap", "Inner exception during patch", patchEx.InnerException);
                             }
                         }
                     }
@@ -246,7 +246,7 @@ namespace Enlisted.Mod.Entry
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error("Bootstrap", "Harmony PatchAll failed", ex);
+                    ModLogger.Caught("Bootstrap", "Harmony PatchAll failed", ex);
                 }
 
                 // Log all patched methods for debugging
@@ -266,7 +266,7 @@ namespace Enlisted.Mod.Entry
             {
                 // If patching fails, log the error but don't crash the game
                 // The mod may still function partially without patches, and crashing would prevent the player from playing
-                ModLogger.Error("Bootstrap", "Exception during OnSubModuleLoad", ex);
+                ModLogger.Caught("Bootstrap", "Exception during OnSubModuleLoad", ex);
             }
         }
 
@@ -304,13 +304,104 @@ namespace Enlisted.Mod.Entry
                 {
                     // Initialize event catalog before registering behaviors that might use it
                     EventCatalog.Initialize();
-                    
+
+                    // Read Director pacing knobs (event_density, speed_downshift_on_modal) from enlisted_config.json.
+                    // Safe to load here: ModulePaths is ready and the Director hasn't emitted anything yet.
+                    DensitySettings.Load();
+
                     // Initialize injury system with varied severity definitions for narrative-driven injuries
-                    Enlisted.Features.Content.InjurySystem.Initialize();
+                    InjurySystem.Initialize();
+
+                    // Register engine-state predicates used by home-surface storylets. Predicates read
+                    // live Bannerlord state at evaluation time; no campaign objects are required at registration.
+                    Features.Activities.Home.HomeTriggers.Register();
 
                     // Save/load diagnostics: two marker behaviors registered first/last so we can log
                     // user-friendly "Saving..." / "Save finished" and "Loading..." / "Load finished" lines.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.Begin));
+
+                    // Debug hotkeys: polls Ctrl+Shift+H/E/B/T on TickEvent and dispatches to
+                    // DebugToolsBehavior smoke helpers for the Home surface. No persisted state.
+                    campaignStarter.AddBehavior(new Debugging.Behaviors.DebugHotkeysBehavior());
+
+                    // Career debug hotkeys: polls Ctrl+Shift+I/A/O/F for intel snapshot dump, arc
+                    // state dump, path-score overview, and force-fire of the current top-path
+                    // crossroads at tier 4. Smoke aid for Plan 5 Half A verification.
+                    campaignStarter.AddBehavior(new Debugging.Behaviors.CareerDebugHotkeysBehavior());
+
+                    // Flag store: global + hero-scoped named booleans with optional expiry; used by storylet
+                    // prereq checks and arc progress markers. Registers before all feature behaviors so flags
+                    // are available during their OnSessionLaunched / OnGameLoaded handlers.
+                    campaignStarter.AddBehavior(new Features.Flags.FlagBehavior());
+
+                    // Quality store: typed numeric state with read-through proxies over native TaleWorlds APIs.
+                    // Registered after FlagBehavior (qualities may read flags during init) and before
+                    // StoryDirector (Director will consult qualities when evaluating candidates).
+                    campaignStarter.AddBehavior(new Features.Qualities.QualityBehavior());
+
+                    // Activity runtime: singleton host for Banner-Kings-style stateful ticking activities.
+                    // Registered after QualityBehavior (activities may read qualities on tick) and before
+                    // StoryDirector (ActivityRuntime emits candidates via StoryDirector.EmitCandidate).
+                    campaignStarter.AddBehavior(new Features.Activities.ActivityRuntime());
+
+                    // Home surface lifecycle: starts HomeActivity when the enlisted lord's party enters a
+                    // friendly fief (town, castle, or village) and emits departure_imminent on leave.
+                    // Registered immediately after ActivityRuntime so Start() resolves activity types correctly.
+                    campaignStarter.AddBehavior(new Features.Activities.Home.HomeActivityStarter());
+
+                    // Duty-profile sampler: hourly classifies the lord's party and commits profile changes
+                    // only after two consecutive matching samples, with a hard-bypass for siege/army/rethink
+                    // events. Fires a profile_changed beat on the active OrderActivity on each commit.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.DutyProfileBehavior());
+
+                    // Logs kingdom changes affecting the enlisted lord's clan and, on enlistment end,
+                    // captures prior-service flags and tears down OrderActivity via ActivityRuntime.Stop.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.EnlistmentLifecycleListener());
+
+                    // Daily silent skill-XP drift weighted by the active duty profile, with a single
+                    // accumulator-summary news-feed emission per hourly tick when the throttle allows.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.DailyDriftApplicator());
+
+                    // Accumulates per-path specialization scores from intent picks and major
+                    // skill-XP gains, capped at 100 per path via path_{name}_score qualities.
+                    campaignStarter.AddBehavior(new Features.Activities.Orders.PathScorer());
+
+                    // Campaign Intelligence backbone: hourly recompute of the enlisted lord's strategic
+                    // situation. Exposes a read-only snapshot via EnlistedCampaignIntelligenceBehavior.Instance.Current.
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.EnlistedCampaignIntelligenceBehavior());
+                    campaignStarter.AddBehavior(new EnlistedSignalEmitterBehavior());
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.Duty.EnlistedDutyEmitterBehavior());
+
+                    // At tier 4/6/9, picks the highest-scoring path_*_score quality
+                    // and emits a Modal crossroads storylet (path_crossroads_{path}_t{tier})
+                    // where the player commits, resists, or defers the career direction.
+                    campaignStarter.AddBehavior(new Features.CampaignIntelligence.Career.PathCrossroadsBehavior());
+
+                    // CK3 wanderer mechanics — Plan 1 substrate. PatronRoll +
+                    // LifestyleUnlockStore are POCO save-classes hosted by their
+                    // respective behaviors; RankCeremony + PersonalKit have no
+                    // own save state (FlagStore + QualityStore respectively).
+                    // Plans 2-7 layer mechanic logic onto these wired hosts.
+                    // Brief: docs/architecture/ck3-wanderer-architecture-brief.md
+                    campaignStarter.AddBehavior(new Features.Patrons.PatronRollBehavior());
+                    campaignStarter.AddBehavior(new Features.Lifestyles.LifestyleUnlockBehavior());
+                    campaignStarter.AddBehavior(new Features.Ceremonies.RankCeremonyBehavior());
+                    campaignStarter.AddBehavior(new Features.PersonalKit.PersonalKitTickHandler());
+                    campaignStarter.AddBehavior(new Features.Companions.CompanionLifecycleHandler());
+
+                    // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
+                    // that bias target choice, army formation, and pursuit for
+                    // the enlisted lord only. Every wrapper calls EnlistedAiGate
+                    // per-call and falls through to BaseModel for non-enlisted
+                    // parties and non-lord parties. Gated behind
+                    // EnlistmentBehavior.Instance.IsEnlisted via the gate;
+                    // revert on unenlist is automatic.
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.TargetScoreCalculatingModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedTargetScoreModel());
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.ArmyManagementCalculationModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedArmyManagementModel());
+                    campaignStarter.AddModel<TaleWorlds.CampaignSystem.ComponentInterfaces.MobilePartyAIModel>(
+                        new Features.CampaignIntelligence.Models.EnlistedMobilePartyAiModel());
 
                     // Core enlistment system: tracks which lord the player serves, manages enlistment state,
                     // and handles party following, battle participation, and leave or temporary absence.
@@ -331,7 +422,7 @@ namespace Enlisted.Mod.Entry
                     // Menu system: provides the main enlisted status menu and duty/profession selection interface.
                     // Handles menu state transitions, battle detection, and settlement access.
                     campaignStarter.AddBehavior(new EnlistedMenuBehavior());
-                    
+
                     // Combat log: custom scrollable combat log widget that displays messages on the right side
                     // of the campaign map while enlisted, suppressing the native bottom-left log.
                     campaignStarter.AddBehavior(new EnlistedCombatLogBehavior());
@@ -394,19 +485,11 @@ namespace Enlisted.Mod.Entry
                     // recovering, equipment degrading, and incidents occurring. Feeds the news system.
                     campaignStarter.AddBehavior(new CompanySimulationBehavior());
 
-                    // Camp Opportunity Generator: generates context-aware camp life opportunities
-                    // using 4-layer intelligence (world, camp, player, history) for the living camp experience.
-                    campaignStarter.AddBehavior(new CampOpportunityGenerator());
-
                     // Escalation tracks for scrutiny, discipline, lance reputation, and medical risk. This feature is feature-flagged.
                     campaignStarter.AddBehavior(new EscalationManager());
 
                     // Event delivery system: queues and delivers narrative events to the player via UI popups.
                     campaignStarter.AddBehavior(new EventDeliveryManager());
-
-                    // Content Orchestrator: central coordinator for all content delivery.
-                    // Analyzes world state, calculates appropriate content frequency, and coordinates timing.
-                    campaignStarter.AddBehavior(new ContentOrchestrator());
 
                     // Event pacing system: fires narrative events every 3-5 days based on player role, context, and cooldowns.
                     campaignStarter.AddBehavior(new EventPacingManager());
@@ -418,15 +501,9 @@ namespace Enlisted.Mod.Entry
                     // classifies by severity, and routes to Modal or Observational delivery. Route is a no-op in Phase 1.
                     campaignStarter.AddBehavior(new StoryDirector());
 
-                    // Decision system: loads player-initiated decisions from JSON and provides them to the Decisions menu.
-                    campaignStarter.AddBehavior(new DecisionManager());
-
-                    // Orders system: issues orders from chain of command, tracks acceptance/decline, applies consequences.
-                    campaignStarter.AddBehavior(new OrderManager());
-
-                    // Order progression: handles multi-day order execution with phase-based event injection.
-                    // Events fire during slot phases based on world state and activity level.
-                    campaignStarter.AddBehavior(new OrderProgressionBehavior());
+                    // Legacy OrderManager + OrderProgressionBehavior registrations removed;
+                    // Spec 2 replaces the imperative order flow with OrderActivity +
+                    // DutyProfileBehavior + NamedOrderArcRuntime (see ActivityRuntime).
 
                     // Baggage train: manages access to player's personal stowage based on march state and logistics.
                     campaignStarter.AddBehavior(new BaggageTrainManager());
@@ -458,57 +535,26 @@ namespace Enlisted.Mod.Entry
                     // during save/load serialization passes.
                     campaignStarter.AddBehavior(new SaveLoadDiagnosticsMarkerBehavior(SaveLoadDiagnosticsMarkerBehavior.Phase.End));
 
+                    // Runtime catalog status: appends content catalog counts to the conflict log once on
+                    // OnSessionLaunched, by which time catalogs have completed LoadAll. Registered after all
+                    // feature behaviors so catalog initialization has already occurred.
+                    campaignStarter.AddBehavior(new RuntimeCatalogStatusMarkerBehavior());
+
                     // Encounter guard: utility system for managing player party attachment and encounter transitions
                     // Initializes static helper methods used throughout the enlistment system
                     EncounterGuard.Initialize();
                     ModLogger.Info("Bootstrap", "Military service behaviors registered successfully");
 
-                    // Log registered behaviors for conflict diagnostics
-                    // This helps troubleshoot issues by showing exactly what was registered
-                    // NOTE: Use classic collection initializer (ReSharper can choke on newer collection expressions).
-                    ModConflictDiagnostics.LogRegisteredBehaviors(new List<string>
-                    {
-                        nameof(SaveLoadDiagnosticsMarkerBehavior),
-                        nameof(EnlistmentBehavior),
-                        nameof(EnlistedIncidentsBehavior),
-                        nameof(MusterMenuHandler),
-                        nameof(EnlistedDialogManager),
-                        nameof(EnlistedMenuBehavior),
-                        nameof(EnlistedCombatLogBehavior),
-                        "EnlistedStatusManager",
-                        nameof(TroopSelectionManager),
-                        nameof(EquipmentManager),
-                        nameof(PromotionBehavior),
-                        nameof(QuartermasterManager),
-                        nameof(QuartermasterEquipmentSelectorBehavior),
-                        nameof(CampaignTriggerTrackerBehavior),
-                        nameof(PlayerConditionBehavior),
-                        // Lance Life Event behaviors deleted in Phase 1 refactor
-                        nameof(EnlistedEncounterBehavior),
-                        nameof(ServiceRecordManager),
-                        nameof(CampMenuHandler),
-                        nameof(CampLifeBehavior),
-                        nameof(CompanySimulationBehavior),
-                        nameof(CampOpportunityGenerator),
-                        nameof(EscalationManager),
-                        nameof(EventDeliveryManager),
-                        nameof(ContentOrchestrator),
-                        nameof(OrderManager),
-                        nameof(OrderProgressionBehavior),
-                        nameof(EnlistedNewsBehavior),
-                        nameof(MainMenuNewsCache),
-                        nameof(RetinueTrickleSystem),
-                        nameof(RetinueLifecycleHandler),
-                        nameof(RetinueCasualtyTracker),
-                        nameof(CompanionAssignmentManager)
-                    });
+                    // Log registered behaviors for conflict diagnostics — enumerate the starter's
+                    // collection directly, before the engine transfers it to CampaignBehaviorManager.
+                    ModConflictDiagnostics.LogRegisteredBehaviors(campaignStarter.CampaignBehaviors);
                 }
             }
             catch (Exception ex)
             {
                 // If behavior registration fails, log the error but allow the game to continue
                 // Some behaviors may still be registered if the failure occurs partway through
-                ModLogger.Error("Bootstrap", "Exception during OnGameStart", ex);
+                ModLogger.Caught("Bootstrap", "Exception during OnGameStart", ex);
             }
         }
 
@@ -578,7 +624,7 @@ namespace Enlisted.Mod.Entry
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Bootstrap", "Error in OnMissionBehaviorInitialize", ex);
+                ModLogger.Caught("Bootstrap", "Error in OnMissionBehaviorInitialize", ex);
             }
         }
     }
@@ -598,11 +644,13 @@ namespace Enlisted.Mod.Entry
         ///     Processes any actions that were deferred to avoid timing conflicts during game state transitions.
         ///     Also applies deferred patches on first tick (after character creation is complete).
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051",
+            Justification = "Called by Harmony via reflection")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("ReSharper", "UnusedMember.Local",
             Justification = "Called by Harmony via [HarmonyPatch] postfix")]
         private static void Postfix()
         {
-            // Apply deferred patches only after the campaign is *fully* ready.
+            // Apply deferred patches only after the campaign is fully ready.
             // On some platforms (notably Proton/Linux), Campaign.Tick can run during character creation,
             // and touching certain menu/localization-heavy types at that time can crash the game.
             if (!_deferredPatchesApplied && CampaignSafetyGuard.IsCampaignReady)
@@ -612,7 +660,7 @@ namespace Enlisted.Mod.Entry
                     _deferredPatchesApplied = true;
                     var harmony = new Harmony("com.enlisted.mod.deferred");
 
-                    // Apply manual patches
+                    // Apply manual patches.
                     HidePartyNamePlatePatch.ApplyManualPatches(harmony);
 
                     // Apply patches that target types with early static initialization.
@@ -642,14 +690,14 @@ namespace Enlisted.Mod.Entry
                     ModLogger.Info("Bootstrap", "Deferred patches applied (campaign ready)");
 
                     // Update conflict diagnostics with deferred patch info
-                    // This appends to the existing conflict log so users can see all patches
+                    // This appends to the existing conflict log so users can see all patches.
                     ModConflictDiagnostics.RefreshDeferredPatches(harmony);
                 }
                 catch (Exception ex)
                 {
                     // Hard safety: never allow a failure during deferred patch application to crash the game.
                     // If something goes wrong here, we'll run without deferred patches.
-                    ModLogger.Error("Bootstrap", "Unexpected error applying deferred patches", ex);
+                    ModLogger.Caught("Bootstrap", "Unexpected error applying deferred patches", ex);
                 }
             }
 
@@ -664,15 +712,15 @@ namespace Enlisted.Mod.Entry
         {
             try
             {
-                harmony.CreateClassProcessor(patchType).Patch();
+                _ = harmony.CreateClassProcessor(patchType).Patch();
                 ModLogger.Info("Bootstrap", $"Applied deferred patch: {patchType.Name}");
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
+                ModLogger.Caught("Bootstrap", $"Failed to apply deferred patch {patchType.Name}", ex);
                 if (ex.InnerException != null)
                 {
-                    ModLogger.Error("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
+                    ModLogger.Caught("Bootstrap", "Inner exception during deferred patch", ex.InnerException);
                 }
             }
         }

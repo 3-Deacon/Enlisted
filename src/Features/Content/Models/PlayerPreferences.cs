@@ -1,4 +1,4 @@
-﻿namespace Enlisted.Features.Content.Models
+namespace Enlisted.Features.Content.Models
 {
     /// <summary>
     /// Player behavior tracking for content preferences.

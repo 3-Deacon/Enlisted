@@ -5,11 +5,11 @@ using System.Linq;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content;
+using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.SaveSystem;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
@@ -39,6 +39,10 @@ namespace Enlisted.Features.Camp
         private Dictionary<string, int> _incidentCooldowns = new Dictionary<string, int>();
         private int _lastTickWounded;
         private int _lastProcessedDay = -1;
+
+        // Illness-onset throttle + escalation modifier (re-homed from ContentOrchestrator)
+        private int _lastIllnessOnsetDay = -10;
+        private int _consecutiveHighMedicalPressureDays;
 
         // Overlay tracking (saved/loaded)
         private int _sickCount;
@@ -74,11 +78,13 @@ namespace Enlisted.Features.Camp
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("sim_sickCount", ref _sickCount);
-                dataStore.SyncData("sim_missingCount", ref _missingCount);
-                dataStore.SyncData("sim_deadThisCampaign", ref _deadThisCampaign);
-                dataStore.SyncData("sim_lastTickWounded", ref _lastTickWounded);
-                dataStore.SyncData("sim_lastProcessedDay", ref _lastProcessedDay);
+                _ = dataStore.SyncData("sim_sickCount", ref _sickCount);
+                _ = dataStore.SyncData("sim_missingCount", ref _missingCount);
+                _ = dataStore.SyncData("sim_deadThisCampaign", ref _deadThisCampaign);
+                _ = dataStore.SyncData("sim_lastTickWounded", ref _lastTickWounded);
+                _ = dataStore.SyncData("sim_lastProcessedDay", ref _lastProcessedDay);
+                _ = dataStore.SyncData("sim_lastIllnessOnsetDay", ref _lastIllnessOnsetDay);
+                _ = dataStore.SyncData("sim_consecutiveHighMedicalDays", ref _consecutiveHighMedicalPressureDays);
 
                 // Pressure tracking
                 int daysLowSupplies = _pressure?.DaysLowSupplies ?? 0;
@@ -89,12 +95,12 @@ namespace Enlisted.Features.Camp
                 int daysLowMorale = 0;
                 int daysLowRest = 0;
 
-                dataStore.SyncData("sim_daysLowSupplies", ref daysLowSupplies);
-                dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale); // Discarded
-                dataStore.SyncData("sim_daysLowRest", ref daysLowRest); // Discarded (Rest removed 2026-01-11)
-                dataStore.SyncData("sim_daysLowDiscipline", ref daysLowDiscipline);
-                dataStore.SyncData("sim_recentDesertions", ref recentDesertions);
-                dataStore.SyncData("sim_daysHighSickness", ref daysHighSickness);
+                _ = dataStore.SyncData("sim_daysLowSupplies", ref daysLowSupplies);
+                _ = dataStore.SyncData("sim_daysLowMorale", ref daysLowMorale); // Discarded
+                _ = dataStore.SyncData("sim_daysLowRest", ref daysLowRest); // Discarded (Rest removed 2026-01-11)
+                _ = dataStore.SyncData("sim_daysLowDiscipline", ref daysLowDiscipline);
+                _ = dataStore.SyncData("sim_recentDesertions", ref recentDesertions);
+                _ = dataStore.SyncData("sim_daysHighSickness", ref daysHighSickness);
 
                 _pressure ??= new CompanyPressure();
                 _pressure.DaysLowSupplies = daysLowSupplies;
@@ -105,7 +111,7 @@ namespace Enlisted.Features.Camp
 
                 // Active flags as comma-separated string
                 string flagsStr = _activeFlags != null ? string.Join(",", _activeFlags) : "";
-                dataStore.SyncData("sim_activeFlags", ref flagsStr);
+                _ = dataStore.SyncData("sim_activeFlags", ref flagsStr);
                 _activeFlags = string.IsNullOrEmpty(flagsStr)
                     ? new HashSet<string>()
                     : new HashSet<string>(flagsStr.Split(','));
@@ -114,7 +120,7 @@ namespace Enlisted.Features.Camp
                 string cooldownsStr = _incidentCooldowns != null
                     ? string.Join(",", _incidentCooldowns.Select(kvp => $"{kvp.Key}:{kvp.Value}"))
                     : "";
-                dataStore.SyncData("sim_incidentCooldowns", ref cooldownsStr);
+                _ = dataStore.SyncData("sim_incidentCooldowns", ref cooldownsStr);
                 _incidentCooldowns = new Dictionary<string, int>();
                 if (!string.IsNullOrEmpty(cooldownsStr))
                 {
@@ -202,7 +208,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Daily simulation tick failed", ex);
+                ModLogger.Caught("Simulation", "Daily simulation tick failed", ex);
             }
         }
 
@@ -214,7 +220,7 @@ namespace Enlisted.Features.Camp
             var result = new SimulationDayResult();
 
             // Phase 1: Consumption (handled by existing CompanyNeedsManager)
-            ProcessConsumption(result);
+            ProcessConsumption();
 
             // Phase 2: Roster Updates (recovery, healing)
             ProcessRosterRecovery(result, party);
@@ -234,8 +240,8 @@ namespace Enlisted.Features.Camp
             // Phase 6: News Generation
             GenerateNews(result);
 
-            // Check crisis triggers
-            CheckCrisisTriggers(result);
+            // Phase 7: Illness onset roll (medical-risk-driven modal)
+            CheckIllnessOnset(party);
 
             // Update cooldowns
             DecrementIncidentCooldowns();
@@ -270,7 +276,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load simulation config", ex);
+                ModLogger.Caught("Simulation", "Failed to load simulation config", ex);
                 _config = SimulationConfig.Default;
                 _incidentDefinitions = new List<CampIncident>();
             }
@@ -301,7 +307,7 @@ namespace Enlisted.Features.Camp
         }
 
         /// <summary>Phase 1: Consumption effects are tracked via existing CompanyNeedsManager.</summary>
-        private void ProcessConsumption(SimulationDayResult result)
+        private void ProcessConsumption()
         {
             // Company needs degradation is handled by CompanyNeedsManager.ProcessDailyDegradation
             // We just read the current values for threshold tracking
@@ -339,10 +345,20 @@ namespace Enlisted.Features.Camp
                     var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
                     if (needs != null)
                     {
-                        if (needs.Supplies > 70) recoveryChance += 0.05f;
-                        if (needs.Supplies < 30) recoveryChance -= 0.10f;
+                        if (needs.Supplies > 70)
+                        {
+                            recoveryChance += 0.05f;
+                        }
 
-                        if (needs.Supplies < 20) deathChance += 0.02f;
+                        if (needs.Supplies < 30)
+                        {
+                            recoveryChance -= 0.10f;
+                        }
+
+                        if (needs.Supplies < 20)
+                        {
+                            deathChance += 0.02f;
+                        }
                     }
 
                     float roll = MBRandom.RandomFloat;
@@ -426,7 +442,10 @@ namespace Enlisted.Features.Camp
 
             // Apply modifiers
             bool isMarching = party.IsMoving && party.CurrentSettlement == null;
-            if (isMarching) newInjured = (int)(newInjured * 1.3f);
+            if (isMarching)
+            {
+                newInjured = (int)(newInjured * 1.3f);
+            }
 
             if (newInjured > 0 && _roster.TotalRegulars > _roster.WoundedCount + newInjured)
             {
@@ -487,7 +506,7 @@ namespace Enlisted.Features.Camp
                     // Set flag if specified
                     if (!string.IsNullOrEmpty(incident.SetsFlag))
                     {
-                        _activeFlags.Add(incident.SetsFlag);
+                        _ = _activeFlags.Add(incident.SetsFlag);
                     }
 
                     // Set cooldown
@@ -600,8 +619,14 @@ namespace Enlisted.Features.Camp
             }
 
             // Track pressure days
-            if (needs.Supplies < 40) _pressure.DaysLowSupplies++;
-            else _pressure.DaysLowSupplies = 0;
+            if (needs.Supplies < 40)
+            {
+                _pressure.DaysLowSupplies++;
+            }
+            else
+            {
+                _pressure.DaysLowSupplies = 0;
+            }
 
             // Morale tracking removed (system no longer exists)
 
@@ -609,8 +634,14 @@ namespace Enlisted.Features.Camp
             if (_roster != null && _roster.TotalSoldiers > 0)
             {
                 float sicknessRate = (float)_sickCount / _roster.TotalSoldiers;
-                if (sicknessRate > 0.2f) _pressure.DaysHighSickness++;
-                else _pressure.DaysHighSickness = 0;
+                if (sicknessRate > 0.2f)
+                {
+                    _pressure.DaysHighSickness++;
+                }
+                else
+                {
+                    _pressure.DaysHighSickness = 0;
+                }
             }
 
             // Generate pulse news for threshold crossings
@@ -666,14 +697,38 @@ namespace Enlisted.Features.Camp
             if (eventId != null)
             {
                 var evt = EventCatalog.GetEvent(eventId);
-                if (evt != null)
+                if (evt == null)
                 {
-                    EventDeliveryManager.Instance?.QueueEvent(evt);
-                    ModLogger.Info(LogCategory, $"Fired supply pressure event: {eventId}");
+                    ModLogger.Warn(LogCategory, $"Supply pressure event not found: {eventId}");
+                    return;
+                }
+
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "company.supply_pressure.days_" + daysLow,
+                        CategoryId = "company.supply_pressure",
+                        ProposedTier = StoryTier.Pertinent,
+                        SeverityHint = 0.25f,
+                        Beats = { StoryBeat.CompanyPressureThreshold },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        RenderedTitle = evt.TitleFallback,
+                        RenderedBody = evt.SetupFallback,
+                        StoryKey = eventId,
+                        DispatchCategory = "company",
+                        SeverityLevel = 1
+                    });
+                    ModLogger.Info(LogCategory, $"Routed supply pressure event to accordion: {eventId}");
                 }
                 else
                 {
-                    ModLogger.Warn(LogCategory, $"Supply pressure event not found: {eventId}");
+                    // Director unavailable — fall back to direct modal delivery so the arc
+                    // doesn't silently disappear during early boot.
+                    EventDeliveryManager.Instance?.QueueEvent(evt);
+                    ModLogger.Info(LogCategory, $"Fired supply pressure event (Director unavailable): {eventId}");
                 }
             }
         }
@@ -712,7 +767,11 @@ namespace Enlisted.Features.Camp
             // Deaths - always show (critical)
             foreach (var death in result.Deaths)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(death.NewsText, "critical", "roster");
                 newsCount++;
             }
@@ -720,7 +779,11 @@ namespace Enlisted.Features.Camp
             // Pulse events - notable/critical
             foreach (var pulse in result.PulseEvents)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(pulse.NewsText, pulse.Severity, "pulse");
                 newsCount++;
             }
@@ -728,7 +791,11 @@ namespace Enlisted.Features.Camp
             // Roster changes - notable
             foreach (var change in result.RosterChanges)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(change.NewsText, change.Severity, "roster");
                 newsCount++;
             }
@@ -736,7 +803,11 @@ namespace Enlisted.Features.Camp
             // Incidents - minor/flavor
             foreach (var incident in result.Incidents)
             {
-                if (newsCount >= MaxNewsItemsPerDay) break;
+                if (newsCount >= MaxNewsItemsPerDay)
+                {
+                    break;
+                }
+
                 news.AddCampNews(incident.GetNewsText(), incident.Severity, "incident");
                 newsCount++;
             }
@@ -775,40 +846,95 @@ namespace Enlisted.Features.Camp
             return "";
         }
 
-        private void CheckCrisisTriggers(SimulationDayResult result)
+        private void CheckIllnessOnset(MobileParty party)
         {
-            var needs = EnlistmentBehavior.Instance?.CompanyNeeds;
-            if (needs == null)
+            var (analysis, pressureLevel) = SimulationPressureCalculator.GetMedicalPressure();
+
+            // Track consecutive high-pressure days for the escalation modifier.
+            if (pressureLevel >= MedicalPressureLevel.High)
+            {
+                _consecutiveHighMedicalPressureDays++;
+            }
+            else
+            {
+                _consecutiveHighMedicalPressureDays = 0;
+            }
+
+            if (analysis.HasCondition || analysis.MedicalRisk < 3)
             {
                 return;
             }
 
-            // Supply crisis: 3+ days at critical levels
-            if (_pressure.DaysLowSupplies >= 3 && needs.Supplies < 20)
+            int currentDay = (int)CampaignTime.Now.ToDays;
+            if (currentDay - _lastIllnessOnsetDay < 7)
             {
-                result.TriggeredCrises.Add("evt_supply_crisis");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_supply_crisis");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Supply crisis");
+                return;
             }
 
-            // Morale collapse crisis removed (morale system no longer exists)
-            // Exhaustion crisis removed 2026-01-11 (Rest system removed)
-
-            // Epidemic: high sickness rate for extended period
-            if (_pressure.DaysHighSickness >= 2 && _roster?.CasualtyRate > 0.2f)
+            var baseChance = analysis.MedicalRisk * 0.05f;
+            var worldSituation = WorldStateAnalyzer.AnalyzeSituation();
+            if (worldSituation.LordIs == LordSituation.SiegeAttacking ||
+                worldSituation.LordIs == LordSituation.SiegeDefending)
             {
-                result.TriggeredCrises.Add("evt_epidemic");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_epidemic");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Epidemic");
+                baseChance += 0.12f;
+            }
+            baseChance += _consecutiveHighMedicalPressureDays * 0.05f;
+            baseChance = Math.Min(baseChance, 0.50f);
+
+            if (MBRandom.RandomFloat >= baseChance)
+            {
+                return;
             }
 
-            // Desertion wave: 5+ desertions in 3 days
-            if (_pressure.RecentDesertions >= 5)
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
+                          party.IsCurrentlyAtSea;
+            var contextSuffix = isAtSea ? "_sea" : "";
+
+            string baseEventId = analysis.MedicalRisk >= 5 ? "illness_onset_severe"
+                               : analysis.MedicalRisk >= 4 ? "illness_onset_moderate"
+                               : "illness_onset_minor";
+
+            var eventToQueue = baseEventId + contextSuffix;
+            var eventDef = EventCatalog.GetEvent(eventToQueue);
+            if (eventDef == null && !string.IsNullOrEmpty(contextSuffix))
             {
-                result.TriggeredCrises.Add("evt_desertion_wave");
-                ContentOrchestrator.Instance?.QueueCrisisEvent("evt_desertion_wave");
-                ModLogger.Warn(LogCategory, "CRISIS TRIGGERED: Desertion wave");
+                eventToQueue = baseEventId;
+                eventDef = EventCatalog.GetEvent(eventToQueue);
             }
+            if (eventDef == null)
+            {
+                ModLogger.Expected(LogCategory, "illness_event_missing",
+                    $"Illness onset event '{eventToQueue}' not in catalog");
+                return;
+            }
+
+            var director = StoryDirector.Instance;
+            if (director != null)
+            {
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "simulation.illness_onset." + eventToQueue,
+                    CategoryId = "company.illness",
+                    ProposedTier = StoryTier.Modal,
+                    SeverityHint = 0.70f,
+                    Beats = { StoryBeat.EscalationThreshold },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    InteractiveEvent = eventDef,
+                    RenderedTitle = eventDef.TitleFallback,
+                    RenderedBody = eventDef.SetupFallback,
+                    StoryKey = eventDef.Id
+                });
+                ModLogger.Info(LogCategory,
+                    $"Illness onset event queued: {eventToQueue} (MedRisk={analysis.MedicalRisk}, chance={baseChance * 100:F1}%)");
+            }
+            else
+            {
+                EventDeliveryManager.Instance?.QueueEvent(eventDef);
+            }
+            _lastIllnessOnsetDay = currentDay;
         }
 
         private void DecrementIncidentCooldowns()
@@ -824,7 +950,7 @@ namespace Enlisted.Features.Camp
             }
             foreach (var key in keysToRemove)
             {
-                _incidentCooldowns.Remove(key);
+                _ = _incidentCooldowns.Remove(key);
             }
         }
 

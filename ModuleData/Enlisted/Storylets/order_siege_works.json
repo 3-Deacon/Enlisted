@@ -1,0 +1,401 @@
+{
+  "storylets": [
+    {
+      "id": "order_siege_works_accept",
+      "title": "{=order_siege_works_accept_title}On the works",
+      "setup": "{=order_siege_works_accept_setup}The siege lines have chewed into the dirt for days now. Ladder-frames rise against the sky; sappers slope trenches closer to the walls every hour. Your lord wants a soldier at the work. How are you taking the detail?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:2", "in_siege"],
+      "profile_requires": ["besieging"],
+      "arc": {
+        "duration_hours": 12,
+        "phases": [
+          {
+            "id": "siege_mid",
+            "duration_hours": 10,
+            "pool_prefix": "order_siege_works_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "siege_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_siege_works_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_siege_works_accept_diligent_text}Pick up a hammer. Work straight through.",
+          "tooltip": "{=order_siege_works_accept_diligent_tt}Diligent. Engineering XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_siege_works_accept_train_hard_text}Carry the heaviest timbers yourself.",
+          "tooltip": "{=order_siege_works_accept_train_hard_tt}Train hard. Athletics + Engineering.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_siege_works_accept_slack_text}Look busy. Mind the walls.",
+          "tooltip": "{=order_siege_works_accept_slack_tt}Slack. Scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_siege_works_accept_scheme_text}Every siege has men selling what isn't theirs.",
+          "tooltip": "{=order_siege_works_accept_scheme_tt}Scheme. Gold risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_siege_works_accept_decline_text}Find a reason not to.",
+          "tooltip": "{=order_siege_works_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_mid_ladder_frame",
+      "title": "{=order_siege_works_mid_ladder_frame_title}A ladder's rise",
+      "setup": "{=order_siege_works_mid_ladder_frame_setup}Four men hold a ladder-frame up while you drive the long nails. One wrong swing and a man limps for a month. The foreman stands behind you watching.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.3,
+        "slack": 0.6,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "drive_nails",
+          "text": "{=order_siege_works_mid_ladder_frame_drive_text}Measure twice. Drive them clean.",
+          "tooltip": "{=order_siege_works_mid_ladder_frame_drive_tt}Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 25 }
+          ]
+        },
+        {
+          "id": "rush_frame",
+          "text": "{=order_siege_works_mid_ladder_frame_rush_text}Bang them in. Move to the next.",
+          "tooltip": "{=order_siege_works_mid_ladder_frame_rush_tt}Fast work. Scrutiny risk.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_mid_archer_fire",
+      "title": "{=order_siege_works_mid_archer_fire_title}Arrows from the wall",
+      "setup": "{=order_siege_works_mid_archer_fire_setup}An archer on the battlement picks out your work-party. The first shaft buries in a plank a hand's breadth from your face. The second comes while you are deciding.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 1.4,
+        "slack": 0.5,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "keep_working",
+          "text": "{=order_siege_works_mid_archer_fire_keep_text}Duck behind the hoarding. Keep nailing.",
+          "tooltip": "{=order_siege_works_mid_archer_fire_keep_tt}Brave. Athletics + Engineering.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        },
+        {
+          "id": "take_cover",
+          "text": "{=order_siege_works_mid_archer_fire_cover_text}Cover until the crossbowmen answer.",
+          "tooltip": "{=order_siege_works_mid_archer_fire_cover_tt}Prudent. Small credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_mid_trench_collapse",
+      "title": "{=order_siege_works_mid_trench_collapse_title}A trench wall falls",
+      "setup": "{=order_siege_works_mid_trench_collapse_setup}A stretch of the sap collapses and a sapper is waist-deep in the earth, cursing. The foreman shouts at everyone and no one. You have a shovel.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.2,
+        "slack": 0.5,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "dig_him_out",
+          "text": "{=order_siege_works_mid_trench_collapse_dig_text}Dig. Fast but careful.",
+          "tooltip": "{=order_siege_works_mid_trench_collapse_dig_tt}Athletics + Engineering.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 }
+          ]
+        },
+        {
+          "id": "let_others",
+          "text": "{=order_siege_works_mid_trench_collapse_let_text}Let the men closest handle it.",
+          "tooltip": "{=order_siege_works_mid_trench_collapse_let_tt}Stand back. No XP.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_mid_crossbow_drill",
+      "title": "{=order_siege_works_mid_crossbow_drill_title}The crossbow line",
+      "setup": "{=order_siege_works_mid_crossbow_drill_setup}A line of crossbowmen drills below the hoarding, shooting up at the parapet to keep heads down. The foreman offers a spare crossbow. The training is rare.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.1,
+        "train_hard": 1.5,
+        "slack": 0.8,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "join_drill",
+          "text": "{=order_siege_works_mid_crossbow_drill_join_text}Take a crossbow. Loose.",
+          "tooltip": "{=order_siege_works_mid_crossbow_drill_join_tt}Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 30 }
+          ]
+        },
+        {
+          "id": "back_to_work",
+          "text": "{=order_siege_works_mid_crossbow_drill_back_text}Back to the boards.",
+          "tooltip": "{=order_siege_works_mid_crossbow_drill_back_tt}Minor Engineering.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_mid_stolen_lumber",
+      "title": "{=order_siege_works_mid_stolen_lumber_title}A bundle of beams",
+      "setup": "{=order_siege_works_mid_stolen_lumber_setup}Two men drag a bundle of good beams away from the work-pile, under dark. A merchant in the camp pays well for siege-grade timber. You could look away. You could not.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 6,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 0.8,
+        "slack": 1.1,
+        "scheme": 1.7
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "take_cut",
+          "text": "{=order_siege_works_mid_stolen_lumber_cut_text}Join them for a cut.",
+          "tooltip": "{=order_siege_works_mid_stolen_lumber_cut_tt}+40 gold. Moderate scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 40 },
+            { "apply": "scrutiny_up_moderate" }
+          ]
+        },
+        {
+          "id": "report_theft",
+          "text": "{=order_siege_works_mid_stolen_lumber_report_text}Report them to the foreman.",
+          "tooltip": "{=order_siege_works_mid_stolen_lumber_report_tt}Clean. Rank XP + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_resolve_diligent",
+      "title": "{=order_siege_works_resolve_diligent_title}Works stand",
+      "setup": "{=order_siege_works_resolve_diligent_setup}The ladder-frames stand straight and the trench advances five paces closer than yesterday. The foreman reads off the day's tally and nods at your name. Your lord will hear what a steady back is worth.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_siege_works_resolve_diligent_done_text}Lay down the hammer.",
+          "tooltip": "{=order_siege_works_resolve_diligent_done_tt}Engineering + relation.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 45 },
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_resolve_train_hard",
+      "title": "{=order_siege_works_resolve_train_hard_title}Hammer-weary",
+      "setup": "{=order_siege_works_resolve_train_hard_setup}You carried beams until the tendons in your forearms stopped their arguing and simply burned. Tomorrow you will not be able to lift a bucket. Tomorrow's tomorrow, you will be stronger.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_siege_works_resolve_train_hard_done_text}Dip your head in the barrel.",
+          "tooltip": "{=order_siege_works_resolve_train_hard_done_tt}Large Athletics + Engineering.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 40 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 35 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_resolve_slack",
+      "title": "{=order_siege_works_resolve_slack_title}Little done",
+      "setup": "{=order_siege_works_resolve_slack_setup}The foreman reads the tally and your name comes last. He does not look at you when he says so. That silence will find its way to your lord.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_siege_works_resolve_slack_absorb_text}Drift off to the billet.",
+          "tooltip": "{=order_siege_works_resolve_slack_absorb_tt}Scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_siege_works_resolve_scheme",
+      "title": "{=order_siege_works_resolve_scheme_title}Timber, sold",
+      "setup": "{=order_siege_works_resolve_scheme_setup}Good siege-lumber found its way to a sutler's cart. His coin found its way to your pocket. The works still stand, mostly — one less frame than the foreman counted. A quiet profit. Or a noose, if it comes out.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "profit",
+          "text": "{=order_siege_works_resolve_scheme_profit_text}Count the coin in the dark.",
+          "tooltip": "{=order_siege_works_resolve_scheme_profit_tt}+Gold, Roguery XP, scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 110 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "spotted",
+          "text": "{=order_siege_works_resolve_scheme_spotted_text}The foreman counted twice. Pay his silence.",
+          "tooltip": "{=order_siege_works_resolve_scheme_spotted_tt}Lose gold; relation hit; scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": -90 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

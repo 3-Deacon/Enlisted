@@ -1,38 +1,39 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using Enlisted.Features.Retinue.Core;
-using Enlisted.Features.Retinue.Data;
-using Enlisted.Features.Content;
 using Enlisted.Features.Combat.Behaviors;
 using Enlisted.Features.Company;
-using Enlisted.Features.Escalation;
+using Enlisted.Features.Content;
 using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Enlistment.Core;
+using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Logistics;
+using Enlisted.Features.Retinue.Core;
+using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
 using Enlisted.Mod.GameAdapters.Patches;
+using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
-using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.GameMenus;
+using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.MapEvents;
+using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.Naval;
+using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using Helpers;
 using TaleWorlds.ObjectSystem;
-using Enlisted.Mod.Core.Config;
 using ConfigurationManager = Enlisted.Mod.Core.Config.ConfigurationManager;
 using EnlistedConfig = Enlisted.Mod.Core.Config.ConfigurationManager;
 
@@ -94,6 +95,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
     public sealed class EnlistmentBehavior : CampaignBehaviorBase
     {
         private const string SaveKeyPrefix = "Enlisted.EnlistmentBehavior.";
+        private const string GraceLordMarkerQuestId = "enlisted_grace_lord_marker";
+        private const double GraceLordMarkerDistanceThreshold = 5d;
 
         private static string Key(string legacyKey) => $"{SaveKeyPrefix}{legacyKey}";
 
@@ -108,10 +111,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (dataStore.IsLoading)
             {
-                dataStore.SyncData(legacyKey, ref value);
+                _ = dataStore.SyncData(legacyKey, ref value);
             }
 
-            dataStore.SyncData(Key(legacyKey), ref value);
+            _ = dataStore.SyncData(Key(legacyKey), ref value);
         }
         /// <summary>
         ///     Minimum time interval between real-time tick updates, in seconds.
@@ -246,7 +249,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         ///     Used with _realtimeUpdateIntervalSeconds to throttle update frequency.
         /// </summary>
         private CampaignTime _lastRealtimeUpdate = CampaignTime.Zero;
-        
+
         // NOTE: Siege watchdog + latch removed.
         // We now rely on lightweight stale-state cleanup (clearing BesiegerCamp when no active siege exists)
         // and on battle end cleanup paths to keep siege/encounter menus from re-opening.
@@ -313,6 +316,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private int _savedGraceTier = -1;
         private string _savedGraceTroopId;
         private int _savedGraceXP;
+        private GraceLordMarkerSnapshot? _lastGraceLordMarkerSnapshot;
 
         // Grace period tracking for lord transfers
 
@@ -434,6 +438,50 @@ namespace Enlisted.Features.Enlistment.Behaviors
         ///     Used for future dialogue flavor and potential special interactions.
         /// </summary>
         private string _qmPlayerStyle;
+
+        // ========================================================================
+        // CK3 WANDERER COMPANION SUBSTRATE (Plan 2)
+        //
+        // Six archetype-rolled companion heroes spawned at tier-gated triggers.
+        // Sergeant + Field Medic + Pathfinder are per-player (persist across
+        // lord switches); Veteran + QM Officer + Junior Officer are per-Lord
+        // (released on discharge). All six live in Clan.PlayerClan so vanilla
+        // CompanionRolesCampaignBehavior role-assignment dialog fires.
+        //
+        // Spawn recipe lives in Enlisted.Features.Companions.CompanionSpawnFactory.
+        // Lifecycle subscriptions live in CompanionLifecycleHandler.
+        // Catalog: ModuleData/Enlisted/Companions/archetype_catalog.json.
+        // ========================================================================
+
+        private Hero _sergeantHero;
+        private string _sergeantArchetype;
+        private int _sergeantRelationship;
+        private bool _hasMetSergeant;
+
+        private Hero _fieldMedicHero;
+        private string _fieldMedicArchetype;
+        private int _fieldMedicRelationship;
+        private bool _hasMetFieldMedic;
+
+        private Hero _pathfinderHero;
+        private string _pathfinderArchetype;
+        private int _pathfinderRelationship;
+        private bool _hasMetPathfinder;
+
+        private Hero _veteranHero;
+        private string _veteranArchetype;
+        private int _veteranRelationship;
+        private bool _hasMetVeteran;
+
+        private Hero _qmOfficerHero;
+        private string _qmOfficerArchetype;
+        private int _qmOfficerRelationship;
+        private bool _hasMetQmOfficer;
+
+        private Hero _juniorOfficerHero;
+        private string _juniorOfficerArchetype;
+        private int _juniorOfficerRelationship;
+        private bool _hasMetJuniorOfficer;
 
         // ========================================================================
         // FOOD/RATIONS SYSTEM
@@ -600,7 +648,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("ENLISTMENT", $"NameGenerator failed for NCO, using fallback: {ex.Message}");
+                ModLogger.Caught("ENLISTMENT", "NameGenerator failed for NCO, using fallback", ex);
                 _ncoFirstName = "the Sergeant";
             }
 
@@ -831,7 +879,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             try
             {
                 ModLogger.Info("Baggage", $"TryOpenBaggageTrain called. Tier={_enlistmentTier}");
-                
+
                 // Check if bag check is still pending - block access until onboarding is complete
                 if (IsBagCheckPending)
                 {
@@ -1160,7 +1208,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     main.Party.MapEventSide = targetSide;
                     ModLogger.Info("BATTLE",
                         $"Immediate battle join on {playerSideLabel} side (MapEventStarted guard, naval={mapEvent.IsNavalMapEvent})");
-                    
+
                     // Log battle integration status for diagnostics
                     LogBattleIntegrationStatus(main, lordParty, mapEvent, "OnMapEventStarted-ImmediateJoin");
                 }
@@ -1172,14 +1220,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     PlayerEncounter.Init();
                     ModLogger.Info("BATTLE",
                         "PlayerEncounter initialized at battle start to prevent instant auto-resolve");
-                    
+
                     // Log encounter status after initialization
                     LogEncounterStatus("OnMapEventStarted-EncounterInit");
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("BATTLE",
+                ModLogger.Caught("BATTLE",
                     $"Failed immediate battle join on MapEventStarted: {ex.Message}", ex);
             }
         }
@@ -1254,167 +1302,203 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Serialize all enlistment state variables
                 // These values are saved to the game's save file and restored when loading
                 SyncKey(dataStore, "_enlistedLord", ref _enlistedLord);
-            SyncKey(dataStore, "_enlistmentTier", ref _enlistmentTier);
-            SyncKey(dataStore, "_enlistmentXP", ref _enlistmentXP);
-            SyncKey(dataStore, "_lastPromotionBlockedMessageTime", ref _lastPromotionBlockedMessageTime);
-            SyncKey(dataStore, "_baggageStash", ref _baggageStash);
-            SyncKey(dataStore, "_baggageStashFactionId", ref _baggageStashFactionId);
-            SyncKey(dataStore, "_bagCheckCompleted", ref _bagCheckCompleted);
-            SyncKey(dataStore, "_bagCheckEverCompleted", ref _bagCheckEverCompleted);
-            SyncKey(dataStore, "_bagCheckScheduled", ref _bagCheckScheduled);
-            SyncKey(dataStore, "_bagCheckDueTime", ref _bagCheckDueTime);
-            SyncKey(dataStore, "_bagCheckInProgress", ref _bagCheckInProgress);
-            SyncKey(dataStore, "_pendingBagCheckLord", ref _pendingBagCheckLord);
+                SyncKey(dataStore, "_enlistmentTier", ref _enlistmentTier);
+                SyncKey(dataStore, "_enlistmentXP", ref _enlistmentXP);
+                SyncKey(dataStore, "_lastPromotionBlockedMessageTime", ref _lastPromotionBlockedMessageTime);
+                SyncKey(dataStore, "_baggageStash", ref _baggageStash);
+                SyncKey(dataStore, "_baggageStashFactionId", ref _baggageStashFactionId);
+                SyncKey(dataStore, "_bagCheckCompleted", ref _bagCheckCompleted);
+                SyncKey(dataStore, "_bagCheckEverCompleted", ref _bagCheckEverCompleted);
+                SyncKey(dataStore, "_bagCheckScheduled", ref _bagCheckScheduled);
+                SyncKey(dataStore, "_bagCheckDueTime", ref _bagCheckDueTime);
+                SyncKey(dataStore, "_bagCheckInProgress", ref _bagCheckInProgress);
+                SyncKey(dataStore, "_pendingBagCheckLord", ref _pendingBagCheckLord);
 
-            // Cross-faction baggage courier tracking
-            SyncKey(dataStore, "_baggageCourierArrivalTime", ref _baggageCourierArrivalTime);
-            SyncKey(dataStore, "_pendingCourierBaggage", ref _pendingCourierBaggage);
-            SyncKey(dataStore, "_disbandArmyAfterBattle", ref _disbandArmyAfterBattle);
-            SyncKey(dataStore, "_enlistmentDate", ref _enlistmentDate);
+                // Cross-faction baggage courier tracking
+                SyncKey(dataStore, "_baggageCourierArrivalTime", ref _baggageCourierArrivalTime);
+                SyncKey(dataStore, "_pendingCourierBaggage", ref _pendingCourierBaggage);
+                SyncKey(dataStore, "_disbandArmyAfterBattle", ref _disbandArmyAfterBattle);
+                SyncKey(dataStore, "_enlistmentDate", ref _enlistmentDate);
 
-            // Promotion requirements tracking
-            SyncKey(dataStore, "_lastPromotionDate", ref _lastPromotionDate);
-            SyncKey(dataStore, "_battlesSurvived", ref _battlesSurvived);
+                // Promotion requirements tracking
+                SyncKey(dataStore, "_lastPromotionDate", ref _lastPromotionDate);
+                SyncKey(dataStore, "_battlesSurvived", ref _battlesSurvived);
 
-            SyncKey(dataStore, "_isOnLeave", ref _isOnLeave);
-            SyncKey(dataStore, "_leaveStartDate", ref _leaveStartDate);
-            SyncKey(dataStore, "_leaveCooldownEnds", ref _leaveCooldownEnds);
-            SyncKey(dataStore, "_desertionGracePeriodEnd", ref _desertionGracePeriodEnd);
-            SyncKey(dataStore, "_pendingDesertionKingdom", ref _pendingDesertionKingdom);
-            SyncKey(dataStore, "_savedGraceTier", ref _savedGraceTier);
-            SyncKey(dataStore, "_savedGraceLord", ref _savedGraceLord);
-            SyncKey(dataStore, "_savedGraceXP", ref _savedGraceXP);
-            SyncKey(dataStore, "_savedGraceTroopId", ref _savedGraceTroopId);
-            SyncKey(dataStore, "_pendingMusterPay", ref _pendingMusterPay);
-            SyncKey(dataStore, "_nextPayday", ref _nextPayday);
-            SyncKey(dataStore, "_payMusterPending", ref _payMusterPending);
-            SyncKey(dataStore, "_lastPayOutcome", ref _lastPayOutcome);
+                SyncKey(dataStore, "_isOnLeave", ref _isOnLeave);
+                SyncKey(dataStore, "_leaveStartDate", ref _leaveStartDate);
+                SyncKey(dataStore, "_leaveCooldownEnds", ref _leaveCooldownEnds);
+                SyncKey(dataStore, "_desertionGracePeriodEnd", ref _desertionGracePeriodEnd);
+                SyncKey(dataStore, "_pendingDesertionKingdom", ref _pendingDesertionKingdom);
+                SyncKey(dataStore, "_savedGraceTier", ref _savedGraceTier);
+                SyncKey(dataStore, "_savedGraceLord", ref _savedGraceLord);
+                SyncKey(dataStore, "_savedGraceXP", ref _savedGraceXP);
+                SyncKey(dataStore, "_savedGraceTroopId", ref _savedGraceTroopId);
+                SyncKey(dataStore, "_pendingMusterPay", ref _pendingMusterPay);
+                SyncKey(dataStore, "_nextPayday", ref _nextPayday);
+                SyncKey(dataStore, "_payMusterPending", ref _payMusterPending);
+                SyncKey(dataStore, "_lastPayOutcome", ref _lastPayOutcome);
 
-            // Pay tension state
-            SyncKey(dataStore, "_payTension", ref _payTension);
-            SyncKey(dataStore, "_owedBackpay", ref _owedBackpay);
-            SyncKey(dataStore, "_lastPayDate", ref _lastPayDate);
-            SyncKey(dataStore, "_consecutiveDelays", ref _consecutiveDelays);
+                // Pay tension state
+                SyncKey(dataStore, "_payTension", ref _payTension);
+                SyncKey(dataStore, "_owedBackpay", ref _owedBackpay);
+                SyncKey(dataStore, "_lastPayDate", ref _lastPayDate);
+                SyncKey(dataStore, "_consecutiveDelays", ref _consecutiveDelays);
 
-            // Muster tracking state for multi-stage muster menu system
-            SyncKey(dataStore, "_tierAtLastMuster", ref _tierAtLastMuster);
-            SyncKey(dataStore, "_xpAtLastMuster", ref _xpAtLastMuster);
-            SyncKey(dataStore, "_lastMusterDay", ref _lastMusterDay);
-            SyncKey(dataStore, "_lastMusterCompletionTime", ref _lastMusterCompletionTime);
-            SyncKey(dataStore, "_dayOfLastPromotion", ref _dayOfLastPromotion);
-            SyncKey(dataStore, "_lastInspectionDay", ref _lastInspectionDay);
-            SyncKey(dataStore, "_lastRecruitDay", ref _lastRecruitDay);
-            SerializeXPSourcesDictionary(dataStore);
+                // Muster tracking state for multi-stage muster menu system
+                SyncKey(dataStore, "_tierAtLastMuster", ref _tierAtLastMuster);
+                SyncKey(dataStore, "_xpAtLastMuster", ref _xpAtLastMuster);
+                SyncKey(dataStore, "_lastMusterDay", ref _lastMusterDay);
+                SyncKey(dataStore, "_lastMusterCompletionTime", ref _lastMusterCompletionTime);
+                SyncKey(dataStore, "_dayOfLastPromotion", ref _dayOfLastPromotion);
+                SyncKey(dataStore, "_lastInspectionDay", ref _lastInspectionDay);
+                SyncKey(dataStore, "_lastRecruitDay", ref _lastRecruitDay);
+                SerializeXPSourcesDictionary(dataStore);
 
-            // Ration tracking - manual serialization for List<IssuedRationRecord>
-            SerializeIssuedRations(dataStore);
+                // Ration tracking - manual serialization for List<IssuedRationRecord>
+                SerializeIssuedRations(dataStore);
 
-            SyncKey(dataStore, "_pensionAmountPerDay", ref _pensionAmountPerDay);
-            SyncKey(dataStore, "_pensionFactionId", ref _pensionFactionId);
-            SyncKey(dataStore, "_isPensionPaused", ref _isPensionPaused);
-            SyncKey(dataStore, "_isPendingDischarge", ref _isPendingDischarge);
-            SyncKey(dataStore, "_lastDischargeBand", ref _lastDischargeBand);
-            SyncKey(dataStore, "_isOnProbation", ref _isOnProbation);
-            SyncKey(dataStore, "_probationEnds", ref _probationEnds);
-            SyncKey(dataStore, "_savedGraceEnlistmentDate", ref _savedGraceEnlistmentDate);
-            SyncKey(dataStore, "_graceProtectionEnds", ref _graceProtectionEnds);
+                SyncKey(dataStore, "_pensionAmountPerDay", ref _pensionAmountPerDay);
+                SyncKey(dataStore, "_pensionFactionId", ref _pensionFactionId);
+                SyncKey(dataStore, "_isPensionPaused", ref _isPensionPaused);
+                SyncKey(dataStore, "_isPendingDischarge", ref _isPendingDischarge);
+                SyncKey(dataStore, "_lastDischargeBand", ref _lastDischargeBand);
+                SyncKey(dataStore, "_isOnProbation", ref _isOnProbation);
+                SyncKey(dataStore, "_probationEnds", ref _probationEnds);
+                SyncKey(dataStore, "_savedGraceEnlistmentDate", ref _savedGraceEnlistmentDate);
+                SyncKey(dataStore, "_graceProtectionEnds", ref _graceProtectionEnds);
 
-            // NCO and soldier names for personalized event text
-            SyncKey(dataStore, "_ncoFirstName", ref _ncoFirstName);
-            SyncKey(dataStore, "_ncoRank", ref _ncoRank);
-            SyncSoldierNames(dataStore);
+                // NCO and soldier names for personalized event text
+                SyncKey(dataStore, "_ncoFirstName", ref _ncoFirstName);
+                SyncKey(dataStore, "_ncoRank", ref _ncoRank);
+                SyncSoldierNames(dataStore);
 
-            // Quartermaster hero system
-            SyncKey(dataStore, "_quartermasterHero", ref _quartermasterHero);
-            SyncKey(dataStore, "_quartermasterArchetype", ref _quartermasterArchetype);
-            SyncKey(dataStore, "_quartermasterRelationship", ref _quartermasterRelationship);
-            SyncKey(dataStore, "_hasMetQuartermaster", ref _hasMetQuartermaster);
-            SyncKey(dataStore, "_qmPlayerStyle", ref _qmPlayerStyle);
+                // Quartermaster hero system
+                SyncKey(dataStore, "_quartermasterHero", ref _quartermasterHero);
+                SyncKey(dataStore, "_quartermasterArchetype", ref _quartermasterArchetype);
+                SyncKey(dataStore, "_quartermasterRelationship", ref _quartermasterRelationship);
+                SyncKey(dataStore, "_hasMetQuartermaster", ref _hasMetQuartermaster);
+                SyncKey(dataStore, "_qmPlayerStyle", ref _qmPlayerStyle);
 
-            // Food/rations system
-            SyncKey(dataStore, "_currentFoodQuality", ref _currentFoodQuality);
-            SyncKey(dataStore, "_foodQualityExpires", ref _foodQualityExpires);
+                // CK3 wanderer companion substrate (Plan 2): six archetype-rolled heroes
+                SyncKey(dataStore, "_sergeantHero", ref _sergeantHero);
+                SyncKey(dataStore, "_sergeantArchetype", ref _sergeantArchetype);
+                SyncKey(dataStore, "_sergeantRelationship", ref _sergeantRelationship);
+                SyncKey(dataStore, "_hasMetSergeant", ref _hasMetSergeant);
 
-            // Retinue provisioning system
-            SyncKey(dataStore, "_retinueProvisioningTier", ref _retinueProvisioningTier);
-            SyncKey(dataStore, "_retinueProvisioningExpires", ref _retinueProvisioningExpires);
-            SyncKey(dataStore, "_retinueProvisioningWarningShown", ref _retinueProvisioningWarningShown);
+                SyncKey(dataStore, "_fieldMedicHero", ref _fieldMedicHero);
+                SyncKey(dataStore, "_fieldMedicArchetype", ref _fieldMedicArchetype);
+                SyncKey(dataStore, "_fieldMedicRelationship", ref _fieldMedicRelationship);
+                SyncKey(dataStore, "_hasMetFieldMedic", ref _hasMetFieldMedic);
 
-            // Serialize kingdom state so we can restore the player's original kingdom/clan status
-            SyncKey(dataStore, "_originalKingdom", ref _originalKingdom);
-            SyncKey(dataStore, "_wasIndependentClan", ref _wasIndependentClan);
+                SyncKey(dataStore, "_pathfinderHero", ref _pathfinderHero);
+                SyncKey(dataStore, "_pathfinderArchetype", ref _pathfinderArchetype);
+                SyncKey(dataStore, "_pathfinderRelationship", ref _pathfinderRelationship);
+                SyncKey(dataStore, "_hasMetPathfinder", ref _hasMetPathfinder);
 
-            // Serialize minor faction war relations - these are created when enlisting with non-Kingdom lords
-            // and need to be restored to neutral when service ends
-            SyncKey(dataStore, "_minorFactionWarRelations", ref _minorFactionWarRelations);
+                SyncKey(dataStore, "_veteranHero", ref _veteranHero);
+                SyncKey(dataStore, "_veteranArchetype", ref _veteranArchetype);
+                SyncKey(dataStore, "_veteranRelationship", ref _veteranRelationship);
+                SyncKey(dataStore, "_hasMetVeteran", ref _hasMetVeteran);
 
-            // Serialize minor faction desertion cooldowns - manual serialization for Dictionary<string, CampaignTime>
-            SerializeMinorFactionDesertionCooldowns(dataStore);
+                SyncKey(dataStore, "_qmOfficerHero", ref _qmOfficerHero);
+                SyncKey(dataStore, "_qmOfficerArchetype", ref _qmOfficerArchetype);
+                SyncKey(dataStore, "_qmOfficerRelationship", ref _qmOfficerRelationship);
+                SyncKey(dataStore, "_hasMetQmOfficer", ref _hasMetQmOfficer);
 
-            // Serialize bag check abort cooldowns - tracks when player aborted enlistment during bag check
-            SerializeBagCheckAbortCooldowns(dataStore);
+                SyncKey(dataStore, "_juniorOfficerHero", ref _juniorOfficerHero);
+                SyncKey(dataStore, "_juniorOfficerArchetype", ref _juniorOfficerArchetype);
+                SyncKey(dataStore, "_juniorOfficerRelationship", ref _juniorOfficerRelationship);
+                SyncKey(dataStore, "_hasMetJuniorOfficer", ref _hasMetJuniorOfficer);
 
-            // Company needs state - manual serialization since it's a custom class
-            SerializeCompanyNeeds(dataStore);
+                // Food/rations system
+                SyncKey(dataStore, "_currentFoodQuality", ref _currentFoodQuality);
+                SyncKey(dataStore, "_foodQualityExpires", ref _foodQualityExpires);
 
-            // Veteran retirement system state - manual serialization for dictionary
-            // Bannerlord's save system can't serialize custom class dictionaries directly
-            SyncKey(dataStore, "_retirementNotificationShown", ref _retirementNotificationShown);
-            SyncKey(dataStore, "_currentTermKills", ref _currentTermKills);
+                // Retinue provisioning system
+                SyncKey(dataStore, "_retinueProvisioningTier", ref _retinueProvisioningTier);
+                SyncKey(dataStore, "_retinueProvisioningExpires", ref _retinueProvisioningExpires);
+                SyncKey(dataStore, "_retinueProvisioningWarningShown", ref _retinueProvisioningWarningShown);
 
-            // NOTE: Veteran records are now stored in ServiceRecordManager.FactionServiceRecord.
-            // ServiceRecordManager.SyncData() handles all faction record serialization.
+                // Serialize kingdom state so we can restore the player's original kingdom/clan status
+                SyncKey(dataStore, "_originalKingdom", ref _originalKingdom);
+                SyncKey(dataStore, "_wasIndependentClan", ref _wasIndependentClan);
 
-            // CRITICAL: Ensure proper party activity state for both new games and loaded games
-            // This is important because the save system doesn't preserve IsActive state,
-            // and we need to ensure enlisted players start inactive to prevent random encounters
-            // For new campaigns, non-enlisted players must be active to allow normal gameplay
+                // Serialize minor faction war relations - these are created when enlisting with non-Kingdom lords
+                // and need to be restored to neutral when service ends
+                SyncKey(dataStore, "_minorFactionWarRelations", ref _minorFactionWarRelations);
 
-            // Validate tier and XP values after loading
-            if (dataStore.IsLoading)
-            {
-                ModLogger.Info("SaveLoad",
-                    $"Loading enlistment state - Lord: {_enlistedLord?.Name?.ToString() ?? "null"}, Tier: {_enlistmentTier}, XP: {_enlistmentXP}, OnLeave: {_isOnLeave}, GracePeriod: {IsInDesertionGracePeriod}");
-                ValidateLoadedState();
+                // Serialize minor faction desertion cooldowns - manual serialization for Dictionary<string, CampaignTime>
+                SerializeMinorFactionDesertionCooldowns(dataStore);
 
-                // Clean up any duplicate hero entries in rosters (can occur after escape from captivity)
-                DeduplicateRosterHeroes();
+                // Serialize bag check abort cooldowns - tracks when player aborted enlistment during bag check
+                SerializeBagCheckAbortCooldowns(dataStore);
 
-                ModLogger.Info("SaveLoad", "Enlistment state validated and restored");
+                // Company needs state - manual serialization since it's a custom class
+                SerializeCompanyNeeds(dataStore);
 
-                // Sync activation based on loaded state
-                SyncActivationState("sync_load");
-            }
-            else
-            {
-                ModLogger.Debug("SaveLoad",
-                    $"Saving enlistment state - Lord: {_enlistedLord?.Name?.ToString() ?? "null"}, Tier: {_enlistmentTier}, XP: {_enlistmentXP}");
-            }
+                // Veteran retirement system state - manual serialization for dictionary
+                // Bannerlord's save system can't serialize custom class dictionaries directly
+                SyncKey(dataStore, "_retirementNotificationShown", ref _retirementNotificationShown);
+                SyncKey(dataStore, "_currentTermKills", ref _currentTermKills);
 
-            // IMPORTANT: Do NOT set IsActive here during SyncData!
-            // The game asserts that IsActive must be false during save load process.
-            // Party state will be restored on the first campaign tick via _needsPostLoadStateRestore flag.
-            if (dataStore.IsLoading)
-            {
-                _needsPostLoadStateRestore = true;
-                _isPartyStateInitialized = false; // Block all IsActive modifications until post-load
-                _initializationTicksRemaining = 10; // Reset countdown to ensure we wait for load completion
-                ModLogger.Debug("SaveLoad", "Deferred party state restoration to first campaign tick");
-                
-                // CRITICAL: Clear BesiegerCamp immediately during load if enlisted and not in active siege.
-                // Enlisted soldiers don't command sieges - only the lord does.
-                // If MainParty.BesiegerCamp is set, GetGenericStateMenu() returns menu_siege_strategies
-                // on the first campaign tick BEFORE RestorePartyStateAfterLoad runs.
-                if (IsEnlisted && !_isOnLeave)
+                // NOTE: Veteran records are now stored in ServiceRecordManager.FactionServiceRecord.
+                // ServiceRecordManager.SyncData() handles all faction record serialization.
+
+                // CRITICAL: Ensure proper party activity state for both new games and loaded games
+                // This is important because the save system doesn't preserve IsActive state,
+                // and we need to ensure enlisted players start inactive to prevent random encounters
+                // For new campaigns, non-enlisted players must be active to allow normal gameplay
+
+                // Plan 2 companion substrate: reseat null string fields after deserialize.
+                // Loads predating Plan 2 return null for the new archetype string fields;
+                // string interpolation in any companion-aware code path NREs without this.
+                EnsureCompanionFieldsInitialized();
+
+                // Validate tier and XP values after loading
+                if (dataStore.IsLoading)
                 {
-                    var main = MobileParty.MainParty;
-                    if (main?.BesiegerCamp != null && !IsPartyInActiveSiege(main))
+                    ModLogger.Info("SaveLoad",
+                        $"Loading enlistment state - Lord: {_enlistedLord?.Name?.ToString() ?? "null"}, Tier: {_enlistmentTier}, XP: {_enlistmentXP}, OnLeave: {_isOnLeave}, GracePeriod: {IsInDesertionGracePeriod}");
+                    ValidateLoadedState();
+
+                    // Clean up any duplicate hero entries in rosters (can occur after escape from captivity)
+                    DeduplicateRosterHeroes();
+
+                    ModLogger.Info("SaveLoad", "Enlistment state validated and restored");
+
+                    // Sync activation based on loaded state
+                    SyncActivationState("sync_load");
+                }
+                else
+                {
+                    ModLogger.Debug("SaveLoad",
+                        $"Saving enlistment state - Lord: {_enlistedLord?.Name?.ToString() ?? "null"}, Tier: {_enlistmentTier}, XP: {_enlistmentXP}");
+                }
+
+                // IMPORTANT: Do NOT set IsActive here during SyncData!
+                // The game asserts that IsActive must be false during save load process.
+                // Party state will be restored on the first campaign tick via _needsPostLoadStateRestore flag.
+                if (dataStore.IsLoading)
+                {
+                    _needsPostLoadStateRestore = true;
+                    _isPartyStateInitialized = false; // Block all IsActive modifications until post-load
+                    _initializationTicksRemaining = 10; // Reset countdown to ensure we wait for load completion
+                    ModLogger.Debug("SaveLoad", "Deferred party state restoration to first campaign tick");
+
+                    // CRITICAL: Clear BesiegerCamp immediately during load if enlisted and not in active siege.
+                    // Enlisted soldiers don't command sieges - only the lord does.
+                    // If MainParty.BesiegerCamp is set, GetGenericStateMenu() returns menu_siege_strategies
+                    // on the first campaign tick BEFORE RestorePartyStateAfterLoad runs.
+                    if (IsEnlisted && !_isOnLeave)
                     {
-                        ModLogger.Info("SaveLoad", "Clearing BesiegerCamp during save load (no active siege detected)");
-                        main.BesiegerCamp = null;
+                        var main = MobileParty.MainParty;
+                        if (main?.BesiegerCamp != null && !IsPartyInActiveSiege(main))
+                        {
+                            ModLogger.Info("SaveLoad", "Clearing BesiegerCamp during save load (no active siege detected)");
+                            main.BesiegerCamp = null;
+                        }
                     }
                 }
-            }
             });
         }
 
@@ -1481,7 +1565,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Warn("SaveLoad", 
+                        ModLogger.Warn("SaveLoad",
                             $"CompanySupplyManager NOT restored (no enlisted lord). Loaded supply value: {nonFoodSupply:F1}%");
                     }
 
@@ -1500,7 +1584,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("SaveLoad", "Failed to serialize company needs", ex);
+                ModLogger.Caught("SaveLoad", "Failed to serialize company needs", ex);
                 _companyNeeds = new CompanyNeedsState();
             }
         }
@@ -1623,7 +1707,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("SaveLoad", $"Error serializing bag check abort cooldowns: {ex.Message}");
+                ModLogger.Caught("SaveLoad", "Error serializing bag check abort cooldowns", ex);
                 // Ensure dictionary exists even on error
                 if (_bagCheckAbortCooldowns == null)
                 {
@@ -1671,7 +1755,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Save", $"Failed to sync soldier names: {ex.Message}");
+                ModLogger.Caught("Save", "Failed to sync soldier names", ex);
                 if (dataStore.IsLoading)
                 {
                     _soldierNames = new List<string>();
@@ -1727,7 +1811,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Save", $"Failed to sync XP sources dictionary: {ex.Message}");
+                ModLogger.Caught("Save", "Failed to sync XP sources dictionary", ex);
                 if (dataStore.IsLoading)
                 {
                     _xpSourcesThisPeriod = new Dictionary<string, int>();
@@ -1856,7 +1940,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // Different faction - block
                         reason = new TextObject(
                             "{=Enlisted_Message_OnLeaveCannotJoin}You are currently on leave from {LORD}. You cannot join a different faction without resigning first.");
-                        reason.SetTextVariable("LORD", _enlistedLord.Name ?? TextObject.GetEmpty());
+                        _ = reason.SetTextVariable("LORD", _enlistedLord.Name ?? TextObject.GetEmpty());
                         return false;
                     }
                 }
@@ -1877,7 +1961,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     reason = new TextObject(
                         "{=Enlisted_Message_BoundByGrace}You are still bound to {KINGDOM} by your grace orders. Other lords cannot enlist you yet.");
-                    reason.SetTextVariable("KINGDOM",
+                    _ = reason.SetTextVariable("KINGDOM",
                         _pendingDesertionKingdom.Name ?? TextObject.GetEmpty()); // 1.3.4 API
                     return false;
                 }
@@ -1889,8 +1973,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 reason = new TextObject(
                     "{=Enlisted_Message_MinorFactionCooldown}{FACTION} will not accept you back for another {DAYS} days due to your past desertion.");
-                reason.SetTextVariable("FACTION", lord.MapFaction.Name);
-                reason.SetTextVariable("DAYS", remainingDays);
+                _ = reason.SetTextVariable("FACTION", lord.MapFaction.Name);
+                _ = reason.SetTextVariable("DAYS", remainingDays);
                 return false;
             }
 
@@ -1899,8 +1983,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 reason = new TextObject(
                     "{=Enlisted_Message_BagCheckAbortCooldown}{LORD} expects you to sort out your affairs before returning. Come back in {DAYS} days.");
-                reason.SetTextVariable("LORD", lord.Name ?? TextObject.GetEmpty());
-                reason.SetTextVariable("DAYS", abortDaysRemaining);
+                _ = reason.SetTextVariable("LORD", lord.Name ?? TextObject.GetEmpty());
+                _ = reason.SetTextVariable("DAYS", abortDaysRemaining);
                 return false;
             }
 
@@ -2113,12 +2197,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var bagCheckEvent = EventCatalog.GetEvent("evt_baggage_stowage_first_enlistment");
             var eventDelivery = EventDeliveryManager.Instance;
 
-            if (bagCheckEvent != null && eventDelivery != null)
+            if (bagCheckEvent != null)
             {
                 _bagCheckInProgress = true;
                 ModLogger.Info("ENLISTMENT", $"Triggering bag check event (scheduled at {_bagCheckDueTime})");
-                eventDelivery.QueueEvent(bagCheckEvent);
-                return;
+
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "enlistment.bag_check",
+                        CategoryId = "enlistment.bag_check",
+                        ProposedTier = StoryTier.Modal,
+                        SeverityHint = 0.90f,
+                        Beats = { StoryBeat.OrderComplete },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        InteractiveEvent = bagCheckEvent,
+                        RenderedTitle = bagCheckEvent.TitleFallback,
+                        RenderedBody = bagCheckEvent.SetupFallback,
+                        StoryKey = bagCheckEvent.Id,
+                        ChainContinuation = true
+                    });
+                    return;
+                }
+
+                if (eventDelivery != null)
+                {
+                    eventDelivery.QueueEvent(bagCheckEvent);
+                    return;
+                }
             }
 
             // Fail open if event system unavailable
@@ -2174,7 +2283,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (selectedItem.EquipmentElement.Item != null && selectedItem.Amount > 0)
                 {
-                    _baggageStash.AddToCounts(selectedItem.EquipmentElement, -1);
+                    _ = _baggageStash.AddToCounts(selectedItem.EquipmentElement, -1);
                     removed++;
 
                     ModLogger.Info("Baggage", $"Lost from stash: {selectedItem.EquipmentElement.Item.Name}");
@@ -2340,7 +2449,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             {
                                 if (item.EquipmentElement.Item != null && item.Amount > 0)
                                 {
-                                    _pendingCourierBaggage.AddToCounts(item.EquipmentElement, item.Amount);
+                                    _ = _pendingCourierBaggage.AddToCounts(item.EquipmentElement, item.Amount);
                                 }
                             }
                             _baggageStash.Clear();
@@ -2468,7 +2577,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     if (item.EquipmentElement.Item != null && item.Amount > 0)
                     {
-                        partyRoster.AddToCounts(item.EquipmentElement, item.Amount);
+                        _ = partyRoster.AddToCounts(item.EquipmentElement, item.Amount);
                         deliveredCount += item.Amount;
                     }
                 }
@@ -2496,7 +2605,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception newsEx)
                 {
-                    ModLogger.Warn("News", $"Failed to post courier arrival news: {newsEx.Message}");
+                    ModLogger.Caught("News", "Failed to post courier arrival news", newsEx);
                 }
 
                 ModLogger.Info("ENLISTMENT", $"Courier delivered {deliveredCount} items to player inventory");
@@ -2592,8 +2701,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             continue;
                         }
 
-                        partyRoster.AddToCounts(element.EquipmentElement, element.Amount);
-                        _baggageStash.AddToCounts(element.EquipmentElement, -element.Amount);
+                        _ = partyRoster.AddToCounts(element.EquipmentElement, element.Amount);
+                        _ = _baggageStash.AddToCounts(element.EquipmentElement, -element.Amount);
                         returnedCount++;
                     }
                 }
@@ -2606,7 +2715,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         if (item.EquipmentElement.Item != null && item.Amount > 0)
                         {
-                            partyRoster.AddToCounts(item.EquipmentElement, item.Amount);
+                            _ = partyRoster.AddToCounts(item.EquipmentElement, item.Amount);
                             returnedCount++;
                         }
                     }
@@ -2643,7 +2752,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         if (!string.IsNullOrEmpty(ration.ItemId))
                         {
-                            issuedRationIds.Add(ration.ItemId);
+                            _ = issuedRationIds.Add(ration.ItemId);
                         }
                     }
                 }
@@ -2671,18 +2780,18 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                 continue;
                             }
 
-                            _baggageStash.AddToCounts(element.EquipmentElement.Item, element.Amount);
+                            _ = _baggageStash.AddToCounts(element.EquipmentElement.Item, element.Amount);
                         }
                     }
 
                     // Clear non-quest, non-issued-ration items from roster
-                    var itemsToRemove = partyRoster.Where(e => 
+                    var itemsToRemove = partyRoster.Where(e =>
                         !e.EquipmentElement.IsQuestItem &&
                         !issuedRationIds.Contains(e.EquipmentElement.Item?.StringId ?? "")
                     ).ToList();
                     foreach (var item in itemsToRemove)
                     {
-                        partyRoster.AddToCounts(item.EquipmentElement, -item.Amount);
+                        _ = partyRoster.AddToCounts(item.EquipmentElement, -item.Amount);
                     }
 
                     if (questItemsKept > 0)
@@ -2698,26 +2807,26 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // DO NOT stash equipped items - they've already been replaced with military equipment at enlistment
                 // The bag check should only process inventory items (civilian gear that wasn't equipped)
 
-            if (chargeFee > 0)
-            {
-                // Use party gold (what the player sees in UI) not hero personal gold
-                var partyGold = Hero.MainHero?.PartyBelongedTo?.PartyTradeGold ?? 0;
-                var fee = Math.Min(chargeFee, partyGold);
-                if (fee > 0)
+                if (chargeFee > 0)
                 {
-                    // GiveGoldAction properly deducts from party treasury and updates UI
-                    GiveGoldAction.ApplyBetweenCharacters(hero, null, fee);
-                    InformationManager.DisplayMessage(new InformationMessage(
-                        new TextObject("{=qm_fee_paid}You pay {FEE} denars for the wagon fee.")
-                            .SetTextVariable("FEE", fee).ToString()));
-                    ModLogger.Info("Gold", $"Wagon fee paid: {fee} denars");
+                    // Use party gold (what the player sees in UI) not hero personal gold
+                    var partyGold = Hero.MainHero?.PartyBelongedTo?.PartyTradeGold ?? 0;
+                    var fee = Math.Min(chargeFee, partyGold);
+                    if (fee > 0)
+                    {
+                        // GiveGoldAction properly deducts from party treasury and updates UI
+                        GiveGoldAction.ApplyBetweenCharacters(hero, null, fee);
+                        InformationManager.DisplayMessage(new InformationMessage(
+                            new TextObject("{=qm_fee_paid}You pay {FEE} denars for the wagon fee.")
+                                .SetTextVariable("FEE", fee).ToString()));
+                        ModLogger.Info("Gold", $"Wagon fee paid: {fee} denars");
+                    }
+                    else
+                    {
+                        // Player has no gold - still proceed but log it
+                        ModLogger.Info("Gold", "No gold available for wagon fee - proceeding without charge.");
+                    }
                 }
-                else
-                {
-                    // Player has no gold - still proceed but log it
-                    ModLogger.Info("Gold", "No gold available for wagon fee - proceeding without charge.");
-                }
-            }
 
                 ModLogger.Info("ENLISTMENT", $"Stashed belongings; stash now {_baggageStash.Count} entries.");
             }
@@ -2739,7 +2848,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         if (!string.IsNullOrEmpty(ration.ItemId))
                         {
-                            issuedRationIds.Add(ration.ItemId);
+                            _ = issuedRationIds.Add(ration.ItemId);
                         }
                     }
                 }
@@ -2773,13 +2882,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
 
                     // Clear only non-quest, non-issued-ration items from roster
-                    var itemsToRemove = partyRoster.Where(e => 
+                    var itemsToRemove = partyRoster.Where(e =>
                         !e.EquipmentElement.IsQuestItem &&
                         !issuedRationIds.Contains(e.EquipmentElement.Item?.StringId ?? "")
                     ).ToList();
                     foreach (var item in itemsToRemove)
                     {
-                        partyRoster.AddToCounts(item.EquipmentElement, -item.Amount);
+                        _ = partyRoster.AddToCounts(item.EquipmentElement, -item.Amount);
                     }
 
                     if (questItemsKept > 0)
@@ -2884,64 +2993,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
         }
 
-        private void MoveEquipmentToStash(TaleWorlds.Core.Equipment equipment)
-        {
-            if (equipment == null)
-            {
-                return;
-            }
-
-            // Use numeric iteration to avoid invalid enum values like NumEquipmentSetSlots
-            // which would cause IndexOutOfRangeException when used as an array index.
-            for (int i = 0; i < (int)EquipmentIndex.NumEquipmentSetSlots; i++)
-            {
-                var slot = (EquipmentIndex)i;
-                var elem = equipment[slot];
-                if (elem.Item != null)
-                {
-                    // CRITICAL: Skip quest items - they must stay equipped with the player
-                    if (elem.IsQuestItem)
-                    {
-                        ModLogger.Info("EQUIPMENT", $"Protected quest item '{elem.Item.Name}' from equipment stashing (slot {slot})");
-                        continue;
-                    }
-
-                    _baggageStash.AddToCounts(elem.Item, 1);
-                    equipment[slot] = default;
-                }
-            }
-        }
-
-        private float ExtractEquipmentValue(TaleWorlds.Core.Equipment equipment, float rate)
-        {
-            var total = 0f;
-            if (equipment == null)
-            {
-                return total;
-            }
-
-            // Use numeric iteration to avoid invalid enum values like NumEquipmentSetSlots
-            for (int i = 0; i < (int)EquipmentIndex.NumEquipmentSetSlots; i++)
-            {
-                var slot = (EquipmentIndex)i;
-                var elem = equipment[slot];
-                if (elem.Item != null)
-                {
-                    // CRITICAL: Skip quest items - they cannot be sold and must stay equipped
-                    if (elem.IsQuestItem)
-                    {
-                        ModLogger.Info("EQUIPMENT", $"Protected quest item '{elem.Item.Name}' from liquidation (slot {slot})");
-                        continue;
-                    }
-
-                    total += elem.Item.Value * rate;
-                    equipment[slot] = default;
-                }
-            }
-
-            return total;
-        }
-
         private List<ItemRosterElement> GetEquipmentElements(TaleWorlds.Core.Equipment equipment)
         {
             var list = new List<ItemRosterElement>();
@@ -3010,7 +3061,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("QUARTERMASTER", $"Failed to initialize inventory at enlistment start: {ex.Message}");
+                        ModLogger.Caught("QUARTERMASTER", "Failed to initialize inventory at enlistment start", ex);
                     }
                 }
 
@@ -3167,7 +3218,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("Rations", $"Failed to issue initial ration at enlistment: {ex.Message}");
+                        ModLogger.Caught("Rations", "Failed to issue initial ration at enlistment", ex);
                     }
                 }
 
@@ -3178,7 +3229,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             "{=Enlisted_Message_RejoinedKingdom}You have rejoined {KINGDOM}. Your grace period has been cleared.");
                     var kingdomName = rejoiningKingdom?.Name ??
                                       new TextObject("{=Enlisted_Term_YourKingdom}your kingdom");
-                    message.SetTextVariable("KINGDOM", kingdomName);
+                    _ = message.SetTextVariable("KINGDOM", kingdomName);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                     ClearDesertionGracePeriod();
                 }
@@ -3269,7 +3320,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT",
+                ModLogger.Caught("ENLISTMENT",
                     $"Failed to start enlistment with {lord?.Name?.ToString() ?? "null"} - {ex.Message}", ex);
 
                 // CRITICAL: Reset enlistment state to prevent partial enlistment
@@ -3311,6 +3362,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 ModLogger.Info("ENLISTMENT", $"Service ended: {reason} (Honorable: {isHonorableDischarge})");
 
+                try
+                {
+                    OnEnlistmentEnded?.Invoke(reason, isHonorableDischarge);
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.Caught("ENLISTMENT", "OnEnlistmentEnded listener threw", ex);
+                }
+
                 // Save current reputation to faction service record before clearing state.
                 // This allows partial restoration when the player re-enlists with the same faction.
                 // Restoration percentages are applied based on discharge band in TryConsumeReservistForFaction.
@@ -3322,7 +3382,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("ServiceRecord", $"Failed to save reputation snapshot: {ex.Message}");
+                        ModLogger.Caught("ServiceRecord", "Failed to save reputation snapshot", ex);
                     }
                 }
 
@@ -3333,7 +3393,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("Rations", $"Failed to reclaim rations on service end: {ex.Message}");
+                    ModLogger.Caught("Rations", "Failed to reclaim rations on service end", ex);
                 }
 
                 // Persistent Lance Leaders: record discharge memory and clear cached leader reference.
@@ -3438,7 +3498,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception cameraEx)
                         {
-                            ModLogger.Warn("ENLISTMENT", $"Failed to reset camera to player party: {cameraEx.Message}");
+                            ModLogger.Caught("ENLISTMENT", "Failed to reset camera to player party", cameraEx);
                         }
 
                         ModLogger.Info("ENLISTMENT", "Party activated and made visible (no active battle state)");
@@ -3685,7 +3745,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error ending service", ex);
+                ModLogger.Caught("ENLISTMENT", "Error ending service", ex);
                 // Ensure critical state is cleared even if restoration fails
                 _enlistedLord = null;
                 _disbandArmyAfterBattle = false;
@@ -3754,9 +3814,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var message =
                     new TextObject(
                         "{=Enlisted_Message_ServiceEndedGrace}Your service has ended. You have {DAYS} days to find another lord in {KINGDOM} before you are branded a deserter.");
-                message.SetTextVariable("DAYS", graceDays);
-                message.SetTextVariable("KINGDOM", kingdom.Name);
+                _ = message.SetTextVariable("DAYS", graceDays);
+                _ = message.SetTextVariable("KINGDOM", kingdom.Name);
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
+                EnsureGraceLordMarker(forceRefresh: true, "start_grace_period");
 
                 // Fire event for other mods
                 OnGracePeriodStarted?.Invoke();
@@ -3765,7 +3826,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Desertion", "Error starting grace period", ex);
+                ModLogger.Caught("Desertion", "Error starting grace period", ex);
             }
         }
 
@@ -3838,7 +3899,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var message =
                     new TextObject(
                         "{=Enlisted_Message_BrandedDeserter}You have been branded a deserter. Your relationship with {KINGDOM} has suffered.");
-                message.SetTextVariable("KINGDOM", _pendingDesertionKingdom.Name);
+                _ = message.SetTextVariable("KINGDOM", _pendingDesertionKingdom.Name);
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                 ModLogger.Info("Desertion",
@@ -3849,9 +3910,126 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Desertion", "Error applying desertion penalties", ex);
+                ModLogger.Caught("Desertion", "Error applying desertion penalties", ex);
                 ClearDesertionGracePeriod(); // Always clear state on error
             }
+        }
+
+        private void EnsureGraceLordMarker(bool forceRefresh, string reason)
+        {
+            try
+            {
+                var mapMarkerManager = Campaign.Current?.MapMarkerManager;
+                if (mapMarkerManager == null)
+                {
+                    return;
+                }
+
+                var markerScope = GraceLordMarkerRefreshPolicy.GetScope(_isOnLeave, IsInDesertionGracePeriod);
+                var trackedLord = markerScope == LordMarkerScope.Leave ? _enlistedLord : _savedGraceLord;
+                if (markerScope == LordMarkerScope.None || trackedLord == null || !trackedLord.IsAlive)
+                {
+                    RemoveGraceLordMarker();
+                    return;
+                }
+
+                if (!TryBuildGraceLordMarkerData(trackedLord, out var snapshot, out var position, out var banner,
+                        out var label))
+                {
+                    RemoveGraceLordMarker();
+                    return;
+                }
+
+                if (!forceRefresh &&
+                    !GraceLordMarkerRefreshPolicy.ShouldRefresh(_lastGraceLordMarkerSnapshot, snapshot,
+                        GraceLordMarkerDistanceThreshold))
+                {
+                    return;
+                }
+
+                mapMarkerManager.RemoveAllMapMarkersByQuestId(GraceLordMarkerQuestId);
+                _ = mapMarkerManager.CreateMapMarker(banner, label, position, true, GraceLordMarkerQuestId);
+                _lastGraceLordMarkerSnapshot = snapshot;
+                ModLogger.Info("Tracker", $"Updated grace lord marker ({reason})");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("TRACKER", "Failed to update grace lord marker", ex);
+            }
+        }
+
+        private void RemoveGraceLordMarker()
+        {
+            try
+            {
+                Campaign.Current?.MapMarkerManager?.RemoveAllMapMarkersByQuestId(GraceLordMarkerQuestId);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("TRACKER", "Failed to remove grace lord marker", ex);
+            }
+            finally
+            {
+                _lastGraceLordMarkerSnapshot = null;
+            }
+        }
+
+        private static bool TryBuildGraceLordMarkerData(
+            Hero lord,
+            out GraceLordMarkerSnapshot snapshot,
+            out Vec3 position,
+            out Banner banner,
+            out TextObject label)
+        {
+            snapshot = default;
+            position = Vec3.Zero;
+            banner = null;
+            label = null;
+
+            if (lord == null || !lord.IsAlive)
+            {
+                return false;
+            }
+
+            var mapPoint = lord.GetMapPoint();
+            if (mapPoint == null)
+            {
+                return false;
+            }
+
+            var campaignPosition = mapPoint.Position;
+            if (!campaignPosition.IsValid())
+            {
+                return false;
+            }
+
+            var anchorKey = GetGraceLordMarkerAnchorKey(lord, mapPoint);
+            banner = lord.ClanBanner;
+            if (string.IsNullOrWhiteSpace(anchorKey) || banner == null)
+            {
+                return false;
+            }
+
+            snapshot = new GraceLordMarkerSnapshot(anchorKey, campaignPosition.X, campaignPosition.Y);
+            position = campaignPosition.AsVec3();
+            label = new TextObject("{=Enlisted_GraceLordMarker}{LORD_NAME}'s command");
+            _ = label.SetTextVariable("LORD_NAME", lord.Name);
+            return true;
+        }
+
+        private static string GetGraceLordMarkerAnchorKey(Hero lord, IMapPoint mapPoint)
+        {
+            if (mapPoint is Settlement settlement)
+            {
+                return $"settlement:{settlement.StringId}";
+            }
+
+            if (mapPoint is MobileParty mobileParty)
+            {
+                return $"party:{mobileParty.StringId}";
+            }
+
+            return $"hero:{lord.StringId}";
         }
 
         /// <summary>
@@ -3862,6 +4040,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             _pendingDesertionKingdom = null;
             _desertionGracePeriodEnd = CampaignTime.Zero;
+            RemoveGraceLordMarker();
 
             // BUG FIX: Only unregister living lords from the visual tracker
             // Dead heroes may cause crashes when the tracker tries to access them
@@ -3873,7 +4052,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("ENLISTMENT", $"Failed to remove grace lord from tracker: {ex.Message}");
+                    ModLogger.Caught("ENLISTMENT", "Failed to remove grace lord from tracker", ex);
                 }
             }
 
@@ -3886,81 +4065,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
             _graceProtectionEnds = CampaignTime.Zero;
 
             SyncActivationState("clear_grace_period");
-        }
-
-        /// <summary>
-        ///     Apply desertion penalties for minor faction lords.
-        ///     Minor factions don't have a crime rating system, so we apply relation penalties
-        ///     with the lord and their clan members, plus a 90-day re-enlistment cooldown.
-        /// </summary>
-        /// <param name="lord">The minor faction lord the player is deserting from.</param>
-        private void ApplyMinorFactionDesertionPenalties(Hero lord)
-        {
-            try
-            {
-                if (lord == null)
-                {
-                    ModLogger.Debug("Desertion", "Cannot apply minor faction penalties - lord is null");
-                    return;
-                }
-
-                var faction = lord.MapFaction;
-                if (faction == null)
-                {
-                    ModLogger.Debug("Desertion", "Cannot apply minor faction penalties - faction is null");
-                    return;
-                }
-
-                ModLogger.Info("Desertion",
-                    $"Applying minor faction desertion penalties for {lord.Name} ({faction.Name})");
-
-                // Apply -50 relation with the lord
-                var relationPenalty = -50;
-                var herosPenalized = 0;
-
-                if (lord.IsAlive && lord != Hero.MainHero)
-                {
-                    ChangeRelationAction.ApplyPlayerRelation(lord, relationPenalty);
-                    herosPenalized++;
-                    ModLogger.Debug("Desertion", $"Applied {relationPenalty} relation with lord {lord.Name}");
-                }
-
-                // Apply -50 relation with all clan members
-                var lordClan = lord.Clan;
-                if (lordClan != null)
-                {
-                    foreach (var clanMember in lordClan.Heroes)
-                    {
-                        // Skip the lord (already penalized), dead heroes, and the player
-                        if (clanMember == lord || !clanMember.IsAlive || clanMember == Hero.MainHero)
-                        {
-                            continue;
-                        }
-
-                        ChangeRelationAction.ApplyPlayerRelation(clanMember, relationPenalty);
-                        herosPenalized++;
-                    }
-                }
-
-                // Add 90-day cooldown for this faction
-                var cooldownDays = 90;
-                var cooldownEnd = CampaignTime.Now + CampaignTime.Days(cooldownDays);
-                _minorFactionDesertionCooldowns[faction.StringId] = cooldownEnd;
-
-                // Display notification
-                var message = new TextObject(
-                    "{=Enlisted_Message_MinorFactionDeserter}You have deserted {LORD}'s company. Your reputation with {FACTION} has suffered, and they will not accept you back for some time.");
-                message.SetTextVariable("LORD", lord.Name);
-                message.SetTextVariable("FACTION", faction.Name);
-                InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Red));
-
-                ModLogger.Info("Desertion",
-                    $"Minor faction desertion penalties applied: {relationPenalty} relation with {herosPenalized} heroes, {cooldownDays}-day cooldown for {faction.Name}");
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("Desertion", "Error applying minor faction desertion penalties", ex);
-            }
         }
 
         /// <summary>
@@ -3988,7 +4092,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 else
                 {
                     // Cooldown expired, remove it
-                    _minorFactionDesertionCooldowns.Remove(faction.StringId);
+                    _ = _minorFactionDesertionCooldowns.Remove(faction.StringId);
                 }
             }
 
@@ -4042,7 +4146,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 else
                 {
                     // Cooldown expired, remove it
-                    _bagCheckAbortCooldowns.Remove(lord.StringId);
+                    _ = _bagCheckAbortCooldowns.Remove(lord.StringId);
                 }
             }
 
@@ -4162,6 +4266,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         ModLogger.Info("Tracker", "Forced Lord party to be visible (was hidden) - Hourly Check");
                     }
                 }
+
+                EnsureGraceLordMarker(forceRefresh: false, "hourly_tick");
             }
             else if (IsInDesertionGracePeriod && _savedGraceLord != null && _savedGraceLord.IsAlive)
             {
@@ -4170,6 +4276,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     Campaign.Current.VisualTrackerManager.RegisterObject(_savedGraceLord);
                     ModLogger.Info("Tracker", "Re-applied map tracker for grace period lord (was missing)");
                 }
+
+                EnsureGraceLordMarker(forceRefresh: false, "hourly_tick");
+            }
+            else if (_lastGraceLordMarkerSnapshot.HasValue)
+            {
+                RemoveGraceLordMarker();
             }
 
             // Fallback: ensure non-enlisted players stay visible and active in case the realtime tick misses an edge
@@ -4340,6 +4452,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                _ = clearAttachment;
                 // Set AI to hold mode to stop following behavior.
                 //
                 // IMPORTANT: Do NOT call SetMoveEscortParty(null, ...) to "clear" escort.
@@ -4486,7 +4599,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Daily service processing failed", ex);
+                ModLogger.Caught("ENLISTMENT", "Daily service processing failed", ex);
             }
         }
 
@@ -4569,7 +4682,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("QUARTERMASTER", $"Failed to roll stock availability at muster: {ex.Message}");
+                ModLogger.Caught("QUARTERMASTER", "Failed to roll stock availability at muster", ex);
             }
 
             try
@@ -4579,7 +4692,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Rations", $"Failed to process ration exchange at muster: {ex.Message}");
+                ModLogger.Caught("Rations", "Failed to process ration exchange at muster", ex);
             }
 
             // Report muster outcome to news system
@@ -4589,7 +4702,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("Muster", $"Failed to report muster outcome: {ex.Message}");
+                ModLogger.Caught("Muster", "Failed to report muster outcome", ex);
             }
 
             try
@@ -4599,7 +4712,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("News", $"Failed to reset muster counters: {ex.Message}");
+                ModLogger.Caught("News", "Failed to reset muster counters", ex);
             }
         }
 
@@ -4843,7 +4956,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (reclaimAmount > 0)
                 {
-                    itemRoster.AddToCounts(item, -reclaimAmount);
+                    _ = itemRoster.AddToCounts(item, -reclaimAmount);
                     totalReclaimed += reclaimAmount;
                     ModLogger.Debug("Rations", $"Reclaimed {reclaimAmount}x {record.ItemId} from inventory");
                 }
@@ -4898,7 +5011,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             int amount = 1;
-            itemRoster.AddToCounts(item, amount);
+            _ = itemRoster.AddToCounts(item, amount);
 
             // Track issued ration for reclamation at next muster
             _issuedRations.Add(new IssuedRationRecord
@@ -5138,7 +5251,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Corruption muster failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Corruption muster failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
             }
@@ -5181,10 +5294,22 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var baseChance = 0.70f;
                 var repModifier = 0f;
 
-                if (qmRep >= 75) repModifier = 0.15f;
-                else if (qmRep >= 50) repModifier = 0.05f;
-                else if (qmRep >= 25) repModifier = 0f;
-                else repModifier = -0.10f;
+                if (qmRep >= 75)
+                {
+                    repModifier = 0.15f;
+                }
+                else if (qmRep >= 50)
+                {
+                    repModifier = 0.05f;
+                }
+                else if (qmRep >= 25)
+                {
+                    repModifier = 0f;
+                }
+                else
+                {
+                    repModifier = -0.10f;
+                }
 
                 var successChance = baseChance + repModifier;
                 var roll = MBRandom.RandomFloat;
@@ -5218,7 +5343,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     if (selectedItem != null)
                     {
                         // Add item to inventory
-                        Hero.MainHero.PartyBelongedTo?.ItemRoster?.AddToCounts(selectedItem, 1);
+                        _ = (Hero.MainHero.PartyBelongedTo?.ItemRoster?.AddToCounts(selectedItem, 1));
 
                         outcome = $"qm_deal_success:{payout}:{selectedItem.StringId}";
                         ModLogger.Info("PAY", $"QM Deal successful - awarded {selectedItem.Name} (T{equipmentTier})");
@@ -5248,7 +5373,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Quartermaster's Deal failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Quartermaster's Deal failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
                 return "error";
@@ -5284,7 +5409,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("PAY", $"Promissory muster failed: {ex.Message}");
+                ModLogger.Caught("PAY", "Promissory muster failed", ex);
                 _payMusterPending = false;
                 _nextPayday = ComputeNextPayday();
             }
@@ -5670,7 +5795,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Discharge", "Error handling baggage on discharge", ex);
+                ModLogger.Caught("Discharge", "Error handling baggage on discharge", ex);
             }
         }
 
@@ -5695,7 +5820,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (elem.Item != null)
                 {
                     // Preserve modifiers/quest flags by moving the full EquipmentElement into inventory.
-                    roster?.AddToCounts(elem, 1);
+                    _ = (roster?.AddToCounts(elem, 1));
                     updated[slot] = default;
                 }
             }
@@ -5991,7 +6116,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// </summary>
         private float CalculateItemWeight(ItemObject item)
         {
-            if (item == null) return 0f;
+            if (item == null)
+            {
+                return 0f;
+            }
 
             var hero = Hero.MainHero;
             var baseWeight = 1.0f;
@@ -6304,7 +6432,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     if (deserters > 0)
                     {
-                        roster.AddToCounts(element.Character, -deserters);
+                        _ = roster.AddToCounts(element.Character, -deserters);
                         desertersTotal += deserters;
                     }
                 }
@@ -6430,16 +6558,42 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 try
                 {
                     var bagCheckEvent = EventCatalog.GetEvent("evt_baggage_stowage_first_enlistment");
-                    var eventDelivery = EventDeliveryManager.Instance;
-                    if (bagCheckEvent != null && eventDelivery != null)
+                    if (bagCheckEvent != null)
                     {
-                        ModLogger.Info("SaveLoad", "Restoring bag check event after load");
-                        eventDelivery.QueueEvent(bagCheckEvent);
+                        var director = StoryDirector.Instance;
+                        if (director != null)
+                        {
+                            ModLogger.Info("SaveLoad", "Restoring bag check event through StoryDirector after load");
+                            director.EmitCandidate(new StoryCandidate
+                            {
+                                SourceId = "enlistment.bag_check",
+                                CategoryId = "enlistment.bag_check",
+                                ProposedTier = StoryTier.Modal,
+                                SeverityHint = 0.90f,
+                                Beats = { StoryBeat.OrderComplete },
+                                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                                EmittedAt = CampaignTime.Now,
+                                InteractiveEvent = bagCheckEvent,
+                                RenderedTitle = bagCheckEvent.TitleFallback,
+                                RenderedBody = bagCheckEvent.SetupFallback,
+                                StoryKey = bagCheckEvent.Id,
+                                ChainContinuation = true
+                            });
+                        }
+                        else
+                        {
+                            var eventDelivery = EventDeliveryManager.Instance;
+                            if (eventDelivery != null)
+                            {
+                                ModLogger.Info("SaveLoad", "Restoring bag check event (director unavailable) after load");
+                                eventDelivery.QueueEvent(bagCheckEvent);
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn("SaveLoad", $"Failed to restore bag check event: {ex.Message}");
+                    ModLogger.Caught("SaveLoad", "Failed to restore bag check event", ex);
                     // Reset flags to allow retry via hourly tick
                     _bagCheckInProgress = false;
                 }
@@ -6578,14 +6732,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     else
                     {
-                        seenHeroes.Add(troop.Character);
+                        _ = seenHeroes.Add(troop.Character);
                     }
                 }
 
                 // Remove duplicate hero entries
                 foreach (var (character, excess) in heroesToRemove)
                 {
-                    mainRoster.AddToCounts(character, -excess);
+                    _ = mainRoster.AddToCounts(character, -excess);
                     duplicatesRemoved += excess;
                     ModLogger.Warn("SaveLoad", $"Removed {excess} duplicate entry for hero {character.Name}");
                 }
@@ -6616,7 +6770,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     foreach (var stale in staleCompanions)
                     {
-                        lordRoster.AddToCounts(stale.Character, -stale.Number);
+                        _ = lordRoster.AddToCounts(stale.Character, -stale.Number);
                         staleRefsRemoved++;
                         ModLogger.Warn("SaveLoad", $"Removed stale companion ref {stale.Character.Name} from lord's party");
                     }
@@ -6693,7 +6847,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         {
                             ModLogger.Info("SaveLoad",
                                 $"Post-load: Loaded into active battle! Lord battle: {lordInBattle}, Army battle: {armyInBattle}");
-                            
+
                             main.IsActive = true;
                             main.IsVisible = true;
                         }
@@ -6702,7 +6856,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             // Not in battle - keep hidden but active for escort AI
                             main.IsActive = true;
                             main.IsVisible = false;
-                            
+
                             main.IgnoreByOtherPartiesTill(CampaignTime.Now + CampaignTime.Hours(1f));
                             main.SetMoveEscortParty(lordParty, MobileParty.NavigationType.Default, false);
                             ModLogger.Info("SaveLoad", "Post-load: Escort AI restored for enlisted player");
@@ -6733,6 +6887,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                     });
                 }
+
+                if (_isOnLeave || IsInDesertionGracePeriod)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "post_load");
+                }
+                else if (_lastGraceLordMarkerSnapshot.HasValue)
+                {
+                    RemoveGraceLordMarker();
+                }
             }
             catch (Exception ex)
             {
@@ -6754,7 +6917,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 // Check duration
                 var daysInCaptivity = (float)(CampaignTime.Now - Hero.MainHero.CaptivityStartTime).ToDays;
-                
+
                 // Log captivity status every 12 in-game hours (not every tick)
                 if ((int)(daysInCaptivity * 2) != (int)((daysInCaptivity - 0.5f) * 2))
                 {
@@ -6791,7 +6954,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                         if (applyMethod != null)
                         {
-                            applyMethod.Invoke(null, new object[] { Hero.MainHero, null });
+                            _ = applyMethod.Invoke(null, new object[] { Hero.MainHero, null });
                             InformationManager.DisplayMessage(new InformationMessage(
                                 "You have managed to escape captivity! Return to your kingdom quickly!"));
                         }
@@ -6854,7 +7017,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var vassalMessage =
                         new TextObject(
                             "{=Enlisted_Message_LeaveExpiredVassal}Your leave has expired, but as a member of {KINGDOM}, your service ends honorably.");
-                    vassalMessage.SetTextVariable("KINGDOM", lordKingdom.Name);
+                    _ = vassalMessage.SetTextVariable("KINGDOM", lordKingdom.Name);
                     InformationManager.DisplayMessage(new InformationMessage(vassalMessage.ToString()));
                     return;
                 }
@@ -6888,7 +7051,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Daily warning when leave is running out
                 var message =
                     new TextObject("{=Enlisted_Message_LeaveRemaining}Leave: {DAYS} days remaining before desertion.");
-                message.SetTextVariable("DAYS", remainingDays);
+                _ = message.SetTextVariable("DAYS", remainingDays);
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
             }
         }
@@ -7648,7 +7811,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 // Set the BesiegerCamp - this triggers OnPartyJoinedSiegeInternal which adds us to _besiegerParties
                 mainParty.BesiegerCamp = targetCamp;
-                
+
                 // Log comprehensive siege integration status
                 LogSiegeIntegrationStatus(mainParty, lordParty, targetCamp, "TrySyncBesiegerCamp");
             }
@@ -7666,25 +7829,26 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                _ = lordParty;
                 var settlement = camp?.SiegeEvent?.BesiegedSettlement?.Name?.ToString() ?? "unknown";
                 var army = mainParty?.Army;
                 var armyLeader = army?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "none";
-                
+
                 // Check if player is in Army.Parties (required for _wasPlayerArmyMember check)
                 bool inArmyParties = army?.Parties?.Contains(mainParty) == true;
-                
+
                 // Check if player is in BesiegerCamp (required for MapEvent collection)
-                bool inBesiegerParties = camp?.HasInvolvedPartyForEventType(mainParty?.Party, 
-                    TaleWorlds.CampaignSystem.MapEvents.MapEvent.BattleTypes.Siege) == true;
-                
+                bool inBesiegerParties = camp?.HasInvolvedPartyForEventType(mainParty?.Party,
+                    MapEvent.BattleTypes.Siege) == true;
+
                 // Check attachment status
                 bool attachedToLeader = mainParty?.AttachedTo == army?.LeaderParty;
-                
+
                 // Check MapEvent status
                 var mapEvent = mainParty?.Party?.MapEvent;
                 bool inMapEvent = mapEvent != null;
-                
-                ModLogger.Info("SiegeIntegration", 
+
+                ModLogger.Info("SiegeIntegration",
                     $"[{context}] Siege at {settlement}: " +
                     $"InArmyParties={inArmyParties}, " +
                     $"InBesiegerParties={inBesiegerParties}, " +
@@ -7695,12 +7859,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Warn if integration looks broken
                 if (!inArmyParties && army != null)
                 {
-                    ModLogger.Warn("SiegeIntegration", 
+                    ModLogger.Warn("SiegeIntegration",
                         $"WARNING: Player not in Army.Parties! Native post-siege flow may fail.");
                 }
                 if (!inBesiegerParties && camp != null)
                 {
-                    ModLogger.Warn("SiegeIntegration", 
+                    ModLogger.Warn("SiegeIntegration",
                         $"WARNING: Player not in BesiegerCamp._besiegerParties! MapEvent collection may fail.");
                 }
             }
@@ -7717,6 +7881,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                _ = lordParty;
                 if (mainParty == null || mapEvent == null)
                 {
                     return;
@@ -7724,34 +7889,34 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 var army = mainParty.Army;
                 var armyLeader = army?.LeaderParty?.LeaderHero?.Name?.ToString() ?? "none";
-                
+
                 // Check if player is in Army.Parties
                 bool inArmyParties = army?.Parties?.Contains(mainParty) == true;
-                
+
                 // Check if player is in the MapEvent
                 bool inMapEvent = mainParty.Party?.MapEvent == mapEvent;
                 var playerSide = mainParty.Party?.MapEventSide;
-                string sideLabel = playerSide == mapEvent.AttackerSide ? "Attacker" 
-                    : playerSide == mapEvent.DefenderSide ? "Defender" 
+                string sideLabel = playerSide == mapEvent.AttackerSide ? "Attacker"
+                    : playerSide == mapEvent.DefenderSide ? "Defender"
                     : "None";
-                
+
                 // Check if player is in InvolvedParties
                 bool inInvolvedParties = mapEvent.InvolvedParties?.Contains(mainParty.Party) == true;
-                
+
                 // Check attachment status
                 bool attachedToLeader = mainParty.AttachedTo == army?.LeaderParty;
-                
+
                 // Check PlayerEncounter status
                 bool hasEncounter = PlayerEncounter.Current != null;
-                
+
                 // Battle type info
-                string battleType = mapEvent.IsSiegeAssault ? "SiegeAssault" 
+                string battleType = mapEvent.IsSiegeAssault ? "SiegeAssault"
                     : mapEvent.IsSallyOut ? "SallyOut"
                     : mapEvent.IsNavalMapEvent ? "Naval"
                     : mapEvent.IsRaid ? "Raid"
                     : "Field";
 
-                ModLogger.Info("BattleIntegration", 
+                ModLogger.Info("BattleIntegration",
                     $"[{context}] {battleType} battle: " +
                     $"InArmyParties={inArmyParties}, " +
                     $"InMapEvent={inMapEvent}, " +
@@ -7761,14 +7926,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     $"AttachedToLeader={attachedToLeader}");
 
                 // Warn if integration looks broken
-                if (!inMapEvent && mapEvent.State != TaleWorlds.CampaignSystem.MapEvents.MapEventState.WaitingRemoval)
+                if (!inMapEvent && mapEvent.State != MapEventState.WaitingRemoval)
                 {
-                    ModLogger.Warn("BattleIntegration", 
+                    ModLogger.Warn("BattleIntegration",
                         "WARNING: Player not in MapEvent! Battle participation may fail.");
                 }
-                if (!inInvolvedParties && mapEvent.State != TaleWorlds.CampaignSystem.MapEvents.MapEventState.WaitingRemoval)
+                if (!inInvolvedParties && mapEvent.State != MapEventState.WaitingRemoval)
                 {
-                    ModLogger.Warn("BattleIntegration", 
+                    ModLogger.Warn("BattleIntegration",
                         "WARNING: Player not in InvolvedParties! XP/loot may not be awarded.");
                 }
             }
@@ -7787,24 +7952,24 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 var mainParty = MobileParty.MainParty;
                 var mainHero = Hero.MainHero;
-                
+
                 bool hasEncounter = PlayerEncounter.Current != null;
                 bool insideSettlement = PlayerEncounter.InsideSettlement;
                 bool leaveEncounter = hasEncounter && PlayerEncounter.LeaveEncounter;
                 bool isWaiting = hasEncounter && PlayerEncounter.Current.IsPlayerWaiting;
-                
+
                 var mapEvent = mainParty?.Party?.MapEvent;
                 bool inMapEvent = mapEvent != null;
                 string mapEventState = mapEvent?.State.ToString() ?? "None";
                 bool hasWinner = mapEvent?.HasWinner == true;
-                
+
                 bool isPrisoner = mainHero?.IsPrisoner == true;
                 bool isActive = mainParty?.IsActive == true;
                 bool isVisible = mainParty?.IsVisible == true;
-                
+
                 string currentMenu = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "none";
 
-                ModLogger.Info("EncounterStatus", 
+                ModLogger.Info("EncounterStatus",
                     $"[{context}] HasEncounter={hasEncounter}, " +
                     $"InsideSettlement={insideSettlement}, " +
                     $"LeaveEncounter={leaveEncounter}, " +
@@ -7832,31 +7997,31 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 var mainHero = Hero.MainHero;
                 var mainParty = MobileParty.MainParty;
-                
+
                 if (mainHero == null)
                 {
                     return;
                 }
-                
+
                 bool isPrisoner = mainHero.IsPrisoner;
                 var captorParty = mainHero.PartyBelongedToAsPrisoner?.MobileParty;
                 string captorName = captorParty?.LeaderHero?.Name?.ToString() ?? captorParty?.Name?.ToString() ?? "none";
                 bool captorAtSea = captorParty?.IsCurrentlyAtSea == true;
-                
-                float daysCaptive = isPrisoner 
-                    ? (float)(CampaignTime.Now - mainHero.CaptivityStartTime).ToDays 
+
+                float daysCaptive = isPrisoner
+                    ? (float)(CampaignTime.Now - mainHero.CaptivityStartTime).ToDays
                     : 0f;
-                
+
                 bool inGracePeriod = IsInDesertionGracePeriod;
                 bool pendingCleanup = _playerCaptureCleanupScheduled;
-                
+
                 bool isActive = mainParty?.IsActive == true;
                 bool isVisible = mainParty?.IsVisible == true;
-                
+
                 string currentMenu = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "none";
 
                 var logMethod = wasChange ? (Action<string, string>)ModLogger.Info : ModLogger.Debug;
-                logMethod("CaptivityStatus", 
+                logMethod("CaptivityStatus",
                     $"[{context}] IsPrisoner={isPrisoner}, " +
                     $"Captor={captorName}, " +
                     $"CaptorAtSea={captorAtSea}, " +
@@ -7866,16 +8031,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     $"IsActive={isActive}, " +
                     $"IsVisible={isVisible}, " +
                     $"Menu={currentMenu}");
-                
+
                 // Warn on concerning states
                 if (isPrisoner && isActive)
                 {
-                    ModLogger.Warn("CaptivityStatus", 
+                    ModLogger.Warn("CaptivityStatus",
                         "WARNING: Player is prisoner but party is Active! Native captivity may not own state properly.");
                 }
                 if (isPrisoner && captorAtSea && inGracePeriod && daysCaptive > 3f)
                 {
-                    ModLogger.Warn("CaptivityStatus", 
+                    ModLogger.Warn("CaptivityStatus",
                         $"WARNING: Player captive for {daysCaptive:F1} days at sea during grace period - waiting for land.");
                 }
             }
@@ -8147,7 +8312,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             $"Teleported player to {port.Name} after naval defeat (no nearby land found)");
 
                         var message = new TextObject("{=Enlisted_Message_EscapedToPort}You have washed ashore at {PORT}.");
-                        message.SetTextVariable("PORT", port.Name);
+                        _ = message.SetTextVariable("PORT", port.Name);
                         InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                     }
                     else
@@ -8220,7 +8385,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     var message =
                         new TextObject("{=Enlisted_Message_WashedAshore}You have washed ashore near {SETTLEMENT}.");
-                    message.SetTextVariable("SETTLEMENT", nearestPort.Name);
+                    _ = message.SetTextVariable("SETTLEMENT", nearestPort.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                     ModLogger.Info("Naval",
@@ -8355,9 +8520,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// <summary>
         ///     Fired when a unit assignment is finalized.
         /// </summary>
-        #pragma warning disable CS0067 // Event is currently inactive
+#pragma warning disable CS0067 // Event is currently inactive
         public static event Action<string, string, string> OnLanceFinalized;
-        #pragma warning restore CS0067
+#pragma warning restore CS0067
 
         /// <summary>
         ///     Fired when player is promoted. Passes the new tier number.
@@ -8398,6 +8563,17 @@ namespace Enlisted.Features.Enlistment.Behaviors
         ///     Fired when XP is gained. Passes amount and source description.
         /// </summary>
         public static event Action<int, string> OnXPGained;
+
+        /// <summary>
+        ///     Fired when EnlistmentTier changes. Params: previousTier, newTier.
+        /// </summary>
+        public static event Action<int, int> OnTierChanged;
+
+        /// <summary>
+        ///     Fired by StopEnlist before tear-down so subscribers see live state.
+        ///     Params: reason, isHonorableDischarge.
+        /// </summary>
+        public static event Action<string, bool> OnEnlistmentEnded;
 
         /// <summary>
         ///     Flag indicating the player chose to keep their retinue troops on retirement.
@@ -8479,7 +8655,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// Uses the unified FactionServiceRecord from ServiceRecordManager.
         /// Supports both Kingdoms and Clans (minor factions).
         /// </summary>
-        public Retinue.Data.FactionServiceRecord GetFactionVeteranRecord(IFaction faction)
+        public FactionServiceRecord GetFactionVeteranRecord(IFaction faction)
         {
             if (faction == null)
             {
@@ -8592,8 +8768,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var message =
                 new TextObject(
                     "{=Enlisted_Message_RetiredHonor}You have retired with honor. {GOLD} gold received. You may re-enlist with {KINGDOM} after the cooldown period.");
-            message.SetTextVariable("GOLD", config.FirstTermGold);
-            message.SetTextVariable("KINGDOM",
+            _ = message.SetTextVariable("GOLD", config.FirstTermGold);
+            _ = message.SetTextVariable("KINGDOM",
                 faction?.Name ?? new TextObject("{=Enlisted_Term_ThisFaction}this faction"));
             InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Green));
 
@@ -8638,10 +8814,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var message =
                 new TextObject(
                     "{=Enlisted_Message_Discharged}You have been discharged. {GOLD} gold received. You may re-enlist with {KINGDOM} after {DAYS} days.");
-            message.SetTextVariable("GOLD", config.RenewalDischargeGold);
-            message.SetTextVariable("KINGDOM",
+            _ = message.SetTextVariable("GOLD", config.RenewalDischargeGold);
+            _ = message.SetTextVariable("KINGDOM",
                 faction?.Name ?? new TextObject("{=Enlisted_Term_ThisFaction}this faction"));
-            message.SetTextVariable("DAYS", config.CooldownDays);
+            _ = message.SetTextVariable("DAYS", config.CooldownDays);
             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
             ModLogger.Info("ENLISTMENT",
@@ -8707,8 +8883,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var message =
                 new TextObject(
                     "{=Enlisted_Message_ReEnlistedBonus}You have re-enlisted for another term. {GOLD} gold bonus received. Term ends in {DAYS} days.");
-            message.SetTextVariable("GOLD", bonus);
-            message.SetTextVariable("DAYS", config.RenewalTermDays);
+            _ = message.SetTextVariable("GOLD", bonus);
+            _ = message.SetTextVariable("DAYS", config.RenewalTermDays);
             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
             ModLogger.Info("RETIREMENT",
@@ -8755,9 +8931,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var message =
                 new TextObject(
                     "{=Enlisted_Message_ReEnlistedRank}You have re-enlisted with {KINGDOM}. Your rank of Tier {TIER} has been restored. Term: {DAYS} days.");
-            message.SetTextVariable("KINGDOM", faction.Name);
-            message.SetTextVariable("TIER", preservedTier);
-            message.SetTextVariable("DAYS", config.RenewalTermDays);
+            _ = message.SetTextVariable("KINGDOM", faction.Name);
+            _ = message.SetTextVariable("TIER", preservedTier);
+            _ = message.SetTextVariable("DAYS", config.RenewalTermDays);
             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
             ModLogger.Info("RETIREMENT",
@@ -8969,7 +9145,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var message =
                         new TextObject(
                             "{=Enlisted_Message_LordFallenGrace}Your lord has fallen. You have 14 days to find a new commander in {KINGDOM} before desertion.");
-                    message.SetTextVariable("KINGDOM", lordKingdom.Name);
+                    _ = message.SetTextVariable("KINGDOM", lordKingdom.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                     StopEnlist("Lord killed in battle", false, true);
@@ -9095,7 +9271,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             lordParty.Party.SetAsCameraFollowParty();
 
                             var navalMessage = new TextObject("{=enlist_naval_remain}You remain aboard with {LORD}'s party.");
-                            navalMessage.SetTextVariable("LORD", _enlistedLord.Name);
+                            _ = navalMessage.SetTextVariable("LORD", _enlistedLord.Name);
                             InformationManager.DisplayMessage(new InformationMessage(navalMessage.ToString()));
 
                             ModLogger.Debug("Naval",
@@ -9267,8 +9443,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("ENLISTMENT",
-                                $"Failed to auto-join player as mercenary when lord's clan joined {newKingdom.Name}: {ex.Message}");
+                            ModLogger.Caught("ENLISTMENT",
+                                $"Failed to auto-join player as mercenary when lord's clan joined {newKingdom.Name}", ex);
                         }
                     }
                 }
@@ -9290,13 +9466,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             // Notify the player of the change
                             var message = new TextObject(
                                 "{=Enlisted_Message_LordLeftKingdom}Your company has ended its contract with {KINGDOM}. You march on with your lord.");
-                            message.SetTextVariable("KINGDOM", oldKingdom.Name);
+                            _ = message.SetTextVariable("KINGDOM", oldKingdom.Name);
                             InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error("ENLISTMENT",
-                                $"Failed to remove player from kingdom when lord's clan left {oldKingdom.Name}: {ex.Message}");
+                            ModLogger.Caught("ENLISTMENT",
+                                $"Failed to remove player from kingdom when lord's clan left {oldKingdom.Name}", ex);
                         }
                         finally
                         {
@@ -9333,13 +9509,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         // Notify the player of the change
                         var message = new TextObject(
                             "{=Enlisted_Message_LordSwitchedKingdom}Your company has signed a new contract with {KINGDOM}. The campaign continues.");
-                        message.SetTextVariable("KINGDOM", newKingdom.Name);
+                        _ = message.SetTextVariable("KINGDOM", newKingdom.Name);
                         InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Error("ENLISTMENT",
-                            $"Failed to switch player's kingdom from {oldKingdom.Name} to {newKingdom.Name}: {ex.Message}");
+                        ModLogger.Caught("ENLISTMENT",
+                            $"Failed to switch player's kingdom from {oldKingdom.Name} to {newKingdom.Name}", ex);
                     }
                     finally
                     {
@@ -9390,7 +9566,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     var desertionMessage = new TextObject(
                         "{=Enlisted_Message_QuitMercenaryDesertion}You have abandoned your mercenary service with {KINGDOM}. You have been branded a deserter.");
-                    desertionMessage.SetTextVariable("KINGDOM", oldKingdom.Name);
+                    _ = desertionMessage.SetTextVariable("KINGDOM", oldKingdom.Name);
                     InformationManager.DisplayMessage(new InformationMessage(desertionMessage.ToString()));
 
                     return; // Early return - don't process grace period logic
@@ -9458,7 +9634,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                         var message = new TextObject(
                             "{=Enlisted_Message_BecameVassal}You have become a vassal of {KINGDOM}. Your enlistment has ended honorably.");
-                        message.SetTextVariable("KINGDOM", newKingdom.Name);
+                        _ = message.SetTextVariable("KINGDOM", newKingdom.Name);
                         InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                         return; // Early return - don't process grace period logic
@@ -9495,8 +9671,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                         var desertionMessage = new TextObject(
                             "{=Enlisted_Message_DesertedToOtherKingdom}You have deserted {ORIGINAL_KINGDOM} by joining {NEW_KINGDOM}. You have been branded a deserter.");
-                        desertionMessage.SetTextVariable("ORIGINAL_KINGDOM", lordKingdom.Name);
-                        desertionMessage.SetTextVariable("NEW_KINGDOM", newKingdom.Name);
+                        _ = desertionMessage.SetTextVariable("ORIGINAL_KINGDOM", lordKingdom.Name);
+                        _ = desertionMessage.SetTextVariable("NEW_KINGDOM", newKingdom.Name);
                         InformationManager.DisplayMessage(new InformationMessage(desertionMessage.ToString()));
 
                         return; // Early return - don't process grace period logic
@@ -9646,23 +9822,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
         /// <summary>
-        /// REMOVED: Battle XP is now awarded through the order system only.
-        /// Combat progression happens through order completion and order events during battle phases.
-        /// This prevents double XP awards and ensures XP is earned through meaningful gameplay.
-        /// </summary>
-        /// <param name="participated">Whether the player actively participated in the battle.</param>
-        [Obsolete("Battle XP now awarded through order system only")]
-        private void AwardBattleXP(bool participated)
-        {
-            // No-op - XP comes from order system now
-            // Still track battles for promotion requirements
-            if (IsEnlisted && participated && !EnlistedEncounterBehavior.IsWaitingInReserve)
-            {
-                IncrementBattlesSurvived();
-            }
-        }
-
-        /// <summary>
         ///     Set tier directly (called by PromotionBehavior for immediate promotion).
         ///     V2.0: Companions now managed from T1. Commander retinue granted at T7/T8/T9.
         /// </summary>
@@ -9676,6 +9835,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             var previousTier = _enlistmentTier;
+            if (previousTier == tier)
+            {
+                return;
+            }
+
             _enlistmentTier = tier;
 
             // Track promotion date for the days-in-rank requirement and muster recap display.
@@ -9687,7 +9851,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     : 0;
             }
 
-            ModLogger.Info("ENLISTMENT", $"Tier changed: {previousTier} ? {tier} (XP: {_enlistmentXP}, day: {_dayOfLastPromotion})");
+            int campaignDay = Campaign.Current?.Models?.CampaignTimeModel != null
+                ? (int)Campaign.Current.Models.CampaignTimeModel.CampaignStartTime.ElapsedDaysUntilNow
+                : 0;
+            ModLogger.Info("ENLISTMENT", $"Tier changed: {previousTier} -> {tier} (XP: {_enlistmentXP}, campaign day: {campaignDay})");
 
             // V2.0: Companions are now managed from T1 (enlistment start), not T4
             // Legacy reclaim kept for backward compatibility with older saves
@@ -9708,6 +9875,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     ModLogger.Caught("ENLISTMENT", "Failed to grant commander retinue on tier change", ex);
                 }
+            }
+
+            try
+            {
+                OnTierChanged?.Invoke(previousTier, tier);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ENLISTMENT", "OnTierChanged listener threw", ex);
             }
         }
 
@@ -9768,7 +9944,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var template = GetSergeantTierTroopTemplate(culture);
                 if (template == null)
                 {
-                    ModLogger.Error("QUARTERMASTER", $"Cannot find troop template for culture {culture.StringId}");
+                    ModLogger.Surfaced("QUARTERMASTER", "Cannot find troop template for culture - quartermaster hero creation will fail", null);
                     return null;
                 }
 
@@ -9828,7 +10004,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTER", "Failed to create quartermaster Hero", ex);
+                ModLogger.Caught("QUARTERMASTER", "Failed to create quartermaster Hero", ex);
                 return null;
             }
         }
@@ -10244,6 +10420,212 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
         // ========================================================================
+        // CK3 WANDERER COMPANION METHODS (Plan 2)
+        //
+        // Each GetOrCreateX() mirrors GetOrCreateQuartermaster: lazy spawn,
+        // null-or-dead reseat, factory call into Companions namespace. Lifecycle
+        // wiring (when to call these, when to clear them on discharge / death)
+        // lives in CompanionLifecycleHandler.
+        // ========================================================================
+
+        public Hero GetOrCreateSergeant()
+        {
+            return GetOrCreateCompanion(
+                "sergeant",
+                ref _sergeantHero,
+                ref _sergeantArchetype,
+                ref _hasMetSergeant);
+        }
+
+        public Hero GetOrCreateFieldMedic()
+        {
+            return GetOrCreateCompanion(
+                "field_medic",
+                ref _fieldMedicHero,
+                ref _fieldMedicArchetype,
+                ref _hasMetFieldMedic);
+        }
+
+        public Hero GetOrCreatePathfinder()
+        {
+            return GetOrCreateCompanion(
+                "pathfinder",
+                ref _pathfinderHero,
+                ref _pathfinderArchetype,
+                ref _hasMetPathfinder);
+        }
+
+        public Hero GetOrCreateVeteran()
+        {
+            return GetOrCreateCompanion(
+                "veteran",
+                ref _veteranHero,
+                ref _veteranArchetype,
+                ref _hasMetVeteran);
+        }
+
+        public Hero GetOrCreateQmOfficer()
+        {
+            return GetOrCreateCompanion(
+                "qm_officer",
+                ref _qmOfficerHero,
+                ref _qmOfficerArchetype,
+                ref _hasMetQmOfficer);
+        }
+
+        public Hero GetOrCreateJuniorOfficer()
+        {
+            return GetOrCreateCompanion(
+                "junior_officer",
+                ref _juniorOfficerHero,
+                ref _juniorOfficerArchetype,
+                ref _hasMetJuniorOfficer);
+        }
+
+        private Hero GetOrCreateCompanion(
+            string typeId,
+            ref Hero heroField,
+            ref string archetypeField,
+            ref bool hasMetField)
+        {
+            if (!IsEnlisted)
+            {
+                return null;
+            }
+
+            if (heroField != null && !heroField.IsDead)
+            {
+                return heroField;
+            }
+
+            var settlement = _enlistedLord?.HomeSettlement
+                ?? _enlistedLord?.BornSettlement
+                ?? Hero.MainHero?.HomeSettlement
+                ?? Hero.MainHero?.BornSettlement;
+
+            heroField = Companions.CompanionSpawnFactory.SpawnCompanion(
+                typeId,
+                Clan.PlayerClan,
+                settlement,
+                out var rolledArchetype);
+
+            if (heroField != null)
+            {
+                archetypeField = rolledArchetype ?? string.Empty;
+                hasMetField = false;
+            }
+
+            return heroField;
+        }
+
+        /// <summary>
+        ///     Returns currently-spawned companion heroes (alive, non-null).
+        ///     Used by Talk-to inquiry and lifecycle introspection.
+        /// </summary>
+        public List<Hero> GetSpawnedCompanions()
+        {
+            var result = new List<Hero>(6);
+            if (_sergeantHero != null && _sergeantHero.IsAlive) result.Add(_sergeantHero);
+            if (_fieldMedicHero != null && _fieldMedicHero.IsAlive) result.Add(_fieldMedicHero);
+            if (_pathfinderHero != null && _pathfinderHero.IsAlive) result.Add(_pathfinderHero);
+            if (_veteranHero != null && _veteranHero.IsAlive) result.Add(_veteranHero);
+            if (_qmOfficerHero != null && _qmOfficerHero.IsAlive) result.Add(_qmOfficerHero);
+            if (_juniorOfficerHero != null && _juniorOfficerHero.IsAlive) result.Add(_juniorOfficerHero);
+            return result;
+        }
+
+        /// <summary>
+        ///     Returns the catalog typeId for a known companion hero, or null.
+        ///     Used by lifecycle handler's OnHeroKilled to identify which slot to clear.
+        /// </summary>
+        public string GetCompanionTypeId(Hero hero)
+        {
+            if (hero == null) return null;
+            if (hero == _sergeantHero) return "sergeant";
+            if (hero == _fieldMedicHero) return "field_medic";
+            if (hero == _pathfinderHero) return "pathfinder";
+            if (hero == _veteranHero) return "veteran";
+            if (hero == _qmOfficerHero) return "qm_officer";
+            if (hero == _juniorOfficerHero) return "junior_officer";
+            return null;
+        }
+
+        /// <summary>
+        ///     Clears the slot matching a known companion hero. Called by
+        ///     CompanionLifecycleHandler.OnHeroKilled. Per-player slots stay
+        ///     null after death (player permanently loses companion); per-Lord
+        ///     slots are eligible for re-spawn on next enlistment.
+        /// </summary>
+        public bool ClearCompanionSlot(Hero hero)
+        {
+            if (hero == null) return false;
+            if (hero == _sergeantHero) { _sergeantHero = null; _sergeantArchetype = string.Empty; _hasMetSergeant = false; return true; }
+            if (hero == _fieldMedicHero) { _fieldMedicHero = null; _fieldMedicArchetype = string.Empty; _hasMetFieldMedic = false; return true; }
+            if (hero == _pathfinderHero) { _pathfinderHero = null; _pathfinderArchetype = string.Empty; _hasMetPathfinder = false; return true; }
+            if (hero == _veteranHero) { _veteranHero = null; _veteranArchetype = string.Empty; _hasMetVeteran = false; return true; }
+            if (hero == _qmOfficerHero) { _qmOfficerHero = null; _qmOfficerArchetype = string.Empty; _hasMetQmOfficer = false; return true; }
+            if (hero == _juniorOfficerHero) { _juniorOfficerHero = null; _juniorOfficerArchetype = string.Empty; _hasMetJuniorOfficer = false; return true; }
+            return false;
+        }
+
+        /// <summary>
+        ///     Releases per-Lord companions on discharge via
+        ///     RemoveCompanionAction.ApplyByFire and clears their slots. Per-player
+        ///     companions (Sergeant / Field Medic / Pathfinder) are untouched.
+        ///     Called by CompanionLifecycleHandler on OnDischarged / OnEnlistmentEnded.
+        /// </summary>
+        public void ReleasePerLordCompanions()
+        {
+            ReleaseSlot(ref _veteranHero, ref _veteranArchetype, ref _hasMetVeteran, "veteran");
+            ReleaseSlot(ref _qmOfficerHero, ref _qmOfficerArchetype, ref _hasMetQmOfficer, "qm_officer");
+            ReleaseSlot(ref _juniorOfficerHero, ref _juniorOfficerArchetype, ref _hasMetJuniorOfficer, "junior_officer");
+        }
+
+        private static void ReleaseSlot(ref Hero heroField, ref string archetypeField, ref bool hasMetField, string typeId)
+        {
+            var hero = heroField;
+            if (hero != null && hero.IsAlive)
+            {
+                try
+                {
+                    if (hero.CompanionOf != null)
+                    {
+                        RemoveCompanionAction.ApplyByFire(hero.CompanionOf, hero);
+                    }
+                    var mainParty = MobileParty.MainParty;
+                    if (mainParty?.MemberRoster != null && mainParty.MemberRoster.GetTroopCount(hero.CharacterObject) > 0)
+                    {
+                        mainParty.MemberRoster.RemoveTroop(hero.CharacterObject);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.Caught("COMPANION", "release_per_lord_failed", ex,
+                        LogCtx.Of("typeId", typeId));
+                }
+            }
+            heroField = null;
+            archetypeField = string.Empty;
+            hasMetField = false;
+        }
+
+        /// <summary>
+        ///     Reseats null string fields on companion records. Called from SyncData
+        ///     after dataStore.SyncData runs and from OnSessionLaunched, mirroring
+        ///     FlagStore.EnsureInitialized / QualityStore.EnsureInitialized for the
+        ///     deserialization-skips-ctor case (CLAUDE.md known footgun #4).
+        /// </summary>
+        public void EnsureCompanionFieldsInitialized()
+        {
+            if (_sergeantArchetype == null) _sergeantArchetype = string.Empty;
+            if (_fieldMedicArchetype == null) _fieldMedicArchetype = string.Empty;
+            if (_pathfinderArchetype == null) _pathfinderArchetype = string.Empty;
+            if (_veteranArchetype == null) _veteranArchetype = string.Empty;
+            if (_qmOfficerArchetype == null) _qmOfficerArchetype = string.Empty;
+            if (_juniorOfficerArchetype == null) _juniorOfficerArchetype = string.Empty;
+        }
+
+        // ========================================================================
         // FOOD/RATIONS SYSTEM METHODS
         // ========================================================================
 
@@ -10255,12 +10637,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             /// <summary>Standard army rations - no bonus.</summary>
             Standard = 0,
-        /// <summary>Supplemental rations - 1 day duration.</summary>
-        Supplemental = 1,
-        /// <summary>Officer's fare - 2 days duration.</summary>
-        Officer = 2,
-        /// <summary>Commander's feast - 3 days duration.</summary>
-        Commander = 3
+            /// <summary>Supplemental rations - 1 day duration.</summary>
+            Supplemental = 1,
+            /// <summary>Officer's fare - 2 days duration.</summary>
+            Officer = 2,
+            /// <summary>Commander's feast - 3 days duration.</summary>
+            Commander = 3
         }
 
         /// <summary>
@@ -10300,30 +10682,30 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
 
 
-    /// <summary>
-    ///     Gets food quality information for display.
-    /// </summary>
-    public (string Name, float DaysRemaining) GetFoodQualityInfo()
-    {
-        var quality = CurrentFoodQuality;
-        var remaining = FoodQualityTimeRemaining;
-        var daysRemaining = (float)remaining.ToDays;
-
-        var name = quality switch
+        /// <summary>
+        ///     Gets food quality information for display.
+        /// </summary>
+        public (string Name, float DaysRemaining) GetFoodQualityInfo()
         {
-            FoodQualityTier.Supplemental => "Supplemental Rations",
-            FoodQualityTier.Officer => "Officer's Fare",
-            FoodQualityTier.Commander => "Commander's Feast",
-            _ => "Standard Rations"
-        };
+            var quality = CurrentFoodQuality;
+            var remaining = FoodQualityTimeRemaining;
+            var daysRemaining = (float)remaining.ToDays;
 
-        return (name, daysRemaining);
-    }
+            var name = quality switch
+            {
+                FoodQualityTier.Supplemental => "Supplemental Rations",
+                FoodQualityTier.Officer => "Officer's Fare",
+                FoodQualityTier.Commander => "Commander's Feast",
+                _ => "Standard Rations"
+            };
 
-    /// <summary>
-    ///     Purchases rations of the specified quality tier.
-    ///     Deducts gold and sets duration.
-    /// </summary>
+            return (name, daysRemaining);
+        }
+
+        /// <summary>
+        ///     Purchases rations of the specified quality tier.
+        ///     Deducts gold and sets duration.
+        /// </summary>
         /// <param name="tier">The food quality tier to purchase</param>
         /// <param name="cost">Gold cost (validated before calling)</param>
         /// <param name="durationDays">How many days the bonus lasts</param>
@@ -10629,7 +11011,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (soldierCount > 0)
                 {
                     var msg = new TextObject("{=enl_ret_keep_soldiers}Your {COUNT} retinue soldiers remain under your command.");
-                    msg.SetTextVariable("COUNT", soldierCount);
+                    _ = msg.SetTextVariable("COUNT", soldierCount);
                     InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Green));
                 }
             }
@@ -10644,7 +11026,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     ReturnRetinueSoldiersToLord(state);
 
                     var msg = new TextObject("{=enl_ret_lose_soldiers}Your {COUNT} retinue soldiers have been reassigned to your former lord's command.");
-                    msg.SetTextVariable("COUNT", soldierCount);
+                    _ = msg.SetTextVariable("COUNT", soldierCount);
                     InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Red));
                 }
             }
@@ -10688,12 +11070,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (toRemove > 0)
                 {
-                    playerRoster.AddToCounts(character, -toRemove, removeDepleted: true);
+                    _ = playerRoster.AddToCounts(character, -toRemove, removeDepleted: true);
 
                     // Add to lord's party if available
                     if (lordParty?.MemberRoster != null)
                     {
-                        lordParty.MemberRoster.AddToCounts(character, toRemove);
+                        _ = lordParty.MemberRoster.AddToCounts(character, toRemove);
                         ModLogger.Debug("Retinue", $"Transferred {toRemove}x {character.Name} to {_enlistedLord.Name}'s party");
                     }
                 }
@@ -10774,8 +11156,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 var message =
                     new TextObject("{=enlist_promotion_quartermaster}Promoted to {RANK} (Tier {TIER})! Visit the quartermaster for equipment upgrades.");
-                message.SetTextVariable("RANK", rankName);
-                message.SetTextVariable("TIER", newTier.ToString());
+                _ = message.SetTextVariable("RANK", rankName);
+                _ = message.SetTextVariable("TIER", newTier.ToString());
 
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
@@ -10786,7 +11168,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error applying basic promotion", ex);
+                ModLogger.Caught("Promotion", "Error applying basic promotion", ex);
             }
         }
 
@@ -10805,16 +11187,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 var message = new TextObject(
                     "{=Enlisted_Track_Start}Your experience marks you as a {TRACK}. You begin service at {RANK} (Tier {TIER}).");
-                message.SetTextVariable("TRACK", trackName);
-                message.SetTextVariable("RANK", rankName);
-                message.SetTextVariable("TIER", startingTier);
+                _ = message.SetTextVariable("TRACK", trackName);
+                _ = message.SetTextVariable("RANK", rankName);
+                _ = message.SetTextVariable("TIER", startingTier);
 
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Cyan));
                 ModLogger.Info("ENLISTMENT", $"Experience track notification: {track} -> Tier {startingTier}");
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("ENLISTMENT", $"Failed to show experience track notification: {ex.Message}");
+                ModLogger.Caught("ENLISTMENT", "Failed to show experience track notification", ex);
             }
         }
 
@@ -11080,7 +11462,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Naval", "Error protecting player ships", ex);
+                ModLogger.Caught("Naval", "Error protecting player ships", ex);
             }
         }
 
@@ -11119,93 +11501,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Naval", "Error restoring ship vulnerability", ex);
-            }
-        }
-
-        /// <summary>
-        ///     Save currently equipped items to player inventory before equipment replacement.
-        ///     Called when transitioning between services (different faction) to prevent losing
-        ///     military gear earned during previous service. Items go to party inventory where
-        ///     they can be sold, stored in baggage, or kept for later.
-        /// </summary>
-        private void StowCurrentEquipmentToInventory()
-        {
-            try
-            {
-                var hero = Hero.MainHero;
-                var roster = MobileParty.MainParty?.ItemRoster;
-                if (hero == null || roster == null)
-                {
-                    return;
-                }
-
-                var savedCount = 0;
-                var battleEquipment = hero.BattleEquipment;
-
-                // Save all equipped battle items (weapons, armor, horse) to inventory
-                for (var slot = EquipmentIndex.Weapon0; slot <= EquipmentIndex.HorseHarness; slot++)
-                {
-                    var element = battleEquipment[slot];
-                    if (element.IsEmpty || element.Item == null)
-                    {
-                        continue;
-                    }
-
-                    // Skip quest items - they stay equipped
-                    if (element.IsQuestItem)
-                    {
-                        continue;
-                    }
-
-                    roster.AddToCounts(element, 1);
-                    savedCount++;
-                    ModLogger.Debug("EQUIPMENT", $"Stowed to inventory: {element.Item.Name}");
-                }
-
-                // Also save civilian equipment if it differs from battle equipment
-                var civilianEquipment = hero.CivilianEquipment;
-                for (var slot = EquipmentIndex.Weapon0; slot <= EquipmentIndex.HorseHarness; slot++)
-                {
-                    var element = civilianEquipment[slot];
-                    if (element.IsEmpty || element.Item == null)
-                    {
-                        continue;
-                    }
-
-                    // Skip quest items
-                    if (element.IsQuestItem)
-                    {
-                        continue;
-                    }
-
-                    // Don't duplicate items already in battle equipment
-                    var battleElement = battleEquipment[slot];
-                    if (!battleElement.IsEmpty && battleElement.Item == element.Item)
-                    {
-                        continue;
-                    }
-
-                    roster.AddToCounts(element, 1);
-                    savedCount++;
-                    ModLogger.Debug("EQUIPMENT", $"Stowed civilian item to inventory: {element.Item.Name}");
-                }
-
-                if (savedCount > 0)
-                {
-                    ModLogger.Info("EQUIPMENT",
-                        $"Stowed {savedCount} equipped items to inventory before new service (previous military gear preserved)");
-
-                    // Notify player their items were saved
-                    var message = new TextObject(
-                        "{=Enlisted_Equipment_Stowed}Your previous equipment ({COUNT} items) has been added to your inventory.");
-                    message.SetTextVariable("COUNT", savedCount);
-                    InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("EQUIPMENT", "Error stowing current equipment to inventory", ex);
+                ModLogger.Caught("Naval", "Error restoring ship vulnerability", ex);
             }
         }
 
@@ -11237,7 +11533,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("EQUIPMENT", "Error assigning initial equipment", ex);
+                ModLogger.Caught("EQUIPMENT", "Error assigning initial equipment", ex);
             }
         }
 
@@ -11269,7 +11565,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (IsLeaveOnCooldown(out var cooldownDays))
                 {
                     var cooldownMsg = new TextObject("{=Enlisted_Leave_Cooldown}Leave is on cooldown. {DAYS} days remain before you can request leave again.");
-                    cooldownMsg.SetTextVariable("DAYS", cooldownDays);
+                    _ = cooldownMsg.SetTextVariable("DAYS", cooldownDays);
                     InformationManager.DisplayMessage(new InformationMessage(cooldownMsg.ToString(), Colors.Red));
                     ModLogger.Info("ENLISTMENT", $"Leave request blocked by cooldown ({cooldownDays} days remaining)");
                     return;
@@ -11307,7 +11603,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var message =
                     new TextObject(
                         "Leave granted. You have {DAYS} days to return to your lord or face desertion penalties.");
-                message.SetTextVariable("DAYS", maxLeaveDays);
+                _ = message.SetTextVariable("DAYS", maxLeaveDays);
                 InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                 ModLogger.Info("ENLISTMENT", $"Temporary leave started - {maxLeaveDays} days before desertion");
@@ -11315,6 +11611,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (_enlistedLord != null)
                 {
                     Campaign.Current.VisualTrackerManager.RegisterObject(_enlistedLord);
+                    EnsureGraceLordMarker(forceRefresh: true, "start_leave");
                     var trackerMsg =
                         new TextObject("{=Enlisted_Message_LordTracked}Your lord has been marked on the map.");
                     InformationManager.DisplayMessage(new InformationMessage(trackerMsg.ToString()));
@@ -11325,7 +11622,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error starting temporary leave", ex);
+                ModLogger.Caught("ENLISTMENT", "Error starting temporary leave", ex);
             }
         }
 
@@ -11347,6 +11644,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     Campaign.Current.VisualTrackerManager.RemoveTrackedObject(_enlistedLord);
                 }
+
+                RemoveGraceLordMarker();
 
                 // Clear leave state and start cooldown before next leave
                 _isOnLeave = false;
@@ -11391,7 +11690,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error returning from leave", ex);
+                ModLogger.Caught("ENLISTMENT", "Error returning from leave", ex);
             }
         }
 
@@ -11588,9 +11887,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 foreach (var troop in troopsToTransfer)
                 {
                     // Add to lord's party
-                    lordParty.MemberRoster.AddToCounts(troop.Character, troop.Number);
+                    _ = lordParty.MemberRoster.AddToCounts(troop.Character, troop.Number);
                     // Remove from player party
-                    main.MemberRoster.AddToCounts(troop.Character, -1 * troop.Number);
+                    _ = main.MemberRoster.AddToCounts(troop.Character, -1 * troop.Number);
                 }
 
                 if (transferCount > 0 || companionsKept > 0)
@@ -11600,8 +11899,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         var message =
                             new TextObject(
                                 "Your {TROOP_COUNT} troops{COMPANION_INFO} have joined your lord's party for the duration of service.");
-                        message.SetTextVariable("TROOP_COUNT", transferCount.ToString());
-                        message.SetTextVariable("COMPANION_INFO",
+                        _ = message.SetTextVariable("TROOP_COUNT", transferCount.ToString());
+                        _ = message.SetTextVariable("COMPANION_INFO",
                             companionCount > 0 ? $" (including {companionCount} companions)" : "");
                         InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                     }
@@ -11610,7 +11909,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         var keptMessage = new TextObject(
                             "{=ct_companions_retained}Your {COUNT} companion(s) remain under your direct command.");
-                        keptMessage.SetTextVariable("COUNT", companionsKept.ToString());
+                        _ = keptMessage.SetTextVariable("COUNT", companionsKept.ToString());
                         InformationManager.DisplayMessage(new InformationMessage(keptMessage.ToString()));
                     }
 
@@ -11621,7 +11920,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error transferring troops to lord", ex);
+                ModLogger.Caught("ENLISTMENT", "Error transferring troops to lord", ex);
             }
         }
 
@@ -11684,22 +11983,22 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Remove stale references from lord's party (companion already with player)
                 foreach (var stale in staleRefsToRemove)
                 {
-                    lordRoster.AddToCounts(stale.Character, -stale.Number);
+                    _ = lordRoster.AddToCounts(stale.Character, -stale.Number);
                     ModLogger.Info("ENLISTMENT", $"Cleaned stale ref for {stale.Character.Name} from lord's party");
                 }
 
                 // Transfer companions that need restoration
                 foreach (var companion in companionsToRestore)
                 {
-                    lordRoster.AddToCounts(companion.Character, -companion.Number);
-                    mainRoster.AddToCounts(companion.Character, companion.Number);
+                    _ = lordRoster.AddToCounts(companion.Character, -companion.Number);
+                    _ = mainRoster.AddToCounts(companion.Character, companion.Number);
                 }
 
                 if (companionsToRestore.Count > 0)
                 {
                     var message =
                         new TextObject("{=enlist_companions_rejoined}Your {COMPANION_COUNT} companions have rejoined your party upon retirement.");
-                    message.SetTextVariable("COMPANION_COUNT", companionsToRestore.Count.ToString());
+                    _ = message.SetTextVariable("COMPANION_COUNT", companionsToRestore.Count.ToString());
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
 
                     ModLogger.Info("ENLISTMENT",
@@ -11713,7 +12012,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error restoring companions on retirement", ex);
+                ModLogger.Caught("ENLISTMENT", "Error restoring companions on retirement", ex);
             }
         }
 
@@ -11762,16 +12061,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 foreach (var companion in companionsToReclaim)
                 {
                     // Remove from lord's party
-                    lordParty.MemberRoster.AddToCounts(companion.Character, -1 * companion.Number);
+                    _ = lordParty.MemberRoster.AddToCounts(companion.Character, -1 * companion.Number);
                     // Add to player's party
-                    main.MemberRoster.AddToCounts(companion.Character, companion.Number);
+                    _ = main.MemberRoster.AddToCounts(companion.Character, companion.Number);
                 }
 
                 if (companionsReclaimed > 0)
                 {
                     var message = new TextObject(
                         "{=ct_companions_reclaimed}Your {COMPANION_COUNT} companion(s) have joined your personal retinue.");
-                    message.SetTextVariable("COMPANION_COUNT", companionsReclaimed.ToString());
+                    _ = message.SetTextVariable("COMPANION_COUNT", companionsReclaimed.ToString());
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Cyan));
 
                     ModLogger.Info("ENLISTMENT",
@@ -11780,7 +12079,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("ENLISTMENT", "Error reclaiming companions from lord", ex);
+                ModLogger.Caught("ENLISTMENT", "Error reclaiming companions from lord", ex);
             }
         }
 
@@ -11792,6 +12091,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                if (_isOnLeave && hero == _enlistedLord)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_entered");
+                }
+
+                if (IsInDesertionGracePeriod && hero == _savedGraceLord)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_entered");
+                }
+
                 // CRITICAL: Skip all processing when player is a prisoner
                 // The native PlayerCaptivity system handles everything during captivity
                 // Interfering with party state or menus while captured causes crashes
@@ -11806,7 +12115,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         {
                             ModLogger.Info("Captivity",
                                 $"Captor entered {settlementName} with player as prisoner");
-                            _captivitySettlementsLogged.Add(settlementName);
+                            _ = _captivitySettlementsLogged.Add(settlementName);
                         }
                     }
                     else
@@ -11917,7 +12226,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // Villages should allow continuous time flow while following the lord
                     if (settlement.IsTown || settlement.IsCastle)
                     {
-                            TryPauseForSettlementEntry();
+                        TryPauseForSettlementEntry();
 
                         // CRITICAL GUARD: Don't interfere with battle/siege encounter menus
                         // CORRECT API: Use Party.MapEvent (not direct on MobileParty)
@@ -11978,6 +12287,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                if (_isOnLeave && party == _enlistedLord?.PartyBelongedTo)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_left");
+                }
+
+                if (IsInDesertionGracePeriod && party == _savedGraceLord?.PartyBelongedTo)
+                {
+                    EnsureGraceLordMarker(forceRefresh: true, "settlement_left");
+                }
+
                 if (!IsEnlisted || _isOnLeave)
                 {
                     return;
@@ -12470,7 +12789,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // Determine if this was a siege battle - affects cleanup strategy
                     // CRITICAL: EventType == Siege covers auto-resolved sieges (where IsSiegeAssault is false).
                     // IsSiegeAssault/IsSallyOut are only true for manually-fought siege battles.
-                    bool wasSiege = effectiveMapEvent?.EventType == TaleWorlds.CampaignSystem.MapEvents.MapEvent.BattleTypes.Siege ||
+                    bool wasSiege = effectiveMapEvent?.EventType == MapEvent.BattleTypes.Siege ||
                                    effectiveMapEvent?.IsSiegeAssault == true ||
                                    effectiveMapEvent?.IsSallyOut == true ||
                                    effectiveMapEvent?.IsSiegeOutside == true ||
@@ -12499,7 +12818,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         else
                         {
-                            ModLogger.Warn("SiegeIntegration", 
+                            ModLogger.Warn("SiegeIntegration",
                                 "OnMapEventEnded: BesiegerCamp was null at siege end - integration may have been broken");
                         }
 
@@ -12510,7 +12829,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                             try
                             {
                                 var mainParty = MobileParty.MainParty;
-                                
+
                                 // Clean up any lingering encounter state
                                 CleanupPostEncounterState("OnMapEventEnded-SiegeVictory");
 
@@ -12552,14 +12871,14 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // FIELD BATTLES ONLY: Handle cleanup ourselves
                     // Field battles don't have structured native post-victory flow for army members
                     ModLogger.Info("BATTLE", "Field battle ended - handling cleanup for enlisted player");
-                    
+
                     // Log battle integration status at end
                     if (effectiveMapEvent != null)
                     {
                         LogBattleIntegrationStatus(main, lordParty, effectiveMapEvent, "OnMapEventEnded-FieldBattle");
                     }
                     LogEncounterStatus("OnMapEventEnded-FieldBattle");
-                    
+
                     CleanupPostEncounterState("OnMapEventEnded-FieldBattle");
 
                     if (PlayerEncounter.Current != null)
@@ -12724,7 +13043,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     _battleXPAwardedThisBattle = true;
                     IncrementBattlesSurvived();
                 }
-                
+
                 // Flush any accumulated combat XP from the skill XP patch.
                 // Native Bannerlord awards skill XP during combat based on enemy tier/power:
                 //   XP = 0.4 × (attackerPower + 0.5) × (victimPower + 0.5) × damage × multiplier
@@ -12756,24 +13075,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
         /// <summary>
-        /// Legacy method kept for backwards compatibility.
-        /// Battle XP is now awarded automatically via SkillSuppressionPatch.Postfix which tracks
-        /// combat skill XP (weapon hits/kills) and converts it to enlistment XP.
-        /// Native Bannerlord scales XP by enemy tier through the CombatXpModel.
-        /// </summary>
-        [Obsolete("Battle XP now awarded via SkillSuppressionPatch.Postfix during combat")]
-        private void AwardBattleXP(int kills)
-        {
-            // No-op - Combat XP is tracked by SkillSuppressionPatch.Postfix and flushed at battle end
-            // Still track battles for promotion requirements
-            if (IsEnlisted && !EnlistedEncounterBehavior.IsWaitingInReserve && !_battleXPAwardedThisBattle)
-            {
-                _battleXPAwardedThisBattle = true;
-                IncrementBattlesSurvived();
-            }
-        }
-
-        /// <summary>
         /// Processes supply changes after a battle based on casualties, outcome, and loot.
         /// Updates CompanySupplyManager with losses from friendly casualties and gains from enemy loot.
         /// </summary>
@@ -12794,7 +13095,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Bug fix: Previously counted all army casualties, causing -117% supply from large battles
                 int troopsLost = 0;
                 var lordParty = _enlistedLord?.PartyBelongedTo;
-                
+
                 if (lordParty != null)
                 {
                     var playerMapEventSide = playerSide == BattleSideEnum.Attacker
@@ -12832,7 +13133,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Supply", "Error processing battle supply changes", ex);
+                ModLogger.Caught("Supply", "Error processing battle supply changes", ex);
             }
         }
 
@@ -12898,7 +13199,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // This fixes the bug where clicking "Wait here for some time" in town would cause
                     // the town menu to disappear when an unrelated battle ends elsewhere on the map.
                     var isPlayerInSettlement = PlayerEncounter.InsideSettlement ||
-                                               Features.Interface.Behaviors.EnlistedMenuBehavior.HasExplicitlyVisitedSettlement;
+                                               EnlistedMenuBehavior.HasExplicitlyVisitedSettlement;
 
                     if (encounter != null && (encounterBattle == null || encounterHasWinner) && !isPlayerInSettlement)
                     {
@@ -13032,7 +13333,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                     catch (Exception ex)
                     {
-                        ModLogger.Warn("BATTLE", $"Error finishing encounter: {ex.Message} - will rely on watchdog");
+                        ModLogger.Caught("BATTLE", "Error finishing encounter - will rely on watchdog", ex);
                     }
                 }
 
@@ -13160,7 +13461,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception cameraEx)
             {
-                ModLogger.Warn("ENLISTMENT", $"Failed to reset camera to player party: {cameraEx.Message}");
+                ModLogger.Caught("ENLISTMENT", "Failed to reset camera to player party", cameraEx);
             }
 
             ModLogger.Info("ENLISTMENT", "Party visibility restored after encounter cleanup");
@@ -13296,9 +13597,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var menuContext = campaign.CurrentMenuContext;
                 var currentMenuId = menuContext?.GameMenu?.StringId ?? "none";
                 var mainParty = MobileParty.MainParty;
-                
+
                 ModLogger.Info("BATTLE", $"RestoreCampaignFlowAfterBattle START: currentMenu={currentMenuId}, timeControl={campaign.TimeControlMode}, encounter={PlayerEncounter.Current != null}, partyActive={mainParty?.IsActive}, partyVisible={mainParty?.IsVisible}");
-                
+
                 // Centralized safety net: clear stale siege/encounter state so native menus don't re-open.
                 CleanupPostEncounterState("RestoreCampaignFlowAfterBattle");
 
@@ -13315,12 +13616,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     ModLogger.Info("BATTLE", $"RestoreCampaignFlow: Attempting GameMenu.ExitToLast() for menu '{currentMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
                     GameMenu.ExitToLast();
-                    
+
                     // Check if it actually closed - need to let it process
                     System.Threading.Thread.Sleep(10); // Give it 10ms to process
                     var afterMenuId = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId ?? "none";
                     ModLogger.Info("BATTLE", $"RestoreCampaignFlow: After ExitToLast menu is now '{afterMenuId}' at {DateTime.Now:HH:mm:ss.fff}");
-                    
+
                     if (afterMenuId != "none" && afterMenuId.Contains("siege"))
                     {
                         ModLogger.Warn("BATTLE", "WARNING: Siege menu still present after ExitToLast! Menu system may be re-opening it.");
@@ -13334,8 +13635,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Handle menu restoration after battle ends
                 // Check if we're at a siege - if so, let native siege menu show
                 var lordParty = _enlistedLord?.PartyBelongedTo;
-                var lordInSiege = lordParty?.SiegeEvent != null || 
-                                  lordParty?.BesiegerCamp != null || 
+                var lordInSiege = lordParty?.SiegeEvent != null ||
+                                  lordParty?.BesiegerCamp != null ||
                                   lordParty?.BesiegedSettlement != null;
 
                 // If lord is in an army, also check if the army leader is besieging
@@ -13343,7 +13644,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (!lordInSiege && lordArmy != null)
                 {
                     var armyLeader = lordArmy.LeaderParty;
-                    lordInSiege = armyLeader?.BesiegerCamp != null || 
+                    lordInSiege = armyLeader?.BesiegerCamp != null ||
                                   armyLeader?.BesiegedSettlement != null ||
                                   armyLeader?.SiegeEvent != null;
                 }
@@ -13461,8 +13762,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Diagnostics",
-                    $"Error evaluating siege state for {party.LeaderHero?.Name.ToString() ?? "unknown"}: {ex.Message}");
+                ModLogger.Caught("Diagnostics",
+                    $"Error evaluating siege state for {party.LeaderHero?.Name.ToString() ?? "unknown"}", ex);
             }
 
             return false;

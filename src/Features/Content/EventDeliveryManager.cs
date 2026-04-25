@@ -42,6 +42,22 @@ namespace Enlisted.Features.Content
         private bool _isShowingEvent;
         private EventDefinition _currentEvent;
 
+        // Save-backed snapshot of _pendingEvents. We serialize event Ids only and resolve
+        // back to EventDefinition instances on load via EventCatalog. Full EventDefinition
+        // graphs are authored content — the catalog is authoritative. See spec §5.2 and
+        // docs/superpowers/specs/2026-04-19-event-meaning-design.md.
+        private List<string> _pendingEventIds = new List<string>();
+
+        // Bounded cap. Matches StoryDirector._deferredInteractive cap (see StoryDirector.cs
+        // DeferredInteractiveCap). Prevents a pathological pile-up from growing unbounded
+        // in save files.
+        private const int PendingQueueCap = 32;
+
+        // Debug-only accessors used by DebugToolsBehavior for save/reload verification.
+        // Do not consume these from gameplay code — use the normal event flow instead.
+        internal int PendingQueueCountForDebug => _pendingEvents.Count;
+        internal IEnumerable<string> PendingQueueIdsForDebug => _pendingEvents.Select(e => e?.Id ?? "(null)");
+
         public EventDeliveryManager()
         {
             Instance = this;
@@ -54,8 +70,20 @@ namespace Enlisted.Features.Content
 
         public override void SyncData(IDataStore dataStore)
         {
-            // Event queue is transient - doesn't persist across saves
-            // Events will be re-triggered by conditions when save is loaded
+            if (dataStore.IsSaving)
+            {
+                // Snapshot the current live queue into the serializable ID list.
+                _pendingEventIds = _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)).ToList();
+                if (_pendingEventIds.Count > PendingQueueCap)
+                {
+                    _pendingEventIds = _pendingEventIds.Take(PendingQueueCap).ToList();
+                }
+            }
+
+            _ = dataStore.SyncData("evt_delivery_pendingIds", ref _pendingEventIds);
+
+            // Re-hydration happens lazily on the next tick via HydrateFromPendingIdsIfNeeded — not
+            // here, because EventCatalog load-order relative to SyncData is not guaranteed.
         }
 
         /// <summary>
@@ -64,12 +92,22 @@ namespace Enlisted.Features.Content
         /// </summary>
         public void QueueEvent(EventDefinition evt)
         {
+            HydrateFromPendingIdsIfNeeded();
+
             if (evt == null)
             {
                 ModLogger.Expected(LogCategory, "event_queue_null", "Attempted to queue null event - check event ID and catalog loading");
                 return;
             }
 
+            if (_pendingEvents.Count >= PendingQueueCap)
+            {
+                // Drop the oldest to keep the queue bounded. Preserves the "newest event is most
+                // relevant to current gameplay" heuristic while preventing runaway growth in save.
+                var dropped = _pendingEvents.Dequeue();
+                ModLogger.Expected(LogCategory, "queue_cap_exceeded",
+                    $"Queue at cap ({PendingQueueCap}); dropped oldest event {dropped?.Id ?? "unknown"} to make room for {evt.Id}");
+            }
             _pendingEvents.Enqueue(evt);
             ModLogger.Info(LogCategory, $"Queued event: {evt.Id} (queue size: {_pendingEvents.Count})");
 
@@ -86,6 +124,8 @@ namespace Enlisted.Features.Content
         /// </summary>
         private void TryDeliverNextEvent()
         {
+            HydrateFromPendingIdsIfNeeded();
+
             if (_isShowingEvent)
             {
                 ModLogger.Debug(LogCategory, $"Event delivery blocked: currently showing {_currentEvent?.Id ?? "unknown"}");
@@ -114,6 +154,53 @@ namespace Enlisted.Features.Content
             ModLogger.Info(LogCategory, $"Delivering {category}: {_currentEvent.Id} (queue remaining: {_pendingEvents.Count})");
 
             ShowEventPopup(_currentEvent);
+        }
+
+        // Hydration is a one-shot bootstrap, not a per-call operation. Initialized to true
+        // so the first access after load (or first access in a fresh save with no pending
+        // IDs) will run HydrateFromPendingIdsIfNeeded once. When _pendingEventIds is empty
+        // (fresh save), the method returns immediately after flipping this flag — the one
+        // wasted call per session is harmless.
+        private bool _needsHydration = true;
+
+        private void HydrateFromPendingIdsIfNeeded()
+        {
+            if (!_needsHydration)
+            {
+                return;
+            }
+            _needsHydration = false;
+
+            if (_pendingEventIds == null || _pendingEventIds.Count == 0)
+            {
+                return;
+            }
+
+            int resolved = 0;
+            int dropped = 0;
+            foreach (var id in _pendingEventIds)
+            {
+                // EventCatalog.GetEvent is static and self-initializing (see EventCatalog.cs:127).
+                var evt = EventCatalog.GetEvent(id);
+                if (evt != null)
+                {
+                    _pendingEvents.Enqueue(evt);
+                    resolved++;
+                }
+                else
+                {
+                    dropped++;
+                }
+            }
+
+            if (dropped > 0)
+            {
+                ModLogger.Expected(LogCategory, "queue_hydrate_dropped",
+                    $"Dropped {dropped} pending event id(s) on load — not found in catalog (removed/renamed in content?)");
+            }
+
+            ModLogger.Info(LogCategory, $"Hydrated {resolved} pending event(s) from save");
+            _pendingEventIds.Clear();  // Live queue is authoritative from here.
         }
 
         /// <summary>
@@ -353,37 +440,9 @@ namespace Enlisted.Features.Content
                                      option.Id.IndexOf("skip", StringComparison.OrdinalIgnoreCase) >= 0 ||
                                      option.Id.IndexOf("back", StringComparison.OrdinalIgnoreCase) >= 0;
 
-                if (!isCancelOption)
-                {
-                    ModLogger.Info(LogCategory, $"Non-cancel option selected: {option.Id} - recording cooldown");
-                    
-                    // Player committed to an action - record decision cooldown
-                    DecisionManager.Instance?.RecordDecisionSelected(_currentEvent.Id);
-                    ModLogger.Info(LogCategory, $"Decision cooldown recorded for: {_currentEvent.Id}");
-
-                    // Also record opportunity engagement if this decision was triggered by a camp opportunity
-                    // This ensures non-immediate opportunities get their cooldown tracked properly
-                    if (!string.IsNullOrEmpty(_currentEvent.OriginatingOpportunityId) &&
-                        !string.IsNullOrEmpty(_currentEvent.OriginatingOpportunityType))
-                    {
-                        ModLogger.Debug(LogCategory, $"Recording opportunity engagement: {_currentEvent.OriginatingOpportunityId}");
-                        var generator = CampOpportunityGenerator.Instance;
-                        if (generator != null)
-                        {
-                            if (System.Enum.TryParse<OpportunityType>(_currentEvent.OriginatingOpportunityType, out var oppType))
-                            {
-                                generator.RecordEngagement(_currentEvent.OriginatingOpportunityId, oppType);
-                                ModLogger.Info(LogCategory, $"Opportunity engagement recorded for: {_currentEvent.OriginatingOpportunityId}");
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    ModLogger.Info(LogCategory, $"Cancel option selected: {option.Id} - no cooldown recorded for {_currentEvent?.Id}");
-                }
+                ModLogger.Info(LogCategory, $"Option selected: {option.Id} (cancel={isCancelOption})");
             }
-            
+
             // Track declined promotions (player chose "not ready" or "decline" in proving event)
             if (_currentEvent != null && _currentEvent.Id.StartsWith("promotion_", StringComparison.OrdinalIgnoreCase))
             {
@@ -414,7 +473,7 @@ namespace Enlisted.Features.Content
                 var actualChance = CalculateSkillModifiedChance(option);
                 var roll = MBRandom.RandomInt(100);
                 success = roll < actualChance;
-                
+
                 if (!string.IsNullOrEmpty(option.SkillCheck))
                 {
                     ModLogger.Info(LogCategory, $"Skill-modified roll: {roll} vs {actualChance}% ({option.SkillCheck} check, base {option.RiskChance.Value}%) -> {(success ? "SUCCESS" : "FAILURE")}");
@@ -447,6 +506,11 @@ namespace Enlisted.Features.Content
 
             // Apply flag changes
             ApplyFlagChanges(option);
+
+            // Spec 1 bridge: EventDefinitions sourced from a Storylet (see StoryletEventAdapter)
+            // carry empty Option.Effects; their EffectDecl list is stored in a pending registry
+            // keyed by (eventId, optionId). Drain it here so the effects actually fire.
+            StoryletEventAdapter.DrainPendingEffects(_currentEvent?.Id, option.Id);
 
             // Handle enlistment abort (used by bag check)
             if (option.AbortsEnlistment)
@@ -852,7 +916,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Info(LogCategory, $"ApplyRetinueGain: Added {added} soldiers via event");
 
                 var notification = new TextObject("{=evt_ret_gain_notification}{COUNT} soldiers have joined your retinue.");
-                notification.SetTextVariable("COUNT", added);
+                _ = notification.SetTextVariable("COUNT", added);
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Green));
             }
             else
@@ -908,8 +972,8 @@ namespace Enlisted.Features.Content
 
                 if (toRemove > 0)
                 {
-                    roster.AddToCounts(character, -toRemove, removeDepleted: true);
-                    state.UpdateTroopCount(characterId, -toRemove);
+                    _ = roster.AddToCounts(character, -toRemove, removeDepleted: true);
+                    _ = state.UpdateTroopCount(characterId, -toRemove);
                     removed += toRemove;
                 }
             }
@@ -919,7 +983,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Info(LogCategory, $"ApplyRetinueLoss: Removed {removed} retinue soldiers");
 
                 var notification = new TextObject("{=evt_ret_loss_notification}{COUNT} soldiers have been lost from your retinue.");
-                notification.SetTextVariable("COUNT", removed);
+                _ = notification.SetTextVariable("COUNT", removed);
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Red));
             }
             else
@@ -986,7 +1050,7 @@ namespace Enlisted.Features.Content
                 var toWound = Math.Min(healthyCount, count - wounded);
                 if (toWound > 0)
                 {
-                    roster.AddToCounts(character, 0, woundedCount: toWound);
+                    _ = roster.AddToCounts(character, 0, woundedCount: toWound);
                     wounded += toWound;
                 }
             }
@@ -996,7 +1060,7 @@ namespace Enlisted.Features.Content
                 ModLogger.Info(LogCategory, $"ApplyRetinueWounded: Wounded {wounded} retinue soldiers");
 
                 var notification = new TextObject("{=evt_ret_wounded_notification}{COUNT} of your soldiers have been wounded.");
-                notification.SetTextVariable("COUNT", wounded);
+                _ = notification.SetTextVariable("COUNT", wounded);
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Yellow));
             }
             else
@@ -1046,8 +1110,8 @@ namespace Enlisted.Features.Content
                 };
 
                 var notification = new TextObject("{=evt_ret_loyalty_notification}Retinue loyalty {CHANGE}. Current: {LEVEL}");
-                notification.SetTextVariable("CHANGE", delta > 0 ? "increased" : "decreased");
-                notification.SetTextVariable("LEVEL", loyaltyText);
+                _ = notification.SetTextVariable("CHANGE", delta > 0 ? "increased" : "decreased");
+                _ = notification.SetTextVariable("LEVEL", loyaltyText);
 
                 var color = delta > 0 ? Colors.Green : Colors.Red;
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), color));
@@ -1074,7 +1138,7 @@ namespace Enlisted.Features.Content
             baggageManager.RecordBaggageArrival(); // Track arrival for Daily Brief display
 
             var notification = new TextObject("{=evt_baggage_access_granted}The baggage wagons have caught up. You have {HOURS} hours to access your belongings.");
-            notification.SetTextVariable("HOURS", hours);
+            _ = notification.SetTextVariable("HOURS", hours);
             InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Green));
         }
 
@@ -1101,7 +1165,7 @@ namespace Enlisted.Features.Content
                 baggageManager.ApplyBaggageDelay(days);
 
                 var notification = new TextObject("{=evt_baggage_delayed_msg}The baggage train is stuck. Access delayed by {DAYS} day(s).");
-                notification.SetTextVariable("DAYS", days);
+                _ = notification.SetTextVariable("DAYS", days);
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Yellow));
             }
         }
@@ -1125,7 +1189,7 @@ namespace Enlisted.Features.Content
             if (removedCount > 0)
             {
                 var notification = new TextObject("{=evt_baggage_loss_msg}{COUNT} item(s) were lost from your baggage.");
-                notification.SetTextVariable("COUNT", removedCount);
+                _ = notification.SetTextVariable("COUNT", removedCount);
                 InformationManager.DisplayMessage(new InformationMessage(notification.ToString(), Colors.Red));
 
                 // Track raid for Daily Brief display (if this is from a raid event)
@@ -1220,12 +1284,12 @@ namespace Enlisted.Features.Content
             // Select illness type based on travel context (maritime vs land)
             var party = EnlistmentBehavior.Instance?.CurrentLord?.PartyBelongedTo;
             // BUGFIX: If party is in a settlement or besieging, they are on land regardless of IsCurrentlyAtSea
-            var isAtSea = party != null && 
-                          party.CurrentSettlement == null && 
-                          party.BesiegedSettlement == null && 
+            var isAtSea = party != null &&
+                          party.CurrentSettlement == null &&
+                          party.BesiegedSettlement == null &&
                           party.IsCurrentlyAtSea;
             string illnessType;
-            
+
             if (isAtSea)
             {
                 // Maritime illnesses: ship_fever (more common) or scurvy (prolonged voyages)
@@ -1241,7 +1305,7 @@ namespace Enlisted.Features.Content
 
             var baseDays = conditions.GetBaseRecoveryDaysForIllness(illnessType, severity);
             conditions.TryApplyIllness(illnessType, severity, baseDays, "event");
-            
+
             var contextStr = isAtSea ? "at sea" : "on land";
             ModLogger.Info(LogCategory, $"ApplyIllnessOnset: Applied {severity} {illnessType} ({baseDays} days) [{contextStr}]");
         }
@@ -1302,7 +1366,7 @@ namespace Enlisted.Features.Content
             }
 
             // Use default treatment multiplier from config (1.5x recovery speed)
-            var config = Enlisted.Mod.Core.Config.ConfigurationManager.LoadPlayerConditionsConfig();
+            var config = Mod.Core.Config.ConfigurationManager.LoadPlayerConditionsConfig();
             var multiplier = config?.BasicTreatmentMultiplier ?? 1.5f;
 
             conditions.ApplyTreatment(multiplier, "surgeon_treatment");
@@ -1450,7 +1514,7 @@ namespace Enlisted.Features.Content
                 if (element.Character != null && !element.Character.IsHero)
                 {
                     var toRemove = Math.Min(element.Number, count - troopsRemoved);
-                    roster.AddToCounts(element.Character, -toRemove, removeDepleted: true);
+                    _ = roster.AddToCounts(element.Character, -toRemove, removeDepleted: true);
                     troopsRemoved += toRemove;
                 }
             }
@@ -1472,7 +1536,7 @@ namespace Enlisted.Features.Content
                 {
                     var healthyCount = element.Number - element.WoundedNumber;
                     var toWound = Math.Min(healthyCount, count - troopsWounded);
-                    roster.AddToCounts(element.Character, 0, woundedCount: toWound, removeDepleted: true);
+                    _ = roster.AddToCounts(element.Character, 0, woundedCount: toWound, removeDepleted: true);
                     troopsWounded += toWound;
                 }
             }
@@ -1493,7 +1557,7 @@ namespace Enlisted.Features.Content
                 if (element.EquipmentElement.Item.IsFood)
                 {
                     var toRemove = Math.Min(element.Amount, foodRemaining);
-                    itemRoster.AddToCounts(element.EquipmentElement.Item, -toRemove);
+                    _ = itemRoster.AddToCounts(element.EquipmentElement.Item, -toRemove);
                     foodRemaining -= toRemove;
                 }
             }
@@ -1623,7 +1687,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to train {character.Name}: {ex.Message}");
+                    ModLogger.Caught("EVENTDELIVERY", $"Failed to train {character.Name}", ex);
                 }
             }
 
@@ -1702,7 +1766,7 @@ namespace Enlisted.Features.Content
                     {
                         var playerSkillValue = hero.GetSkillValue(skill);
                         var skillBase = option.SkillBase > 0 ? option.SkillBase : 50;
-                        
+
                         // Each 5 points above/below skill base adds/subtracts 1% chance
                         var skillModifier = (playerSkillValue - skillBase) / 5;
                         baseChance += skillModifier;
@@ -1727,7 +1791,7 @@ namespace Enlisted.Features.Content
 
             var tooltip = option.TooltipTemplate;
             var chance = CalculateSkillModifiedChance(option);
-            
+
             tooltip = tooltip.Replace("{CHANCE}", chance.ToString());
 
             if (!string.IsNullOrEmpty(option.SkillCheck))
@@ -1735,13 +1799,13 @@ namespace Enlisted.Features.Content
                 var skill = SkillCheckHelper.GetSkillByName(option.SkillCheck);
                 var skillValue = 0;
                 var skillName = option.SkillCheck;
-                
+
                 if (skill != null && Hero.MainHero != null)
                 {
                     skillValue = Hero.MainHero.GetSkillValue(skill);
                     skillName = skill.Name?.ToString() ?? option.SkillCheck;
                 }
-                
+
                 tooltip = tooltip.Replace("{SKILL}", skillValue.ToString());
                 tooltip = tooltip.Replace("{SKILL_NAME}", skillName);
             }
@@ -1812,7 +1876,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to send decision outcome to combat log", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to send decision outcome to combat log", ex);
             }
         }
 
@@ -1859,7 +1923,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to notify news of event outcome", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of event outcome", ex);
             }
         }
 
@@ -2086,7 +2150,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to notify news of pending chain event", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of pending chain event", ex);
             }
         }
 
@@ -2200,7 +2264,7 @@ namespace Enlisted.Features.Content
             var subOption = selected[0].Identifier as RewardChoiceOption;
             if (subOption == null)
             {
-                ModLogger.Error(LogCategory, "Selected sub-choice identifier is not a RewardChoiceOption");
+                ModLogger.Caught("EVENTDELIVERY", "Selected sub-choice identifier is not a RewardChoiceOption", null);
                 return;
             }
 
@@ -2447,16 +2511,10 @@ namespace Enlisted.Features.Content
             var wasDecision = _currentEvent != null &&
                              _currentEvent.Category != null &&
                              _currentEvent.Category.Equals("decision", StringComparison.OrdinalIgnoreCase);
+            _ = wasDecision;
 
             _isShowingEvent = false;
             _currentEvent = null;
-
-            // If this was a decision, clear the "currently showing" mark and refresh the menu
-            if (wasDecision)
-            {
-                DecisionManager.Instance?.ClearCurrentlyShowingDecision();
-                RequestDecisionsMenuRefresh();
-            }
 
             // Try to deliver next event in queue
             if (_pendingEvents.Count > 0)
@@ -2476,9 +2534,9 @@ namespace Enlisted.Features.Content
                 // Refresh whichever menu the player is currently on
                 // This forces the menu to rebuild, showing updated cooldowns and removing completed decisions
                 var currentMenuId = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId;
-                
+
                 ModLogger.Info(LogCategory, $"Requesting decision menu refresh (current menu: {currentMenuId})");
-                
+
                 if (currentMenuId != null && currentMenuId.StartsWith("enlisted_"))
                 {
                     // Force a refresh by switching to the same menu on next frame
@@ -2493,7 +2551,7 @@ namespace Enlisted.Features.Content
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Error(LogCategory, $"Error refreshing {currentMenuId} after decision", ex);
+                            ModLogger.Caught("EVENTDELIVERY", $"Error refreshing {currentMenuId} after decision", ex);
                         }
                     });
                 }
@@ -2504,7 +2562,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error requesting decisions menu refresh", ex);
+                ModLogger.Caught("EVENTDELIVERY", "Error requesting decisions menu refresh", ex);
             }
         }
 
@@ -2565,108 +2623,108 @@ namespace Enlisted.Features.Content
                 // NCO/Sergeant names
                 var ncoFullName = enlistment.NcoFullName ?? "the Sergeant";
                 var ncoRank = enlistment.NcoRank ?? "Sergeant";
-                textObject.SetTextVariable("SERGEANT", ncoFullName);
-                textObject.SetTextVariable("SERGEANT_NAME", ncoFullName);
-                textObject.SetTextVariable("NCO_NAME", ncoFullName);
-                textObject.SetTextVariable("NCO_RANK", ncoRank);
+                _ = textObject.SetTextVariable("SERGEANT", ncoFullName);
+                _ = textObject.SetTextVariable("SERGEANT_NAME", ncoFullName);
+                _ = textObject.SetTextVariable("NCO_NAME", ncoFullName);
+                _ = textObject.SetTextVariable("NCO_RANK", ncoRank);
 
                 // Soldier names for multi-character events
                 var soldierName = enlistment.GetRandomSoldierName();
                 var veteran1Name = enlistment.GetRandomSoldierName();
                 var veteran2Name = enlistment.GetRandomSoldierName();
                 var recruitName = enlistment.GetRandomSoldierName();
-                textObject.SetTextVariable("COMRADE_NAME", soldierName);
-                textObject.SetTextVariable("SOLDIER_NAME", soldierName);
-                textObject.SetTextVariable("VETERAN_1_NAME", veteran1Name);
-                textObject.SetTextVariable("VETERAN_2_NAME", veteran2Name);
-                textObject.SetTextVariable("RECRUIT_NAME", recruitName);
-                textObject.SetTextVariable("SECOND_SHORT", veteran1Name);
+                _ = textObject.SetTextVariable("COMRADE_NAME", soldierName);
+                _ = textObject.SetTextVariable("SOLDIER_NAME", soldierName);
+                _ = textObject.SetTextVariable("VETERAN_1_NAME", veteran1Name);
+                _ = textObject.SetTextVariable("VETERAN_2_NAME", veteran2Name);
+                _ = textObject.SetTextVariable("RECRUIT_NAME", recruitName);
+                _ = textObject.SetTextVariable("SECOND_SHORT", veteran1Name);
 
                 // Officer names
-                textObject.SetTextVariable("OFFICER_NAME", ncoFullName);
-                textObject.SetTextVariable("CAPTAIN_NAME", "the Captain");
+                _ = textObject.SetTextVariable("OFFICER_NAME", ncoFullName);
+                _ = textObject.SetTextVariable("CAPTAIN_NAME", "the Captain");
 
                 // Naval crew names (for War Sails DLC events)
-                textObject.SetTextVariable("BOATSWAIN_NAME", "the Boatswain");
-                textObject.SetTextVariable("NAVIGATOR_NAME", "the Navigator");
-                textObject.SetTextVariable("FIELD_MEDIC_NAME", "the Field Medic");
+                _ = textObject.SetTextVariable("BOATSWAIN_NAME", "the Boatswain");
+                _ = textObject.SetTextVariable("NAVIGATOR_NAME", "the Navigator");
+                _ = textObject.SetTextVariable("FIELD_MEDIC_NAME", "the Field Medic");
 
                 // Company/Party info
                 var companyName = enlistment.EnlistedLord?.PartyBelongedTo?.Name?.ToString() ?? "the company";
-                textObject.SetTextVariable("COMPANY_NAME", companyName);
+                _ = textObject.SetTextVariable("COMPANY_NAME", companyName);
 
                 // Player info
                 if (Hero.MainHero != null)
                 {
-                    textObject.SetTextVariable("PLAYER_NAME", Hero.MainHero.FirstName?.ToString() ?? "Soldier");
-                    textObject.SetTextVariable("PLAYER_RANK", RankHelper.GetCurrentRank(enlistment));
+                    _ = textObject.SetTextVariable("PLAYER_NAME", Hero.MainHero.FirstName?.ToString() ?? "Soldier");
+                    _ = textObject.SetTextVariable("PLAYER_RANK", RankHelper.GetCurrentRank(enlistment));
                 }
 
                 // Lord info
                 if (enlistment.EnlistedLord != null)
                 {
                     var lord = enlistment.EnlistedLord;
-                    textObject.SetTextVariable("LORD_NAME", lord.Name?.ToString() ?? "the Lord");
-                    textObject.SetTextVariable("LORD_TITLE", lord.IsFemale ? "Lady" : "Lord");
+                    _ = textObject.SetTextVariable("LORD_NAME", lord.Name?.ToString() ?? "the Lord");
+                    _ = textObject.SetTextVariable("LORD_TITLE", lord.IsFemale ? "Lady" : "Lord");
 
                     // Faction and kingdom names
                     if (lord.MapFaction != null)
                     {
-                        textObject.SetTextVariable("FACTION_NAME", lord.MapFaction.Name?.ToString() ?? "the faction");
+                        _ = textObject.SetTextVariable("FACTION_NAME", lord.MapFaction.Name?.ToString() ?? "the faction");
 
                         if (lord.MapFaction.IsKingdomFaction && lord.MapFaction is Kingdom kingdom)
                         {
-                            textObject.SetTextVariable("KINGDOM_NAME", kingdom.Name?.ToString() ?? "the kingdom");
+                            _ = textObject.SetTextVariable("KINGDOM_NAME", kingdom.Name?.ToString() ?? "the kingdom");
                         }
                         else
                         {
-                            textObject.SetTextVariable("KINGDOM_NAME", lord.MapFaction.Name?.ToString() ?? "the realm");
+                            _ = textObject.SetTextVariable("KINGDOM_NAME", lord.MapFaction.Name?.ToString() ?? "the realm");
                         }
                     }
                 }
 
                 // Rank progression variables
                 var currentRank = RankHelper.GetCurrentRank(enlistment);
-                textObject.SetTextVariable("NEXT_RANK", "the next rank");
-                textObject.SetTextVariable("SECOND_RANK", currentRank);
+                _ = textObject.SetTextVariable("NEXT_RANK", "the next rank");
+                _ = textObject.SetTextVariable("SECOND_RANK", currentRank);
 
                 // Location variables
                 var party = enlistment.EnlistedLord?.PartyBelongedTo;
                 if (party?.CurrentSettlement != null)
                 {
-                    textObject.SetTextVariable("SETTLEMENT_NAME", party.CurrentSettlement.Name?.ToString() ?? "the settlement");
+                    _ = textObject.SetTextVariable("SETTLEMENT_NAME", party.CurrentSettlement.Name?.ToString() ?? "the settlement");
                 }
                 else
                 {
-                    textObject.SetTextVariable("SETTLEMENT_NAME", "the settlement");
+                    _ = textObject.SetTextVariable("SETTLEMENT_NAME", "the settlement");
                 }
 
                 // Previous lord (for transfer events)
-                textObject.SetTextVariable("PREVIOUS_LORD", "your previous lord");
-                textObject.SetTextVariable("ALLIED_LORD", "an allied lord");
+                _ = textObject.SetTextVariable("PREVIOUS_LORD", "your previous lord");
+                _ = textObject.SetTextVariable("ALLIED_LORD", "an allied lord");
 
                 // Enemy faction info
-                textObject.SetTextVariable("ENEMY_FACTION_ADJECTIVE", "enemy");
+                _ = textObject.SetTextVariable("ENEMY_FACTION_ADJECTIVE", "enemy");
 
                 // Medical event variables
-                textObject.SetTextVariable("CONDITION_TYPE", "illness");
-                textObject.SetTextVariable("CONDITION_LOCATION", "your arm");
-                textObject.SetTextVariable("COMPLICATION_NAME", "infection");
-                textObject.SetTextVariable("REMEDY_NAME", "medicine");
+                _ = textObject.SetTextVariable("CONDITION_TYPE", "illness");
+                _ = textObject.SetTextVariable("CONDITION_LOCATION", "your arm");
+                _ = textObject.SetTextVariable("COMPLICATION_NAME", "infection");
+                _ = textObject.SetTextVariable("REMEDY_NAME", "medicine");
 
                 // Naval event variables (for War Sails DLC)
-                textObject.SetTextVariable("SHIP_NAME", companyName);
-                textObject.SetTextVariable("DESTINATION_PORT", "port");
-                textObject.SetTextVariable("DAYS_AT_SEA", "7");
+                _ = textObject.SetTextVariable("SHIP_NAME", companyName);
+                _ = textObject.SetTextVariable("DESTINATION_PORT", "port");
+                _ = textObject.SetTextVariable("DAYS_AT_SEA", "7");
 
                 // Troop count for command events
                 if (party != null)
                 {
-                    textObject.SetTextVariable("TROOP_COUNT", party.MemberRoster.TotalManCount.ToString());
+                    _ = textObject.SetTextVariable("TROOP_COUNT", party.MemberRoster.TotalManCount.ToString());
                 }
                 else
                 {
-                    textObject.SetTextVariable("TROOP_COUNT", "20");
+                    _ = textObject.SetTextVariable("TROOP_COUNT", "20");
                 }
             }
             catch (Exception ex)

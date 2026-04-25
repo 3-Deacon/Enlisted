@@ -1,0 +1,394 @@
+{
+  "storylets": [
+    {
+      "id": "order_drill_accept",
+      "title": "{=order_drill_accept_title}Drill detail",
+      "setup": "{=order_drill_accept_setup}The sergeant calls for ranks and paces the line, stick in hand. Spear-drill, then shield-work, then whatever else he decides you have forgotten. How are you taking it?",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "arc": {
+        "duration_hours": 8,
+        "phases": [
+          {
+            "id": "drill_mid",
+            "duration_hours": 6,
+            "pool_prefix": "order_drill_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "drill_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_drill_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_drill_accept_diligent_text}Clean reps. No showing off.",
+          "tooltip": "{=order_drill_accept_diligent_tt}Diligent drill. Steady skill gains.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_train_hard",
+          "text": "{=order_drill_accept_train_hard_text}Push until you cannot lift the shield.",
+          "tooltip": "{=order_drill_accept_train_hard_tt}Train hard. Large skill gains; tiring.",
+          "effects": [
+            { "apply": "start_arc", "intent": "train_hard" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_drill_accept_slack_text}Go through the motions.",
+          "tooltip": "{=order_drill_accept_slack_tt}Slack drill. Scrutiny risk if noticed.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_drill_accept_scheme_text}Pick your partner. Make it count.",
+          "tooltip": "{=order_drill_accept_scheme_tt}Scheme: impress the right watcher.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_drill_accept_decline_text}Beg off — sick, hurt, anything.",
+          "tooltip": "{=order_drill_accept_decline_tt}Decline drill. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_mid_sparring_partner",
+      "title": "{=order_drill_mid_sparring_partner_title}Paired up",
+      "setup": "{=order_drill_mid_sparring_partner_setup}The sergeant points you at a wiry veteran who smiles thinly. He is faster than you. You know this before the first pass.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "train_hard": 1.4,
+        "slack": 0.7,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "press_him",
+          "text": "{=order_drill_mid_sparring_partner_press_text}Press him. Take the lessons.",
+          "tooltip": "{=order_drill_mid_sparring_partner_press_tt}Hard spar. One-handed XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        },
+        {
+          "id": "soak_it",
+          "text": "{=order_drill_mid_sparring_partner_soak_text}Defend. Survive the round.",
+          "tooltip": "{=order_drill_mid_sparring_partner_soak_tt}Defensive reps. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_mid_sergeant_correction",
+      "title": "{=order_drill_mid_sergeant_correction_title}A sharp word",
+      "setup": "{=order_drill_mid_sergeant_correction_setup}The sergeant stops the line and picks on your stance. The stick taps your forward knee, then your back shoulder. He waits for the correction, not an excuse.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 1.2,
+        "slack": 0.6,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "take_correction",
+          "text": "{=order_drill_mid_sergeant_correction_take_text}Adjust. Do it twice. Then twice more.",
+          "tooltip": "{=order_drill_mid_sergeant_correction_take_tt}Accept correction. Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 20 }
+          ]
+        },
+        {
+          "id": "mumble_excuse",
+          "text": "{=order_drill_mid_sergeant_correction_excuse_text}Mumble an excuse about the footing.",
+          "tooltip": "{=order_drill_mid_sergeant_correction_excuse_tt}Excuse yourself. Small scrutiny.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_mid_rusty_form",
+      "title": "{=order_drill_mid_rusty_form_title}Rust shows",
+      "setup": "{=order_drill_mid_rusty_form_setup}The wooden sword feels wrong. Your footwork lags by a beat. Anyone watching would say so — and the sergeant is watching.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "train_hard": 1.3,
+        "slack": 0.8,
+        "scheme": 0.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "slow_and_clean",
+          "text": "{=order_drill_mid_rusty_form_slow_text}Slow everything down. Fix the form.",
+          "tooltip": "{=order_drill_mid_rusty_form_slow_tt}Deliberate practice. One-handed XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        },
+        {
+          "id": "fake_confidence",
+          "text": "{=order_drill_mid_rusty_form_fake_text}Swing hard and loud. Hide it.",
+          "tooltip": "{=order_drill_mid_rusty_form_fake_tt}Fake it. Scrutiny up if caught.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_mid_rival_watching",
+      "title": "{=order_drill_mid_rival_watching_title}Eyes on you",
+      "setup": "{=order_drill_mid_rival_watching_setup}Another soldier leans on a post and watches your bout with something between amusement and appraisal. He is the sort who remembers what he sees.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.0,
+        "train_hard": 1.2,
+        "slack": 0.7,
+        "scheme": 1.5
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "perform",
+          "text": "{=order_drill_mid_rival_watching_perform_text}Give him something to remember.",
+          "tooltip": "{=order_drill_mid_rival_watching_perform_tt}Show off. Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "ignore_him",
+          "text": "{=order_drill_mid_rival_watching_ignore_text}Eyes front. He does not matter.",
+          "tooltip": "{=order_drill_mid_rival_watching_ignore_tt}Stay focused. Small XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_mid_equipment_check",
+      "title": "{=order_drill_mid_equipment_check_title}Kit inspection",
+      "setup": "{=order_drill_mid_equipment_check_setup}The sergeant pauses drill for a kit check — straps, edges, buckles. He is looking for something to bark about. He will find it.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "train_hard": 1.0,
+        "slack": 0.5,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "kit_tight",
+          "text": "{=order_drill_mid_equipment_check_tight_text}Everything tight. Let him look.",
+          "tooltip": "{=order_drill_mid_equipment_check_tight_tt}Ready kit. Small credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "kit_loose",
+          "text": "{=order_drill_mid_equipment_check_loose_text}Fumble a strap in time. Hope.",
+          "tooltip": "{=order_drill_mid_equipment_check_loose_tt}Bluff the check. Scrutiny risk.",
+          "effects": [
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_resolve_diligent",
+      "title": "{=order_drill_resolve_diligent_title}Good form, good day",
+      "setup": "{=order_drill_resolve_diligent_setup}The sergeant calls the line to rest and looks across. His eyes rest on you a heartbeat longer than anyone else. It is the closest he comes to praise.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "train_hard": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_drill_resolve_diligent_done_text}Rack the wasters.",
+          "tooltip": "{=order_drill_resolve_diligent_done_tt}Solid XP; small relation up.",
+          "effects": [
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_resolve_train_hard",
+      "title": "{=order_drill_resolve_train_hard_title}Spent",
+      "setup": "{=order_drill_resolve_train_hard_setup}You traded water for exhaustion and exhaustion for something that might one day be skill. Your arms shake. Tomorrow's ache will be harsh. Worth it.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_drill_resolve_train_hard_done_text}Pour water over your head.",
+          "tooltip": "{=order_drill_resolve_train_hard_done_tt}Large skill XP; athletics + one-handed.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 40 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 30 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_resolve_slack",
+      "title": "{=order_drill_resolve_slack_title}Phoning it in",
+      "setup": "{=order_drill_resolve_slack_setup}The sergeant watched you coast, and says nothing. Silence from him is never a good sign. A note will reach the lord, or it will fester unspoken.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_drill_resolve_slack_absorb_text}Rack your kit. Drift away.",
+          "tooltip": "{=order_drill_resolve_slack_absorb_tt}Scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_drill_resolve_scheme",
+      "title": "{=order_drill_resolve_scheme_title}Eyes bought",
+      "setup": "{=order_drill_resolve_scheme_setup}The right person watched you land the right hit against the right opponent. Word will travel — and if fortune is kind, travel to the right ears.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "train_hard": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "payoff",
+          "text": "{=order_drill_resolve_scheme_payoff_text}Walk away with a quiet smile.",
+          "tooltip": "{=order_drill_resolve_scheme_payoff_tt}Roguery + charm XP, minor scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "scrutiny_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "overplayed",
+          "text": "{=order_drill_resolve_scheme_over_text}He saw through it. Pay a bribe and go.",
+          "tooltip": "{=order_drill_resolve_scheme_over_tt}Cost coin + moderate scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": -50 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

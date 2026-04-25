@@ -1,17 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
-using Enlisted.Features.Company;
 using Enlisted.Features.Conditions;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
-using Enlisted.Features.Orders.Behaviors;
 using Enlisted.Features.Ranks;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.Core;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.Content
@@ -23,8 +21,6 @@ namespace Enlisted.Features.Content
     /// </summary>
     public class ForecastGenerator
     {
-        private const string LogCategory = "ForecastGen";
-
         private enum Priority { Low, Medium, High, Critical }
 
         private readonly EnlistmentBehavior _enlistment;
@@ -49,7 +45,7 @@ namespace Enlisted.Features.Content
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to build player status", ex);
+                ModLogger.Caught("ForecastGen", "Failed to build player status", ex);
                 return ("Status unavailable.", "Forecast unavailable.");
             }
         }
@@ -62,62 +58,26 @@ namespace Enlisted.Features.Content
             var hero = Hero.MainHero;
             var sb = new StringBuilder();
 
-            // Duty Status - simplified to just check if order exists
-            var currentOrder = OrderManager.Instance?.GetCurrentOrder();
-            if (currentOrder != null)
+            // Duty Status
+            var display = OrderDisplayHelper.GetCurrent();
+            if (display != null)
             {
-                var orderDisplayTitle = Orders.OrderCatalog.GetDisplayTitle(currentOrder);
-                if (string.IsNullOrEmpty(orderDisplayTitle))
-                {
-                    orderDisplayTitle = "Orders";
-                }
-                sb.Append(new TextObject("{=menu_you_on_duty}On duty - {ORDER_NAME}, day {DAY} of {TOTAL}.")
-                    .SetTextVariable("ORDER_NAME", orderDisplayTitle)
-                    .SetTextVariable("DAY", "1")
-                    .SetTextVariable("TOTAL", "3")
+                _ = sb.Append(new TextObject("{=menu_you_on_duty_hours}On duty - {ORDER_NAME}, hour {ELAPSED} of {TOTAL}.")
+                    .SetTextVariable("ORDER_NAME", display.Title)
+                    .SetTextVariable("ELAPSED", display.HoursElapsed.ToString())
+                    .SetTextVariable("TOTAL", display.HoursTotal.ToString())
                     .ToString());
             }
             else
             {
-                sb.Append(new TextObject("{=menu_you_off_duty}You're off duty and well-rested.").ToString());
+                _ = sb.Append(new TextObject("{=menu_you_off_duty}You're off duty and well-rested.").ToString());
             }
 
             // Physical State
             if (hero.IsWounded)
             {
-                sb.Append(" ");
-                sb.Append(new TextObject("{=menu_you_wounded}You're wounded - movement impaired. Off duty until you recover.").ToString());
-            }
-
-            // Player commitments (scheduled activities)
-            var generator = CampOpportunityGenerator.Instance;
-            var nextCommitment = generator?.GetNextCommitment();
-            if (nextCommitment != null)
-            {
-                sb.Append(" ");
-                var hoursUntil = generator.GetHoursUntilCommitment(nextCommitment);
-                var activity = nextCommitment.Title?.ToLower() ?? "an activity";
-                var phase = nextCommitment.ScheduledPhase?.ToLower() ?? "later";
-
-                if (hoursUntil < 1f)
-                {
-                    sb.Append(new TextObject("{=menu_you_commitment_soon}It's almost time for {ACTIVITY}.").SetTextVariable("ACTIVITY", activity).ToString());
-                }
-                else if (hoursUntil <= 6f)
-                {
-                    sb.Append(new TextObject("{=menu_you_commitment_today}You've committed to {ACTIVITY} this {PHASE}.")
-                        .SetTextVariable("ACTIVITY", activity)
-                        .SetTextVariable("PHASE", phase)
-                        .ToString());
-                }
-                else
-                {
-                    sb.Append(new TextObject("{=menu_you_commitment}You've committed to {ACTIVITY} at {PHASE} ({HOURS}h).")
-                        .SetTextVariable("ACTIVITY", activity)
-                        .SetTextVariable("PHASE", phase)
-                        .SetTextVariable("HOURS", ((int)hoursUntil).ToString())
-                        .ToString());
-                }
+                _ = sb.Append(" ");
+                _ = sb.Append(new TextObject("{=menu_you_wounded}You're wounded - movement impaired. Off duty until you recover.").ToString());
             }
 
             return sb.ToString();
@@ -197,8 +157,7 @@ namespace Enlisted.Features.Content
 
             // === ORDER/EVENT FORECASTS ===
             // Check for pending orders (no active order means one might be coming)
-            var orderManager = OrderManager.Instance;
-            if (orderManager != null && orderManager.GetCurrentOrder() == null)
+            if (!OrderDisplayHelper.IsOrderActive())
             {
                 // Player is off-duty, hint that orders may be coming
                 var ncoTitle = RankHelper.GetNCOTitle(cultureId);

@@ -82,7 +82,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to determine primary role", ex);
+                ModLogger.Caught("Identity", "Failed to determine primary role", ex);
                 return "Soldier";
             }
         }
@@ -117,7 +117,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to generate role description", ex);
+                ModLogger.Caught("Identity", "Failed to generate role description", ex);
                 return "Enlisted Soldier";
             }
         }
@@ -138,7 +138,7 @@ namespace Enlisted.Features.Identity
                 }
 
                 var lines = new System.Text.StringBuilder();
-                
+
                 var commanderLevel = hero.GetTraitLevel(DefaultTraits.Commander);
                 var scoutLevel = hero.GetTraitLevel(DefaultTraits.ScoutSkills);
                 var surgeonLevel = hero.GetTraitLevel(DefaultTraits.Surgery);
@@ -148,32 +148,32 @@ namespace Enlisted.Features.Identity
 
                 if (commanderLevel > 0)
                 {
-                    lines.AppendLine($"Commander: {commanderLevel} (Leadership {hero.GetSkillValue(DefaultSkills.Leadership)})");
+                    _ = lines.AppendLine($"Commander: {commanderLevel} (Leadership {hero.GetSkillValue(DefaultSkills.Leadership)})");
                 }
 
                 if (scoutLevel > 0)
                 {
-                    lines.AppendLine($"Scout: {scoutLevel} (Scouting {hero.GetSkillValue(DefaultSkills.Scouting)})");
+                    _ = lines.AppendLine($"Scout: {scoutLevel} (Scouting {hero.GetSkillValue(DefaultSkills.Scouting)})");
                 }
 
                 if (surgeonLevel > 0)
                 {
-                    lines.AppendLine($"Surgeon: {surgeonLevel} (Medicine {hero.GetSkillValue(DefaultSkills.Medicine)})");
+                    _ = lines.AppendLine($"Surgeon: {surgeonLevel} (Medicine {hero.GetSkillValue(DefaultSkills.Medicine)})");
                 }
 
                 if (engineerLevel > 0)
                 {
-                    lines.AppendLine($"Engineer: {engineerLevel} (Engineering {hero.GetSkillValue(DefaultSkills.Engineering)})");
+                    _ = lines.AppendLine($"Engineer: {engineerLevel} (Engineering {hero.GetSkillValue(DefaultSkills.Engineering)})");
                 }
 
                 if (rogueLevel > 0)
                 {
-                    lines.AppendLine($"Rogue: {rogueLevel} (Roguery {hero.GetSkillValue(DefaultSkills.Roguery)})");
+                    _ = lines.AppendLine($"Rogue: {rogueLevel} (Roguery {hero.GetSkillValue(DefaultSkills.Roguery)})");
                 }
 
                 if (sergeantLevel > 0)
                 {
-                    lines.AppendLine($"Sergeant: {sergeantLevel} (Leadership {hero.GetSkillValue(DefaultSkills.Leadership)})");
+                    _ = lines.AppendLine($"Sergeant: {sergeantLevel} (Leadership {hero.GetSkillValue(DefaultSkills.Leadership)})");
                 }
 
                 if (lines.Length == 0)
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Identity
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Identity", "Failed to get all specializations", ex);
+                ModLogger.Caught("Identity", "Failed to get all specializations", ex);
                 return "Specialization data unavailable.";
             }
         }

@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "_comment": "Plan 2 — six wanderer-mechanics companion archetypes. Driven by CompanionSpawnFactory. Schema reference: docs/Features/Companions/companion-archetype-catalog.md.",
+  "companionTypes": [
+    {
+      "id": "sergeant",
+      "displayName": "Sergeant",
+      "lifecycle": "per_player",
+      "unlockTier": 1,
+      "ageRange": [35, 55],
+      "baseSkills": {
+        "OneHanded": 80,
+        "Leadership": 60,
+        "Tactics": 40
+      },
+      "baseAttributes": {
+        "Vigor": 1
+      },
+      "baseTraits": {
+        "Valor": 1
+      },
+      "troopTemplate": {
+        "tierMin": 3,
+        "tierMax": 4,
+        "formationClass": "Infantry"
+      },
+      "civilianStyle": "soldier",
+      "archetypes": [
+        {
+          "id": "gruff_veteran",
+          "extraTraits": { "Honor": 1 },
+          "namePool": ["Garreth", "Ulric", "Brennus", "Hakon", "Aldagis", "Bardas"],
+          "dialogCatalogPrefix": "companion_sergeant_gruff_veteran"
+        },
+        {
+          "id": "by_the_book",
+          "extraTraits": { "Calculating": 1 },
+          "namePool": ["Marcus", "Aldric", "Rolf", "Tarek", "Ostein", "Lemnos"],
+          "dialogCatalogPrefix": "companion_sergeant_by_the_book"
+        },
+        {
+          "id": "cynical",
+          "extraTraits": { "Mercy": 1 },
+          "namePool": ["Davos", "Lyle", "Ferran", "Raol", "Vespan", "Tegyr"],
+          "dialogCatalogPrefix": "companion_sergeant_cynical"
+        }
+      ]
+    },
+    {
+      "id": "field_medic",
+      "displayName": "Field Medic",
+      "lifecycle": "per_player",
+      "unlockTier": 3,
+      "ageRange": [30, 50],
+      "baseSkills": {
+        "Medicine": 100,
+        "Steward": 60,
+        "Athletics": 30
+      },
+      "baseAttributes": {
+        "Endurance": 1
+      },
+      "baseTraits": {
+        "Mercy": 1
+      },
+      "troopTemplate": {
+        "tierMin": 2,
+        "tierMax": 3,
+        "formationClass": "Infantry"
+      },
+      "civilianStyle": "wealthy",
+      "archetypes": [
+        {
+          "id": "compassionate",
+          "extraTraits": { "Mercy": 1 },
+          "namePool": ["Aleyne", "Marya", "Ilse", "Bryn", "Sefa", "Lirien"],
+          "dialogCatalogPrefix": "companion_field_medic_compassionate"
+        },
+        {
+          "id": "pragmatic",
+          "extraTraits": { "Calculating": 1 },
+          "namePool": ["Halden", "Cyra", "Toril", "Mered", "Anys", "Vasco"],
+          "dialogCatalogPrefix": "companion_field_medic_pragmatic"
+        },
+        {
+          "id": "pious",
+          "extraTraits": { "Honor": 1 },
+          "namePool": ["Brother Eadric", "Sister Iola", "Father Vela", "Sister Malka", "Brother Othric", "Sister Korla"],
+          "dialogCatalogPrefix": "companion_field_medic_pious"
+        }
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "displayName": "Pathfinder",
+      "lifecycle": "per_player",
+      "unlockTier": 3,
+      "ageRange": [25, 45],
+      "baseSkills": {
+        "Scouting": 80,
+        "Riding": 60,
+        "Bow": 40
+      },
+      "baseAttributes": {
+        "Cunning": 1
+      },
+      "baseTraits": {
+        "Calculating": 1
+      },
+      "troopTemplate": {
+        "tierMin": 3,
+        "tierMax": 4,
+        "formationClass": "HorseArcher"
+      },
+      "civilianStyle": "soldier",
+      "archetypes": [
+        {
+          "id": "lone_wolf",
+          "extraTraits": { "Calculating": 1 },
+          "namePool": ["Skarn", "Rhys", "Vorel", "Ealdgar", "Jaska", "Tolkur"],
+          "dialogCatalogPrefix": "companion_pathfinder_lone_wolf"
+        },
+        {
+          "id": "talkative",
+          "extraTraits": { "Generosity": 1 },
+          "namePool": ["Ferin", "Cobeth", "Lubo", "Nendrik", "Aslan", "Yusek"],
+          "dialogCatalogPrefix": "companion_pathfinder_talkative"
+        },
+        {
+          "id": "superstitious",
+          "extraTraits": { "Mercy": 1 },
+          "namePool": ["Old Bede", "Korva", "Mathren", "Wilbur", "Phyle", "Tindar"],
+          "dialogCatalogPrefix": "companion_pathfinder_superstitious"
+        }
+      ]
+    },
+    {
+      "id": "veteran",
+      "displayName": "Veteran",
+      "lifecycle": "per_lord",
+      "unlockTier": 5,
+      "ageRange": [45, 65],
+      "baseSkills": {
+        "Tactics": 60
+      },
+      "baseAttributes": {
+        "Endurance": 1
+      },
+      "baseTraits": {
+        "Honor": 1,
+        "Valor": 1
+      },
+      "troopTemplate": {
+        "tierMin": 4,
+        "tierMax": 5,
+        "formationClass": "Any",
+        "roll": {
+          "options": [
+            { "skillOverride": { "Bow": 80 }, "formationClass": "Ranged" },
+            { "skillOverride": { "TwoHanded": 80 }, "formationClass": "Infantry" }
+          ]
+        }
+      },
+      "civilianStyle": "soldier",
+      "archetypes": [
+        {
+          "id": "war_weary",
+          "extraTraits": { "Mercy": 1 },
+          "namePool": ["Old Tovar", "Greybeard Hath", "Reinhar", "Demos", "Sigvald", "Kebes"],
+          "dialogCatalogPrefix": "companion_veteran_war_weary"
+        },
+        {
+          "id": "proud",
+          "extraTraits": { "Valor": 1 },
+          "namePool": ["Garrick the Bold", "Vargas", "Drust", "Theodorus", "Kasym", "Bakhar"],
+          "dialogCatalogPrefix": "companion_veteran_proud"
+        },
+        {
+          "id": "philosophical",
+          "extraTraits": { "Honor": 1 },
+          "namePool": ["Abel", "Mortin", "Cathal", "Iulianus", "Hashir", "Vyborg"],
+          "dialogCatalogPrefix": "companion_veteran_philosophical"
+        }
+      ]
+    },
+    {
+      "id": "qm_officer",
+      "displayName": "Quartermaster Officer",
+      "lifecycle": "per_lord",
+      "unlockTier": 7,
+      "ageRange": [38, 58],
+      "baseSkills": {
+        "Steward": 80,
+        "Trade": 60,
+        "Charm": 40
+      },
+      "baseAttributes": {
+        "Social": 1
+      },
+      "baseTraits": {
+        "Generosity": 1
+      },
+      "troopTemplate": {
+        "tierMin": 4,
+        "tierMax": 5,
+        "formationClass": "Infantry"
+      },
+      "civilianStyle": "wealthy",
+      "archetypes": [
+        {
+          "id": "by_the_book",
+          "extraTraits": { "Honor": 1 },
+          "namePool": ["Quartermaster Vell", "Ledger-Master Otho", "Comptroller Sernad", "Chamberlain Bryda", "Provisioner Khalid", "Steward Volos"],
+          "dialogCatalogPrefix": "companion_qm_officer_by_the_book"
+        },
+        {
+          "id": "corner_cutter",
+          "extraTraits": { "Calculating": 1 },
+          "namePool": ["Slick Rann", "Trader Faisel", "Margin Pol", "Skimmer Yves", "Discount Hada", "Wholesale Vetch"],
+          "dialogCatalogPrefix": "companion_qm_officer_corner_cutter"
+        },
+        {
+          "id": "weary",
+          "extraTraits": { "Mercy": 1 },
+          "namePool": ["Old Bekkar", "Tired Magrit", "Worn Adelar", "Greying Sarid", "Stooped Vlach", "Lean Yorick"],
+          "dialogCatalogPrefix": "companion_qm_officer_weary"
+        }
+      ]
+    },
+    {
+      "id": "junior_officer",
+      "displayName": "Junior Officer",
+      "lifecycle": "per_lord",
+      "unlockTier": 7,
+      "ageRange": [28, 42],
+      "baseSkills": {
+        "Leadership": 80,
+        "Tactics": 60,
+        "Polearm": 60
+      },
+      "baseAttributes": {
+        "Vigor": 1
+      },
+      "baseTraits": {
+        "Honor": 1
+      },
+      "troopTemplate": {
+        "tierMin": 5,
+        "tierMax": 6,
+        "formationClass": "Cavalry"
+      },
+      "civilianStyle": "soldier",
+      "archetypes": [
+        {
+          "id": "cocky",
+          "extraTraits": { "Valor": 1 },
+          "namePool": ["Lieutenant Jaeger", "Cornet Praxis", "Captain Devyn", "Lance-Captain Iyas", "Banneret Stiv", "Outrider Veska"],
+          "dialogCatalogPrefix": "companion_junior_officer_cocky"
+        },
+        {
+          "id": "serious",
+          "extraTraits": { "Honor": 1 },
+          "namePool": ["Lieutenant Ardus", "Cornet Mercia", "Captain Brenan", "Lance-Captain Rasid", "Banneret Holm", "Outrider Athan"],
+          "dialogCatalogPrefix": "companion_junior_officer_serious"
+        },
+        {
+          "id": "political",
+          "extraTraits": { "Calculating": 1 },
+          "namePool": ["Lieutenant Tovaris", "Cornet Aetheric", "Captain Lysandros", "Lance-Captain Ferid", "Banneret Wynold", "Outrider Tarsa"],
+          "dialogCatalogPrefix": "companion_junior_officer_political"
+        }
+      ]
+    }
+  ]
+}

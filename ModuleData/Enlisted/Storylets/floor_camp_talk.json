@@ -1,0 +1,118 @@
+{
+  "storylets": [
+    {
+      "id": "floor_camp_talk_mess_grumbles",
+      "title": "{=floor_camp_talk_mess_grumbles_title}Talk at the mess",
+      "setup": "{=floor_camp_talk_mess_grumbles_setup}Talk at the mess: how much longer? The stew is thin, the bread is thinner, and every soldier has a theory about what the lord is waiting for.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_mess_grumbles_opt}Say nothing. Eat.",
+          "tooltip": "{=floor_camp_talk_mess_grumbles_tt}Listen in. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_camp_talk_dice_rattle",
+      "title": "{=floor_camp_talk_dice_rattle_title}Dice by the fires",
+      "setup": "{=floor_camp_talk_dice_rattle_setup}Dice rattle by the fires. Half the watch is broke and the other half is pretending. A corporal watches with arms folded, saying nothing yet.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_dice_rattle_opt}Walk on by.",
+          "tooltip": "{=floor_camp_talk_dice_rattle_tt}Keep your coin. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_camp_talk_old_campaign",
+      "title": "{=floor_camp_talk_old_campaign_title}An old campaign",
+      "setup": "{=floor_camp_talk_old_campaign_setup}A veteran reminisces about a campaign twenty years gone. Most of the men he names are dead. He does not say it that way, but the count runs one direction.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_old_campaign_opt}Sit and listen.",
+          "tooltip": "{=floor_camp_talk_old_campaign_tt}Hear the old man out. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_camp_talk_homesick",
+      "title": "{=floor_camp_talk_homesick_title}A letter home",
+      "setup": "{=floor_camp_talk_homesick_setup}A young one writes home by firelight. Mostly about the weather, he says, because the rest would only worry her. He reads a line back, then crosses it out.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_homesick_opt}Leave him to it.",
+          "tooltip": "{=floor_camp_talk_homesick_tt}Give him the quiet. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_camp_talk_war_songs",
+      "title": "{=floor_camp_talk_war_songs_title}A song at the fires",
+      "setup": "{=floor_camp_talk_war_songs_setup}Someone starts a song, low and rough. Others drift in one voice at a time. By the third verse half the fires have joined, and the sergeants do not stop it.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_war_songs_opt}Drift to the fire.",
+          "tooltip": "{=floor_camp_talk_war_songs_tt}Hum along. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_camp_talk_sergeant_complaints",
+      "title": "{=floor_camp_talk_sergeant_complaints_title}The sergeant grumbles",
+      "setup": "{=floor_camp_talk_sergeant_complaints_setup}The sergeant grumbles about the lord's latest order. Not loudly, not where any officer can hear, but loud enough that the nearest tents take the meaning.",
+      "theme": "signal",
+      "category": "floor_camp_talk",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_camp_talk_sergeant_complaints_opt}Pretend you didn't hear.",
+          "tooltip": "{=floor_camp_talk_sergeant_complaints_tt}Stay out of it. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

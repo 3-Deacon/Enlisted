@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot '..\\Write-Status.ps1')
+
 # Content Localization Verification Script
 # Verifies that all content IDs from content-index.md have corresponding XML localization strings
 
@@ -6,8 +8,8 @@ $projectRoot = "C:\Dev\Enlisted\Enlisted"
 $xmlFile = "$projectRoot\ModuleData\Languages\enlisted_strings.xml"
 $outputFile = "$projectRoot\Debugging\localization_verification_report.txt"
 
-Write-Host "Content Localization Verification" -ForegroundColor Cyan
-Write-Host "==================================`n" -ForegroundColor Cyan
+Write-Status "Content Localization Verification" -ForegroundColor Cyan
+Write-Status "==================================`n" -ForegroundColor Cyan
 
 # Define all content IDs that need localization based on content-index.md
 $orderIds = @(
@@ -53,7 +55,7 @@ $mapIncidentIds = @(
 )
 
 # Read XML content
-Write-Host "Reading XML file..." -ForegroundColor Yellow
+Write-Status "Reading XML file..." -ForegroundColor Yellow
 $xmlContent = Get-Content $xmlFile -Raw
 
 # Check each content type
@@ -99,7 +101,7 @@ function Test-LocalizationExists {
 }
 
 # Check Orders
-Write-Host "Checking Orders ($($orderIds.Count) total)..." -ForegroundColor Yellow
+Write-Status "Checking Orders ($($orderIds.Count) total)..." -ForegroundColor Yellow
 $ordersMissing = 0
 foreach ($id in $orderIds) {
     if (-not (Test-LocalizationExists $id "Order")) {
@@ -108,7 +110,7 @@ foreach ($id in $orderIds) {
 }
 
 # Check Decisions
-Write-Host "Checking Decisions ($($decisionIds.Count) total)..." -ForegroundColor Yellow
+Write-Status "Checking Decisions ($($decisionIds.Count) total)..." -ForegroundColor Yellow
 $decisionsMissing = 0
 foreach ($id in $decisionIds) {
     if (-not (Test-LocalizationExists $id "Decision")) {
@@ -117,7 +119,7 @@ foreach ($id in $decisionIds) {
 }
 
 # Check Map Incidents
-Write-Host "Checking Map Incidents ($($mapIncidentIds.Count) total)..." -ForegroundColor Yellow
+Write-Status "Checking Map Incidents ($($mapIncidentIds.Count) total)..." -ForegroundColor Yellow
 $incidentsMissing = 0
 foreach ($id in $mapIncidentIds) {
     if (-not (Test-LocalizationExists $id "MapIncident")) {
@@ -168,10 +170,10 @@ foreach ($found in $foundStrings | Sort-Object) {
 # Save report
 $report | Out-File -FilePath $outputFile -Encoding UTF8
 
-Write-Host "`nReport saved to: $outputFile" -ForegroundColor Green
-Write-Host "`nSUMMARY:" -ForegroundColor Cyan
-Write-Host "  Orders:        $($orderIds.Count - $ordersMissing) / $($orderIds.Count)" -ForegroundColor $(if ($ordersMissing -eq 0) { "Green" } else { "Yellow" })
-Write-Host "  Decisions:     $($decisionIds.Count - $decisionsMissing) / $($decisionIds.Count)" -ForegroundColor $(if ($decisionsMissing -eq 0) { "Green" } else { "Yellow" })
-Write-Host "  Map Incidents: $($mapIncidentIds.Count - $incidentsMissing) / $($mapIncidentIds.Count)" -ForegroundColor $(if ($incidentsMissing -eq 0) { "Green" } else { "Yellow" })
-Write-Host "  Missing:       $($missingStrings.Count)" -ForegroundColor $(if ($missingStrings.Count -eq 0) { "Green" } else { "Red" })
+Write-Status "`nReport saved to: $outputFile" -ForegroundColor Green
+Write-Status "`nSUMMARY:" -ForegroundColor Cyan
+Write-Status "  Orders:        $($orderIds.Count - $ordersMissing) / $($orderIds.Count)" -ForegroundColor $(if ($ordersMissing -eq 0) { "Green" } else { "Yellow" })
+Write-Status "  Decisions:     $($decisionIds.Count - $decisionsMissing) / $($decisionIds.Count)" -ForegroundColor $(if ($decisionsMissing -eq 0) { "Green" } else { "Yellow" })
+Write-Status "  Map Incidents: $($mapIncidentIds.Count - $incidentsMissing) / $($mapIncidentIds.Count)" -ForegroundColor $(if ($incidentsMissing -eq 0) { "Green" } else { "Yellow" })
+Write-Status "  Missing:       $($missingStrings.Count)" -ForegroundColor $(if ($missingStrings.Count -eq 0) { "Green" } else { "Red" })
 

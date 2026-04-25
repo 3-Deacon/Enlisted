@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_rumor_enemy_riders_east",
+      "title": "{=floor_rumor_enemy_riders_east_title}Riders to the east",
+      "setup": "{=floor_rumor_enemy_riders_east_setup}Riders to the east, or so the word runs. A wagoner told a picket who told the cook. By supper everyone has a different number.",
+      "theme": "signal",
+      "category": "floor_rumor",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_rumor_enemy_riders_east_opt}Note it. Keep walking.",
+          "tooltip": "{=floor_rumor_enemy_riders_east_tt}Acknowledge the rumor. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_rumor_prices_in_the_market",
+      "title": "{=floor_rumor_prices_in_the_market_title}Oats up in town",
+      "setup": "{=floor_rumor_prices_in_the_market_setup}Oats up in town, a quartermaster's boy says. Not a good sign for a marching army. Bread follows oats the way dogs follow a cart.",
+      "theme": "signal",
+      "category": "floor_rumor",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_rumor_prices_in_the_market_opt}File it away.",
+          "tooltip": "{=floor_rumor_prices_in_the_market_tt}Mark the rumor. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_rumor_farmer_saw_hounds",
+      "title": "{=floor_rumor_farmer_saw_hounds_title}Hounds on the ridge",
+      "setup": "{=floor_rumor_farmer_saw_hounds_setup}A farmer said he saw war-hounds on the ridge. Or heard them. Or dreamed them. The man had been drinking, the sentry adds, then shrugs anyway.",
+      "theme": "signal",
+      "category": "floor_rumor",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_rumor_farmer_saw_hounds_opt}Half-believe it.",
+          "tooltip": "{=floor_rumor_farmer_saw_hounds_tt}Take it with salt. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_rumor_deserters_inn",
+      "title": "{=floor_rumor_deserters_inn_title}Deserters at an inn",
+      "setup": "{=floor_rumor_deserters_inn_setup}Deserters at some inn two ridges over. So says the blacksmith's cousin. Three of them, or five, depending on who tells it next.",
+      "theme": "signal",
+      "category": "floor_rumor",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_rumor_deserters_inn_opt}Nothing for you to do.",
+          "tooltip": "{=floor_rumor_deserters_inn_tt}Not your business. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_rumor_noble_letters",
+      "title": "{=floor_rumor_noble_letters_title}Letters between nobles",
+      "setup": "{=floor_rumor_noble_letters_setup}Letters going between nobles, thick this week, the couriers say. No one will tell you what is in them, and no one asks twice.",
+      "theme": "signal",
+      "category": "floor_rumor",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_rumor_noble_letters_opt}Keep your head down.",
+          "tooltip": "{=floor_rumor_noble_letters_tt}Mind your own post. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

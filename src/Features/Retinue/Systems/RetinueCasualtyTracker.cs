@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Content;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Features.Retinue.Data;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Content;
-using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
@@ -243,7 +243,7 @@ namespace Enlisted.Features.Retinue.Systems
                 if (actualCount < trackedCount)
                 {
                     var lost = trackedCount - actualCount;
-                    state.UpdateTroopCount(troopId, -lost);
+                    _ = state.UpdateTroopCount(troopId, -lost);
                     totalLost += lost;
                     lossLog.Add($"{lost}x {character.Name}");
                 }
@@ -347,7 +347,7 @@ namespace Enlisted.Features.Retinue.Systems
                 if (casualties > 0)
                 {
                     // Update our tracking to match roster
-                    state.UpdateTroopCount(troopId, -casualties);
+                    _ = state.UpdateTroopCount(troopId, -casualties);
                     totalCasualties += casualties;
                     casualtyLog.Add($"{casualties}x {character.Name}");
 
@@ -414,7 +414,7 @@ namespace Enlisted.Features.Retinue.Systems
 
             foreach (var key in toRemove)
             {
-                state.TroopCounts.Remove(key);
+                _ = state.TroopCounts.Remove(key);
             }
 
             if (toRemove.Count > 0)
@@ -630,8 +630,8 @@ namespace Enlisted.Features.Retinue.Systems
         private static void ShowVeteranEmergenceNotification(NamedVeteran veteran)
         {
             var message = new TextObject("{=enl_vet_emergence_msg}One of your soldiers has distinguished themselves in battle. {VETERAN_NAME} the {TRAIT} has earned a name among your retinue.");
-            message.SetTextVariable("VETERAN_NAME", veteran.Name);
-            message.SetTextVariable("TRAIT", veteran.Trait);
+            _ = message.SetTextVariable("VETERAN_NAME", veteran.Name);
+            _ = message.SetTextVariable("TRAIT", veteran.Trait);
 
             InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Cyan));
 
@@ -649,10 +649,10 @@ namespace Enlisted.Features.Retinue.Systems
 
             // Show notification about the fallen veteran
             var message = new TextObject("{=enl_vet_fallen_msg}{VETERAN_NAME} the {TRAIT} has fallen in battle. They survived {BATTLES} battles and claimed {KILLS} enemy lives.");
-            message.SetTextVariable("VETERAN_NAME", veteran.Name);
-            message.SetTextVariable("TRAIT", veteran.Trait);
-            message.SetTextVariable("BATTLES", veteran.BattlesSurvived);
-            message.SetTextVariable("KILLS", veteran.Kills);
+            _ = message.SetTextVariable("VETERAN_NAME", veteran.Name);
+            _ = message.SetTextVariable("TRAIT", veteran.Trait);
+            _ = message.SetTextVariable("BATTLES", veteran.BattlesSurvived);
+            _ = message.SetTextVariable("KILLS", veteran.Kills);
 
             InformationManager.DisplayMessage(new InformationMessage(message.ToString(), Colors.Red));
 
@@ -662,12 +662,41 @@ namespace Enlisted.Features.Retinue.Systems
             // Record veteran death in news feed for Personal Feed display
             EnlistedNewsBehavior.Instance?.AddVeteranDeath(veteran.Name, veteran.BattlesSurvived, veteran.Kills);
 
-            // Try to queue memorial event for full player interaction
+            // Memorial as accordion entry — flavor, not crisis. Route through Director as
+            // Pertinent (no InteractiveEvent) so the Headlines drilldown picks it up.
             var evt = EventCatalog.GetEvent("evt_ret_veteran_memorial");
-            if (evt != null)
+            if (evt == null)
             {
+                return;
+            }
+
+            var director = StoryDirector.Instance;
+            if (director != null)
+            {
+                string storyKey = "memorial:" + (veteran.Id ?? veteran.Name ?? "unknown"); // Id is the stable per-veteran GUID; Name is fallback
+                director.EmitCandidate(new StoryCandidate
+                {
+                    SourceId = "retinue.memorial." + (veteran.Name ?? "unknown"),
+                    CategoryId = "retinue.memorial",
+                    ProposedTier = StoryTier.Pertinent,
+                    SeverityHint = 0.20f,
+                    Beats = { StoryBeat.PlayerBattleEnd },
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                    EmittedAt = CampaignTime.Now,
+                    RenderedTitle = "Veteran fallen: " + veteran.Name,
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = storyKey,
+                    DispatchCategory = "retinue",
+                    SeverityLevel = 1
+                });
+                ModLogger.Info(veteranCategory, $"Routed memorial to accordion for {veteran.Name}");
+            }
+            else
+            {
+                // Director unavailable — fall back to the original modal queue so memorials
+                // don't silently disappear during early boot.
                 EventDeliveryManager.Instance?.QueueEvent(evt);
-                ModLogger.Info(veteranCategory, $"Queued memorial event for {veteran.Name}");
+                ModLogger.Info(veteranCategory, $"Queued memorial event (Director unavailable) for {veteran.Name}");
             }
         }
 
@@ -777,7 +806,7 @@ namespace Enlisted.Features.Retinue.Systems
                 if (actualCount != trackedCount)
                 {
                     var delta = actualCount - trackedCount;
-                    state.UpdateTroopCount(troopId, delta);
+                    _ = state.UpdateTroopCount(troopId, delta);
                     corrections++;
 
                     ModLogger.Debug(LogCategory,

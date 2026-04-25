@@ -2,7 +2,7 @@
 
 **Summary:** Quick reference for building, modifying, and extending the Enlisted mod. Covers setup, structure, common tasks, and integration patterns.
 
-**Last Updated:** 2026-01-01  
+**Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — new folders under `src/Features/`: Qualities, Flags, Activities. Content authoring now routes through storylets per AGENTS.md Critical Rule #11.)  
 **Target Game:** Bannerlord v1.3.13  
 **Related Docs:** [BLUEPRINT.md](BLUEPRINT.md), [Reference/native-apis.md](Reference/native-apis.md)
 
@@ -118,8 +118,8 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 | `settings.json` | Logging levels, encounter settings |
 | `enlisted_config.json` | Tiers, wages, retirement, feature flags |
 | `progression_config.json` | XP thresholds, culture-specific rank titles |
-| `Orders/*.json` | Order definitions for Chain of Command |
-| `Events/*.json` | Role-based narrative and social events |
+| `Storylets/*.json` | Storylet definitions (Spec 0 backbone) — duty pools, ceremonies, named orders, transitions |
+| `Events/*.json` | Role-based narrative and social events (legacy schema) |
 | `Decisions/*.json` | Decision definitions for Camp Hub |
 | `equipment_kits.json` | Culture-specific equipment loadouts |
 | `equipment_pricing.json` | Quartermaster costs |
@@ -131,14 +131,17 @@ All gameplay configuration files are in `ModuleData/Enlisted/`:
 | File | Purpose | Key Rules |
 | :--- | :--- | :--- |
 | [.editorconfig](../.editorconfig) | Formatting and style | 4-space C# indent, warns on unused `using`, warns on redundant qualifiers |
-| [qodana.yaml](../qodana.yaml) | Static analysis (CI) | Enforces: unused code detection, redundant qualifier removal, documented suppressions only |
+| [ruff.toml](../ruff.toml) | Python lint/format | Enforces imports, common errors, safe upgrades, and simplifications for `Tools/**/*.py` |
+| [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1) | PowerShell lint | Enforces approved verbs, comment help, formatting, and scripting pitfalls for `Tools/**/*.ps1` |
+| [Tools/Validation/lint_repo.ps1](../Tools/Validation/lint_repo.ps1) | Unified lint command | Runs C# style, content validation, Ruff, and PSScriptAnalyzer |
 | [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings) | ReSharper settings | Excludes markdown from inspections |
 
 **What these enforce (from Blueprint):**
 
 - ✅ No unused `using` directives (warns in IDE)
 - ✅ No redundant namespace qualifiers like `System.String.Empty` (warns in IDE)
-- ✅ No unused methods, variables, or parameters (Qodana CI check)
+- ✅ Python tool scripts are linted and format-checked by Ruff
+- ✅ PowerShell scripts are linted by PSScriptAnalyzer
 - ✅ JSON/XML files use 2-space indentation
 - ✅ All suppressions must be documented with reasons
 
@@ -489,11 +492,12 @@ if (eb?.IsEnlisted == true)
 - +25 XP per battle, +1 XP per kill
 - 252-day first term, 84-day renewals
 
-### Orders System
+### Orders System (Spec 2 — Activities/Orders)
 
-- JSON-defined in `ModuleData/Enlisted/Orders/*.json`
-- Tier-gated missions from lord
-- Completion affects reputation
+- Lord-issued duty profiles + named-order arcs running on the `Activity` backbone (Spec 0)
+- State: `OrderActivity` + `NamedOrderState` save-classes (offsets 46/47)
+- Phase content lives in `ModuleData/Enlisted/Storylets/duty_*.json` and named-order arc storylets
+- Tier-gated; completion routes through `EffectExecutor` and the storylet outcome system
 
 ### Equipment System
 
@@ -513,10 +517,10 @@ if (eb?.IsEnlisted == true)
 
 ### Code Quality
 
-- **Read the configuration files first**: [.editorconfig](../.editorconfig), [qodana.yaml](../qodana.yaml), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
-- **ReSharper/Rider is the linter**: Follow warnings and recommendations
-- **Fix issues, don't suppress**: Only suppress with documented justification (see `qodana.yaml` for examples)
-- **Enforced by CI**: Unused code, redundant qualifiers, and missing documentation are flagged by Qodana
+- **Read the configuration files first**: [.editorconfig](../.editorconfig), [ruff.toml](../ruff.toml), [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
+- **Run the repo lint stack**: `.\Tools\Validation\lint_repo.ps1`
+- **ReSharper/Rider plus repo lint are the active checks**: Follow warnings and recommendations
+- **Fix issues, don't suppress**: Only suppress with documented justification in the active config files
 - **Blueprint Constraint #6**: "Follow ReSharper recommendations (never suppress without documented reason)"
 
 ### Comments
@@ -569,7 +573,7 @@ if (eb?.IsEnlisted == true)
 | [BLUEPRINT.md](BLUEPRINT.md) | Architecture, patterns, standards |
 | [Features/Core/index.md](Features/Core/index.md) | Feature specs and gameplay systems |
 | [Reference/campaignsystem-apis.md](Reference/campaignsystem-apis.md) | API notes and research |
-| [Content/content-index.md](Content/content-index.md) | Content catalog (events, orders, decisions) |
+| [Features/Content/README.md](Features/Content/README.md) | Content authoring entry point and current catalog references |
 
 ---
 

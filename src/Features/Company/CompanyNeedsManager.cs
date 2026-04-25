@@ -17,7 +17,7 @@ namespace Enlisted.Features.Company
     public static class CompanyNeedsManager
     {
         private const string LogCategory = "CompanyNeeds";
-        
+
         private static JObject _strategicConfig;
         private static bool _configLoaded;
 
@@ -29,7 +29,7 @@ namespace Enlisted.Features.Company
         {
             if (needs == null)
             {
-                ModLogger.Error(LogCategory, "Cannot process degradation: CompanyNeedsState is null");
+                ModLogger.Caught("CompanyNeeds", "Cannot process degradation: CompanyNeedsState is null", null);
                 return;
             }
 
@@ -40,7 +40,6 @@ namespace Enlisted.Features.Company
             var readinessDegradation = 2;
 
             // Check for accelerated degradation conditions
-            bool isInCombat = army?.MapEvent != null;
             bool isOnLongMarch = army is { IsMoving: true, CurrentSettlement: null };
 
             // Accelerated degradation from long marches
@@ -73,7 +72,7 @@ namespace Enlisted.Features.Company
 
             if (needs == null)
             {
-                ModLogger.Error(LogCategory, "Cannot check critical needs: CompanyNeedsState is null");
+                ModLogger.Caught("CompanyNeeds", "Cannot check critical needs: CompanyNeedsState is null", null);
                 return warnings;
             }
 
@@ -165,8 +164,8 @@ namespace Enlisted.Features.Company
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error predicting upcoming needs", ex);
-                
+                ModLogger.Caught("CompanyNeeds", "Error predicting upcoming needs", ex);
+
                 // Return default predictions on error
                 predictions[CompanyNeed.Readiness] = 60;
                 predictions[CompanyNeed.Supplies] = 60;
@@ -188,10 +187,10 @@ namespace Enlisted.Features.Company
             try
             {
                 var configPath = ModulePaths.GetConfigPath("strategic_context_config.json");
-                
+
                 if (!File.Exists(configPath))
                 {
-                    ModLogger.Error(LogCategory, $"Strategic context config not found at: {configPath}");
+                    ModLogger.Surfaced("COMPANYNEEDS", "Strategic context config not found - needs prediction unavailable", null);
                     _strategicConfig = new JObject();
                     _configLoaded = true;
                     return;
@@ -200,19 +199,19 @@ namespace Enlisted.Features.Company
                 var json = File.ReadAllText(configPath);
                 _strategicConfig = JObject.Parse(json);
                 _configLoaded = true;
-                
+
                 ModLogger.Info(LogCategory, "Strategic context configuration loaded for needs prediction");
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Failed to load strategic context config", ex);
+                ModLogger.Caught("CompanyNeeds", "Failed to load strategic context config", ex);
                 _strategicConfig = new JObject();
                 _configLoaded = true;
             }
         }
 
         // Helper: Check individual need against thresholds and add warning if needed
-        private static void CheckNeedThreshold(int needValue, CompanyNeed need, int criticalHigh, int criticalLow, 
+        private static void CheckNeedThreshold(int needValue, CompanyNeed need, int criticalHigh, int criticalLow,
             Dictionary<CompanyNeed, string> warnings)
         {
             if (needValue <= criticalHigh)

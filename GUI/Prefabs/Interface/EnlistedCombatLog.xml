@@ -1,143 +1,264 @@
 <Prefab>
   <Window>
-    <!-- Main Container - mimics native SPChatLog structure -->
-    <Widget Id="EnlistedCombatLogWidget" 
-            DoNotAcceptEvents="false" 
-            WidthSizePolicy="Fixed" 
+    <Widget Id="EnlistedCombatLogWidget"
+            DoNotAcceptEvents="false"
+            WidthSizePolicy="Fixed"
             HeightSizePolicy="Fixed"
-            SuggestedWidth="400" 
-            SuggestedHeight="280"
-            HorizontalAlignment="Right" 
-            VerticalAlignment="Bottom"
+            SuggestedWidth="@ContainerWidth"
+            SuggestedHeight="@ContainerHeight"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
             MarginRight="30"
-            PositionYOffset="@PositionYOffset"
+            MarginTop="30"
+            PositionXOffset="@PanelOffsetX"
+            PositionYOffset="@PanelOffsetY"
             IsVisible="@IsVisible"
             AlphaFactor="@ContainerAlpha"
             Command.HoverBegin="OnUserInteraction"
             Command.MouseScroll="OnUserInteraction">
       <Children>
-        
-        <!-- Scrollable Panel Container (always visible, like native) -->
-        <Widget Id="ScrollablePanelContainer" 
-                WidthSizePolicy="StretchToParent" 
-                HeightSizePolicy="StretchToParent" 
-                HorizontalAlignment="Right" 
-                VerticalAlignment="Bottom"
-                DoNotAcceptEvents="false">
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#08111BCC"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowSolidBackground" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#08111B66"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowDimBackground" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#C89C4A22"
+                MarginLeft="1"
+                MarginRight="1"
+                MarginTop="1"
+                MarginBottom="1"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowSolidBackground" />
+
+        <Widget WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare_9"
+                Color="#C89C4A10"
+                MarginLeft="1"
+                MarginRight="1"
+                MarginTop="1"
+                MarginBottom="1"
+                DoNotAcceptEvents="true"
+                IsVisible="@ShowDimBackground" />
+
+        <Widget Id="ResizeFrameWidget"
+                DoNotAcceptEvents="true"
+                WidthSizePolicy="Fixed"
+                HeightSizePolicy="Fixed"
+                SuggestedWidth="@ResizePreviewWidth"
+                SuggestedHeight="@ResizePreviewHeight"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Sprite="BlankWhiteSquare_9"
+                Color="#FFFFFF11"
+                IsVisible="@ShowResizeFrame" />
+
+        <Widget Id="HeaderBar"
+                DoNotAcceptEvents="false"
+                WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="Fixed"
+                SuggestedHeight="34"
+                MarginLeft="10"
+                MarginRight="10"
+                MarginTop="6"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
           <Children>
-            
-            <!-- Scrollable Panel (mimics native scrolling structure) -->
-            <ScrollablePanel Id="ScrollablePanel" 
-                            DoNotAcceptEvents="false"
-                            WidthSizePolicy="StretchToParent" 
-                            HeightSizePolicy="StretchToParent"
-                            VerticalAlignment="Bottom"
-                            ClipRect="ClipRect" 
-                            InnerPanel="ClipRect\InnerPanel" 
-                            VerticalScrollbar="..\ScrollbarHolder\VerticalScrollbar">
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#162433EE"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowSolidBackground" />
+
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#16243388"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowDimBackground" />
+
+            <RichTextWidget WidthSizePolicy="CoverChildren"
+                            HeightSizePolicy="CoverChildren"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            MarginLeft="8"
+                            Brush="SPGeneral.MediumText"
+                            Brush.FontSize="16"
+                            Text="@HeaderText" />
+
+            <ButtonWidget Id="BackgroundModeButton"
+                          WidthSizePolicy="Fixed"
+                          HeightSizePolicy="Fixed"
+                          SuggestedWidth="34"
+                          SuggestedHeight="22"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          MarginRight="4"
+                          Brush="ButtonBrush1"
+                          Command.Click="ExecuteCycleBackgroundMode">
               <Children>
-                
-                <!-- Clip Rectangle (clips content like native) -->
-                <Widget Id="ClipRect" 
-                        DoNotAcceptEvents="false"
-                        ClipContents="true" 
-                        WidthSizePolicy="StretchToParent" 
-                        HeightSizePolicy="StretchToParent" 
-                        MarginLeft="15" 
-                        MarginRight="21">
-                  <Children>
-                    
-                    <!-- Message List Panel (Bottom to Top like native) -->
-                    <ListPanel Id="InnerPanel" 
-                              DataSource="{Messages}" 
-                              DoNotAcceptEvents="false" 
-                              WidthSizePolicy="StretchToParent" 
-                              HeightSizePolicy="CoverChildren" 
-                              HorizontalAlignment="Center" 
-                              VerticalAlignment="Bottom" 
-                              ClipContents="true" 
-                              StackLayout.LayoutMethod="VerticalBottomToTop">
-                      <ItemTemplate>
-                        
-                        <!-- Individual Message (mimics native ChatLogItemWidget) -->
-                        <Widget DoNotAcceptEvents="false" 
-                                WidthSizePolicy="StretchToParent" 
-                                HeightSizePolicy="CoverChildren">
-                          <Children>
-                            
-                            <!-- Message Text with Encyclopedia Link Support -->
-                            <RichTextWidget Id="MessageTextWidget"
-                                          DoNotAcceptEvents="false" 
-                                          WidthSizePolicy="StretchToParent" 
-                                          HeightSizePolicy="CoverChildren" 
-                                          Text="@Text"
-                                          MarginLeft="5" 
-                                          MarginRight="5" 
-                                          Brush="Enlisted.CombatLog.Text" 
-                                          Brush.GlobalAlphaFactor="@AlphaFactor" 
-                                          Brush.TextHorizontalAlignment="Left" 
-                                          Brush.TextVerticalAlignment="Center" 
-                                          ClipContents="false" />
-                            
-                          </Children>
-                        </Widget>
-                        
-                      </ItemTemplate>
-                    </ListPanel>
-                    
-                  </Children>
-                </Widget>
-                
+                <RichTextWidget WidthSizePolicy="CoverChildren"
+                                HeightSizePolicy="CoverChildren"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Brush="SPGeneral.MediumText"
+                                Brush.FontSize="12"
+                                Text="@BackgroundButtonText" />
               </Children>
-            </ScrollablePanel>
-            
-            <!-- Scrollbar Holder (only shown if needed, like native) -->
-            <Widget Id="ScrollbarHolder" 
-                    WidthSizePolicy="CoverChildren" 
-                    HeightSizePolicy="StretchToParent" 
-                    HorizontalAlignment="Right">
-              <Children>
-                
-                <!-- Vertical Scrollbar (mimics native style) -->
-                <ScrollbarWidget Id="VerticalScrollbar" 
-                                WidthSizePolicy="CoverChildren" 
-                                HeightSizePolicy="StretchToParent" 
-                                AlignmentAxis="Vertical" 
-                                Handle="VerticalScrollbarHandle" 
-                                MarginTop="5" 
-                                MarginBottom="5" 
-                                MaxValue="100" 
-                                MinValue="0">
-                  <Children>
-                    <!-- Scrollbar Track -->
-                    <Widget WidthSizePolicy="Fixed" 
-                            HeightSizePolicy="StretchToParent" 
-                            SuggestedWidth="2" 
-                            HorizontalAlignment="Center" 
-                            Sprite="BlankWhiteSquare_9" 
-                            Color="#A37434FF" 
-                            MarginTop="5" 
-                            MarginBottom="5" 
-                            AlphaFactor="0.7" />
-                    
-                    <!-- Scrollbar Handle (mimics native brush) -->
-                    <ImageWidget Id="VerticalScrollbarHandle" 
-                                WidthSizePolicy="Fixed" 
-                                HeightSizePolicy="Fixed" 
-                                MinHeight="15" 
-                                SuggestedHeight="10" 
-                                SuggestedWidth="14" 
-                                HorizontalAlignment="Center" 
-                                Brush="SPChatlog.Scrollbar.Handle" />
-                  </Children>
-                </ScrollbarWidget>
-                
-              </Children>
-            </Widget>
-            
+            </ButtonWidget>
           </Children>
         </Widget>
-        
+
+        <Widget Id="ScrollablePanelContainer"
+                DoNotAcceptEvents="false"
+                WidthSizePolicy="StretchToParent"
+                HeightSizePolicy="StretchToParent"
+                MarginTop="38"
+                MarginBottom="6"
+                MarginLeft="6"
+                MarginRight="6"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top">
+          <Children>
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#0C182480"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowSolidBackground" />
+
+            <Widget WidthSizePolicy="StretchToParent"
+                    HeightSizePolicy="StretchToParent"
+                    Sprite="BlankWhiteSquare_9"
+                    Color="#0C182438"
+                    DoNotAcceptEvents="true"
+                    IsVisible="@ShowDimBackground" />
+
+            <ScrollablePanel Id="ScrollablePanel"
+                             DoNotAcceptEvents="false"
+                             WidthSizePolicy="StretchToParent"
+                             HeightSizePolicy="StretchToParent"
+                             VerticalAlignment="Top"
+                             ClipRect="ClipRect"
+                             InnerPanel="ClipRect\InnerPanel"
+                             VerticalScrollbar="..\ScrollbarHolder\VerticalScrollbar"
+                             AutoHideScrollBars="true">
+              <Children>
+                <Widget Id="ClipRect"
+                        DoNotAcceptEvents="false"
+                        ClipContents="true"
+                        WidthSizePolicy="StretchToParent"
+                        HeightSizePolicy="StretchToParent"
+                        MarginLeft="15"
+                        MarginRight="18"
+                        MarginTop="6"
+                        MarginBottom="6">
+                  <Children>
+                    <ListPanel Id="InnerPanel"
+                               DataSource="{Messages}"
+                               DoNotAcceptEvents="false"
+                               WidthSizePolicy="StretchToParent"
+                               HeightSizePolicy="CoverChildren"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Bottom"
+                               ClipContents="true"
+                               StackLayout.LayoutMethod="VerticalBottomToTop">
+                      <ItemTemplate>
+                        <Widget DoNotAcceptEvents="false"
+                                WidthSizePolicy="StretchToParent"
+                                HeightSizePolicy="CoverChildren">
+                          <Children>
+                            <RichTextWidget Id="MessageTextWidget"
+                                            DoNotAcceptEvents="false"
+                                            WidthSizePolicy="StretchToParent"
+                                            HeightSizePolicy="CoverChildren"
+                                            Text="@Text"
+                                            MarginLeft="5"
+                                            MarginRight="5"
+                                            Brush="Enlisted.CombatLog.Text"
+                                            Brush.GlobalAlphaFactor="@AlphaFactor"
+                                            Brush.TextHorizontalAlignment="Left"
+                                            Brush.TextVerticalAlignment="Center"
+                                            ClipContents="false" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+
+            <Widget Id="ScrollbarHolder"
+                    WidthSizePolicy="CoverChildren"
+                    HeightSizePolicy="StretchToParent"
+                    HorizontalAlignment="Right"
+                    MarginTop="4"
+                    MarginBottom="4">
+              <Children>
+                <ScrollbarWidget Id="VerticalScrollbar"
+                                 WidthSizePolicy="CoverChildren"
+                                 HeightSizePolicy="StretchToParent"
+                                 AlignmentAxis="Vertical"
+                                 Handle="VerticalScrollbarHandle"
+                                 MarginTop="5"
+                                 MarginBottom="5"
+                                 MaxValue="100"
+                                 MinValue="0">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed"
+                            HeightSizePolicy="StretchToParent"
+                            SuggestedWidth="2"
+                            HorizontalAlignment="Center"
+                            Sprite="BlankWhiteSquare_9"
+                            Color="#A37434FF"
+                            MarginTop="5"
+                            MarginBottom="5"
+                            AlphaFactor="0.7" />
+
+                    <ImageWidget Id="VerticalScrollbarHandle"
+                                 WidthSizePolicy="Fixed"
+                                 HeightSizePolicy="Fixed"
+                                 MinHeight="15"
+                                 SuggestedHeight="10"
+                                 SuggestedWidth="14"
+                                 HorizontalAlignment="Center"
+                                 Brush="SPChatlog.Scrollbar.Handle" />
+                  </Children>
+                </ScrollbarWidget>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
+
+        <Widget Id="ResizeHandle"
+                DoNotAcceptEvents="false"
+                WidthSizePolicy="Fixed"
+                HeightSizePolicy="Fixed"
+                SuggestedWidth="18"
+                SuggestedHeight="18"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                MarginLeft="2"
+                MarginBottom="2"
+                IsVisible="@ShowResizeHandle"
+                Sprite="BlankWhiteSquare_9"
+                Color="#A37434FF" />
+
       </Children>
     </Widget>
   </Window>

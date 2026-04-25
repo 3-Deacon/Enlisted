@@ -1,0 +1,481 @@
+{
+  "storylets": [
+    {
+      "id": "duty_wandering_read_the_trail_1",
+      "title": "{=duty_wandering_read_the_trail_1_title}Reading the trail",
+      "setup": "{=duty_wandering_read_the_trail_1_setup}The road ends at a crossroads and there is no one to ask which way. You read the wheel ruts, the hoof marks, the trampled grass. Three choices. You pick the one that looks like coin.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_read_the_trail_1_opt}Read the ground. Take the likeliest road.",
+          "tooltip": "{=duty_wandering_read_the_trail_1_tt}Crossroads navigation. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_ridgeline_watch_1",
+      "title": "{=duty_wandering_ridgeline_watch_1_title}Ridgeline watch",
+      "setup": "{=duty_wandering_ridgeline_watch_1_setup}You ride to the nearest ridge and look. No orders, no hurry. Just the lay of the country spread out below — roads, farmsteads, the glint of water two valleys off. You file it away.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_ridgeline_watch_1_opt}Read the country from above.",
+          "tooltip": "{=duty_wandering_ridgeline_watch_1_tt}High ground observation. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_tracks_at_dawn_1",
+      "title": "{=duty_wandering_tracks_at_dawn_1_title}Tracks in the mud at dawn",
+      "setup": "{=duty_wandering_tracks_at_dawn_1_setup}Overnight, someone passed through camp on the road. The tracks in the morning mud are clear — a party moving fast, no wagon, heading east. You note the interval and the iron-shoe marks.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_tracks_at_dawn_1_opt}Measure the tracks. Count the horses.",
+          "tooltip": "{=duty_wandering_tracks_at_dawn_1_tt}Early-morning track read. Scouting + Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_cover_a_road_1",
+      "title": "{=duty_wandering_cover_a_road_1_title}Cover a road for an hour",
+      "setup": "{=duty_wandering_cover_a_road_1_setup}The lord asks for a watch on the south road while he meets with a notable. An hour, he says. You find a spot in the tree line and watch who passes.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_cover_a_road_1_opt}Hold the watch. Count what passes.",
+          "tooltip": "{=duty_wandering_cover_a_road_1_tt}Road watch and tally. Scouting + Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_market_prices_1",
+      "title": "{=duty_wandering_market_prices_1_title}Village market prices",
+      "setup": "{=duty_wandering_market_prices_1_setup}The village has a market. Not much — grain, cloth, a few tools — but you walk the stalls and work out what things cost here versus what they cost three days east. The difference is the reason to be here.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_market_prices_1_opt}Price the goods. Note what moves.",
+          "tooltip": "{=duty_wandering_market_prices_1_tt}Local market survey. Trade XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_notable_deal_1",
+      "title": "{=duty_wandering_notable_deal_1_title}A deal with a rural notable",
+      "setup": "{=duty_wandering_notable_deal_1_setup}A village notable wants protection for a grain shipment two days west. He offers silver and a night's lodging. Your lord is flexible on destinations. You sit with the man and work out terms.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_notable_deal_1_opt}Hear the terms. Don't overpromise.",
+          "tooltip": "{=duty_wandering_notable_deal_1_tt}Freelance escort negotiation. Trade + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_goods_assessment_1",
+      "title": "{=duty_wandering_goods_assessment_1_title}Assessing the haul",
+      "setup": "{=duty_wandering_goods_assessment_1_setup}After a run-in on the road, you help catalog what was recovered. Cloth, iron ingots, a merchant's ledger with debts listed in three scripts. The ledger might be worth something to the right buyer.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_goods_assessment_1_opt}Work through the inventory. Flag anything valuable.",
+          "tooltip": "{=duty_wandering_goods_assessment_1_tt}Spoil assessment after a skirmish. Trade + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_sell_the_surplus_1",
+      "title": "{=duty_wandering_sell_the_surplus_1_title}Selling the surplus",
+      "setup": "{=duty_wandering_sell_the_surplus_1_setup}The party has more than it needs and coin would be more useful. You take the surplus to a merchant at the crossroads inn and work through the haggle over an afternoon drink you do not actually drink.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_sell_the_surplus_1_opt}Drive a fair deal. Keep your lord's name clean.",
+          "tooltip": "{=duty_wandering_sell_the_surplus_1_tt}Surplus goods sold at a crossroads. Trade + lord_relation XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "quality_add", "quality": "lord_relation", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_dice_at_the_inn_1",
+      "title": "{=duty_wandering_dice_at_the_inn_1_title}Dice at the tavern",
+      "setup": "{=duty_wandering_dice_at_the_inn_1_setup}A quiet night in a crossroads tavern. The locals play dice on a worn corner table. You sit in and watch the tells — who hesitates before a raise, who looks at the door, who plays with other people's money.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_dice_at_the_inn_1_opt}Play quiet. Watch what people give away.",
+          "tooltip": "{=duty_wandering_dice_at_the_inn_1_tt}Tavern dice observation. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_rumor_buying_1",
+      "title": "{=duty_wandering_rumor_buying_1_title}Buying a rumor",
+      "setup": "{=duty_wandering_rumor_buying_1_setup}A pedlar has a story worth paying for — or says he has. You sit with him long enough to determine that half of it is real, a quarter is embellished, and the rest is invention. The real quarter is still useful.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_rumor_buying_1_opt}Pay for the real part. Discard the rest.",
+          "tooltip": "{=duty_wandering_rumor_buying_1_tt}Intelligence gathering from a pedlar. Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_shakedown_averted_1",
+      "title": "{=duty_wandering_shakedown_averted_1_title}Shakedown on the road",
+      "setup": "{=duty_wandering_shakedown_averted_1_setup}A pair of armed men are blocking the road with a chain and a story about a toll. They are not authorized toll collectors. You are fairly sure they know this.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_shakedown_averted_1_opt}Move them off without a fuss.",
+          "tooltip": "{=duty_wandering_shakedown_averted_1_tt}Road shakedown dealt with. Roguery + OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_campfire_sparring_1",
+      "title": "{=duty_wandering_campfire_sparring_1_title}Sparring by the fire",
+      "setup": "{=duty_wandering_campfire_sparring_1_setup}No enemies and nothing to do. Someone produces two blunted blades and a space clears at the edge of camp. Better than standing still in the dark.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_campfire_sparring_1_opt}Take a bout. Stay sharp.",
+          "tooltip": "{=duty_wandering_campfire_sparring_1_tt}Idle sparring at camp. TwoHanded + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_range_practice_1",
+      "title": "{=duty_wandering_range_practice_1_title}Range work at camp",
+      "setup": "{=duty_wandering_range_practice_1_setup}A dead oak in a field makes a decent target. You pull from thirty paces, then forty. The crossbowman nearby moves his bolts in tight groups while you trade remarks about technique.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_range_practice_1_opt}Work the targets until the light goes.",
+          "tooltip": "{=duty_wandering_range_practice_1_tt}Idle range practice. Bow + Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_javelin_tree_1",
+      "title": "{=duty_wandering_javelin_tree_1_title}Javelins at a tree",
+      "setup": "{=duty_wandering_javelin_tree_1_setup}A field, a tree, and an afternoon to kill. You spend it working throwing distances — ten paces, then fifteen, then back to ten when the results embarrass you.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_javelin_tree_1_opt}Work the distances. Find the arc.",
+          "tooltip": "{=duty_wandering_javelin_tree_1_tt}Javelin practice in a field. Throwing + Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_long_ride_1",
+      "title": "{=duty_wandering_long_ride_1_title}Long ride between nowhere",
+      "setup": "{=duty_wandering_long_ride_1_setup}Two days between settlements with nothing but road, weather, and saddle time. You and the horse come to an understanding about pace and preferred stops.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_long_ride_1_opt}Let the horse set the pace. Learn its mind.",
+          "tooltip": "{=duty_wandering_long_ride_1_tt}Long cross-country ride. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_ford_crossing_1",
+      "title": "{=duty_wandering_ford_crossing_1_title}Ford crossing in high water",
+      "setup": "{=duty_wandering_ford_crossing_1_setup}The ford is running high from last week's rain. You go first, walking the horse slowly, feeling for the bottom. The rest of the party watches and follows your line.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_ford_crossing_1_opt}Walk the line. Bring the horse through steady.",
+          "tooltip": "{=duty_wandering_ford_crossing_1_tt}High-water ford crossing. Riding + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_half_built_bridge_1",
+      "title": "{=duty_wandering_half_built_bridge_1_title}Half-built bridge",
+      "setup": "{=duty_wandering_half_built_bridge_1_setup}A bridge over the eastern ford is half-built and abandoned. The scaffolding is wrong and the timber selection is poor. You walk the structure, note the problem, and think about the man who left it.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_half_built_bridge_1_opt}Work out why it stopped. File the lesson.",
+          "tooltip": "{=duty_wandering_half_built_bridge_1_tt}Abandoned construction analysis. Engineering + Smithing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_new_threat_1",
+      "title": "{=duty_wandering_new_threat_1_title}Fresh threat on the road",
+      "setup": "{=duty_wandering_new_threat_1_setup}Word reaches you from a rider on the road: something new is moving in the region. Doesn't know what, doesn't know where. He kept riding. You start paying more attention to the side tracks.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:NewThreat"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_new_threat_1_opt}Read the side tracks. Watch what's moving.",
+          "tooltip": "{=duty_wandering_new_threat_1_tt}New threat nearby. Scouting + Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_objective_shift_1",
+      "title": "{=duty_wandering_objective_shift_1_title}Objective shift, new direction",
+      "setup": "{=duty_wandering_objective_shift_1_setup}The lord announces a new destination over breakfast. No explanation, different road. You adjust the day's plan and estimate what supplies will last and which will need replacing on this heading.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:ObjectiveShift"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_objective_shift_1_opt}Recalculate the supply needs. Plan the new route.",
+          "tooltip": "{=duty_wandering_objective_shift_1_tt}New heading mid-wander. Trade + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_low_intel_1",
+      "title": "{=duty_wandering_low_intel_1_title}No word from the front",
+      "setup": "{=duty_wandering_low_intel_1_setup}There is no front to speak of — no news of where the enemy is, no runners from the castle, no sign of armies moving. The road is quiet in the way that makes experienced men uneasy.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted", "not:snapshot_front_pressure_gte:1"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_low_intel_1_opt}Push further out. Find what the quiet is hiding.",
+          "tooltip": "{=duty_wandering_low_intel_1_tt}Quiet-stretch intel sweep. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_wandering_war_declared_1",
+      "title": "{=duty_wandering_war_declared_1_title}War declared",
+      "setup": "{=duty_wandering_war_declared_1_setup}A courier catches you on the road: war declared, faction versus faction, the familiar names aligned in unfamiliar directions. The mercenary quiet is over. Your lord looks at the map a long time before putting it away.",
+      "theme": "duty",
+      "category": "duty_wandering",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["wandering"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:WarDeclared"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_wandering_war_declared_1_opt}Think through the new positions. Plan accordingly.",
+          "tooltip": "{=duty_wandering_war_declared_1_tt}Fresh war changes the board. Tactics XP, readiness up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

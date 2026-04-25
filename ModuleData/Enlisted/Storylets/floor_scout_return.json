@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_scout_return_numbers_confirmed",
+      "title": "{=floor_scout_return_numbers_confirmed_title}Numbers confirmed",
+      "setup": "{=floor_scout_return_numbers_confirmed_setup}Scouts in: enemy numbers confirmed. Not as bad as feared. The sergeant repeats it twice so the lads can hear it and believe it.",
+      "theme": "signal",
+      "category": "floor_scout_return",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_scout_return_numbers_confirmed_opt}Note the report.",
+          "tooltip": "{=floor_scout_return_numbers_confirmed_tt}Acknowledge the intel. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_scout_return_road_clear",
+      "title": "{=floor_scout_return_road_clear_title}Road ahead clear",
+      "setup": "{=floor_scout_return_road_clear_setup}Road clear ahead. Two days of easy marching. The scout says it flat, the way a man says it when he does not want to jinx it.",
+      "theme": "signal",
+      "category": "floor_scout_return",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_scout_return_road_clear_opt}Pass it on.",
+          "tooltip": "{=floor_scout_return_road_clear_tt}Acknowledge. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_scout_return_bridge_held",
+      "title": "{=floor_scout_return_bridge_held_title}Bridge held",
+      "setup": "{=floor_scout_return_bridge_held_setup}The bridge is held by ours. Good news for tomorrow. A picket on the bridge, a cook-fire behind him, and the river doing the rest of the work.",
+      "theme": "signal",
+      "category": "floor_scout_return",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_scout_return_bridge_held_opt}Adjust the day's plan.",
+          "tooltip": "{=floor_scout_return_bridge_held_tt}Note it. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_scout_return_village_peaceful",
+      "title": "{=floor_scout_return_village_peaceful_title}Village untouched",
+      "setup": "{=floor_scout_return_village_peaceful_setup}The village was untouched. Locals offer water. A child hands a dented cup up to a rider and does not ask for coin, and the rider pretends not to be moved.",
+      "theme": "signal",
+      "category": "floor_scout_return",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_scout_return_village_peaceful_opt}Good news for once.",
+          "tooltip": "{=floor_scout_return_village_peaceful_tt}Acknowledge. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_scout_return_tracks_stale",
+      "title": "{=floor_scout_return_tracks_stale_title}Stale tracks",
+      "setup": "{=floor_scout_return_tracks_stale_setup}Tracks confirmed — two days old. Whoever it was is long gone. The scout prods the depression in the dirt with the tip of his boot and shrugs.",
+      "theme": "signal",
+      "category": "floor_scout_return",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_scout_return_tracks_stale_opt}Long gone, then.",
+          "tooltip": "{=floor_scout_return_tracks_stale_tt}Note it. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

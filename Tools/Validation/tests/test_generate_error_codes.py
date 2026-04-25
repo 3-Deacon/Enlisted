@@ -1,9 +1,8 @@
 """Unit tests for generate_error_codes.py."""
-from pathlib import Path
+
 import sys
 import textwrap
-
-import pytest
+from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / "generate_error_codes.py"
 
@@ -37,6 +36,7 @@ def test_happy_path_single_surfaced_call(tmp_path, monkeypatch):
     _setup_repo(tmp_path, {"Features/QM.cs": cs})
     sys.path.insert(0, str(SCRIPT.parent))
     import generate_error_codes as g
+
     monkeypatch.setattr(g, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(g, "SRC_DIR", tmp_path / "src")
     monkeypatch.setattr(g, "REGISTRY_PATH", tmp_path / "docs" / "error-codes.md")
@@ -58,6 +58,7 @@ def test_collision_detection(tmp_path, monkeypatch):
     _setup_repo(tmp_path, {"a.cs": cs})
     sys.path.insert(0, str(SCRIPT.parent))
     import generate_error_codes as g
+
     monkeypatch.setattr(g, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(g, "SRC_DIR", tmp_path / "src")
     monkeypatch.setattr(g, "REGISTRY_PATH", tmp_path / "docs" / "error-codes.md")
@@ -76,6 +77,7 @@ def test_non_literal_args_rejected(tmp_path, monkeypatch):
     _setup_repo(tmp_path, {"a.cs": cs})
     sys.path.insert(0, str(SCRIPT.parent))
     import generate_error_codes as g
+
     monkeypatch.setattr(g, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(g, "SRC_DIR", tmp_path / "src")
     monkeypatch.setattr(g, "REGISTRY_PATH", tmp_path / "docs" / "error-codes.md")
@@ -86,6 +88,7 @@ def test_non_literal_args_rejected(tmp_path, monkeypatch):
 def test_suffix_is_stable(tmp_path, monkeypatch):
     sys.path.insert(0, str(SCRIPT.parent))
     import generate_error_codes as g
+
     a = g.compute_suffix("Error charging gold")
     b = g.compute_suffix("Error charging gold")
     assert a == b
@@ -98,6 +101,7 @@ def test_check_mode_flags_drift(tmp_path, monkeypatch):
     _setup_repo(tmp_path, {"a.cs": cs})
     sys.path.insert(0, str(SCRIPT.parent))
     import generate_error_codes as g
+
     monkeypatch.setattr(g, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(g, "SRC_DIR", tmp_path / "src")
     monkeypatch.setattr(g, "REGISTRY_PATH", tmp_path / "docs" / "error-codes.md")

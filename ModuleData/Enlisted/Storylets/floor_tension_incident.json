@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_tension_incident_fight_at_the_fires",
+      "title": "{=floor_tension_incident_fight_at_the_fires_title}Fight at the fires",
+      "setup": "{=floor_tension_incident_fight_at_the_fires_setup}Two soldiers come to blows at the fires. Sergeants break it up, each with a hand to a collar. The camp pretends not to look. One man spits blood into the ash and says nothing.",
+      "theme": "signal",
+      "category": "floor_tension_incident",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_tension_incident_fight_at_the_fires_opt}Look away.",
+          "tooltip": "{=floor_tension_incident_fight_at_the_fires_tt}Stay out of it. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_tension_incident_missing_bread",
+      "title": "{=floor_tension_incident_missing_bread_title}Missing bread",
+      "setup": "{=floor_tension_incident_missing_bread_setup}Someone's bread ration is missing. Nobody admits. The quartermaster's boy stands with a slate and a pencil, writing nothing, while three men trade glances across the mess line.",
+      "theme": "signal",
+      "category": "floor_tension_incident",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_tension_incident_missing_bread_opt}Note who's involved.",
+          "tooltip": "{=floor_tension_incident_missing_bread_tt}Remember the names. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_tension_incident_late_return",
+      "title": "{=floor_tension_incident_late_return_title}Late return",
+      "setup": "{=floor_tension_incident_late_return_setup}A squad comes back after curfew. The sergeant waits by the picket, arms folded, the lantern set down beside him. No one speaks. The men file past and the sergeant counts them with his eyes.",
+      "theme": "signal",
+      "category": "floor_tension_incident",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_tension_incident_late_return_opt}Step aside.",
+          "tooltip": "{=floor_tension_incident_late_return_tt}Let the sergeant work. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_tension_incident_sergeants_argue",
+      "title": "{=floor_tension_incident_sergeants_argue_title}Sergeants arguing",
+      "setup": "{=floor_tension_incident_sergeants_argue_setup}Two sergeants argue by the wagons. Something about prisoners. Voices low and flat, the way men argue when they do not want to be overheard. A corporal drifts closer, then drifts away.",
+      "theme": "signal",
+      "category": "floor_tension_incident",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_tension_incident_sergeants_argue_opt}Keep moving.",
+          "tooltip": "{=floor_tension_incident_sergeants_argue_tt}Not your quarrel. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_tension_incident_drunken_fool",
+      "title": "{=floor_tension_incident_drunken_fool_title}Drunken fool",
+      "setup": "{=floor_tension_incident_drunken_fool_setup}A drunken fool staggers from the billet. Camp discipline watches from the far fire, hands on belts, waiting to see whether he reaches his own tent or takes a swing at a wagon wheel first.",
+      "theme": "signal",
+      "category": "floor_tension_incident",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_tension_incident_drunken_fool_opt}Give him room.",
+          "tooltip": "{=floor_tension_incident_drunken_fool_tt}Stay clear. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

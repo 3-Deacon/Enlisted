@@ -1,7 +1,10 @@
+using Enlisted.Features.Content.Models;
+using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Escalation;
 using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
 
 namespace Enlisted.Features.Content
 {
@@ -16,7 +19,8 @@ namespace Enlisted.Features.Content
     /// - min_hours_between: Minimum hours between any automatic events
     /// - per_category_cooldown_days: Days between events of same category
     ///
-    /// Quiet day logic is controlled by ContentOrchestrator based on world state.
+    /// Quiet days are computed on day-rollover from the enlisted lord's situation
+    /// (defeated / captured / peacetime garrison with a 10% roll).
     /// </summary>
     public static class GlobalEventPacer
     {
@@ -80,22 +84,8 @@ namespace Enlisted.Features.Content
             var currentDay = (int)now.ToDays;
             var currentWeek = currentDay / 7;
 
-            // Roll over daily count and quiet day flag if it's a new day
-            if (state.AutoEventDayNumber != currentDay)
-            {
-                state.AutoEventDayNumber = currentDay;
-                state.AutoEventsToday = 0;
-                state.IsQuietDay = false; // Reset quiet day flag for new day
-            }
+            RolloverIfNewDay(state, currentDay, currentWeek);
 
-            // Roll over weekly count if it's a new week
-            if (state.AutoEventWeekNumber != currentWeek)
-            {
-                state.AutoEventWeekNumber = currentWeek;
-                state.AutoEventsThisWeek = 0;
-            }
-
-            // Quiet day is set by ContentOrchestrator based on world state
             if (state.IsQuietDay)
             {
                 reason = "Quiet day - no automatic events today";
@@ -195,18 +185,7 @@ namespace Enlisted.Features.Content
             var currentDay = (int)now.ToDays;
             var currentWeek = currentDay / 7;
 
-            // Ensure counters are for current day/week
-            if (state.AutoEventDayNumber != currentDay)
-            {
-                state.AutoEventDayNumber = currentDay;
-                state.AutoEventsToday = 0;
-                state.IsQuietDay = false;
-            }
-            if (state.AutoEventWeekNumber != currentWeek)
-            {
-                state.AutoEventWeekNumber = currentWeek;
-                state.AutoEventsThisWeek = 0;
-            }
+            RolloverIfNewDay(state, currentDay, currentWeek);
 
             // Update tracking
             state.LastAutoEventTime = now;
@@ -257,24 +236,46 @@ namespace Enlisted.Features.Content
         }
 
         /// <summary>
-        /// Sets the quiet day flag based on world state.
-        /// Called by ContentOrchestrator to control event pacing based on garrison/campaign/siege context.
+        /// Rolls daily/weekly counters and recomputes the quiet-day flag on day boundaries.
         /// </summary>
-        /// <param name="isQuiet">True if today should be a quiet day (no automatic events)</param>
-        public static void SetQuietDay(bool isQuiet)
+        private static void RolloverIfNewDay(EscalationState state, int currentDay, int currentWeek)
         {
-            var state = EscalationManager.Instance?.State;
-            if (state == null)
+            if (state.AutoEventDayNumber != currentDay)
             {
-                ModLogger.Warn(LogCategory, "Cannot set quiet day - EscalationState not available");
-                return;
+                state.AutoEventDayNumber = currentDay;
+                state.AutoEventsToday = 0;
+                state.IsQuietDay = ComputeIsQuietDay();
+            }
+            if (state.AutoEventWeekNumber != currentWeek)
+            {
+                state.AutoEventWeekNumber = currentWeek;
+                state.AutoEventsThisWeek = 0;
+            }
+        }
+
+        /// <summary>
+        /// Quiet-day predicate: defeated / captured / peacetime garrison with a 10% roll.
+        /// Returns false outside enlistment so non-enlisted play keeps the default pacing.
+        /// </summary>
+        private static bool ComputeIsQuietDay()
+        {
+            var enlistment = EnlistmentBehavior.Instance;
+            if (enlistment?.IsEnlisted != true)
+            {
+                return false;
             }
 
-            if (state.IsQuietDay != isQuiet)
+            var situation = WorldStateAnalyzer.AnalyzeSituation();
+            var isQuiet = situation.LordIs == LordSituation.Defeated
+                       || situation.LordIs == LordSituation.Captured
+                       || (situation.LordIs == LordSituation.PeacetimeGarrison &&
+                           MBRandom.RandomFloat < 0.10f);
+
+            if (isQuiet)
             {
-                state.IsQuietDay = isQuiet;
-                ModLogger.Debug(LogCategory, $"Quiet day set to: {isQuiet} (orchestrator-driven)");
+                ModLogger.Debug(LogCategory, $"Quiet day rolled (situation: {situation.LordIs})");
             }
+            return isQuiet;
         }
     }
 }

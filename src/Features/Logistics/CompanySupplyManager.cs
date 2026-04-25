@@ -149,7 +149,7 @@ namespace Enlisted.Features.Logistics
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in DailyUpdate", ex);
+                ModLogger.Caught("Supply", "Error in DailyUpdate", ex);
             }
         }
 
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Logistics
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in HourlyUpdate", ex);
+                ModLogger.Caught("Supply", "Error in HourlyUpdate", ex);
             }
         }
 
@@ -241,7 +241,7 @@ namespace Enlisted.Features.Logistics
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in OnSettlementLeft", ex);
+                ModLogger.Caught("Supply", "Error in OnSettlementLeft", ex);
             }
         }
 
@@ -536,7 +536,7 @@ namespace Enlisted.Features.Logistics
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error processing battle supply changes", ex);
+                ModLogger.Caught("Supply", "Error processing battle supply changes", ex);
             }
         }
 

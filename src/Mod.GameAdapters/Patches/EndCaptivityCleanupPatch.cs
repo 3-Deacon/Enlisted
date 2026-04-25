@@ -53,7 +53,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     var count = party.PrisonRoster.GetTroopCount(playerChar);
                     if (count > 0)
                     {
-                        party.PrisonRoster.AddToCounts(playerChar, -count);
+                        _ = party.PrisonRoster.AddToCounts(playerChar, -count);
                         removed++;
                         ModLogger.Info("CaptivityFix",
                             $"Removed player from stale prison roster: {party.Name?.ToString() ?? party.StringId}");
@@ -71,7 +71,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     var count = settlement.Party.PrisonRoster.GetTroopCount(playerChar);
                     if (count > 0)
                     {
-                        settlement.Party.PrisonRoster.AddToCounts(playerChar, -count);
+                        _ = settlement.Party.PrisonRoster.AddToCounts(playerChar, -count);
                         removed++;
                         ModLogger.Info("CaptivityFix",
                             $"Removed player from stale settlement prison: {settlement.Name}");

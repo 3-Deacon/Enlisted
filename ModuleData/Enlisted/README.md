@@ -10,7 +10,7 @@
 - [Summary](#summary) - What this folder contains
 - [Index by Theme](#index-by-theme) - Find configs by topic
 - [Config Files Reference](#config-files-reference) - Detailed file descriptions
-- [Content Files Reference](#content-files-reference) - Events, orders, decisions
+- [Content Files Reference](#content-files-reference) - Events, incidents
 - [How to Customize](#how-to-customize) - Safe editing tips
 
 ---
@@ -20,7 +20,7 @@
 This folder (`Modules\Enlisted\ModuleData\Enlisted\`) contains:
 
 1. **Configuration Files** - Control gameplay rules, pacing, and features
-2. **Content Files** - Events, orders, decisions, and incidents (all in JSON)
+2. **Content Files** - Events and incidents (all in JSON)
 3. **Localization** - Player-facing text in `../Languages/enlisted_strings.xml`
 
 All files use JSON format and can be edited with any text editor. Changes take effect when you restart the game.
@@ -90,15 +90,10 @@ All files use JSON format and can be edited with any text editor. Changes take e
   - Cooldown periods
   - Evaluation hours (when events fire)
   - Quiet day system
-- **[events_decisions.json](#events-folder)** - All player-initiated decisions
-- **[events_player_decisions.json](#events-folder)** - Additional player decisions
 
-### Orders (Chain of Command)
-- **[Orders folder](#orders-folder)** - 17 military orders from your chain of command (T1-T3: 6, T4-T6: 6, T7-T9: 5)
-- Orders are issued every 3-5 days by Sergeants, Captains, or your Lord
-- Accept or decline - success builds reputation, failure damages it
-- Strategic context filtering ensures orders match current campaign situation
-- **See:** `docs/Features/Core/orders-system.md` for complete documentation
+### Orders Surface
+- Driven by the **storylet backbone** (Spec 0) via duty-pool storylets in `Storylets/duty_*.json` and named-order arc storylets. The legacy `Orders/` folder + `events_decisions.json` were retired.
+- See `docs/Features/Content/storylet-backbone.md` for the living reference.
 
 ### Reputation & Discipline
 - **[enlisted_config.json](#enlisted_configjson)** → `escalation`:
@@ -271,33 +266,9 @@ Role-based events are integrated into the general event system. The Orders syste
 | `incidents_waiting.json` | While waiting/idle | ~4 |
 | `incidents_retinue.json` | Post-battle retinue incidents (T7+) | ~6 |
 
-### Orders Folder
+### Storylets Folder
 
-Contains military orders from your chain of command - the primary gameplay driver replacing passive duties.
-
-**Order Files:**
-
-| File | Tier Range | Issuer | Count |
-|------|------------|--------|-------|
-| `orders_t1_t3.json` | Basic Soldier (T1-T3) | Sergeant | 6 |
-| `orders_t4_t6.json` | Specialist (T4-T6) | Lieutenant/Captain | 6 |
-| `orders_t7_t9.json` | Leadership (T7-T9) | Lord | 5 |
-
-**How Orders Work:**
-- Issued every 3-5 days based on strategic context
-- Success determined by relevant skills (e.g., Scouting for scout orders)
-- Accept or decline - repeated declines lead to discharge
-- Success rewards reputation, skill XP, gold (T4+), and renown (T7+)
-- Failure penalties range from reputation loss to troop casualties
-- **All order events grant skill XP** - this is tracked for rank progression
-
-**Complete Documentation:** `docs/Features/Core/orders-system.md`
-
-### Decisions Folder
-
-Contains player-initiated decisions from camp menu.
-
-**Note:** Most decisions are now in `Events/events_decisions.json` and `Events/events_player_decisions.json`.
+Storylet backbone (Spec 0) — duty pool storylets, named-order arc storylets, ceremony storylets, transitions, culture overlays. Drives the current Orders surface (Spec 2: `OrderActivity` + `NamedOrderState`) and the Home Surface (Spec 1: `HomeActivity`). Living reference: `docs/Features/Content/storylet-backbone.md`.
 
 ---
 
@@ -443,10 +414,9 @@ To add translations, see the [Translation Guide](../Languages/README.md).
 
 | Category | Count |
 |----------|-------|
-| Orders | 17 |
-| Decisions | 34 |
 | Events | 80+ |
 | Map Incidents | 51 |
+| Storylets | 245+ |
 
 ---
 
@@ -466,10 +436,6 @@ Complete inventory of all JSON configuration and content files.
 
 ### Conditions (1)
 - `Conditions/condition_defs.json` - Player condition definitions (injuries/illness)
-
-### Decisions (2)
-- `Decisions/camp_opportunities.json` - Camp opportunity decisions
-- `Decisions/decisions.json` - Player-initiated decisions
 
 ### Dialogue (4)
 - `Dialogue/qm_baggage.json` - Quartermaster baggage dialogue
@@ -494,31 +460,9 @@ Complete inventory of all JSON configuration and content files.
 - `Events/incidents_waiting.json` - Waiting/idle incidents
 - `Events/schema_version.json` - Event schema version
 
-### Orders (19)
-**Order Lists:**
-- `Orders/orders_t1_t3.json` - Basic soldier orders (Tier 1-3)
-- `Orders/orders_t4_t6.json` - Specialist orders (Tier 4-6)
-- `Orders/orders_t7_t9.json` - Leadership orders (Tier 7-9)
+### Storylets
 
-**Order Events (16):**
-- `Orders/order_events/camp_patrol_events.json` - Camp patrol order outcomes
-- `Orders/order_events/equipment_cleaning_events.json` - Equipment cleaning order outcomes
-- `Orders/order_events/escort_duty_events.json` - Escort duty order outcomes
-- `Orders/order_events/firewood_detail_events.json` - Firewood detail order outcomes
-- `Orders/order_events/forage_supplies_events.json` - Foraging order outcomes
-- `Orders/order_events/guard_post_events.json` - Guard post order outcomes
-- `Orders/order_events/inspect_defenses_events.json` - Defense inspection order outcomes
-- `Orders/order_events/latrine_duty_events.json` - Latrine duty order outcomes
-- `Orders/order_events/lead_patrol_events.json` - Lead patrol order outcomes
-- `Orders/order_events/march_formation_events.json` - March formation order outcomes
-- `Orders/order_events/muster_inspection_events.json` - Muster inspection order outcomes
-- `Orders/order_events/repair_equipment_events.json` - Repair equipment order outcomes
-- `Orders/order_events/scout_route_events.json` - Scout route order outcomes
-- `Orders/order_events/sentry_duty_events.json` - Sentry duty order outcomes
-- `Orders/order_events/train_recruits_events.json` - Train recruits order outcomes
-- `Orders/order_events/treat_wounded_events.json` - Treat wounded order outcomes
-
-**Total JSON Files:** 49
+The current Orders surface (Spec 2) is driven by storylets in `Storylets/` — `duty_*.json` for the seven duty profiles (wandering, marching, escorting, garrisoned, raiding, besieging, imprisoned) and named-order arc storylets for tier-gated mission arcs. Living reference: `docs/Features/Content/storylet-backbone.md`.
 
 ---
 
@@ -537,6 +481,6 @@ Complete inventory of all JSON configuration and content files.
 
 ---
 
-**Last Updated:** 2026-01-03 (Added promotion effect documentation)  
+**Last Updated:** 2026-04-25 (Decisions + Orders systems retired; Storylet backbone is authoritative)  
 **Mod Version:** 0.9.0  
 **For full documentation, see:** `docs/index.md`

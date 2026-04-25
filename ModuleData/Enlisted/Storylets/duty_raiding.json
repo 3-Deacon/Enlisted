@@ -1,0 +1,522 @@
+{
+  "storylets": [
+    {
+      "id": "duty_raiding_sprint_the_field_1",
+      "title": "{=duty_raiding_sprint_the_field_1_title}Sprint across the field",
+      "setup": "{=duty_raiding_sprint_the_field_1_setup}The signal goes before first light. Half a mile at a run through stubble fields, kit rattling, breath loud in your ears. The village fires are already visible when you reach the ditch.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_sprint_the_field_1_opt}Keep pace. Don't fall behind.",
+          "tooltip": "{=duty_raiding_sprint_the_field_1_tt}Pre-dawn approach run. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_scale_the_fence_1",
+      "title": "{=duty_raiding_scale_the_fence_1_title}Over the field fence",
+      "setup": "{=duty_raiding_scale_the_fence_1_setup}There is a stone fence between the column and the granary. Low, but long. You find the gap first and pull two men through behind you. Small thing. It counts.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_scale_the_fence_1_opt}Move fast. Get through clean.",
+          "tooltip": "{=duty_raiding_scale_the_fence_1_tt}Obstacle crossing under load. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_chase_runner_1",
+      "title": "{=duty_raiding_chase_runner_1_title}Runner in the yard",
+      "setup": "{=duty_raiding_chase_runner_1_setup}A man bolts from the farmstead when the gate opens. The sergeant points. You run. Across the yard, through the kitchen garden, into the tree line. You catch him before the slope.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_chase_runner_1_opt}Run him down before the tree line.",
+          "tooltip": "{=duty_raiding_chase_runner_1_tt}Foot chase across terrain. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_door_work_1",
+      "title": "{=duty_raiding_door_work_1_title}Breaking the granary door",
+      "setup": "{=duty_raiding_door_work_1_setup}The granary door is braced from inside. You work the hinge side with a wrecking bar until the frame splits. The grain is still warm from yesterday's sun. Someone starts filling sacks.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_door_work_1_opt}Get it open. Move the grain.",
+          "tooltip": "{=duty_raiding_door_work_1_tt}Forced entry and plunder. Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_cart_assess_1",
+      "title": "{=duty_raiding_cart_assess_1_title}What the cart is worth",
+      "setup": "{=duty_raiding_cart_assess_1_setup}Two carts in the yard — one loaded with grain, one with tools and household goods. The sergeant tells you to pick the one worth keeping. You walk both and make the call.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_cart_assess_1_opt}Take the grain. Leave the rest.",
+          "tooltip": "{=duty_raiding_cart_assess_1_tt}Assess spoils under time pressure. Roguery + Trade XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Trade", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_quiet_cut_1",
+      "title": "{=duty_raiding_quiet_cut_1_title}Quiet work before the alarm",
+      "setup": "{=duty_raiding_quiet_cut_1_setup}You go in ahead of the column — two men at the watch-post, no shouting. The village does not know you are here yet. That gap belongs to you.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_quiet_cut_1_opt}Move in the dark. Keep it quiet.",
+          "tooltip": "{=duty_raiding_quiet_cut_1_tt}Pre-alarm approach. Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_sword_work_1",
+      "title": "{=duty_raiding_sword_work_1_title}Resistance at the farmstead",
+      "setup": "{=duty_raiding_sword_work_1_setup}Three men with farm tools and desperation come out of the barn. It is brief and ugly. Afterwards you wipe your blade on the grass and don't think about it.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_sword_work_1_opt}Do what was needed. Move on.",
+          "tooltip": "{=duty_raiding_sword_work_1_tt}Close-quarters skirmish. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_clear_the_hall_1",
+      "title": "{=duty_raiding_clear_the_hall_1_title}Clearing the hall",
+      "setup": "{=duty_raiding_clear_the_hall_1_setup}The estate hall is narrow and dark. Furniture, doorframes, a staircase. Everything moves wrong in a fight here. You keep your blade short and your footing honest.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_clear_the_hall_1_opt}Work the corners. Clear each room.",
+          "tooltip": "{=duty_raiding_clear_the_hall_1_tt}Close-quarters building clearance. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_hold_the_line_1",
+      "title": "{=duty_raiding_hold_the_line_1_title}Holding the approach",
+      "setup": "{=duty_raiding_hold_the_line_1_setup}A militia column is forming at the far end of the village. Your sergeant wants three men across the road while the rest finish. You are one of the three.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_hold_the_line_1_opt}Stand your ground until the signal.",
+          "tooltip": "{=duty_raiding_hold_the_line_1_tt}Rearguard holding action. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_cavalry_sweep_1",
+      "title": "{=duty_raiding_cavalry_sweep_1_title}Cavalry sweep on the flanks",
+      "setup": "{=duty_raiding_cavalry_sweep_1_setup}The riders go wide to cut off the road north. You push your horse hard through standing grain, picking lines between the field boundaries. The gap closes fast.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_cavalry_sweep_1_opt}Cut the road before they reach it.",
+          "tooltip": "{=duty_raiding_cavalry_sweep_1_tt}Mounted flank sweep. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_herd_the_livestock_1",
+      "title": "{=duty_raiding_herd_the_livestock_1_title}Driving off the livestock",
+      "setup": "{=duty_raiding_herd_the_livestock_1_setup}Cattle don't want to go and pigs are worse. You spend an hour on horseback driving them east while the cattle bellow and the pigs double back.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_herd_the_livestock_1_opt}Work the flanks. Keep them moving.",
+          "tooltip": "{=duty_raiding_herd_the_livestock_1_tt}Livestock drive on horseback. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_withdrawal_1",
+      "title": "{=duty_raiding_withdrawal_1_title}Riding out before dawn",
+      "setup": "{=duty_raiding_withdrawal_1_setup}The sergeant calls the withdrawal while smoke is still rising. You ride back in column, faster than you came, the horses knowing the way.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_withdrawal_1_opt}Hold formation through the withdrawal.",
+          "tooltip": "{=duty_raiding_withdrawal_1_tt}Mounted withdrawal under pressure. Riding + Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_read_the_village_1",
+      "title": "{=duty_raiding_read_the_village_1_title}Reading the village layout",
+      "setup": "{=duty_raiding_read_the_village_1_setup}Before the column moves, you ride a circuit of the target settlement. Guard posts, exits, where the granaries sit relative to the lord's house. Small map. Counts when the shooting starts.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_read_the_village_1_opt}Mark the exits. Note the granary.",
+          "tooltip": "{=duty_raiding_read_the_village_1_tt}Pre-raid reconnaissance. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_spare_the_village_1",
+      "title": "{=duty_raiding_spare_the_village_1_title}The headman's offer",
+      "setup": "{=duty_raiding_spare_the_village_1_setup}The headman comes out with grain tallies and a ledger. He wants to surrender the stores without the burning. Your sergeant looks at you. You know the lord's orders. You also know what the fires cost.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_spare_the_village_1_opt}Hear him out. Relay it up the chain.",
+          "tooltip": "{=duty_raiding_spare_the_village_1_tt}Negotiated surrender of stores. Charm + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_burn_the_thatch_1",
+      "title": "{=duty_raiding_burn_the_thatch_1_title}Torches to the thatch",
+      "setup": "{=duty_raiding_burn_the_thatch_1_setup}The order comes down: leave nothing standing. You carry a torch to the nearest roof. The thatch goes fast. You work three more before the heat drives you back. Orders are orders.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_burn_the_thatch_1_opt}Carry the torch. Don't watch too long.",
+          "tooltip": "{=duty_raiding_burn_the_thatch_1_tt}Fire detail under orders. Engineering + Smithing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_crossbow_volley_1",
+      "title": "{=duty_raiding_crossbow_volley_1_title}Volley at the barricade",
+      "setup": "{=duty_raiding_crossbow_volley_1_setup}Villagers have dragged carts across the lane. Your section puts bolts at the gaps while the foot soldiers work the flanks. Short range, no wind. Count the bolts.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_crossbow_volley_1_opt}Work the barricade gaps. Reload clean.",
+          "tooltip": "{=duty_raiding_crossbow_volley_1_tt}Suppressing bolt volley. Crossbow + Bow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_polearm_push_1",
+      "title": "{=duty_raiding_polearm_push_1_title}Spear through the gate",
+      "setup": "{=duty_raiding_polearm_push_1_setup}The gate is narrow. Two men with poles can hold the press while the rest filter through. You take one side. Three minutes of shoving and the gate is yours.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_polearm_push_1_opt}Hold the line. Work the shaft.",
+          "tooltip": "{=duty_raiding_polearm_push_1_tt}Gate fight with polearms. Polearm + TwoHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 },
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_wounded_after_1",
+      "title": "{=duty_raiding_wounded_after_1_title}Wounded after the raid",
+      "setup": "{=duty_raiding_wounded_after_1_setup}One of your section took a scythe across the forearm. Not deep, but the wound is dirty. You pack it with what you have and tie it off while he complains about the waste of good cloth.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_wounded_after_1_opt}Dress the wound. Keep him moving.",
+          "tooltip": "{=duty_raiding_wounded_after_1_tt}Field dressing after a skirmish. Medicine + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_javelin_throw_1",
+      "title": "{=duty_raiding_javelin_throw_1_title}Javelin at the watch-post",
+      "setup": "{=duty_raiding_javelin_throw_1_setup}There is a man at the watch-post on the far rise. Twenty-five paces. Your sergeant doesn't want shouting. You have two javelins.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_javelin_throw_1_opt}Take the throw before he turns.",
+          "tooltip": "{=duty_raiding_javelin_throw_1_tt}Silent approach ranged strike. Throwing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_new_threat_1",
+      "title": "{=duty_raiding_new_threat_1_title}Riders on the eastern ridge",
+      "setup": "{=duty_raiding_new_threat_1_setup}New word from the scouts: armed riders have appeared on the eastern ridge. The raid continues but the column is nervous. You watch the skyline while the others work.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:NewThreat"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_new_threat_1_opt}Keep watch. Don't lose the ridge.",
+          "tooltip": "{=duty_raiding_new_threat_1_tt}New threat on the flank. Scouting XP, readiness up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_dispersal_risk_1",
+      "title": "{=duty_raiding_dispersal_risk_1_title}Column starting to peel",
+      "setup": "{=duty_raiding_dispersal_risk_1_setup}Word is the army may dissolve. Men are already talking about where to go next. The raid stays mechanical but the discipline is fraying at the edges.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:DispersalRisk"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_dispersal_risk_1_opt}Keep your section together. See it through.",
+          "tooltip": "{=duty_raiding_dispersal_risk_1_tt}Army cohesion breaking. Tactics XP, scrutiny up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_prisoner_update_1",
+      "title": "{=duty_raiding_prisoner_update_1_title}Prisoners from the raid",
+      "setup": "{=duty_raiding_prisoner_update_1_setup}There are prisoners now — three men from the estate guard. The sergeant wants them questioned before dark. You sit across from the eldest and find out what he knows.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:PrisonerUpdate"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_prisoner_update_1_opt}Sit with him. Find out what's worth knowing.",
+          "tooltip": "{=duty_raiding_prisoner_update_1_tt}Prisoner questioning. Roguery + Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 25 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_raiding_supply_break_1",
+      "title": "{=duty_raiding_supply_break_1_title}Raiding for rations",
+      "setup": "{=duty_raiding_supply_break_1_setup}The supply line has broken. The raid is no longer just strategy — it's dinner. You help load the grain carts with a soldier's attention to weight and waste that wasn't there before.",
+      "theme": "duty",
+      "category": "duty_raiding",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["raiding"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:SupplyBreak"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_raiding_supply_break_1_opt}Pack the carts carefully. Every sack counts.",
+          "tooltip": "{=duty_raiding_supply_break_1_tt}Raiding for food. Supplies up, Steward XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "supplies", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 20 }
+          ]
+        }
+      ]
+    }
+  ]
+}

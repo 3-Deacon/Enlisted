@@ -1,10 +1,10 @@
 using System;
-using HarmonyLib;
-using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Actions;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {

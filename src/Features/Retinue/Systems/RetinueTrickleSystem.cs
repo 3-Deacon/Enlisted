@@ -1,6 +1,6 @@
-﻿using System;
-using Enlisted.Features.Retinue.Core;
+using System;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
@@ -124,7 +124,7 @@ namespace Enlisted.Features.Retinue.Systems
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error tracking battle outcome", ex);
+                ModLogger.Caught("TRICKLE", "Error tracking battle outcome", ex);
             }
         }
 

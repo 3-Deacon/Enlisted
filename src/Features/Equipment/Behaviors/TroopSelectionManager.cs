@@ -1,6 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Equipment;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Interface.Behaviors;
+using Enlisted.Mod.Core.Config;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Entry;
+using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Party;
@@ -9,12 +16,6 @@ using TaleWorlds.Core.ImageIdentifiers; // 1.3.4 API: ImageIdentifier moved here
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
-using Helpers;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Interface.Behaviors;
-using Enlisted.Mod.Core.Config;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Entry;
 
 namespace Enlisted.Features.Equipment.Behaviors
 {
@@ -51,9 +52,9 @@ namespace Enlisted.Features.Equipment.Behaviors
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("_promotionPending", ref _promotionPending);
-                dataStore.SyncData("_pendingTier", ref _pendingTier);
-                dataStore.SyncData("_lastSelectedTroopId", ref _lastSelectedTroopId);
+                _ = dataStore.SyncData("_promotionPending", ref _promotionPending);
+                _ = dataStore.SyncData("_pendingTier", ref _pendingTier);
+                _ = dataStore.SyncData("_lastSelectedTroopId", ref _lastSelectedTroopId);
             });
         }
 
@@ -69,20 +70,6 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             ModLogger.Info("TROOPSELECTION", "Troop selection system initialized with modern UI styling");
-        }
-
-        /// <summary>
-        /// Menu background initialization for enlisted_troop_selection menu.
-        /// Sets culture-appropriate background and ambient audio.
-        /// </summary>
-        [GameMenuInitializationHandler("enlisted_troop_selection")]
-        private static void OnTroopSelectionBackgroundInit(MenuCallbackArgs args)
-        {
-            // Troop selection/promotion is a logistics/supply-facing flow (Quartermaster vibe).
-            // Use a known "trade/logistics" encounter mesh instead of a generic battle encounter.
-            args.MenuContext.SetBackgroundMeshName("encounter_caravan");
-            args.MenuContext.SetAmbientSound("event:/map/ambient/node/settlements/2d/camp_army");
-            args.MenuContext.SetPanelSound("event:/ui/panels/settlement_camp");
         }
 
         /// <summary>
@@ -358,7 +345,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Failed to show troop selection menu", ex);
+                ModLogger.Caught("TROOPSELECTION", "Failed to show troop selection menu", ex);
             }
         }
 
@@ -397,10 +384,10 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 var intro = new TextObject("{=enl_master_at_arms_summons_intro}You've been summoned before the Master at Arms.");
                 var promo = new TextObject("{=enl_master_at_arms_promotion_line}\"Soldier, your service has not gone unnoticed. You've earned promotion to {RANK_NAME}.\"");
-                promo.SetTextVariable("RANK_NAME", rankName);
+                _ = promo.SetTextVariable("RANK_NAME", rankName);
                 var note = new TextObject("{=enl_master_at_arms_after_t1_note}After Tier 1, gear is not auto-issued. Your chosen kit becomes purchasable from the Quartermaster.");
                 var count = new TextObject("{=enl_master_at_arms_specializations_count}({COUNT} troop specializations available)");
-                count.SetTextVariable("COUNT", _availableTroops.Count);
+                _ = count.SetTextVariable("COUNT", _availableTroops.Count);
 
                 var statusText = $"{intro}\n\n{promo}\n\n{note}\n\n{count}";
 
@@ -411,7 +398,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Error initializing troop selection menu", ex);
+                ModLogger.Caught("TROOPSELECTION", "Error initializing troop selection menu", ex);
                 MBTextManager.SetTextVariable("TROOP_SELECTION_TEXT", "Error loading troop selection. Please report this issue.");
             }
         }
@@ -430,7 +417,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Error creating troop selection options", ex);
+                ModLogger.Caught("TROOPSELECTION", "Error creating troop selection options", ex);
             }
         }
 
@@ -483,81 +470,15 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TROOPSELECTION", "Failed to get troops for culture/tier", ex);
+                ModLogger.Caught("TROOPSELECTION", "Failed to get troops for culture/tier", ex);
                 return new List<CharacterObject>();
             }
         }
 
-        /// <summary>
-        /// Build the culture's troop tree by traversing upgrade paths from BasicTroop and EliteBasicTroop.
-        /// </summary>
+        /// <inheritdoc cref="CultureTroopTreeHelper.BuildCultureTroopTree(CultureObject)"/>
         private List<CharacterObject> BuildCultureTroopTree(CultureObject culture)
         {
-            var results = new List<CharacterObject>();
-            try
-            {
-                if (culture == null)
-                {
-                    return results;
-                }
-
-                var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var queue = new Queue<CharacterObject>();
-
-                void EnqueueIfValid(CharacterObject start)
-                {
-                    if (start == null)
-                    {
-                        return;
-                    }
-                    if (start.Culture != culture)
-                    {
-                        return;
-                    }
-                    if (start.IsHero)
-                    {
-                        return;
-                    }
-                    if (!visited.Add(start.StringId))
-                    {
-                        return;
-                    }
-                    queue.Enqueue(start);
-                }
-
-                EnqueueIfValid(culture.BasicTroop);
-                EnqueueIfValid(culture.EliteBasicTroop);
-
-                while (queue.Count > 0)
-                {
-                    var node = queue.Dequeue();
-                    results.Add(node);
-
-                    try
-                    {
-                        var upgrades = node.UpgradeTargets; // MBReadOnlyList<CharacterObject>
-                        if (upgrades != null)
-                        {
-                            foreach (var next in upgrades)
-                            {
-                                if (next != null && next.Culture == culture && !next.IsHero && visited.Add(next.StringId))
-                                {
-                                    queue.Enqueue(next);
-                                }
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        // best-effort; continue on any API differences
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("TROOPSELECTION", "BuildCultureTroopTree failed", ex);
-            }
-            return results;
+            return CultureTroopTreeHelper.BuildCultureTroopTree(culture);
         }
 
         /// <summary>
@@ -602,14 +523,14 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                     // Show promotion notification
                     var message = new TextObject("{=eq_promoted_new_equipment}Promoted to {TROOP_NAME}! New equipment issued.");
-                    message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
+                    _ = message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                 }
                 else
                 {
                     // No auto-issue: inform player gear is purchasable at Quartermaster
                     var message = new TextObject("{=eq_purchasable_qm}Promotion recorded. Gear for {TROOP_NAME} is now available at the Quartermaster.");
-                    message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
+                    _ = message.SetTextVariable("TROOP_NAME", selectedTroop.Name);
                     InformationManager.DisplayMessage(new InformationMessage(message.ToString()));
                 }
 
@@ -662,7 +583,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
 
                     // Move to inventory
-                    partyRoster.AddToCounts(element, 1);
+                    _ = partyRoster.AddToCounts(element, 1);
                     stashedCount++;
                     ModLogger.Debug("TROOPSELECTION", $"Moved to inventory: {element.Item.Name}");
                 }
@@ -694,7 +615,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
 
                         // Move to inventory
-                        partyRoster.AddToCounts(element, 1);
+                        _ = partyRoster.AddToCounts(element, 1);
                         stashedCount++;
                         ModLogger.Debug("TROOPSELECTION", $"Moved civilian item to inventory: {element.Item.Name}");
                     }
@@ -707,7 +628,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Warn("TROOPSELECTION", $"Error stashing civilian equipment: {ex.Message}");
+                ModLogger.Caught("TROOPSELECTION", "Error stashing civilian equipment", ex);
             }
         }
 

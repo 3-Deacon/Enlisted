@@ -1,0 +1,333 @@
+{
+  "storylets": [
+    {
+      "id": "transition_besieging_to_marching_mid_order_guard_post",
+      "title": "{=trans_b2m_gp_title}The retreat horn sounds.",
+      "setup": "{=trans_b2m_gp_setup}The signal to pull back comes without warning. You pack what you can carry and fall in with the column. The wall stays. You leave it to whoever comes next.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_b2m_gp_opt}Pack and march.",
+          "tooltip": "{=trans_b2m_gp_tt}Siege broken. Column moves. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_besieging_to_marching_mid_order_siege_works",
+      "title": "{=trans_b2m_sw_title}Tear it down. Column moves.",
+      "setup": "{=trans_b2m_sw_setup}The lord changes his mind before the wall breaks. You spend a morning undoing what took a week to build — scaffolding pulled, timber stacked, earthworks filled. Then the column forms and moves.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_b2m_sw_opt}Break down the works. Take the road.",
+          "tooltip": "{=trans_b2m_sw_tt}Siege abandoned mid-works. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_marching_to_besieging_mid_order_escort",
+      "title": "{=trans_m2b_esc_title}The wagon waits. Siege orders.",
+      "setup": "{=trans_m2b_esc_setup}The escort runs out under you. New orders arrive by rider before you reach the destination — siege, not road work. The wagon sits at a waypoint while the column pivots.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_m2b_esc_opt}Leave the wagon. Move to the siege line.",
+          "tooltip": "{=trans_m2b_esc_tt}Escort cut short. Siege duty begins. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_raiding_to_marching_mid_order_fatigue_detail",
+      "title": "{=trans_r2m_fd_title}Raid done. Back on the road.",
+      "setup": "{=trans_r2m_fd_setup}The work is finished before the detail is. Smoke still rising when the sergeant calls the column. You fall in with the others, smoke in your clothes, road ahead.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_r2m_fd_opt}Form up. March.",
+          "tooltip": "{=trans_r2m_fd_tt}Raid interrupted fatigue detail. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 5 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_escorting_to_wandering_mid_any",
+      "title": "{=trans_e2w_title}The army dissolves.",
+      "setup": "{=trans_e2w_setup}No word, no ceremony. The escort destination disappears from the orders and the lord rides off without explanation. You are no longer attached to anything. Every man his own direction.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_e2w_opt}Find your own heading.",
+          "tooltip": "{=trans_e2w_tt}Escort dissolved into wander. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 10 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_garrisoned_to_marching_mid_order_drill",
+      "title": "{=trans_g2m_dr_title}Column forms. Drill is over.",
+      "setup": "{=trans_g2m_dr_setup}The drill yard empties in less than two minutes. Word came down from the keep and the sergeant ended the session mid-form. You file out with the others and find a pack waiting at the gate.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_g2m_dr_opt}Sling the pack. Fall in.",
+          "tooltip": "{=trans_g2m_dr_tt}Drill cut short for march. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_garrisoned_to_marching_mid_order_inspection",
+      "title": "{=trans_g2m_ins_title}Parade cut short.",
+      "setup": "{=trans_g2m_ins_setup}The lord's man arrived at the third rank and stopped the inspection himself. Orders came down. The garrison is moving. You are still in parade dress when the column begins to form.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_g2m_ins_opt}Change out. Get to the column.",
+          "tooltip": "{=trans_g2m_ins_tt}Inspection interrupted by march orders. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 10 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_marching_to_garrisoned_mid_order_courier",
+      "title": "{=trans_m2g_cou_title}Message reaches the wall.",
+      "setup": "{=trans_m2g_cou_setup}The message was supposed to go further but the destination changed. The garrison took it at the gate and you are suddenly not on the road anymore. Back to quarters. Back to walls.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_m2g_cou_opt}Hand it off. Report to the garrison.",
+          "tooltip": "{=trans_m2g_cou_tt}Courier run closed at the wall. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 10 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_to_imprisoned_mid_any",
+      "title": "{=trans_to_imp_title}The column collapses.",
+      "setup": "{=trans_to_imp_setup}Enemy riders come out of the tree line before the flanks react. The column breaks into pieces. You run until you can't, then you stop running. The men who surround you are not yours.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_to_imp_opt}Don't fight it. Stay alive.",
+          "tooltip": "{=trans_to_imp_tt}Captured mid-order. Scrutiny up. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 8 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_from_imprisoned_mid_any",
+      "title": "{=trans_from_imp_title}Released. Back in harness.",
+      "setup": "{=trans_from_imp_setup}The gate opens and no one explains why. You walk out into daylight that is too bright and air that moves in the wrong direction. Your lord's man is waiting with a horse and a job. The job is already decided.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_from_imp_opt}Take the horse. Hear the new orders.",
+          "tooltip": "{=trans_from_imp_tt}Captivity ended mid-order. Readiness up. Partial XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_besieging_to_marching_generic",
+      "title": "{=trans_b2m_gen_title}Siege lifts. Column moves.",
+      "setup": "{=trans_b2m_gen_setup}The siege ends without resolution. The wall stands and the lord decides not to spend more men on it. You fold up what you had and join the column heading east.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_b2m_gen_opt}Leave the wall. Take the road.",
+          "tooltip": "{=trans_b2m_gen_tt}Generic siege-to-march. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_marching_to_raiding_generic",
+      "title": "{=trans_m2r_gen_title}Off the road. Into the villages.",
+      "setup": "{=trans_m2r_gen_setup}The column angles off the main road without warning. The countryside changes. You adjust your thinking and your pack.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_m2r_gen_opt}Leave the road. Find the target.",
+          "tooltip": "{=trans_m2r_gen_tt}March into raid. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 8 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_garrisoned_to_escorting_generic",
+      "title": "{=trans_g2e_gen_title}Out of quarters. New banner.",
+      "setup": "{=trans_g2e_gen_setup}The garrison assignment ends and you are handed to a different lord's column. Brief introduction, no ceremony. You ride under someone else's colors now.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_g2e_gen_opt}Learn the new faces. Hold your tongue.",
+          "tooltip": "{=trans_g2e_gen_tt}Garrisoned into escort. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 5 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_wandering_to_marching_generic",
+      "title": "{=trans_w2m_gen_title}Contract signed. Column forms.",
+      "setup": "{=trans_w2m_gen_setup}The free movement ends with a name on a paper and a direction. You have a lord again, for now. The column has already formed. You find your place in it.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_w2m_gen_opt}Take the contract. Fall in.",
+          "tooltip": "{=trans_w2m_gen_tt}Wander ended by new orders. Partial XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 10 },
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 5 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transition_generic_interrupted",
+      "title": "{=trans_gen_t}Orders closed.",
+      "setup": "{=trans_gen_s}Whatever you were doing is no longer what you are doing. New orders take over.",
+      "theme": "duty",
+      "category": "duty_transition",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=trans_gen_opt}Move on.",
+          "tooltip": "{=trans_gen_tt}Close the order. Half-rewards.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 10 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

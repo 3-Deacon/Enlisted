@@ -1,5 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Enlisted.Features.Conversations.Behaviors;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.TimeControl;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
@@ -10,11 +15,6 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
-using Enlisted.Features.Conversations.Behaviors;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Mod.Core.Logging;
-using Enlisted.Mod.Core.TimeControl;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -29,32 +29,32 @@ namespace Enlisted.Features.Equipment.UI
     public class QuartermasterEquipmentSelectorBehavior : CampaignBehaviorBase
     {
         public static QuartermasterEquipmentSelectorBehavior Instance { get; private set; }
-        
+
         // Gauntlet UI components for custom overlay display
         private static GauntletLayer _gauntletLayer;
         // 1.3.4 API: LoadMovie now returns GauntletMovieIdentifier instead of IGauntletMovie
         private static GauntletMovieIdentifier _gauntletMovie;
         private static QuartermasterEquipmentSelectorVm _selectorViewModel;
-        
+
         // Track whether to return to conversation after closing
         private static bool _returnToConversationOnClose = true;
-        
+
         // Time scope spanning the equipment selector's open lifetime.
         // Held as a field because open (ShowEquipmentSelector) and close
         // (CloseEquipmentSelector) are separate entry points — the scope
         // captures on open and disposes in CloseEquipmentSelector's finally.
         private static EnlistedTimeScope? _equipmentTimeScope;
-        
+
         /// <summary>
         /// Returns true if the equipment selector UI is currently open.
         /// </summary>
         public static bool IsOpen => _gauntletLayer != null;
-        
+
         public QuartermasterEquipmentSelectorBehavior()
         {
             Instance = this;
         }
-        
+
         public override void RegisterEvents()
         {
             // Force-close Gauntlet on events that interrupt the QM interaction
@@ -63,7 +63,7 @@ namespace Enlisted.Features.Equipment.UI
             CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnMapEventEnded);
         }
-        
+
         public override void SyncData(IDataStore dataStore)
         {
             // No persistent data for UI behavior
@@ -81,7 +81,7 @@ namespace Enlisted.Features.Equipment.UI
                 }
             }
         }
-        
+
         private void OnBattleEnd(MapEvent mapEvent)
         {
             if (IsOpen)
@@ -94,7 +94,7 @@ namespace Enlisted.Features.Equipment.UI
                 ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to battle end");
             }
         }
-        
+
         private void OnSettlementLeft(MobileParty party, Settlement settlement)
         {
             if (party == MobileParty.MainParty)
@@ -110,7 +110,7 @@ namespace Enlisted.Features.Equipment.UI
                 }
             }
         }
-        
+
         private void OnHeroPrisonerTaken(PartyBase capturer, Hero prisoner)
         {
             if (prisoner == Hero.MainHero)
@@ -126,25 +126,25 @@ namespace Enlisted.Features.Equipment.UI
                 }
             }
         }
-        
+
         private void OnMapEventEnded(MapEvent mapEvent)
         {
             // Log the event type to diagnose conversation vs combat events
             var eventType = mapEvent?.EventType.ToString() ?? "null";
             var isPlayerInMapEvent = MobileParty.MainParty?.MapEvent != null;
             var isPlayerInConversation = Campaign.Current?.ConversationManager?.IsConversationInProgress ?? false;
-            
-            ModLogger.Debug("QUARTERMASTERUI", 
+
+            ModLogger.Debug("QUARTERMASTERUI",
                 $"MapEventEnded: EventType={eventType}, IsOpen={IsOpen}, IsUpgradeScreenOpen={IsUpgradeScreenOpen}, " +
                 $"PlayerInMapEvent={isPlayerInMapEvent}, PlayerInConversation={isPlayerInConversation}");
-            
+
             // Don't close UI when mapEvent is null (conversations don't have MapEvents)
             if (mapEvent == null)
             {
                 ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded with null mapEvent - not closing UI (likely conversation end)");
                 return;
             }
-            
+
             // Don't close UI if player is currently in a conversation (quartermaster dialogue)
             // This prevents old/unrelated MapEvents from closing the equipment selector
             if (isPlayerInConversation)
@@ -152,7 +152,7 @@ namespace Enlisted.Features.Equipment.UI
                 ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded during conversation - ignoring (QM dialogue in progress)");
                 return;
             }
-            
+
             // Don't close UI if the ended MapEvent is not the player's current MapEvent
             // This prevents unrelated map events from closing our UI
             if (MobileParty.MainParty?.MapEvent != mapEvent)
@@ -160,22 +160,22 @@ namespace Enlisted.Features.Equipment.UI
                 ModLogger.Debug("QUARTERMASTERUI", "MapEventEnded for non-player MapEvent - ignoring");
                 return;
             }
-            
+
             bool isCombatEvent = mapEvent.EventType != MapEvent.BattleTypes.None;
             ModLogger.Debug("QUARTERMASTERUI", $"isCombatEvent={isCombatEvent}");
-            
+
             if (isCombatEvent && IsOpen)
             {
                 ForceCloseOnInterruption("map event ended");
             }
-            
+
             if (isCombatEvent && IsUpgradeScreenOpen)
             {
                 CloseUpgradeScreen(false);
                 ModLogger.Info("QUARTERMASTERUI", "Force-closed upgrade screen due to map event end");
             }
         }
-        
+
         /// <summary>
         /// Force-close the selector due to external interruption. Does not return to conversation.
         /// </summary>
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Equipment.UI
             ModLogger.Debug("QUARTERMASTERUI", $"Stack trace: {Environment.StackTrace}");
             CloseEquipmentSelector(false);
         }
-        
+
         /// <summary>
         /// Show equipment selector with proper grid UI using OFFICIAL module structure.
         /// Template now located in GUI/Prefabs/Equipment/ following Bannerlord standards.
@@ -197,14 +197,14 @@ namespace Enlisted.Features.Equipment.UI
                 ModLogger.Info("QUARTERMASTERUI", $"ShowEquipmentSelector called for {equipmentType}");
                 ModLogger.Debug("QUARTERMASTERUI", $"ScreenManager.TopScreen = {ScreenManager.TopScreen?.GetType().Name ?? "null"}");
                 ModLogger.Debug("QUARTERMASTERUI", $"IsOpen = {IsOpen}");
-                
+
                 // Prevent double-open - close existing first without returning to conversation
                 if (IsOpen)
                 {
                     ModLogger.Debug("QUARTERMASTERUI", "Closing existing selector before opening new one");
                     CloseEquipmentSelector(false);
                 }
-                
+
                 if (availableVariants == null || availableVariants.Count == 0)
                 {
                     ModLogger.Warn("QUARTERMASTERUI", $"No equipment variants available for {equipmentType} — grid not opened");
@@ -214,37 +214,37 @@ namespace Enlisted.Features.Equipment.UI
                             .ToString()));
                     return;
                 }
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", $"Available variants: {availableVariants.Count}");
-                
+
                 // Capture via EnlistedTimeScope; disposed in CloseEquipmentSelector's finally.
                 _equipmentTimeScope = EnlistedTimeScope.Capture();
                 ModLogger.Debug("QUARTERMASTERUI", "Time paused via EnlistedTimeScope for equipment selector");
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Creating Gauntlet layer...");
-                
+
                 // Create Gauntlet layer for custom UI overlay
                 // 1.3.4 API: GauntletLayer constructor with name and localOrder (omit shouldClear as it defaults to false)
                 _gauntletLayer = new GauntletLayer("QuartermasterEquipmentGrid", 1001);
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Creating ViewModel...");
-                
+
                 // Create ViewModel with equipment variant collection
                 _selectorViewModel = new QuartermasterEquipmentSelectorVm(availableVariants, targetSlot, equipmentType);
                 _selectorViewModel.RefreshValues();
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Loading movie...");
-                
+
                 // FIXED: Load template from official module structure GUI/Prefabs/Equipment/
                 _gauntletMovie = _gauntletLayer.LoadMovie("QuartermasterEquipmentGrid", _selectorViewModel);
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Setting up input...");
-                
+
                 // Register hotkeys and set input restrictions for UI interaction
                 _gauntletLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
                 // Omit default parameter values for cleaner code
                 _gauntletLayer.InputRestrictions.SetInputRestrictions();
-                
+
                 var topScreen = ScreenManager.TopScreen;
                 if (topScreen == null)
                 {
@@ -254,13 +254,13 @@ namespace Enlisted.Features.Equipment.UI
                         new TextObject("{=qm_ui_screen_unavailable}Unable to open the quartermaster screen right now. Try again in a moment.").ToString()));
                     return;
                 }
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", $"Adding layer to screen: {topScreen.GetType().Name}");
-                
+
                 topScreen.AddLayer(_gauntletLayer);
                 _gauntletLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_gauntletLayer);
-                
+
                 ModLogger.Info("QUARTERMASTERUI", $"Grid UI opened successfully with {availableVariants.Count} variants for {equipmentType}");
                 ModLogger.Debug("QUARTERMASTERUI", $"IsOpen after opening = {IsOpen}");
             }
@@ -285,20 +285,20 @@ namespace Enlisted.Features.Equipment.UI
             {
                 ModLogger.Info("QUARTERMASTERUI", $"CloseEquipmentSelector called (returnToConversation={returnToConversation})");
                 ModLogger.Debug("QUARTERMASTERUI", $"_gauntletLayer = {(_gauntletLayer != null ? "not null" : "null")}");
-                
+
                 if (_gauntletLayer != null)
                 {
                     ModLogger.Debug("QUARTERMASTERUI", "Resetting input restrictions...");
                     // Reset input restrictions and remove focus
                     _gauntletLayer.InputRestrictions.ResetInputRestrictions();
                     _gauntletLayer.IsFocusLayer = false;
-                    
+
                     if (_gauntletMovie != null)
                     {
                         ModLogger.Debug("QUARTERMASTERUI", "Releasing movie...");
                         _gauntletLayer.ReleaseMovie(_gauntletMovie);
                     }
-                    
+
                     var topScreen = ScreenManager.TopScreen;
                     ModLogger.Debug("QUARTERMASTERUI", $"TopScreen = {topScreen?.GetType().Name ?? "null"}");
                     if (topScreen != null)
@@ -306,7 +306,7 @@ namespace Enlisted.Features.Equipment.UI
                         ModLogger.Debug("QUARTERMASTERUI", "Removing layer from screen...");
                         topScreen.RemoveLayer(_gauntletLayer);
                     }
-                    
+
                     ModLogger.Info("QUARTERMASTERUI", "Equipment selector closed");
                 }
                 else
@@ -316,7 +316,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing equipment selector", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing equipment selector", ex);
             }
             finally
             {
@@ -324,19 +324,19 @@ namespace Enlisted.Features.Equipment.UI
                 _gauntletLayer = null;
                 _gauntletMovie = null;
                 _selectorViewModel = null;
-                
+
                 // Dispose the scope to release lock and restore time mode.
                 _equipmentTimeScope?.Dispose();
                 _equipmentTimeScope = null;
                 ModLogger.Debug("QUARTERMASTERUI", "Equipment selector time scope disposed");
             }
-            
+
             // Return to quartermaster conversation after closing (only if still enlisted with valid QM)
             if (returnToConversation && _returnToConversationOnClose)
             {
                 var enlistment = EnlistmentBehavior.Instance;
                 var qmHero = enlistment?.QuartermasterHero;
-                
+
                 if (enlistment?.IsEnlisted != true)
                 {
                     ModLogger.Debug("QUARTERMASTERUI", "Not returning to conversation - player no longer enlisted");
@@ -351,7 +351,7 @@ namespace Enlisted.Features.Equipment.UI
                 }
             }
         }
-        
+
         /// <summary>
         /// Close the selector without returning to conversation.
         /// Used when the player explicitly exits via the "Done" button or external interruption.
@@ -362,22 +362,22 @@ namespace Enlisted.Features.Equipment.UI
             CloseEquipmentSelector(false);
             _returnToConversationOnClose = true;
         }
-        
+
         #region Upgrade Screen Support (Phase 3)
-        
+
         // Upgrade screen UI components
         private static GauntletLayer _upgradeLayer;
         private static GauntletMovieIdentifier _upgradeMovie;
         private static QuartermasterUpgradeVm _upgradeViewModel;
-        
+
         // Time scope spanning the upgrade screen's open lifetime.
         private static EnlistedTimeScope? _upgradeTimeScope;
-        
+
         /// <summary>
         /// Check if upgrade screen is currently open.
         /// </summary>
         public static bool IsUpgradeScreenOpen => _upgradeLayer != null;
-        
+
         /// <summary>
         /// Show upgrade screen with player's equipped items.
         /// </summary>
@@ -386,34 +386,34 @@ namespace Enlisted.Features.Equipment.UI
             try
             {
                 ModLogger.Info("QUARTERMASTERUI", "ShowUpgradeScreen called");
-                
+
                 // Prevent double-open
                 if (IsUpgradeScreenOpen)
                 {
                     ModLogger.Debug("QUARTERMASTERUI", "Closing existing upgrade screen before opening new one");
                     CloseUpgradeScreen(false);
                 }
-                
+
                 _upgradeTimeScope = EnlistedTimeScope.Capture();
                 ModLogger.Debug("QUARTERMASTERUI", "Time paused via EnlistedTimeScope for upgrade screen");
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Creating upgrade ViewModel");
-                
+
                 // Create ViewModel
                 _upgradeViewModel = new QuartermasterUpgradeVm();
                 _upgradeViewModel.RefreshValues();
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", $"ViewModel created, UpgradeRows={_upgradeViewModel.UpgradeRows.Count}");
-                
+
                 // Create Gauntlet layer for upgrade screen overlay
                 _upgradeLayer = new GauntletLayer("QuartermasterUpgradeScreen", 4000);
                 ModLogger.Debug("QUARTERMASTERUI", "Gauntlet layer created");
-                
+
                 // Load upgrade screen movie from GUI/Prefabs/Equipment/
                 ModLogger.Debug("QUARTERMASTERUI", "Loading movie: QuartermasterUpgradeScreen");
                 _upgradeMovie = _upgradeLayer.LoadMovie("QuartermasterUpgradeScreen", _upgradeViewModel);
                 ModLogger.Debug("QUARTERMASTERUI", "Movie loaded successfully");
-                
+
                 // Apply input restrictions and add layer to screen
                 _upgradeLayer.InputRestrictions.SetInputRestrictions();
 
@@ -430,12 +430,12 @@ namespace Enlisted.Features.Equipment.UI
                 topScreen.AddLayer(_upgradeLayer);
                 _upgradeLayer.IsFocusLayer = true;
                 ScreenManager.TrySetFocus(_upgradeLayer);
-                
+
                 ModLogger.Debug("QUARTERMASTERUI", "Layer added to screen and focused");
-                
+
                 // Handle ESC key to close upgrade screen
                 _upgradeLayer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericCampaignPanelsGameKeyCategory"));
-                
+
                 ModLogger.Info("QUARTERMASTERUI", "Upgrade screen opened successfully");
             }
             catch (Exception ex)
@@ -446,7 +446,7 @@ namespace Enlisted.Features.Equipment.UI
                     new TextObject("{=qm_ui_upgrade_failed}Upgrade screen failed to open. Check the log for details.").ToString()));
             }
         }
-        
+
         /// <summary>
         /// Close upgrade screen and clean up UI resources.
         /// By default, returns to the quartermaster conversation hub.
@@ -461,34 +461,34 @@ namespace Enlisted.Features.Equipment.UI
                     // Reset input restrictions and remove focus
                     _upgradeLayer.InputRestrictions.ResetInputRestrictions();
                     _upgradeLayer.IsFocusLayer = false;
-                    
+
                     if (_upgradeMovie != null)
                     {
                         _upgradeLayer.ReleaseMovie(_upgradeMovie);
                         _upgradeMovie = null;
                     }
-                    
+
                     // Remove layer from screen
                     ScreenManager.TopScreen?.RemoveLayer(_upgradeLayer);
                     _upgradeLayer = null;
-                    
+
                     ModLogger.Debug("QUARTERMASTERUI", "Upgrade screen closed successfully");
                 }
-                
+
                 // Clean up ViewModel (OnFinalize should cascade to child ViewModels in MBBindingList)
                 if (_upgradeViewModel != null)
                 {
                     _upgradeViewModel.OnFinalize();
                     _upgradeViewModel = null;
                 }
-                
+
                 // Note: Child ViewModels (QuartermasterUpgradeItemVm and UpgradeOptionVm) in MBBindingList
                 // should be automatically finalized by parent OnFinalize() call. Monitor for memory leaks
                 // if upgrade screen is used frequently.
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QUARTERMASTERUI", "Error closing upgrade screen", ex);
+                ModLogger.Caught("QUARTERMASTERUI", "Error closing upgrade screen", ex);
             }
             finally
             {
@@ -496,14 +496,14 @@ namespace Enlisted.Features.Equipment.UI
                 _upgradeTimeScope = null;
                 ModLogger.Debug("QUARTERMASTERUI", "Upgrade screen time scope disposed");
             }
-            
+
             // Return to quartermaster conversation if requested (outside try-finally to avoid interrupting time restore)
             if (returnToConversation && _returnToConversationOnClose)
             {
                 EnlistedDialogManager.RestartQuartermasterConversation();
             }
         }
-        
+
         #endregion
     }
 }

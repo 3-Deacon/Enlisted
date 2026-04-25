@@ -1,10 +1,8 @@
-using HarmonyLib;
-using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Conversation;
-using TaleWorlds.CampaignSystem.Party;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem.Conversation;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -22,7 +20,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
     {
         [HarmonyPrefix]
         public static void Prefix(
-            ref ConversationCharacterData playerCharacterData,
             ref ConversationCharacterData conversationPartnerData)
         {
             try
@@ -63,7 +60,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
             }
             catch (System.Exception ex)
             {
-                ModLogger.Error("Interface", "Error in QuartermasterConversationScenePatch", ex);
+                ModLogger.Caught("Interface", "Error in QuartermasterConversationScenePatch", ex);
             }
         }
     }

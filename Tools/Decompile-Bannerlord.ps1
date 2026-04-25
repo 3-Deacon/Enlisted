@@ -29,19 +29,21 @@
 [CmdletBinding()]
 param(
     [string] $BannerlordRoot = 'C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord',
-    [string] $OutputRoot     = 'C:\Dev\Enlisted\Decompile II',
-    [string] $Platform       = 'Win64_Shipping_Client'
+    [string] $OutputRoot = 'C:\Dev\Enlisted\Decompile II',
+    [string] $Platform = 'Win64_Shipping_Client'
 )
+
+. (Join-Path $PSScriptRoot 'Write-Status.ps1')
 
 $ErrorActionPreference = 'Stop'
 
 # ---- Log every line of output to a transcript so we can diagnose headless runs ----
 $LogPath = Join-Path $PSScriptRoot 'Decompile-Bannerlord.log'
-try { Stop-Transcript | Out-Null } catch {}
+try { Stop-Transcript | Out-Null } catch { Write-Verbose 'No active transcript to stop.' }
 Start-Transcript -Path $LogPath -Force | Out-Null
-Write-Host "Logging to: $LogPath" -ForegroundColor DarkGray
-Write-Host "PS version: $($PSVersionTable.PSVersion)" -ForegroundColor DarkGray
-Write-Host "PWD:        $(Get-Location)" -ForegroundColor DarkGray
+Write-Status "Logging to: $LogPath" -ForegroundColor DarkGray
+Write-Status "PS version: $($PSVersionTable.PSVersion)" -ForegroundColor DarkGray
+Write-Status "PWD:        $(Get-Location)" -ForegroundColor DarkGray
 
 # ---- Assembly list (40 items, sorted to match C:\Dev\Enlisted\Decompile) ----
 $Assemblies = @(
@@ -117,7 +119,7 @@ if (-not $ilspycmd) {
     & dotnet tool uninstall --global ilspycmd 2>&1 | Out-Null
 
     foreach ($ver in $candidateVersions) {
-        Write-Host ("Trying ilspycmd {0} ..." -f $ver) -ForegroundColor Yellow
+        Write-Status ("Trying ilspycmd {0} ..." -f $ver) -ForegroundColor Yellow
         & dotnet tool install --global ilspycmd --version $ver 2>&1 | Out-Host
         if ($LASTEXITCODE -eq 0) { break }
     }
@@ -127,12 +129,12 @@ if (-not $ilspycmd) {
     throw "ilspycmd still not available after trying versions: $($candidateVersions -join ', '). Run ``dotnet --info`` and confirm the .NET SDK is installed, then re-run."
 }
 
-Write-Host ''
-Write-Host "ilspycmd:   $ilspycmd"       -ForegroundColor Cyan
-Write-Host "Bannerlord: $BannerlordRoot" -ForegroundColor Cyan
-Write-Host "Output:     $OutputRoot"     -ForegroundColor Cyan
-Write-Host "Platform:   $Platform"       -ForegroundColor Cyan
-Write-Host ''
+Write-Status ''
+Write-Status "ilspycmd:   $ilspycmd"       -ForegroundColor Cyan
+Write-Status "Bannerlord: $BannerlordRoot" -ForegroundColor Cyan
+Write-Status "Output:     $OutputRoot"     -ForegroundColor Cyan
+Write-Status "Platform:   $Platform"       -ForegroundColor Cyan
+Write-Status ''
 
 # ---- Index every DLL across bin folders once (prefers main bin over module bins) ----
 $mainBin = Join-Path $BannerlordRoot "bin\$Platform"
@@ -140,8 +142,8 @@ $modulesBins = @()
 $modulesRoot = Join-Path $BannerlordRoot 'Modules'
 if (Test-Path -LiteralPath $modulesRoot) {
     $modulesBins = Get-ChildItem -LiteralPath $modulesRoot -Directory -ErrorAction SilentlyContinue |
-                   ForEach-Object { Join-Path $_.FullName "bin\$Platform" } |
-                   Where-Object   { Test-Path -LiteralPath $_ }
+        ForEach-Object { Join-Path $_.FullName "bin\$Platform" } |
+        Where-Object { Test-Path -LiteralPath $_ }
 }
 $searchRoots = @($mainBin) + $modulesBins | Where-Object { Test-Path -LiteralPath $_ }
 
@@ -153,25 +155,25 @@ foreach ($root in $searchRoots) {
     }
 }
 
-Write-Host ("Indexed {0} unique DLLs across {1} bin folders." -f $dllIndex.Count, $searchRoots.Count) -ForegroundColor Cyan
-Write-Host ''
+Write-Status ("Indexed {0} unique DLLs across {1} bin folders." -f $dllIndex.Count, $searchRoots.Count) -ForegroundColor Cyan
+Write-Status ''
 
 # ---- Decompile each assembly ----
 $results = New-Object System.Collections.Generic.List[object]
 $index = 0
 foreach ($name in $Assemblies) {
     $index++
-    $tag  = '[{0,2}/{1}]' -f $index, $Assemblies.Count
+    $tag = '[{0,2}/{1}]' -f $index, $Assemblies.Count
     $outDir = Join-Path $OutputRoot $name
 
     if (-not $dllIndex.ContainsKey($name)) {
-        Write-Host ("{0} MISSING  {1} (no DLL found under {2})" -f $tag, $name, $Platform) -ForegroundColor Red
+        Write-Status ("{0} MISSING  {1} (no DLL found under {2})" -f $tag, $name, $Platform) -ForegroundColor Red
         $results.Add([pscustomobject]@{ Assembly = $name; Status = 'MissingDll'; Path = ''; Output = $outDir })
         continue
     }
 
     $dllPath = $dllIndex[$name]
-    Write-Host ("{0} EXPORT   {1,-50} <- {2}" -f $tag, $name, $dllPath) -ForegroundColor Green
+    Write-Status ("{0} EXPORT   {1,-50} <- {2}" -f $tag, $name, $dllPath) -ForegroundColor Green
     if (Test-Path -LiteralPath $outDir) { Remove-Item -LiteralPath $outDir -Recurse -Force }
     New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 
@@ -180,25 +182,25 @@ foreach ($name in $Assemblies) {
         if ($LASTEXITCODE -ne 0) { throw "ilspycmd exited with code $LASTEXITCODE" }
         $results.Add([pscustomobject]@{ Assembly = $name; Status = 'OK'; Path = $dllPath; Output = $outDir })
     } catch {
-        Write-Host ("{0} FAIL     {1}: {2}" -f $tag, $name, $_.Exception.Message) -ForegroundColor Red
+        Write-Status ("{0} FAIL     {1}: {2}" -f $tag, $name, $_.Exception.Message) -ForegroundColor Red
         $results.Add([pscustomobject]@{ Assembly = $name; Status = 'Error'; Path = $dllPath; Output = $outDir })
     }
 }
 
 # ---- Summary ----
-Write-Host ''
-Write-Host '=== Summary ===' -ForegroundColor Cyan
+Write-Status ''
+Write-Status '=== Summary ===' -ForegroundColor Cyan
 $results | Format-Table Assembly, Status, Path -AutoSize | Out-Host
 
-$ok      = ($results | Where-Object { $_.Status -eq 'OK' }).Count
+$ok = ($results | Where-Object { $_.Status -eq 'OK' }).Count
 $missing = ($results | Where-Object { $_.Status -eq 'MissingDll' }).Count
-$errors  = ($results | Where-Object { $_.Status -eq 'Error' }).Count
-Write-Host ("{0} OK   {1} Missing   {2} Errors   (out of {3})" -f $ok, $missing, $errors, $Assemblies.Count) -ForegroundColor Cyan
+$errors = ($results | Where-Object { $_.Status -eq 'Error' }).Count
+Write-Status ("{0} OK   {1} Missing   {2} Errors   (out of {3})" -f $ok, $missing, $errors, $Assemblies.Count) -ForegroundColor Cyan
 
 if ($missing -gt 0) {
-    Write-Host ''
-    Write-Host 'Tip: If any assemblies are MISSING, the DLL name in Bannerlord may differ from the folder name in the old Decompile set.' -ForegroundColor Yellow
-    Write-Host 'Pass -Platform Win64_Shipping_wEditor to search the editor build instead.' -ForegroundColor Yellow
+    Write-Status ''
+    Write-Status 'Tip: If any assemblies are MISSING, the DLL name in Bannerlord may differ from the folder name in the old Decompile set.' -ForegroundColor Yellow
+    Write-Status 'Pass -Platform Win64_Shipping_wEditor to search the editor build instead.' -ForegroundColor Yellow
 }
 
-try { Stop-Transcript | Out-Null } catch {}
+try { Stop-Transcript | Out-Null } catch { Write-Verbose 'No active transcript to stop.' }

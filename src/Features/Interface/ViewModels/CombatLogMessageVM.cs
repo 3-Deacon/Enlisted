@@ -12,7 +12,7 @@ namespace Enlisted.Features.Interface.ViewModels
         private string _text;
         private Color _messageColor;
         private float _alphaFactor;
-        
+
         public CombatLogMessageVM(string text, Color color)
         {
             Text = text;
@@ -20,7 +20,7 @@ namespace Enlisted.Features.Interface.ViewModels
             CreatedAt = DateTime.UtcNow;
             AlphaFactor = 1.0f;
         }
-        
+
         /// <summary>
         /// Message text content.
         /// </summary>
@@ -37,7 +37,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Message color based on type (success, warning, failure, etc.).
         /// </summary>
@@ -54,7 +54,7 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Alpha factor for fade effect (1.0 = fully visible, 0.0 = invisible).
         /// </summary>
@@ -71,12 +71,12 @@ namespace Enlisted.Features.Interface.ViewModels
                 }
             }
         }
-        
+
         /// <summary>
         /// Real-time when message was created (UTC).
         /// </summary>
         public DateTime CreatedAt { get; }
-        
+
         /// <summary>
         /// Gets the age of this message in seconds (real-time).
         /// </summary>

@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Enlisted.Features.Retinue.Core;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.AgentOrigins;
@@ -184,9 +185,13 @@ namespace Enlisted.Features.Combat.Behaviors
         /// </summary>
         private void TryRemoveStayBackCompanion(Agent agent)
         {
-            // Only process companions from player's party at Commander tier (T7+).
+            // Stay-back enforcement is tier-wide. Companions reach the player's
+            // MainParty before T7 through clan recruitment and the wanderer-spec
+            // companion archetypes (Sergeant T1, Field Medic T3, Pathfinder T3),
+            // so the Stay Back toggle in the Camp companions menu must be honoured
+            // at every tier — not just at the T7+ retinue commander gate.
             var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment?.IsEnlisted != true || enlistment.EnlistmentTier < RetinueManager.CommanderTier1)
+            if (enlistment?.IsEnlisted != true)
             {
                 return;
             }
@@ -340,7 +345,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (_needsLordAttachRetry && _lordAttachRetryAttempts < MaxLordAttachRetryAttempts)
                 {
                     _lordAttachRetryAttempts++;
-                    TryAttachToAlliedOrLordFormation("OnMissionTick-Retry");
+                    _ = TryAttachToAlliedOrLordFormation("OnMissionTick-Retry");
                 }
                 else if (_lordAttachRetryAttempts >= MaxLordAttachRetryAttempts)
                 {
@@ -891,92 +896,6 @@ namespace Enlisted.Features.Combat.Behaviors
         }
 
         /// <summary>
-        /// Teleports all squad members (retinue + companions) to positions near the player within the formation.
-        /// This ensures the entire squad spawns together with their troop type formation, not behind the line.
-        /// </summary>
-        private int TeleportSquadToFormation(Agent playerAgent, Formation formation, Vec3 formationCenter)
-        {
-            var teleportedCount = 0;
-
-            try
-            {
-                var team = playerAgent.Team;
-                if (team?.ActiveAgents == null)
-                {
-                    return 0;
-                }
-
-                var mainParty = PartyBase.MainParty;
-                if (mainParty == null)
-                {
-                    return 0;
-                }
-
-                // Get formation direction for proper positioning
-                var formationDirection = formation.Direction.IsValid ? formation.Direction : Vec2.Forward;
-                var formationRight = formationDirection.RightVec();
-
-                // Position squad members in a small cluster around the formation center
-                // Spread them out slightly so they don't stack on top of each other
-                var squadIndex = 0;
-                const float squadSpacing = 1.5f; // meters between squad members
-
-                foreach (var agent in team.ActiveAgents)
-                {
-                    // Skip the player
-                    if (agent == playerAgent || agent == null || !agent.IsActive())
-                    {
-                        continue;
-                    }
-
-                    // Only teleport agents from player's party
-                    if (agent.Origin is not PartyGroupAgentOrigin partyOrigin || partyOrigin.Party != mainParty)
-                    {
-                        continue;
-                    }
-
-                    // Skip companions that were faded out (stay back)
-                    if (!agent.IsActive())
-                    {
-                        continue;
-                    }
-
-                    // Calculate offset position in a grid pattern around the player
-                    // This keeps the squad together but not stacked
-                    var row = squadIndex / 3;
-                    var col = (squadIndex % 3) - 1; // -1, 0, 1 for left, center, right
-
-                    var offsetForward = -row * squadSpacing; // Behind the player slightly
-                    var offsetRight = col * squadSpacing;
-
-                    var squadPosition = formationCenter
-                        + formationDirection.ToVec3() * offsetForward
-                        + formationRight.ToVec3() * offsetRight;
-
-                    agent.TeleportToPosition(squadPosition);
-
-                    // Face same direction as formation
-                    if (formation.Direction.IsValid)
-                    {
-                        agent.SetMovementDirection(formation.Direction);
-                        agent.LookDirection = formation.Direction.ToVec3();
-                    }
-
-                    agent.ForceUpdateCachedAndFormationValues(true, false);
-
-                    teleportedCount++;
-                    squadIndex++;
-                }
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Caught("FORMATIONASSIGNMENT", "Error teleporting squad to formation", ex);
-            }
-
-            return teleportedCount;
-        }
-
-        /// <summary>
         ///     Assigns all agents from the player's party (companions and retinue) to the same formation.
         ///     At Commander tier (T7+), the player commands a unified squad of their personal troops.
         ///     This ensures companions and retinue soldiers fight together with the player.
@@ -1342,46 +1261,7 @@ namespace Enlisted.Features.Combat.Behaviors
         /// </summary>
         private FormationClass DetectFormationFromEquipment()
         {
-            try
-            {
-                var hero = Hero.MainHero;
-                if (hero?.CharacterObject == null)
-                {
-                    return FormationClass.Infantry;
-                }
-
-                var character = hero.CharacterObject;
-
-                // Horse + ranged weapon = Horse Archer formation
-                if (character.IsRanged && character.IsMounted)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Horse Archer (mounted + ranged)");
-                    return FormationClass.HorseArcher;
-                }
-
-                // Horse equipped = Cavalry formation
-                if (character.IsMounted)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Cavalry (mounted)");
-                    return FormationClass.Cavalry;
-                }
-
-                // Ranged weapon (bow, crossbow, throwing) = Ranged formation
-                if (character.IsRanged)
-                {
-                    ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Ranged (bow/crossbow/throwing)");
-                    return FormationClass.Ranged;
-                }
-
-                // Default to infantry (melee weapons or no weapons)
-                ModLogger.Debug("FORMATIONASSIGNMENT", "Equipment detection: Infantry (default)");
-                return FormationClass.Infantry;
-            }
-            catch (Exception ex)
-            {
-                ModLogger.Error("FORMATIONASSIGNMENT", "Error detecting formation from equipment", ex);
-                return FormationClass.Infantry;
-            }
+            return CombatClassResolver.Resolve(Hero.MainHero);
         }
 
         /// <summary>

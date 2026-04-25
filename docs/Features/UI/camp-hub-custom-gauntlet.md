@@ -1374,7 +1374,7 @@ public class EnlistedCampHubBehavior : CampaignBehaviorBase
         }
         catch (Exception ex)
         {
-            ModLogger.Error("CampHub", "Failed to open camp hub", ex);
+            ModLogger.Caught("CampHub", "Failed to open camp hub", ex);
             CleanupHub();
         }
     }
@@ -1393,7 +1393,7 @@ public class EnlistedCampHubBehavior : CampaignBehaviorBase
         }
         catch (Exception ex)
         {
-            ModLogger.Error("CampHub", "Error closing camp hub", ex);
+            ModLogger.Caught("CampHub", "Error closing camp hub", ex);
             CleanupHub();
         }
     }
@@ -1483,7 +1483,7 @@ Enlisted/
 src/Features/Interface/Behaviors/
 └── EnlistedMenuBehavior.cs               (KEEP AS-IS - registers all native submenus)
 
-ModuleData/Enlisted/Orders/               (KEEP AS-IS - native orders config)
+ModuleData/Enlisted/Storylets/            (KEEP AS-IS - storylet backbone, drives Orders surface)
 ModuleData/Enlisted/Decisions/            (KEEP AS-IS - native decisions config)
 ```
 

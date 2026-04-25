@@ -1,6 +1,6 @@
 # News & Reporting System
 
-**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. It manages two feed types (kingdom-wide and personal), a daily brief with company/player/kingdom context, and a company needs status report showing Readiness and Supplies. Event and order outcomes are displayed in Recent Activities using a queue system instead of popups to reduce UI interruption. All text uses immersive Bannerlord military flavor instead of raw statistics. Order recaps show narrative summaries ("Routine watch", "Spotted tracks") instead of mechanical XP displays.
+**Summary:** The news and reporting system tracks game events and generates narrative feedback for the player. Current `development` owns two feed families (kingdom and personal), typed dispatch metadata (`Tier`, `Beats`, `Body`, `IsHeadline`), pending modal queue persistence, the `HEADLINES` submenu, and camp-hub sections including `COMPANY STATUS`, `SINCE LAST MUSTER`, `UPCOMING`, `RECENT ACTIVITY`, and `YOUR STATUS`. Agency typed routing (`DispatchDomain`, `DispatchSourceKind`, `DispatchSurfaceHint`) remains branch-scoped until merged.
 
 **2025-12-31 MAJOR UPDATE:** Menu narratives now comprehensively integrate with `WorldStateAnalyzer`, `CampLifeBehavior` pressures, and `CompanySimulationBehavior` for rich, context-aware storytelling that reflects actual simulated world state. Order outcomes now use RP-appropriate fallback text when JSON text is missing. XP displays removed from recaps in favor of narrative summaries.
 
@@ -10,15 +10,16 @@
 
 **2026-01-03 BUG FIX:** Routine activity "Poor" outcomes now correctly display in yellow (Attention) instead of green (Positive). Previously, negative events like "A soldier reports fever this morning" appeared in green alongside "Excellent performance today" due to incorrect severity mapping. Fixed severity assignment: Poor → 2 (Attention/Yellow), Mishap → 2 (Attention/Yellow).
 
-**Status:** ✅ Current - Comprehensive Integration Complete  
-**Last Updated:** 2026-01-03 (Routine outcome severity fix)  
-**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Order Progression System](../Core/order-progression-system.md), [Orders Content](../Content/orders-content.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md)
+**Status:** Current for `development`; legacy historical sections below are retained for context.
+**Last Updated:** 2026-04-24 (typed dispatch fields + plan incorporation)
+**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](../Content/storylet-backbone.md), [Career Loop](../Content/career-loop.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md), [Menu + Duty Unification Spec](../../superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md)
 
 ---
 
 ## Index
 
 - [Overview](#overview)
+- [Current Development Contract](#current-development-contract)
 - [System Architecture](#system-architecture)
 - [Event & Order Outcome Queue System](#event--order-outcome-queue-system)
 - [Kingdom Feed](#kingdom-feed)
@@ -43,15 +44,33 @@ The news system operates as a read-only observer of campaign events. It listens 
 1. **Kingdom Feed** - Kingdom-wide events (wars, battles, settlements, captures)
 2. **Personal Feed** - Your enlisted lord's events and your direct participation
 
-**Two Report Types:**
-1. **Daily Brief** - Once-per-day narrative paragraph combining company situation, player status, and kingdom news
-2. **Company Status Report** - Two company needs (Readiness, Supplies) with context-aware descriptions
+**Current shipped report surfaces:**
+1. **Main status menu** - kingdom reports, company reports, player status, and `HEADLINES`.
+2. **Camp hub** - `COMPANY STATUS`, `SINCE LAST MUSTER`, `UPCOMING`, `RECENT ACTIVITY`, and `YOUR STATUS`.
+3. **Muster ceremony** - 12-day period recap using the personal feed and typed battle beats where available.
 
 **Key Behavior:**
-- All feeds use `DispatchItem` struct (primitives only for save compatibility)
-- Daily Brief caches at daily tick (stable for 24 hours to prevent jitter)
+- All feeds use `DispatchItem` struct. New items should prefer typed fields over rendered-text parsing.
+- `StoryDirector` is authoritative for pacing and routing. Modal candidates use `StoryDirector.EmitCandidate`; direct `EventDeliveryManager.QueueEvent` is restricted to Director internals, the debug tool, and early-boot fallbacks.
 - Company Status generates on-demand when menu opens
 - Records track outcomes for display in reports (orders, events, reputation changes)
+
+---
+
+## Current Development Contract
+
+This section is the authoritative snapshot for current `development`; older sections below still describe useful history and builders, but some names are legacy.
+
+- `EnlistedNewsBehavior` owns `_kingdomFeed`, `_personalFeed`, and persisted pending modal ids. Public read surfaces include `GetVisibleKingdomFeedItems`, `GetVisiblePersonalFeedItems`, and `GetPersonalFeedSince`.
+- `StoryDirector.WriteDispatchItem(...)` populates typed dispatch fields and writes personal feed items through `EnlistedNewsBehavior.AddPersonalDispatch(...)`.
+- `DispatchItem` carries legacy severity plus `Tier`, `Beats`, `Body`, and `IsHeadline`. Downstream UI should prefer those fields over parsing `HeadlineKey`, category strings, or formatted English.
+- `EnlistedMenuBehavior.GetUnreadHighSeverity(...)` prefers `IsHeadline` / `Tier` and falls back to legacy `Severity >= 2` for old items.
+- `MusterMenuHandler.CountBattlesThisPeriod(...)` counts battle recaps from `DispatchItem.Beats` first; old category/headline substring matching is legacy fallback only.
+- `EventDeliveryManager` pending modal delivery is save-backed through `evt_delivery_pendingIds`, caps the queue at 32, and hydrates through `EventCatalog`.
+- Current shipped surfaces still include `HEADLINES`, `COMPANY STATUS`, `SINCE LAST MUSTER`, `UPCOMING`, `RECENT ACTIVITY`, and `YOUR STATUS`. Do not document the 2026-04-23 `DISPATCHES` / `YOU` / `CAMP ACTIVITIES` layout as shipped until that branch merges.
+- Personal progression/reward spam belongs in feed/status surfaces, not the combat log. `InformationManagerDisplayMessagePatch` suppresses XP, trait XP, enlistment XP, and "Past few days" updates before they reach the top-right combat log.
+- `OrdersNewsFeedThrottle.TryClaim()` intentionally rejects feed output at extreme fast-forward above 4x. Tick-driven logs still record activity at any speed.
+- `DispatchDomain`, `DispatchSourceKind`, and `DispatchSurfaceHint` are planned typed routing metadata in `feature/agency-news-status-integration`; they are not live on `development` yet.
 
 ---
 
@@ -358,7 +377,7 @@ Combat Training: Crisp movements. Best formation in the company.
 - `RoutineOutcome.GetNewsSummary()` now prioritizes `FlavorText` property over generic outcome text
 - `CampRoutineProcessor` generates flavor text from `routine_outcomes.json` based on outcome roll (Excellent/Good/Normal/Poor/Mishap)
 - Same flavor text appears in:
-  - Combat log (bottom-left, real-time)
+  - Combat log (top-right live feed, real-time, excluding progression spam)
   - Personal feed (Recent Activity menu)
   - Camp Hub "RECENT ACTIVITY" section
 
@@ -386,19 +405,22 @@ This change applies to all 7 routine activity categories: formation, training, w
 
 ### Order Event Integration
 
-Order events (fired during duty via `OrderProgressionBehavior`) use this same queue system:
+Legacy `OrderProgressionBehavior` was retired with the old Orders subsystem. Current order narrative flows through `OrderActivity`, named-order storylet pools, `StoryDirector`, and the personal feed:
 
 ```csharp
-// In OrderProgressionBehavior, after player makes event choice:
-EnlistedNewsBehavior.Instance.AddEventOutcome(
-    eventTitle: orderEvent.Title,
-    resultNarrative: selectedOption.ResultText,
-    severity: orderEvent.Severity,
-    dayNumber: (int)CampaignTime.Now.ToDays
-);
+StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+{
+    SourceId = "order.activity",
+    CategoryId = "order",
+    ProposedTier = StoryTier.Log,
+    Beats = { StoryBeat.OrderComplete },
+    RenderedTitle = storylet.Title,
+    RenderedBody = storylet.Setup,
+    StoryKey = storylet.Id
+});
 ```
 
-**See Also:** [Orders Content](../Content/orders-content.md) for order definitions, event files at `ModuleData/Enlisted/Orders/order_events/`.
+**See Also:** [Storylet Backbone](../Content/storylet-backbone.md) and [Career Loop](../Content/career-loop.md). The historical [Orders Content](../Content/orders-content.md) catalog is retained only for retired subsystem reference.
 
 ---
 
@@ -497,7 +519,7 @@ Extended Rest: Good recovery (Men exhausted)
 - No special UI treatment (same format as other news)
 
 **Combat Log Parallel:**
-Routine outcomes also generate instant feedback via combat log messages (see [UI Systems Master](ui-systems-master.md#combat-log--routine-feedback) for details).
+Routine/progression outcomes should be routed to feed/status surfaces. The combat log is reserved for combat/system messages and immediate decision feedback.
 
 ---
 
@@ -1064,9 +1086,13 @@ string TemplateId        // Localization key (e.g., "News_BattleVictory")
 string Headline          // Formatted headline text
 string DetailText        // Optional detailed text
 int Priority             // Display priority (higher = more important)
+StoryTier Tier           // Typed semantic tier: Log, Pertinent, Headline, Modal
+HashSet<StoryBeat> Beats // Originating story beats for typed consumers
+string Body              // Rendered body text from StoryCandidate.RenderedBody
+bool IsHeadline          // True when Tier == StoryTier.Headline
 ```
 
-**Creation:** `AddKingdomNews()` and `AddPersonalNews()` helper methods
+**Creation:** `AddKingdomNews()` / `AddPersonalNews()` for legacy feed entries, and typed `AddPersonalDispatch(...)` through `StoryDirector.WriteDispatchItem(...)` for new story-candidate dispatches.
 
 **Formatting:** `FormatDispatchItem()` applies placeholders and returns display string
 

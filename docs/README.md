@@ -32,7 +32,7 @@ Enlisted is a comprehensive mod that transforms Mount & Blade II: Bannerlord int
 
 **Core Features:**
 - **Enlistment System** - Pledge service to any lord and join their army
-- **Rank Progression** - Advance through 6 tiers from recruit to commander
+- **Rank Progression** - Advance through 9 tiers from recruit to commander
 - **Chain of Command** - Receive and complete orders from your lord
 - **Reputation & Discipline** - Build trust with officers or face consequences
 - **Dynamic Events** - Experience role-specific narrative events and social interactions
@@ -50,7 +50,7 @@ Enlisted is a comprehensive mod that transforms Mount & Blade II: Bannerlord int
 
 ### For Players
 - **[Features Index](Features/Core/index.md)** - All gameplay features explained
-- **[Content Catalog](Content/content-index.md)** - Events, orders, and decisions
+- **[Content Reference](Features/Content/storylet-backbone.md)** - Storylets, effects, triggers, activities, and current authoring rules
 
 ### For Developers
 - **[Blueprint](BLUEPRINT.md)** - Project architecture and coding standards
@@ -59,7 +59,7 @@ Enlisted is a comprehensive mod that transforms Mount & Blade II: Bannerlord int
 
 ### Planning & Reference
 - **[Complete Index](INDEX.md)** - All documentation files
-- **[Reorganization Log](reorganization.log)** - Documentation changes
+- **[Plans Archive](superpowers/plans/archive/README.md)** - Retired and completed implementation plans
 
 ---
 

@@ -1,0 +1,220 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_support_t7",
+      "title": "{=order_scout_support_t7_title}Mark the wounded ground",
+      "setup": "{=order_scout_support_t7_setup}Your lord wants the ground ahead read for a surgeon's eye — where the water is clean, where the shade is, where a wagon of hurt men could halt without fouling. He sends you because he knows you see country that way now.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_support"],
+      "class_affinity": {
+        "Infantry": 1.0,
+        "Ranged": 1.1
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_support_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_support_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_support_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_support_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_support_t7_accept_diligent_text}Find water. Find shade. Find a field with a slope for drainage.",
+          "tooltip": "{=order_scout_support_t7_accept_diligent_tt}Start surgeon-scout arc.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_support_t7_decline_text}Beg off. The hands ache for other work.",
+          "tooltip": "{=order_scout_support_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_support_t7_mid_vigil",
+      "title": "{=order_scout_support_t7_mid_vigil_title}A clean spring in a bad wood",
+      "setup": "{=order_scout_support_t7_mid_vigil_setup}You find a spring behind a tangle of blackthorn, the water running over pale stone. The flies are few. A man could die slower here than elsewhere. You mark the bearing and the path in.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_scout_support_t7_mid_vigil_main_text}Note it. Drink, then move on.",
+          "tooltip": "{=order_scout_support_t7_mid_vigil_main_tt}Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_support_t7_resolve_diligent",
+      "title": "{=order_scout_support_t7_resolve_diligent_title}The surgeon nods",
+      "setup": "{=order_scout_support_t7_resolve_diligent_setup}You deliver the ground report to the surgeon before your lord. It is the right order of precedence, and your lord does not mind — he set you to it for just that reason. The surgeon reads the notes and asks you to sit with him a minute.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_scout_support_t7_resolve_diligent_close_text}Sit. Answer his questions.",
+          "tooltip": "{=order_scout_support_t7_resolve_diligent_close_tt}Rank XP + Medicine + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_support_t7",
+      "title": "{=order_escort_support_t7_title}Ride with the hurt wagon",
+      "setup": "{=order_escort_support_t7_setup}The baggage wagon has three wounded in the bed — two from yesterday, one fresh. Your lord puts you beside it, not as a soldier with a shield, but as a man who will ride at the wheel and keep them alive to the next camp.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_support"],
+      "class_affinity": {
+        "Infantry": 1.0,
+        "Ranged": 1.0
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "escort_support_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_escort_support_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_support_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_support_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_support_t7_accept_diligent_text}Ride at the wheel. Keep them breathing.",
+          "tooltip": "{=order_escort_support_t7_accept_diligent_tt}Start wounded-escort arc.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_support_t7_decline_text}Beg off. You cannot stomach the wagon today.",
+          "tooltip": "{=order_escort_support_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_support_t7_mid_road",
+      "title": "{=order_escort_support_t7_mid_road_title}A man who will not stop bleeding",
+      "setup": "{=order_escort_support_t7_mid_road_setup}A young trooper in the wagon bed is bleeding through the bandage again. You halt the driver long enough to repack the wound. The column will grumble about the delay. The man lives or he does not.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_escort_support_t7_mid_road_main_text}Halt the wagon. Repack the wound.",
+          "tooltip": "{=order_escort_support_t7_mid_road_main_tt}Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_support_t7_resolve_diligent",
+      "title": "{=order_escort_support_t7_resolve_diligent_title}All three made camp",
+      "setup": "{=order_escort_support_t7_resolve_diligent_setup}Three men in the wagon, three men at the fire. One of them will lose a hand, but he will live. The surgeon tells your lord that the difference was the ride — that someone kept eyes on them through the dust. Your lord looks at you.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_escort_support_t7_resolve_diligent_close_text}Wash your hands. Eat.",
+          "tooltip": "{=order_escort_support_t7_resolve_diligent_close_tt}Rank XP + Medicine + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

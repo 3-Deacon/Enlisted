@@ -1,6 +1,6 @@
 # Enlisted - Project Blueprint
 
-**Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-01-04 (Battle side army race conditions fixed. 3-day grace period removed.)
+**Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities/Flags/Activities/Storylets runtime + seed catalogs + validate_content.py Phase 12.)
 
 ---
 
@@ -12,8 +12,8 @@
 2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
 3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
 4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the three-tier API (`Surfaced` / `Caught` / `Expected`). Error codes auto-generate into [docs/error-codes.md](error-codes.md); don't hand-edit.
-5. **Never suppress ReSharper warnings** without documented justification
-6. **Run validation** before committing: `python Tools/Validation/validate_content.py`
+5. **Never suppress ReSharper or repo lint warnings** without documented justification
+6. **Run the repo lint stack** before committing: `.\Tools\Validation\lint_repo.ps1`
 7. **Check if features exist** by searching codebase first — never hallucinate
 
 ---
@@ -24,17 +24,18 @@
 | --- | --- | --- |
 | **Runtime debug logs** | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | ModLogger output, error codes, save diagnostics |
 | **Steam Workshop upload** | `Tools/Steam/WORKSHOP_UPLOAD.md` | VDF char limits, run `.\Tools\Steam\upload.ps1` in interactive PS |
-| **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, JSON schema |
+| **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, storylet/content rules |
 | **Understand a feature** | `docs/Features/Core/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
-| **Code quality issues** | `.editorconfig`, `qodana.yaml` | ReSharper settings in .sln.DotSettings |
-| **Validation errors** | `Tools/README.md` | Run `python Tools/Validation/validate_content.py` |
+| **Code quality issues** | `.editorconfig`, `ruff.toml`, `PSScriptAnalyzerSettings.psd1`, `Tools/Validation/lint_repo.ps1` | ReSharper settings in .sln.DotSettings |
+| **Validation errors** | `Tools/README.md` | Run `.\Tools\Validation\lint_repo.ps1` for full repo checks or `python Tools/Validation/validate_content.py` for content-only checks |
 | **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.3.13 specific, don't use online docs |
-| **Opportunity/orchestration** | `docs/ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md` | Commitment model, phase scheduling |
+| **Opportunity/orchestration** | `docs/Features/Content/storylet-backbone.md` | Storylet runtime, activities, triggers, effects |
 
 ## ⚡ QUICK COMMANDS
 
 ```powershell
 dotnet build -c "Enlisted RETAIL" /p:Platform=x64     # Build mod
+.\Tools\Validation\lint_repo.ps1                      # Full repo lint stack
 python Tools/Validation/validate_content.py           # Validate content
 .\Tools\Steam\upload.ps1                              # Upload to Workshop (interactive PS only!)
 python Tools/Validation/sync_event_strings.py         # Sync localization
@@ -47,15 +48,17 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 3. **New C# Files:** Manually add to `Enlisted.csproj` → run validator
 4. **Logging:** Use `ModLogger` — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API
 5. **Opportunity Model:** Each opportunity once/day, commitment = click future to schedule, click current to fire
-6. **Code Quality:** Follow ReSharper, don't suppress without reason
+6. **Code Quality:** Follow ReSharper and the repo lint stack, don't suppress without reason
 
 ## 📁 KEY PATHS
 
 | Path | Purpose |
 | --- | --- |
 | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | **Runtime mod logs** (ModLogger output, error codes) |
-| `src/Features/` | All gameplay code (Enlistment, Orders, Content, Combat, Equipment, etc.) |
+| `src/Features/` | All gameplay code (Enlistment, Activities/Orders, Content, Combat, Equipment, Qualities, Flags, Activities) |
+| `src/Features/Qualities/` · `Flags/` · `Activities/` | Storylet Backbone runtime (Spec 0, 2026-04-19) — QualityStore (typed numeric state, stored + read-through), FlagStore (named booleans + expiry), ActivityRuntime (stateful phased activities) |
 | `ModuleData/Enlisted/` | JSON config, events, orders, decisions |
+| `ModuleData/Enlisted/Storylets/` · `Qualities/` · `Effects/` | Storylet Backbone content dirs — storylet definitions (populated by surface specs 1-5), quality_defs.json, scripted_effects.json |
 | `ModuleData/Languages/enlisted_strings.xml` | All localized strings |
 | `Tools/Steam/` | Workshop upload scripts and VDF |
 | `Tools/Validation/` | Content validators |
@@ -70,10 +73,10 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | Full doc catalog | [docs/INDEX.md](INDEX.md) |
 | Core gameplay | [docs/Features/Core/core-gameplay.md](Features/Core/core-gameplay.md) |
 | Enlistment system | [docs/Features/Core/enlistment.md](Features/Core/enlistment.md) |
-| All content files | [docs/Features/Content/content-index.md](Features/Content/content-index.md) |
+| Content authoring | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
 | Writing style | [docs/Features/Content/writing-style-guide.md](Features/Content/writing-style-guide.md) |
-| JSON schemas | [docs/Features/Content/event-system-schemas.md](Features/Content/event-system-schemas.md) |
-| Orchestrator | [docs/ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) |
+| Storylet/content schema | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
+| Content entry point | [docs/Features/Content/README.md](Features/Content/README.md) |
 | Steam upload | [Tools/Steam/WORKSHOP_UPLOAD.md](../Tools/Steam/WORKSHOP_UPLOAD.md) |
 | Tooling guide | [Tools/README.md](../Tools/README.md) |
 | Technical patterns | [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) |
@@ -90,9 +93,8 @@ Enlisted/
 │   ├── Mod.GameAdapters/   Harmony patches
 │   └── Features/           All gameplay features
 │       ├── Enlistment/     Core service state, retirement
-│       ├── MyNewFeature/   (example placeholder)
-│       ├── Orders/         Mission-driven directives
-│       ├── Content/        Events, Decisions, narrative delivery
+│       ├── Activities/     Activity backbone + Home/Orders subclasses (Spec 0/1/2)
+│       ├── Content/        Storylets, scripted effects, narrative delivery
 │       ├── Combat/         Battle participation, formation, Battle AI
 │       ├── Equipment/      Quartermaster and gear management
 │       └── ...             (see full list below)
@@ -121,8 +123,8 @@ Enlisted/
 | Folder | Purpose |
 | --- | --- |
 | Enlistment | Core service state, retirement |
-| Orders | Mission-driven directives (Chain of Command) |
-| Content | Events, Decisions, narrative delivery |
+| Activities | Stateful phased activities — `Activity` base, `HomeActivity` (Spec 1), `OrderActivity` + `NamedOrderState` (Spec 2 — current Orders surface) |
+| Content | Storylets, scripted effects, StoryDirector (pacing), event delivery |
 | Identity | Role detection (Traits), Reputation helpers |
 | Escalation | Lord/Officer/Soldier reputation, Scrutiny/Discipline |
 | Company | Company-wide Needs (Readiness, Supply) - Note: Rest removed 2026-01-11 |
@@ -187,7 +189,7 @@ python Tools/Validation/sync_event_strings.py
 5. **For opportunities:** Add `hintId`/`hint` fields for Daily Brief foreshadowing (see [Opportunity Hints](Features/Content/writing-style-guide.md#opportunity-hints))
 6. Run validation: `python Tools/Validation/validate_content.py`
 7. Sync strings: `python Tools/Validation/sync_event_strings.py --check`
-8. Update [content-index.md](Features/Content/content-index.md) if adding new content type
+8. Update [Features/Content/README.md](Features/Content/README.md) or [storylet-backbone.md](Features/Content/storylet-backbone.md) if adding a new content type
 
 ### Check If Feature Exists
 
@@ -225,17 +227,23 @@ dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 2. **[Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)** - ReSharper inspection settings and suppressions
    - Disables markdown linting (docs are excluded from code analysis)
 
-3. **[qodana.yaml](../qodana.yaml)** - Qodana static analysis configuration
-   - **Actively enforces**: RedundantUsingDirective, RedundantNameQualifier, UnusedMember.Local, UnusedParameter.Local
-   - Excludes: Markdown files, `Tools/` scripts, `Debugging/` reports
-   - Documents all inspection suppressions with reasons (Harmony patches, Gauntlet bindings, singletons)
+3. **[ruff.toml](../ruff.toml)** - Python lint/format configuration for `Tools/**/*.py`
+   - Enforces imports, common errors, bug-prone patterns, safe upgrades, and simplifications
+   - Excludes ad-hoc `Tools/Research/`
+
+4. **[PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1)** - PowerShell script analysis configuration
+   - Enforces approved verbs, comment help, consistent indentation/whitespace, and common scripting pitfalls
+
+5. **[Tools/Validation/lint_repo.ps1](../Tools/Validation/lint_repo.ps1)** - Unified lint entry point
+   - Runs `.editorconfig`-backed C# checks via `dotnet format`
+   - Runs content validation, Ruff, and PSScriptAnalyzer in one command
 
 ### General Rules
 
 - **Braces required** on all `if`, `for`, `while`, `foreach` (even single-line)
 - **No unused code** - remove unused imports, variables, methods
 - **Comments describe current behavior** (no "Phase X added..." framing)
-- **Follow ReSharper/Qodana** - fix warnings, don't suppress without reason
+- **Follow ReSharper and repo lint output** - fix warnings, don't suppress without reason
 
 ### JSON Content Rules
 
@@ -314,7 +322,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 
 ### Code Quality
 
-- [ ] Read [.editorconfig](../.editorconfig), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings), [qodana.yaml](../qodana.yaml)
+- [ ] Read [.editorconfig](../.editorconfig), [ruff.toml](../ruff.toml), [PSScriptAnalyzerSettings.psd1](../PSScriptAnalyzerSettings.psd1), [Enlisted.sln.DotSettings](../Enlisted.sln.DotSettings)
 - [ ] All ReSharper/Rider warnings addressed
 - [ ] No unused imports, variables, or methods
 - [ ] Braces used for all control statements
@@ -339,7 +347,7 @@ private bool CanReenlistWithFaction(Kingdom faction)
 - [ ] Order events include skillXp in effects
 - [ ] New C# files added to .csproj (validator will catch this)
 - [ ] No rogue files in root directory
-- [ ] Validation passes: `python Tools/Validation/validate_content.py`
+- [ ] Repo lint passes: `.\Tools\Validation\lint_repo.ps1`
 
 ---
 
@@ -402,7 +410,7 @@ These mistakes cause real problems. Avoid them.
 **Solution:**
 
 1. Run `python Tools/Validation/sync_event_strings.py`
-2. Run `python Tools/Validation/validate_content.py` before committing
+2. Run `.\Tools\Validation\lint_repo.ps1` before committing
 
 ### 10. Missing SaveableTypeDefiner Registration
 
@@ -441,7 +449,7 @@ These mistakes cause real problems. Avoid them.
 **Solution:**
 
 1. All order event options must include `effects.skillXp`
-2. Match XP to activity type (see [event-system-schemas.md](Features/Content/event-system-schemas.md))
+2. Match XP to activity type (see [storylet-backbone.md](Features/Content/storylet-backbone.md))
 3. Failed skill checks should grant reduced XP (50% of success)
 
 ### 16. Not Persisting In-Progress State Flags
@@ -477,6 +485,18 @@ These mistakes cause real problems. Avoid them.
 3. Example from grace period system: Only register lord for tracking if `_enlistedLord.IsAlive` is true
 4. Dead heroes cannot be displayed on the map tracker, so skipping them is correct behavior
 
+### 19. Calling `EventDeliveryManager.Instance.QueueEvent` Directly
+
+**Problem:** Calling `EventDeliveryManager.Instance.QueueEvent(evt)` directly bypasses StoryDirector pacing (no floor, no cooldown, no deferral). The only legitimate direct-call sites are (a) Director-null fallbacks inside a migrated caller, (b) the debug tool at `src/Debugging/Behaviors/DebugToolsBehavior.cs:141`, and (c) the Director's own internal `Route()`. Everything else must use `StoryDirector.Instance?.EmitCandidate(...)` — see Critical Rule #10.
+
+**Solution:** Route all modal event delivery through `StoryDirector.Instance?.EmitCandidate(...)`.
+
+### 20. Authoring New Content as Legacy `EventDefinition` JSON
+
+**Problem:** Authoring new content as legacy `EventDefinition` JSON instead of as storylets. Storylets are the canonical target as of Spec 0 (2026-04-19); `EventDefinition` content still loads at runtime but is not the target for new authoring.
+
+**Solution:** Author new content as storylets in `ModuleData/Enlisted/Storylets/*.json`. See [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md). Plan 5 (Career Loop Closure, 2026-04-22) added two authored-content-reachable effect primitives (`commit_path`, `resist_path`) plus a culture/lord-trait overlay preference (`__<culture>` suffix; `requires_culture` / `excludes_culture` / `requires_lord_trait` / `excludes_lord_trait` consumed by the Duty emitter) — see [storylet-backbone.md → Plan 5 additions](Features/Content/storylet-backbone.md#plan-5-additions-career-path-primitives--overlay-preference) for authoring semantics and [career-loop.md](Features/Content/career-loop.md) for the full surface.
+
 ---
 
 ## Dependencies
@@ -506,6 +526,18 @@ The mod focuses on the **enlisted lord's party** (the Company). If the Company i
 - **Data-driven content** via JSON events/orders + XML localization
 - **Emergent identity** from player choices (not menu selections)
 
+**Event pacing:** `StoryDirector` (`src/Features/Content/StoryDirector.cs`) is
+the single gate for modal event delivery. Sources emit `StoryCandidate` via
+`EmitCandidate`; the Director routes Modal candidates subject to floor + wall-
+clock + category-cooldown guards, defers floor-blocked interactives to a FIFO
+retry queue, and writes observational items as `DispatchItem` entries via
+`EnlistedNewsBehavior.AddPersonalDispatch`. See the
+[pacing design spec](superpowers/specs/2026-04-18-event-pacing-design.md) and
+[implementation plan](superpowers/plans/2026-04-18-event-pacing.md).
+Direct `EventDeliveryManager.Instance.QueueEvent(...)` calls are reserved for
+Director fallback paths (when the singleton isn't yet registered) and the
+debug-tool test harness.
+
 ### Design Principles
 
 - Emergent identity from choices, not menus
@@ -527,97 +559,7 @@ For deployment instructions, see [Tools/Steam/WORKSHOP_UPLOAD.md](../Tools/Steam
 
 ## Deprecated Systems
 
-**Systems marked for future removal but kept for backwards compatibility.**
-
-These systems have been logically removed from the mod but retain minimal code to:
-
-1. **Load old save files** without errors
-2. **Maintain serialization compatibility** during the deprecation period
-3. **Prevent save corruption** from missing data keys
-
-### Morale System (Deprecated: 2026-01-11)
-
-**Status:** Functionally removed, backwards-compatible save loading only  
-**Reason:** Redundant with existing systems (discipline, rest, supply provide sufficient depth)  
-**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
-
-**Remaining Code (for compatibility):**
-
-- `CompanyNeed.Morale` enum value (never set, always 0)
-- Serialization keys in save/load methods (load old values, discard them)
-- Old config fields loaded but ignored (e.g., `sim_daysLowMorale`)
-
-**What Was Removed:**
-
-- All morale tracking, calculation, and display logic
-- Morale effects from events, orders, and incidents
-- Morale-based decision logic (desertions, crisis triggers)
-- UI display of morale status and changes
-- Database schema references
-
-**Full Removal Checklist** (after safe removal date):
-
-- [ ] Remove `Morale` from `CompanyNeed` enum
-- [ ] Remove morale serialization keys from all `SyncData()` methods
-- [ ] Remove morale load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampLifeBehavior`
-- [ ] Remove backwards-compatibility comments
-- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
-- [ ] Test with old save files (should still load, morale just ignored)
-
-**Files with Deprecation Code:**
-
-- `src/Features/Company/CompanyNeed.cs` (enum value)
-- `src/Features/Company/CompanyNeedsState.cs` (serialization)
-- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
-- `src/Features/Camp/CampLifeBehavior.cs` (morale shock load)
-- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
-
-### Company Rest System (Deprecated: 2026-01-11)
-
-**Status:** Functionally removed, backwards-compatible save loading only  
-**Reason:** Redundant with Player Fatigue system (0-24 budget). Company Rest was a 0-100 metric that degraded but provided no gameplay function.  
-**Safe Removal Date:** 2026-03-01 (after 6-week deprecation period)
-
-**IMPORTANT:** Player Fatigue remains fully functional - this deprecation only affects the unused Company-wide Rest metric.
-
-**Remaining Code (for compatibility):**
-
-- `CompanyNeed.Rest` enum value (never set, always 0)
-- Serialization keys in save/load methods (load old values, discard them)
-- Old config fields loaded but ignored (e.g., `lowRestDays`, "exhausted" schedule override)
-
-**What Was Removed:**
-
-- All Company Rest tracking, degradation, and calculation logic
-- Company Rest effects from events, incidents, and routine outcomes
-- "Exhausted" schedule override and orchestrator override
-- Rest pressure tracking (`DaysLowRest`, `exhausted` conditions)
-- Strategic context Rest predictions
-- UI display of Company Rest status
-
-**Full Removal Checklist** (after safe removal date):
-
-- [ ] Remove `Rest` from `CompanyNeed` enum
-- [ ] Remove rest serialization keys from all `SyncData()` methods
-- [ ] Remove rest load blocks from `EnlistmentBehavior`, `CompanySimulationBehavior`, `CampScheduleManager`
-- [ ] Remove "exhausted" override from `orchestrator_overrides.json`
-- [ ] Remove `lowRestDays` from `simulation_config.json`
-- [ ] Remove Rest predictions from `strategic_context_config.json`
-- [ ] Remove backwards-compatibility comments
-- [ ] Verify validation passes: `python Tools/Validation/validate_content.py`
-- [ ] Test with old save files (should still load, rest just ignored)
-
-**Files with Deprecation Code:**
-
-- `src/Features/Company/CompanyNeed.cs` (enum value)
-- `src/Features/Company/CompanyNeedsState.cs` (serialization)
-- `src/Features/Camp/CampScheduleManager.cs` (exhausted override load)
-- `src/Features/Camp/CompanySimulationBehavior.cs` (pressure tracking load)
-- `src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` (save compatibility)
-- `ModuleData/Enlisted/Config/camp_schedule.json` ("exhausted" skippedWhen/boostedWhen)
-- `ModuleData/Enlisted/Config/orchestrator_overrides.json` ("exhausted" need-based override)
-- `ModuleData/Enlisted/Config/simulation_config.json` (lowRestDays, Rest incident effects)
-- `ModuleData/Enlisted/Config/strategic_context_config.json` (Rest predictions)
+The Morale System and Company Rest System were removed 2026-01-11 (redundant with discipline/rest/supply and Player Fatigue respectively). Save-load compat shims remain across ~25 files in `src/Features/Camp/`, `src/Features/Enlistment/`, `src/Features/Company/`. Full code removal deferred — grep `Morale` or `CompanyNeed.Rest` if you need to locate the remnants.
 
 ---
 

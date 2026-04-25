@@ -128,8 +128,8 @@ namespace Enlisted.Features.Ranks.Behaviors
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("_lastPromotionCheck", ref _lastPromotionCheck);
-                dataStore.SyncData("_pendingPromotionTier", ref _pendingPromotionTier);
+                _ = dataStore.SyncData("_lastPromotionCheck", ref _lastPromotionCheck);
+                _ = dataStore.SyncData("_pendingPromotionTier", ref _pendingPromotionTier);
             });
         }
 
@@ -360,22 +360,49 @@ namespace Enlisted.Features.Ranks.Behaviors
                 var eventId = GetProvingEventId(currentTier, targetTier);
                 var provingEvent = Content.EventCatalog.GetEventById(eventId);
 
-                if (provingEvent != null && Content.EventDeliveryManager.Instance != null)
+                if (provingEvent != null)
                 {
-                    // Queue the proving event popup
                     ModLogger.Info("Promotion", $"Queuing proving event: {eventId} (T{currentTier} to T{targetTier})");
-                    Content.EventDeliveryManager.Instance.QueueEvent(provingEvent);
+
+                    var director = Content.StoryDirector.Instance;
+                    if (director != null)
+                    {
+                        director.EmitCandidate(new Content.StoryCandidate
+                        {
+                            SourceId = "promotion.proving.t" + targetTier,
+                            CategoryId = "promotion.tier_" + targetTier,
+                            ProposedTier = Content.StoryTier.Modal,
+                            SeverityHint = 0.85f,
+                            Beats = { Content.StoryBeat.OrderComplete },
+                            Relevance = new Content.RelevanceKey { TouchesEnlistedLord = true },
+                            EmittedAt = CampaignTime.Now,
+                            InteractiveEvent = provingEvent,
+                            RenderedTitle = provingEvent.TitleFallback,
+                            RenderedBody = provingEvent.SetupFallback,
+                            StoryKey = provingEvent.Id,
+                            ChainContinuation = true
+                        });
+                    }
+                    else if (Content.EventDeliveryManager.Instance != null)
+                    {
+                        Content.EventDeliveryManager.Instance.QueueEvent(provingEvent);
+                    }
+                    else
+                    {
+                        ModLogger.Warn("Promotion", $"Proving event '{eventId}' found but neither StoryDirector nor EventDeliveryManager available - using direct promotion");
+                        FallbackDirectPromotion(targetTier, enlistment);
+                    }
                 }
                 else
                 {
-                    // Fallback to direct promotion if event system unavailable
-                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found or EventDeliveryManager unavailable - using direct promotion");
+                    // Fallback to direct promotion if event not in catalog
+                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found - using direct promotion");
                     FallbackDirectPromotion(targetTier, enlistment);
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error checking for promotion", ex);
+                ModLogger.Caught("Promotion", "Error checking for promotion", ex);
             }
         }
 
@@ -402,12 +429,12 @@ namespace Enlisted.Features.Ranks.Behaviors
                 // Get tier-specific localized title and message
                 var titleText = GetPromotionTitle(newTier);
                 var popupMessage = GetPromotionMessage(newTier);
-                popupMessage.SetTextVariable("PLAYER_NAME", playerName);
-                popupMessage.SetTextVariable("RANK", rankName);
+                _ = popupMessage.SetTextVariable("PLAYER_NAME", playerName);
+                _ = popupMessage.SetTextVariable("RANK", rankName);
 
                 // Show short notification in chat with rank variable
                 var chatMessage = GetPromotionChatMessage(newTier);
-                chatMessage.SetTextVariable("RANK", rankName);
+                _ = chatMessage.SetTextVariable("RANK", rankName);
                 InformationManager.DisplayMessage(new InformationMessage(chatMessage.ToString(), Colors.Green));
 
                 // Show quartermaster prompt after promotion.
@@ -430,6 +457,11 @@ namespace Enlisted.Features.Ranks.Behaviors
                     null
                 );
 
+                // Intentional bypass of StoryDirector — this ceremony popup fires synchronously
+                // as the completion beat of a proving event that the Director already paced.
+                // Routing it through the Director would trip the 60s wall-clock guard and
+                // swallow the ceremony. If the promotion ceremony UX changes (e.g. demoted
+                // to accordion headline instead of a modal), revisit this bypass.
                 // pauseGameActiveState = false so notifications don't freeze game time
                 InformationManager.ShowInquiry(data);
 
@@ -447,7 +479,7 @@ namespace Enlisted.Features.Ranks.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Promotion", "Error showing promotion notification", ex);
+                ModLogger.Caught("Promotion", "Error showing promotion notification", ex);
             }
         }
 
@@ -472,7 +504,7 @@ namespace Enlisted.Features.Ranks.Behaviors
                 _ => new TextObject("{=promo_title_default}Promoted to {RANK}")
             };
 
-            title.SetTextVariable("RANK", rankName);
+            _ = title.SetTextVariable("RANK", rankName);
             return title;
         }
 

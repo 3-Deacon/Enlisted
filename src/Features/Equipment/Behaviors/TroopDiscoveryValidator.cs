@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.ObjectSystem;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.Behaviors
 {
@@ -49,7 +49,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", "Error during faction validation", ex);
+                ModLogger.Caught("TroopDiscovery", "Error during faction validation", ex);
             }
         }
 
@@ -100,13 +100,13 @@ namespace Enlisted.Features.Equipment.Behaviors
                     }
                     else
                     {
-                        ModLogger.Error("TroopDiscovery", $"T{tier}: no troops found - troop selection may fail!");
+                        ModLogger.Caught("TroopDiscovery", $"T{tier}: no troops found - troop selection may fail", null);
                     }
                 }
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error validating culture {cultureId}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error validating culture {cultureId}", ex);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error validating formations at tier {tier}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error validating formations at tier {tier}", ex);
             }
         }
 
@@ -217,7 +217,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
                 else
                 {
-                    ModLogger.Error("TroopDiscovery", $"Failure: no troops found for {cultureId} T{tier}");
+                    ModLogger.Caught("TroopDiscovery", $"Failure: no troops found for {cultureId} T{tier}", null);
 
                     // Debug info - also show raw Tier vs calculated GetBattleTier difference
                     var totalCultureTroops = allTroops.Count(t => t.Culture == culture);
@@ -236,7 +236,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
             catch (Exception ex)
             {
-                ModLogger.Error("TroopDiscovery", $"Error testing {cultureId} T{tier}", ex);
+                ModLogger.Caught("TroopDiscovery", $"Error testing {cultureId} T{tier}", ex);
             }
         }
     }

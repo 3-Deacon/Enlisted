@@ -1,0 +1,497 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Enlisted.Features.Activities.Orders;
+using Enlisted.Features.Content;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core.Logging;
+using Enlisted.Mod.Core.Util;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using TaleWorlds.Core;
+using TaleWorlds.ObjectSystem;
+
+namespace Enlisted.Features.CampaignIntelligence.Duty
+{
+    /// <summary>
+    /// Hourly-tick duty emitter. Gated by IsEnlisted. Reads the intelligence
+    /// snapshot + current duty profile, invokes DutyOpportunityBuilder,
+    /// throttle-claims via OrdersNewsFeedThrottle, picks one opportunity,
+    /// emits via StoryDirector. Cooldown state persists in DutyCooldownStore
+    /// via SaveableTypeDefiner offset 50.
+    /// </summary>
+    [UsedImplicitly("Registered in SubModule.OnGameStart via campaignStarter.AddBehavior.")]
+    public sealed class EnlistedDutyEmitterBehavior : CampaignBehaviorBase
+    {
+        public static EnlistedDutyEmitterBehavior Instance { get; private set; }
+
+        private DutyCooldownStore _cooldowns = new DutyCooldownStore();
+        private readonly Queue<string> _recentEmittedIds = new Queue<string>();
+        private int _lastHeartbeatHourTick = int.MinValue / 2;
+        private int _lastDailyCountReportHourTick = int.MinValue / 2;
+
+        private readonly Dictionary<string, int> _sessionEmissionsByProfile = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        private const int HEARTBEAT_INTERVAL_HOURS = 12;
+        private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
+        private const int DEFAULT_COOLDOWN_HOURS = 36;
+        private const int RECENT_HISTORY_SIZE = 3;
+        private const float RECENT_PENALTY_PER_HIT = 0.7f;
+
+        public override void RegisterEvents()
+        {
+            Instance = this;
+            CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
+            CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
+        }
+
+        public override void SyncData(IDataStore dataStore)
+        {
+            try
+            {
+                _ = dataStore.SyncData("_dutyCooldowns", ref _cooldowns);
+                _cooldowns = _cooldowns ?? new DutyCooldownStore();
+                _cooldowns.EnsureInitialized();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "SyncData failed", ex);
+                _cooldowns = new DutyCooldownStore();
+            }
+        }
+
+        private void OnGameLoaded(CampaignGameStarter starter)
+        {
+            _cooldowns = _cooldowns ?? new DutyCooldownStore();
+            _cooldowns.EnsureInitialized();
+        }
+
+        private void OnHourlyTick()
+        {
+            try
+            {
+                LogHeartbeatIfDue();
+                LogDailyCountsIfDue();
+
+                if (EnlistmentBehavior.Instance?.IsEnlisted != true)
+                {
+                    return;
+                }
+
+                var activity = OrderActivity.Instance;
+                if (activity == null)
+                {
+                    return;
+                }
+
+                var snapshot = EnlistedCampaignIntelligenceBehavior.Instance?.Current;
+                if (snapshot == null)
+                {
+                    return;
+                }
+
+                var candidates = EnlistedDutyOpportunityBuilder.Build(snapshot, activity.CurrentDutyProfile);
+                if (candidates == null || candidates.Count == 0)
+                {
+                    return;
+                }
+
+                // Cannot propose a new arc while one is active. Filter to Episodic-only.
+                if (activity.ActiveNamedOrder != null)
+                {
+                    candidates.RemoveAll(c => c.Shape == DutyOpportunityShape.ArcScale);
+                    if (candidates.Count == 0)
+                    {
+                        return;
+                    }
+                }
+
+                if (!OrdersNewsFeedThrottle.TryClaim())
+                {
+                    return;
+                }
+
+                foreach (var opp in candidates)
+                {
+                    var storylet = ResolveStoryletForOpportunity(opp);
+                    if (storylet == null)
+                    {
+                        continue;
+                    }
+
+                    EmitOpportunity(opp, storylet);
+                    return;
+                }
+
+                ModLogger.Expected("DUTY", "no_opportunity_storylet",
+                    "no eligible storylet found for any candidate",
+                    new Dictionary<string, object>
+                    {
+                        { "candidate_count", candidates.Count },
+                        { "profile", activity.CurrentDutyProfile }
+                    });
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "OnHourlyTick threw", ex);
+            }
+        }
+
+        private Storylet ResolveStoryletForOpportunity(DutyOpportunity opp)
+        {
+            if (opp == null)
+            {
+                return null;
+            }
+
+            if (opp.Shape == DutyOpportunityShape.ArcScale)
+            {
+                if (string.IsNullOrEmpty(opp.ArchetypeStoryletId))
+                {
+                    return null;
+                }
+                var direct = StoryletCatalog.GetById(opp.ArchetypeStoryletId);
+                if (direct == null)
+                {
+                    return null;
+                }
+                return IsEligibleForEmit(direct) ? direct : null;
+            }
+
+            return PickEpisodicFromPool(opp.PoolPrefix);
+        }
+
+        private Storylet PickEpisodicFromPool(string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix))
+            {
+                return null;
+            }
+
+            var eligible = new List<(Storylet s, float weight)>();
+
+            foreach (var s in StoryletCatalog.All)
+            {
+                if (s?.Id == null || !s.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+                if (!IsEligibleForEmit(s))
+                {
+                    continue;
+                }
+
+                var w = s.WeightFor(null);
+                foreach (var recent in _recentEmittedIds)
+                {
+                    if (string.Equals(recent, s.Id, StringComparison.OrdinalIgnoreCase))
+                    {
+                        w *= RECENT_PENALTY_PER_HIT;
+                    }
+                }
+
+                if (w > 0f)
+                {
+                    eligible.Add((s, w));
+                }
+            }
+
+            if (eligible.Count == 0)
+            {
+                return null;
+            }
+
+            // Overlay preference: storylet ids with "__<culture>" suffix are culture overlays
+            // for the base id preceding the suffix. When an overlay is eligible, drop its base
+            // sibling from the pool so the culture flavor wins instead of a random mix.
+            var overlaidBaseIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var e in eligible)
+            {
+                var idx = e.s.Id.IndexOf("__", StringComparison.Ordinal);
+                if (idx > 0)
+                {
+                    overlaidBaseIds.Add(e.s.Id.Substring(0, idx));
+                }
+            }
+            if (overlaidBaseIds.Count > 0)
+            {
+                eligible = eligible
+                    .Where(e => !overlaidBaseIds.Contains(e.s.Id))
+                    .ToList();
+                if (eligible.Count == 0)
+                {
+                    return null;
+                }
+            }
+
+            var total = 0f;
+            foreach (var e in eligible)
+            {
+                total += e.weight;
+            }
+
+            var roll = MBRandom.RandomFloat * total;
+            var acc = 0f;
+            foreach (var e in eligible)
+            {
+                acc += e.weight;
+                if (roll <= acc)
+                {
+                    return e.s;
+                }
+            }
+
+            return eligible[eligible.Count - 1].s;
+        }
+
+        private bool IsEligibleForEmit(Storylet storylet)
+        {
+            if (storylet == null || string.IsNullOrEmpty(storylet.Id))
+            {
+                return false;
+            }
+
+            var nowHours = (int)CampaignTime.Now.ToHours;
+            if (_cooldowns.LastFiredAt.TryGetValue(storylet.Id, out var last))
+            {
+                var cooldownHours = storylet.CooldownDays > 0
+                    ? storylet.CooldownDays * 24
+                    : DEFAULT_COOLDOWN_HOURS;
+                if (nowHours - (int)last.ToHours < cooldownHours)
+                {
+                    return false;
+                }
+            }
+
+            if (!TriggerRegistry.Evaluate(storylet.Trigger, null))
+            {
+                return false;
+            }
+
+            // Enlisted lord's culture gates RequiresCulture / ExcludesCulture. Empty lists =
+            // no gate. StringIds are lowercase per the engine (empire / sturgia / vlandia /
+            // battania / khuzait / aserai). Null lord or missing culture data is treated as
+            // "no match" for RequiresCulture so overlays never fire pre-enlistment.
+            if (storylet.RequiresCulture.Count > 0 || storylet.ExcludesCulture.Count > 0)
+            {
+                var lordCulture = EnlistmentBehavior.Instance?.EnlistedLord?.Culture?.StringId;
+                if (string.IsNullOrEmpty(lordCulture))
+                {
+                    if (storylet.RequiresCulture.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (storylet.RequiresCulture.Count > 0
+                        && !storylet.RequiresCulture.Any(c =>
+                            string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+                    if (storylet.ExcludesCulture.Any(c =>
+                        string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            // Enlisted lord's personality traits gate RequiresLordTrait / ExcludesLordTrait.
+            // Trait StringIds are PascalCase per DefaultTraits.cs (Mercy / Valor / Honor /
+            // Generosity / Calculating). Trait level range is [-2, 2]; "requires" matches
+            // lords with level > 0 (positive-trait lord), "excludes" matches the same and
+            // fails (content hidden from positive-trait lord). Null lord = any trait gate
+            // fails so trait-gated content never fires pre-enlistment.
+            if (storylet.RequiresLordTrait.Count > 0 || storylet.ExcludesLordTrait.Count > 0)
+            {
+                var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+                if (lord == null)
+                {
+                    if (storylet.RequiresLordTrait.Count > 0)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    foreach (var traitId in storylet.RequiresLordTrait)
+                    {
+                        if (string.IsNullOrEmpty(traitId))
+                        {
+                            continue;
+                        }
+                        var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
+                        if (trait == null || lord.GetTraitLevel(trait) <= 0)
+                        {
+                            return false;
+                        }
+                    }
+                    foreach (var traitId in storylet.ExcludesLordTrait)
+                    {
+                        if (string.IsNullOrEmpty(traitId))
+                        {
+                            continue;
+                        }
+                        var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
+                        if (trait != null && lord.GetTraitLevel(trait) > 0)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private void EmitOpportunity(DutyOpportunity opp, Storylet storylet)
+        {
+            var director = StoryDirector.Instance;
+            if (director == null)
+            {
+                ModLogger.Expected("DUTY", "no_director", "StoryDirector.Instance null at emit");
+                return;
+            }
+
+            if (opp.Shape == DutyOpportunityShape.ArcScale)
+            {
+                EmitArcScaleModal(opp, storylet, director);
+            }
+            else
+            {
+                EmitEpisodicLog(opp, storylet, director);
+            }
+        }
+
+        private void EmitArcScaleModal(DutyOpportunity opp, Storylet storylet, StoryDirector director)
+        {
+            var ctx = new StoryletContext
+            {
+                CurrentContext = "any",
+                EvaluatedAt = CampaignTime.Now,
+                SourceStorylet = storylet
+            };
+
+            EffectExecutor.Apply(storylet.Immediate, ctx);
+
+            var evt = StoryletEventAdapter.BuildModal(storylet, ctx, null);
+            if (evt == null)
+            {
+                ModLogger.Expected("DUTY", "arc_buildmodal_null", "BuildModal returned null for arc-scale storylet",
+                    new Dictionary<string, object>
+                    {
+                        { "storylet_id", storylet.Id }
+                    });
+                return;
+            }
+
+            director.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "duty.arcscale",
+                CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
+                ProposedTier = StoryTier.Modal,
+                ChainContinuation = true,
+                EmittedAt = CampaignTime.Now,
+                InteractiveEvent = evt,
+                RenderedTitle = storylet.Title,
+                RenderedBody = storylet.Setup,
+                StoryKey = storylet.Id
+            });
+
+            _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            IncrementProfileCount("arcscale");
+
+            ModLogger.Info("DUTY",
+                $"emitted arcscale storylet={storylet.Id} reason={opp.TriggerReason}");
+        }
+
+        private void EmitEpisodicLog(DutyOpportunity opp, Storylet storylet, StoryDirector director)
+        {
+            director.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "duty.episodic",
+                CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
+                ProposedTier = StoryTier.Log,
+                EmittedAt = CampaignTime.Now,
+                RenderedTitle = storylet.Title,
+                RenderedBody = storylet.Setup,
+                StoryKey = storylet.Id
+            });
+
+            _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            var profile = OrderActivity.Instance?.CurrentDutyProfile ?? "unknown";
+            IncrementProfileCount(profile);
+
+            // Track recent history for weighted-diversity picker.
+            _recentEmittedIds.Enqueue(storylet.Id);
+            while (_recentEmittedIds.Count > RECENT_HISTORY_SIZE)
+            {
+                _recentEmittedIds.Dequeue();
+            }
+
+            // Log-tier storylets don't render a modal, so single-option effects auto-apply.
+            if (storylet.Options?.Count == 1)
+            {
+                var mainOpt = storylet.Options.FirstOrDefault(o => o.Id == "main");
+                if (mainOpt?.Effects != null)
+                {
+                    EffectExecutor.Apply(mainOpt.Effects, null);
+                }
+            }
+
+            ModLogger.Info("DUTY",
+                $"emitted episodic storylet={storylet.Id} reason={opp.TriggerReason}");
+        }
+
+        private void IncrementProfileCount(string profile)
+        {
+            if (string.IsNullOrEmpty(profile))
+            {
+                return;
+            }
+            _sessionEmissionsByProfile.TryGetValue(profile, out var count);
+            _sessionEmissionsByProfile[profile] = count + 1;
+        }
+
+        private void LogDailyCountsIfDue()
+        {
+            var nowHour = (int)CampaignTime.Now.ToHours;
+            if (nowHour - _lastDailyCountReportHourTick < DAILY_COUNT_REPORT_INTERVAL_HOURS)
+            {
+                return;
+            }
+            _lastDailyCountReportHourTick = nowHour;
+
+            if (_sessionEmissionsByProfile.Count == 0)
+            {
+                ModLogger.Info("DUTY", "daily_counts: no emissions in the last 24h");
+                return;
+            }
+
+            var parts = _sessionEmissionsByProfile
+                .OrderBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(kvp => $"{kvp.Key}={kvp.Value}");
+            ModLogger.Info("DUTY", "daily_counts: " + string.Join(" ", parts));
+
+            _sessionEmissionsByProfile.Clear();
+        }
+
+        private void LogHeartbeatIfDue()
+        {
+            var nowHour = (int)CampaignTime.Now.ToHours;
+            if (nowHour - _lastHeartbeatHourTick < HEARTBEAT_INTERVAL_HOURS)
+            {
+                return;
+            }
+            _lastHeartbeatHourTick = nowHour;
+
+            var isEnlisted = EnlistmentBehavior.Instance?.IsEnlisted == true;
+            var hasSnap = EnlistedCampaignIntelligenceBehavior.Instance?.Current != null;
+            var tracked = _cooldowns?.LastFiredAt?.Count ?? 0;
+            ModLogger.Info("DUTY",
+                $"heartbeat: enlisted={isEnlisted} snapshot={hasSnap} tracked={tracked}");
+        }
+    }
+}

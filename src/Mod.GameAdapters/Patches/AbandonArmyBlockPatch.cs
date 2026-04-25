@@ -3,7 +3,6 @@ using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
-using TaleWorlds.CampaignSystem.GameMenus;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -18,57 +17,6 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [HarmonyPatch]
     internal static class AbandonArmyBlockPatch
     {
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PlayerArmyWaitBehavior), "wait_menu_army_abandon_on_condition")]
-        [UsedImplicitly]
-        private static bool HideArmyWaitAbandon(ref bool __result)
-        {
-            if (IsPlayerEnlisted())
-            {
-                __result = false;
-                ModLogger.Debug("Encounter", "Hid army_wait abandon army for enlisted player");
-                return false;
-            }
-
-            return true;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(VillageHostileActionCampaignBehavior),
-            "wait_menu_end_raiding_at_army_by_abandoning_on_condition")]
-        [UsedImplicitly]
-        private static bool HideRaidAbandon(ref bool __result)
-        {
-            if (IsPlayerEnlisted())
-            {
-                __result = false;
-                ModLogger.Debug("Encounter", "Hid raid abandon army for enlisted player");
-                return false;
-            }
-
-            return true;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(SiegeEventCampaignBehavior),
-            "menu_siege_strategies_passive_wait_leave_on_condition")]
-        [UsedImplicitly]
-        private static bool HideSiegeAbandon(ref bool __result)
-        {
-            if (IsPlayerEnlisted())
-            {
-                __result = false;
-                ModLogger.Debug("Encounter", "Hid siege menu abandon army for enlisted player");
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool IsPlayerEnlisted()
-        {
-            return EnlistmentBehavior.Instance?.IsEnlisted == true;
-        }
     }
 
     /// <summary>
@@ -81,7 +29,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
     {
         [HarmonyPrefix]
         [UsedImplicitly]
-        public static bool Prefix(MenuCallbackArgs args, ref bool __result)
+        public static bool Prefix(ref bool __result)
         {
             if (EnlistmentBehavior.Instance?.IsEnlisted == true)
             {
@@ -104,7 +52,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
     {
         [HarmonyPrefix]
         [UsedImplicitly]
-        public static bool Prefix(MenuCallbackArgs args, ref bool __result)
+        public static bool Prefix(ref bool __result)
         {
             if (EnlistmentBehavior.Instance?.IsEnlisted == true)
             {

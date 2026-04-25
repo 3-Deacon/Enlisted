@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "dialogueType": "companion",
+  "_comment": "Plan 2 T17 — Junior Officer archetype dialog. Three archetypes: cocky, serious, political. Peer-level tone (officer to officer, not NCO to recruit). Loaded by CompanionDialogueCatalog. Token usage: {PLAYER_NAME} for frequent peer-to-peer address; {PLAYER_RANK} sparingly for officer-tier callouts; {LORD_NAME} for the enlisted lord both peers serve; {COMPANION_NAME}/{COMPANION_FIRST_NAME} in player options addressing the junior officer. Tokens are populated by EnlistedMenuBehavior.SetCompanionConversationTokens before the conversation opens.",
+  "nodes": [
+
+    {
+      "id": "companion_junior_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_greeting_cocky",
+      "text": "So you're the other officer {LORD_NAME}'s been bragging about. {PLAYER_NAME}, is it? Hope you can keep up — I plan on collecting a banneretcy out of this contract.",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_match",
+          "textId": "companion_junior_officer_intro_opt_match_cocky",
+          "text": "Then we'll race for it, {COMPANION_NAME}.",
+          "tooltip": "Match the swagger (+2 relationship)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_dry",
+          "textId": "companion_junior_officer_intro_opt_dry_cocky",
+          "text": "Try not to ride your horse off a cliff first, {COMPANION_NAME}.",
+          "tooltip": "Tease back (no change)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_greeting_serious",
+      "text": "We haven't been introduced, {PLAYER_RANK}. {LORD_NAME} speaks well of you — I look forward to working alongside.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_warm",
+          "textId": "companion_junior_officer_intro_opt_warm_serious",
+          "text": "Likewise, {COMPANION_NAME}. {PLAYER_NAME} — and we'll do good work together.",
+          "tooltip": "Match the earnestness (+2 relationship)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_neutral",
+          "textId": "companion_junior_officer_intro_opt_neutral_serious",
+          "text": "{PLAYER_NAME}. Let's see how the first muster goes before we get sentimental.",
+          "tooltip": "Stay reserved (no change)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_greeting_political",
+      "text": "Ah — {PLAYER_NAME}. I've been curious. Let's find a moment to compare notes; {LORD_NAME}'s circle is more interesting than it looks from the outside.",
+      "context": { "companion_type": "junior_officer", "archetype": "political", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_curious",
+          "textId": "companion_junior_officer_intro_opt_curious_political",
+          "text": "I'd like that, {COMPANION_NAME}. Plenty I don't know yet.",
+          "tooltip": "Show interest (+2 relationship)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_cool",
+          "textId": "companion_junior_officer_intro_opt_cool_political",
+          "text": "Let's keep our notes professional, shall we, {COMPANION_NAME}?",
+          "tooltip": "Hold them at arm's length (-1 relationship)",
+          "next_node": "companion_junior_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_ack_cocky",
+      "text": "Good. I like an officer with some teeth, {PLAYER_NAME}. Find me when you've got something worth saying.",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_junior_officer_intro_ack_opt_close_cocky",
+          "text": "Until then.",
+          "next_node": "companion_junior_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_ack_serious",
+      "text": "Understood, {PLAYER_NAME}. The chain of command is what holds this company together — let's make sure we hold up our part of it.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_junior_officer_intro_ack_opt_close_serious",
+          "text": "Agreed.",
+          "next_node": "companion_junior_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_intro_ack_political",
+      "text": "Excellent, {PLAYER_NAME}. A friendly word at the right ear travels further than a dozen drilled charges. Remember that.",
+      "context": { "companion_type": "junior_officer", "archetype": "political" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_junior_officer_intro_ack_opt_close_political",
+          "text": "I'll remember.",
+          "next_node": "companion_junior_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_root",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_root_default",
+      "text": "Got something to discuss, {PLAYER_NAME}, or just stretching your legs?",
+      "context": { "companion_type": "junior_officer" },
+      "options": [
+        {
+          "id": "root_tactical",
+          "textId": "companion_junior_officer_root_opt_tactical",
+          "text": "What's your read on our posture?",
+          "tooltip": "Peer tactical assessment",
+          "next_node": "companion_junior_officer_topic_tactical"
+        },
+        {
+          "id": "root_ambition",
+          "textId": "companion_junior_officer_root_opt_ambition",
+          "text": "What are you hoping to get out of this commission, {COMPANION_NAME}?",
+          "tooltip": "Ask about their ambitions",
+          "next_node": "companion_junior_officer_topic_ambition"
+        },
+        {
+          "id": "root_battle",
+          "textId": "companion_junior_officer_root_opt_battle",
+          "text": "Your view on the last engagement?",
+          "tooltip": "Recent battle from a peer's view",
+          "next_node": "companion_junior_officer_topic_battle",
+          "requirements": { "has_recent_battle": true }
+        },
+        {
+          "id": "root_gossip",
+          "textId": "companion_junior_officer_root_opt_gossip",
+          "text": "What do you make of the rest of {LORD_NAME}'s officers?",
+          "tooltip": "Discreet gossip on the lord's circle",
+          "next_node": "companion_junior_officer_topic_gossip"
+        },
+        {
+          "id": "root_leave",
+          "textId": "companion_junior_officer_root_opt_leave",
+          "text": "Carry on, {COMPANION_NAME}.",
+          "next_node": "companion_junior_officer_goodbye"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_tactical",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_tactical_cocky",
+      "text": "Posture? We're posturing too cautiously, {PLAYER_NAME}. Give me half a wing of cavalry and I'd already be flanking. {LORD_NAME}'s playing the long game when the short game would do.",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky" },
+      "options": [
+        { "id": "tactical_close", "textId": "companion_junior_officer_tactical_opt_close_cocky", "text": "Bold.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_tactical",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_tactical_serious",
+      "text": "Our line's solid, {PLAYER_NAME}. The flanks need a second cavalry screen if we're committing to open ground — I've been meaning to raise it with {LORD_NAME} at the next council. You should second me.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious" },
+      "options": [
+        { "id": "tactical_close", "textId": "companion_junior_officer_tactical_opt_close_serious", "text": "I'll back you on it.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_tactical",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_tactical_political",
+      "text": "Tactically? Adequate. Politically? {LORD_NAME}'s choosing engagements that look impressive in a court report — not the ones that win the campaign. Watch where the dispatches go after each fight, {PLAYER_NAME}.",
+      "context": { "companion_type": "junior_officer", "archetype": "political" },
+      "options": [
+        { "id": "tactical_close", "textId": "companion_junior_officer_tactical_opt_close_political", "text": "Interesting.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_ambition",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_ambition_cocky",
+      "text": "A banneret's title and a fief I can hunt on, {PLAYER_NAME}. Maybe a song or two with my name in it. I didn't take this commission for the modest pay, that's certain.",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky" },
+      "options": [
+        { "id": "ambition_close", "textId": "companion_junior_officer_ambition_opt_close_cocky", "text": "Aim high.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_ambition",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_ambition_serious",
+      "text": "A captaincy of my own, in time. Not for the title — for the responsibility. My father served thirty years and never commanded; I owe him the rank he never reached. You understand that kind of debt, {PLAYER_NAME}.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious" },
+      "options": [
+        { "id": "ambition_close", "textId": "companion_junior_officer_ambition_opt_close_serious", "text": "Honourable goal.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_ambition",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_ambition_political",
+      "text": "A seat at the right table, {PLAYER_NAME}. Titles come and go — proximity to the people who decide where titles fall is what lasts. {LORD_NAME}'s commission is one rung. There are several more.",
+      "context": { "companion_type": "junior_officer", "archetype": "political" },
+      "options": [
+        { "id": "ambition_close", "textId": "companion_junior_officer_ambition_opt_close_political", "text": "Patient strategy.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_battle_cocky",
+      "text": "Did you see me take that flag, {PLAYER_NAME}? Tell me you saw it. Best charge of the season — I'll be hearing about it for weeks, and I intend to enjoy every word.",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_junior_officer_battle_opt_close_cocky", "text": "I saw it.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_battle_serious",
+      "text": "We won, {PLAYER_NAME}, but our second line broke later than it should have re-formed. I want to walk the field with you tomorrow and see what we can learn before the next engagement.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_junior_officer_battle_opt_close_serious", "text": "I'll be there.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_battle_political",
+      "text": "A tidy victory, {PLAYER_NAME}. More importantly, {LORD_NAME}'s rivals were watching. Whatever the dispatches say in a week, the real verdict is being whispered tonight in three different camps.",
+      "context": { "companion_type": "junior_officer", "archetype": "political", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_junior_officer_battle_opt_close_political", "text": "I'll keep an ear out.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_gossip",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_gossip_cocky",
+      "text": "The senior captain rides like he's afraid of his own horse. The QM hoards saddle-oil. And honestly, {PLAYER_NAME}, you're more competition than the rest of them combined — keep up, would you?",
+      "context": { "companion_type": "junior_officer", "archetype": "cocky" },
+      "options": [
+        { "id": "gossip_close", "textId": "companion_junior_officer_gossip_opt_close_cocky", "text": "Noted.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_gossip",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_gossip_serious",
+      "text": "I won't gossip, {PLAYER_NAME}. But I'll say this: two of {LORD_NAME}'s captains are due for promotion within the year, and one of them deserves it. The other should not be commanding anything larger than a baggage cart.",
+      "context": { "companion_type": "junior_officer", "archetype": "serious" },
+      "options": [
+        { "id": "gossip_close", "textId": "companion_junior_officer_gossip_opt_close_serious", "text": "Understood.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_topic_gossip",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_gossip_political",
+      "text": "The senior captain is on his way out — his family's faction lost a key marriage last winter. The chaplain's brother just bought land near {LORD_NAME}'s keep. Read the room accordingly, {PLAYER_NAME}.",
+      "context": { "companion_type": "junior_officer", "archetype": "political" },
+      "options": [
+        { "id": "gossip_close", "textId": "companion_junior_officer_gossip_opt_close_political", "text": "Useful.", "next_node": "companion_junior_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_junior_officer_goodbye",
+      "speaker": "companion",
+      "textId": "companion_junior_officer_goodbye_default",
+      "text": "Mind your flank, {PLAYER_NAME}. I'll do the same.",
+      "context": { "companion_type": "junior_officer" },
+      "options": []
+    }
+  ]
+}

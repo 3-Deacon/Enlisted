@@ -11,10 +11,24 @@ namespace Enlisted.Mod.Core.Logging
     /// </summary>
     public static class SessionDiagnostics
     {
-        /// <summary>
-        ///     Mod version for diagnostics. Update this when releasing new versions.
-        /// </summary>
-        public const string ModVersion = "0.6.0";
+        /// <summary>Mod version read from the assembly at runtime (primary source: Properties/AssemblyInfo.cs).</summary>
+        public static string ModVersion => _modVersionCache ?? (_modVersionCache = ResolveModVersion());
+
+        private static string _modVersionCache;
+
+        private static string ResolveModVersion()
+        {
+            try
+            {
+                var asm = typeof(SessionDiagnostics).Assembly;
+                var version = asm.GetName().Version;
+                return version != null ? version.ToString() : "unknown";
+            }
+            catch
+            {
+                return "unknown";
+            }
+        }
 
         public const string TargetGameVersion = "1.3.13";
         private static bool _hasLoggedStartup;
@@ -34,12 +48,12 @@ namespace Enlisted.Mod.Core.Logging
             _hasLoggedStartup = true;
 
             var sb = new StringBuilder();
-            sb.AppendLine("=== ENLISTED MOD SESSION START ===");
-            sb.AppendLine($"Mod Version: {ModVersion}");
-            sb.AppendLine($"Target Game Version: {TargetGameVersion}");
-            sb.AppendLine($"Session Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-            sb.AppendLine($".NET Runtime: {Environment.Version}");
-            sb.AppendLine("===================================");
+            _ = sb.AppendLine("=== ENLISTED MOD SESSION START ===");
+            _ = sb.AppendLine($"Mod Version: {ModVersion}");
+            _ = sb.AppendLine($"Minimum Required Game Version: {TargetGameVersion}");
+            _ = sb.AppendLine($"Session Time: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            _ = sb.AppendLine($".NET Runtime: {Environment.Version}");
+            _ = sb.AppendLine("===================================");
 
             ModLogger.Info("SESSION", sb.ToString());
         }
@@ -60,34 +74,26 @@ namespace Enlisted.Mod.Core.Logging
             try
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("--- Configuration Loaded ---");
+                _ = sb.AppendLine("--- Configuration Loaded ---");
 
-                // Phase 1: Many config systems deleted (Lance, Duties, Schedule)
-                // Only core configurations remain active
-
-                // Core gameplay config (stub in Phase 1)
-                sb.AppendLine($"[Gameplay] (stub in Phase 1, will be implemented in Phase 2+)");
-
-                // Retirement config (still active)
+                // Retirement config
                 var retirement = ConfigurationManager.LoadRetirementConfig();
-                sb.AppendLine($"[Retirement] first_term_days: {retirement.FirstTermDays}");
-                sb.AppendLine($"[Retirement] probation_days: {retirement.ProbationDays}");
+                _ = sb.AppendLine($"[Retirement] first_term_days: {retirement.FirstTermDays}");
+                _ = sb.AppendLine($"[Retirement] probation_days: {retirement.ProbationDays}");
 
-                // Escalation config (still active)
+                // Escalation config
                 var escalation = ConfigurationManager.LoadEscalationConfig();
-                sb.AppendLine($"[Escalation] enabled: {escalation?.Enabled == true}");
-                sb.AppendLine($"[Escalation] scrutiny_decay_days: {escalation?.ScrutinyDecayIntervalDays}");
-                sb.AppendLine($"[Escalation] discipline_decay_days: {escalation?.DisciplineDecayIntervalDays}");
+                _ = sb.AppendLine($"[Escalation] enabled: {escalation?.Enabled == true}");
+                _ = sb.AppendLine($"[Escalation] scrutiny_decay_days: {escalation?.ScrutinyDecayIntervalDays}");
+                _ = sb.AppendLine($"[Escalation] discipline_decay_days: {escalation?.DisciplineDecayIntervalDays}");
 
-                // Lance, Duties, Schedule, and related systems deleted in Phase 1
-
-                sb.AppendLine("----------------------------");
+                _ = sb.AppendLine("----------------------------");
 
                 ModLogger.Info("CONFIG", sb.ToString());
             }
             catch (Exception ex)
             {
-                ModLogger.Error("CONFIG", "Failed to log configuration values", ex);
+                ModLogger.Caught("CONFIG", "Failed to log configuration values", ex);
             }
         }
 
@@ -154,8 +160,10 @@ namespace Enlisted.Mod.Core.Logging
             }
 
             var heroName = Hero.MainHero?.Name?.ToString() ?? "Unknown";
-            var day = CampaignTime.Now.ToDays;
-            ModLogger.Info("SAVELOAD", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Day: {day:F1})");
+            var campaignDay = Campaign.Current?.Models?.CampaignTimeModel != null
+                ? Campaign.Current.Models.CampaignTimeModel.CampaignStartTime.ElapsedDaysUntilNow
+                : 0f;
+            ModLogger.Info("SAVELOAD", $"Saving game... (#{_saveSequence}, Hero: {heroName}, Campaign Day: {campaignDay:F1})");
         }
 
         public static void OnSaveEnd()

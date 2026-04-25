@@ -1,0 +1,61 @@
+{
+  "storylets": [
+    {
+      "id": "floor_silence_with_implication_wind_only",
+      "title": "{=floor_silence_with_implication_wind_only_title}Only the wind",
+      "setup": "{=floor_silence_with_implication_wind_only_setup}Only the wind tonight. Colder than last week. The pickets stand a little closer to their fires, and no one remarks on it.",
+      "theme": "signal",
+      "category": "floor_silence_with_implication",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_silence_with_implication_wind_only_opt}Listen.",
+          "tooltip": "{=floor_silence_with_implication_wind_only_tt}Stand in the quiet. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_silence_with_implication_bird_at_dawn",
+      "title": "{=floor_silence_with_implication_bird_at_dawn_title}A single crow",
+      "setup": "{=floor_silence_with_implication_bird_at_dawn_setup}A single crow calls at dawn. No reply. The camp stirs slow, and the cook taps the pot twice as if testing whether the morning will answer.",
+      "theme": "signal",
+      "category": "floor_silence_with_implication",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_silence_with_implication_bird_at_dawn_opt}Pull the cloak tighter.",
+          "tooltip": "{=floor_silence_with_implication_bird_at_dawn_tt}Wait on the day. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_silence_with_implication_campfire_embers",
+      "title": "{=floor_silence_with_implication_campfire_embers_title}Embers, no stories",
+      "setup": "{=floor_silence_with_implication_campfire_embers_setup}The campfire is down to embers. No one is telling stories tonight. A corporal turns a coal with the tip of his boot and watches it redden and dim without speaking.",
+      "theme": "signal",
+      "category": "floor_silence_with_implication",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_silence_with_implication_campfire_embers_opt}Add a log.",
+          "tooltip": "{=floor_silence_with_implication_campfire_embers_tt}Keep the fire alive. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

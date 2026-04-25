@@ -1,0 +1,49 @@
+{
+  "storylets": [
+    {
+      "id": "home_break_camp_parting_gate",
+      "category": "home_break_camp", "observational": true,
+      "trigger": ["lord_at_home_settlement", "lord_has_spouse"],
+      "weight": { "base": 2.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_break_gate_title}Column forms up at the gate",
+      "setup": "{=home_break_gate_setup}Your lord lingers a moment at the hall door with his wife. When he comes down the steps his face is a mask. The column rides out into first light."
+    },
+    {
+      "id": "home_break_camp_lord_mood_after_home",
+      "category": "home_break_camp", "observational": true,
+      "trigger": ["lord_at_home_settlement"],
+      "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_break_mood_title}Quieter than yesterday",
+      "setup": "{=home_break_mood_setup}Your lord is quieter on the road out than he was on the road in. He does not speak of the night just ended. No one asks."
+    },
+    {
+      "id": "home_break_camp_supply_trains",
+      "category": "home_break_camp", "observational": true,
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_break_supply_title}Supply trains form up",
+      "setup": "{=home_break_supply_setup}The baggage creaks into the column behind the outriders. A clerk double-checks manifests against the gate-writ. The cart-horses blow in the cold morning air."
+    },
+    {
+      "id": "home_break_camp_sword_edge",
+      "category": "home_break_camp", "observational": true,
+      "trigger": [],
+      "weight": { "base": 0.8 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_break_edge_title}The sergeant's last word",
+      "setup": "{=home_break_edge_setup}Before the gate, the old sergeant checks each blade with a thumb. He grunts at yours, says nothing, walks on. You count that as approval."
+    },
+    {
+      "id": "home_break_camp_rain_on_march",
+      "category": "home_break_camp", "observational": true,
+      "trigger": ["is_autumn"],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_break_rain_title}A thin rain starts",
+      "setup": "{=home_break_rain_setup}The sky opens an hour out of the gate. Cloaks come up over shoulders, hoods over helms. The road, the rain, the sound of harness — and the town at your back, smaller every minute."
+    }
+  ]
+}

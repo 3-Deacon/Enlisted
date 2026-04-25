@@ -1,0 +1,456 @@
+{
+  "storylets": [
+    {
+      "id": "duty_marching_boot_drill_1",
+      "title": "{=duty_marching_boot_drill_1_title}Boot drill on the road",
+      "setup": "{=duty_marching_boot_drill_1_setup}The column sets a hard pace and the sergeant keeps it. Your boots are wrong for the ground and your shins know it. By midday the step is automatic.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_boot_drill_1_opt}Keep the pace. Don't fall out.",
+          "tooltip": "{=duty_marching_boot_drill_1_tt}Hard road march. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_rain_mile_1",
+      "title": "{=duty_marching_rain_mile_1_title}Rain on the march",
+      "setup": "{=duty_marching_rain_mile_1_setup}The road turns to mud past the crossroads. Rain comes sideways and the pack doubles in weight. The column does not stop. It rarely does.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_rain_mile_1_opt}Head down. One foot after the other.",
+          "tooltip": "{=duty_marching_rain_mile_1_tt}March through the mud. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_skirmish_run_1",
+      "title": "{=duty_marching_skirmish_run_1_title}Skirmish run with javelins",
+      "setup": "{=duty_marching_skirmish_run_1_setup}The captain detaches your file to screen the flank. Double time to a low ridge, javelins forward. No enemy comes, but your legs and your arm do the work anyway.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_skirmish_run_1_opt}Sprint to the ridge. Hold the line.",
+          "tooltip": "{=duty_marching_skirmish_run_1_tt}Flank screen at speed. Athletics + Throwing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_column_pace_1",
+      "title": "{=duty_marching_column_pace_1_title}Column pace",
+      "setup": "{=duty_marching_column_pace_1_setup}The cavalry detachment rides at the army's edge and you rotate through the mounted file. Holding formation at march speed on roads this broken is a skill the horse argues about.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_column_pace_1_opt}Hold the spacing. Let the horse settle.",
+          "tooltip": "{=duty_marching_column_pace_1_tt}Column ride in formation. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_horse_care_1",
+      "title": "{=duty_marching_horse_care_1_title}Horse care at camp stop",
+      "setup": "{=duty_marching_horse_care_1_setup}The column halts for the night and your mount needs attention before you do. Water, feed, a check of the hooves. The horse is not grateful. That is its right.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_horse_care_1_opt}See to the animal before the mess.",
+          "tooltip": "{=duty_marching_horse_care_1_tt}End-of-day horse care. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_ride_ahead_1",
+      "title": "{=duty_marching_ride_ahead_1_title}Ride-ahead scout",
+      "setup": "{=duty_marching_ride_ahead_1_setup}The sergeant puts you on the road a quarter-mile ahead of the column. Watch for ambush, crossings, and anything off. Report back before the vanguard rounds the next bend.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_ride_ahead_1_opt}Ride out. Read the ground. Come back.",
+          "tooltip": "{=duty_marching_ride_ahead_1_tt}Mounted forward scout. Riding + Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_smoke_horizon_1",
+      "title": "{=duty_marching_smoke_horizon_1_title}Smoke on the horizon",
+      "setup": "{=duty_marching_smoke_horizon_1_setup}Two columns of smoke rise to the east. Too far to say what is burning. The column presses on. You keep your eyes on it through the afternoon, tracking direction and height.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_smoke_horizon_1_opt}Watch and remember.",
+          "tooltip": "{=duty_marching_smoke_horizon_1_tt}Read distant signals. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_hillock_watch_1",
+      "title": "{=duty_marching_hillock_watch_1_title}Watch from the hillock",
+      "setup": "{=duty_marching_hillock_watch_1_setup}You take a position on a low rise and hold it while the column passes below. Bow strung, watching the treeline. Nothing comes. That is still useful information.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_hillock_watch_1_opt}Hold the rise. Let the column pass below.",
+          "tooltip": "{=duty_marching_hillock_watch_1_tt}Flank observation with bow. Scouting + Bow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Bow", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_rearguard_1",
+      "title": "{=duty_marching_rearguard_1_title}Rearguard rotation",
+      "setup": "{=duty_marching_rearguard_1_setup}The rearguard is three men and the road behind is empty as far as the last bend. You count paces, mark the time, and keep the intervals the captain prescribed.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_rearguard_1_opt}Hold the spacing. Watch the road.",
+          "tooltip": "{=duty_marching_rearguard_1_tt}Rearguard duty. Tactics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_column_order_1",
+      "title": "{=duty_marching_column_order_1_title}Column order",
+      "setup": "{=duty_marching_column_order_1_setup}The sergeant needs the marching order reorganized — cavalry ahead, crossbows inside, wagons last. He explains it twice and you repeat it back. Then you go and tell six people who will not listen the first time.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_column_order_1_opt}Sort the order. Move the right people.",
+          "tooltip": "{=duty_marching_column_order_1_tt}Reorganize the march order. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_night_sparring_1",
+      "title": "{=duty_marching_night_sparring_1_title}Night-camp sparring",
+      "setup": "{=duty_marching_night_sparring_1_setup}After tents go up a small circle forms near the fires. Wasters and staves, nothing formal. It is the best kind of practice — nobody is keeping score except everyone.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_night_sparring_1_opt}Step in. Work both weapons.",
+          "tooltip": "{=duty_marching_night_sparring_1_tt}Camp sparring at night. OneHanded + Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_halt_practice_1",
+      "title": "{=duty_marching_halt_practice_1_title}Halt practice",
+      "setup": "{=duty_marching_halt_practice_1_setup}The column stops to water horses and you find a stretch of open ground. A crossbowman works bolts at a fence post while you run two-handed forms nearby. Neither of you speaks. Both of you improve.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_halt_practice_1_opt}Make use of the halt.",
+          "tooltip": "{=duty_marching_halt_practice_1_tt}Solo practice at road halt. TwoHanded + Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_road_barter_1",
+      "title": "{=duty_marching_road_barter_1_title}Road barter",
+      "setup": "{=duty_marching_road_barter_1_setup}A peddler works the column at the midday stop. Half the men are trading for things they do not need. You watch the exchange rate and spot two separate cons running in the same transaction.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_road_barter_1_opt}Watch and learn the peddler's method.",
+          "tooltip": "{=duty_marching_road_barter_1_tt}Observe roadside trade. Charm + Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_wagon_wheel_1",
+      "title": "{=duty_marching_wagon_wheel_1_title}Wagon wheel repair",
+      "setup": "{=duty_marching_wagon_wheel_1_setup}A supply wagon sheds a wheel on a rut and the column stops. The smith kneels by the axle and explains the fix in terms of tools you do not have and time you do not have either. You improvise.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_wagon_wheel_1_opt}Work the wheel back on. Keep the column moving.",
+          "tooltip": "{=duty_marching_wagon_wheel_1_tt}Roadside repair work. Smithing + Engineering XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_wound_carry_1",
+      "title": "{=duty_marching_wound_carry_1_title}Carrying the wounded",
+      "setup": "{=duty_marching_wound_carry_1_setup}A soldier collapses from a wound that opened on the march. The surgeon is at the rear of the column. You carry him. You also learn more about field dressing than you intended to.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_wound_carry_1_opt}Carry him back. Watch what the surgeon does.",
+          "tooltip": "{=duty_marching_wound_carry_1_tt}Field carry and dressing. Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_supply_tally_1",
+      "title": "{=duty_marching_supply_tally_1_title}Supply tally at camp stop",
+      "setup": "{=duty_marching_supply_tally_1_setup}The quartermaster needs a count of provisions before the evening meal. You work through the wagon inventory with him: sacks, barrels, dry goods, what was sold off and what was not.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_supply_tally_1_opt}Count everything. Write nothing down twice.",
+          "tooltip": "{=duty_marching_supply_tally_1_tt}Wagon inventory work. Trade + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_short_rations_1",
+      "title": "{=duty_marching_short_rations_1_title}Short rations on the road",
+      "setup": "{=duty_marching_short_rations_1_setup}The morning portion is half what it should be. Nobody explains it. The sergeant cuts the grumbling short and the column moves on with empty stomachs and shorter tempers.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_short_rations_1_opt}Eat what there is. March anyway.",
+          "tooltip": "{=duty_marching_short_rations_1_tt}Hungry column. Scrutiny up. Athletics XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_scouts_thin_1",
+      "title": "{=duty_marching_scouts_thin_1_title}Scout screen is thin",
+      "setup": "{=duty_marching_scouts_thin_1_setup}The forward scouts have not reported back on schedule. The column slows. You are sent ahead on foot to pick up the trail and find out why the road ahead is quiet.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted", "snapshot_front_pressure_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_scouts_thin_1_opt}Go forward. Find the scouts or find the reason.",
+          "tooltip": "{=duty_marching_scouts_thin_1_tt}Scout ahead under pressure. Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_wagon_trouble_1",
+      "title": "{=duty_marching_wagon_trouble_1_title}Wagon train in trouble",
+      "setup": "{=duty_marching_wagon_trouble_1_setup}The supply line is struggling. Two wagons are behind and the column cannot slow. You carry what can be carried and help push the rest up a slope that does not forgive poor footing.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:1", "snapshot_recent_change:SupplyBreak"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_wagon_trouble_1_opt}Get behind the wagon. Push.",
+          "tooltip": "{=duty_marching_wagon_trouble_1_tt}Wagon rescue under supply stress. Athletics XP, scrutiny up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_marching_column_disperse_1",
+      "title": "{=duty_marching_column_disperse_1_title}Column dispersal risk",
+      "setup": "{=duty_marching_column_disperse_1_setup}Word passes back from the vanguard — the column may need to scatter and regroup off-road. The sergeant is talking routes and rally points. You listen hard because there is a chance you will need to remember this.",
+      "theme": "duty",
+      "category": "duty_marching",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["marching"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:DispersalRisk"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_marching_column_disperse_1_opt}Memorize the rally points. Be ready.",
+          "tooltip": "{=duty_marching_column_disperse_1_tt}Dispersal drill. Tactics XP. Readiness down.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "quality_add", "quality": "readiness", "amount": -1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

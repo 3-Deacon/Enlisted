@@ -1,0 +1,220 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_enforcer_t7",
+      "title": "{=order_scout_enforcer_t7_title}Walk the perimeter",
+      "setup": "{=order_scout_enforcer_t7_setup}Your lord wants the camp's edge read before the column beds down. Not a rider's scout — a soldier's, on foot, with blade at the hip. Smell the ground. Find the weak line. You are the man he sends for this.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_enforcer"],
+      "class_affinity": {
+        "Infantry": 1.5,
+        "HeavyInfantry": 1.6
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_enforcer_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_enforcer_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_enforcer_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_enforcer_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_enforcer_t7_accept_diligent_text}Walk the line. Touch every post.",
+          "tooltip": "{=order_scout_enforcer_t7_accept_diligent_tt}Start perimeter arc. Diligent.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_enforcer_t7_decline_text}Beg off. Legs hurt tonight.",
+          "tooltip": "{=order_scout_enforcer_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_enforcer_t7_mid_vigil",
+      "title": "{=order_scout_enforcer_t7_mid_vigil_title}A sentry half asleep",
+      "setup": "{=order_scout_enforcer_t7_mid_vigil_setup}You come around a stack of shields and find a sentry nodding on his spear. You can wake him hard enough to remember, or put him down for a rest and take the post yourself for an hour.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_scout_enforcer_t7_mid_vigil_main_text}Wake him hard. Stand the hour yourself.",
+          "tooltip": "{=order_scout_enforcer_t7_mid_vigil_main_tt}OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_enforcer_t7_resolve_diligent",
+      "title": "{=order_scout_enforcer_t7_resolve_diligent_title}The line held",
+      "setup": "{=order_scout_enforcer_t7_resolve_diligent_setup}You report the camp sound — every post touched, every sentry awake by dawn. Your lord does not thank you, because thanking a man for his trade is thin coin. He gives you the hard nod instead. You take it.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_scout_enforcer_t7_resolve_diligent_close_text}Rack the shield. Find a fire.",
+          "tooltip": "{=order_scout_enforcer_t7_resolve_diligent_close_tt}Rank XP + OneHanded + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_enforcer_t7",
+      "title": "{=order_escort_enforcer_t7_title}Front of the wagon",
+      "setup": "{=order_escort_enforcer_t7_setup}A merchant's wagon needs a man in front who looks like he means the work. Your lord puts you at the tongue of the cart with shield up. Anyone who wants at the purse will have to walk through you first.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_enforcer"],
+      "class_affinity": {
+        "Infantry": 1.5,
+        "HeavyInfantry": 1.6
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "escort_enforcer_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_escort_enforcer_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_enforcer_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_enforcer_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_enforcer_t7_accept_diligent_text}Shield up. Walk at the tongue.",
+          "tooltip": "{=order_escort_enforcer_t7_accept_diligent_tt}Start front-rank escort arc.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_enforcer_t7_decline_text}Beg off. The back feels stiff.",
+          "tooltip": "{=order_escort_enforcer_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_enforcer_t7_mid_road",
+      "title": "{=order_escort_enforcer_t7_mid_road_title}Three men at the crossroads",
+      "setup": "{=order_escort_enforcer_t7_mid_road_setup}Three men stand at the crossing with long staves and short tempers. No colors. They do not move off the road. You set the shield and take one step forward. They read you.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_escort_enforcer_t7_mid_road_main_text}Hold the line. Let them decide.",
+          "tooltip": "{=order_escort_enforcer_t7_mid_road_main_tt}OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_enforcer_t7_resolve_diligent",
+      "title": "{=order_escort_enforcer_t7_resolve_diligent_title}The wagon came in whole",
+      "setup": "{=order_escort_enforcer_t7_resolve_diligent_setup}The merchant climbs down and will not meet your eye — not from rudeness, but from being told by men on the road that you are not a soldier to cross. Your lord heard it back before the wagon did. He nods.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_escort_enforcer_t7_resolve_diligent_close_text}Rack the shield. Water the men.",
+          "tooltip": "{=order_escort_enforcer_t7_resolve_diligent_close_tt}Rank XP + OneHanded + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

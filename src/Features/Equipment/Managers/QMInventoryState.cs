@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.SaveSystem;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.Managers
 {
@@ -103,7 +103,7 @@ namespace Enlisted.Features.Equipment.Managers
             }
             catch (Exception ex)
             {
-                ModLogger.Error("Inventory", "Error refreshing inventory", ex);
+                ModLogger.Caught("Inventory", "Error refreshing inventory", ex);
                 // Fail safe - ensure inventory is cleared on error
                 CurrentStock.Clear();
                 UpdateRefreshMetadata(supplyLevel);
@@ -181,7 +181,7 @@ namespace Enlisted.Features.Equipment.Managers
             if (newQty <= 0)
             {
                 // Remove from stock entirely
-                CurrentStock.Remove(itemStringId);
+                _ = CurrentStock.Remove(itemStringId);
                 ModLogger.Info("Inventory", $"Item sold out: {itemStringId}");
             }
             else

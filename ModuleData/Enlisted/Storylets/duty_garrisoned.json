@@ -1,0 +1,499 @@
+{
+  "storylets": [
+    {
+      "id": "duty_garrisoned_sword_form_1",
+      "title": "{=duty_garrisoned_sword_form_1_title}Sword form at the post",
+      "setup": "{=duty_garrisoned_sword_form_1_setup}The drill yard is quiet except for footwork and the knock of wasters. You work through the forms alone, slow enough to feel every error.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_sword_form_1_opt}Run the forms until they sit right.",
+          "tooltip": "{=duty_garrisoned_sword_form_1_tt}Steady solo practice. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_sparring_veteran_1",
+      "title": "{=duty_garrisoned_sparring_veteran_1_title}Paired against a veteran",
+      "setup": "{=duty_garrisoned_sparring_veteran_1_setup}The sergeant pairs you with a soldier who has fought longer than you have been enlisted. He does not speak during the bout. His blade does his teaching.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_sparring_veteran_1_opt}Take the lessons. Keep moving.",
+          "tooltip": "{=duty_garrisoned_sparring_veteran_1_tt}Hard sparring against a veteran. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_gate_stance_1",
+      "title": "{=duty_garrisoned_gate_stance_1_title}Gate-post watch",
+      "setup": "{=duty_garrisoned_gate_stance_1_setup}Four hours at the gate. Traffic is thin. You run stance drills in your head, feet shifting on the stone, blade never leaving the scabbard.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_gate_stance_1_opt}Work the footwork. Hold the post.",
+          "tooltip": "{=duty_garrisoned_gate_stance_1_tt}Quiet practice at watch. OneHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_whetstone_1",
+      "title": "{=duty_garrisoned_whetstone_1_title}Whetstone and slow work",
+      "setup": "{=duty_garrisoned_whetstone_1_setup}An afternoon without orders. You pull a whetstone and work the edges — shortsword first, then the two-hander someone left leaning against the barracks wall.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_whetstone_1_opt}Finish both blades before mess.",
+          "tooltip": "{=duty_garrisoned_whetstone_1_tt}Blade maintenance and form work. OneHanded + TwoHanded XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 },
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_spear_drill_1",
+      "title": "{=duty_garrisoned_spear_drill_1_title}Spear formation drill",
+      "setup": "{=duty_garrisoned_spear_drill_1_setup}The sergeant lines you up in the yard and walks the row with a stick. Spacing, angle, advance — the same calls he's been making for twenty years.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_spear_drill_1_opt}Match his calls without watching the man beside you.",
+          "tooltip": "{=duty_garrisoned_spear_drill_1_tt}Formation drill. Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_pike_watch_1",
+      "title": "{=duty_garrisoned_pike_watch_1_title}Pike post on the wall",
+      "setup": "{=duty_garrisoned_pike_watch_1_setup}Three hours holding a pike on the parapet. The weight tells in your shoulders long before the watch ends. You shift the butt and find what the old soldiers mean by grip.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_pike_watch_1_opt}Stay upright. Find the balance.",
+          "tooltip": "{=duty_garrisoned_pike_watch_1_tt}Wall watch with full kit. Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_formation_push_1",
+      "title": "{=duty_garrisoned_formation_push_1_title}Shield and pike push",
+      "setup": "{=duty_garrisoned_formation_push_1_setup}Two ranks press into each other across the courtyard. Not a real assault — just the feel of bodies and shafts in close space. Your legs know the difference by the end.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_formation_push_1_opt}Push hard and hold your footing.",
+          "tooltip": "{=duty_garrisoned_formation_push_1_tt}Formation contact drill. Polearm + Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_wall_circuit_1",
+      "title": "{=duty_garrisoned_wall_circuit_1_title}Circuit on the walls",
+      "setup": "{=duty_garrisoned_wall_circuit_1_setup}The sergeant sends you around the walls at pace — twice before the bell, full kit, no dawdling. The stairs are the worst part. They always are.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_wall_circuit_1_opt}Run it clean. Both laps.",
+          "tooltip": "{=duty_garrisoned_wall_circuit_1_tt}Kit run on the walls. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_stair_sprint_1",
+      "title": "{=duty_garrisoned_stair_sprint_1_title}Stair sprints",
+      "setup": "{=duty_garrisoned_stair_sprint_1_setup}The gatehouse stairs. Up, turn, down. The sergeant is timing. There is a wrong time to be slow and this is it.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_stair_sprint_1_opt}Empty the legs. Post a time.",
+          "tooltip": "{=duty_garrisoned_stair_sprint_1_tt}Stair conditioning. Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_archery_butts_1",
+      "title": "{=duty_garrisoned_archery_butts_1_title}Archery butts",
+      "setup": "{=duty_garrisoned_archery_butts_1_setup}The butts are set up behind the stables, forty paces out. You pull until your fingers are raw and your quiver is empty.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_archery_butts_1_opt}Work the draw until the groupings tighten.",
+          "tooltip": "{=duty_garrisoned_archery_butts_1_tt}Range practice at the butts. Bow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_range_competition_1",
+      "title": "{=duty_garrisoned_range_competition_1_title}Range competition",
+      "setup": "{=duty_garrisoned_range_competition_1_setup}A bet forms at the butts — bow against crossbow. You take the bow side. The crossbowman is slow and methodical. His bolts land tight. Yours do too, eventually.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_range_competition_1_opt}Trade technique across the lanes.",
+          "tooltip": "{=duty_garrisoned_range_competition_1_tt}Bow and crossbow practice. Bow + Crossbow XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Bow", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Crossbow", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_javelin_fence_1",
+      "title": "{=duty_garrisoned_javelin_fence_1_title}Javelins at the fence",
+      "setup": "{=duty_garrisoned_javelin_fence_1_setup}Someone sets up a painted timber at the far end of the yard. Half the watch tries their arm at it. Most miss by a stride. A few don't.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_javelin_fence_1_opt}Take your throws and count the hits.",
+          "tooltip": "{=duty_garrisoned_javelin_fence_1_tt}Javelin practice. Throwing + Roguery XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Throwing", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_stable_work_1",
+      "title": "{=duty_garrisoned_stable_work_1_title}Stable rotation",
+      "setup": "{=duty_garrisoned_stable_work_1_setup}Your name is on the stable list. Feed, muck, tack check — two hours of it before the horses are ready for the afternoon rotation. The animals are indifferent to your effort.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_stable_work_1_opt}Work the horses, learn their moods.",
+          "tooltip": "{=duty_garrisoned_stable_work_1_tt}Stable duty. Riding XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_mounted_patrol_1",
+      "title": "{=duty_garrisoned_mounted_patrol_1_title}Mounted patrol outside the gates",
+      "setup": "{=duty_garrisoned_mounted_patrol_1_setup}A short patrol loop outside the walls — three riders, no urgency. You note the lay of the ground and where a column might approach from the north. Old habit from the field.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_mounted_patrol_1_opt}Read the ground as you ride.",
+          "tooltip": "{=duty_garrisoned_mounted_patrol_1_tt}Mounted loop outside the walls. Riding + Scouting XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Riding", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_parapet_repair_1",
+      "title": "{=duty_garrisoned_parapet_repair_1_title}Parapet repair detail",
+      "setup": "{=duty_garrisoned_parapet_repair_1_setup}A section of battlement needs relaying. The mason shows you once where to set the mortar and leaves. You work with the others until the stones sit level.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_parapet_repair_1_opt}Follow the mason's lead.",
+          "tooltip": "{=duty_garrisoned_parapet_repair_1_tt}Wall repair work. Engineering + Smithing XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Engineering", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Smithing", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_gate_formation_1",
+      "title": "{=duty_garrisoned_gate_formation_1_title}Gate formation drill",
+      "setup": "{=duty_garrisoned_gate_formation_1_setup}The sergeant arranges the gate guard into a reception line and drills the presentation — spacing, facing, order of response. You watch from the wall walk above, noting what he is building.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_gate_formation_1_opt}Watch the structure from above.",
+          "tooltip": "{=duty_garrisoned_gate_formation_1_tt}Tactical observation. Tactics + Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Tactics", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_mess_argument_1",
+      "title": "{=duty_garrisoned_mess_argument_1_title}Argument in the mess",
+      "setup": "{=duty_garrisoned_mess_argument_1_setup}Two soldiers are about to throw hands over a gambling debt. The sergeant is at the far end of the hall. You are between them and the door.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_mess_argument_1_opt}Step between them. Keep it quiet.",
+          "tooltip": "{=duty_garrisoned_mess_argument_1_tt}Defuse a fight. Charm + Steward XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Steward", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_market_errand_1",
+      "title": "{=duty_garrisoned_market_errand_1_title}Market errand",
+      "setup": "{=duty_garrisoned_market_errand_1_setup}The quartermaster sends you to the market with a list and a purse. Not enough coin for what the list says. You are expected to sort the difference.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_market_errand_1_opt}Haggle what you can. Cover the rest.",
+          "tooltip": "{=duty_garrisoned_market_errand_1_tt}Quartermaster errand. Trade + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Trade", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_short_rations_1",
+      "title": "{=duty_garrisoned_short_rations_1_title}Short rations",
+      "setup": "{=duty_garrisoned_short_rations_1_setup}The ration-post line is shorter than the crowd waiting for it. Someone in the queue counts the portions out loud. The sergeant hears. Nobody looks happy.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_supply_pressure_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_short_rations_1_opt}Take your share and say nothing.",
+          "tooltip": "{=duty_garrisoned_short_rations_1_tt}Supply tension. Scrutiny up.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_alert_posture_1",
+      "title": "{=duty_garrisoned_alert_posture_1_title}Alert posture",
+      "setup": "{=duty_garrisoned_alert_posture_1_setup}The lord's captains have doubled the gate guard and moved the watch schedule forward. No one says why. The garrison drills harder than it did yesterday.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_front_pressure_gte:3"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_alert_posture_1_opt}Keep your blade sharp and your watch honest.",
+          "tooltip": "{=duty_garrisoned_alert_posture_1_tt}Alert drill under threat. Readiness up, OneHanded XP.",
+          "effects": [
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 },
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_wounded_ward_1",
+      "title": "{=duty_garrisoned_wounded_ward_1_title}Wounded in the ward",
+      "setup": "{=duty_garrisoned_wounded_ward_1_setup}The garrison surgeon has more patients than hands. You end up holding a man still while the saw does its work, and then doing the wound-dressing on three more through the afternoon.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_army_strain_gte:2"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_wounded_ward_1_opt}Learn the work. Keep your hands steady.",
+          "tooltip": "{=duty_garrisoned_wounded_ward_1_tt}Assist the surgeon. Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty_garrisoned_new_threat_1",
+      "title": "{=duty_garrisoned_new_threat_1_title}New threat on the road",
+      "setup": "{=duty_garrisoned_new_threat_1_setup}Word comes in from a rider — something new is moving two days out. The captains want eyes on every approach. You get a post on the east wall and a description to memorize.",
+      "theme": "duty",
+      "category": "duty_garrisoned",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "scope": { "context": "any" },
+      "profile_requires": ["garrisoned"],
+      "trigger": ["is_enlisted", "snapshot_recent_change:NewThreat"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=duty_garrisoned_new_threat_1_opt}Watch the roads. Report anything.",
+          "tooltip": "{=duty_garrisoned_new_threat_1_tt}Threat watch. Scouting XP + readiness up.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Scouting", "amount": 20 },
+            { "apply": "quality_add", "quality": "readiness", "amount": 1 }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-14 (Updated to reflect Scrutiny/lord relation system)  
-**Related Docs:** [Content System](../Content/content-system-architecture.md), [Event System Schemas](../Content/event-system-schemas.md), [Promotion System](../Core/promotion-system.md)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Content Reference](../Content/README.md), [Promotion System](../Core/promotion-system.md)
 
 ---
 

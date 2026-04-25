@@ -1,0 +1,697 @@
+{
+  "storylets": [
+    {
+      "id": "home_evening_brood_dead_friend",
+      "category": "home_evening_brood",
+      "trigger": ["days_enlisted_gte_30"],
+      "weight": {
+        "base": 2.0,
+        "modifiers": [
+          { "if": "lord_trait_honor_positive", "factor": 1.3 },
+          { "if": "is_autumn", "factor": 1.2 }
+        ]
+      },
+      "scope": { "context": "settlement" },
+      "title": "{=home_brood_empty_cot_title}In the empty cot",
+      "setup": "{=home_brood_empty_cot_setup}Seoras had the cot next to yours since Pravend. His kit is still folded at the foot, the way he liked it — the boots turned just so. You sit with it in the dark a while.",
+      "options": [
+        {
+          "id": "take_boots",
+          "text": "{=home_brood_empty_cot_opt_take}Take the boots. He'd want someone to use them.",
+          "tooltip": "{=home_brood_empty_cot_opt_take_tt}+Roguery. Scrutiny up if caught.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "set_flag", "name": "took_dead_friend_gear" },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 2 }
+          ]
+        },
+        {
+          "id": "keep_kit",
+          "text": "{=home_brood_empty_cot_opt_keep}Keep the kit as it is. Someone should know him still.",
+          "tooltip": "{=home_brood_empty_cot_opt_keep_tt}+lord relation.",
+          "effects": [
+            { "apply": "lord_relation_up_small" },
+            { "apply": "set_flag", "name": "kept_dead_friend_kit" }
+          ]
+        },
+        {
+          "id": "write_ledger",
+          "text": "{=home_brood_empty_cot_opt_write}Write his name in the book no one asked you to keep.",
+          "tooltip": "{=home_brood_empty_cot_opt_write_tt}+rank_xp. Parks a ledger chain.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "set_flag", "name": "keeps_death_ledger" }
+          ],
+          "chain": { "id": "home_chain_ledger_rumored", "when": "home_activity.evening" }
+        }
+      ]
+    },
+    {
+      "id": "home_evening_unwind_dice",
+      "category": "home_evening_unwind",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_unwind_dice_title}The dice come out",
+      "setup": "{=home_unwind_dice_setup}Someone produces a pair of knucklebones and a flat stone. A small ring forms. A sergeant winks at you from the far side.",
+      "options": [
+        {
+          "id": "play_and_win",
+          "text": "{=home_unwind_dice_opt_win}Play. Feel the luck in your palm tonight.",
+          "tooltip": "{=home_unwind_dice_opt_win_tt}+50 gold if luck holds.",
+          "effects": [ { "apply": "give_gold", "amount": 50 } ]
+        },
+        {
+          "id": "play_and_lose",
+          "text": "{=home_unwind_dice_opt_lose}Play. You'll win some back tomorrow.",
+          "tooltip": "{=home_unwind_dice_opt_lose_tt}-50 gold.",
+          "effects": [ { "apply": "give_gold", "amount": -50 } ]
+        },
+        {
+          "id": "walk_away",
+          "text": "{=home_unwind_dice_opt_walk}Shake your head. Keep your coin.",
+          "tooltip": "{=home_unwind_dice_opt_walk_tt}+lord relation (someone saw).",
+          "effects": [ { "apply": "lord_relation_up_small" } ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_unwind_song",
+      "category": "home_evening_unwind",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_unwind_song_title}Someone starts a song",
+      "setup": "{=home_unwind_song_setup}A low voice starts up near the fire — an old campaign tune, not quite remembered right. Others drift in. The words matter less than the sound.",
+      "options": [
+        {
+          "id": "sing",
+          "text": "{=home_unwind_song_opt_sing}Pick up the next verse. You know this one.",
+          "tooltip": "{=home_unwind_song_opt_sing_tt}Sets a social flag with the company.",
+          "effects": [
+            { "apply": "set_flag", "name": "sang_at_camp" }
+          ]
+        },
+        {
+          "id": "listen",
+          "text": "{=home_unwind_song_opt_listen}Stay back. Let them have it.",
+          "tooltip": "{=home_unwind_song_opt_listen_tt}+lord relation.",
+          "effects": [
+            { "apply": "lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_unwind_sergeant",
+      "category": "home_evening_unwind",
+      "trigger": ["lord_morale_gte_80"],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_unwind_sergeant_title}The sergeant's flask",
+      "setup": "{=home_unwind_sergeant_setup}Sergeant Burec pulls you aside. The column did well today — he feels it. He uncorks a flask and offers it without explanation.",
+      "options": [
+        {
+          "id": "drink",
+          "text": "{=home_unwind_sergeant_opt_drink}Take it. You've earned the hour.",
+          "tooltip": "{=home_unwind_sergeant_opt_drink_tt}Sets a flag; warms company relations.",
+          "effects": [
+            { "apply": "set_flag", "name": "friend_with_sergeant" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=home_unwind_sergeant_opt_decline}Decline. Keep your edge for tomorrow.",
+          "tooltip": "{=home_unwind_sergeant_opt_decline_tt}+Leadership XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Leadership", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_unwind_firelit",
+      "category": "home_evening_unwind",
+      "trigger": [],
+      "weight": {
+        "base": 0.6,
+        "modifiers": [
+          { "if": "is_autumn", "factor": 1.8 },
+          { "if": "is_winter", "factor": 2.2 }
+        ]
+      },
+      "scope": { "context": "settlement" },
+      "title": "{=home_unwind_firelit_title}Long into the fire",
+      "setup": "{=home_unwind_firelit_setup}Cold sets in early tonight. The fire is generous and someone has dragged a log close. Stories drift out — nothing you'll remember exactly, but true in the feeling.",
+      "options": [
+        {
+          "id": "stay_late",
+          "text": "{=home_unwind_firelit_opt_stay}Stay late. Let the cold wait.",
+          "tooltip": "{=home_unwind_firelit_opt_stay_tt}Sets a flag; roots you in the company.",
+          "effects": [
+            { "apply": "set_flag", "name": "firelit_stories" }
+          ]
+        },
+        {
+          "id": "turn_in_early",
+          "text": "{=home_unwind_firelit_opt_early}Turn in. Rest is its own discipline.",
+          "tooltip": "{=home_unwind_firelit_opt_early_tt}+rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_unwind_stars",
+      "category": "home_evening_unwind",
+      "trigger": ["is_night"],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_unwind_stars_title}The sky tonight",
+      "setup": "{=home_unwind_stars_setup}You step outside the billet for a breath. The stars are out and the camp is quiet enough to hear them, almost. It's the kind of night that invites thinking, if you let it.",
+      "options": [
+        {
+          "id": "reflect",
+          "text": "{=home_unwind_stars_opt_reflect}Stay out. Think through what brought you here.",
+          "tooltip": "{=home_unwind_stars_opt_reflect_tt}Sets a stargazer flag; quiet character note.",
+          "effects": [
+            { "apply": "set_flag", "name": "stargazer" }
+          ]
+        },
+        {
+          "id": "pass",
+          "text": "{=home_unwind_stars_opt_pass}Go back inside. Stars keep no promises.",
+          "tooltip": "{=home_unwind_stars_opt_pass_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_train_hard_sparring",
+      "category": "home_evening_train_hard",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_train_sparring_title}A partner in the yard",
+      "setup": "{=home_train_sparring_setup}Dervyn has been at the practice post since supper, working a pattern you don't recognise. He sees you watching and raises his wooden blade — invitation or challenge, hard to say.",
+      "options": [
+        {
+          "id": "spar",
+          "text": "{=home_train_sparring_opt_spar}Spar. Work until you can't see the edge.",
+          "tooltip": "{=home_train_sparring_opt_spar_tt}+One-Handed XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "OneHanded", "amount": 25 }
+          ]
+        },
+        {
+          "id": "bet_spar",
+          "text": "{=home_train_sparring_opt_bet}Bet five rounds. Loser buys supper.",
+          "tooltip": "{=home_train_sparring_opt_bet_tt}Wager flag; gold at stake.",
+          "effects": [
+            { "apply": "set_flag", "name": "sparring_wager_active" },
+            { "apply": "give_gold", "amount": -100 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_train_hard_drill",
+      "category": "home_evening_train_hard",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_train_drill_title}Running the grounds",
+      "setup": "{=home_train_drill_setup}The camp has a circuit — wall to well to stable-gate and back. You've seen the veterans run it twice before lights. Tonight you have no excuse not to join them.",
+      "options": [
+        {
+          "id": "drill",
+          "text": "{=home_train_drill_opt_drill}Run the circuit until your shins complain.",
+          "tooltip": "{=home_train_drill_opt_drill_tt}+Athletics XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Athletics", "amount": 25 }
+          ]
+        },
+        {
+          "id": "skip",
+          "text": "{=home_train_drill_opt_skip}Leave it for morning. Tonight belongs to rest.",
+          "tooltip": "{=home_train_drill_opt_skip_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_train_hard_master",
+      "category": "home_evening_train_hard",
+      "trigger": ["at_town"],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_train_master_title}A weapons-master in the market",
+      "setup": "{=home_train_master_setup}Word passed at midday: an old Vakken swordsman is taking pupils in the lower quarter, two-handed blade forms he won't teach for free. The evening is still young enough to find him.",
+      "options": [
+        {
+          "id": "seek",
+          "text": "{=home_train_master_opt_seek}Find him. Pay what he asks.",
+          "tooltip": "{=home_train_master_opt_seek_tt}+Two-Handed XP. -20 gold.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "TwoHanded", "amount": 30 },
+            { "apply": "give_gold", "amount": -20 }
+          ]
+        },
+        {
+          "id": "defer",
+          "text": "{=home_train_master_opt_defer}Leave it. You'll find your own way.",
+          "tooltip": "{=home_train_master_opt_defer_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_train_hard_armor",
+      "category": "home_evening_train_hard",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_train_armor_title}Kit in front of you",
+      "setup": "{=home_train_armor_setup}Your mail has gone rough where it took the last blow. You pull a hauberk into your lap, oil-rag in hand, and start working through the rings one at a time. It takes what it takes.",
+      "options": [
+        {
+          "id": "condition",
+          "text": "{=home_train_armor_opt_condition}Work through every link. Don't stop short.",
+          "tooltip": "{=home_train_armor_opt_condition_tt}+Crafting XP. Sets gear_conditioned flag.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Crafting", "amount": 15 },
+            { "apply": "set_flag", "name": "gear_conditioned" }
+          ]
+        },
+        {
+          "id": "good_enough",
+          "text": "{=home_train_armor_opt_enough}Good enough for now. Set it aside.",
+          "tooltip": "{=home_train_armor_opt_enough_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_train_hard_foreign_form",
+      "category": "home_evening_train_hard",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_train_foreign_title}A different way of holding the shaft",
+      "setup": "{=home_train_foreign_setup}One of the Aserai auxiliaries steps through a polearm form you've never seen — both hands low, weight on the back foot. He notices your stare and gestures: try it, or don't.",
+      "options": [
+        {
+          "id": "learn",
+          "text": "{=home_train_foreign_opt_learn}Try it until the grip stops feeling wrong.",
+          "tooltip": "{=home_train_foreign_opt_learn_tt}+Polearm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Polearm", "amount": 25 }
+          ]
+        },
+        {
+          "id": "laugh",
+          "text": "{=home_train_foreign_opt_laugh}Beg off. Stick to what your hands know.",
+          "tooltip": "{=home_train_foreign_opt_laugh_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_brood_lord_like_father",
+      "category": "home_evening_brood",
+      "trigger": ["lord_trait_honor_positive", "days_enlisted_gte_30"],
+      "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_brood_lord_father_title}The way he said it",
+      "setup": "{=home_brood_lord_father_setup}You've been turning over something your lord said to the column today — the phrasing, the patience in it. Your father used to speak the same way. You're not sure what to do with that.",
+      "options": [
+        {
+          "id": "confide",
+          "text": "{=home_brood_lord_father_opt_confide}Find him. Say what you're carrying.",
+          "tooltip": "{=home_brood_lord_father_opt_confide_tt}+lord relation. Sets a trust flag.",
+          "effects": [
+            { "apply": "lord_relation_up_small" },
+            { "apply": "set_flag", "name": "confided_in_lord" }
+          ]
+        },
+        {
+          "id": "keep_silent",
+          "text": "{=home_brood_lord_father_opt_silent}Keep it. Some things don't need saying.",
+          "tooltip": "{=home_brood_lord_father_opt_silent_tt}+rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_brood_letter_home",
+      "category": "home_evening_brood",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_brood_letter_title}The letter you haven't written",
+      "setup": "{=home_brood_letter_setup}Paper and ink have been available for three days. You've thought about it every one of them — what to say, what to leave out, how to sound like you mean it.",
+      "options": [
+        {
+          "id": "write_and_send",
+          "text": "{=home_brood_letter_opt_send}Write it and give it to the courier.",
+          "tooltip": "{=home_brood_letter_opt_send_tt}Sets a flag; you've written home.",
+          "effects": [
+            { "apply": "set_flag", "name": "sent_letter" }
+          ]
+        },
+        {
+          "id": "write_and_burn",
+          "text": "{=home_brood_letter_opt_burn}Write it and burn it. Enough to have said it.",
+          "tooltip": "{=home_brood_letter_opt_burn_tt}+rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "dont_write",
+          "text": "{=home_brood_letter_opt_skip}Leave the page blank. Not tonight.",
+          "tooltip": "{=home_brood_letter_opt_skip_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_brood_cold_comfort",
+      "category": "home_evening_brood",
+      "trigger": ["lord_morale_lte_50"],
+      "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_brood_cold_comfort_title}The weight of a bad run",
+      "setup": "{=home_brood_cold_comfort_setup}Three hard weeks. Supplies thin, weather worse, the men quiet in the wrong way. You lie on your billet staring at the ceiling and feel the whole thing pressing on your chest.",
+      "options": [
+        {
+          "id": "steel_self",
+          "text": "{=home_brood_cold_comfort_opt_steel}Steel yourself. This is the work. You knew it.",
+          "tooltip": "{=home_brood_cold_comfort_opt_steel_tt}Sets inured flag; marks you as steadfast.",
+          "effects": [
+            { "apply": "set_flag", "name": "inured" }
+          ]
+        },
+        {
+          "id": "doubt",
+          "text": "{=home_brood_cold_comfort_opt_doubt}Let the doubt in. At least it's honest.",
+          "tooltip": "{=home_brood_cold_comfort_opt_doubt_tt}>Scrutiny up slightly.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_brood_drift",
+      "category": "home_evening_brood",
+      "trigger": [],
+      "weight": { "base": 0.8 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_brood_drift_title}Nothing in particular",
+      "setup": "{=home_brood_drift_setup}You can't settle. Not restless enough to act, not tired enough to sleep. The evening moves past you like smoke. This is what peace feels like in a soldier's life, apparently.",
+      "options": [
+        {
+          "id": "let_it_pass",
+          "text": "{=home_brood_drift_opt_pass}The night passes.",
+          "tooltip": "{=home_brood_drift_opt_pass_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_commune_lord_at_hearth",
+      "category": "home_evening_commune",
+      "trigger": [],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_commune_lord_hearth_title}Your lord at the fire",
+      "setup": "{=home_commune_lord_hearth_setup}You find your lord alone at the great hearth, a cup in hand, not reading. He looks up without surprise — as if he half-expected someone. The evening is long enough to fill with words or silence.",
+      "options": [
+        {
+          "id": "speak_plainly",
+          "text": "{=home_commune_lord_hearth_opt_speak}Speak plainly. Tell him what you've seen.",
+          "tooltip": "{=home_commune_lord_hearth_opt_speak_tt}+lord relation. Chains lord remembered.",
+          "effects": [
+            { "apply": "lord_relation_up_small" }
+          ],
+          "chain": { "id": "home_chain_lord_remembered", "when": "home_activity.evening" }
+        },
+        {
+          "id": "listen",
+          "text": "{=home_commune_lord_hearth_opt_listen}Sit and listen. Let him talk if he needs to.",
+          "tooltip": "{=home_commune_lord_hearth_opt_listen_tt}+lord relation.",
+          "effects": [
+            { "apply": "lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_commune_squadmate_confession",
+      "category": "home_evening_commune",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_commune_confession_title}What Aldric said",
+      "setup": "{=home_commune_confession_setup}Aldric finds you after supper, pulls you back from the others. He tells you something in a low voice — something that would matter to a sergeant if it reached one. He trusts you to know what to do with it.",
+      "options": [
+        {
+          "id": "keep_secret",
+          "text": "{=home_commune_confession_opt_keep}Keep it. It's not yours to pass on.",
+          "tooltip": "{=home_commune_confession_opt_keep_tt}Sets keeps_secrets flag.",
+          "effects": [
+            { "apply": "set_flag", "name": "keeps_secrets" }
+          ]
+        },
+        {
+          "id": "report",
+          "text": "{=home_commune_confession_opt_report}Report it. Better out than a slow rot.",
+          "tooltip": "{=home_commune_confession_opt_report_tt}>Scrutiny down; lord notes the loyalty.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": -2 },
+            { "apply": "set_flag", "name": "reported_squadmate" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_commune_family_meal",
+      "category": "home_evening_commune",
+      "trigger": ["lord_at_home_settlement", "lord_has_spouse"],
+      "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_commune_family_meal_title}An invitation to the high table",
+      "setup": "{=home_commune_family_meal_setup}A steward delivers word: your lord and his lady are taking their evening meal and ask for a few soldiers to join. It's informal — unusual. The hall will be warm.",
+      "options": [
+        {
+          "id": "share",
+          "text": "{=home_commune_family_meal_opt_share}Go. Eat at their table and mean it.",
+          "tooltip": "{=home_commune_family_meal_opt_share_tt}+lord relation (strong).",
+          "effects": [
+            { "apply": "lord_relation_up_small" },
+            { "apply": "lord_relation_up_small" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=home_commune_family_meal_opt_decline}Send polite word. Their evening is their own.",
+          "tooltip": "{=home_commune_family_meal_opt_decline_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_commune_chaplain",
+      "category": "home_evening_commune",
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_commune_chaplain_title}The chaplain's hour",
+      "setup": "{=home_commune_chaplain_setup}The garrison chaplain holds an open door after evening prayer — not for doctrine, just to hear. A few men stand outside unsure whether to go in. You've carried a thing or two yourself.",
+      "options": [
+        {
+          "id": "confess",
+          "text": "{=home_commune_chaplain_opt_confess}Go in. Put it down somewhere.",
+          "tooltip": "{=home_commune_chaplain_opt_confess_tt}Scrutiny down (some burden lifts).",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": -3 }
+          ]
+        },
+        {
+          "id": "evade",
+          "text": "{=home_commune_chaplain_opt_evade}Walk past. You'll manage it yourself.",
+          "tooltip": "{=home_commune_chaplain_opt_evade_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_commune_old_soldier",
+      "category": "home_evening_commune",
+      "trigger": ["days_enlisted_gte_30"],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_commune_old_soldier_title}The old hand talks",
+      "setup": "{=home_commune_old_soldier_setup}Mira has been in five campaigns, three lords, two wars she doesn't name. She sits outside the billet after supper and talks if you sit near enough. Most of it sounds like complaint. None of it is.",
+      "options": [
+        {
+          "id": "listen",
+          "text": "{=home_commune_old_soldier_opt_listen}Sit down and stay until she stops.",
+          "tooltip": "{=home_commune_old_soldier_opt_listen_tt}+rank XP; absorb what she's paid to know.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "cut_short",
+          "text": "{=home_commune_old_soldier_opt_cut}Nod and excuse yourself early.",
+          "tooltip": "{=home_commune_old_soldier_opt_cut_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_scheme_skim_stores",
+      "category": "home_evening_scheme",
+      "trigger": ["enlisted_lord_is_mercenary"],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_scheme_skim_stores_title}The quartermaster's back is turned",
+      "setup": "{=home_scheme_skim_stores_setup}Resupply came in sloppy tonight. The quartermaster's count is off and he knows it — but he's moved on to the next crate. There's coin in the gap between what was logged and what arrived.",
+      "options": [
+        {
+          "id": "take_a_little",
+          "text": "{=home_scheme_skim_stores_opt_take}Take a small cut. Nothing that shows.",
+          "tooltip": "{=home_scheme_skim_stores_opt_take_tt}+50 gold. Scrutiny up. Risk of audit chain.",
+          "effects": [
+            { "apply": "give_gold", "amount": 50 },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 3 }
+          ],
+          "chain": { "id": "home_chain_stores_audited", "when": "home_activity.evening" }
+        },
+        {
+          "id": "leave_it",
+          "text": "{=home_scheme_skim_stores_opt_leave}Leave it. It's not worth the headache.",
+          "tooltip": "{=home_scheme_skim_stores_opt_leave_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_scheme_eavesdrop_hall",
+      "category": "home_evening_scheme",
+      "trigger": ["enlisted_lord_is_mercenary"],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_scheme_eavesdrop_hall_title}Voices from the council room",
+      "setup": "{=home_scheme_eavesdrop_hall_setup}The door to the inner chamber sits ajar and the voices inside are not being careful. You catch a name, a sum, a direction. It would be easy to know more.",
+      "options": [
+        {
+          "id": "listen",
+          "text": "{=home_scheme_eavesdrop_hall_opt_listen}Press close to the wall. Learn what you can.",
+          "tooltip": "{=home_scheme_eavesdrop_hall_opt_listen_tt}Sets overheard_plans flag. Scrutiny up.",
+          "effects": [
+            { "apply": "set_flag", "name": "overheard_plans" },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 4 }
+          ]
+        },
+        {
+          "id": "walk_away",
+          "text": "{=home_scheme_eavesdrop_hall_opt_walk}Walk away. That knowledge has a price.",
+          "tooltip": "{=home_scheme_eavesdrop_hall_opt_walk_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_scheme_bribe_gate",
+      "category": "home_evening_scheme",
+      "trigger": ["enlisted_lord_is_mercenary", "at_castle"],
+      "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_scheme_bribe_gate_title}A word with the gate guard",
+      "setup": "{=home_scheme_bribe_gate_setup}The night guard has a reputation for flexibility and a hand that opens like a book if you put the right coin in it. Getting out after curfew has its uses — you've been thinking about one.",
+      "options": [
+        {
+          "id": "pay",
+          "text": "{=home_scheme_bribe_gate_opt_pay}Pay thirty. Make the arrangement.",
+          "tooltip": "{=home_scheme_bribe_gate_opt_pay_tt}-30 gold. Sets gate favor flag.",
+          "effects": [
+            { "apply": "give_gold", "amount": -30 },
+            { "apply": "set_flag", "name": "gate_owed_favor" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=home_scheme_bribe_gate_opt_refuse}Leave him. Find another way.",
+          "tooltip": "{=home_scheme_bribe_gate_opt_refuse_tt}No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "home_evening_scheme_tavern_rumors",
+      "category": "home_evening_scheme",
+      "trigger": ["at_town"],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_scheme_tavern_rumors_title}The tavern knows things",
+      "setup": "{=home_scheme_tavern_rumors_setup}You slip into the lower tavern for an hour. Three conversations are running at once and none of them quiet. News moves through here before it moves anywhere else — if you can sort signal from noise.",
+      "options": [
+        {
+          "id": "listen",
+          "text": "{=home_scheme_tavern_rumors_opt_listen}Drink and listen. Pick out what's worth keeping.",
+          "tooltip": "{=home_scheme_tavern_rumors_opt_listen_tt}Sets knows_rumor flag.",
+          "effects": [
+            { "apply": "set_flag", "name": "knows_rumor" }
+          ]
+        },
+        {
+          "id": "leave",
+          "text": "{=home_scheme_tavern_rumors_opt_leave}Finish your cup and go.",
+          "tooltip": "{=home_scheme_tavern_rumors_opt_leave_tt}No effect.",
+          "effects": []
+        },
+        {
+          "id": "spread",
+          "text": "{=home_scheme_tavern_rumors_opt_spread}Add something. See how far it travels.",
+          "tooltip": "{=home_scheme_tavern_rumors_opt_spread_tt}Scrutiny up; rumor planted.",
+          "effects": [
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 2 },
+            { "apply": "set_flag", "name": "spread_rumor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "home_evening_scheme_ghost_sentry",
+      "category": "home_evening_scheme",
+      "trigger": ["at_castle", "is_night"],
+      "weight": { "base": 1.3 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_scheme_ghost_sentry_title}The gap in the patrol",
+      "setup": "{=home_scheme_ghost_sentry_setup}You've been watching the guard rotation for three evenings. There's a gap — two minutes at the east passage, regular as hunger. Whatever it is you need out there, tonight is the night to move.",
+      "options": [
+        {
+          "id": "slip_out",
+          "text": "{=home_scheme_ghost_sentry_opt_slip}Use the gap. Move quick, stay low.",
+          "tooltip": "{=home_scheme_ghost_sentry_opt_slip_tt}Sets slipped_patrol flag. Scrutiny up.",
+          "effects": [
+            { "apply": "set_flag", "name": "slipped_patrol" },
+            { "apply": "quality_add", "quality": "scrutiny", "amount": 5 }
+          ]
+        },
+        {
+          "id": "stay_post",
+          "text": "{=home_scheme_ghost_sentry_opt_stay}Stay put. The risk isn't worth it tonight.",
+          "tooltip": "{=home_scheme_ghost_sentry_opt_stay_tt}No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

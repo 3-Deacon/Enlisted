@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_dispatch_march_at_dawn",
+      "title": "{=floor_dispatch_march_at_dawn_title}March at dawn",
+      "setup": "{=floor_dispatch_march_at_dawn_setup}Orders run down the line: march at dawn. The sergeants repeat it twice so no one mishears. Tents come down before the fires are out, and the horses go uneasy.",
+      "theme": "signal",
+      "category": "floor_dispatch",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_dispatch_march_at_dawn_opt}Pass it down.",
+          "tooltip": "{=floor_dispatch_march_at_dawn_tt}Relay the order. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_dispatch_strike_camp",
+      "title": "{=floor_dispatch_strike_camp_title}Strike camp",
+      "setup": "{=floor_dispatch_strike_camp_setup}Strike camp. New heading, no time for questions. A courier came in at full gallop and left again before his horse had finished heaving. The sergeants are not telling the rest.",
+      "theme": "signal",
+      "category": "floor_dispatch",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_dispatch_strike_camp_opt}Roll your kit.",
+          "tooltip": "{=floor_dispatch_strike_camp_tt}Pack and move. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_dispatch_siege_lifted",
+      "title": "{=floor_dispatch_siege_lifted_title}Siege lifted",
+      "setup": "{=floor_dispatch_siege_lifted_setup}The siege is lifted. The column moves out with the earthworks still warm. No one tells you whether it was a win or a retreat, and the older men do not ask.",
+      "theme": "signal",
+      "category": "floor_dispatch",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_dispatch_siege_lifted_opt}Form up.",
+          "tooltip": "{=floor_dispatch_siege_lifted_tt}Take your place in the column. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_dispatch_army_breaking",
+      "title": "{=floor_dispatch_army_breaking_title}The army disperses",
+      "setup": "{=floor_dispatch_army_breaking_setup}Orders reach camp: the army disperses. Each lord to his own holdings, each banner to its own road. The courier does not stay to explain, and nobody chases him for it.",
+      "theme": "signal",
+      "category": "floor_dispatch",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_dispatch_army_breaking_opt}Acknowledge.",
+          "tooltip": "{=floor_dispatch_army_breaking_tt}Note the order. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_dispatch_relief_column",
+      "title": "{=floor_dispatch_relief_column_title}A relief column",
+      "setup": "{=floor_dispatch_relief_column_setup}A relief column is called for and we ride to join it. Someone somewhere is in worse shape than we are, which is a thought that keeps the men quiet in the saddle.",
+      "theme": "signal",
+      "category": "floor_dispatch",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_dispatch_relief_column_opt}Mount up.",
+          "tooltip": "{=floor_dispatch_relief_column_tt}Ride to join them. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

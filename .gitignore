@@ -78,3 +78,9 @@ Tools/Debugging/qodana_*.txt
 
 # Keep module manifest tracked (needed for deployment)
 # SubModule.xml is intentionally NOT ignored
+
+# Git worktrees (superpowers skill default)
+.worktrees/
+
+# Superpowers brainstorming visual companion session state
+.superpowers/

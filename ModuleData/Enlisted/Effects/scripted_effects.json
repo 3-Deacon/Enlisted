@@ -1,0 +1,31 @@
+{
+  "effects": {
+    "rank_xp_minor":             [ { "apply": "quality_add", "quality": "rank_xp", "amount": 25 } ],
+    "rank_xp_moderate":          [ { "apply": "quality_add", "quality": "rank_xp", "amount": 75 } ],
+    "rank_xp_major":             [ { "apply": "quality_add", "quality": "rank_xp", "amount": 200 } ],
+    "battles_survived_credit":   [ { "apply": "quality_add", "quality": "battles_survived", "amount": 1 } ],
+
+    "lord_relation_up_small":    [ { "apply": "quality_add", "quality": "lord_relation", "amount": 2 } ],
+    "lord_relation_up_moderate": [ { "apply": "quality_add", "quality": "lord_relation", "amount": 5 } ],
+    "lord_relation_up_major":    [ { "apply": "quality_add", "quality": "lord_relation", "amount": 10 } ],
+    "lord_relation_down_small":  [ { "apply": "quality_add", "quality": "lord_relation", "amount": -2 } ],
+    "lord_relation_down_major":  [ { "apply": "quality_add", "quality": "lord_relation", "amount": -10 }, { "apply": "quality_add", "quality": "scrutiny", "amount": 5 } ],
+
+    "scrutiny_up_small":         [ { "apply": "quality_add", "quality": "scrutiny", "amount": 3 } ],
+    "scrutiny_up_moderate":      [ { "apply": "quality_add", "quality": "scrutiny", "amount": 7 } ],
+    "scrutiny_up_major":         [ { "apply": "quality_add", "quality": "scrutiny", "amount": 15 }, { "apply": "set_flag", "name": "under_investigation", "days": 5 } ],
+    "scrutiny_down_small":       [ { "apply": "quality_add", "quality": "scrutiny", "amount": -3 } ],
+    "scrutiny_down_moderate":    [ { "apply": "quality_add", "quality": "scrutiny", "amount": -7 } ],
+
+    "medical_risk_up_small":     [ { "apply": "quality_add", "quality": "medical_risk", "amount": 1 } ],
+    "medical_risk_up_major":     [ { "apply": "quality_add", "quality": "medical_risk", "amount": 3 }, { "apply": "set_flag", "name": "wounded", "days": 7 } ],
+
+    "supplies_up_small":         [ { "apply": "quality_add", "quality": "supplies", "amount": 5 } ],
+    "supplies_down_moderate":    [ { "apply": "quality_add", "quality": "supplies", "amount": -15 } ],
+    "readiness_up_small":        [ { "apply": "quality_add", "quality": "readiness", "amount": 3 } ],
+    "readiness_down_moderate":   [ { "apply": "quality_add", "quality": "readiness", "amount": -10 } ],
+
+    "loyalty_up_small_for_slot":   [ { "apply": "quality_add_for_hero", "quality": "loyalty", "amount": 2 } ],
+    "loyalty_down_major_for_slot": [ { "apply": "quality_add_for_hero", "quality": "loyalty", "amount": -5 } ]
+  }
+}

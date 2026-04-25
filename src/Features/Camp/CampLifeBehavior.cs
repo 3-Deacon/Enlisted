@@ -65,21 +65,21 @@ namespace Enlisted.Features.Camp
         {
             SaveLoadDiagnostics.SafeSyncData(this, dataStore, () =>
             {
-                dataStore.SyncData("cl_logisticsStrain", ref _logisticsStrain);
-                dataStore.SyncData("cl_territoryPressure", ref _territoryPressure);
-                dataStore.SyncData("cl_payTension", ref _payTension);
+                _ = dataStore.SyncData("cl_logisticsStrain", ref _logisticsStrain);
+                _ = dataStore.SyncData("cl_territoryPressure", ref _territoryPressure);
+                _ = dataStore.SyncData("cl_payTension", ref _payTension);
                 // Backwards compatibility: Load old morale shock value but don't use it
                 float moraleShock = 0f;
-                dataStore.SyncData("cl_moraleShock", ref moraleShock);
+                _ = dataStore.SyncData("cl_moraleShock", ref moraleShock);
 
                 var mood = (int)_quartermasterMoodTier;
-                dataStore.SyncData("cl_qmMoodTier", ref mood);
+                _ = dataStore.SyncData("cl_qmMoodTier", ref mood);
                 _quartermasterMoodTier = (QuartermasterMoodTier)mood;
 
-                dataStore.SyncData("cl_lastSnapshotDayNumber", ref _lastSnapshotDayNumber);
-                dataStore.SyncData("cl_weekNumber", ref _weekNumber);
-                dataStore.SyncData("cl_battlesThisWeek", ref _battlesThisWeek);
-                dataStore.SyncData("cl_villagesLootedThisWeek", ref _villagesLootedThisWeek);
+                _ = dataStore.SyncData("cl_lastSnapshotDayNumber", ref _lastSnapshotDayNumber);
+                _ = dataStore.SyncData("cl_weekNumber", ref _weekNumber);
+                _ = dataStore.SyncData("cl_battlesThisWeek", ref _battlesThisWeek);
+                _ = dataStore.SyncData("cl_villagesLootedThisWeek", ref _villagesLootedThisWeek);
             });
         }
 
@@ -224,7 +224,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "CampLife daily tick failed", ex);
+                ModLogger.Caught("CampLife", "CampLife daily tick failed", ex);
             }
         }
 
@@ -241,7 +241,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "VillageLooted handler failed", ex);
+                ModLogger.Caught("CampLife", "VillageLooted handler failed", ex);
             }
         }
 
@@ -263,7 +263,7 @@ namespace Enlisted.Features.Camp
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "MapEventEnded handler failed", ex);
+                ModLogger.Caught("CampLife", "MapEventEnded handler failed", ex);
             }
         }
 

@@ -18,7 +18,6 @@ namespace Enlisted.Features.Content
     /// </summary>
     public static class EventRequirementChecker
     {
-        private const string LogCategory = "EventRequirements";
 
         /// <summary>
         /// Checks if the player meets all requirements for an event.
@@ -69,43 +68,43 @@ namespace Enlisted.Features.Content
                 {
                     return false;
                 }
-                
+
                 // Check HP requirements (for decisions like Seek Treatment)
                 if (!MeetsHpRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check baggage has items (for theft events)
                 if (!MeetsBaggageItemsRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check not at sea (for land-based events like baggage wagons)
                 if (!MeetsNotAtSeaRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check at sea (for maritime events like ship's hold)
                 if (!MeetsAtSeaRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check hasAnyCondition (for medical decisions that require being injured/ill)
                 if (!MeetsHasAnyConditionRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check hasSevereCondition (for emergency medical decisions)
                 if (!MeetsHasSevereConditionRequirement(requirements))
                 {
                     return false;
                 }
-                
+
                 // Check maxIllness (blocks training/labor when too ill)
                 if (!MeetsMaxIllnessRequirement(requirements))
                 {
@@ -116,7 +115,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error checking event requirements", ex);
+                ModLogger.Caught("EventRequirements", "Error checking event requirements", ex);
                 return false;
             }
         }
@@ -283,7 +282,7 @@ namespace Enlisted.Features.Content
                 _ => 0
             };
         }
-        
+
 
         /// <summary>
         /// Checks if the player's HP is below the required threshold.
@@ -311,7 +310,7 @@ namespace Enlisted.Features.Content
             var hpPercent = (hero.HitPoints * 100) / maxHp;
             return hpPercent < requirements.HpBelow.Value;
         }
-        
+
         /// <summary>
         /// Checks if the player has at least one item in their baggage stash.
         /// Used for theft events that require items to exist.
@@ -322,7 +321,7 @@ namespace Enlisted.Features.Content
             {
                 return true; // No baggage requirement
             }
-            
+
             var enlistment = EnlistmentBehavior.Instance;
             return enlistment != null && enlistment.HasBaggageItems();
         }
@@ -337,7 +336,7 @@ namespace Enlisted.Features.Content
             {
                 return true; // No sea restriction
             }
-            
+
             // Check if party is at sea - if so, fail the requirement
             return !CheckAtSea();
         }
@@ -352,7 +351,7 @@ namespace Enlisted.Features.Content
             {
                 return true; // No maritime requirement
             }
-            
+
             // Check if party is at sea - if not, fail the requirement
             return CheckAtSea();
         }
@@ -367,13 +366,13 @@ namespace Enlisted.Features.Content
             {
                 return true; // No condition requirement
             }
-            
+
             var conditions = PlayerConditionBehavior.Instance;
             if (conditions?.IsEnabled() != true)
             {
                 return false; // Condition system disabled
             }
-            
+
             return conditions.State?.HasAnyCondition == true;
         }
 
@@ -387,24 +386,24 @@ namespace Enlisted.Features.Content
             {
                 return true; // No severe condition requirement
             }
-            
+
             var conditions = PlayerConditionBehavior.Instance;
             if (conditions?.IsEnabled() != true)
             {
                 return false;
             }
-            
+
             var state = conditions.State;
             if (state == null)
             {
                 return false;
             }
-            
+
             // Check for severe or critical injury/illness that is ACTIVE (days remaining > 0).
             // This matches the definition of HasInjury/HasIllness used in status display.
             var hasSevereInjury = state.CurrentInjury >= InjurySeverity.Severe && state.InjuryDaysRemaining > 0;
             var hasSevereIllness = state.CurrentIllness >= IllnessSeverity.Severe && state.IllnessDaysRemaining > 0;
-            
+
             return hasSevereInjury || hasSevereIllness;
         }
 
@@ -419,15 +418,15 @@ namespace Enlisted.Features.Content
             {
                 return true; // No illness restriction
             }
-            
+
             var conditions = PlayerConditionBehavior.Instance;
             if (conditions?.IsEnabled() != true)
             {
                 return true; // Condition system disabled, allow the event
             }
-            
+
             var currentIllness = conditions.State?.CurrentIllness ?? IllnessSeverity.None;
-            
+
             // Parse the max allowed severity
             var maxAllowed = requirements.MaxIllness.ToLowerInvariant() switch
             {
@@ -437,7 +436,7 @@ namespace Enlisted.Features.Content
                 "severe" => IllnessSeverity.Severe,
                 _ => IllnessSeverity.Critical // Unknown value = allow all
             };
-            
+
             return currentIllness <= maxAllowed;
         }
 
@@ -569,13 +568,13 @@ namespace Enlisted.Features.Content
         private static bool CheckCustomCondition(string condition)
         {
             var lowerCondition = condition.ToLowerInvariant();
-            
+
             // Check escalation threshold conditions (scrutiny_3, discipline_5, soldier_rep_20, etc.)
             if (TryCheckEscalationThresholdCondition(lowerCondition, out var result))
             {
                 return result;
             }
-            
+
             return lowerCondition switch
             {
                 // Campaign state conditions
@@ -583,13 +582,13 @@ namespace Enlisted.Features.Content
                 "not_at_sea" => !CheckAtSea(),
                 "ai_safe" => CheckAiSafe(),
                 "camp_established" => CheckCampEstablished(),
-                
+
                 // Medical conditions
                 "has_untreated_condition" => CheckHasUntreatedCondition(),
                 "has_maritime_illness" => CheckHasMaritimeIllness(),
                 "has_land_illness" => CheckHasLandIllness(),
                 "not_maritime_illness" => !CheckHasMaritimeIllness(),
-                
+
                 // Retinue conditions
                 "retinue_below_capacity" => CheckRetinueBelowCapacity(),
                 "last_battle_won" => CheckLastBattleWon(),
@@ -597,12 +596,12 @@ namespace Enlisted.Features.Content
                 "retinue_loyalty_low" => CheckRetinueLoyaltyLow(),
                 "retinue_loyalty_high" => CheckRetinueLoyaltyHigh(),
                 "retinue_wounded" => CheckRetinueWounded(),
-                
+
                 // Unknown conditions fail by default to prevent unimplemented triggers from incorrectly firing
                 _ => false
             };
         }
-        
+
         /// <summary>
         /// Checks if the player's party is currently at sea.
         /// Used by naval events (Warsails DLC) to ensure they only trigger during sea travel.
@@ -616,7 +615,7 @@ namespace Enlisted.Features.Content
             }
 
             var lordParty = enlistment.CurrentLord.PartyBelongedTo;
-            
+
             // BUGFIX: If party is in a settlement or besieging, they cannot be at sea
             // This prevents sea events from appearing when on land in settlements
             if (lordParty.CurrentSettlement != null || lordParty.BesiegedSettlement != null)
@@ -692,7 +691,7 @@ namespace Enlisted.Features.Content
             var illnessType = state.IllnessType?.ToLowerInvariant() ?? string.Empty;
             return illnessType is "camp_fever" or "flux";
         }
-        
+
         /// <summary>
         /// Checks if the AI is in a safe state for event delivery.
         /// Prevents events from firing during AI decision-making, transitions, or unstable states.
@@ -704,30 +703,30 @@ namespace Enlisted.Features.Content
             {
                 return false;
             }
-            
+
             var lordParty = enlistment.CurrentLord.PartyBelongedTo;
-            
+
             // Not safe if lord is in battle
             if (lordParty.MapEvent != null)
             {
                 return false;
             }
-            
+
             // Not safe if lord is in a settlement (menu transitions)
             if (lordParty.CurrentSettlement != null)
             {
                 return false;
             }
-            
+
             // Not safe if lord's AI is currently making decisions (DefaultBehavior in transition)
             if (lordParty.Ai.IsDisabled)
             {
                 return false;
             }
-            
+
             return true;
         }
-        
+
         /// <summary>
         /// Checks if the party is currently in a camp (waiting/resting on the campaign map).
         /// </summary>
@@ -738,15 +737,15 @@ namespace Enlisted.Features.Content
             {
                 return false;
             }
-            
+
             var lordParty = enlistment.CurrentLord.PartyBelongedTo;
-            
+
             // Camp is established when party is waiting on the map (not moving, not in settlement, not in battle)
-            return !lordParty.IsMoving && 
-                   lordParty.CurrentSettlement == null && 
+            return !lordParty.IsMoving &&
+                   lordParty.CurrentSettlement == null &&
                    lordParty.MapEvent == null;
         }
-        
+
         /// <summary>
         /// Checks if a condition is an escalation threshold condition and evaluates it.
         /// Returns true if it's a valid threshold condition, with the result in the out parameter.
@@ -755,13 +754,13 @@ namespace Enlisted.Features.Content
         private static bool TryCheckEscalationThresholdCondition(string condition, out bool result)
         {
             result = false;
-            
+
             var escalation = EscalationManager.Instance?.State;
             if (escalation == null)
             {
                 return false;
             }
-            
+
             // Check scrutiny thresholds (scrutiny_3, scrutiny_5, scrutiny_7, scrutiny_10)
             if (condition.StartsWith("scrutiny_"))
             {
@@ -771,10 +770,10 @@ namespace Enlisted.Features.Content
                     return true;
                 }
             }
-            
+
             // Discipline merged into Scrutiny - no longer supported as separate condition
             // JSON files should use scrutiny_ conditions instead
-            
+
             // Check medical risk thresholds (medical_3, medical_4, medical_5)
             if (condition.StartsWith("medical_"))
             {
@@ -784,10 +783,10 @@ namespace Enlisted.Features.Content
                     return true;
                 }
             }
-            
+
             // Soldier reputation thresholds removed in Phase 3
             // JSON files should use lord relation conditions instead
-            
+
             return false;
         }
 

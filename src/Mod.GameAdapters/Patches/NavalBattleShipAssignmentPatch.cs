@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.AgentOrigins;
@@ -11,9 +14,6 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.GameAdapters.Patches
 {
@@ -34,11 +34,11 @@ namespace Enlisted.Mod.GameAdapters.Patches
     public static class NavalBattleShipAssignmentPatch
     {
         private const string LogCategory = "Naval";
-        
+
         // Track if we're handling an enlisted player's naval battle
         internal static bool UsingLordShip { get; private set; }
         internal static Hero CurrentLord { get; private set; }
-        
+
         // Track patch activity for diagnostics (per-battle counters)
         internal static int FormationsProcessed { get; set; }
         internal static int FormationsSkipped { get; set; }
@@ -96,8 +96,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var lordName = enlistment.CurrentLord?.Name?.ToString() ?? "Unknown";
                 var playerTroopCount = MobileParty.MainParty?.MemberRoster?.TotalManCount ?? 0;
                 var tier = enlistment.EnlistmentTier;
-                
-                ModLogger.Info(LogCategory, 
+
+                ModLogger.Info(LogCategory,
                     $"=== NAVAL BATTLE START === Enlisted under {lordName}, Tier {tier}, Party size: {playerTroopCount}");
 
                 // Check if player has their own ships
@@ -133,8 +133,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (lordParty?.Ships == null || lordParty.Ships.Count == 0)
                 {
-                    ModLogger.Error(LogCategory, 
-                        $"CRITICAL: Lord {lordName} has no ships! Player cannot join naval battle safely.");
+                    ModLogger.Surfaced("NAVAL", "Lord has no ships for enlisted player - cannot join naval battle safely", null);
                     return true;
                 }
 
@@ -154,7 +153,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var shipHealth = bestShip.HitPoints;
                 var shipCapacity = bestShip.TotalCrewCapacity;
                 var capacityFit = playerTroopCount <= shipCapacity ? "OK" : "OVERFLOW";
-                
+
                 ModLogger.Info(LogCategory,
                     $"Ship assigned: {shipName} (HP:{shipHealth}, Capacity:{shipCapacity}/{playerTroopCount} [{capacityFit}]) " +
                     $"Lord fleet: {lordShips.Count} ships, Fitting: {fittingShips.Count}");
@@ -225,8 +224,8 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var lordHero = NavalBattleShipAssignmentPatch.CurrentLord;
                 var shipCount = playerTeamShips?.Count ?? 0;
                 var partyCount = playerTeamMapEventParties?.Count ?? 0;
-                
-                ModLogger.Debug(LogCategory, 
+
+                ModLogger.Debug(LogCategory,
                     $"Captain assignment: {shipCount} ships, {partyCount} parties, Lord={lordHero?.Name}");
 
                 // Build captain list - LORD is captain, player is crew
@@ -276,7 +275,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     }
                 }
 
-                ModLogger.Info(LogCategory, 
+                ModLogger.Info(LogCategory,
                     $"Captains assigned: {ownedShips} owned ships, {borrowedShips} borrowed (player as crew)");
 
                 return false;
@@ -350,7 +349,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (shipsLogicField == null || agentsLogicField == null)
                 {
-                    ModLogger.Error(LogCategory, "Cannot find Naval DLC internal fields");
+                    ModLogger.Caught("Naval", "Cannot find Naval DLC internal fields", null);
                     return true;
                 }
 
@@ -396,22 +395,22 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (allShips == null || allShips.Count == 0)
                 {
-                    ModLogger.Error(LogCategory, "No ships available in mission");
+                    ModLogger.Caught("Naval", "No ships available in mission", null);
                     return false; // Skip original to prevent crash
                 }
 
                 // === DIAGNOSTIC LOGGING (only when MissionShip is null - crash condition) ===
                 ModLogger.Warn(LogCategory, "=== NAVAL MISSION DIAGNOSTIC (null MissionShip detected) ===");
                 ModLogger.Warn(LogCategory, $"Ships in mission: {allShips.Count}, Player team: {Mission.Current?.PlayerTeam?.Side}");
-                
+
                 // Compact team info
                 if (Mission.Current?.Teams != null)
                 {
-                    var teamInfo = string.Join(", ", Mission.Current.Teams.Select(t => 
+                    var teamInfo = string.Join(", ", Mission.Current.Teams.Select(t =>
                         $"{t.Side}[{t.TeamIndex}]{(t.IsPlayerTeam ? "*" : "")}"));
                     ModLogger.Warn(LogCategory, $"Teams: {teamInfo}");
                 }
-                
+
                 // Compact ship info
                 var shipInfoList = new List<string>();
                 var shipIdx = 0;
@@ -423,7 +422,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     var shipTeam = shipTeamProp?.GetValue(ship) as Team;
                     var shipFormationProp = AccessTools.Property(ship.GetType(), "Formation");
                     var shipFormation = shipFormationProp?.GetValue(ship) as Formation;
-                    
+
                     var isFriendly = shipTeam?.Side == Mission.Current?.PlayerTeam?.Side;
                     if (isFriendly)
                     {
@@ -433,7 +432,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     {
                         enemyCount++;
                     }
-                    
+
                     shipInfoList.Add($"[{shipIdx}]{shipTeam?.Side}/{shipFormation?.FormationIndex}");
                     shipIdx++;
                 }
@@ -449,7 +448,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     {
                         continue;
                     }
-                    
+
                     // Player side is typically BattleSideEnum 0 or 1 (Defender/Attacker)
                     // We want ships on the same side as the player
                     if (team.Side == Mission.Current?.PlayerTeam?.Side)
@@ -471,10 +470,10 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // Create PartyAgentOrigin for the player.
                 var playerParty = MobileParty.MainParty?.Party;
                 var playerCharacter = CharacterObject.PlayerCharacter;
-                
+
                 if (playerParty == null || playerCharacter == null)
                 {
-                    ModLogger.Error(LogCategory, "Cannot create player origin - party or character is null");
+                    ModLogger.Caught("Naval", "Cannot create player origin - party or character is null", null);
                     return false;
                 }
 
@@ -483,11 +482,11 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 // Get the MissionShip type for the method lookup
                 var missionShipType = friendlyShip.GetType();
-                
+
                 // AddReservedTroopToShip on NavalAgentsLogic handles team lookup internally
                 var addReservedTroopMethod = AccessTools.Method(agentsLogic.GetType(), "AddReservedTroopToShip",
                     [typeof(IAgentOriginBase), missionShipType]);
-                
+
                 if (addReservedTroopMethod != null)
                 {
                     var result = addReservedTroopMethod.Invoke(agentsLogic, [playerOrigin, friendlyShip]);
@@ -495,26 +494,26 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 }
                 else
                 {
-                    ModLogger.Error(LogCategory, "Could not find AddReservedTroopToShip method");
+                    ModLogger.Caught("Naval", "Could not find AddReservedTroopToShip method", null);
                     return false;
                 }
 
                 // We've added the player to a friendly ship. Now we need to call the methods
                 // that the original would call - AssignTroops, InitializeReinforcementTimers, 
                 // and CheckSpawnNextBatch - to properly set up the mission state.
-                
+
                 // Get TeamSide for method calls (null = Player team = TeamSideEnum 0)
                 var teamSideProp = AccessTools.Property(instanceType, "TeamSide");
                 var teamSideValue = teamSideProp?.GetValue(__instance);
                 var teamSideEnumType = AccessTools.TypeByName("NavalDLC.Missions.TeamSideEnum");
-                
+
                 // If TeamSide is null, use 0 (Player)
                 if (teamSideValue == null && teamSideEnumType != null)
                 {
                     teamSideValue = Enum.ToObject(teamSideEnumType, 0);
                     ModLogger.Debug(LogCategory, "Using TeamSideEnum.Player (0)");
                 }
-                
+
                 if (teamSideValue != null)
                 {
                     // Call AssignTroops to set up troop assignments for all ships
@@ -522,42 +521,39 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         [teamSideValue.GetType(), typeof(bool)]);
                     if (assignTroopsMethod != null)
                     {
-                        assignTroopsMethod.Invoke(agentsLogic, [teamSideValue, false]);
+                        _ = assignTroopsMethod.Invoke(agentsLogic, [teamSideValue, false]);
                         ModLogger.Debug(LogCategory, "AssignTroops called");
                     }
-                    
+
                     // Initialize reinforcement timers
                     var initTimersMethod = AccessTools.Method(agentsLogic.GetType(), "InitializeReinforcementTimers",
                         [teamSideValue.GetType(), typeof(bool), typeof(bool)]);
                     if (initTimersMethod != null)
                     {
-                        initTimersMethod.Invoke(agentsLogic, [teamSideValue, true, true]);
+                        _ = initTimersMethod.Invoke(agentsLogic, [teamSideValue, true, true]);
                         ModLogger.Debug(LogCategory, "InitializeReinforcementTimers called");
                     }
                 }
-                
+
                 // Call CheckSpawnNextBatch to spawn the initial batch of troops
                 var checkSpawnMethod = AccessTools.DeclaredMethod(instanceType, "CheckSpawnNextBatch");
                 if (checkSpawnMethod != null)
                 {
-                    checkSpawnMethod.Invoke(__instance, null);
+                    _ = checkSpawnMethod.Invoke(__instance, null);
                     ModLogger.Debug(LogCategory, "CheckSpawnNextBatch called");
                 }
-                
-                ModLogger.Info(LogCategory, 
+
+                ModLogger.Info(LogCategory,
                     $"=== NAVAL DEPLOYMENT COMPLETE === Player spawned as crew on friendly ship " +
                     $"(Formations: {NavalBattleShipAssignmentPatch.FormationsProcessed} processed, " +
                     $"{NavalBattleShipAssignmentPatch.FormationsSkipped} skipped for no ship)");
-                
+
                 return false; // Skip original - it would crash on null MissionShip
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, 
-                    $"AllocateTroops EXCEPTION: {ex.Message}\n" +
-                    $"State: UsingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip}, " +
-                    $"Lord={NavalBattleShipAssignmentPatch.CurrentLord?.Name}\n" +
-                    $"Stack: {ex.StackTrace}");
+                ModLogger.Caught("Naval",
+                    $"AllocateTroops EXCEPTION: UsingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip}, Lord={NavalBattleShipAssignmentPatch.CurrentLord?.Name}", ex);
                 return true; // Fall back to original on error
             }
         }
@@ -622,42 +618,42 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 // Get the ship's agents via reflection and handle cleanup manually
                 var instanceType = __instance.GetType();
-                
+
                 // TryGetShipAgents(ship, out NavalShipAgents shipAgents)
                 var missionShipType = ship.GetType();
                 var navalShipAgentsType = AccessTools.TypeByName("NavalDLC.Missions.MissionLogics.NavalShipAgents");
-                
+
                 if (navalShipAgentsType == null)
                 {
                     return true;
                 }
-                
+
                 var tryGetShipAgentsMethod = AccessTools.Method(instanceType, "TryGetShipAgents",
                     [missionShipType, navalShipAgentsType.MakeByRefType()]);
-                
+
                 if (tryGetShipAgentsMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "Could not find TryGetShipAgents method");
+                    ModLogger.Caught("Naval", "Could not find TryGetShipAgents method", null);
                     return true;
                 }
 
                 object[] parameters = [ship, null]; // Array for reflection with out parameter
                 var hasShipAgents = (bool)tryGetShipAgentsMethod.Invoke(__instance, parameters);
-                
+
                 if (!hasShipAgents)
                 {
                     return false; // No agents to clean up
                 }
 
                 var shipAgents = parameters[1];
-                
+
                 // Get AgentsLogic for state checks
                 var agentsLogicProp = AccessTools.Property(instanceType, "AgentsLogic");
                 var agentsLogic = agentsLogicProp?.GetValue(__instance);
-                
+
                 var isDeploymentMode = false;
                 var isMissionEnding = true; // Default to true for safety
-                
+
                 if (agentsLogic != null)
                 {
                     var isDeploymentModeProp = AccessTools.Property(agentsLogic.GetType(), "IsDeploymentMode");
@@ -674,7 +670,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var removeAgentAuxMethod = AccessTools.Method(instanceType, "RemoveAgentAux");
                 var removeTroopOriginAuxMethod = AccessTools.Method(instanceType, "RemoveTroopOriginAux");
                 var unassignAgentAuxMethod = AccessTools.Method(instanceType, "UnassignAgentAux");
-                
+
                 // Get reserved troops handling
                 var reservedTroopsCountProp = AccessTools.Property(shipAgents.GetType(), "ReservedTroopsCount");
                 // DequeueReservedTroop has 2 overloads - we need the one that takes only NavalShipAgents
@@ -682,7 +678,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     [navalShipAgentsType]);
                 var enqueueUnassignedTroopMethod = AccessTools.Method(instanceType, "EnqueueUnassignedTroop");
 
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"OnShipRemoved: Handling cleanup (DeploymentMode={isDeploymentMode}, MissionEnding={isMissionEnding}, ActiveAgents={activeAgents?.Count ?? 0})");
 
                 if (isDeploymentMode && !isMissionEnding)
@@ -694,7 +690,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         {
                             if (activeAgents[activeAgents.Count - 1] is Agent agent && unassignAgentAuxMethod != null)
                             {
-                                unassignAgentAuxMethod.Invoke(__instance, [shipAgents, agent]);
+                                _ = unassignAgentAuxMethod.Invoke(__instance, [shipAgents, agent]);
                             }
                         }
                         catch (Exception ex)
@@ -707,7 +703,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                             }
                         }
                     }
-                    
+
                     // Handle reserved troops
                     if (dequeueReservedTroopMethod != null && enqueueUnassignedTroopMethod != null)
                     {
@@ -717,7 +713,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                             try
                             {
                                 var troop = dequeueReservedTroopMethod.Invoke(__instance, [shipAgents]);
-                                enqueueUnassignedTroopMethod.Invoke(__instance, [troop]);
+                                _ = enqueueUnassignedTroopMethod.Invoke(__instance, [troop]);
                                 count = (int)(reservedTroopsCountProp?.GetValue(shipAgents) ?? 0);
                             }
                             catch
@@ -745,15 +741,15 @@ namespace Enlisted.Mod.GameAdapters.Patches
                             // Remove from tracking
                             if (removeAgentAuxMethod != null)
                             {
-                                removeAgentAuxMethod.Invoke(__instance, [agent, shipAgents]);
+                                _ = removeAgentAuxMethod.Invoke(__instance, [agent, shipAgents]);
                             }
-                            
+
                             // Remove troop origin (with null check)
                             if (removeTroopOriginAuxMethod != null && agent.Origin != null)
                             {
-                                removeTroopOriginAuxMethod.Invoke(__instance, new object[] { agent.Origin });
+                                _ = removeTroopOriginAuxMethod.Invoke(__instance, new object[] { agent.Origin });
                             }
-                            
+
                             // FadeOut non-main agents (with safety checks)
                             if (agent != Agent.Main && agent.IsActive() && agent.Team != null)
                             {
@@ -762,7 +758,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         }
                         catch (Exception ex)
                         {
-                            ModLogger.Debug(LogCategory, 
+                            ModLogger.Debug(LogCategory,
                                 $"Agent cleanup failed (IsMain={agent?.IsMainAgent}, Team={agent?.Team != null}): {ex.Message}");
                             // Force remove from list to prevent infinite loop
                             if (activeAgents.Count > 0)
@@ -771,7 +767,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                             }
                         }
                     }
-                    
+
                     // Handle reserved troops
                     if (dequeueReservedTroopMethod != null && removeTroopOriginAuxMethod != null)
                     {
@@ -785,7 +781,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                                 var origin = originProp?.GetValue(troop);
                                 if (origin != null)
                                 {
-                                    removeTroopOriginAuxMethod.Invoke(__instance, [origin]);
+                                    _ = removeTroopOriginAuxMethod.Invoke(__instance, [origin]);
                                 }
                                 count = (int)(reservedTroopsCountProp?.GetValue(shipAgents) ?? 0);
                             }
@@ -849,7 +845,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (affectedAgent.Team == null)
                 {
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"BattleObserver: Skipping agent with null Team (IsMainAgent: {affectedAgent.IsMainAgent})");
                     return false;
                 }
@@ -902,7 +898,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (affectedAgent.Team == null)
                 {
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"NavalAgents: Skipping agent with null Team (IsMainAgent: {affectedAgent.IsMainAgent})");
                     return false;
                 }
@@ -947,7 +943,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
         }
 
         [HarmonyPrefix]
-        public static bool Prefix(object __instance, Formation formation)
+        public static bool Prefix(Formation formation)
         {
             try
             {
@@ -973,7 +969,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                         var existing = getBehaviorMethod.Invoke(formation.AI, null);
                         if (existing != null)
                         {
-                            ModLogger.Debug(LogCategory, 
+                            ModLogger.Debug(LogCategory,
                                 $"Formation {formationClass} ({teamSide}): already has behaviors");
                             return false;
                         }
@@ -983,41 +979,41 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // Check if this formation has a ship assigned
                 var navalShipsLogicType = AccessTools.TypeByName("NavalDLC.Missions.MissionLogics.NavalShipsLogic");
                 var missionShipType = AccessTools.TypeByName("NavalDLC.Missions.Objects.MissionShip");
-                
+
                 if (navalShipsLogicType == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: NavalShipsLogic type not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: NavalShipsLogic type not found", null);
                     return true;
                 }
-                
+
                 if (missionShipType == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: MissionShip type not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: MissionShip type not found", null);
                     return true;
                 }
 
                 var getMissionBehaviorMethod = AccessTools.Method(typeof(Mission), "GetMissionBehavior")
                     ?.MakeGenericMethod(navalShipsLogicType);
-                
+
                 if (getMissionBehaviorMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: GetMissionBehavior method not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: GetMissionBehavior method not found", null);
                     return true;
                 }
-                
+
                 var shipsLogic = getMissionBehaviorMethod.Invoke(Mission.Current, null);
                 if (shipsLogic == null)
                 {
-                    ModLogger.Error(LogCategory, "NavalShipsLogic instance is null - cannot check ship assignment");
+                    ModLogger.Caught("Naval", "NavalShipsLogic instance is null - cannot check ship assignment", null);
                     return true;
                 }
 
                 var getShipMethod = AccessTools.Method(shipsLogic.GetType(), "GetShip",
                     [typeof(Formation), missionShipType.MakeByRefType()]);
-                
+
                 if (getShipMethod == null)
                 {
-                    ModLogger.Error(LogCategory, "REFLECTION FAIL: GetShip(Formation, out MissionShip) not found");
+                    ModLogger.Caught("Naval", "REFLECTION FAIL: GetShip(Formation, out MissionShip) not found", null);
                     return true;
                 }
 
@@ -1029,24 +1025,24 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     // No ship for this formation - skip adding behaviors to prevent crash
                     NavalBattleShipAssignmentPatch.FormationsSkipped++;
-                    
-                    ModLogger.Warn(LogCategory, 
+
+                    ModLogger.Warn(LogCategory,
                         $"Formation {formationClass} ({teamSide}): NO SHIP - skipping AI behaviors " +
                         $"(total skipped: {NavalBattleShipAssignmentPatch.FormationsSkipped})");
-                    
+
                     // Just call ForceCalculateCaches and return - don't add crash-prone behaviors
                     formation.ForceCalculateCaches();
                     return false;
                 }
 
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Formation {formationClass} ({teamSide}): ship assigned - adding behaviors");
                 return true;
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, 
-                    $"NavalTeamAI EXCEPTION for Formation {formation?.FormationIndex}: {ex.Message}\nStack: {ex.StackTrace}");
+                ModLogger.Caught("Naval",
+                    $"NavalTeamAI EXCEPTION for Formation {formation?.FormationIndex}", ex);
                 return true;
             }
         }

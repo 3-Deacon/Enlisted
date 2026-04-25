@@ -1,0 +1,405 @@
+{
+  "storylets": [
+    {
+      "id": "order_treat_wounded_accept",
+      "title": "{=order_treat_wounded_accept_title}The field after",
+      "setup": "{=order_treat_wounded_accept_setup}Men lie under canvas in rough rows — some will walk tomorrow, some will not. The surgeon has more wounded than hands. Your lord asks if you can help. Whatever you say now, you will see things.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:2"],
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "treat_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_treat_wounded_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "treat_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_treat_wounded_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_treat_wounded_accept_diligent_text}Roll up your sleeves. Work where needed.",
+          "tooltip": "{=order_treat_wounded_accept_diligent_tt}Diligent. Medicine XP.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "accept_sociable",
+          "text": "{=order_treat_wounded_accept_sociable_text}Sit with the men. Voices, not bandages.",
+          "tooltip": "{=order_treat_wounded_accept_sociable_tt}Sociable. Charm + Medicine.",
+          "effects": [
+            { "apply": "start_arc", "intent": "sociable" }
+          ]
+        },
+        {
+          "id": "accept_slack",
+          "text": "{=order_treat_wounded_accept_slack_text}Carry water. Stay clear of the red parts.",
+          "tooltip": "{=order_treat_wounded_accept_slack_tt}Slack. Scrutiny risk.",
+          "effects": [
+            { "apply": "start_arc", "intent": "slack" }
+          ]
+        },
+        {
+          "id": "accept_scheme",
+          "text": "{=order_treat_wounded_accept_scheme_text}A dying man has no use for his ring.",
+          "tooltip": "{=order_treat_wounded_accept_scheme_tt}Scheme. Gold risk; heavy scrutiny.",
+          "effects": [
+            { "apply": "start_arc", "intent": "scheme" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_treat_wounded_accept_decline_text}Walk away. Not your work.",
+          "tooltip": "{=order_treat_wounded_accept_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_mid_bad_leg",
+      "title": "{=order_treat_wounded_mid_bad_leg_title}A leg going bad",
+      "setup": "{=order_treat_wounded_mid_bad_leg_setup}The man on the pallet has a leg that smells wrong. The surgeon says amputate. The man says no. A decision falls between them; the surgeon looks at you.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 1.4,
+        "sociable": 1.2,
+        "slack": 0.5,
+        "scheme": 0.9
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "help_cut",
+          "text": "{=order_treat_wounded_mid_bad_leg_cut_text}Hold him down. Help the surgeon.",
+          "tooltip": "{=order_treat_wounded_mid_bad_leg_cut_tt}Hard work. Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 30 }
+          ]
+        },
+        {
+          "id": "talk_him_through",
+          "text": "{=order_treat_wounded_mid_bad_leg_talk_text}Talk with the wounded man. Help him choose.",
+          "tooltip": "{=order_treat_wounded_mid_bad_leg_talk_tt}Charm + Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_mid_dying_boy",
+      "title": "{=order_treat_wounded_mid_dying_boy_title}A young soldier",
+      "setup": "{=order_treat_wounded_mid_dying_boy_setup}He is perhaps eighteen. Gut-shot. The surgeon has already passed him over for those he can save. The boy is awake and asking for his mother. You have water and time.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 6,
+      "intent_affinity": {
+        "diligent": 1.2,
+        "sociable": 1.5,
+        "slack": 0.5,
+        "scheme": 0.6
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "sit_with_him",
+          "text": "{=order_treat_wounded_mid_dying_boy_sit_text}Sit. Hold his hand. Talk until it is quiet.",
+          "tooltip": "{=order_treat_wounded_mid_dying_boy_sit_tt}Steel the heart. Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 },
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "move_on",
+          "text": "{=order_treat_wounded_mid_dying_boy_move_text}Move on. There are living to help.",
+          "tooltip": "{=order_treat_wounded_mid_dying_boy_move_tt}Pragmatic. Medicine XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_mid_supply_shortage",
+      "title": "{=order_treat_wounded_mid_supply_shortage_title}The linen runs out",
+      "setup": "{=order_treat_wounded_mid_supply_shortage_setup}Clean cloth is gone by midday. The surgeon eyes your own cloak. The wounded eye it too. Three more men are still waiting.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 3,
+      "intent_affinity": {
+        "diligent": 1.3,
+        "sociable": 1.3,
+        "slack": 0.8,
+        "scheme": 1.0
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "cut_cloak",
+          "text": "{=order_treat_wounded_mid_supply_shortage_cloak_text}Hand over the cloak. Cold is bearable.",
+          "tooltip": "{=order_treat_wounded_mid_supply_shortage_cloak_tt}Generous. Medicine + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 20 },
+            { "apply": "rank_xp_minor" }
+          ]
+        },
+        {
+          "id": "find_alternative",
+          "text": "{=order_treat_wounded_mid_supply_shortage_find_text}Ride for the sutler. Come back with linen.",
+          "tooltip": "{=order_treat_wounded_mid_supply_shortage_find_tt}-20 gold. Medicine + Riding XP.",
+          "effects": [
+            { "apply": "give_gold", "amount": -20 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 15 },
+            { "apply": "skill_xp", "skill": "Riding", "amount": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_mid_rumours",
+      "title": "{=order_treat_wounded_mid_rumours_title}Bedside talk",
+      "setup": "{=order_treat_wounded_mid_rumours_setup}A wounded sergeant speaks half to himself about a captain who ran. Another man hushes him. You are close enough to hear, if you lean. Close enough not to hear, if you lean away.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 4,
+      "intent_affinity": {
+        "diligent": 0.8,
+        "sociable": 1.3,
+        "slack": 1.1,
+        "scheme": 1.5
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "listen_in",
+          "text": "{=order_treat_wounded_mid_rumours_listen_text}Lean close. Remember the names.",
+          "tooltip": "{=order_treat_wounded_mid_rumours_listen_tt}Roguery XP; small scrutiny.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 20 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        },
+        {
+          "id": "ignore",
+          "text": "{=order_treat_wounded_mid_rumours_ignore_text}Mind your own work.",
+          "tooltip": "{=order_treat_wounded_mid_rumours_ignore_tt}Discreet. Minor credit.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_mid_dead_man_ring",
+      "title": "{=order_treat_wounded_mid_dead_man_ring_title}A signet, on cold fingers",
+      "setup": "{=order_treat_wounded_mid_dead_man_ring_setup}A knight on the end pallet is gone. His signet ring is still on his hand — worth a season's pay. The surgeon is at the other end of the tent. The dead man's squire wept out and is not yet back.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 6,
+      "intent_affinity": {
+        "diligent": 0.6,
+        "sociable": 0.8,
+        "slack": 1.1,
+        "scheme": 1.8
+      },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "take_ring",
+          "text": "{=order_treat_wounded_mid_dead_man_ring_take_text}Slip it into a pocket. Walk away.",
+          "tooltip": "{=order_treat_wounded_mid_dead_man_ring_take_tt}+80 gold. Heavy scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 80 },
+            { "apply": "scrutiny_up_moderate" }
+          ]
+        },
+        {
+          "id": "leave_it",
+          "text": "{=order_treat_wounded_mid_dead_man_ring_leave_text}Leave it. For the squire.",
+          "tooltip": "{=order_treat_wounded_mid_dead_man_ring_leave_tt}Honest. Rank XP.",
+          "effects": [
+            { "apply": "rank_xp_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_resolve_diligent",
+      "title": "{=order_treat_wounded_resolve_diligent_title}Tent emptied",
+      "setup": "{=order_treat_wounded_resolve_diligent_setup}By evening the rows have thinned — some walked out, some were carried, one or two were covered. The surgeon claps a hand to your shoulder and says nothing, which from him is a great deal.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 5.0,
+        "sociable": 0.1,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_treat_wounded_resolve_diligent_done_text}Scrub your hands. Sit down.",
+          "tooltip": "{=order_treat_wounded_resolve_diligent_done_tt}Medicine + relation + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 45 },
+            { "apply": "rank_xp_moderate" },
+            { "apply": "lord_relation_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": 3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_resolve_sociable",
+      "title": "{=order_treat_wounded_resolve_sociable_title}Names remembered",
+      "setup": "{=order_treat_wounded_resolve_sociable_setup}You sat with men at the worst hour of their lives and did what little was needed — water, words, a name spoken aloud. They will remember. Many will not live long enough to say so, but some will.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 5.0,
+        "slack": 0.1,
+        "scheme": 0.1
+      },
+      "options": [
+        {
+          "id": "done",
+          "text": "{=order_treat_wounded_resolve_sociable_done_text}Fold the blankets. Walk into the night.",
+          "tooltip": "{=order_treat_wounded_resolve_sociable_done_tt}Charm + Medicine + rank XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 35 },
+            { "apply": "skill_xp", "skill": "Medicine", "amount": 25 },
+            { "apply": "rank_xp_minor" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_resolve_slack",
+      "title": "{=order_treat_wounded_resolve_slack_title}Clean hands",
+      "setup": "{=order_treat_wounded_resolve_slack_setup}You carried water and stayed clear of the red parts. The surgeon watched. He says nothing to your face. He will say what needs saying later.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 5.0,
+        "scheme": 0.3
+      },
+      "options": [
+        {
+          "id": "absorb",
+          "text": "{=order_treat_wounded_resolve_slack_absorb_text}Wash up. Go.",
+          "tooltip": "{=order_treat_wounded_resolve_slack_absorb_tt}Scrutiny + relation hit.",
+          "effects": [
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_treat_wounded_resolve_scheme",
+      "title": "{=order_treat_wounded_resolve_scheme_title}Silver from the wounded",
+      "setup": "{=order_treat_wounded_resolve_scheme_setup}The tent is emptied. Your pocket is heavier. Men cried and men died, and through it you kept a part of yourself cool enough to count. Someone may have noticed. Someone may not.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": {
+        "diligent": 0.1,
+        "sociable": 0.1,
+        "slack": 0.3,
+        "scheme": 5.0
+      },
+      "options": [
+        {
+          "id": "got_away",
+          "text": "{=order_treat_wounded_resolve_scheme_away_text}Walk out with the coin.",
+          "tooltip": "{=order_treat_wounded_resolve_scheme_away_tt}+Gold, Roguery XP, scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": 90 },
+            { "apply": "skill_xp", "skill": "Roguery", "amount": 30 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "clear_active_named_order" }
+          ]
+        },
+        {
+          "id": "got_caught",
+          "text": "{=order_treat_wounded_resolve_scheme_caught_text}The squire pointed at you. Pay him.",
+          "tooltip": "{=order_treat_wounded_resolve_scheme_caught_tt}Lose gold; relation hit; heavy scrutiny.",
+          "effects": [
+            { "apply": "give_gold", "amount": -90 },
+            { "apply": "scrutiny_up_moderate" },
+            { "apply": "relation_change", "target_slot": "lord", "delta": -3 },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

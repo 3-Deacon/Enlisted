@@ -53,7 +53,11 @@ namespace Enlisted.Features.Conversations.Data
                 return;
             }
 
-            var jsonFiles = Directory.GetFiles(dialoguePath, "*.json", SearchOption.TopDirectoryOnly);
+            // Filter to QM catalogs only — the Dialogue/ directory now also hosts
+            // companion_*.json from the wanderer companion substrate (Plan 2),
+            // which use dialogueType="companion" and would otherwise warn on
+            // every launch when the QM-type check rejects them.
+            var jsonFiles = Directory.GetFiles(dialoguePath, "qm_*.json", SearchOption.TopDirectoryOnly);
             var filesLoaded = 0;
 
             foreach (var filePath in jsonFiles)
@@ -69,7 +73,7 @@ namespace Enlisted.Features.Conversations.Data
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to load dialogue from {Path.GetFileName(filePath)}", ex);
+                    ModLogger.Caught("QMDialogueCatalog", $"Failed to load dialogue from {Path.GetFileName(filePath)}", ex);
                 }
             }
 
@@ -209,7 +213,7 @@ namespace Enlisted.Features.Conversations.Data
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Error(LogCategory, $"Failed to parse node in {fileName}", ex);
+                    ModLogger.Caught("QMDialogueCatalog", $"Failed to parse node in {fileName}", ex);
                 }
             }
 

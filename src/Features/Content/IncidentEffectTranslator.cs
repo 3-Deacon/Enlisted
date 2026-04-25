@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Mod.Core.Config;
 using Enlisted.Mod.Core.Logging;
-using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Extensions;
 using TaleWorlds.CampaignSystem.Incidents;
@@ -31,7 +30,10 @@ namespace Enlisted.Features.Content
         public static List<IncidentEffect> TranslateEffects(EventEffects effects)
         {
             var result = new List<IncidentEffect>();
-            if (effects == null) return result;
+            if (effects == null)
+            {
+                return result;
+            }
 
             try
             {
@@ -106,7 +108,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, $"Translation failed: {ex.Message}", ex);
+                ModLogger.Caught("EffectTranslator", $"Translation failed: {ex.Message}", ex);
                 // Return partial results - don't lose effects that succeeded
             }
 
@@ -146,7 +148,10 @@ namespace Enlisted.Features.Content
         public static List<TextObject> GenerateTooltipHints(EventEffects effects)
         {
             var hints = new List<TextObject>();
-            if (effects == null) return hints;
+            if (effects == null)
+            {
+                return hints;
+            }
 
             try
             {
@@ -163,7 +168,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Warn(LogCategory, $"Failed to generate tooltip hints: {ex.Message}");
+                ModLogger.Caught("EffectTranslator", "Failed to generate tooltip hints", ex);
             }
 
             return hints;
@@ -177,7 +182,10 @@ namespace Enlisted.Features.Content
         /// <returns>Combined tooltip text with newlines between entries.</returns>
         public static string BuildCombinedTooltip(EventEffects effects)
         {
-            if (effects == null) return string.Empty;
+            if (effects == null)
+            {
+                return string.Empty;
+            }
 
             var hints = new List<string>();
 
@@ -246,7 +254,10 @@ namespace Enlisted.Features.Content
         public static List<string> ApplyNativeEffects(EventEffects effects)
         {
             var feedback = new List<string>();
-            if (effects == null) return feedback;
+            if (effects == null)
+            {
+                return feedback;
+            }
 
             var nativeEffects = TranslateEffects(effects);
 
@@ -275,7 +286,7 @@ namespace Enlisted.Features.Content
                 }
                 catch (Exception ex)
                 {
-                    ModLogger.Warn(LogCategory, $"Native effect failed: {ex.Message}");
+                    ModLogger.Caught("EffectTranslator", "Native effect failed", ex);
                 }
             }
 
@@ -287,13 +298,19 @@ namespace Enlisted.Features.Content
         /// </summary>
         private static SkillObject FindSkillByName(string skillName)
         {
-            if (string.IsNullOrWhiteSpace(skillName)) return null;
+            if (string.IsNullOrWhiteSpace(skillName))
+            {
+                return null;
+            }
 
             // Try exact StringId match first
             var skill = Skills.All.FirstOrDefault(s =>
                 s.StringId.Equals(skillName, StringComparison.OrdinalIgnoreCase));
 
-            if (skill != null) return skill;
+            if (skill != null)
+            {
+                return skill;
+            }
 
             // Try display name match
             skill = Skills.All.FirstOrDefault(s =>

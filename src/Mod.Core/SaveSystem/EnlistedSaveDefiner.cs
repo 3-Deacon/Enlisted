@@ -3,7 +3,6 @@ using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Logistics;
-using Enlisted.Features.Orders.Models;
 using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.SaveSystem;
@@ -40,12 +39,11 @@ namespace Enlisted.Mod.Core.SaveSystem
             // Quartermaster inventory state
             AddClassDefinition(typeof(QMInventoryState), 1);
 
-            // Order system types
-            AddClassDefinition(typeof(Order), 10);
-            AddClassDefinition(typeof(OrderRequirement), 11);
-            AddClassDefinition(typeof(OrderConsequence), 12);
-            AddClassDefinition(typeof(OrderOutcome), 13);
-            AddClassDefinition(typeof(PhaseRecap), 14);
+            // Order system types (offsets 10-14) — deleted with legacy OrderManager subsystem
+            // retirement. Save loads tolerate orphaned SyncData entries per
+            // CampaignBehaviorDataStore.LoadBehaviorData permissive lookup
+            // (decompile: TaleWorlds.CampaignSystem/CampaignBehaviorDataStore.cs:86-106).
+            // Offsets 10-14 remain reserved; do not reuse without audit.
 
             // Retinue system types
             AddClassDefinition(typeof(NamedVeteran), 20);
@@ -55,7 +53,43 @@ namespace Enlisted.Mod.Core.SaveSystem
             AddClassDefinition(typeof(ReservistRecord), 24);
 
             // Pacing subsystem
-            AddClassDefinition(typeof(Enlisted.Features.Content.StoryCandidatePersistent), 30);
+            AddClassDefinition(typeof(Features.Content.StoryCandidatePersistent), 30);
+
+            // Storylet backbone (Spec 0)
+            AddClassDefinition(typeof(Features.Flags.FlagStore), 43);
+            AddClassDefinition(typeof(Features.Qualities.QualityStore), 40);
+            AddClassDefinition(typeof(Features.Qualities.QualityValue), 41);
+
+            // Activity subsystem (Spec 0) — concrete subclasses claim offsets 45-60 in surface specs
+            AddClassDefinition(typeof(Features.Activities.Activity), 44);
+
+            // Spec 1 (Enlisted Home Surface) — offset 45
+            AddClassDefinition(typeof(Features.Activities.Home.HomeActivity), 45);
+
+            // Spec 2 (Orders Surface) — offsets 46-47
+            AddClassDefinition(typeof(Features.Activities.Orders.OrderActivity), 46);
+            AddClassDefinition(typeof(Features.Activities.Orders.NamedOrderState), 47);
+
+            // Campaign Intelligence backbone (Plan 1 of 5) — offset 48
+            AddClassDefinition(typeof(Features.CampaignIntelligence.EnlistedLordIntelligenceSnapshot), 48);
+
+            // Signal Projection (Plan 3 of 5) — offset 49
+            AddClassDefinition(typeof(Features.CampaignIntelligence.Signals.SignalEmissionRecord), 49);
+
+            // Duty Opportunities (Plan 4 of 5) — offset 50
+            AddClassDefinition(typeof(Features.CampaignIntelligence.Duty.DutyCooldownStore), 50);
+
+            // CK3 wanderer mechanics cluster (Plans 1-7 of the wanderer spec) — offsets 51-70
+            // Brief: docs/architecture/ck3-wanderer-architecture-brief.md
+            // Offsets 51-52 reserved for menu+duty unification spec (separate)
+            // Offset 53 reserved (Personal Kit state lives in QualityStore — no class)
+            AddClassDefinition(typeof(Features.Patrons.PatronRoll), 54);
+            AddClassDefinition(typeof(Features.Patrons.PatronEntry), 55);
+            AddClassDefinition(typeof(Features.Contracts.ContractActivity), 56);
+            AddClassDefinition(typeof(Features.Endeavors.EndeavorActivity), 57);
+            AddClassDefinition(typeof(Features.Lifestyles.LifestyleUnlockStore), 58);
+            // Offset 59 reserved (Rank Ceremony state lives in FlagStore — no class)
+            // Offsets 60-70 reserved for future surface specs (Specs 3-5)
         }
 
         /// <summary>
@@ -63,27 +97,75 @@ namespace Enlisted.Mod.Core.SaveSystem
         /// </summary>
         protected override void DefineEnumTypes()
         {
+            // SaveId numeric space is shared between class and enum dictionaries
+            // (decompile: TaleWorlds.SaveSystem.Definition.DefinitionContext.AddEnumDefinition
+            // calls _allTypeDefinitionsWithId.Add(SaveId, ...), same dict that
+            // AddClassDefinition uses). A class at offset N and an enum at
+            // offset N produce the same TypeSaveId(BaseId+N) and crash module
+            // init with Dictionary duplicate-key. The retinue + logistics enums
+            // below originally claimed 50-52, which collides with the Career
+            // Loop Plan 4 class at offset 50 (DutyCooldownStore) and the
+            // menu+duty unification spec's reserved class offsets 51-52.
+            // Re-numbered to 110-112 to keep enum offsets disjoint from the
+            // 0-70 class range used by surface specs.
             // Retinue enums
-            AddEnumDefinition(typeof(LoyaltyThreshold), 50);
-            AddEnumDefinition(typeof(BattleOutcome), 51);
+            AddEnumDefinition(typeof(LoyaltyThreshold), 110);
+            AddEnumDefinition(typeof(BattleOutcome), 111);
 
             // Logistics enums
-            AddEnumDefinition(typeof(BaggageAccessState), 52);
+            AddEnumDefinition(typeof(BaggageAccessState), 112);
 
-            // Content Orchestrator enums
-            AddEnumDefinition(typeof(DayPhase), 60);
-            AddEnumDefinition(typeof(LordSituation), 61);
-            AddEnumDefinition(typeof(LifePhase), 62);
-            AddEnumDefinition(typeof(ActivityLevel), 63);
-            AddEnumDefinition(typeof(WarStance), 64);
-
-            // Camp Life Simulation enums
-            AddEnumDefinition(typeof(OpportunityType), 70);
-            AddEnumDefinition(typeof(CampMood), 71);
+            // Content Orchestrator enums (moved from 60-64 — see SaveId
+            // numeric-space note above; class offsets 60-70 are reserved for
+            // future surface specs 3-5).
+            AddEnumDefinition(typeof(DayPhase), 113);
+            AddEnumDefinition(typeof(LordSituation), 114);
+            AddEnumDefinition(typeof(LifePhase), 115);
+            AddEnumDefinition(typeof(ActivityLevel), 116);
+            AddEnumDefinition(typeof(WarStance), 117);
 
             // Pacing subsystem enums
-            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryTier), 80);
-            AddEnumDefinition(typeof(Enlisted.Features.Content.StoryBeat), 81);
+            AddEnumDefinition(typeof(Features.Content.StoryTier), 80);
+            AddEnumDefinition(typeof(Features.Content.StoryBeat), 81);
+
+            // Storylet backbone enums (Spec 0)
+            AddEnumDefinition(typeof(Features.Qualities.QualityScope), 82);
+
+            // Activity subsystem enums (Spec 0)
+            AddEnumDefinition(typeof(Features.Activities.ActivityEndReason), 83);
+
+            // Spec 2 (Orders Surface) — offset 85. FormationClass is already registered by
+            // TaleWorlds.Core.SaveableCoreTypeDefiner at id 2008; re-registering it crashes
+            // Module.Initialize with ArgumentException from the shared definition dictionary.
+            AddEnumDefinition(typeof(Features.Activities.Orders.DutyProfileId), 85);
+
+            // Campaign Intelligence backbone enums (Plan 1 of 5) — offsets 86-98
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.StrategicPosture), 86);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ObjectiveType), 87);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ObjectiveConfidence), 88);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.FrontPressure), 89);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.ArmyStrainLevel), 90);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.SupplyPressure), 91);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.InformationConfidence), 92);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.EnemyContactRisk), 93);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PursuitViability), 94);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.RecoveryNeed), 95);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PrisonerStakes), 96);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.PlayerTrustWindow), 97);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.RecentChangeFlags), 98);
+
+            // Signal Projection enums (Plan 3 of 5) — offsets 99-103
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalType), 99);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalConfidence), 100);
+            AddEnumDefinition(typeof(Features.CampaignIntelligence.Signals.SignalChangeType), 101);
+
+            // StoryCandidate signal-metadata enums (Plan 3 of 5) — offsets 102-103
+            AddEnumDefinition(typeof(Features.Content.SourcePerspective), 102);
+            AddEnumDefinition(typeof(Features.Content.SignalRecency), 103);
+
+            // CK3 wanderer mechanics — Roll of Patrons (Plan 6) — offset 84
+            // Stub None=0 only; full member list populated when Plan 6 ships.
+            AddEnumDefinition(typeof(Features.Patrons.FavorKind), 84);
         }
 
         /// <summary>
@@ -101,10 +183,30 @@ namespace Enlisted.Mod.Core.SaveSystem
             // List types used by various systems
             ConstructContainerDefinition(typeof(List<string>));               // LifetimeServiceRecord.FactionsServed, Order.Tags
             ConstructContainerDefinition(typeof(List<NamedVeteran>));         // RetinueState.NamedVeterans
-            ConstructContainerDefinition(typeof(List<PhaseRecap>));           // OrderProgressionBehavior._phaseRecaps
+            // List<PhaseRecap> container removed with legacy OrderProgressionBehavior.
 
             // Pacing subsystem containers (Dictionary<string,int> is already registered above)
-            ConstructContainerDefinition(typeof(System.Collections.Generic.List<Enlisted.Features.Content.StoryCandidatePersistent>));
+            ConstructContainerDefinition(typeof(List<Features.Content.StoryCandidatePersistent>));
+
+            // Storylet backbone containers (Spec 0)
+            ConstructContainerDefinition(typeof(Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>));
+            ConstructContainerDefinition(typeof(Dictionary<TaleWorlds.ObjectSystem.MBGUID, Dictionary<string, TaleWorlds.CampaignSystem.CampaignTime>>));
+            ConstructContainerDefinition(typeof(Dictionary<string, Features.Qualities.QualityValue>));
+            ConstructContainerDefinition(typeof(Dictionary<TaleWorlds.ObjectSystem.MBGUID, Dictionary<string, Features.Qualities.QualityValue>>));
+
+            // Activity subsystem containers (Spec 0)
+            ConstructContainerDefinition(typeof(List<Features.Activities.Activity>));
+            ConstructContainerDefinition(typeof(Dictionary<string, List<string>>));
+
+            // Campaign Intelligence backbone (Plan 1 of 5) — parallel-list encoding for the
+            // RecentChangeFlags decay tracker in EnlistedCampaignIntelligenceBehavior.SyncData.
+            ConstructContainerDefinition(typeof(List<int>));
+            ConstructContainerDefinition(typeof(List<TaleWorlds.CampaignSystem.CampaignTime>));
+
+            // CK3 wanderer mechanics — PatronRoll holds List<PatronEntry>;
+            // Endeavor + Contract activities hold List<MBGUID> for assigned-companion refs.
+            ConstructContainerDefinition(typeof(List<Features.Patrons.PatronEntry>));
+            ConstructContainerDefinition(typeof(List<TaleWorlds.ObjectSystem.MBGUID>));
         }
     }
 }

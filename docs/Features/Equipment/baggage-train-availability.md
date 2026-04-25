@@ -29,7 +29,7 @@
 **Deferred to Future Releases:**
 - Phase 7-8: Cross-system integration (leave, combat, siege, discharge edge cases)
 - Phase 9: QM conversation enhancements, performance optimization  
-**Related Docs:** [Quartermaster System](quartermaster-system.md), [Company Supply Simulation](company-supply-simulation.md), [Provisions & Rations](provisions-rations-system.md), [Content System Architecture](../Content/content-system-architecture.md#baggage-train-integration)
+**Related Docs:** [Quartermaster System](quartermaster-system.md), [Company Supply Simulation](company-supply-simulation.md), [Provisions & Rations](provisions-rations-system.md), [Storylet Backbone](../Content/storylet-backbone.md)
 
 ---
 
@@ -909,7 +909,7 @@ namespace Enlisted.Features.Logistics
             if (hero == null)
             {
                 failReason = "Invalid state";
-                ModLogger.Error(LogCategory, "TryRequestEmergencyAccess: Hero null");
+                ModLogger.Expected(LogCategory, "baggage-emergency-hero-null", "TryRequestEmergencyAccess: Hero null");
                 return false;
             }
             
@@ -2343,7 +2343,7 @@ These phases will add:
 | `RetinueRecruitmentGrant.cs` | Queue formation selection if baggage delayed |
 | `Enlisted.csproj` | Add new file entries |
 | `enlisted_strings.xml` | Add dialogue localization entries |
-| `Features/Content/content-index.md` | Document new events/content |
+| `Features/Content/README.md` / `storylet-backbone.md` | Document new content surfaces |
 
 ### Estimated Total Effort
 

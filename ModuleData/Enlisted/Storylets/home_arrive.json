@@ -1,0 +1,87 @@
+{
+  "storylets": [
+    {
+      "id": "home_arrive_home_fief",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": ["lord_at_home_settlement"],
+      "weight": { "base": 2.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_home_fief_title}Under his own banner",
+      "setup": "{=home_arrive_home_fief_setup}The column crunches up the avenue. Your lord rides ahead — this is his seat, and the banners know him. A boy in homespun sprints to fetch word. You unbuckle your helm."
+    },
+    {
+      "id": "home_arrive_lord_wounded_returning",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": ["lord_is_wounded"],
+      "weight": { "base": 3.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_wounded_title}They see his arm",
+      "setup": "{=home_arrive_wounded_setup}The gate-sergeant's face changes when he sees the splint. Whatever was prepared, it is all being prepared again, quicker. You help the wounded down before anyone tells you to."
+    },
+    {
+      "id": "home_arrive_grim_mood",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": ["lord_morale_lte_50"],
+      "weight": {
+        "base": 2.0,
+        "modifiers": [ { "if": "lord_trait_honor_positive", "factor": 0.8 } ]
+      },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_grim_title}No cheering at the gate",
+      "setup": "{=home_arrive_grim_setup}The column rides in quiet. No one calls names from the walls. A few hands raised from the watch, and nothing more. Your lord's eyes never leave the road ahead."
+    },
+    {
+      "id": "home_arrive_post_defeat",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": ["lord_is_disorganized"],
+      "weight": { "base": 3.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_post_defeat_title}Limp-in",
+      "setup": "{=home_arrive_post_defeat_setup}You remember who you came out with and count them in as they come through. The numbers don't agree. Your lord sits his horse at the gate-keep until the last man is inside, then dismounts without speaking."
+    },
+    {
+      "id": "home_arrive_faction_empire",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_empire_title}Under the purple",
+      "setup": "{=home_arrive_empire_setup}Imperial standards snap in the wind above the gatehouse. A clerk checks names against a wax-sealed writ. You ride in ordered lines, as the drill-books demand."
+    },
+    {
+      "id": "home_arrive_faction_sturgia",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_sturgia_title}Through the palisade",
+      "setup": "{=home_arrive_sturgia_setup}The timber palisade creaks open. Smoke rises from a half-dozen hearths. Someone in wolf-fur shouts a greeting; your lord answers in the Sturgian tongue you haven't yet learned."
+    },
+    {
+      "id": "home_arrive_faction_battania",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_battania_title}Hillfort gate",
+      "setup": "{=home_arrive_battania_setup}The fort sits on a crag above a mist-wrapped glen. Hounds bark in the yard. The keep's old stones remember things no imperial could read; your lord lays his hand on the gatepost like he's greeting it."
+    },
+    {
+      "id": "home_arrive_faction_vlandia",
+      "category": "home_arrive",
+      "observational": true,
+      "trigger": [],
+      "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_arrive_vlandia_title}Castellan's bow",
+      "setup": "{=home_arrive_vlandia_setup}The castellan meets your lord at the gate with a formal bow. Spears rattle to attention along the curtain wall. You remember to remove your gauntlets before touching bread — the Vlandian custom, the sergeant said."
+    }
+  ]
+}

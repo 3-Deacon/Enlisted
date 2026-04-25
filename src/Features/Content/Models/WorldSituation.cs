@@ -1,4 +1,3 @@
-﻿using Enlisted.Features.Content;
 using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Enlisted.Features.Content.Models

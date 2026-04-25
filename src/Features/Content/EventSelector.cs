@@ -77,7 +77,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error selecting event", ex);
+                ModLogger.Caught("EventSelector", "Error selecting event", ex);
                 return null;
             }
         }
@@ -301,18 +301,20 @@ namespace Enlisted.Features.Content
             // Combat events typically have "combat", "battle", "fight" in ID
             // Social events have "social", "friend", "conversation" in ID
             var eventIdLower = evt.Id?.ToLowerInvariant() ?? "";
-            var categoryLower = evt.Category?.ToLowerInvariant() ?? "";
-
             // Combat vs Social preference
             if (eventIdLower.Contains("combat") || eventIdLower.Contains("battle") || eventIdLower.Contains("fight"))
             {
                 if (preferences.CombatVsSocial > 0.6f)
+                {
                     fitness *= 1.3f;  // Player likes combat content
+                }
             }
             else if (eventIdLower.Contains("social") || eventIdLower.Contains("friend") || eventIdLower.Contains("conversation"))
             {
                 if (preferences.CombatVsSocial < 0.4f)
+                {
                     fitness *= 1.3f;  // Player likes social content
+                }
             }
 
             // Risky vs Safe preference (high priority = risky, low priority = safe)
@@ -320,12 +322,16 @@ namespace Enlisted.Features.Content
             if (priorityLower == "critical" || priorityLower == "high")
             {
                 if (preferences.RiskyVsSafe > 0.6f)
+                {
                     fitness *= 1.2f;  // Player likes risky content
+                }
             }
             else if (priorityLower == "low")
             {
                 if (preferences.RiskyVsSafe < 0.4f)
+                {
                     fitness *= 1.2f;  // Player likes safe content
+                }
             }
 
             return fitness;

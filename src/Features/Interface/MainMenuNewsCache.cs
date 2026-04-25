@@ -1,5 +1,3 @@
-using System;
-using Enlisted.Features.Company;
 using Enlisted.Features.Content;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -7,7 +5,6 @@ using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.CampaignBehaviors;
 
 namespace Enlisted.Features.Interface
 {
@@ -52,15 +49,15 @@ namespace Enlisted.Features.Interface
 
         public override void SyncData(IDataStore dataStore)
         {
-            dataStore.SyncData("mm_kingdomText", ref _kingdomText);
-            dataStore.SyncData("mm_lastKingdomRefreshTime", ref _lastKingdomRefreshTime);
-            dataStore.SyncData("mm_campText", ref _campText);
-            dataStore.SyncData("mm_lastCampRefreshPhase", ref _lastCampRefreshPhase);
-            dataStore.SyncData("mm_lastCampRefreshTime", ref _lastCampRefreshTime);
-            dataStore.SyncData("mm_youNowText", ref _youNowText);
-            dataStore.SyncData("mm_youAheadText", ref _youAheadText);
-            dataStore.SyncData("mm_lastYouRefreshTime", ref _lastYouRefreshTime);
-            dataStore.SyncData("mm_lastCheckTime", ref _lastCheckTime);
+            _ = dataStore.SyncData("mm_kingdomText", ref _kingdomText);
+            _ = dataStore.SyncData("mm_lastKingdomRefreshTime", ref _lastKingdomRefreshTime);
+            _ = dataStore.SyncData("mm_campText", ref _campText);
+            _ = dataStore.SyncData("mm_lastCampRefreshPhase", ref _lastCampRefreshPhase);
+            _ = dataStore.SyncData("mm_lastCampRefreshTime", ref _lastCampRefreshTime);
+            _ = dataStore.SyncData("mm_youNowText", ref _youNowText);
+            _ = dataStore.SyncData("mm_youAheadText", ref _youAheadText);
+            _ = dataStore.SyncData("mm_lastYouRefreshTime", ref _lastYouRefreshTime);
+            _ = dataStore.SyncData("mm_lastCheckTime", ref _lastCheckTime);
         }
 
         private void OnSessionLaunched(CampaignGameStarter starter)
@@ -99,7 +96,10 @@ namespace Enlisted.Features.Interface
         /// </summary>
         public void RefreshIfNeeded()
         {
-            if (_enlistment?.IsEnlisted != true) return;
+            if (_enlistment?.IsEnlisted != true)
+            {
+                return;
+            }
 
             var currentTime = CampaignTime.Now;
             var hoursSinceLastCheck = (currentTime - _lastCheckTime).ToHours;
@@ -132,7 +132,10 @@ namespace Enlisted.Features.Interface
 
         private void RefreshKingdom(bool force = false)
         {
-            if (_enlistment?.IsEnlisted != true) return;
+            if (_enlistment?.IsEnlisted != true)
+            {
+                return;
+            }
 
             if (force || (CampaignTime.Now - _lastKingdomRefreshTime).ToHours >= KingdomRefreshIntervalHours)
             {
@@ -153,7 +156,10 @@ namespace Enlisted.Features.Interface
 
         private void RefreshCamp(bool force = false)
         {
-            if (_enlistment?.IsEnlisted != true) return;
+            if (_enlistment?.IsEnlisted != true)
+            {
+                return;
+            }
 
             // Simplified: refresh based on time interval only (Phase tracking will be added later)
             if (force || (CampaignTime.Now - _lastCampRefreshTime).ToHours >= CampRefreshIntervalHours)
@@ -166,7 +172,10 @@ namespace Enlisted.Features.Interface
 
         private void RefreshYou(bool force = false)
         {
-            if (_enlistment?.IsEnlisted != true) return;
+            if (_enlistment?.IsEnlisted != true)
+            {
+                return;
+            }
 
             // More frequent refresh for player-specific info or on explicit state changes
             if (force || (CampaignTime.Now - _lastYouRefreshTime).ToHours >= YouRefreshIntervalHours)

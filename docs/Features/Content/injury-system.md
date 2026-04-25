@@ -5,7 +5,7 @@
 **Status:** ✅ Implemented  
 **Last Updated:** 2026-01-01  
 **Implementation:** `src/Features/Conditions/PlayerConditionBehavior.cs`, `src/Features/Content/EventDeliveryManager.cs`, `ModuleData/Enlisted/Conditions/condition_defs.json`  
-**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Event System Schemas](event-system-schemas.md), [Content System Architecture](content-system-architecture.md)
+**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](storylet-backbone.md)
 
 ---
 
@@ -394,7 +394,7 @@ The injury severity scales naturally with character progression.
 
 Order outcomes can specify `injury_type` instead of `hp_loss`:
 
-```json:ModuleData/Enlisted/Orders/orders_t4_t6.json
+```json
 {
   "id": "order_scout_route",
   "consequences": {
@@ -419,7 +419,7 @@ OrderManager.ApplyOrderOutcomeEffects()
 
 Events can trigger injuries through outcome effects:
 
-```json:ModuleData/Enlisted/Events/order_events_scout.json
+```json
 {
   "id": "order_evt_scout_ambush",
   "options": [

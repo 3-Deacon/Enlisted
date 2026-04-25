@@ -53,10 +53,10 @@ namespace Enlisted.Features.Content
 
         public override void SyncData(IDataStore dataStore)
         {
-            dataStore.SyncData("_lastBattleIncidentTime", ref _lastBattleIncidentTime);
-            dataStore.SyncData("_lastSettlementIncidentTime", ref _lastSettlementIncidentTime);
-            dataStore.SyncData("_lastSiegeIncidentTime", ref _lastSiegeIncidentTime);
-            dataStore.SyncData("_lastWaitingIncidentTime", ref _lastWaitingIncidentTime);
+            _ = dataStore.SyncData("_lastBattleIncidentTime", ref _lastBattleIncidentTime);
+            _ = dataStore.SyncData("_lastSettlementIncidentTime", ref _lastSettlementIncidentTime);
+            _ = dataStore.SyncData("_lastSiegeIncidentTime", ref _lastSiegeIncidentTime);
+            _ = dataStore.SyncData("_lastWaitingIncidentTime", ref _lastWaitingIncidentTime);
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling battle end", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling battle end", ex);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling settlement entry", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling settlement entry", ex);
             }
         }
 
@@ -185,7 +185,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error handling settlement exit", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error handling settlement exit", ex);
             }
         }
 
@@ -220,7 +220,7 @@ namespace Enlisted.Features.Content
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory, "Error in hourly tick check", ex);
+                ModLogger.Caught("MAPINCIDENTS", "Error in hourly tick check", ex);
             }
         }
 
@@ -350,7 +350,7 @@ namespace Enlisted.Features.Content
                     return false;
                 }
 
-                // Queue for delivery via EventDeliveryManager
+                // Queue for delivery via EventDeliveryManager (needed for fallback path)
                 var deliveryManager = EventDeliveryManager.Instance;
                 if (deliveryManager == null)
                 {
@@ -358,7 +358,33 @@ namespace Enlisted.Features.Content
                     return false;
                 }
 
-                deliveryManager.QueueEvent(selected);
+                // Route through StoryDirector so the candidate participates in pacing and
+                // severity classification. Fall back to direct delivery if the director is
+                // not yet registered (e.g. very early in campaign startup).
+                var director = StoryDirector.Instance;
+                if (director != null)
+                {
+                    var (tier, beat, severity) = GetIncidentBinding(context);
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "map_incident." + context,
+                        CategoryId = "incident." + context,
+                        ProposedTier = tier,
+                        SeverityHint = severity,
+                        Beats = { beat },
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        InteractiveEvent = selected,
+                        RenderedTitle = selected.TitleFallback,
+                        RenderedBody = selected.SetupFallback,
+                        StoryKey = selected.Id
+                    });
+                }
+                else
+                {
+                    // Fallback: director unavailable — deliver directly
+                    deliveryManager.QueueEvent(selected);
+                }
 
                 // Record in global pacer (tracks daily/weekly limits + category cooldown)
                 GlobalEventPacer.RecordAutoEvent(selected.Id, category);
@@ -570,6 +596,25 @@ namespace Enlisted.Features.Content
         {
             var enlistment = EnlistmentBehavior.Instance;
             return enlistment?.CurrentLord?.PartyBelongedTo;
+        }
+
+        /// <summary>
+        /// Maps a map-incident context string to the StoryDirector tier, beat, and severity hint
+        /// used when emitting a StoryCandidate. Unknown contexts fall back to Pertinent/SettlementEntered.
+        /// </summary>
+        private static (StoryTier Tier, StoryBeat Beat, float Severity) GetIncidentBinding(string context)
+        {
+            return context switch
+            {
+                "leaving_battle" => (StoryTier.Modal, StoryBeat.PlayerBattleEnd, 0.6f),
+                "entering_town" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "entering_village" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f),
+                "during_siege" => (StoryTier.Headline, StoryBeat.SiegeBegin, 0.5f),
+                "waiting_in_settlement" => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.25f),
+                // leaving_settlement: settlement-transition, treated as Pertinent settlement beat
+                "leaving_settlement" => (StoryTier.Pertinent, StoryBeat.SettlementLeft, 0.3f),
+                _ => (StoryTier.Pertinent, StoryBeat.SettlementEntered, 0.3f)
+            };
         }
 
         /// <summary>

@@ -2,8 +2,8 @@
 
 **Summary:** Master index of all documentation files organized by category. Use this to find documentation for specific topics or systems.
 
-**Last Updated:** 2026-04-18
-**Total Documents:** 43
+**Last Updated:** 2026-04-24
+**Total Documents:** 45
 
 > **Note:** Documents marked "⚠️ Mixed" have core features implemented but also contain planned/designed features not yet in code. Check their Implementation Checklist sections for details.
 
@@ -26,7 +26,7 @@
 | Understand rank progression | [Features/Core/promotion-system.md](Features/Core/promotion-system.md) |
 | Find a specific feature quickly | [Feature Lookup Quick Reference](#feature-lookup-quick-reference) ⭐ NEW |
 | Find how a feature works | Search this INDEX, check [Features/Core/](#core-systems) |
-| See all events/decisions/orders | [Features/Content/content-index.md](Features/Content/content-index.md) |
+| Author or inspect current content | [Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
 | Verify Bannerlord APIs | [Reference/native-apis.md](Reference/native-apis.md) |
 | Build/deploy the mod | [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) |
 | Create new documentation | [BLUEPRINT.md](BLUEPRINT.md) → "Creating New Documentation" |
@@ -56,14 +56,17 @@
 | Feature / System | Found In Document | Section |
 | --- | --- | --- |
 | **Company Needs** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 2 transparent metrics (Readiness/Supply) - Rest removed 2026-01-11 |
-| **ContentOrchestrator (System)** | [content-system-architecture.md](Features/Content/content-system-architecture.md) | World-state-driven content coordination: opportunity pre-scheduling, activity levels, schedule overrides, illness triggers |
-| **StoryDirector (Pacing)** ⚠️ In Progress | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) / [plan](superpowers/plans/2026-04-18-event-pacing.md) | Phase 1 complete — broker receives candidates but Route is a no-op. Phase 2 adds Modal gate + news-feed observational path. Goal: single broker that paces Modal delivery (5-day in-game floor + 60s wall-clock guard) and routes non-Modal through existing `_personalFeed`. |
+| **StoryDirector (Pacing)** ✅ Phase 3 migration complete | [design](superpowers/specs/2026-04-18-event-pacing-design.md) / [plan](superpowers/plans/2026-04-18-event-pacing.md) / [verification](superpowers/plans/2026-04-18-event-pacing-verification.md) | All 15 production `QueueEvent` sites route through `StoryDirector.EmitCandidate`. Modal firing is gated by a 5-day in-game floor + 60s wall-clock floor + per-category cooldown. `ChainContinuation` flag bypasses the in-game floor and category cooldown for promotions, chain events, and bag checks (still honors wall-clock). Deferred-interactive retry queue flushes one entry per DailyTick (cap 32). Playtest verification scenarios in the verification doc. |
+| **ModLogger.Error retirement** ✅ Committed 2026-04-19 | [design](superpowers/specs/2026-04-19-error-warn-cleanup-design.md) / [plan](superpowers/plans/2026-04-19-error-warn-cleanup.md) | Retired `ModLogger.Error(...)` from the public API. All 363 call sites reclassified to `Surfaced` / `Caught` / `Expected`. Phase 11 validation gate prevents reintroduction. `ModLogger.Warn` retained as log-only primitive. |
+| **Spec 2 Orders Surface** 🛠 Code shipped, content migrated to five-plan roadmap | [design](superpowers/specs/2026-04-20-orders-surface-design.md) / [archived plan](superpowers/plans/archive/2026-04-20-orders-surface.md) | Replaced the legacy `src/Features/Orders/` subsystem (deleted 2026-04-21 in `a8719bb`) with `OrderActivity` on the storylet backbone. Phase A code + Phase B migrations + validator rails shipped; Tasks 33/34 named-order T1-T6 archetypes authored (~100 storylets). Remaining ambient-pool / transition / path-crossroads / polish tasks migrated into the five-plan integration roadmap (see below). |
+| **Five-plan integration roadmap** ✅ Plans 1+2+3+4 shipped 2026-04-22; 🟡 Plan 5 code-complete, smoke pending | [integration spec](superpowers/specs/2026-04-21-plans-integration-design.md) / [intelligence design](superpowers/specs/2026-04-21-enlisted-campaign-intelligence-design.md) / [Plan 1](superpowers/plans/2026-04-21-campaign-intelligence-backbone.md) / [Plan 2 archive](superpowers/plans/archive/2026-04-21-lord-ai-intervention.md) / [Plan 3](superpowers/plans/2026-04-21-signal-projection.md) / [Plan 3 verification](superpowers/plans/2026-04-21-signal-projection-verification.md) / [Plan 4](superpowers/plans/2026-04-21-duty-opportunities.md) / [Plan 4 verification](superpowers/plans/2026-04-21-duty-opportunities-verification.md) / [Plan 5](superpowers/plans/2026-04-21-career-loop-closure.md) / [Plan 5 verification](superpowers/plans/2026-04-21-career-loop-verification.md) / [Playtest runbook A-H](superpowers/plans/2026-04-21-career-loop-playtest-scenarios.md) | Merges Spec 2 remainder with Campaign Intelligence Backbone into five sequenced plans. Plan 1 (snapshot backbone) shipped on `development` 2026-04-22 (`34322d4` → `bc13096`, 23 commits) — `EnlistedCampaignIntelligenceBehavior.Current` accessor live, first `INTEL/hourly_recompute` heartbeats confirmed in-game; T28 in-game smoke pending human operator. Plan 2 (Lord AI Intervention) shipped on `development` 2026-04-22 (`4929246` → `f289b9b`) — three MBGameModel wrappers (`EnlistedTargetScoreModel`, `EnlistedArmyManagementModel`, `EnlistedMobilePartyAiModel`) registered via `SubModule.OnGameStart`, every override gated per-call on `EnlistedAiGate.TryGetSnapshotForParty` with vanilla fallthrough for non-enlisted parties; throttled `EnlistedAiBiasHeartbeat` routes bias events under the `INTELAI` category. Phase H smoke passed 2026-04-22 — load-bearing T13 bait-break validated in-game (score 276→0 zeroing; lord pivoted `OffensiveSiege` → `FrontierDefense`). Phase F narrow Harmony not required. Log excerpt: [plan2-phase-h-log.md](Features/CampaignIntelligence/plan2-phase-h-log.md). Plan 3 (Signal Projection) shipped on `development` 2026-04-22 (`5fedf88` → `189e75c`, 26 commits) — SignalBuilder pure projector, EnlistedSignalEmitterBehavior with throttled hourly emission + cooldown + diversity picker, StoryCandidate signal-metadata fields, DailyDriftApplicator rewired through signal pipeline, 48 authored floor storylets across 10 signal families; T28 14-day in-game smoke pending human operator. Plan 4 (duty opportunities + ambient pools + transitions) shipped 2026-04-22 (`ca22111..0c519d3`, 22 commits). 🟡 Plan 5 (Career Loop Closure) code-complete on `development` 2026-04-22 — Half A (`4f66604` → `e35f445`) + Half B authoring (culture_overlays.json 45 + lord_trait_overlays.json 15) + debug hotkeys + verification doc; 105 Plan 5 storylets total across 8 JSON files; T10 in-game smoke + cross-plan Scenario H fast-forward soak pending human operator. Plan 5 day-to-day reference: [career-loop.md](Features/Content/career-loop.md). Plan 1 owns save-definer class offset 48; Plan 3 owns class offset 49 + enum offsets 99-103; Plan 4 owns class offset 50 (`DutyCooldownStore`); Plan 5 persists entirely through existing `QualityStore` + `FlagStore` offsets — no new offsets (see AGENTS.md Rule #11). |
+| **Campaign Intelligence** ✅ Live | [reference](Features/CampaignIntelligence/README.md) / [signal mapping](Features/CampaignIntelligence/signal-projection-mapping.md) / [duty mapping](Features/CampaignIntelligence/duty-opportunity-mapping.md) / [Plan 2 smoke log](Features/CampaignIntelligence/plan2-phase-h-log.md) | Hidden enlisted-lord truth layer. `EnlistedCampaignIntelligenceBehavior.Current` returns null outside active enlistment; Plan 2 AI wrappers delegate to vanilla unless `EnlistedAiGate.TryGetSnapshotForParty` passes; Plan 3 signal projection and Plan 4 duty opportunities consume the snapshot. |
 | **Injuries & Illnesses** | [injury-system.md](Features/Content/injury-system.md) | Unified condition tracking, maritime context awareness |
 | **Camp Hub Decisions** | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | 33 player-initiated decisions |
 | **Orchestrator Camp Simulation** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Background + Opportunities layers |
 | **Camp Opportunities** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | 36 contextual activities with learning |
-| **Camp Opportunity Hints** | [ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) | Narrative foreshadowing in Daily Brief (camp rumors + personal hints) |
-| **Opportunity Pre-Scheduling** | [ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) | 24h ahead locking, prevents disappearance on context changes |
+| **Camp Opportunity Hints** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Narrative foreshadowing in Daily Brief (camp rumors + personal hints) |
+| **Opportunity Pre-Scheduling** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | 24h ahead locking, prevents disappearance on context changes |
 | **Camp Background** | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Autonomous roster tracking, incidents |
 | **Camp Routine Schedule** | [camp-routine-schedule-spec.md](Features/Campaign/camp-routine-schedule-spec.md) | Baseline daily routine with deviations |
 | **Camp Hub (Custom Gauntlet)** | [camp-hub-custom-gauntlet.md](Features/UI/camp-hub-custom-gauntlet.md) | — |
@@ -71,15 +74,21 @@
 | **Company Events** | [company-events.md](Features/Core/company-events.md) | — |
 | **Companion Integration** | [companion-management.md](Features/Core/companion-management.md) | — |
 | **Contextual Dialogue** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Contextual Dialogue System |
-| **Discharge Process** | [onboarding-discharge-system.md](Features/Core/onboarding-discharge-system.md) | Discharge |
+| **Discharge Process** | [enlistment.md](Features/Core/enlistment.md) | Discharge |
 | **Discounts (QM)** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Reputation System |
 | **Enlistment** | [enlistment.md](Features/Core/enlistment.md) | — |
 | **Equipment Purchasing** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Equipment Purchasing |
 | **Equipment Quality/Tiers** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Equipment Quality System |
 | **Equipment Upgrades** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Equipment Upgrade System |
-| **Event System (JSON)** | [event-system-schemas.md](Features/Content/event-system-schemas.md) | — |
+| **Event System (JSON)** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | Storylet schema, triggers, slots, effects |
 | **Writing RP Text (Style)** | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Voice, tone, vocabulary, opportunity hints for Bannerlord flavor |
-| **Fatigue System** | [camp-fatigue.md](Features/Core/camp-fatigue.md) | — |
+| **Storylet Backbone (Spec 0)** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | Storylets, Qualities, Flags, Activities, Scopes, Chains, Scripted Effects — content layer beneath StoryDirector (living reference; design spec retired) |
+| **Enlisted Home Surface (Spec 1)** ✅ Implementation complete | [reference](Features/Content/home-surface.md) / [design (frozen)](superpowers/specs/2026-04-19-enlisted-home-surface-design.md) | Four-phase HomeActivity (Arrive/Settle/Evening/Break Camp) with five player-choice intents. Shipped 2026-04-20 on `development`; full commit trail `fc93285` → `0390fdf` across Phases A–E plus three post-Phase-E production fixes (csproj ModuleData mirror, `Ctrl+Shift+T`→`Y` hotkey rebind per `DebugHotKeyCategory` decompile audit, `ActivityRuntime.ForceAdvancePhase` to cross Auto phase time gates). Living day-to-day reference is [`home-surface.md`](Features/Content/home-surface.md); design spec is frozen. |
+| **Career Loop Closure (Plan 5)** 🟡 Code-complete, smoke pending | [reference](Features/Content/career-loop.md) / [plan](superpowers/plans/2026-04-21-career-loop-closure.md) / [verification](superpowers/plans/2026-04-21-career-loop-verification.md) / [playtest runbook A-H](superpowers/plans/2026-04-21-career-loop-playtest-scenarios.md) | Terminal plan of the five-plan integration roadmap. Five paths (`ranger` / `enforcer` / `support` / `diplomat` / `rogue`) score from skill gains + intent picks; T4/T6/T9 crossroads let the player commit or resist; T7+ named-order variants gate on `committed_path_<path>` flag; culture overlays (`__<culture>` suffix) + lord-trait gating add flavor. Adds two effect primitives (`commit_path`, `resist_path`) + `QualityStore.SetDirect` back-door + `PathCrossroadsBehavior` + `CareerDebugHotkeysBehavior` (Ctrl+Shift+I/A/O/F) + `validate_content.py` Phase 15 full enforcement. 105 authored storylets. No new save-definer offsets. Living reference is [`career-loop.md`](Features/Content/career-loop.md). |
+| **Menu + Duty Unification** 📋 Current design | [design](superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md) / [agency-news plan](superpowers/plans/2026-04-23-agency-news-status-integration.md) | Current unifying design for menu/news/duty work. Supersedes the 2026-04-23 section names (`UPCOMING` -> `PROSPECTS`, `YOU` -> `STATUS`) and reframes unshipped service stances as player Duty. The agency-news plan remains actionable after enum-name amendments (`ServiceStance` -> `Duty`, `Upcoming` -> `Prospects`). |
+| **CK3 Wanderer Mechanics — 7-plan family** 🟡 Plans 1-2 code-shipped (smoke pending); 3-7 not started | [spec v6](superpowers/specs/2026-04-24-ck3-wanderer-systems-analysis.md) / [architecture brief (locked)](architecture/ck3-wanderer-architecture-brief.md) / [Plan 1](superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation.md) / [Plan 1 verification](superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) / [Plan 2](superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate.md) / [Plan 2 verification](superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) / [Plan 3 draft](superpowers/plans/2026-04-24-ck3-wanderer-rank-ceremony-arc.md) / [Plan 4 draft](superpowers/plans/2026-04-24-ck3-wanderer-officer-trajectory.md) / [Plan 5 draft](superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system.md) / [Plan 6 draft](superpowers/plans/2026-04-24-ck3-wanderer-roll-of-patrons.md) / [Plan 7 draft](superpowers/plans/2026-04-24-ck3-wanderer-polish-smoke-tuning.md) | Importing the CK3 wanderer career arc onto Bannerlord's enlistment substrate. Plan 1 (Architecture Foundation, commit `aa3ef16`) ships save-definer class offsets 54-58 + enum 84 (`PatronRoll` / `PatronEntry` / `ContractActivity` / `EndeavorActivity` / `LifestyleUnlockStore` / `FavorKind`), four hosting `CampaignBehaviorBase` shells, `ModalEventBuilder` helper centralizing the `Storylet → BuildModal → EmitCandidate` pipeline, and the all-tier stay-back gate fix in `EnlistedFormationAssignmentBehavior`. Plan 2 (Companion Substrate, commits `57941d2` → `4dfe719`) spawns six wanderer-mechanics companions (Sergeant T1, Field Medic + Pathfinder T3, Veteran T5, QM Officer + Junior Officer T7) with predicate-based troop selection, three archetype variants per companion, ~120 dialog catalog nodes (full token-interpolation contract per AGENTS.md pitfall #23), Camp menu Talk-to surface, OnHeroKilled cleanup, per-Lord vs per-player lifecycle. Living references: [companion-archetype-catalog.md](Features/Companions/companion-archetype-catalog.md). |
+| **Companion Archetype Catalog (Plan 2)** | [companion-archetype-catalog.md](Features/Companions/companion-archetype-catalog.md) | Schema reference for `ModuleData/Enlisted/Companions/archetype_catalog.json`. Predicate-based troop selection (tier + formation + occupation), five-trait whitelist (Valor/Mercy/Honor/Calculating/Generosity), three-archetype-per-companion contract, civilian style stub. Loaded at session launch by `Enlisted.Features.Companions.CompanionSpawnFactory`. |
+| **Event Pacing (delivery)** | [2026-04-18-event-pacing-design.md](superpowers/specs/2026-04-18-event-pacing-design.md) | StoryDirector tier selection + pacing floors; the delivery half that Spec 0's content feeds |
 | **First Meeting (QM)** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Quartermaster NPC |
 | **Food & Rations** | [provisions-rations-system.md](Features/Equipment/provisions-rations-system.md) | — |
 | **Battle AI** | [battle-ai-plan.md](Features/Combat/battle-ai-plan.md) | Native AI analysis, Orchestrator proposal |
@@ -88,10 +97,10 @@
 | **Leave System** | [temporary-leave.md](Features/Campaign/temporary-leave.md) | — |
 | **Muster System (Pay Day Ceremony)** | [muster-system.md](Features/Core/muster-system.md) | Menu Flow, All 8 Stages |
 | **Officers Armory** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | Officers Armory |
-| **Onboarding** | [onboarding-discharge-system.md](Features/Core/onboarding-discharge-system.md) | Onboarding |
+| **Onboarding** | [enlistment.md](Features/Core/enlistment.md) | Onboarding |
 | **Orders (Chain of Command)** | [order-progression-system.md](Features/Core/order-progression-system.md) | — |
 | **Pay & Wages** | [pay-system.md](Features/Core/pay-system.md) | — |
-| **Progression System** | [event-system-schemas.md](Features/Content/event-system-schemas.md#progression-system-schema-future-foundation) | Generic probabilistic daily rolls for escalation tracks |
+| **Progression System** | [storylet-backbone.md](Features/Content/storylet-backbone.md) | Generic probabilistic daily rolls for escalation tracks |
 | **Promotion & Rank Progression** | [promotion-system.md](Features/Core/promotion-system.md) | — |
 | **Provisions Shop** | [provisions-rations-system.md](Features/Equipment/provisions-rations-system.md) | T7+ Officer Provisions |
 | **Quartermaster System** | [quartermaster-system.md](Features/Equipment/quartermaster-system.md) | — |
@@ -112,8 +121,9 @@
 | --- | --- | --- |
 | [README.md](README.md) | Main entry point and mod overview | ✅ Current |
 | [BLUEPRINT.md](BLUEPRINT.md) | Project architecture and coding standards | ✅ Current |
-| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Build guide, development patterns, validation (Phase 7 project structure checks) | ✅ Current |
-| [ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md](ORCHESTRATOR-OPPORTUNITY-UNIFICATION.md) | Orchestrator scheduling unification: pre-schedules opportunities 24h ahead, locks schedule to prevent disappearance on context changes, narrative hint integration, removes menu cache for single source of truth | ✅ Implemented |
+| [DEVELOPER-GUIDE.md](DEVELOPER-GUIDE.md) | Build guide, development patterns, and the active repo lint stack | ✅ Current |
+| [../Tools/README.md](../Tools/README.md) | Validation tools, lint entry points, and maintenance scripts | ✅ Current |
+| [../Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) | Logging, save-system patterns, and repo tooling config | ✅ Current |
 
 ---
 
@@ -129,14 +139,12 @@
 | [core-gameplay.md](Features/Core/core-gameplay.md) | Complete gameplay overview covering all major systems and how they interact | ✅ Current |
 | [enlistment.md](Features/Core/enlistment.md) | Enlistment system: joining process, lord selection, initial rank assignment, contract terms | ✅ Current |
 | [order-progression-system.md](Features/Core/order-progression-system.md) | Multi-day order execution: phase progression (4/day), slot events during duty, consequence accumulation, order forecasting with imminent warnings. 17 orders with 84 order events active. | ✅ Implemented |
-| [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, discipline score), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
+| [promotion-system.md](Features/Core/promotion-system.md) | Rank progression T1-T9: XP sources (combat, orders, training), multi-factor requirements (service days, battles fought, reputation thresholds, scrutiny cap), proving events (rank-up challenges), culture-specific rank titles, equipment tier unlocks, officer privileges (T7+) | ✅ Current |
 | [pay-system.md](Features/Core/pay-system.md) | Wages and payment: 12-day muster cycle, rank-based pay scales, wage modifiers (performance, reputation, lord wealth), pay tension (mutiny risk), deductions (fines, missing gear) | ✅ Current |
 | [muster-system.md](Features/Core/muster-system.md) | Muster System: 6-stage GameMenu sequence for pay day ceremonies, rank progression display, period summary (12-day recap), event integration (recruit), comprehensive reporting (combat/training/orders/XP breakdown), pay options, promotion recap, retinue muster (T7+), direct Quartermaster access | ✅ Current |
 | [company-events.md](Features/Core/company-events.md) | Company-wide events: march events, camp life events, morale events, supply events | ✅ Current |
 | [retinue-system.md](Features/Core/retinue-system.md) | Commander's retinue (T7+ officers): formation selection (player chooses retinue troops), context-aware trickle (1-3 troops per battle), relation-based reinforcements, loyalty tracking, 11 narrative events (character development), 6 post-battle incidents (heroism/casualties), 4 camp decisions (discipline/rewards), named veterans (persistent characters) | ✅ Current |
 | [companion-management.md](Features/Core/companion-management.md) | Companion integration: how companions work with enlisted systems, role assignments, special interactions | ✅ Current |
-| [camp-fatigue.md](Features/Core/camp-fatigue.md) | Rest and fatigue: fatigue accumulation (marching, fighting), rest recovery (camp actions), fatigue effects on performance | ✅ Current |
-| [onboarding-discharge-system.md](Features/Core/onboarding-discharge-system.md) | Onboarding (initial training, orientation, first conversations) and discharge (equipment reclamation, final pay settlement, retirement options) | ✅ Current |
 
 ### Equipment & Logistics
 
@@ -167,6 +175,11 @@
 | [formation-assignment.md](Features/Combat/formation-assignment.md) | Battle formation logic: T1-T6 soldiers auto-assigned to formation based on equipped weapons (bow→Ranged, horse→Cavalry, both→Horse Archer, melee→Infantry), teleported to formation position. T7+ commanders control their own party, no auto-assignment. | ✅ Current |
 | [battle-ai-plan.md](Features/Combat/battle-ai-plan.md) | Battle AI upgrade plan: native AI analysis (architecture, tactics, behaviors, query systems, morale, terrain, siege), identified gaps, Battle Orchestrator proposal (commander-layer AI for reserves, concentration, coordinated withdrawal), modding entry points | 📋 Plan |
 | [agent-combat-ai.md](Features/Combat/agent-combat-ai.md) | Agent-level combat AI: 40+ tunable properties (blocking, parrying, aiming, reactions, shield use), AgentStatCalculateModel, AI level calculation, BehaviorValueSet, modding entry points, example profiles (Veteran, Elite Guard) | 📋 Plan |
+| [BATTLE-AI-IMPLEMENTATION-SPEC.md](Features/Combat/BATTLE-AI-IMPLEMENTATION-SPEC.md) | Master implementation checklist for all Battle AI phases: Orchestrator → Formation → Agent three-layer architecture, phase dependencies, field-battle scope (no siege/naval), status tracking | 📋 Plan |
+| [advanced-tactical-behaviors.md](Features/Combat/advanced-tactical-behaviors.md) | Enhancement specs for formation intelligence (Phase 3), cavalry cycle manager (Phase 9), and agent combat AI (Phase 11) — builds on base implementation spec | 📋 Plan |
+| [tactical-formation-behavior-enhancement.md](Features/Combat/tactical-formation-behavior-enhancement.md) | Orchestrator-integrated formation behaviors: intelligent position validation, context-aware positioning, dynamic threat response, archer behavior director — Phases 3 and 10 | 📋 Plan |
+| [battle-scale-system-summary.md](Features/Combat/battle-scale-system-summary.md) | Battle scale detection: dynamic AI complexity scaling from 200- to 1000-troop battles (Skirmish → Massive), formation count and tick interval tables | 📚 Reference |
+| [phase19-api-verification.md](Features/Combat/phase19-api-verification.md) | API verification report for Phase 19 battlefield realism enhancements (ammunition tracking, line relief, morale contagion, feints) — verified feasible against v1.3.13 decompile (reference) | 📚 Reference |
 
 ### Campaign & World
 
@@ -174,7 +187,6 @@
 
 | Document | Topic | Status |
 | --- | --- | --- |
-| [README.md](Features/Campaign/README.md) | Campaign folder overview | ✅ Current |
 | [camp-life-simulation.md](Features/Campaign/camp-life-simulation.md) | Camp activities: daily routine events, social interactions, training opportunities, rest actions, company needs management in camp | ✅ Current |
 | [temporary-leave.md](Features/Campaign/temporary-leave.md) | Leave system: requesting leave (rank-based approval), leave duration limits, leave activities (visit family, trade, rest), return requirements, AWOL consequences | ✅ Current |
 | [town-access-system.md](Features/Campaign/town-access-system.md) | Town access rules: rank-based restrictions (T1-T4 limited, T5+ more freedom), permission requirements, town activities available by rank, leave of absence system | ✅ Current |
@@ -187,10 +199,11 @@
 | Document | Topic | Status |
 | --- | --- | --- |
 | [README.md](Features/Content/README.md) | Content folder overview | ✅ Current |
-| [content-system-architecture.md](Features/Content/content-system-architecture.md) | Complete content system architecture: world-state-driven orchestration (ContentOrchestrator owns opportunity lifecycle with 24h pre-scheduling, WorldStateAnalyzer, SimulationPressureCalculator, PlayerBehaviorTracker), activity level system, native Bannerlord effect integration (IncidentEffectTranslator, trait mapping), JSON-driven content delivery, requirement checking, localization. No grace period - content fires immediately upon enlistment. Orchestrator Unification complete. | ✅ Current |
-| [event-system-schemas.md](Features/Content/event-system-schemas.md) | Event system JSON schemas: event structure (triggers, conditions, options, outcomes), decision schemas, order schemas, dialogue schemas, **Progression System Schema** (generic probabilistic daily rolls for escalation tracks), camp opportunities schema (with hint/hintId fields for Daily Brief foreshadowing), validation rules | ✅ Current |
 | [injury-system.md](Features/Content/injury-system.md) | Unified medical condition system: injuries (3 types), illnesses (4 types), medical risk escalation (0-5), context-aware treatment (land vs sea), illness onset triggers, recovery tracking, maritime illness variants, condition worsening mechanics. Fully integrated with ContentOrchestrator. | ✅ Implemented |
 | [writing-style-guide.md](Features/Content/writing-style-guide.md) | Bannerlord RP writing guide: voice and tone (terse military prose), tense/perspective rules, vocabulary (medieval military register, avoid anachronisms), setup/option/result text patterns, tooltip formatting, **opportunity hints** (camp rumors vs personal hints, placeholder usage, categorization), dialogue patterns by rank, common mistakes to avoid, examples and checklists | ✅ Current |
+| [home-surface.md](Features/Content/home-surface.md) | Living reference for the Enlisted Home Surface (Spec 1, Phases A–D complete). HomeActivity lifecycle, 4-phase flow, 5-intent Evening menu provider, 34 HomeTriggers predicates, 50-storylet corpus, save offset 45, integration points with the storylet backbone. | ✅ Current |
+| [career-loop.md](Features/Content/career-loop.md) | Living reference for the Career Loop Closure surface (Plan 5). Five paths × T4/T6/T9 crossroads, `commit_path` / `resist_path` effect primitives, T7+ named-order variants (30 storylets), culture + lord-trait overlays (45 + 15), `CareerDebugHotkeysBehavior` hotkeys, `validate_content.py` Phase 15 enforcement, integration with Plans 1-4. No new save-definer offsets. | 🟡 Code-complete |
+| [orders-content.md](Features/Content/orders-content.md) | Retired legacy Orders catalog. The old `src/Features/Orders/` subsystem was replaced by `OrderActivity` + storylet pools; current authoring belongs in [storylet-backbone.md](Features/Content/storylet-backbone.md), [career-loop.md](Features/Content/career-loop.md), and the five-plan roadmap. Historical plan: [archived orders surface](superpowers/plans/archive/2026-04-20-orders-surface.md). | 📦 Archived |
 
 ### Technical Systems
 
@@ -208,12 +221,11 @@
 
 | Document | Topic | Status |
 | --- | --- | --- |
-| [README.md](Features/UI/README.md) | UI systems overview | ✅ Current |
 | [ui-systems-master.md](Features/UI/ui-systems-master.md) | Complete UI reference: all menus, screens, and interfaces (camp menu, muster menu, QM interfaces, equipment grids, dialogue flows), Gauntlet implementation patterns, UI technical requirements | ✅ Current |
 | [enlisted-combat-log.md](Features/UI/enlisted-combat-log.md) | Custom combat log widget: native-styled scrollable feed (right side, 5min persistence, 50 message history), smart auto-scroll (pauses on manual scroll), inactivity fade (35% after 10s), clickable encyclopedia links with faction-specific colors (kingdoms display in banner colors: Vlandia=red, Sturgia=blue, Battania=green, etc.), suppresses native log while enlisted via Harmony patch, color-coded messages with shadows | ✅ Current |
 | [camp-hub-custom-gauntlet.md](Features/UI/camp-hub-custom-gauntlet.md) | Custom Gauntlet main hub: replaces `enlisted_status` GameMenu with custom layout (horizontal buttons, dynamic order cards, settlement access), all submenus stay native GameMenu, complete implementation spec with ViewModel/XML/Behavior code | 📋 Specification |
 | [color-scheme.md](Features/UI/color-scheme.md) | Professional color palette: hex codes for all UI elements (backgrounds, text, buttons, status indicators), quality tier colors, reputation colors, accessibility considerations | ✅ Current |
-| [news-reporting-system.md](Features/UI/news-reporting-system.md) | News feeds and Daily Brief: event logging, combat summaries, period recaps, notification system, Daily Brief UI (shows last 12 days of activity) | ✅ Current |
+| [news-reporting-system.md](Features/UI/news-reporting-system.md) | News feeds and reporting: kingdom/personal feeds, `HEADLINES`, camp hub recaps, typed dispatch fields (`Tier` / `Beats` / `Body`), modal queue persistence, combat-log ownership boundary, and current `development` status. Agency typed routing remains branch-scoped until merged. | ✅ Current |
 
 ---
 
@@ -223,9 +235,7 @@
 
 | Document | Purpose | Status |
 | --- | --- | --- |
-| [README.md](Features/Content/README.md) | Content system overview: 282 content pieces (17 orders, 84 order events, 37 decisions, 36 camp opportunities, 57 context events, 51 map incidents) | ✅ Current |
-| [content-index.md](Features/Content/content-index.md) | Master catalog: all content with IDs, titles, descriptions, requirements, effects, skill checks organized by category | ✅ Current |
-| [content-organization-map.md](Features/Content/content-organization-map.md) | Visual hierarchy: parent-child relationships, file locations, workflows for adding new content | ✅ Current |
+| [README.md](Features/Content/README.md) | Content system overview. Current authoring routes through storylets, activities, qualities, flags, scripted effects, and the five-plan roadmap; legacy Orders content is archived for historical reference. | ✅ Current |
 
 ---
 
@@ -235,18 +245,17 @@
 
 | Document | Purpose | Status |
 | --- | --- | --- |
-| [README.md](Reference/README.md) | Reference overview and how to use reference docs | ✅ Current |
 | [native-apis.md](Reference/native-apis.md) | Campaign System API reference: Bannerlord API patterns, CampaignBehavior structure, common APIs (Hero, Party, Clan, Settlement), event hooks, save/load patterns - use for API verification against decompiled source | 📚 Reference |
 | [native-skill-xp.md](Reference/native-skill-xp.md) | Skill progression reference: attribute/skill hierarchy, focus points, learning rates, XP calculation formulas, thematic aliases - use when implementing training/skill systems | 📚 Reference |
 | [content-effects-reference.md](Reference/content-effects-reference.md) | Complete effects reference: all effect types (skill XP, gold, HP, reputation, escalation, company needs, party, narrative), native API integration, processing flow - use when writing content JSON | 📚 Reference |
-| [content-skill-integration-plan.md](Reference/content-skill-integration-plan.md) | Strategic plan: thematic skill aliases, attribute coverage analysis, content improvement roadmap, implementation checklist - use for planning content improvements | 📋 Planning |
 | [native-map-incidents.md](Reference/native-map-incidents.md) | Native game incidents: all vanilla map incidents (bandits, prisoners, travelers), trigger conditions, outcomes, loot tables - use to avoid conflicts with native content | 📚 Reference |
 | [map-incidents-warsails.md](Reference/map-incidents-warsails.md) | Naval DLC map incidents: Warsails expansion content, naval encounters, coastal events - use to avoid DLC conflicts | 📚 Reference |
 | [ai-behavior-analysis.md](Reference/ai-behavior-analysis.md) | AI behavior analysis: native AI decision-making patterns, party movement logic, combat AI, lord behavior - use for AI-aware feature design | 📚 Reference |
 | [battle-system-complete-analysis.md](Reference/battle-system-complete-analysis.md) | Complete battle and encounter system analysis: all 68 battle/encounter/captivity/raid menus, UpdateInternal() state machine (12 states), complete battle lifecycles (manual attack, autosim, siege assault), captivity flow (13 menus), village raid flow (10 menus), menu transition flows with exact code references - use to understand native battle handling and verify enlisted mod coverage | 📚 Reference |
 | [complete-menu-analysis.md](Reference/complete-menu-analysis.md) | Complete native menu system analysis: tick-based menu refresh system, GetGenericStateMenu() priority order, siege menu flow (join_siege_event vs menu_siege_strategies), BesiegerCamp mechanics, race condition timeline documentation, captivity and village raid menus cataloged - use to understand menu transitions and timing issues | 📚 Reference |
 | [captivity-and-raid-analysis.md](Reference/captivity-and-raid-analysis.md) | Captivity and village raid systems deep dive: complete captivity flow (capture → 13 menu paths → release), army removal during captivity, village raid system (lord raiding while enlisted), enlisted mod gaps and recommendations - use to understand captivity handling and plan enlisted captivity features | 📚 Reference |
-| [opportunities-system-spec.md](Reference/opportunities-system-spec.md) | ⚠️ **LEGACY** - Replaced by [Camp Simulation System](Features/Campaign/camp-simulation-system.md) | 🗄️ Deprecated |
+| [party-attachment-and-merging.md](Reference/party-attachment-and-merging.md) | Native implementation analysis of party attachment, escorting, and Army system — use when evaluating enlistment faking strategies or physical party merge options | 📚 Reference |
+| [siege-menu-analysis.md](Reference/siege-menu-analysis.md) | Comprehensive analysis of native siege menu behavior (menu flow, key menus, timing) to guide correct handling of siege encounters for enlisted soldiers | 📚 Reference |
 | [camp-simulation-system.md](Features/Campaign/camp-simulation-system.md) | Two-layer camp system: Background Simulation (autonomous company life) + Camp Opportunities (36 player activities with learning), Decision Scheduling (Phase 9). Content flows immediately on enlistment (no grace period). Complete implementation documentation. | ✅ Implemented |
 
 ---

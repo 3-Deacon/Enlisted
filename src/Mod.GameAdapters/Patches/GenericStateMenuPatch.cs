@@ -1,13 +1,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using HarmonyLib;
-using TaleWorlds.CampaignSystem.Encounters;
-using TaleWorlds.CampaignSystem.GameComponents;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
+using HarmonyLib;
+using TaleWorlds.CampaignSystem.Encounters;
+using TaleWorlds.CampaignSystem.GameComponents;
 using EnlistedEncounterBehavior = Enlisted.Features.Combat.Behaviors.EnlistedEncounterBehavior;
 
 namespace Enlisted.Mod.GameAdapters.Patches
@@ -52,7 +51,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     return;
                 }
-                
+
                 // DIAGNOSTIC: Log what menu the native system wants to show
                 var originalResult = __result;
                 var mainParty = TaleWorlds.CampaignSystem.Party.MobileParty.MainParty;
@@ -60,11 +59,11 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var partyVisible = mainParty?.IsVisible ?? false;
                 var inMapEvent = mainParty?.Party?.MapEvent != null;
                 var hasEncounter = PlayerEncounter.Current != null;
-                
+
                 // Only log when result is meaningful (not null/empty)
                 if (!string.IsNullOrEmpty(__result))
                 {
-                    ModLogger.Info("MenuGuard", 
+                    ModLogger.Info("MenuGuard",
                         $"NATIVE MENU REQUEST: '{__result}' | Active={partyActive}, Visible={partyVisible}, " +
                         $"InMapEvent={inMapEvent}, HasEncounter={hasEncounter}");
                 }
@@ -158,18 +157,18 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // Check if lord is in a battle or siege - if so, don't override combat-related menus
                 var lordPartyCheck = enlistment?.CurrentLord?.PartyBelongedTo;
                 var lordInBattle = lordPartyCheck?.Party?.MapEvent != null;
-                
+
                 // Check siege status - need to check BOTH the lord AND the army leader (if in army)
-                var lordInSiege = lordPartyCheck?.SiegeEvent != null || 
-                                  lordPartyCheck?.BesiegerCamp != null || 
+                var lordInSiege = lordPartyCheck?.SiegeEvent != null ||
+                                  lordPartyCheck?.BesiegerCamp != null ||
                                   lordPartyCheck?.BesiegedSettlement != null;
-                
+
                 // If lord is in an army, also check if the army leader is besieging
                 var lordArmy = lordPartyCheck?.Army;
                 if (!lordInSiege && lordArmy != null)
                 {
                     var armyLeader = lordArmy.LeaderParty;
-                    lordInSiege = armyLeader?.BesiegerCamp != null || 
+                    lordInSiege = armyLeader?.BesiegerCamp != null ||
                                   armyLeader?.BesiegedSettlement != null ||
                                   armyLeader?.SiegeEvent != null;
                 }
@@ -192,7 +191,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // This prevents unwanted menu switches when the player hasn't explicitly chosen to visit
                 // Settlement menus (town/castle/village) should only appear when player clicks "Visit Settlement"
                 // Includes both inside ("castle", "town") and outside ("castle_outside", "town_outside") menus
-                if (__result == "army_wait" || 
+                if (__result == "army_wait" ||
                     __result == "army_wait_at_settlement" ||
                     __result == "town" ||
                     __result == "town_outside" ||

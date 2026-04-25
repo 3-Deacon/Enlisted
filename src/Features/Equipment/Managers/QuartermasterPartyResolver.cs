@@ -1,6 +1,6 @@
+using Enlisted.Features.Enlistment.Behaviors;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Features.Enlistment.Behaviors;
 
 namespace Enlisted.Features.Equipment.Managers
 {

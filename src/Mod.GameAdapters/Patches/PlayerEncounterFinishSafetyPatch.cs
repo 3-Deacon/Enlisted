@@ -3,12 +3,12 @@
 // Bug report: https://report.butr.link/03DD07
 
 using System;
+using Enlisted.Mod.Core;
+using Enlisted.Mod.Core.Logging;
 using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
-using Enlisted.Mod.Core;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Mod.GameAdapters.Patches;
 
@@ -32,10 +32,10 @@ namespace Enlisted.Mod.GameAdapters.Patches;
 public static class PlayerEncounterFinishSafetyPatch
 {
     private const string LogCategory = "EncounterSafety";
-    
+
     // Track if we're currently inside a Finish() call to detect re-entrancy
     private static bool _isFinishInProgress;
-    
+
     // Track the last finish attempt for debugging (helps identify patterns)
     private static DateTime _lastFinishAttempt = DateTime.MinValue;
     private static string _lastFinishContext = "none";
@@ -50,29 +50,29 @@ public static class PlayerEncounterFinishSafetyPatch
         var now = DateTime.UtcNow;
         var timeSinceLastFinish = (now - _lastFinishAttempt).TotalMilliseconds;
         _lastFinishAttempt = now;
-        
+
         // Detect rapid successive calls (potential race condition indicator)
         var isRapidCall = timeSinceLastFinish < 100; // Within 100ms of previous call
-        
+
         // Prevent re-entrant calls (shouldn't happen, but be safe)
         if (_isFinishInProgress)
         {
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"Blocked re-entrant Finish call (last context: {_lastFinishContext})");
             return false;
         }
-        
+
         // Determine calling context for logging
         var context = DetermineCallingContext();
         _lastFinishContext = context;
-        
+
         // Only apply safety measures when enlisted - don't affect normal gameplay
         if (!EnlistedActivation.IsActive)
         {
             _isFinishInProgress = true;
             return true;
         }
-        
+
         try
         {
             // Validate Campaign exists
@@ -81,7 +81,7 @@ public static class PlayerEncounterFinishSafetyPatch
                 ModLogger.Debug(LogCategory, $"Finish skipped - Campaign.Current is null ({context})");
                 return false;
             }
-            
+
             // Check if PlayerEncounter.Current exists
             var current = Campaign.Current.PlayerEncounter;
             if (current == null)
@@ -89,36 +89,36 @@ public static class PlayerEncounterFinishSafetyPatch
                 // This is normal if encounter was already finished
                 if (isRapidCall)
                 {
-                    ModLogger.Debug(LogCategory, 
+                    ModLogger.Debug(LogCategory,
                         $"Finish skipped - already cleaned up ({context}, {timeSinceLastFinish:F0}ms since last)");
                 }
                 return false;
             }
-            
+
             // Validate MainParty exists (required at end of Finish method)
             var mainParty = MobileParty.MainParty;
             if (mainParty == null)
             {
-                ModLogger.Warn(LogCategory, 
+                ModLogger.Warn(LogCategory,
                     $"Finish - MainParty null, cleaning up safely ({context})");
                 SafeCleanupEncounter("MainParty null");
                 return false;
             }
-            
+
             // Log rapid successive calls for debugging (potential race condition)
             if (isRapidCall)
             {
-                ModLogger.Debug(LogCategory, 
+                ModLogger.Debug(LogCategory,
                     $"Rapid Finish calls detected: {timeSinceLastFinish:F0}ms apart ({context})");
             }
-            
+
             // All checks passed - allow original method to run
             _isFinishInProgress = true;
-            
+
             // Log for debugging (only at Debug level to avoid spam)
-            ModLogger.Debug(LogCategory, 
+            ModLogger.Debug(LogCategory,
                 $"Finish proceeding ({context}, forceOut={forcePlayerOutFromSettlement})");
-            
+
             return true;
         }
         catch (Exception ex)
@@ -147,42 +147,42 @@ public static class PlayerEncounterFinishSafetyPatch
     public static Exception Finalizer(Exception __exception)
     {
         _isFinishInProgress = false;
-        
+
         if (__exception == null)
         {
             return null;
         }
-        
+
         // Only handle exceptions when enlisted to avoid masking unrelated bugs
         if (!EnlistedActivation.IsActive)
         {
             return __exception;
         }
-        
+
         // Log the crash for debugging
         var exceptionType = __exception.GetType().Name;
         var message = __exception.Message;
-        
+
         ModLogger.Surfaced("PATCH",
             "PlayerEncounter.Finish crashed while enlisted", __exception,
             LogCtx.Of("ExceptionType", exceptionType, "Message", message, "Context", _lastFinishContext));
-        ModLogger.Debug(LogCategory, 
+        ModLogger.Debug(LogCategory,
             $"Crash context: {_lastFinishContext}");
-        
+
         // If it's a NullReferenceException (the bug we're fixing), clean up and swallow
         if (__exception is NullReferenceException)
         {
-            ModLogger.Info(LogCategory, 
+            ModLogger.Info(LogCategory,
                 "Recovering from NullReferenceException in Finish - cleaning up encounter state");
             SafeCleanupEncounter("NullRef recovery");
-            
+
             // Swallow the exception to prevent game crash
             return null;
         }
-        
+
         // For other exception types, log but let them propagate
         // We don't want to mask unrelated bugs
-        ModLogger.Warn(LogCategory, 
+        ModLogger.Warn(LogCategory,
             $"Non-NullRef exception in Finish - allowing to propagate: {exceptionType}");
         return __exception;
     }
@@ -197,28 +197,28 @@ public static class PlayerEncounterFinishSafetyPatch
         {
             // Check common calling patterns
             var stackTrace = Environment.StackTrace;
-            
-        if (stackTrace.Contains("AiPartyThinkBehavior"))
-        {
-            return "NativeAI";
-        }
-        if (stackTrace.Contains("OnMapEventEnded"))
-        {
-            return "EnlistmentBattle";
-        }
-        if (stackTrace.Contains("NextFrameDispatcher"))
-        {
-            return "DeferredCleanup";
-        }
-        if (stackTrace.Contains("EnlistedMenuBehavior"))
-        {
-            return "EnlistedMenu";
-        }
-        if (stackTrace.Contains("EncounterGameMenuBehavior"))
-        {
-            return "NativeMenu";
-        }
-            
+
+            if (stackTrace.Contains("AiPartyThinkBehavior"))
+            {
+                return "NativeAI";
+            }
+            if (stackTrace.Contains("OnMapEventEnded"))
+            {
+                return "EnlistmentBattle";
+            }
+            if (stackTrace.Contains("NextFrameDispatcher"))
+            {
+                return "DeferredCleanup";
+            }
+            if (stackTrace.Contains("EnlistedMenuBehavior"))
+            {
+                return "EnlistedMenu";
+            }
+            if (stackTrace.Contains("EncounterGameMenuBehavior"))
+            {
+                return "NativeMenu";
+            }
+
             return "Other";
         }
         catch
@@ -238,14 +238,14 @@ public static class PlayerEncounterFinishSafetyPatch
         try
         {
             ModLogger.Debug(LogCategory, $"SafeCleanupEncounter: {reason}");
-            
+
             // Set LeaveEncounter flag - the native system will clean up on next tick
             // We cannot assign directly to Campaign.PlayerEncounter as it's read-only
             if (PlayerEncounter.Current != null)
             {
                 PlayerEncounter.LeaveEncounter = true;
             }
-            
+
             // Try to reset party move mode (what Finish does at line 790)
             var mainParty = MobileParty.MainParty;
             if (mainParty != null)
@@ -259,7 +259,7 @@ public static class PlayerEncounterFinishSafetyPatch
                     // Ignore - party might be in invalid state
                 }
             }
-            
+
             ModLogger.Info(LogCategory, "Encounter cleanup requested via LeaveEncounter flag");
         }
         catch (Exception ex)

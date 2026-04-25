@@ -1,0 +1,99 @@
+{
+  "storylets": [
+    {
+      "id": "floor_quartermaster_warning_short_rations",
+      "title": "{=floor_quartermaster_warning_short_rations_title}Short rations tomorrow",
+      "setup": "{=floor_quartermaster_warning_short_rations_setup}Short rations from tomorrow. Plan accordingly. The quartermaster does not soften it, and no one asks him to say it twice.",
+      "theme": "signal",
+      "category": "floor_quartermaster_warning",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_quartermaster_warning_short_rations_opt}Tighten the belt.",
+          "tooltip": "{=floor_quartermaster_warning_short_rations_tt}Acknowledge the warning. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_quartermaster_warning_wagon_late",
+      "title": "{=floor_quartermaster_warning_wagon_late_title}Wagon is late",
+      "setup": "{=floor_quartermaster_warning_wagon_late_setup}The supply wagon is late. We eat what we have. The quartermaster counts sacks twice and then a third time, as if the number might improve.",
+      "theme": "signal",
+      "category": "floor_quartermaster_warning",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_quartermaster_warning_wagon_late_opt}Make it last.",
+          "tooltip": "{=floor_quartermaster_warning_wagon_late_tt}Acknowledge. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_quartermaster_warning_feed_the_horses",
+      "title": "{=floor_quartermaster_warning_feed_the_horses_title}Horses first",
+      "setup": "{=floor_quartermaster_warning_feed_the_horses_setup}Fodder is thin. Feed the horses first; men second. The rule is old and the reason is older: a column without horses is a column that does not move.",
+      "theme": "signal",
+      "category": "floor_quartermaster_warning",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_quartermaster_warning_feed_the_horses_opt}Men can wait.",
+          "tooltip": "{=floor_quartermaster_warning_feed_the_horses_tt}Pass it down. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_quartermaster_warning_no_wine",
+      "title": "{=floor_quartermaster_warning_no_wine_title}No wine this week",
+      "setup": "{=floor_quartermaster_warning_no_wine_setup}Wine ration is done. It will not be replaced this week. A few men curse under their breath; the quartermaster pretends he did not hear them.",
+      "theme": "signal",
+      "category": "floor_quartermaster_warning",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_quartermaster_warning_no_wine_opt}Water and nothing.",
+          "tooltip": "{=floor_quartermaster_warning_no_wine_tt}Acknowledge. No effect.",
+          "effects": []
+        }
+      ]
+    },
+    {
+      "id": "floor_quartermaster_warning_forage_tomorrow",
+      "title": "{=floor_quartermaster_warning_forage_tomorrow_title}Foragers at dawn",
+      "setup": "{=floor_quartermaster_warning_forage_tomorrow_setup}Foragers ride out at dawn. Hope they come back with something. The quartermaster does not wish them luck; luck is not a thing he has ever put much stock in.",
+      "theme": "signal",
+      "category": "floor_quartermaster_warning",
+      "severity": "low",
+      "cooldown_days": 2,
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=floor_quartermaster_warning_forage_tomorrow_opt}Wish them well.",
+          "tooltip": "{=floor_quartermaster_warning_forage_tomorrow_tt}Note it. No effect.",
+          "effects": []
+        }
+      ]
+    }
+  ]
+}

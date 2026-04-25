@@ -105,7 +105,7 @@ namespace Enlisted.Features.Escalation
             // Check if expired
             if (expiryTime != CampaignTime.Never && CampaignTime.Now >= expiryTime)
             {
-                ActiveFlags.Remove(flagName);
+                _ = ActiveFlags.Remove(flagName);
                 return false;
             }
 
@@ -142,7 +142,7 @@ namespace Enlisted.Features.Escalation
             }
 
             ActiveFlags ??= new Dictionary<string, CampaignTime>(StringComparer.OrdinalIgnoreCase);
-            ActiveFlags.Remove(flagName);
+            _ = ActiveFlags.Remove(flagName);
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Enlisted.Features.Escalation
 
             foreach (var key in toRemove)
             {
-                PendingChainEvents.Remove(key);
+                _ = PendingChainEvents.Remove(key);
             }
 
             return ready;
@@ -242,7 +242,7 @@ namespace Enlisted.Features.Escalation
             }
 
             OneTimeEventsFired ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            OneTimeEventsFired.Add(eventId);
+            _ = OneTimeEventsFired.Add(eventId);
         }
 
         /// <summary>

@@ -1,0 +1,220 @@
+{
+  "storylets": [
+    {
+      "id": "order_scout_diplomat_t7",
+      "title": "{=order_scout_diplomat_t7_title}Read the town, not the road",
+      "setup": "{=order_scout_diplomat_t7_setup}Your lord sends you ahead — not to map the ground, but to sit in the tavern of the next town and read the mood. Who is loud about the lord, who is quiet, who looks away. You have the tongue for it now.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_diplomat"],
+      "class_affinity": {
+        "Infantry": 1.0,
+        "Ranged": 1.0
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "scout_diplomat_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_scout_diplomat_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "scout_diplomat_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_scout_diplomat_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_scout_diplomat_t7_accept_diligent_text}Take the quiet road. Sit in the common room.",
+          "tooltip": "{=order_scout_diplomat_t7_accept_diligent_tt}Start town-scout arc. Diligent.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_scout_diplomat_t7_decline_text}Beg off. You do not trust your face today.",
+          "tooltip": "{=order_scout_diplomat_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_diplomat_t7_mid_vigil",
+      "title": "{=order_scout_diplomat_t7_mid_vigil_title}The long table",
+      "setup": "{=order_scout_diplomat_t7_mid_vigil_setup}Three men at the long table are talking about a tax the lord raised last spring. You do not join them. You order bread. You listen. Every grievance is a piece of ground the column will cross.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_scout_diplomat_t7_mid_vigil_main_text}Sit quiet. Nod at the right places.",
+          "tooltip": "{=order_scout_diplomat_t7_mid_vigil_main_tt}Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_scout_diplomat_t7_resolve_diligent",
+      "title": "{=order_scout_diplomat_t7_resolve_diligent_title}What the town will say",
+      "setup": "{=order_scout_diplomat_t7_resolve_diligent_setup}You give your lord the shape of the next town — who will open the gate, who will balk, what price will turn the bailiff. No map, no hoofprints. Words. He listens all the way through.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_scout_diplomat_t7_resolve_diligent_close_text}Finish the briefing. Step back.",
+          "tooltip": "{=order_scout_diplomat_t7_resolve_diligent_close_tt}Rank XP + Charm + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_diplomat_t7",
+      "title": "{=order_escort_diplomat_t7_title}Ride at the envoy's stirrup",
+      "setup": "{=order_escort_diplomat_t7_setup}An envoy from a neighboring lord rides with a small escort, and yours rides with them. Your lord places you at the envoy's stirrup — close enough to speak, polished enough not to shame the colors. This is not a soldier's posting. It is yours now.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted", "rank_gte:7", "flag:committed_path_diplomat"],
+      "class_affinity": {
+        "Cavalry": 1.2,
+        "Infantry": 1.0
+      },
+      "arc": {
+        "duration_hours": 10,
+        "phases": [
+          {
+            "id": "escort_diplomat_t7_mid",
+            "duration_hours": 8,
+            "pool_prefix": "order_escort_diplomat_t7_mid_",
+            "fire_interval_hours": 2,
+            "delivery": "auto"
+          },
+          {
+            "id": "escort_diplomat_t7_resolve",
+            "duration_hours": 2,
+            "pool_prefix": "order_escort_diplomat_t7_resolve_",
+            "fire_interval_hours": 0,
+            "delivery": "auto"
+          }
+        ]
+      },
+      "options": [
+        {
+          "id": "accept_diligent",
+          "text": "{=order_escort_diplomat_t7_accept_diligent_text}Ride at his stirrup. Say little, hear everything.",
+          "tooltip": "{=order_escort_diplomat_t7_accept_diligent_tt}Start envoy-escort arc.",
+          "effects": [
+            { "apply": "start_arc", "intent": "diligent" }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=order_escort_diplomat_t7_decline_text}Beg off. Not a day for a clean tongue.",
+          "tooltip": "{=order_escort_diplomat_t7_decline_tt}Decline. Relation + scrutiny hit.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "lord", "delta": -2 },
+            { "apply": "scrutiny_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_diplomat_t7_mid_road",
+      "title": "{=order_escort_diplomat_t7_mid_road_title}A question at the gate",
+      "setup": "{=order_escort_diplomat_t7_mid_road_setup}At the town gate the envoy is asked a question he does not want to answer — about the price of grain, and who in his lord's house set it. He glances sideways. You are the one at the stirrup. You give the line that keeps the gate open.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "elevated",
+      "cooldown_days": 2,
+      "intent_affinity": { "diligent": 1.4 },
+      "scope": { "context": "any" },
+      "trigger": ["is_enlisted"],
+      "options": [
+        {
+          "id": "main",
+          "text": "{=order_escort_diplomat_t7_mid_road_main_text}Answer for him. Easy voice.",
+          "tooltip": "{=order_escort_diplomat_t7_mid_road_main_tt}Charm XP.",
+          "effects": [
+            { "apply": "skill_xp", "skill": "Charm", "amount": 25 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "order_escort_diplomat_t7_resolve_diligent",
+      "title": "{=order_escort_diplomat_t7_resolve_diligent_title}The envoy remembered your face",
+      "setup": "{=order_escort_diplomat_t7_resolve_diligent_setup}The envoy dismounts in the inner court and makes a point of thanking your lord for the soldier at his stirrup. He says your name. Your lord files it away. Names matter up here.",
+      "theme": "duty",
+      "category": "named_order",
+      "severity": "normal",
+      "scope": {
+        "context": "any",
+        "slots": {
+          "lord": { "role": "enlisted_lord" }
+        }
+      },
+      "trigger": ["is_enlisted"],
+      "intent_affinity": { "diligent": 2.0 },
+      "options": [
+        {
+          "id": "close",
+          "text": "{=order_escort_diplomat_t7_resolve_diligent_close_text}Bow. Step back. Rack the saddle.",
+          "tooltip": "{=order_escort_diplomat_t7_resolve_diligent_close_tt}Rank XP + Charm + relation.",
+          "effects": [
+            { "apply": "rank_xp_minor" },
+            { "apply": "skill_xp", "skill": "Charm", "amount": 40 },
+            { "apply": "lord_relation_up_small" },
+            { "apply": "clear_active_named_order" }
+          ]
+        }
+      ]
+    }
+  ]
+}

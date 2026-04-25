@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "plansDirectory": "docs/superpowers/plans",
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \".claude/hooks/post-edit-cs.ps1\"",
+            "timeout": 30,
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+
+  "permissions": {
+    "additionalDirectories": [
+      "../Decompile"
+    ],
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet --info)",
+      "Bash(dotnet --list-sdks)",
+
+      "Bash(python Tools/Validation/validate_content.py:*)",
+      "Bash(python Tools/Validation/sync_event_strings.py:*)",
+      "Bash(python Tools/Validation/generate_error_codes.py:*)",
+      "Bash(/c/Python313/python.exe Tools/Validation/validate_content.py:*)",
+      "Bash(/c/Python313/python.exe Tools/Validation/sync_event_strings.py:*)",
+      "Bash(/c/Python313/python.exe Tools/Validation/generate_error_codes.py:*)",
+
+      "Bash(./Tools/Validation/lint_repo.ps1:*)",
+      "Bash(powershell.exe -NoProfile -ExecutionPolicy Bypass -File Tools/normalize_crlf.ps1:*)",
+
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git blame:*)",
+      "Bash(git branch --show-current)",
+      "Bash(git branch -v)",
+      "Bash(git branch -vv)",
+      "Bash(git rev-parse:*)",
+      "Bash(git fetch:*)",
+      "Bash(git remote -v)",
+      "Bash(git stash list)",
+      "Bash(git worktree list)",
+      "Bash(git config --get:*)",
+
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(export PATH=:*)"
+    ]
+  }
+}

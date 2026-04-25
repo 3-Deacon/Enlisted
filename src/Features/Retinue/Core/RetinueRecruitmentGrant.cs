@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -93,7 +93,7 @@ namespace Enlisted.Features.Retinue.Core
             }
             catch (Exception ex)
             {
-                ModLogger.Error(LogCategory,
+                ModLogger.Caught("RecruitGrant",
                     $"Failed to grant commander retinue: {ex.Message}", ex);
             }
         }
@@ -135,8 +135,8 @@ namespace Enlisted.Features.Retinue.Core
             var recruitTroop = FindCultureRecruit(culture, formation);
             if (recruitTroop == null)
             {
-                ModLogger.Error(LogCategory,
-                    $"Could not find recruit for culture={culture?.StringId}, formation={formation}");
+                ModLogger.Surfaced("RECRUITGRANT", "Could not find recruit troop for culture and formation", null,
+                    ctx: LogCtx.Of("Culture", culture?.StringId, "Formation", formation.ToString()));
                 ShowRecruitGrantFailedMessage(count);
                 return;
             }
@@ -145,7 +145,7 @@ namespace Enlisted.Features.Retinue.Core
             var mobileParty = MobileParty.MainParty;
             if (mobileParty == null)
             {
-                ModLogger.Error(LogCategory, "Player party is null");
+                ModLogger.Caught("RecruitGrant", "Player party is null", null);
                 return;
             }
 
@@ -166,13 +166,13 @@ namespace Enlisted.Features.Retinue.Core
             }
 
             // Add recruits to party roster
-            mobileParty.MemberRoster.AddToCounts(recruitTroop, count);
+            _ = mobileParty.MemberRoster.AddToCounts(recruitTroop, count);
 
             // Update retinue state tracking
             var manager = RetinueManager.Instance;
             if (manager != null)
             {
-                manager.State.UpdateTroopCount(recruitTroop.StringId, count);
+                _ = manager.State.UpdateTroopCount(recruitTroop.StringId, count);
                 manager.State.SelectedTypeId = GetFormationTypeId(formation);
             }
 
@@ -337,7 +337,7 @@ namespace Enlisted.Features.Retinue.Core
             var culture = GetEnlistedLordCulture();
             if (culture == null)
             {
-                ModLogger.Error(LogCategory, "Cannot show formation dialog: no culture");
+                ModLogger.Caught("RecruitGrant", "Cannot show formation dialog: no culture", null);
                 // Fallback to infantry
                 GrantRawRecruits(recruitCount, FormationClass.Infantry, Hero.MainHero?.Culture);
                 return;

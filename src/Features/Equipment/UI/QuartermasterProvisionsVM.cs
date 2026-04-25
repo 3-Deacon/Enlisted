@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Equipment.Behaviors;
+using Enlisted.Features.Logistics;
+using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
-using Enlisted.Features.Enlistment.Behaviors;
-using Enlisted.Features.Equipment.Behaviors;
-using Enlisted.Features.Logistics;
-using Enlisted.Mod.Core.Logging;
 
 namespace Enlisted.Features.Equipment.UI
 {
@@ -67,21 +67,21 @@ namespace Enlisted.Features.Equipment.UI
         public QuartermasterProvisionsVm()
         {
             ProvisionRows = new MBBindingList<QuartermasterProvisionRowVm>();
-            
+
             var playerTier = EnlistmentBehavior.Instance?.EnlistmentTier ?? 1;
             var hasNoFood = !HasAnyFood();
-            
+
             // Allow purchase access if: officer rank (T7+) OR completely out of food (emergency access)
             _isOfficer = playerTier >= 7 || hasNoFood;
-            
+
             // Simple header for all ranks
             HeaderText = "Company Provisions";
-            
+
             ShowRationInfo = false;
             ShowProvisionsShop = true;
-            
+
             BuildProvisionsGrid();
-            
+
             var accessReason = playerTier >= 7 ? "officer" : (hasNoFood ? "emergency (no food)" : "enlisted");
             ModLogger.Info("QuartermasterUI", $"Provisions UI initialized for T{playerTier} {accessReason}");
         }
@@ -103,7 +103,7 @@ namespace Enlisted.Features.Equipment.UI
 
                 if (foodItems.Count == 0)
                 {
-                    ModLogger.Error("QuartermasterUI", "No food items found! Cannot build provisions grid. This should never happen - check game data.");
+                    ModLogger.Surfaced("QUARTERMASTERUI", "No food items found - cannot build provisions grid", null);
                     HeaderText = "Error: No Food Items";
                     OnPropertyChanged(nameof(HeaderText));
                     return;
@@ -112,7 +112,7 @@ namespace Enlisted.Features.Equipment.UI
                 // Get inventory state for stock quantities
                 var qmManager = QuartermasterManager.Instance;
                 var inventoryState = qmManager?.GetInventoryState();
-                
+
                 // Ensure inventory has food items (may not be populated until first muster)
                 if (inventoryState != null && inventoryState.CurrentStock.Count == 0)
                 {
@@ -161,7 +161,7 @@ namespace Enlisted.Features.Equipment.UI
                 }
 
                 ModLogger.Info("QuartermasterUI", $"Built provisions grid with {provisionItems.Count} items in {ProvisionRows.Count} rows");
-                
+
                 // Debug: Log each row and its cards
                 for (int r = 0; r < ProvisionRows.Count; r++)
                 {
@@ -176,7 +176,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building provisions grid", ex);
+                ModLogger.Caught("QuartermasterUI", "Error building provisions grid", ex);
             }
         }
 
@@ -213,7 +213,7 @@ namespace Enlisted.Features.Equipment.UI
                 foodItems = foodItems.OrderBy(i => i.Value).ToList();
 
                 ModLogger.Info("QuartermasterUI", $"Found {foodItems.Count} food items for provisions from {allItems.Count} total items");
-                
+
                 // Log the final sorted list
                 foreach (var item in foodItems)
                 {
@@ -222,7 +222,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error getting food items", ex);
+                ModLogger.Caught("QuartermasterUI", "Error getting food items", ex);
             }
 
             return foodItems;
@@ -257,7 +257,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error checking player food inventory", ex);
+                ModLogger.Caught("QuartermasterUI", "Error checking player food inventory", ex);
                 return false; // Fail safe - grant access on error
             }
         }
@@ -422,7 +422,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error refreshing provisions values", ex);
+                ModLogger.Caught("QuartermasterUI", "Error refreshing provisions values", ex);
                 HeaderText = "Provisions";
                 PlayerGoldText = "Gold unavailable";
             }
@@ -451,24 +451,24 @@ namespace Enlisted.Features.Equipment.UI
                 if (daysRemaining > 0)
                 {
                     var statusText = new TextObject("{=qm_ration_status}Current: {QUALITY} - {DAYS} days remaining");
-                    statusText.SetTextVariable("QUALITY", qualityName);
-                    statusText.SetTextVariable("DAYS", (int)Math.Ceiling(daysRemaining));
-                    sb.AppendLine(statusText.ToString());
+                    _ = statusText.SetTextVariable("QUALITY", qualityName);
+                    _ = statusText.SetTextVariable("DAYS", (int)Math.Ceiling(daysRemaining));
+                    _ = sb.AppendLine(statusText.ToString());
                 }
                 else
                 {
-                    sb.AppendLine(new TextObject("{=qm_ration_standard}Current: Standard army rations (no bonus)").ToString());
+                    _ = sb.AppendLine(new TextObject("{=qm_ration_standard}Current: Standard army rations (no bonus)").ToString());
                 }
 
                 // Add hint about purchasing supplements
-                sb.AppendLine();
-                sb.AppendLine(new TextObject("{=qm_ration_supplements_hint}You can purchase supplemental provisions below for morale bonuses.").ToString());
+                _ = sb.AppendLine();
+                _ = sb.AppendLine(new TextObject("{=qm_ration_supplements_hint}You can purchase supplemental provisions below for morale bonuses.").ToString());
 
                 RationInfoText = sb.ToString();
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error building ration info text", ex);
+                ModLogger.Caught("QuartermasterUI", "Error building ration info text", ex);
                 RationInfoText = "";
             }
         }
@@ -505,18 +505,18 @@ namespace Enlisted.Features.Equipment.UI
                 var party = MobileParty.MainParty;
                 if (party != null)
                 {
-                    party.ItemRoster.AddToCounts(item.Item, quantity);
+                    _ = party.ItemRoster.AddToCounts(item.Item, quantity);
                 }
 
                 // Decrement stock in inventory state
                 var inventoryState = QuartermasterManager.Instance?.GetInventoryState();
-                inventoryState?.TryPurchase(item.Item.StringId, quantity);
+                _ = (inventoryState?.TryPurchase(item.Item.StringId, quantity));
 
                 // Log purchase
                 var msg = new TextObject("{=qm_provisions_purchased}Purchased {QUANTITY}x {ITEM} for {COST} denars.");
-                msg.SetTextVariable("QUANTITY", quantity);
-                msg.SetTextVariable("ITEM", item.Item.Name);
-                msg.SetTextVariable("COST", totalCost);
+                _ = msg.SetTextVariable("QUANTITY", quantity);
+                _ = msg.SetTextVariable("ITEM", item.Item.Name);
+                _ = msg.SetTextVariable("COST", totalCost);
                 InformationManager.DisplayMessage(new InformationMessage(msg.ToString(), Colors.Green));
 
                 ModLogger.Info("QuartermasterUI", $"Purchased {quantity}x {item.Item.StringId} for {totalCost}g");
@@ -526,7 +526,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error processing provision purchase", ex);
+                ModLogger.Caught("QuartermasterUI", "Error processing provision purchase", ex);
             }
         }
 
@@ -541,7 +541,7 @@ namespace Enlisted.Features.Equipment.UI
             }
             catch (Exception ex)
             {
-                ModLogger.Error("QuartermasterUI", "Error closing provisions UI", ex);
+                ModLogger.Caught("QuartermasterUI", "Error closing provisions UI", ex);
             }
         }
     }

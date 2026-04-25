@@ -186,8 +186,8 @@ ENLISTED-ONLY ACTIVATION:
 - Check: EnlistmentState.IsEnlisted before any AI logic
 - If not enlisted, native AI runs unmodified
 
-CODE QUALITY (RESHARPER + QODANA):
-- Follow ReSharper/Rider and Qodana recommendations as strictly as possible
+CODE QUALITY (RESHARPER + REPO LINT):
+- Follow ReSharper/Rider and the repo lint stack recommendations as strictly as possible
 - Fix ALL warnings before considering code complete
 - Never suppress warnings with pragmas unless truly necessary
 - If suppressing is unavoidable, use [SuppressMessage] with clear Justification
@@ -213,11 +213,11 @@ BRACES:
 COMMON PITFALLS TO AVOID:
 1. Not adding new files to .csproj → files won't compile
 2. Using external API docs instead of decompile → wrong APIs
-3. Ignoring ReSharper/Qodana warnings → code quality degrades, PR rejected
+3. Ignoring ReSharper/repo lint warnings → code quality degrades, PR rejected
 4. Missing null checks → crashes
 5. Using ChangeHeroGold instead of GiveGoldAction → gold UI breaks
 6. Iterating equipment with Enum.GetValues → includes invalid count values
-7. Leaving unused code → Qodana flags it, wastes maintenance effort
+7. Leaving unused code → the repo lint stack flags it, wastes maintenance effort
 8. Suppressing warnings with #pragma → User prefers fixing over suppressing
 
 SAVE SYSTEM (if adding persistent state):
@@ -306,8 +306,8 @@ ENLISTED-ONLY:
 - Check: EnlistmentBehavior.Instance.IsEnlisted before any AI logic
 - If not enlisted, native AI runs unmodified
 
-CODE QUALITY (RESHARPER + QODANA - CRITICAL):
-- Follow ReSharper/Qodana recommendations as strictly as possible
+CODE QUALITY (RESHARPER + REPO LINT - CRITICAL):
+- Follow ReSharper/repo lint recommendations as strictly as possible
 - Fix ALL warnings before considering code complete (don't suppress with pragmas)
 - ALWAYS use braces for if/for/while/foreach, even single lines
 - Comments describe WHAT code does NOW (no changelog style)
@@ -637,8 +637,8 @@ LOGGING: Use ModLogger.Info("BattleAI", "message");
 
 ENLISTED-ONLY: Check EnlistmentBehavior.Instance.IsEnlisted before AI logic
 
-CODE QUALITY (RESHARPER + QODANA):
-- Follow ReSharper/Qodana - fix ALL warnings, don't suppress
+CODE QUALITY (RESHARPER + REPO LINT):
+- Follow ReSharper/repo lint - fix ALL warnings, don't suppress
 - ALWAYS use braces for if/for/while/foreach
 - Comments describe current behavior (no changelog style)
 - Remove unused code, add null checks
@@ -859,8 +859,8 @@ PROJECT BUILD:
 
 LOGGING: Use ModLogger.Info("BattleAI", "message");
 
-CODE QUALITY (RESHARPER + QODANA):
-- Follow ReSharper/Qodana - fix ALL warnings, don't suppress
+CODE QUALITY (RESHARPER + REPO LINT):
+- Follow ReSharper/repo lint - fix ALL warnings, don't suppress
 - ALWAYS use braces for if/for/while/foreach
 - Comments describe current behavior (no changelog style)
 - Remove unused code, add null checks
@@ -1093,8 +1093,8 @@ PROJECT BUILD:
 
 LOGGING: Use ModLogger.Info("BattleAI", "message");
 
-CODE QUALITY (RESHARPER + QODANA):
-- Follow ReSharper/Qodana - fix ALL warnings, don't suppress
+CODE QUALITY (RESHARPER + REPO LINT):
+- Follow ReSharper/repo lint - fix ALL warnings, don't suppress
 - ALWAYS use braces for if/for/while/foreach
 - Comments describe current behavior (no changelog style)
 - Remove unused code, add null checks
@@ -1256,7 +1256,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY
@@ -1465,7 +1465,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY
@@ -1595,7 +1595,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-6 exist before starting)
@@ -1754,7 +1754,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 T7+ ACTIVATION: Only when player is T7+ (commander with own troops)
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -1875,7 +1875,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-8 exist before starting)
@@ -2024,7 +2024,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-11 exist before starting)
@@ -2178,7 +2178,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-14 exist before starting)
@@ -2318,7 +2318,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-15 exist before starting)
@@ -2612,7 +2612,7 @@ Phase 17-18:
 General:
 [ ] Build succeeds
 [ ] No crashes or exceptions
-[ ] All ReSharper/Qodana warnings fixed
+[ ] All ReSharper/repo lint warnings fixed
 
 ═══════════════════════════════════════════════════════════════════════════════
 HANDOFF NOTES
@@ -2657,7 +2657,7 @@ API VERIFICATION: Use local decompile at C:\Dev\Enlisted\Decompile\
 PROJECT BUILD: dotnet build -c "Enlisted RETAIL" /p:Platform=x64
 CSPROJ: Manually add new files with <Compile Include="..."/>
 LOGGING: Use ModLogger.Info("BattleAI", "message");
-CODE QUALITY: Follow ReSharper/Qodana strictly, fix all warnings, use braces, no changelog comments
+CODE QUALITY: Follow ReSharper/repo lint strictly, fix all warnings, use braces, no changelog comments
 
 ═══════════════════════════════════════════════════════════════════════════════
 CONTEXT RECOVERY (Verify Phase 1-18 exist before starting)
@@ -2836,7 +2836,7 @@ High Ground (19.9):
 General:
 [ ] Build succeeds
 [ ] No crashes or exceptions
-[ ] All ReSharper/Qodana warnings fixed
+[ ] All ReSharper/repo lint warnings fixed
 [ ] Systems integrate with existing orchestrator/formation architecture
 
 ═══════════════════════════════════════════════════════════════════════════════

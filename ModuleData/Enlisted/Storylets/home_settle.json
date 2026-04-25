@@ -1,0 +1,100 @@
+{
+  "storylets": [
+    {
+      "id": "home_settle_food_anxiety_3d",
+      "category": "home_settle", "observational": true,
+      "trigger": ["party_food_lte_3_days"], "weight": { "base": 3.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_food3_title}Three days of grain",
+      "setup": "{=home_settle_food3_setup}The quartermaster counts sacks twice, and the tally doesn't change. Whatever the writ says, the writ is behind the barrels."
+    },
+    {
+      "id": "home_settle_food_anxiety_5d",
+      "category": "home_settle", "observational": true,
+      "trigger": ["party_food_lte_5_days"], "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_food5_title}Short rations",
+      "setup": "{=home_settle_food5_setup}The bread is thinner than yesterday. No one says it. You notice it when you break your own, and you say nothing either."
+    },
+    {
+      "id": "home_settle_wounded_tend",
+      "category": "home_settle", "observational": true,
+      "trigger": ["lord_is_wounded"], "weight": { "base": 2.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_wounded_title}The surgeon's tent",
+      "setup": "{=home_settle_wounded_setup}You help carry a man who won't stop bleeding. Your lord is in a smaller tent, behind a curtain, being quiet about his own hurt. You were seen pulling your weight."
+    },
+    {
+      "id": "home_settle_stores_short",
+      "category": "home_settle", "observational": true,
+      "trigger": ["party_food_lte_5_days"], "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_stores_title}Counting barrels",
+      "setup": "{=home_settle_stores_setup}The quartermaster and the castle stewards square off over an oat-count that doesn't match the writ. Your own rations aren't touched — yet."
+    },
+    {
+      "id": "home_settle_weather_autumn",
+      "category": "home_settle", "observational": true,
+      "trigger": ["is_autumn"], "weight": { "base": 1.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_autumn_title}The first bite of autumn",
+      "setup": "{=home_settle_autumn_setup}A chill settles into the bones of the walls. Someone sends out for more firewood. Your breath makes a plume on the morning air, and your hands take longer to warm."
+    },
+    {
+      "id": "home_settle_weather_winter",
+      "category": "home_settle", "observational": true,
+      "trigger": ["is_winter"], "weight": { "base": 1.5 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_winter_title}Snow on the walls",
+      "setup": "{=home_settle_winter_setup}The snow has settled into the crenellations. You are sent to help chip ice from the water-barrel and your hands ache after. The cold gets into the gear too; the old sergeant warns you to oil everything, twice."
+    },
+    {
+      "id": "home_settle_low_loyalty_town",
+      "category": "home_settle", "observational": true,
+      "trigger": ["at_town", "settlement_low_loyalty"], "weight": { "base": 2.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_lowloy_title}Eyes in the market",
+      "setup": "{=home_settle_lowloy_setup}The market-folk look through you, not at you. Someone spits after your patrol passes. Your sergeant tells you not to notice, so you don't."
+    },
+    {
+      "id": "home_settle_recent_threat",
+      "category": "home_settle", "observational": true,
+      "trigger": ["settlement_recent_threat"], "weight": { "base": 2.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_threat_title}The last raid is still warm",
+      "setup": "{=home_settle_threat_setup}You ride past a burned byre on the approach. Inside the walls, the talk is louder, uglier. Men grip their cups a little harder when they speak of it."
+    },
+    {
+      "id": "home_settle_lord_observation_mercy",
+      "category": "home_settle", "observational": true,
+      "trigger": ["lord_trait_mercy_positive"], "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_mercy_title}A word for the wounded",
+      "setup": "{=home_settle_mercy_setup}Your lord stops in the surgeon's tent longer than the rounds require. He has a short word for each man. Someone who can't answer him is told he is expected to live, and the lie kindly told."
+    },
+    {
+      "id": "home_settle_lord_observation_valor",
+      "category": "home_settle", "observational": true,
+      "trigger": ["lord_trait_valor_positive"], "weight": { "base": 1.2 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_valor_title}Into the yard at dawn",
+      "setup": "{=home_settle_valor_setup}Before the watch-horn, your lord is already in the practice yard, working through forms with a dented training-sword. Two squires stand watching like men who have learned not to interrupt."
+    },
+    {
+      "id": "home_settle_chaplain_passes",
+      "category": "home_settle", "observational": true,
+      "trigger": [], "weight": { "base": 0.8 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_chaplain_title}The chaplain passes through",
+      "setup": "{=home_settle_chaplain_setup}An old cleric moves from fire to fire, saying what he says over bowed heads. He pauses at yours, touches your shoulder, moves on."
+    },
+    {
+      "id": "home_settle_siege_preparations",
+      "category": "home_settle", "observational": true,
+      "trigger": ["settlement_under_siege"], "weight": { "base": 3.0 },
+      "scope": { "context": "settlement" },
+      "title": "{=home_settle_siege_title}Preparing for worse",
+      "setup": "{=home_settle_siege_setup}Orders come down hourly. Arrows are bundled, water-butts filled, the keep's stores moved up a floor. No one asks you about your day."
+    }
+  ]
+}

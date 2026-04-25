@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.SaveSystem;
 
