@@ -7,6 +7,7 @@ using Enlisted.Debugging.Behaviors;
 using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
+using Enlisted.Features.Companions;
 using Enlisted.Features.Content;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -1371,6 +1372,25 @@ namespace Enlisted.Features.Interface.Behaviors
             // See: dec_medical_surgeon, dec_medical_rest, dec_medical_herbal, dec_medical_emergency
 
             // Access Baggage Train moved to Decisions accordion - appears only when accessible
+
+            // Talk to Companion - opens MultiSelectionInquiry over spawned wanderer-substrate companions
+            starter.AddGameMenuOption(CampHubMenuId, "camp_hub_talk_to_companion",
+                "{=enlisted_camp_talk_to_companion}Talk to...",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Conversation;
+                    var spawned = CompanionLifecycleHandler.Instance?.GetSpawnedCompanions();
+                    if (spawned == null || spawned.Count == 0)
+                    {
+                        args.IsEnabled = false;
+                        args.Tooltip = new TextObject("{=enlisted_camp_talk_to_companion_none}No companions are with you yet.");
+                        return true;
+                    }
+                    args.Tooltip = new TextObject("{=enlisted_camp_talk_to_companion_tooltip}Speak with a companion in your party.");
+                    return true;
+                },
+                OnTalkToCompanionSelected,
+                false, 6);
 
             // My Lord... - conversation with the current lord (Conversation icon)
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_talk_to_lord",
@@ -3876,6 +3896,127 @@ namespace Enlisted.Features.Interface.Behaviors
             {
                 ModLogger.Surfaced("INTERFACE", "Error opening conversation with lord", ex,
                     ctx: LogCtx.Of("Lord", lord?.Name?.ToString()));
+                InformationManager.DisplayMessage(new InformationMessage(
+                    new TextObject("{=menu_conversation_error}Unable to start conversation. Please try again.").ToString()));
+            }
+        }
+
+        private void OnTalkToCompanionSelected(MenuCallbackArgs args)
+        {
+            try
+            {
+                QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true)
+                {
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=enlisted_camp_talk_to_companion_not_enlisted}You must be enlisted to speak with companions.").ToString()));
+                    return;
+                }
+
+                var spawned = CompanionLifecycleHandler.Instance?.GetSpawnedCompanions();
+                if (spawned == null || spawned.Count == 0)
+                {
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=enlisted_camp_talk_to_companion_none_available}No companions are available for conversation.").ToString()));
+                    return;
+                }
+
+                ShowCompanionSelectionInquiry(spawned);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("INTERFACE", "Error in Talk to Companion", ex,
+                    ctx: LogCtx.PlayerState());
+            }
+        }
+
+        private void ShowCompanionSelectionInquiry(List<Hero> companions)
+        {
+            try
+            {
+                var elements = new List<InquiryElement>();
+                var unknown = new TextObject("{=enl_ui_unknown}Unknown").ToString();
+                foreach (var hero in companions)
+                {
+                    if (hero == null) continue;
+                    var name = hero.Name?.ToString() ?? unknown;
+                    var portrait = new CharacterImageIdentifier(CharacterCode.CreateFrom(hero.CharacterObject));
+                    var typeId = EnlistmentBehavior.Instance?.GetCompanionTypeId(hero) ?? string.Empty;
+                    var description = string.IsNullOrEmpty(typeId) ? string.Empty : typeId.Replace('_', ' ');
+
+                    elements.Add(new InquiryElement(hero, name, portrait, true, description));
+                }
+
+                if (elements.Count == 0)
+                {
+                    return;
+                }
+
+                var data = new MultiSelectionInquiryData(
+                    titleText: new TextObject("{=enlisted_camp_talk_to_companion_title}Speak with...").ToString(),
+                    descriptionText: string.Empty,
+                    inquiryElements: elements,
+                    isExitShown: true,
+                    minSelectableOptionCount: 1,
+                    maxSelectableOptionCount: 1,
+                    affirmativeText: new TextObject("{=enlisted_camp_talk_to_companion_speak}Speak").ToString(),
+                    negativeText: new TextObject("{=enlisted_camp_talk_to_companion_back}Back").ToString(),
+                    affirmativeAction: selected =>
+                    {
+                        try
+                        {
+                            if (selected?.FirstOrDefault()?.Identifier is Hero companion)
+                            {
+                                StartConversationWithCompanion(companion);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ModLogger.Surfaced("INTERFACE", "Error starting companion conversation", ex);
+                        }
+                    },
+                    negativeAction: null);
+
+                MBInformationManager.ShowMultiSelectionInquiry(data, true);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("INTERFACE", "Error showing companion selection inquiry", ex);
+            }
+        }
+
+        private void StartConversationWithCompanion(Hero companion)
+        {
+            try
+            {
+                if (companion == null || !companion.IsAlive)
+                {
+                    InformationManager.DisplayMessage(new InformationMessage(
+                        new TextObject("{=enlisted_camp_talk_to_companion_unavailable}Companion is not available for conversation.").ToString()));
+                    return;
+                }
+
+                var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
+                var mainParty = MobileParty.MainParty;
+                var companionData = new ConversationCharacterData(companion.CharacterObject, mainParty?.Party);
+
+                if (mainParty?.IsCurrentlyAtSea == true)
+                {
+                    const string seaConversationScene = "conversation_scene_sea_multi_agent";
+                    ModLogger.Info("INTERFACE", $"Opening sea conversation with companion {companion.Name} using scene: {seaConversationScene}");
+                    _ = CampaignMission.OpenConversationMission(playerData, companionData, seaConversationScene);
+                }
+                else
+                {
+                    CampaignMapConversation.OpenConversation(playerData, companionData);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Surfaced("INTERFACE", "Error opening conversation with companion", ex,
+                    ctx: LogCtx.Of("Companion", companion?.Name?.ToString()));
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=menu_conversation_error}Unable to start conversation. Please try again.").ToString()));
             }
