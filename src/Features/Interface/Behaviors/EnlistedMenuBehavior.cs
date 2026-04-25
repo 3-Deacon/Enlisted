@@ -14,6 +14,7 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Logistics;
+using Enlisted.Features.Ranks;
 using Enlisted.Mod.Core;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
@@ -3998,6 +3999,8 @@ namespace Enlisted.Features.Interface.Behaviors
                     return;
                 }
 
+                SetCompanionConversationTokens(companion);
+
                 var playerData = new ConversationCharacterData(CharacterObject.PlayerCharacter, PartyBase.MainParty);
                 var mainParty = MobileParty.MainParty;
                 var companionData = new ConversationCharacterData(companion.CharacterObject, mainParty?.Party);
@@ -4020,6 +4023,41 @@ namespace Enlisted.Features.Interface.Behaviors
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=menu_conversation_error}Unable to start conversation. Please try again.").ToString()));
             }
+        }
+
+        /// <summary>
+        ///     Populate the MBTextManager variable bag the companion catalogs reference.
+        ///     Mirrors EnlistedDialogManager.SetCommonDialogueVariables for the QM flow,
+        ///     plus two companion-scoped tokens. Tokens used in the catalog text:
+        ///     {PLAYER_NAME}, {PLAYER_RANK}, {LORD_NAME}, {PLAYER_TIER},
+        ///     {COMPANION_NAME}, {COMPANION_FIRST_NAME}.
+        ///     {PLAYER_RANK} resolves through RankHelper and is culture-aware
+        ///     (per-kingdom rank titles from progression_config.json).
+        /// </summary>
+        private static void SetCompanionConversationTokens(Hero companion)
+        {
+            var hero = Hero.MainHero;
+            var enlistment = EnlistmentBehavior.Instance;
+
+            var playerName = hero?.Name?.ToString() ?? "Soldier";
+            MBTextManager.SetTextVariable("PLAYER_NAME", playerName);
+
+            var rankTitle = enlistment != null
+                ? RankHelper.GetCurrentRank(enlistment)
+                : "Soldier";
+            MBTextManager.SetTextVariable("PLAYER_RANK", rankTitle);
+
+            var lordName = enlistment?.EnlistedLord?.Name?.ToString() ?? "the lord";
+            MBTextManager.SetTextVariable("LORD_NAME", lordName);
+
+            var tier = enlistment?.EnlistmentTier ?? 1;
+            MBTextManager.SetTextVariable("PLAYER_TIER", tier.ToString());
+
+            var companionName = companion?.Name?.ToString() ?? string.Empty;
+            MBTextManager.SetTextVariable("COMPANION_NAME", companionName);
+
+            var companionFirstName = companion?.FirstName?.ToString() ?? companionName;
+            MBTextManager.SetTextVariable("COMPANION_FIRST_NAME", companionFirstName);
         }
 
         /// <summary>

@@ -8,7 +8,7 @@
       "id": "companion_veteran_intro_greeting",
       "speaker": "companion",
       "textId": "companion_veteran_intro_greeting_war_weary",
-      "text": "Another fresh face in the line. I've buried more of those than I care to count. Try not to be the next.",
+      "text": "Another fresh {PLAYER_RANK} in the line. I've buried more of those than I care to count. Try not to be the next, {PLAYER_NAME}.",
       "context": { "companion_type": "veteran", "archetype": "war_weary", "is_introduced": false },
       "options": [
         {
@@ -36,7 +36,7 @@
       "id": "companion_veteran_intro_greeting",
       "speaker": "companion",
       "textId": "companion_veteran_intro_greeting_proud",
-      "text": "So you've come to learn from the best. Stand straight, lad — a soldier under my eye carries himself with iron in his spine.",
+      "text": "So you've come to learn from the best, {PLAYER_NAME}. Stand straight — a {PLAYER_RANK} under my eye carries himself with iron in his spine.",
       "context": { "companion_type": "veteran", "archetype": "proud", "is_introduced": false },
       "options": [
         {
@@ -64,7 +64,7 @@
       "id": "companion_veteran_intro_greeting",
       "speaker": "companion",
       "textId": "companion_veteran_intro_greeting_philosophical",
-      "text": "Fresh blood for the lord's banner. Tell me — do you know yet why you carry a sword, or are you still finding out?",
+      "text": "Fresh blood for {LORD_NAME}'s banner. Tell me, {PLAYER_NAME} — do you know yet why you carry a sword, or are you still finding out?",
       "context": { "companion_type": "veteran", "archetype": "philosophical", "is_introduced": false },
       "options": [
         {
@@ -92,7 +92,7 @@
       "id": "companion_veteran_intro_ack",
       "speaker": "companion",
       "textId": "companion_veteran_intro_ack_war_weary",
-      "text": "Aye. We'll see how the seasons treat you. They're not gentle.",
+      "text": "Aye. We'll see how the seasons treat you, {PLAYER_NAME}. They're not gentle.",
       "context": { "companion_type": "veteran", "archetype": "war_weary" },
       "options": [
         {
@@ -108,7 +108,7 @@
       "id": "companion_veteran_intro_ack",
       "speaker": "companion",
       "textId": "companion_veteran_intro_ack_proud",
-      "text": "Good answer. Watch me in the line and you'll learn what a soldier is supposed to look like.",
+      "text": "Good answer, {PLAYER_RANK}. Watch me in the line and you'll learn what a soldier is supposed to look like.",
       "context": { "companion_type": "veteran", "archetype": "proud" },
       "options": [
         {
@@ -124,7 +124,7 @@
       "id": "companion_veteran_intro_ack",
       "speaker": "companion",
       "textId": "companion_veteran_intro_ack_philosophical",
-      "text": "An honest answer is rarer than a good sword. We'll talk again, when there's time.",
+      "text": "An honest answer is rarer than a good sword, {PLAYER_NAME}. We'll talk again, when there's time.",
       "context": { "companion_type": "veteran", "archetype": "philosophical" },
       "options": [
         {
@@ -140,7 +140,7 @@
       "id": "companion_veteran_root",
       "speaker": "companion",
       "textId": "companion_veteran_root_default",
-      "text": "Got time for an old soldier?",
+      "text": "Got time for an old soldier, {PLAYER_NAME}?",
       "context": { "companion_type": "veteran" },
       "options": [
         {
@@ -185,7 +185,7 @@
       "id": "companion_veteran_topic_war_stories",
       "speaker": "companion",
       "textId": "companion_veteran_war_stories_war_weary",
-      "text": "I remember the faces. Not the victories — the faces. Boys I sat watch with, who never made it home. The fields blur. The faces don't.",
+      "text": "I remember the faces, {PLAYER_NAME}. Not the victories — the faces. Boys I sat watch with, who never made it home. The fields blur. The faces don't.",
       "context": { "companion_type": "veteran", "archetype": "war_weary" },
       "options": [
         { "id": "war_stories_close", "textId": "companion_veteran_war_stories_opt_close", "text": "I'm sorry.", "next_node": "companion_veteran_root" }
@@ -196,7 +196,7 @@
       "id": "companion_veteran_topic_war_stories",
       "speaker": "companion",
       "textId": "companion_veteran_war_stories_proud",
-      "text": "The wall at Praven. We took it before the sun was up — banner planted on the parapet while their lord was still in his nightshirt. That's the day they'll put on my stone.",
+      "text": "The wall at Praven. We took it before the sun was up — banner planted on the parapet while their lord was still in his nightshirt. That's the day they'll put on my stone, {PLAYER_RANK}.",
       "context": { "companion_type": "veteran", "archetype": "proud" },
       "options": [
         { "id": "war_stories_close", "textId": "companion_veteran_war_stories_opt_close", "text": "A fine memory.", "next_node": "companion_veteran_root" }
@@ -207,7 +207,7 @@
       "id": "companion_veteran_topic_war_stories",
       "speaker": "companion",
       "textId": "companion_veteran_war_stories_philosophical",
-      "text": "Most battles I've fought I cannot tell you why. Two lords disagreed and ten thousand men went to settle it. We march, we kill, we mourn — and the reason is always somewhere else, in a hall we'll never see.",
+      "text": "Most battles I've fought I cannot tell you why, {PLAYER_NAME}. Two lords disagreed and ten thousand men went to settle it. We march, we kill, we mourn — and the reason is always somewhere else, in a hall we'll never see.",
       "context": { "companion_type": "veteran", "archetype": "philosophical" },
       "options": [
         { "id": "war_stories_close", "textId": "companion_veteran_war_stories_opt_close", "text": "That's the truth of it.", "next_node": "companion_veteran_root" }
@@ -218,7 +218,7 @@
       "id": "companion_veteran_topic_mentorship",
       "speaker": "companion",
       "textId": "companion_veteran_mentorship_war_weary",
-      "text": "Find one man in the line you'd die for, and stand next to him. The rest is noise. And keep a letter to your kin in your pack — write it before each battle, not after.",
+      "text": "Find one man in the line you'd die for, {PLAYER_NAME}, and stand next to him. The rest is noise. And keep a letter to your kin in your pack — write it before each battle, not after.",
       "context": { "companion_type": "veteran", "archetype": "war_weary" },
       "options": [
         { "id": "mentorship_close", "textId": "companion_veteran_mentorship_opt_close", "text": "I'll remember that.", "next_node": "companion_veteran_root" }
@@ -229,7 +229,7 @@
       "id": "companion_veteran_topic_mentorship",
       "speaker": "companion",
       "textId": "companion_veteran_mentorship_proud",
-      "text": "Train your arms when the others are sleeping. Polish your kit when the others are drinking. Be the soldier they call for when the line breaks. The rest takes care of itself.",
+      "text": "Train your arms when the others are sleeping. Polish your kit when the others are drinking. Be the {PLAYER_RANK} they call for when the line breaks. The rest takes care of itself.",
       "context": { "companion_type": "veteran", "archetype": "proud" },
       "options": [
         { "id": "mentorship_close", "textId": "companion_veteran_mentorship_opt_close", "text": "Yes, sir.", "next_node": "companion_veteran_root" }
@@ -240,7 +240,7 @@
       "id": "companion_veteran_topic_mentorship",
       "speaker": "companion",
       "textId": "companion_veteran_mentorship_philosophical",
-      "text": "Decide early what you will not do. The killing is easy — every soldier learns it. The line you will not cross is what makes you a man instead of a sword. Find it before someone else does it for you.",
+      "text": "Decide early what you will not do, {PLAYER_NAME}. The killing is easy — every soldier learns it. The line you will not cross is what makes you a man instead of a sword. Find it before someone else does it for you.",
       "context": { "companion_type": "veteran", "archetype": "philosophical" },
       "options": [
         { "id": "mentorship_close", "textId": "companion_veteran_mentorship_opt_close", "text": "I'll think on that.", "next_node": "companion_veteran_root" }
@@ -251,7 +251,7 @@
       "id": "companion_veteran_topic_battle",
       "speaker": "companion",
       "textId": "companion_veteran_battle_war_weary",
-      "text": "We won. Three of theirs went down close enough I saw their eyes. Younger than you. Their mothers will hear about it next month, if at all.",
+      "text": "We won. Three of theirs went down close enough I saw their eyes. Younger than you, {PLAYER_NAME}. Their mothers will hear about it next month, if at all.",
       "context": { "companion_type": "veteran", "archetype": "war_weary", "has_recent_battle": true },
       "options": [
         { "id": "battle_close", "textId": "companion_veteran_battle_opt_close", "text": "May they rest.", "next_node": "companion_veteran_root" }
@@ -262,7 +262,7 @@
       "id": "companion_veteran_topic_battle",
       "speaker": "companion",
       "textId": "companion_veteran_battle_proud",
-      "text": "Their line broke on the second push. I told you it would. A clean charge, a clean win — that's how a soldier earns his bread.",
+      "text": "Their line broke on the second push. I told you it would. A clean charge, a clean win — that's how a {PLAYER_RANK} earns his bread under {LORD_NAME}.",
       "context": { "companion_type": "veteran", "archetype": "proud", "has_recent_battle": true },
       "options": [
         { "id": "battle_close", "textId": "companion_veteran_battle_opt_close", "text": "A good day.", "next_node": "companion_veteran_root" }
@@ -273,7 +273,7 @@
       "id": "companion_veteran_topic_battle",
       "speaker": "companion",
       "textId": "companion_veteran_battle_philosophical",
-      "text": "Another field, another set of widows on each side. I cannot tell you whose cause was the just one. Perhaps neither. Perhaps both. The dead don't argue.",
+      "text": "Another field, another set of widows on each side. I cannot tell you whose cause was the just one, {PLAYER_NAME}. Perhaps neither. Perhaps both. The dead don't argue.",
       "context": { "companion_type": "veteran", "archetype": "philosophical", "has_recent_battle": true },
       "options": [
         { "id": "battle_close", "textId": "companion_veteran_battle_opt_close", "text": "Heavy thoughts.", "next_node": "companion_veteran_root" }
@@ -284,7 +284,7 @@
       "id": "companion_veteran_topic_lord",
       "speaker": "companion",
       "textId": "companion_veteran_lord_war_weary",
-      "text": "He's better than some I've served, worse than a few. He sends men forward when he should hold, holds when he should send. That's most of them. We'll bury what we must and march on.",
+      "text": "{LORD_NAME}'s better than some I've served, worse than a few. Sends men forward when he should hold, holds when he should send. That's most of them, {PLAYER_NAME}. We'll bury what we must and march on.",
       "context": { "companion_type": "veteran", "archetype": "war_weary" },
       "options": [
         { "id": "lord_close", "textId": "companion_veteran_lord_opt_close", "text": "Aye. We march.", "next_node": "companion_veteran_root" }
@@ -295,7 +295,7 @@
       "id": "companion_veteran_topic_lord",
       "speaker": "companion",
       "textId": "companion_veteran_lord_proud",
-      "text": "He has steel in him — I've watched him in the line. A real commander, not a hall-warmer. I'd ride with him through worse than this, and I have.",
+      "text": "{LORD_NAME} has steel in him — I've watched him in the line. A real commander, not a hall-warmer. I'd ride with him through worse than this, and I have. You're a {PLAYER_RANK} I'd stand beside under that banner.",
       "context": { "companion_type": "veteran", "archetype": "proud" },
       "options": [
         { "id": "lord_close", "textId": "companion_veteran_lord_opt_close", "text": "Glad to hear it.", "next_node": "companion_veteran_root" }
@@ -306,7 +306,7 @@
       "id": "companion_veteran_topic_lord",
       "speaker": "companion",
       "textId": "companion_veteran_lord_philosophical",
-      "text": "He fights for what he was born to fight for. That's no small thing — most men do less. Whether his cause is justice or merely habit, only the years will tell. I serve him while the contract holds.",
+      "text": "{LORD_NAME} fights for what he was born to fight for. That's no small thing — most men do less. Whether his cause is justice or merely habit, only the years will tell. I serve him while the contract holds, {PLAYER_NAME}.",
       "context": { "companion_type": "veteran", "archetype": "philosophical" },
       "options": [
         { "id": "lord_close", "textId": "companion_veteran_lord_opt_close", "text": "Fair enough.", "next_node": "companion_veteran_root" }
@@ -317,7 +317,7 @@
       "id": "companion_veteran_goodbye",
       "speaker": "companion",
       "textId": "companion_veteran_goodbye_default",
-      "text": "Walk easy, soldier. The road's long.",
+      "text": "Walk easy, {PLAYER_NAME}. The road's long.",
       "context": { "companion_type": "veteran" },
       "options": []
     }

@@ -19,7 +19,8 @@
 | `8cbe9f7` | Phase 3 | T12-T18 | six archetype dialog catalogs + loader |
 | `11d7d82` | Phase 4 | T19-T20 | Camp menu Talk-to companion option |
 | `f5f226c` | Phase 5 | T25 | verification doc + CLAUDE.md status |
-| (this) | Phase 5+ | follow-up | lint cleanup, QM catalog glob narrowing |
+| `935afe3` | Phase 5+ | follow-up | lint cleanup, QM catalog glob narrowing |
+| (this) | Phase 5++ | follow-up | dialog token interpolation (PLAYER_NAME / culture-aware PLAYER_RANK / LORD_NAME) |
 
 ### New files (12)
 
@@ -155,6 +156,7 @@ The plan v1 prescribes 25 sequential tasks. Several were collapsed during execut
 | T19-T20 — Camp menu Talk-to surface | shipped | Index 6 confirmed free; ShowCompanionSelectionInquiry mirrors ShowLordSelectionInquiry; StartConversationWithCompanion mirrors StartConversationWithLord (sea-aware via `MobileParty.MainParty.IsCurrentlyAtSea` + `conversation_scene_sea_multi_agent`). |
 | Post-T25 — QM catalog log pollution fix | shipped | `QMDialogueCatalog.LoadFromJson` previously scanned `*.json` and warned six times per launch on the new `companion_*.json` files (rejected by its `dialogueType == "quartermaster"` check). Glob narrowed to `qm_*.json` to match the catalog scope. Verified by reading the new line at `QMDialogueCatalog.cs:56-60`. |
 | Post-T25 — lint cleanup | shipped | IDE0011 (single-line if without braces, AGENTS.md Code Standards), IDE0005 (unused `TaleWorlds.Roster` + `TaleWorlds.ObjectSystem` usings) cleaned in `CompanionSpawnFactory.cs` and `CompanionLifecycleHandler.cs`. IDE0058 (Expression value never used) on `GetOrCreateX()` calls left in place — those return Hero for callers that need it; current call sites are fire-and-forget by design (matches the QM precedent). |
+| Post-T25 — dialog token interpolation | shipped | All six catalogs originally shipped with static address words ("soldier", "old man", "kid") and zero token interpolation, missing the mod's existing `{PLAYER_NAME}` / `{PLAYER_RANK}` / `{LORD_NAME}` system used heavily by `qm_gates.json`. **Specifically lost: per-kingdom culture-aware rank names** (Vlandian "Sergeant" vs Sturgian / Khuzait / etc. native rank titles via `RankHelper.GetCurrentRank` reading `progression_config.json`). Wiring fix: `EnlistedMenuBehavior.SetCompanionConversationTokens` populates `PLAYER_NAME`, `PLAYER_RANK`, `LORD_NAME`, `PLAYER_TIER`, `COMPANION_NAME`, `COMPANION_FIRST_NAME` via `MBTextManager.SetTextVariable` before `CampaignMapConversation.OpenConversation` opens. Content rewrite: all six catalogs updated by parallel implementer subagents using the tokenized Sergeant catalog as template; thoughtful sparse placement per archetype voice (clinical Field Medic uses tokens less than chatty Pathfinder; warrior Veteran uses `{PLAYER_RANK}` more than peer Junior Officer). 20 nodes per catalog preserved; only `text` / `tooltip` / option `text` fields edited. |
 | T21-T24 — runtime smokes | pending human | This is a code-only verification at this stage. Smokes require a running game session and Debug Tools — see §3 for the four recipes. |
 | T25 — verification report | this file | Status 🟡 mirroring Plan 1's verification format. Closes to ✅ when human operator signs off on T21-T24. |
 
