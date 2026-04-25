@@ -440,6 +440,50 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private string _qmPlayerStyle;
 
         // ========================================================================
+        // CK3 WANDERER COMPANION SUBSTRATE (Plan 2)
+        //
+        // Six archetype-rolled companion heroes spawned at tier-gated triggers.
+        // Sergeant + Field Medic + Pathfinder are per-player (persist across
+        // lord switches); Veteran + QM Officer + Junior Officer are per-Lord
+        // (released on discharge). All six live in Clan.PlayerClan so vanilla
+        // CompanionRolesCampaignBehavior role-assignment dialog fires.
+        //
+        // Spawn recipe lives in Enlisted.Features.Companions.CompanionSpawnFactory.
+        // Lifecycle subscriptions live in CompanionLifecycleHandler.
+        // Catalog: ModuleData/Enlisted/Companions/archetype_catalog.json.
+        // ========================================================================
+
+        private Hero _sergeantHero;
+        private string _sergeantArchetype;
+        private int _sergeantRelationship;
+        private bool _hasMetSergeant;
+
+        private Hero _fieldMedicHero;
+        private string _fieldMedicArchetype;
+        private int _fieldMedicRelationship;
+        private bool _hasMetFieldMedic;
+
+        private Hero _pathfinderHero;
+        private string _pathfinderArchetype;
+        private int _pathfinderRelationship;
+        private bool _hasMetPathfinder;
+
+        private Hero _veteranHero;
+        private string _veteranArchetype;
+        private int _veteranRelationship;
+        private bool _hasMetVeteran;
+
+        private Hero _qmOfficerHero;
+        private string _qmOfficerArchetype;
+        private int _qmOfficerRelationship;
+        private bool _hasMetQmOfficer;
+
+        private Hero _juniorOfficerHero;
+        private string _juniorOfficerArchetype;
+        private int _juniorOfficerRelationship;
+        private bool _hasMetJuniorOfficer;
+
+        // ========================================================================
         // FOOD/RATIONS SYSTEM
         // Allows player to purchase better rations for morale bonuses
         // ========================================================================
@@ -1335,6 +1379,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 SyncKey(dataStore, "_hasMetQuartermaster", ref _hasMetQuartermaster);
                 SyncKey(dataStore, "_qmPlayerStyle", ref _qmPlayerStyle);
 
+                // CK3 wanderer companion substrate (Plan 2): six archetype-rolled heroes
+                SyncKey(dataStore, "_sergeantHero", ref _sergeantHero);
+                SyncKey(dataStore, "_sergeantArchetype", ref _sergeantArchetype);
+                SyncKey(dataStore, "_sergeantRelationship", ref _sergeantRelationship);
+                SyncKey(dataStore, "_hasMetSergeant", ref _hasMetSergeant);
+
+                SyncKey(dataStore, "_fieldMedicHero", ref _fieldMedicHero);
+                SyncKey(dataStore, "_fieldMedicArchetype", ref _fieldMedicArchetype);
+                SyncKey(dataStore, "_fieldMedicRelationship", ref _fieldMedicRelationship);
+                SyncKey(dataStore, "_hasMetFieldMedic", ref _hasMetFieldMedic);
+
+                SyncKey(dataStore, "_pathfinderHero", ref _pathfinderHero);
+                SyncKey(dataStore, "_pathfinderArchetype", ref _pathfinderArchetype);
+                SyncKey(dataStore, "_pathfinderRelationship", ref _pathfinderRelationship);
+                SyncKey(dataStore, "_hasMetPathfinder", ref _hasMetPathfinder);
+
+                SyncKey(dataStore, "_veteranHero", ref _veteranHero);
+                SyncKey(dataStore, "_veteranArchetype", ref _veteranArchetype);
+                SyncKey(dataStore, "_veteranRelationship", ref _veteranRelationship);
+                SyncKey(dataStore, "_hasMetVeteran", ref _hasMetVeteran);
+
+                SyncKey(dataStore, "_qmOfficerHero", ref _qmOfficerHero);
+                SyncKey(dataStore, "_qmOfficerArchetype", ref _qmOfficerArchetype);
+                SyncKey(dataStore, "_qmOfficerRelationship", ref _qmOfficerRelationship);
+                SyncKey(dataStore, "_hasMetQmOfficer", ref _hasMetQmOfficer);
+
+                SyncKey(dataStore, "_juniorOfficerHero", ref _juniorOfficerHero);
+                SyncKey(dataStore, "_juniorOfficerArchetype", ref _juniorOfficerArchetype);
+                SyncKey(dataStore, "_juniorOfficerRelationship", ref _juniorOfficerRelationship);
+                SyncKey(dataStore, "_hasMetJuniorOfficer", ref _hasMetJuniorOfficer);
+
                 // Food/rations system
                 SyncKey(dataStore, "_currentFoodQuality", ref _currentFoodQuality);
                 SyncKey(dataStore, "_foodQualityExpires", ref _foodQualityExpires);
@@ -1373,6 +1448,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // This is important because the save system doesn't preserve IsActive state,
                 // and we need to ensure enlisted players start inactive to prevent random encounters
                 // For new campaigns, non-enlisted players must be active to allow normal gameplay
+
+                // Plan 2 companion substrate: reseat null string fields after deserialize.
+                // Loads predating Plan 2 return null for the new archetype string fields;
+                // string interpolation in any companion-aware code path NREs without this.
+                EnsureCompanionFieldsInitialized();
 
                 // Validate tier and XP values after loading
                 if (dataStore.IsLoading)
@@ -10337,6 +10417,212 @@ namespace Enlisted.Features.Enlistment.Behaviors
             _hasMetQuartermaster = false;
 
             ModLogger.Info("QUARTERMASTER", "Quartermaster reference cleared on service end");
+        }
+
+        // ========================================================================
+        // CK3 WANDERER COMPANION METHODS (Plan 2)
+        //
+        // Each GetOrCreateX() mirrors GetOrCreateQuartermaster: lazy spawn,
+        // null-or-dead reseat, factory call into Companions namespace. Lifecycle
+        // wiring (when to call these, when to clear them on discharge / death)
+        // lives in CompanionLifecycleHandler.
+        // ========================================================================
+
+        public Hero GetOrCreateSergeant()
+        {
+            return GetOrCreateCompanion(
+                "sergeant",
+                ref _sergeantHero,
+                ref _sergeantArchetype,
+                ref _hasMetSergeant);
+        }
+
+        public Hero GetOrCreateFieldMedic()
+        {
+            return GetOrCreateCompanion(
+                "field_medic",
+                ref _fieldMedicHero,
+                ref _fieldMedicArchetype,
+                ref _hasMetFieldMedic);
+        }
+
+        public Hero GetOrCreatePathfinder()
+        {
+            return GetOrCreateCompanion(
+                "pathfinder",
+                ref _pathfinderHero,
+                ref _pathfinderArchetype,
+                ref _hasMetPathfinder);
+        }
+
+        public Hero GetOrCreateVeteran()
+        {
+            return GetOrCreateCompanion(
+                "veteran",
+                ref _veteranHero,
+                ref _veteranArchetype,
+                ref _hasMetVeteran);
+        }
+
+        public Hero GetOrCreateQmOfficer()
+        {
+            return GetOrCreateCompanion(
+                "qm_officer",
+                ref _qmOfficerHero,
+                ref _qmOfficerArchetype,
+                ref _hasMetQmOfficer);
+        }
+
+        public Hero GetOrCreateJuniorOfficer()
+        {
+            return GetOrCreateCompanion(
+                "junior_officer",
+                ref _juniorOfficerHero,
+                ref _juniorOfficerArchetype,
+                ref _hasMetJuniorOfficer);
+        }
+
+        private Hero GetOrCreateCompanion(
+            string typeId,
+            ref Hero heroField,
+            ref string archetypeField,
+            ref bool hasMetField)
+        {
+            if (!IsEnlisted)
+            {
+                return null;
+            }
+
+            if (heroField != null && !heroField.IsDead)
+            {
+                return heroField;
+            }
+
+            var settlement = _enlistedLord?.HomeSettlement
+                ?? _enlistedLord?.BornSettlement
+                ?? Hero.MainHero?.HomeSettlement
+                ?? Hero.MainHero?.BornSettlement;
+
+            heroField = Companions.CompanionSpawnFactory.SpawnCompanion(
+                typeId,
+                Clan.PlayerClan,
+                settlement,
+                out var rolledArchetype);
+
+            if (heroField != null)
+            {
+                archetypeField = rolledArchetype ?? string.Empty;
+                hasMetField = false;
+            }
+
+            return heroField;
+        }
+
+        /// <summary>
+        ///     Returns currently-spawned companion heroes (alive, non-null).
+        ///     Used by Talk-to inquiry and lifecycle introspection.
+        /// </summary>
+        public List<Hero> GetSpawnedCompanions()
+        {
+            var result = new List<Hero>(6);
+            if (_sergeantHero != null && _sergeantHero.IsAlive) result.Add(_sergeantHero);
+            if (_fieldMedicHero != null && _fieldMedicHero.IsAlive) result.Add(_fieldMedicHero);
+            if (_pathfinderHero != null && _pathfinderHero.IsAlive) result.Add(_pathfinderHero);
+            if (_veteranHero != null && _veteranHero.IsAlive) result.Add(_veteranHero);
+            if (_qmOfficerHero != null && _qmOfficerHero.IsAlive) result.Add(_qmOfficerHero);
+            if (_juniorOfficerHero != null && _juniorOfficerHero.IsAlive) result.Add(_juniorOfficerHero);
+            return result;
+        }
+
+        /// <summary>
+        ///     Returns the catalog typeId for a known companion hero, or null.
+        ///     Used by lifecycle handler's OnHeroKilled to identify which slot to clear.
+        /// </summary>
+        public string GetCompanionTypeId(Hero hero)
+        {
+            if (hero == null) return null;
+            if (hero == _sergeantHero) return "sergeant";
+            if (hero == _fieldMedicHero) return "field_medic";
+            if (hero == _pathfinderHero) return "pathfinder";
+            if (hero == _veteranHero) return "veteran";
+            if (hero == _qmOfficerHero) return "qm_officer";
+            if (hero == _juniorOfficerHero) return "junior_officer";
+            return null;
+        }
+
+        /// <summary>
+        ///     Clears the slot matching a known companion hero. Called by
+        ///     CompanionLifecycleHandler.OnHeroKilled. Per-player slots stay
+        ///     null after death (player permanently loses companion); per-Lord
+        ///     slots are eligible for re-spawn on next enlistment.
+        /// </summary>
+        public bool ClearCompanionSlot(Hero hero)
+        {
+            if (hero == null) return false;
+            if (hero == _sergeantHero) { _sergeantHero = null; _sergeantArchetype = string.Empty; _hasMetSergeant = false; return true; }
+            if (hero == _fieldMedicHero) { _fieldMedicHero = null; _fieldMedicArchetype = string.Empty; _hasMetFieldMedic = false; return true; }
+            if (hero == _pathfinderHero) { _pathfinderHero = null; _pathfinderArchetype = string.Empty; _hasMetPathfinder = false; return true; }
+            if (hero == _veteranHero) { _veteranHero = null; _veteranArchetype = string.Empty; _hasMetVeteran = false; return true; }
+            if (hero == _qmOfficerHero) { _qmOfficerHero = null; _qmOfficerArchetype = string.Empty; _hasMetQmOfficer = false; return true; }
+            if (hero == _juniorOfficerHero) { _juniorOfficerHero = null; _juniorOfficerArchetype = string.Empty; _hasMetJuniorOfficer = false; return true; }
+            return false;
+        }
+
+        /// <summary>
+        ///     Releases per-Lord companions on discharge via
+        ///     RemoveCompanionAction.ApplyByFire and clears their slots. Per-player
+        ///     companions (Sergeant / Field Medic / Pathfinder) are untouched.
+        ///     Called by CompanionLifecycleHandler on OnDischarged / OnEnlistmentEnded.
+        /// </summary>
+        public void ReleasePerLordCompanions()
+        {
+            ReleaseSlot(ref _veteranHero, ref _veteranArchetype, ref _hasMetVeteran, "veteran");
+            ReleaseSlot(ref _qmOfficerHero, ref _qmOfficerArchetype, ref _hasMetQmOfficer, "qm_officer");
+            ReleaseSlot(ref _juniorOfficerHero, ref _juniorOfficerArchetype, ref _hasMetJuniorOfficer, "junior_officer");
+        }
+
+        private static void ReleaseSlot(ref Hero heroField, ref string archetypeField, ref bool hasMetField, string typeId)
+        {
+            var hero = heroField;
+            if (hero != null && hero.IsAlive)
+            {
+                try
+                {
+                    if (hero.CompanionOf != null)
+                    {
+                        RemoveCompanionAction.ApplyByFire(hero.CompanionOf, hero);
+                    }
+                    var mainParty = MobileParty.MainParty;
+                    if (mainParty?.MemberRoster != null && mainParty.MemberRoster.GetTroopCount(hero.CharacterObject) > 0)
+                    {
+                        mainParty.MemberRoster.RemoveTroop(hero.CharacterObject);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModLogger.Caught("COMPANION", "release_per_lord_failed", ex,
+                        LogCtx.Of("typeId", typeId));
+                }
+            }
+            heroField = null;
+            archetypeField = string.Empty;
+            hasMetField = false;
+        }
+
+        /// <summary>
+        ///     Reseats null string fields on companion records. Called from SyncData
+        ///     after dataStore.SyncData runs and from OnSessionLaunched, mirroring
+        ///     FlagStore.EnsureInitialized / QualityStore.EnsureInitialized for the
+        ///     deserialization-skips-ctor case (CLAUDE.md known footgun #4).
+        /// </summary>
+        public void EnsureCompanionFieldsInitialized()
+        {
+            if (_sergeantArchetype == null) _sergeantArchetype = string.Empty;
+            if (_fieldMedicArchetype == null) _fieldMedicArchetype = string.Empty;
+            if (_pathfinderArchetype == null) _pathfinderArchetype = string.Empty;
+            if (_veteranArchetype == null) _veteranArchetype = string.Empty;
+            if (_qmOfficerArchetype == null) _qmOfficerArchetype = string.Empty;
+            if (_juniorOfficerArchetype == null) _juniorOfficerArchetype = string.Empty;
         }
 
         // ========================================================================

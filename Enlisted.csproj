@@ -464,6 +464,7 @@
     <Compile Include="src\Features\Ceremonies\RankCeremonyBehavior.cs"/>
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
     <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
+    <Compile Include="src\Features\Companions\CompanionLifecycleHandler.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
