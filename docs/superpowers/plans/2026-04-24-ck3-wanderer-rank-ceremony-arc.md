@@ -2,7 +2,7 @@
 
 **Status:** Draft v2 (2026-04-25). Third of seven plans implementing the [CK3 Wanderer Mechanics Systems Analysis (v6)](../specs/2026-04-24-ck3-wanderer-systems-analysis.md). See spec §8 for the full plan structure.
 
-**v2 changes from v1:** flag-key naming aligned with architecture brief §4 rule 6 (flat underscore, not dotted); scripted-effects schema corrected to match the actual `{ "effects": { "<id>": [<primitives>] } }` shape with `apply` keys; explicit Plan 2 hand-off surface listed; dialog token interpolation contract called out for ceremony storylet authoring (per AGENTS.md pitfall #23, established by Plan 2 Phase 5++); Phase 20 validator reframed as "created from scratch" since Plan 1 verification §5 confirms no Phase 20 stub shipped (Plan 1 deferred validator phases 18-20 to the plans that need them).
+**v2 changes from v1:** flag-key naming aligned with architecture brief §4 rule 6 (flat underscore, not dotted) AND with the docstring already shipped in `RankCeremonyBehavior.cs:8-15` (`ceremony_fired_t{N}` + `ceremony_choice_t{N}` + `ceremony_witness_<archetype>_reaction_t{N}` + `ceremony_culture_variant_t{N}` — "system_scope_id" pattern with the tier suffix at the end); scripted-effects schema corrected to match the actual `{ "effects": { "<id>": [<primitives>] } }` shape with `apply` keys; explicit Plan 2 hand-off surface listed; dialog token interpolation contract called out for ceremony storylet authoring (per AGENTS.md pitfall #23, established by Plan 2 Phase 5++); Phase 20 validator reframed as "created from scratch" since Plan 1 verification §5 confirms no Phase 20 stub shipped (Plan 1 deferred validator phases 18-20 to the plans that need them); EnlistmentBehavior.cs line-number references updated to post-Plan-2 values (OnTierChanged event at ~8570, SetTier at ~9828, OnTierChanged.Invoke at ~9882) with a grep-the-symbol fallback note since plans drift per AGENTS.md pitfall #22.
 
 **Scope:** Eight character-defining ceremony storylets at tier transitions (T1→T2 through T8→T9). Each fires as a modal popup via the canonical pipeline (`StoryletEventAdapter.BuildModal` + `StoryDirector.EmitCandidate`). Choice memory persists across the career via `FlagStore`; trait drift applies vanilla `DefaultTraits` (Mercy/Valor/Honor/Generosity/Calculating); companion witnesses (from Plan 2) react via `ChangeRelationAction.ApplyPlayerRelation`. **NO endeavors, NO officer equipment, NO patron favors** — those are Plans 4, 5, 6.
 
@@ -34,12 +34,12 @@
 
 ### Required existing-code orientation
 
-10. **`src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:8490, 9799`** — `OnTierChanged` event declaration + invocation. Plan 3's main hook.
-11. **`src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:9748-9805` `SetTier`** — tier transition entry. Both proving-event path and dialog path call this.
-12. **`src/Features/Ranks/Behaviors/PromotionBehavior.cs:330-401`** — emits proving events via `StoryDirector.EmitCandidate` for ALL tier transitions including T6→T7. Plan 3's `OnTierChanged` hook fires AFTER this completes; ceremony storylet runs as a follow-up modal with `ChainContinuation = true`.
-13. **`src/Features/Ranks/Behaviors/PromotionBehavior.cs:413+` `TriggerPromotionNotificationPublic`** — called by `EventDeliveryManager` after a proving event grants promotion. Plan 3 ceremony fires from `OnTierChanged`, not from this — but verify they don't double-fire by tracing the call chain in T19 smoke.
-14. **`src/Features/Ceremonies/RankCeremonyBehavior.cs`** — created in Plan 1 T11 as a log-only stub subscribed to `OnTierChanged`. Plan 3 T4 populates with the real ceremony fire logic.
-15. **`src/Mod.Core/Helpers/ModalEventBuilder.cs`** — created in Plan 1 T5. Plan 3 calls `ModalEventBuilder.FireCeremony(storyletId, ctx)` from the `OnTierChanged` handler.
+10. **`src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` — `OnTierChanged` event declaration (currently line 8570) + invocation (currently line 9882).** Plan 3's main hook. **Line numbers shifted +80 after Plan 2's 24 SyncKey-field cluster + 6 GetOrCreate methods landed; treat all line-number references as approximate and grep for the symbol if line lookup misses.**
+11. **`src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs` — `SetTier(int tier)` (currently line 9828).** Tier transition entry. Both proving-event path and dialog path call this. SetTier emits `OnTierChanged?.Invoke(previousTier, tier)` near its end.
+12. **`src/Features/Ranks/Behaviors/PromotionBehavior.cs` — `CheckForPromotion()` (currently line 307).** Emits proving events via `StoryDirector.EmitCandidate` for ALL tier transitions including T6→T7. Plan 3's `OnTierChanged` hook fires AFTER this completes; ceremony storylet runs as a follow-up modal with `ChainContinuation = true`.
+13. **`src/Features/Ranks/Behaviors/PromotionBehavior.cs` — `TriggerPromotionNotificationPublic(int newTier)` (currently line 413).** Called by `EventDeliveryManager` after a proving event grants promotion. Plan 3 ceremony fires from `OnTierChanged`, not from this — but verify they don't double-fire by tracing the call chain in T19 smoke.
+14. **`src/Features/Ceremonies/RankCeremonyBehavior.cs`** — created in Plan 1 T11 as a log-only stub subscribed to `OnTierChanged`. The shipped file is short (~33 lines) with `OnTierChanged` invoking `ModLogger.Expected("CEREMONY", "tier_changed", ...)`. Plan 3 T4 replaces the stub body with the real ceremony fire logic. The shipped docstring (lines 7-15) already documents the flag-key conventions Plan 3 §4.2 uses (`ceremony_fired_t{N}`, `ceremony_choice_t{N}`).
+15. **`src/Mod.Core/Helpers/ModalEventBuilder.cs`** — created in Plan 1 T5. Public API: `FireSimpleModal(storyletId, ctx, chainContinuation)`, `FireCeremony(storyletId, ctx)` (sets `chainContinuation: true`), `FireEndeavorPhase(storyletId, ctx, EndeavorActivity owner)`, `FireDecisionOutcome(storyletId, ctx)`. Plan 3 calls `ModalEventBuilder.FireCeremony(storyletId, ctx)` from the `OnTierChanged` handler. The `Activity owner` parameter is for endeavor phases (Plan 5); ceremonies pass null implicitly.
 16. **`src/Features/Companions/CompanionLifecycleHandler.cs`** — created in Plan 2 T11. Plan 3 queries `GetSpawnedCompanions()` for witness selection.
 17. **`src/Features/Activities/Home/HomeEveningMenuProvider.cs:37-72`** — canonical menu→modal precedent. Plan 3's `CeremonyProvider` mirrors this exact shape.
 18. **`src/Features/Content/StoryletCatalog.cs`** — content loader. Plan 3 ceremony storylets land in `ModuleData/Enlisted/Storylets/ceremony_*.json` and load via the existing catalog infrastructure.
@@ -152,13 +152,13 @@ After Plan 3 ships, the codebase is in a state where:
 | Flag key pattern | Type | Purpose |
 | :-- | :-- | :-- |
 | `ceremony_fired_t{N}` | bool | Dedup. Set to `true` after ceremony fires for tier-up to N. Subsequent `OnTierChanged(N-1, N)` events check this flag and short-circuit if set. |
-| `ceremony_t{N}_choice` | string | Player's choice ID at ceremony N. E.g. `ceremony_t3_choice = "frugal"`. |
-| `ceremony_t{N}_witness_<archetype>_reaction` | string | Witness reaction at ceremony N. E.g. `ceremony_t4_witness_sergeant_reaction = "approve"`. |
-| `ceremony_t{N}_culture_variant` | string | Which cultural variant fired (Vlandian / Sturgian / etc.). For replay analysis only; no game logic reads this. |
+| `ceremony_choice_t{N}` | string | Player's choice ID at ceremony N. E.g. `ceremony_choice_t3 = "frugal"`. |
+| `ceremony_witness_<archetype>_reaction_t{N}` | string | Witness reaction at ceremony N. E.g. `ceremony_witness_sergeant_reaction_t4 = "approve"`. |
+| `ceremony_culture_variant_t{N}` | string | Which cultural variant fired (Vlandian / Sturgian / etc.). For replay analysis only; no game logic reads this. |
 
 All flags persist via `FlagStore`'s existing serialization. No new save-offset needed.
 
-**Naming convention enforced.** The architecture brief §4 rule 6 (and Plan 1 verification §5) lock all flag and quality keys to flat underscore namespace (`<system>_<scope>_<id>`). Earlier draft v1 of this plan used dotted notation (`ceremony.fired.t{N}`); v2 corrects to match the brief and the existing `FlagStore` precedent.
+**Naming convention enforced.** The architecture brief §4 rule 6 (and Plan 1 verification §5) lock all flag and quality keys to flat underscore namespace (`<system>_<scope>_<id>`). Earlier draft v1 of this plan used dotted notation (`ceremony.fired.t{N}`); v2 corrects to match the brief, the existing `FlagStore` precedent, AND the docstring already shipped with `RankCeremonyBehavior.cs:8-15` which documents `ceremony_fired_t{N}` (dedup) + `ceremony_choice_t{N}` (selected option). Plan 3 v2 conforms to the shipped docstring rather than inventing new patterns.
 
 ### §4.3 Cultural variant strategy (LOCKED)
 
@@ -219,7 +219,7 @@ Storylet option references the effect by ID:
   "effects": [
     { "apply": "ceremony_trait_drift_valor_up" },
     { "apply": "ceremony_witness_reaction_sergeant_approve" },
-    { "apply": "set_flag", "name": "ceremony_t3_choice", "value": "fight" }
+    { "apply": "set_flag", "name": "ceremony_choice_t3", "value": "fight" }
   ]
 }
 ```
@@ -722,7 +722,7 @@ Pattern mirrors `phase18_companion_dialogue` (Plan 2) — register the function 
 
 - [ ] `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` passes
 - [ ] `python Tools/Validation/validate_content.py` passes (Phases 12, 13, 20 in particular)
-- [ ] `Tools/Validation/lint_repo.ps1` passes
+- [ ] `Tools/Validation/lint_repo.ps1` passes for Plan 3's NEW files (`dotnet format --include 'src/Features/Ceremonies/**'`). **Note:** The full repo-wide lint stack currently fails on pre-existing CHARSET pollution across Plan 1 substrate files + Career-loop family files (`normalize_crlf.ps1` unconditionally prepends a UTF-8 BOM; `.editorconfig charset = utf-8` rejects BOMs). Plan 2 verification §2 documents this as out-of-scope tracked separately. Plan 3 should strip the BOM from its new C# files (use the PowerShell snippet from Plan 2 Phase 5+) and verify lint passes for `src/Features/Ceremonies/**` specifically — it should NOT block on the pre-existing pollution.
 - [ ] `RankCeremonyBehavior.OnTierChanged` populated (no longer log-only stub)
 - [ ] All 8 ceremony storylets authored (32+ storylet entries with cultural variants)
 - [ ] `CeremonyProvider`, `CeremonyWitnessSelector`, `CeremonyTraitDriftApplier`, `CeremonyWitnessReactor`, `CeremonyCultureSelector` all build clean and unit-smoke clean
