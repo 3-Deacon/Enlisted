@@ -46,6 +46,7 @@ namespace Enlisted.Features.Companions
         private void OnSessionLaunched(CampaignGameStarter starter)
         {
             CompanionSpawnFactory.LoadCatalog();
+            Data.CompanionDialogueCatalog.Instance.LoadFromJson();
             EnlistmentBehavior.Instance?.EnsureCompanionFieldsInitialized();
         }
 

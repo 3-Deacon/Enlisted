@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "dialogueType": "companion",
+  "_comment": "Plan 2 T14 — Pathfinder archetype dialog. Three archetypes: lone_wolf, talkative, superstitious. Loaded by CompanionDialogueCatalog. Mirrors companion_sergeant.json structure.",
+  "nodes": [
+
+    {
+      "id": "companion_pathfinder_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_greeting_lone",
+      "text": "You're the new one. Stay out of my line of sight when I'm reading the ground.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_respect",
+          "textId": "companion_pathfinder_intro_opt_respect",
+          "text": "Understood. I'll keep my distance.",
+          "tooltip": "Give him space (+1 relationship)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 1 }
+        },
+        {
+          "id": "intro_curious",
+          "textId": "companion_pathfinder_intro_opt_curious",
+          "text": "What are you reading for?",
+          "tooltip": "Press for detail (no change)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_greeting_talk",
+      "text": "Ho there! New face. Tell me, has anyone shown you the trick of reading deer-tracks in soft mud yet? No? Well, sit down — we've a whole afternoon and a fire that wants tending.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_warm",
+          "textId": "companion_pathfinder_intro_opt_warm",
+          "text": "Show me. I'd like to learn.",
+          "tooltip": "Match the warmth (+2 relationship)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_brisk",
+          "textId": "companion_pathfinder_intro_opt_brisk",
+          "text": "Maybe later. I've duties.",
+          "tooltip": "Cut the chatter short (-1 relationship)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_greeting_super",
+      "text": "A new soul under this sky. The crows watched you ride in — three of them, on the south fence. Three is a kind number. You'll do well, if you mind the signs.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_respect_omen",
+          "textId": "companion_pathfinder_intro_opt_respect_omen",
+          "text": "I'll mind them. What other signs should I watch for?",
+          "tooltip": "Honor the omens (+2 relationship)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_skeptic",
+          "textId": "companion_pathfinder_intro_opt_skeptic",
+          "text": "Crows are crows. Tracks are what matter.",
+          "tooltip": "Dismiss the omens (no change)",
+          "next_node": "companion_pathfinder_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_ack_lone",
+      "text": "Good. Quiet rider lives longer than a loud one. Find me when you need a route.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_pathfinder_intro_ack_opt_close",
+          "text": "Pathfinder.",
+          "next_node": "companion_pathfinder_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_ack_talk",
+      "text": "Splendid! Stick near and I'll teach you everything I picked up from a dozen seasons in the high country. Half of it might even be true.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_pathfinder_intro_ack_opt_close",
+          "text": "I'll hold you to that.",
+          "next_node": "companion_pathfinder_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_intro_ack_super",
+      "text": "The land speaks to those who listen. Walk gently and don't whistle after sundown — that one's older than the kingdoms.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_pathfinder_intro_ack_opt_close",
+          "text": "I'll remember.",
+          "next_node": "companion_pathfinder_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_root",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_root_default",
+      "text": "Looking for something out there?",
+      "context": { "companion_type": "pathfinder" },
+      "options": [
+        {
+          "id": "root_terrain",
+          "textId": "companion_pathfinder_root_opt_terrain",
+          "text": "What does the country look like ahead?",
+          "tooltip": "Ask about terrain and weather",
+          "next_node": "companion_pathfinder_topic_terrain"
+        },
+        {
+          "id": "root_scout",
+          "textId": "companion_pathfinder_root_opt_scout",
+          "text": "What's beyond the next ridge?",
+          "tooltip": "Ask for a scouting report",
+          "next_node": "companion_pathfinder_topic_scout"
+        },
+        {
+          "id": "root_battle",
+          "textId": "companion_pathfinder_root_opt_battle",
+          "text": "How did the last fight look from your saddle?",
+          "tooltip": "Recent battle from a scout's view",
+          "next_node": "companion_pathfinder_topic_battle",
+          "requirements": { "has_recent_battle": true }
+        },
+        {
+          "id": "root_advice",
+          "textId": "companion_pathfinder_root_opt_advice",
+          "text": "Any wisdom for the road?",
+          "tooltip": "Ask for wilderness advice",
+          "next_node": "companion_pathfinder_topic_advice"
+        },
+        {
+          "id": "root_leave",
+          "textId": "companion_pathfinder_root_opt_leave",
+          "text": "Ride safe, pathfinder.",
+          "next_node": "companion_pathfinder_goodbye"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_terrain",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_terrain_lone",
+      "text": "Wind from the north. Ground's hard. Two streams east of the column, both fordable. That's all you need.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf" },
+      "options": [
+        { "id": "terrain_close", "textId": "companion_pathfinder_terrain_opt_close", "text": "Good.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_terrain",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_terrain_talk",
+      "text": "Oh, the country here is grand! Rolling hills like an old quilt, a copse of birch on the west side that shelters a fox den, and the wind's been swinging east since dawn — rain by tomorrow, mark me.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative" },
+      "options": [
+        { "id": "terrain_close", "textId": "companion_pathfinder_terrain_opt_close", "text": "Useful — thank you.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_terrain",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_terrain_super",
+      "text": "The land's restless. Old cairn west of the road — don't camp inside its shadow. The clouds came in from the wrong quarter this morning. Something is unsettled.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious" },
+      "options": [
+        { "id": "terrain_close", "textId": "companion_pathfinder_terrain_opt_close", "text": "I'll pass it on.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_scout",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_scout_lone",
+      "text": "A column of riders, four miles. Not banners I recognize. Tracks suggest they passed at first light. Move or wait — your choice.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf" },
+      "options": [
+        { "id": "scout_close", "textId": "companion_pathfinder_scout_opt_close", "text": "I'll tell the lord.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_scout",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_scout_talk",
+      "text": "Funny you should ask — I rode the ridge at dawn and saw the prettiest valley you ever did see, smoke from a hamlet on the far side, a herd of sheep grazing the slope, and what I'm fairly sure was a pair of bandit scouts pretending not to watch the road. Three threats and one breakfast spot, all in one ride.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative" },
+      "options": [
+        { "id": "scout_close", "textId": "companion_pathfinder_scout_opt_close", "text": "Good ride. I'll relay it.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_scout",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_scout_super",
+      "text": "The hawks would not come down to the ridge. That tells me men are camped in the hollow beyond it — hawks know better than maps. Two fires, I'd wager, by the smell of the smoke at dawn.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious" },
+      "options": [
+        { "id": "scout_close", "textId": "companion_pathfinder_scout_opt_close", "text": "I'll trust the hawks.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_battle_lone",
+      "text": "Their flank was open from the rise. Lord saw it late. Cost us time, not lives. Could have been worse.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_pathfinder_battle_opt_close", "text": "Noted.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_battle_talk",
+      "text": "Now THAT was a sight from the saddle! I was up on the eastern hummock when their horse swung wide — could see the whole field like a tabletop. Reminded me of a scrap I watched in the Battanian hills six years back, only this time we had the high ground and the better archers.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_pathfinder_battle_opt_close", "text": "Glad we did.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_battle_super",
+      "text": "A raven sat on the rotten oak before the fight. I marked it and rode wide. The men I rode with came back. The men I didn't, did not. Heed the trees, soldier.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_pathfinder_battle_opt_close", "text": "I'll heed them.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_advice_lone",
+      "text": "Eat before you ride. Water your horse before yourself. And never trust a road you can't see the end of.",
+      "context": { "companion_type": "pathfinder", "archetype": "lone_wolf" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_pathfinder_advice_opt_close", "text": "Good rules.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_advice_talk",
+      "text": "Talk to the locals. Always! Shepherds know more than scouts half the time, and an old woman by a well will save your column three days of wandering for the price of a kind word and a copper.",
+      "context": { "companion_type": "pathfinder", "archetype": "talkative" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_pathfinder_advice_opt_close", "text": "I'll remember the well.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_advice_super",
+      "text": "Greet the bridges before you cross them. Leave a crust at the cairn when you pass one. The wilderness does not forget a kindness, nor a slight.",
+      "context": { "companion_type": "pathfinder", "archetype": "superstitious" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_pathfinder_advice_opt_close", "text": "I'll keep crusts on me.", "next_node": "companion_pathfinder_root" }
+      ]
+    },
+
+    {
+      "id": "companion_pathfinder_goodbye",
+      "speaker": "companion",
+      "textId": "companion_pathfinder_goodbye_default",
+      "text": "Ride light, soldier. Eyes on the horizon.",
+      "context": { "companion_type": "pathfinder" },
+      "options": []
+    }
+  ]
+}

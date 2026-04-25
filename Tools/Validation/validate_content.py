@@ -3140,6 +3140,169 @@ def phase17_rate_caps(
         print("  OK: all storylet options within rate caps.")
 
 
+def phase18_companion_dialogue(ctx: ValidationContext) -> None:
+    """Plan 2 §6 T18. Schema-validate the six companion archetype dialog catalogs.
+
+    Checks:
+      - schemaVersion == 1
+      - dialogueType == "companion"
+      - Every node has a non-empty id
+      - context.archetype values are listed in archetype_catalog.json
+      - context.companion_type values are listed in archetype_catalog.json
+      - All option.next_node references resolve to a known node id
+
+    Companion catalogs share ModuleData/Enlisted/Dialogue/ with the QM catalog;
+    we filter by filename (companion_*.json) and dialogueType discriminator.
+    """
+    print("[Phase 18] Validating companion dialog catalogs...")
+
+    catalog_path = Path("ModuleData/Enlisted/Companions/archetype_catalog.json")
+    known_companion_types: set[str] = set()
+    known_archetypes: set[str] = set()
+    if catalog_path.is_file():
+        try:
+            with open(catalog_path, encoding="utf-8") as fh:
+                cat = json.load(fh)
+            for ct in cat.get("companionTypes", []):
+                if isinstance(ct, dict):
+                    cid = ct.get("id")
+                    if cid:
+                        known_companion_types.add(cid)
+                    for arche in ct.get("archetypes", []):
+                        if isinstance(arche, dict):
+                            aid = arche.get("id")
+                            if aid:
+                                known_archetypes.add(aid)
+        except Exception as exc:
+            ctx.add_issue(
+                "warning", "companion-dialog",
+                f"could not read archetype catalog ({exc}); archetype "
+                f"validation will be skipped",
+                str(catalog_path),
+            )
+
+    files = sorted(glob.glob("ModuleData/Enlisted/Dialogue/companion_*.json"))
+    if not files:
+        ctx.add_issue(
+            "warning", "companion-dialog",
+            "no companion_*.json catalogs found; six expected",
+            "ModuleData/Enlisted/Dialogue/",
+        )
+        return
+
+    errors_before = sum(1 for i in ctx.issues if i.category == "companion-dialog")
+    total_nodes = 0
+
+    for path_str in files:
+        path = Path(path_str)
+        try:
+            with open(path, encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except Exception as exc:
+            ctx.add_issue(
+                "error", "companion-dialog",
+                f"{path.name}: failed to parse JSON ({exc})",
+                str(path),
+            )
+            continue
+
+        sv = doc.get("schemaVersion")
+        if sv != 1:
+            ctx.add_issue(
+                "error", "companion-dialog",
+                f"{path.name}: schemaVersion must be 1, got {sv!r}",
+                str(path),
+            )
+
+        dtype = doc.get("dialogueType")
+        if dtype != "companion":
+            ctx.add_issue(
+                "error", "companion-dialog",
+                f"{path.name}: dialogueType must be \"companion\", got {dtype!r}",
+                str(path),
+            )
+
+        nodes = doc.get("nodes", [])
+        if not isinstance(nodes, list):
+            ctx.add_issue(
+                "error", "companion-dialog",
+                f"{path.name}: 'nodes' must be an array",
+                str(path),
+            )
+            continue
+
+        node_ids: set[str] = set()
+        next_node_refs: list[tuple[str, str]] = []
+        for idx, node in enumerate(nodes):
+            if not isinstance(node, dict):
+                ctx.add_issue(
+                    "error", "companion-dialog",
+                    f"{path.name}: nodes[{idx}] is not an object",
+                    str(path),
+                )
+                continue
+            nid = node.get("id")
+            if not nid:
+                ctx.add_issue(
+                    "error", "companion-dialog",
+                    f"{path.name}: nodes[{idx}] missing required 'id'",
+                    str(path),
+                )
+                continue
+            node_ids.add(nid)
+            total_nodes += 1
+
+            node_ctx = node.get("context") or {}
+            if isinstance(node_ctx, dict):
+                ct = node_ctx.get("companion_type")
+                if (
+                    ct is not None
+                    and known_companion_types
+                    and ct not in known_companion_types
+                ):
+                    ctx.add_issue(
+                        "error", "companion-dialog",
+                        f"{path.name}: node '{nid}' context.companion_type "
+                        f"'{ct}' not in archetype_catalog.json",
+                        str(path),
+                    )
+                arche = node_ctx.get("archetype")
+                if (
+                    arche is not None
+                    and known_archetypes
+                    and arche not in known_archetypes
+                ):
+                    ctx.add_issue(
+                        "error", "companion-dialog",
+                        f"{path.name}: node '{nid}' context.archetype "
+                        f"'{arche}' not in archetype_catalog.json",
+                        str(path),
+                    )
+
+            for opt_idx, opt in enumerate(node.get("options", [])):
+                if not isinstance(opt, dict):
+                    continue
+                nxt = opt.get("next_node")
+                if nxt:
+                    next_node_refs.append((nid, nxt))
+
+        for src_id, target in next_node_refs:
+            if target not in node_ids:
+                ctx.add_issue(
+                    "error", "companion-dialog",
+                    f"{path.name}: option in node '{src_id}' references "
+                    f"unknown next_node '{target}'",
+                    str(path),
+                )
+
+    errors_after = sum(1 for i in ctx.issues if i.category == "companion-dialog")
+    if errors_after == errors_before:
+        print(
+            f"  OK: {len(files)} companion dialog catalog(s) validated, "
+            f"{total_nodes} nodes total."
+        )
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -3224,6 +3387,9 @@ def main():
     loot_pools = _load_loot_pools(ctx)
     phase16_loot_pool_sanity(loot_pools, ctx)
     phase17_rate_caps(storylet_entries, ctx)
+
+    # Phase 18: Companion dialog catalog schema (Plan 2)
+    phase18_companion_dialogue(ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:

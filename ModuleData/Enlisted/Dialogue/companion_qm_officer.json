@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "dialogueType": "companion",
+  "_comment": "Plan 2 T16 — QM Officer archetype dialog (T7 unlock, per-Lord). Three archetypes: by_the_book, corner_cutter, weary. Loaded by CompanionDialogueCatalog. Distinct from the soldier-tier QM (qm_*.json) — this is the army's logistics officer, an officer-tier peer.",
+  "nodes": [
+
+    {
+      "id": "companion_qm_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_greeting_book",
+      "text": "Officer. The ledger's open and your name's already on it. Welcome to the supply column.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_respect",
+          "textId": "companion_qm_officer_intro_opt_respect",
+          "text": "A pleasure. I'll keep my paperwork current.",
+          "tooltip": "Match the formality (+2 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_casual",
+          "textId": "companion_qm_officer_intro_opt_casual",
+          "text": "Ledgers and names. The army runs on paperwork, then.",
+          "tooltip": "Be flippant (-1 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_greeting_corner",
+      "text": "New blood at officer rank. Stick with me and I'll show you where the army's coin actually flows. Discreetly, of course.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_curious",
+          "textId": "companion_qm_officer_intro_opt_curious",
+          "text": "I'm always interested in how things actually work.",
+          "tooltip": "Show curiosity (+2 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_proper",
+          "textId": "companion_qm_officer_intro_opt_proper",
+          "text": "I'd rather know things flow where they're meant to.",
+          "tooltip": "Push for propriety (-1 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_greeting_weary",
+      "text": "Officer. Forgive the slow rise — I've been on my feet since the sun came up. Another mouth to feed isn't a complaint, mind.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_kind",
+          "textId": "companion_qm_officer_intro_opt_kind",
+          "text": "Sit. The army can wait one minute.",
+          "tooltip": "Show kindness (+2 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_brisk",
+          "textId": "companion_qm_officer_intro_opt_brisk",
+          "text": "Don't dawdle. We've a column to feed.",
+          "tooltip": "Push past the moment (-1 relationship)",
+          "next_node": "companion_qm_officer_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_ack_book",
+      "text": "Very well. Requisitions go through me, in writing where possible. Receipts kept for the muster audit.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_qm_officer_intro_ack_opt_close",
+          "text": "Understood.",
+          "next_node": "companion_qm_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_ack_corner",
+      "text": "Good. We'll get on. Just remember — a friend at the supply tent eats better than the man with the loudest grievance.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_qm_officer_intro_ack_opt_close",
+          "text": "I'll remember that.",
+          "next_node": "companion_qm_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_intro_ack_weary",
+      "text": "Kind of you. Most don't bother. Come find me when you need something — I'll do what I can with what we've got.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_qm_officer_intro_ack_opt_close",
+          "text": "Take care of yourself.",
+          "next_node": "companion_qm_officer_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_root",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_root_default",
+      "text": "What can the supply tent do for you, officer?",
+      "context": { "companion_type": "qm_officer" },
+      "options": [
+        {
+          "id": "root_supply",
+          "textId": "companion_qm_officer_root_opt_supply",
+          "text": "How are the stockpiles?",
+          "tooltip": "Ask about supply state",
+          "next_node": "companion_qm_officer_topic_supply"
+        },
+        {
+          "id": "root_wages",
+          "textId": "companion_qm_officer_root_opt_wages",
+          "text": "Who's paid and who's owed?",
+          "tooltip": "Ask about wage situation",
+          "next_node": "companion_qm_officer_topic_wages"
+        },
+        {
+          "id": "root_market",
+          "textId": "companion_qm_officer_root_opt_market",
+          "text": "Hear anything from the merchants lately?",
+          "tooltip": "Ask about market gossip",
+          "next_node": "companion_qm_officer_topic_market"
+        },
+        {
+          "id": "root_advice",
+          "textId": "companion_qm_officer_root_opt_advice",
+          "text": "Any advice on requisitions?",
+          "tooltip": "Ask for practical wisdom",
+          "next_node": "companion_qm_officer_topic_advice"
+        },
+        {
+          "id": "root_leave",
+          "textId": "companion_qm_officer_root_opt_leave",
+          "text": "Back to it.",
+          "next_node": "companion_qm_officer_goodbye"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_supply",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_supply_book",
+      "text": "Grain at sixty percent of muster requirement. Salt fish adequate. Arrow-stocks low — I've filed a request with the lord's chamberlain. Documentation in order.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book" },
+      "options": [
+        { "id": "supply_close", "textId": "companion_qm_officer_supply_opt_close", "text": "Thank you for the report.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_supply",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_supply_corner",
+      "text": "Officially? We're short on grain. Unofficially, I know a miller two days' ride who'll trade us double his ledger weight if we route it past the wrong checkpoint. Just saying.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter" },
+      "options": [
+        { "id": "supply_close", "textId": "companion_qm_officer_supply_opt_close", "text": "Noted. Just saying.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_supply",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_supply_weary",
+      "text": "Thin. Always thin. The men eat, but barely. I've stretched a sack of grain across three days more than once this season — pretend you didn't hear that.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary" },
+      "options": [
+        { "id": "supply_close", "textId": "companion_qm_officer_supply_opt_close", "text": "I'll mention it to the lord.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_wages",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_wages_book",
+      "text": "Last muster's wages disbursed in full and on schedule. Two arrears outstanding from the prior cycle — both flagged in the ledger, awaiting the lord's countersignature.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book" },
+      "options": [
+        { "id": "wages_close", "textId": "companion_qm_officer_wages_opt_close", "text": "Good to know.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_wages",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_wages_corner",
+      "text": "Most are paid. The rest are paid late, and a few never quite make it onto the rolls in the first place. Which can be useful — to the right people.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter" },
+      "options": [
+        { "id": "wages_close", "textId": "companion_qm_officer_wages_opt_close", "text": "I'll keep that in mind.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_wages",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_wages_weary",
+      "text": "The veterans get theirs. The new boys wait. I see their faces when payday comes and goes — I do what I can, but the lord's purse decides, not mine.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary" },
+      "options": [
+        { "id": "wages_close", "textId": "companion_qm_officer_wages_opt_close", "text": "Hold the line as best you can.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_market",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_market_book",
+      "text": "Grain prices climbing in the western towns — bandit pressure on the trade roads. Cloth and leather steady. I'll have a price-table ready before the next requisition.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book" },
+      "options": [
+        { "id": "market_close", "textId": "companion_qm_officer_market_opt_close", "text": "Excellent.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_market",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_market_corner",
+      "text": "Half the merchants in the last town hate the local lord and would sell us his own grain at a discount. The other half are cousins of his and will gouge us. Knowing which is which — that's the whole job.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter" },
+      "options": [
+        { "id": "market_close", "textId": "companion_qm_officer_market_opt_close", "text": "Useful to know.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_market",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_market_weary",
+      "text": "Merchants talk to me because I'm patient and I tip when I've got it. They say the towns near the border are afraid. Hungry. Same as us, mostly.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary" },
+      "options": [
+        { "id": "market_close", "textId": "companion_qm_officer_market_opt_close", "text": "Hard times for all.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_advice_book",
+      "text": "Always file the requisition before the need is urgent. Always sign your name to what you take. The army moves on paper as much as on roads — keep yours clean.",
+      "context": { "companion_type": "qm_officer", "archetype": "by_the_book" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_qm_officer_advice_opt_close", "text": "Sound advice.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_advice_corner",
+      "text": "Never haggle in front of your soldiers — they lose respect. And never, ever sign the same chit twice. Beyond that? Keep one friendly merchant in every town and you'll never starve.",
+      "context": { "companion_type": "qm_officer", "archetype": "corner_cutter" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_qm_officer_advice_opt_close", "text": "I'll remember that.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_advice_weary",
+      "text": "When the wages are short, tell the men first and tell them straight. They'll forgive a hungry day from an honest officer. They won't forgive a lie.",
+      "context": { "companion_type": "qm_officer", "archetype": "weary" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_qm_officer_advice_opt_close", "text": "I'll keep that close.", "next_node": "companion_qm_officer_root" }
+      ]
+    },
+
+    {
+      "id": "companion_qm_officer_goodbye",
+      "speaker": "companion",
+      "textId": "companion_qm_officer_goodbye_default",
+      "text": "Mind the column, officer. Hungry men don't march far.",
+      "context": { "companion_type": "qm_officer" },
+      "options": []
+    }
+  ]
+}

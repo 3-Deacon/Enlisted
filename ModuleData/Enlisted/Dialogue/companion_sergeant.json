@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "dialogueType": "companion",
+  "_comment": "Plan 2 T12 — Sergeant archetype dialog. Three archetypes: gruff_veteran, by_the_book, cynical. Loaded by CompanionDialogueCatalog. Reference template — other companion catalogs mirror this node-id structure.",
+  "nodes": [
+
+    {
+      "id": "companion_sergeant_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_greeting_gruff",
+      "text": "So you're the new one. Try not to die before I learn your name.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_respect",
+          "textId": "companion_sergeant_intro_opt_respect",
+          "text": "I'll do my best, sergeant.",
+          "tooltip": "Show respect (+1 relationship)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 1 }
+        },
+        {
+          "id": "intro_quip",
+          "textId": "companion_sergeant_intro_opt_quip",
+          "text": "I'll outlast you, old man.",
+          "tooltip": "Push back (no change)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_greeting_book",
+      "text": "Recruit. Stand straight when I'm addressing you. Name and prior service?",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_respect",
+          "textId": "companion_sergeant_intro_opt_respect_book",
+          "text": "Sir. Reporting for duty.",
+          "tooltip": "Match the formality (+2 relationship)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_casual",
+          "textId": "companion_sergeant_intro_opt_casual",
+          "text": "Easy, sergeant. We're on the same side.",
+          "tooltip": "Stay casual (-1 relationship)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_greeting_cynical",
+      "text": "Another fresh face. The lord's coffers must be deep this season. Welcome to the meat grinder.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_dark",
+          "textId": "companion_sergeant_intro_opt_dark",
+          "text": "I'll try to grind back.",
+          "tooltip": "Match the gallows humor (+2 relationship)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_confident",
+          "textId": "companion_sergeant_intro_opt_confident",
+          "text": "I'll be the one walking out the other side, sergeant.",
+          "tooltip": "Push optimism (no change)",
+          "next_node": "companion_sergeant_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_ack_gruff",
+      "text": "Hmph. Keep your boots polished and your sword sharp. Now leave me to my work.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_sergeant_intro_ack_opt_close",
+          "text": "Sergeant.",
+          "next_node": "companion_sergeant_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_ack_book",
+      "text": "Noted. Field manual is in the baggage train if you've forgotten your basics. I expect punctuality at musters.",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_sergeant_intro_ack_opt_close",
+          "text": "Understood, sergeant.",
+          "next_node": "companion_sergeant_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_sergeant_intro_ack_cynical",
+      "text": "Save the bravado for when there's coin in it. Bandits don't care how confident you are.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_sergeant_intro_ack_opt_close",
+          "text": "Right.",
+          "next_node": "companion_sergeant_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_root",
+      "speaker": "companion",
+      "textId": "companion_sergeant_root_default",
+      "text": "Something on your mind, soldier?",
+      "context": { "companion_type": "sergeant" },
+      "options": [
+        {
+          "id": "root_discipline",
+          "textId": "companion_sergeant_root_opt_discipline",
+          "text": "How's the company holding up?",
+          "tooltip": "Ask about discipline",
+          "next_node": "companion_sergeant_topic_discipline"
+        },
+        {
+          "id": "root_combat",
+          "textId": "companion_sergeant_root_opt_combat",
+          "text": "Are we ready for a fight?",
+          "tooltip": "Ask about combat readiness",
+          "next_node": "companion_sergeant_topic_combat"
+        },
+        {
+          "id": "root_battle",
+          "textId": "companion_sergeant_root_opt_battle",
+          "text": "What did you make of the last fight?",
+          "tooltip": "Recent battle commentary",
+          "next_node": "companion_sergeant_topic_battle",
+          "requirements": { "has_recent_battle": true }
+        },
+        {
+          "id": "root_advice",
+          "textId": "companion_sergeant_root_opt_advice",
+          "text": "Got any advice for me?",
+          "tooltip": "Ask for mentorship",
+          "next_node": "companion_sergeant_topic_advice"
+        },
+        {
+          "id": "root_leave",
+          "textId": "companion_sergeant_root_opt_leave",
+          "text": "Carry on, sergeant.",
+          "next_node": "companion_sergeant_goodbye"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_discipline",
+      "speaker": "companion",
+      "textId": "companion_sergeant_discipline_gruff",
+      "text": "Half of them are sleeping on watch and the other half couldn't find their own boots. Same as every season.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran" },
+      "options": [
+        { "id": "discipline_close", "textId": "companion_sergeant_discipline_opt_close", "text": "I'll keep an eye out.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_discipline",
+      "speaker": "companion",
+      "textId": "companion_sergeant_discipline_book",
+      "text": "Three latrine infractions, two equipment violations, one unauthorized absence in the last muster. Reports filed. The lord will see them in due course.",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book" },
+      "options": [
+        { "id": "discipline_close", "textId": "companion_sergeant_discipline_opt_close", "text": "Carry on.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_discipline",
+      "speaker": "companion",
+      "textId": "companion_sergeant_discipline_cynical",
+      "text": "Discipline holds while the wages do. Skip a payday and you'll see the company find its own answers.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical" },
+      "options": [
+        { "id": "discipline_close", "textId": "companion_sergeant_discipline_opt_close", "text": "I'll mention it to the lord.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_combat",
+      "speaker": "companion",
+      "textId": "companion_sergeant_combat_gruff",
+      "text": "If they fight half as well as they grumble, we'll trample whatever's in front of us. Stay close in the line.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran" },
+      "options": [
+        { "id": "combat_close", "textId": "companion_sergeant_combat_opt_close", "text": "Understood.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_combat",
+      "speaker": "companion",
+      "textId": "companion_sergeant_combat_book",
+      "text": "Spear-drill is satisfactory. Shieldwork needs another day. The newer recruits will hold the third rank if it comes to a real engagement.",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book" },
+      "options": [
+        { "id": "combat_close", "textId": "companion_sergeant_combat_opt_close", "text": "Good to know.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_combat",
+      "speaker": "companion",
+      "textId": "companion_sergeant_combat_cynical",
+      "text": "We'll fight. Whether we win is the lord's problem, not mine. Don't be the one stuck holding a flank alone — that's the only advice that matters.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical" },
+      "options": [
+        { "id": "combat_close", "textId": "companion_sergeant_combat_opt_close", "text": "Noted.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_sergeant_battle_gruff",
+      "text": "You held the line. That's the whole job. Don't get poetic about it.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_sergeant_battle_opt_close", "text": "Aye.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_sergeant_battle_book",
+      "text": "Formation broke twice on the left. Casualties higher than they should have been. I'll be filing notes for the next muster brief.",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_sergeant_battle_opt_close", "text": "We'll do better.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_battle",
+      "speaker": "companion",
+      "textId": "companion_sergeant_battle_cynical",
+      "text": "Won the field. Lost three boys who won't be paid this month or any other. The lord will frame it as a victory.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical", "has_recent_battle": true },
+      "options": [
+        { "id": "battle_close", "textId": "companion_sergeant_battle_opt_close", "text": "I'm sorry.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_sergeant_advice_gruff",
+      "text": "Trust your shield-mate. Don't trust the cavalry. And when the lord shouts charge, look at the ground before you run.",
+      "context": { "companion_type": "sergeant", "archetype": "gruff_veteran" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_sergeant_advice_opt_close", "text": "I'll remember that.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_sergeant_advice_book",
+      "text": "Maintain your kit. Read the standing orders before each muster. Don't improvise without authorization. The rest follows.",
+      "context": { "companion_type": "sergeant", "archetype": "by_the_book" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_sergeant_advice_opt_close", "text": "Yes, sergeant.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_sergeant_advice_cynical",
+      "text": "Survive the contract. Get paid. Spend it before some other lord's army takes it back. That's the whole soldier's craft.",
+      "context": { "companion_type": "sergeant", "archetype": "cynical" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_sergeant_advice_opt_close", "text": "Plain enough.", "next_node": "companion_sergeant_root" }
+      ]
+    },
+
+    {
+      "id": "companion_sergeant_goodbye",
+      "speaker": "companion",
+      "textId": "companion_sergeant_goodbye_default",
+      "text": "Mind your kit and your tongue, soldier.",
+      "context": { "companion_type": "sergeant" },
+      "options": []
+    }
+  ]
+}

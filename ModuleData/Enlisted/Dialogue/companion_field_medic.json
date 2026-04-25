@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "dialogueType": "companion",
+  "_comment": "Plan 2 T13 — Field Medic archetype dialog. Three archetypes: compassionate, pragmatic, pious. Loaded by CompanionDialogueCatalog. Mirrors companion_sergeant.json node-id structure.",
+  "nodes": [
+
+    {
+      "id": "companion_field_medic_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_greeting_compassionate",
+      "text": "Another new face. I hope I won't see too much of you on my table.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_warm",
+          "textId": "companion_field_medic_intro_opt_warm",
+          "text": "I'll try to keep clear of it, healer.",
+          "tooltip": "Greet warmly (+2 relationship)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_brave",
+          "textId": "companion_field_medic_intro_opt_brave",
+          "text": "I'll try not to bleed on your floor.",
+          "tooltip": "Bluff (no change)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 0 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_greeting_pragmatic",
+      "text": "Name and weight, soldier. If you bleed badly I want to know how much wine and bandage you'll cost me.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_direct",
+          "textId": "companion_field_medic_intro_opt_direct",
+          "text": "I'll come back when I have something useful for you.",
+          "tooltip": "Match the bluntness (+2 relationship)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_offended",
+          "textId": "companion_field_medic_intro_opt_offended",
+          "text": "Charming bedside manner, healer.",
+          "tooltip": "Push back (-1 relationship)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_intro_greeting",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_greeting_pious",
+      "text": "The gods sent you here, soldier. Whether to live or to die is theirs to decide. Mine is only to clean the wounds.",
+      "context": { "companion_type": "field_medic", "archetype": "pious", "is_introduced": false },
+      "options": [
+        {
+          "id": "intro_reverent",
+          "textId": "companion_field_medic_intro_opt_reverent",
+          "text": "Then I'll thank them for the careful hands.",
+          "tooltip": "Match the reverence (+2 relationship)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": 2 }
+        },
+        {
+          "id": "intro_secular",
+          "textId": "companion_field_medic_intro_opt_secular",
+          "text": "I'd rather rely on your hands than on theirs.",
+          "tooltip": "Brush off the piety (-1 relationship)",
+          "next_node": "companion_field_medic_intro_ack",
+          "action": "rep_change",
+          "action_data": { "delta": -1 }
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_ack_compassionate",
+      "text": "Mind your footing in the line. A turned ankle takes longer to heal than most boys believe.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_field_medic_intro_ack_opt_close",
+          "text": "Healer.",
+          "next_node": "companion_field_medic_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_ack_pragmatic",
+      "text": "Good. Boil your water before you drink it. That alone keeps half my patients off the table.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_field_medic_intro_ack_opt_close",
+          "text": "Noted.",
+          "next_node": "companion_field_medic_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_intro_ack",
+      "speaker": "companion",
+      "textId": "companion_field_medic_intro_ack_pious",
+      "text": "Walk with the rites, soldier. The body endures longer when the spirit is settled.",
+      "context": { "companion_type": "field_medic", "archetype": "pious" },
+      "options": [
+        {
+          "id": "intro_ack_close",
+          "textId": "companion_field_medic_intro_ack_opt_close",
+          "text": "I'll try.",
+          "next_node": "companion_field_medic_root"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_root",
+      "speaker": "companion",
+      "textId": "companion_field_medic_root_default",
+      "text": "Are you hurt, or is this a social visit?",
+      "context": { "companion_type": "field_medic" },
+      "options": [
+        {
+          "id": "root_healing",
+          "textId": "companion_field_medic_root_opt_healing",
+          "text": "How do you keep men on their feet out here?",
+          "tooltip": "Ask about field medicine",
+          "next_node": "companion_field_medic_topic_healing"
+        },
+        {
+          "id": "root_horror",
+          "textId": "companion_field_medic_root_opt_horror",
+          "text": "How do you bear all of it?",
+          "tooltip": "Ask about the cost of war",
+          "next_node": "companion_field_medic_topic_horror"
+        },
+        {
+          "id": "root_wounded",
+          "textId": "companion_field_medic_root_opt_wounded",
+          "text": "How are the wounded from the last fight?",
+          "tooltip": "Ask after recent casualties",
+          "next_node": "companion_field_medic_topic_wounded",
+          "requirements": { "has_recent_battle": true }
+        },
+        {
+          "id": "root_advice",
+          "textId": "companion_field_medic_root_opt_advice",
+          "text": "Any advice for someone in the line?",
+          "tooltip": "Ask for mentorship",
+          "next_node": "companion_field_medic_topic_advice"
+        },
+        {
+          "id": "root_leave",
+          "textId": "companion_field_medic_root_opt_leave",
+          "text": "Carry on, healer.",
+          "next_node": "companion_field_medic_goodbye"
+        }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_healing",
+      "speaker": "companion",
+      "textId": "companion_field_medic_healing_compassionate",
+      "text": "Warm broth, dry blankets, and a hand on the shoulder. Half of healing is letting them know someone is still there.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate" },
+      "options": [
+        { "id": "healing_close", "textId": "companion_field_medic_healing_opt_close", "text": "I'll remember that.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_healing",
+      "speaker": "companion",
+      "textId": "companion_field_medic_healing_pragmatic",
+      "text": "Triage by minutes, not by sympathy. Fast bleeders first, broken bones last, the dying set aside. Wine cleans wounds; prayer does not.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic" },
+      "options": [
+        { "id": "healing_close", "textId": "companion_field_medic_healing_opt_close", "text": "Understood.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_healing",
+      "speaker": "companion",
+      "textId": "companion_field_medic_healing_pious",
+      "text": "I clean the wound and speak the rites. The gods take or leave each soul as they will. The hands and the words are mine to give.",
+      "context": { "companion_type": "field_medic", "archetype": "pious" },
+      "options": [
+        { "id": "healing_close", "textId": "companion_field_medic_healing_opt_close", "text": "Thank you.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_horror",
+      "speaker": "companion",
+      "textId": "companion_field_medic_horror_compassionate",
+      "text": "Some nights I don't. I sit with a cup of wine and let the names come back. Then I go again in the morning, because someone has to.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate" },
+      "options": [
+        { "id": "horror_close", "textId": "companion_field_medic_horror_opt_close", "text": "I'm sorry.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_horror",
+      "speaker": "companion",
+      "textId": "companion_field_medic_horror_pragmatic",
+      "text": "It's wounds and ratios. A man with a deep belly cut at sundown won't see morning. I save the ones I can save and stop counting the rest.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic" },
+      "options": [
+        { "id": "horror_close", "textId": "companion_field_medic_horror_opt_close", "text": "Plain enough.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_horror",
+      "speaker": "companion",
+      "textId": "companion_field_medic_horror_pious",
+      "text": "Each death is owed somewhere — to the gods, to the soil, to the lord who called us out. I tend what I can and leave the ledger to those above.",
+      "context": { "companion_type": "field_medic", "archetype": "pious" },
+      "options": [
+        { "id": "horror_close", "textId": "companion_field_medic_horror_opt_close", "text": "A heavy ledger.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_wounded",
+      "speaker": "companion",
+      "textId": "companion_field_medic_wounded_compassionate",
+      "text": "Two will walk again by week's end. The young one with the leg wound is asking for his mother. I sat with him an hour.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate", "has_recent_battle": true },
+      "options": [
+        { "id": "wounded_close", "textId": "companion_field_medic_wounded_opt_close", "text": "I'll look in on him.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_wounded",
+      "speaker": "companion",
+      "textId": "companion_field_medic_wounded_pragmatic",
+      "text": "Five stable, two questionable, one gone before the bandages were out. Stitch counts within expectations for an engagement of that size.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic", "has_recent_battle": true },
+      "options": [
+        { "id": "wounded_close", "textId": "companion_field_medic_wounded_opt_close", "text": "Thank you.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_wounded",
+      "speaker": "companion",
+      "textId": "companion_field_medic_wounded_pious",
+      "text": "Three will live. One is past the rites. I lit a candle for him and washed the others' hands. The gods know their names now.",
+      "context": { "companion_type": "field_medic", "archetype": "pious", "has_recent_battle": true },
+      "options": [
+        { "id": "wounded_close", "textId": "companion_field_medic_wounded_opt_close", "text": "May he rest.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_field_medic_advice_compassionate",
+      "text": "Drink water, sleep when you can, and don't hide a fever from me. A small thing left alone becomes a grave.",
+      "context": { "companion_type": "field_medic", "archetype": "compassionate" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_field_medic_advice_opt_close", "text": "I'll remember.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_field_medic_advice_pragmatic",
+      "text": "Boil your water. Burn your bandages. If a wound smells sweet, it's already won. The rest is luck.",
+      "context": { "companion_type": "field_medic", "archetype": "pragmatic" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_field_medic_advice_opt_close", "text": "Useful.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_topic_advice",
+      "speaker": "companion",
+      "textId": "companion_field_medic_advice_pious",
+      "text": "Walk with what's owed and what's given. Speak the rites at sunset. The body holds longer when the soul knows it isn't alone.",
+      "context": { "companion_type": "field_medic", "archetype": "pious" },
+      "options": [
+        { "id": "advice_close", "textId": "companion_field_medic_advice_opt_close", "text": "Thank you.", "next_node": "companion_field_medic_root" }
+      ]
+    },
+
+    {
+      "id": "companion_field_medic_goodbye",
+      "speaker": "companion",
+      "textId": "companion_field_medic_goodbye_default",
+      "text": "Stay clear of my table, soldier.",
+      "context": { "companion_type": "field_medic" },
+      "options": []
+    }
+  ]
+}

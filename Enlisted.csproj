@@ -465,6 +465,7 @@
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
     <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
     <Compile Include="src\Features\Companions\CompanionLifecycleHandler.cs"/>
+    <Compile Include="src\Features\Companions\Data\CompanionDialogueCatalog.cs"/>
 
     <!-- ====================================================================
          PLAYER CONDITIONS (Medical System)
