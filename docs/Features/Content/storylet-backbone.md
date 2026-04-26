@@ -209,6 +209,15 @@ Defined in `ModuleData/Enlisted/Effects/scripted_effects.json`:
 | `loyalty_up_small_for_slot` | `set_flag_on_hero {slot} loyalty_boost_recent days:5`, `quality_add_for_hero loyalty +2` | Retinue member's loyalty nudged up |
 | `loyalty_down_major_for_slot` | `quality_add_for_hero loyalty -5` | Retinue mistreated, betrayal |
 
+**Plan 3 ceremony scripted effects** (added 2026-04-26). 44 entries reserved exclusively for ceremony storylets; `Tools/Validation/validate_content.py` Phase 12 enforces ID resolution. See [`docs/Features/Ceremonies/ceremony-storylet-schema.md`](../Ceremonies/ceremony-storylet-schema.md) for usage.
+
+| Effect family | Body | Use for |
+| :--- | :--- | :--- |
+| `ceremony_trait_drift_<trait>_<up\|down>` (10 entries) | `trait_xp <Trait> ±1` (steps trait by Math.Sign of amount) | Ceremony option drift on `Mercy` / `Valor` / `Honor` / `Generosity` / `Calculating` |
+| `ceremony_witness_reaction_<archetype>_<approve\|disapprove\|strong_approve\|strong_disapprove>` (34 entries) | `relation_change target_slot:witness_<archetype> delta:±5/±10` | Drift the named witness's relation with the player; resolves via pre-populated `ResolvedSlots` from `CeremonyProvider` |
+
+Witness archetypes: `sergeant` / `field_medic` / `pathfinder` / `veteran` / `qm_officer` / `junior_officer` / `lord`. The reaction primitive Expected-logs and skips silently if the archetype isn't a current witness for the firing tier (e.g. `veteran` reaction in a T4→T5 ceremony — Veteran spawns at T5, not present yet).
+
 **Recursion cap.** `EffectExecutor` caps scripted-effect expansion at depth 8. A cyclic catalog (A→B→A) trips `Expected("EFFECT", "scripted_depth_limit", ...)` with the offending `apply` id in the log ctx — the chain no-ops at the cap.
 
 ---

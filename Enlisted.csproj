@@ -462,6 +462,9 @@
     <Compile Include="src\Features\Lifestyles\LifestyleUnlockStore.cs"/>
     <Compile Include="src\Features\Lifestyles\LifestyleUnlockBehavior.cs"/>
     <Compile Include="src\Features\Ceremonies\RankCeremonyBehavior.cs"/>
+    <Compile Include="src\Features\Ceremonies\CeremonyCultureSelector.cs"/>
+    <Compile Include="src\Features\Ceremonies\CeremonyWitnessSelector.cs"/>
+    <Compile Include="src\Features\Ceremonies\CeremonyProvider.cs"/>
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
     <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
     <Compile Include="src\Features\Companions\CompanionLifecycleHandler.cs"/>

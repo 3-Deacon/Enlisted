@@ -1,0 +1,224 @@
+{
+  "storylets": [
+    {
+      "id": "ceremony_t6_to_t7_base",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t6_to_t7_base_title}The commission",
+      "setup": "{=ceremony_t6_to_t7_base_setup}The army stands in formation on flat ground, the wind moving across the line. {LORD_NAME} sits his horse in front of the colours and the men know what this is before he speaks. The sergeant is one pace off your shoulder, where he has always been. The veteran has his arms crossed at the edge of the formation and gives nothing away. {PLAYER_NAME}. The lord calls you out by your new title, {PLAYER_RANK}, and the company hears it. He waits. He is not a man who waits often.",
+      "options": [
+        {
+          "id": "humble_accept",
+          "text": "{=ceremony_t6_to_t7_base_humble_accept}Kneel. 'I will not fail the men, my lord.'",
+          "tooltip": "{=ceremony_t6_to_t7_base_humble_accept_tt}+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_approve" },
+            { "apply": "ceremony_witness_reaction_pathfinder_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_humble_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "proud_accept",
+          "text": "{=ceremony_t6_to_t7_base_proud_accept}Stand. 'I have earned it. The men know it.'",
+          "tooltip": "{=ceremony_t6_to_t7_base_proud_accept_tt}+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_proud_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "try_to_refuse",
+          "text": "{=ceremony_t6_to_t7_base_try_to_refuse}'Too much weight, my lord. Too soon.'",
+          "tooltip": "{=ceremony_t6_to_t7_base_try_to_refuse_tt}+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "grant_renown", "amount": -10 },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_try_to_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t6_to_t7_vlandian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t6_to_t7_vlandian_title}The commission",
+      "setup": "{=ceremony_t6_to_t7_vlandian_setup}The keep's courtyard. {LORD_NAME} has called the warband in from the wall and the men have come — sergeants, the four who ride at his hand, the levies in their dyed coats. The banner is real cloth, faded at the edges, a thing that has hung over actual fighting. The sergeant stands at your shoulder. {PLAYER_NAME}, the lord says, and the courtyard quiets. He gives you the new word. {PLAYER_RANK}. The wine is waiting on the long table behind him for after the words are said.",
+      "options": [
+        {
+          "id": "humble_accept",
+          "text": "{=ceremony_t6_to_t7_vlandian_humble_accept}Kneel. 'I will not fail the men, my lord.'",
+          "tooltip": "{=ceremony_t6_to_t7_vlandian_humble_accept_tt}+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_approve" },
+            { "apply": "ceremony_witness_reaction_pathfinder_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_humble_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "proud_accept",
+          "text": "{=ceremony_t6_to_t7_vlandian_proud_accept}Stand. 'I have earned it. The men know it.'",
+          "tooltip": "{=ceremony_t6_to_t7_vlandian_proud_accept_tt}+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_proud_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "try_to_refuse",
+          "text": "{=ceremony_t6_to_t7_vlandian_try_to_refuse}'Too much weight, my lord. Too soon.'",
+          "tooltip": "{=ceremony_t6_to_t7_vlandian_try_to_refuse_tt}+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "grant_renown", "amount": -10 },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_try_to_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t6_to_t7_sturgian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t6_to_t7_sturgian_title}The commission",
+      "setup": "{=ceremony_t6_to_t7_sturgian_setup}The column has halted on open ground. The fires are lit and the men gather without being told to. {LORD_NAME} stands on the back of a wagon so the rear ranks can see him. The wind takes the smoke sideways and the snow with it. The veteran is at the edge of the firelight with his arms crossed. {PLAYER_NAME}, the lord calls. {PLAYER_RANK}. He gives you the title plain, the way the Sturgians give a thing — once, with no flourish, in front of the men who will have to live with it.",
+      "options": [
+        {
+          "id": "humble_accept",
+          "text": "{=ceremony_t6_to_t7_sturgian_humble_accept}Kneel in the snow. 'I will not fail the men, my lord.'",
+          "tooltip": "{=ceremony_t6_to_t7_sturgian_humble_accept_tt}+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_approve" },
+            { "apply": "ceremony_witness_reaction_pathfinder_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_humble_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "proud_accept",
+          "text": "{=ceremony_t6_to_t7_sturgian_proud_accept}Stand straight. 'I have earned it. The men know it.'",
+          "tooltip": "{=ceremony_t6_to_t7_sturgian_proud_accept_tt}+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_proud_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "try_to_refuse",
+          "text": "{=ceremony_t6_to_t7_sturgian_try_to_refuse}'Too much weight, my lord. Too soon.'",
+          "tooltip": "{=ceremony_t6_to_t7_sturgian_try_to_refuse_tt}+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "grant_renown", "amount": -10 },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_try_to_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t6_to_t7_imperial",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t6_to_t7_imperial_title}The commission",
+      "setup": "{=ceremony_t6_to_t7_imperial_setup}The muster yard. The ranks are dressed and silent. {LORD_NAME} reads from a small scroll in the formal hand, the way the Empire has read such things since before any man here was born. The sergeant is one pace off your shoulder. The quartermaster waits at the lord's elbow with the new device folded on a square of cloth. {PLAYER_NAME}. {PLAYER_RANK}. The lord pronounces it the way the writ pronounces it, and the formality of it is the ceremony — there is no other.",
+      "options": [
+        {
+          "id": "humble_accept",
+          "text": "{=ceremony_t6_to_t7_imperial_humble_accept}Kneel. 'I will not fail the men, my lord.'",
+          "tooltip": "{=ceremony_t6_to_t7_imperial_humble_accept_tt}+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_approve" },
+            { "apply": "ceremony_witness_reaction_pathfinder_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_humble_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "proud_accept",
+          "text": "{=ceremony_t6_to_t7_imperial_proud_accept}Stand at attention. 'I have earned it, sir. The men know it.'",
+          "tooltip": "{=ceremony_t6_to_t7_imperial_proud_accept_tt}+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_proud_accept" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        },
+        {
+          "id": "try_to_refuse",
+          "text": "{=ceremony_t6_to_t7_imperial_try_to_refuse}'Too much weight, sir. Too soon.'",
+          "tooltip": "{=ceremony_t6_to_t7_imperial_try_to_refuse_tt}+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "grant_renown", "amount": -10 },
+            { "apply": "set_flag", "name": "ceremony_choice_t7_try_to_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t7" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -3303,6 +3303,109 @@ def phase18_companion_dialogue(ctx: ValidationContext) -> None:
         )
 
 
+def phase20_ceremony_storylets(ctx: ValidationContext) -> None:
+    """Plan 3 §6 T17. Confirm the five retained tier-transition ceremonies are
+    authored. Tiers 4 / 6 / 9 are intentionally skipped (PathCrossroads collision
+    per Plan 3 Lock 1) — Phase 20 does NOT require them.
+
+    Required (error if missing):
+      - Each retained transition has a `ceremony_t{prev}_to_t{curr}_base` entry.
+      - Every `ceremony_t*_to_t*` storylet has `category: "ceremony"`.
+
+    Recommended (warning if missing):
+      - Cultural variants `_vlandian`, `_sturgian`, `_imperial` for each retained
+        transition. Players whose enlisted lord's culture maps to a missing
+        variant fall through to `_base`; not a hard build break.
+    """
+    print("[Phase 20] Validating ceremony storylet completeness...")
+
+    required_transitions = [(1, 2), (2, 3), (4, 5), (6, 7), (7, 8)]
+    cultural_suffixes = ("vlandian", "sturgian", "imperial")
+
+    files = sorted(glob.glob("ModuleData/Enlisted/Storylets/ceremony_*.json"))
+    if not files:
+        ctx.add_issue(
+            "error", "ceremony",
+            "no ceremony_*.json storylets found; five expected for T1→T2, "
+            "T2→T3, T4→T5, T6→T7, T7→T8",
+            "ModuleData/Enlisted/Storylets/",
+        )
+        return
+
+    # Load every ceremony_*_to_*.json storylet ID + category from the catalog.
+    seen_ids: set[str] = set()
+    bad_category: list[tuple[str, str, str]] = []  # (file, id, category)
+    for path_str in files:
+        path = Path(path_str)
+        try:
+            with open(path, encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except Exception as exc:
+            ctx.add_issue(
+                "error", "ceremony",
+                f"{path.name}: failed to parse JSON ({exc})",
+                str(path),
+            )
+            continue
+
+        for s in doc.get("storylets", []):
+            if not isinstance(s, dict):
+                continue
+            sid = s.get("id") or ""
+            if not sid.startswith("ceremony_t"):
+                continue
+            seen_ids.add(sid)
+            cat = s.get("category")
+            if cat != "ceremony":
+                bad_category.append((path.name, sid, cat or "<missing>"))
+
+    for fname, sid, cat in bad_category:
+        ctx.add_issue(
+            "error", "ceremony",
+            f"{fname}: storylet '{sid}' must declare category=\"ceremony\" "
+            f"(got {cat!r})",
+            str(Path("ModuleData/Enlisted/Storylets") / fname),
+        )
+
+    missing_required: list[str] = []
+    missing_optional: list[tuple[int, int, str]] = []
+    for prev, curr in required_transitions:
+        base_id = f"ceremony_t{prev}_to_t{curr}_base"
+        if base_id not in seen_ids:
+            missing_required.append(base_id)
+        for suffix in cultural_suffixes:
+            variant_id = f"ceremony_t{prev}_to_t{curr}_{suffix}"
+            if variant_id not in seen_ids:
+                missing_optional.append((prev, curr, suffix))
+
+    for sid in missing_required:
+        ctx.add_issue(
+            "error", "ceremony",
+            f"required ceremony storylet '{sid}' not authored — "
+            "RankCeremonyBehavior will Expected-log and silently no-op",
+            "ModuleData/Enlisted/Storylets/",
+        )
+
+    for prev, curr, suffix in missing_optional:
+        ctx.add_issue(
+            "warning", "ceremony",
+            f"recommended cultural variant 'ceremony_t{prev}_to_t{curr}_{suffix}' "
+            "not authored — players with that enlisted-lord culture see _base",
+            "ModuleData/Enlisted/Storylets/",
+        )
+
+    errors_for_phase = sum(
+        1 for i in ctx.issues
+        if i.category == "ceremony" and i.severity == "error"
+    )
+    if errors_for_phase == 0:
+        ceremony_count = sum(1 for sid in seen_ids if sid.endswith("_base"))
+        print(
+            f"  OK: {ceremony_count} required ceremony base storylet(s) "
+            f"authored across {len(files)} file(s)."
+        )
+
+
 def main():
     """Main validation entry point."""
     parser = argparse.ArgumentParser(description="Validate Enlisted mod content files")
@@ -3390,6 +3493,9 @@ def main():
 
     # Phase 18: Companion dialog catalog schema (Plan 2)
     phase18_companion_dialogue(ctx)
+
+    # Phase 20: Ceremony storylet completeness (Plan 3)
+    phase20_ceremony_storylets(ctx)
 
     # Generate missing strings file if requested
     if args.fix_refs:

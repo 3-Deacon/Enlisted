@@ -1,0 +1,220 @@
+{
+  "storylets": [
+    {
+      "id": "ceremony_t2_to_t3_base",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t2_to_t3_base_title}First share",
+      "setup": "{=ceremony_t2_to_t3_base_setup}Dusk over the camp. The raid is done and the share is paid out. {PLAYER_NAME}, the coin still warm in your fist. The sergeant finds you between the wagons before you have made up your mind. He looks once at the purse, once at you, and waits.",
+      "options": [
+        {
+          "id": "frugal",
+          "text": "{=ceremony_t2_to_t3_base_frugal}Bury it. Stone for a marker.",
+          "tooltip": "{=ceremony_t2_to_t3_base_frugal_tt}+1 Calculating. Sergeant disapproves. Coin under a stone is not the company.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_frugal" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "generous",
+          "text": "{=ceremony_t2_to_t3_base_generous}Round for the recruits. On me.",
+          "tooltip": "{=ceremony_t2_to_t3_base_generous_tt}+1 Generosity. Sergeant strongly approves. The company drinks together.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_generous" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "{=ceremony_t2_to_t3_base_family}Most of it goes home.",
+          "tooltip": "{=ceremony_t2_to_t3_base_family_tt}+1 Honor. Sergeant approves. The old soldier respects this.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_family" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "hedonist",
+          "text": "{=ceremony_t2_to_t3_base_hedonist}Cards. Drink. What the night offers.",
+          "tooltip": "{=ceremony_t2_to_t3_base_hedonist_tt}-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_down" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_hedonist" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t2_to_t3_vlandian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t2_to_t3_vlandian_title}First share",
+      "setup": "{=ceremony_t2_to_t3_vlandian_setup}A back room of a Vlandian tavern. {LORD_NAME} paid the share out before sunset and the wine is cheap as water tonight. The sergeant has cornered you against the cask, {PLAYER_NAME}, before the recruits at the long table can buy you a cup. The purse is in your hand and he wants to see what you do with it.",
+      "options": [
+        {
+          "id": "frugal",
+          "text": "{=ceremony_t2_to_t3_vlandian_frugal}Bury it. Stone for a marker.",
+          "tooltip": "{=ceremony_t2_to_t3_vlandian_frugal_tt}+1 Calculating. Sergeant disapproves. Coin under a stone is not the company.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_frugal" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "generous",
+          "text": "{=ceremony_t2_to_t3_vlandian_generous}A cask for the table. On me.",
+          "tooltip": "{=ceremony_t2_to_t3_vlandian_generous_tt}+1 Generosity. Sergeant strongly approves. The company drinks together.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_generous" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "{=ceremony_t2_to_t3_vlandian_family}Most of it goes home.",
+          "tooltip": "{=ceremony_t2_to_t3_vlandian_family_tt}+1 Honor. Sergeant approves. The old soldier respects this.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_family" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "hedonist",
+          "text": "{=ceremony_t2_to_t3_vlandian_hedonist}Cards. Drink. What the night offers.",
+          "tooltip": "{=ceremony_t2_to_t3_vlandian_hedonist_tt}-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_down" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_hedonist" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t2_to_t3_sturgian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t2_to_t3_sturgian_title}First share",
+      "setup": "{=ceremony_t2_to_t3_sturgian_setup}The column halts at a steading by the wood. Snow falls slow and thick on the captured purse cinched at your belt, {PLAYER_NAME}. The sergeant breaks black bread next to you on the bench and does not speak. He waits. Sturgians let a question lie until it answers itself.",
+      "options": [
+        {
+          "id": "frugal",
+          "text": "{=ceremony_t2_to_t3_sturgian_frugal}Bury it. Stone for a marker.",
+          "tooltip": "{=ceremony_t2_to_t3_sturgian_frugal_tt}+1 Calculating. Sergeant disapproves. Coin under a stone is not the company.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_frugal" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "generous",
+          "text": "{=ceremony_t2_to_t3_sturgian_generous}Mead for the hall. On me.",
+          "tooltip": "{=ceremony_t2_to_t3_sturgian_generous_tt}+1 Generosity. Sergeant strongly approves. The company drinks together.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_generous" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "{=ceremony_t2_to_t3_sturgian_family}Most of it goes home to my kin.",
+          "tooltip": "{=ceremony_t2_to_t3_sturgian_family_tt}+1 Honor. Sergeant approves. The old soldier respects this.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_family" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "hedonist",
+          "text": "{=ceremony_t2_to_t3_sturgian_hedonist}Drink. Dice. The cold takes the rest.",
+          "tooltip": "{=ceremony_t2_to_t3_sturgian_hedonist_tt}-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_down" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_hedonist" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t2_to_t3_imperial",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t2_to_t3_imperial_title}First share",
+      "setup": "{=ceremony_t2_to_t3_imperial_setup}Morning at the quartermaster's tent. The receipt for your share is folded in your tunic and the line stretches back past the picket. {PLAYER_NAME}. The sergeant stands one pace behind you in the queue. He has watched you sign for the coin and now he watches what your hand does next.",
+      "options": [
+        {
+          "id": "frugal",
+          "text": "{=ceremony_t2_to_t3_imperial_frugal}Bury it, sir. Stone for a marker.",
+          "tooltip": "{=ceremony_t2_to_t3_imperial_frugal_tt}+1 Calculating. Sergeant disapproves. Coin under a stone is not the company.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_frugal" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "generous",
+          "text": "{=ceremony_t2_to_t3_imperial_generous}A round for the maniple. On me.",
+          "tooltip": "{=ceremony_t2_to_t3_imperial_generous_tt}+1 Generosity. Sergeant strongly approves. The company drinks together.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_generosity_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_generous" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "family",
+          "text": "{=ceremony_t2_to_t3_imperial_family}Most of it goes home, Sergeant.",
+          "tooltip": "{=ceremony_t2_to_t3_imperial_family_tt}+1 Honor. Sergeant approves. The old soldier respects this.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_family" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        },
+        {
+          "id": "hedonist",
+          "text": "{=ceremony_t2_to_t3_imperial_hedonist}Cards. Drink. What the night offers.",
+          "tooltip": "{=ceremony_t2_to_t3_imperial_hedonist_tt}-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_down" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t3_hedonist" },
+            { "apply": "set_flag", "name": "ceremony_fired_t3" }
+          ]
+        }
+      ]
+    }
+  ]
+}

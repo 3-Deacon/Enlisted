@@ -1,0 +1,196 @@
+{
+  "storylets": [
+    {
+      "id": "ceremony_t7_to_t8_base",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t7_to_t8_base_title}A challenge in the field",
+      "setup": "{=ceremony_t7_to_t8_base_setup}The map is spread across a drum head. Wind catches the corner and someone's boot pins it down. You have called the line. The junior officer is at your elbow with two fingers planted on the ridge to your left, voice carrying further than he means it to. He is not wrong about the terrain and the men nearest you have heard him say so, {PLAYER_RANK} {PLAYER_NAME}. The decision is still yours. The witnesses are still watching.",
+      "options": [
+        {
+          "id": "authority",
+          "text": "{=ceremony_t7_to_t8_base_authority}Stand down, Lieutenant. The decision is mine.",
+          "tooltip": "{=ceremony_t7_to_t8_base_authority_tt}+1 Valor. Junior officer marked. Veteran approves the iron.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_authority" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "debate",
+          "text": "{=ceremony_t7_to_t8_base_debate}Speak. — Heard. We hold.",
+          "tooltip": "{=ceremony_t7_to_t8_base_debate_tt}+1 Honor. Junior officer heard. QM approves. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_debate" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "compromise",
+          "text": "{=ceremony_t7_to_t8_base_compromise}Take the left flank. We split the difference.",
+          "tooltip": "{=ceremony_t7_to_t8_base_compromise_tt}+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_compromise" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t7_to_t8_vlandian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t7_to_t8_vlandian_title}A challenge in the warband",
+      "setup": "{=ceremony_t7_to_t8_vlandian_setup}{LORD_NAME}'s tent. Tallow candles guttering, wine sour at the bottom of the cup. The plan for tomorrow is laid out in chalk on a board and the warband's captains stand around it. The junior officer has had just enough wine to find his nerve. He puts a finger on the ridge you have ceded and asks why. Loud enough that the table goes quiet. {PLAYER_RANK} {PLAYER_NAME}, the room is yours to keep or to lose.",
+      "options": [
+        {
+          "id": "authority",
+          "text": "{=ceremony_t7_to_t8_vlandian_authority}Stand down, Lieutenant. The decision is mine.",
+          "tooltip": "{=ceremony_t7_to_t8_vlandian_authority_tt}+1 Valor. Junior officer marked. Veteran approves the iron.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_authority" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "debate",
+          "text": "{=ceremony_t7_to_t8_vlandian_debate}Speak your piece. — Heard. We hold.",
+          "tooltip": "{=ceremony_t7_to_t8_vlandian_debate_tt}+1 Honor. Junior officer heard. QM approves. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_debate" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "compromise",
+          "text": "{=ceremony_t7_to_t8_vlandian_compromise}Take the left flank. We split the difference.",
+          "tooltip": "{=ceremony_t7_to_t8_vlandian_compromise_tt}+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_compromise" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t7_to_t8_sturgian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t7_to_t8_sturgian_title}A challenge on the march",
+      "setup": "{=ceremony_t7_to_t8_sturgian_setup}The fire spits. The kettle steams. The column has stopped to chew bread and water the horses and you have given the order for the morning. The junior officer plants his spear in the dirt before he speaks — Sturgian custom, a man who plants his spear is owed a hearing. He names the ground he wants. The veterans around the fire have heard him plant it, {PLAYER_RANK} {PLAYER_NAME}. They are watching to see what you do with a spear in the ground.",
+      "options": [
+        {
+          "id": "authority",
+          "text": "{=ceremony_t7_to_t8_sturgian_authority}Pull your spear, Lieutenant. The decision is mine.",
+          "tooltip": "{=ceremony_t7_to_t8_sturgian_authority_tt}+1 Valor. Junior officer marked. Veteran approves the iron.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_authority" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "debate",
+          "text": "{=ceremony_t7_to_t8_sturgian_debate}Speak. — Heard. We hold.",
+          "tooltip": "{=ceremony_t7_to_t8_sturgian_debate_tt}+1 Honor. Junior officer heard. QM approves. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_debate" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "compromise",
+          "text": "{=ceremony_t7_to_t8_sturgian_compromise}Take the left flank. We split the difference.",
+          "tooltip": "{=ceremony_t7_to_t8_sturgian_compromise_tt}+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_compromise" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t7_to_t8_imperial",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t7_to_t8_imperial_title}A challenge at the staff table",
+      "setup": "{=ceremony_t7_to_t8_imperial_setup}A posting house at the crossroads. Quill, ink, the day's roll half-written in the clerk's hand. The plan is read out for the witnesses to mark. The junior officer interrupts before the seal is set and asks the clerk to strike the line. He has the terrain right and he has chosen his moment to say it, {PLAYER_RANK} {PLAYER_NAME}. The clerk's quill is held above the page. Yours to give the next word.",
+      "options": [
+        {
+          "id": "authority",
+          "text": "{=ceremony_t7_to_t8_imperial_authority}Stand down, Lieutenant. The decision is mine.",
+          "tooltip": "{=ceremony_t7_to_t8_imperial_authority_tt}+1 Valor. Junior officer marked. Veteran approves the iron.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_disapprove" },
+            { "apply": "ceremony_witness_reaction_veteran_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_authority" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "debate",
+          "text": "{=ceremony_t7_to_t8_imperial_debate}Speak your case. — Heard. We hold.",
+          "tooltip": "{=ceremony_t7_to_t8_imperial_debate_tt}+1 Honor. Junior officer heard. QM approves. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_debate" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        },
+        {
+          "id": "compromise",
+          "text": "{=ceremony_t7_to_t8_imperial_compromise}Take the left flank. We split the difference.",
+          "tooltip": "{=ceremony_t7_to_t8_imperial_compromise_tt}+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_junior_officer_approve" },
+            { "apply": "ceremony_witness_reaction_qm_officer_strong_approve" },
+            { "apply": "ceremony_witness_reaction_veteran_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t8_compromise" },
+            { "apply": "set_flag", "name": "ceremony_fired_t8" }
+          ]
+        }
+      ]
+    }
+  ]
+}

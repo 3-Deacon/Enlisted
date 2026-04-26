@@ -1,0 +1,196 @@
+{
+  "storylets": [
+    {
+      "id": "ceremony_t4_to_t5_base",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t4_to_t5_base_title}The order",
+      "setup": "{=ceremony_t4_to_t5_base_setup}Evening. The holding sits low against the field, thatch grey in the failing light. Smoke is already up from the next one over. {LORD_NAME} keeps his horse where the column can see him and his voice where it cannot. He says the word for it and then he says yours, {PLAYER_NAME}. Burn it. Children at the edge of the rye stop running and watch you back. The sergeant is at your elbow. The medic is two paces off, her bag still open from the last man.",
+      "options": [
+        {
+          "id": "obey",
+          "text": "{=ceremony_t4_to_t5_base_obey}Aye, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_base_obey_tt}+1 Calculating. Lord pleased. Sergeant approves. Medic recoils.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_obey" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "question",
+          "text": "{=ceremony_t4_to_t5_base_question}This will be ugly, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_base_question_tt}+1 Honor. Lord disapproves the words. Sergeant approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_question" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=ceremony_t4_to_t5_base_refuse}I will not, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_base_refuse_tt}+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t4_to_t5_vlandian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t4_to_t5_vlandian_title}The order",
+      "setup": "{=ceremony_t4_to_t5_vlandian_setup}Late afternoon. The holding under thatch, the rye half-cut and stacked. {LORD_NAME} sits the destrier with his gauntlets resting on the pommel and names the men he says are sheltered there. Then he names what is to be done, {PLAYER_NAME}, and he names you to do it. Two children at the field's edge have not run. They are not certain yet whether they should. The sergeant breathes once at your shoulder. The medic stands clear, her hands still red.",
+      "options": [
+        {
+          "id": "obey",
+          "text": "{=ceremony_t4_to_t5_vlandian_obey}As you command, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_vlandian_obey_tt}+1 Calculating. Lord pleased. Sergeant approves. Medic recoils.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_obey" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "question",
+          "text": "{=ceremony_t4_to_t5_vlandian_question}This will be an ugly business, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_vlandian_question_tt}+1 Honor. Lord disapproves the words. Sergeant approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_question" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=ceremony_t4_to_t5_vlandian_refuse}I cannot do it, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_vlandian_refuse_tt}+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t4_to_t5_sturgian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t4_to_t5_sturgian_title}The order",
+      "setup": "{=ceremony_t4_to_t5_sturgian_setup}Cold dusk. Smoke from the holding's hearth still rising as if no one inside has decided yet to be afraid. {LORD_NAME}'s breath shows when he speaks. He gives the order low and short, the way Sturgian lords give orders that are not to be told twice. {PLAYER_NAME}. See it done. A girl at the edge of the rye holds a smaller boy by the wrist. The sergeant does not look at them. The medic does, and then at you.",
+      "options": [
+        {
+          "id": "obey",
+          "text": "{=ceremony_t4_to_t5_sturgian_obey}It is done, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_sturgian_obey_tt}+1 Calculating. Lord pleased. Sergeant approves. Medic recoils.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_obey" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "question",
+          "text": "{=ceremony_t4_to_t5_sturgian_question}This will be ugly work, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_sturgian_question_tt}+1 Honor. Lord disapproves the words. Sergeant approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_question" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=ceremony_t4_to_t5_sturgian_refuse}Not by my hand, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_sturgian_refuse_tt}+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t4_to_t5_imperial",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t4_to_t5_imperial_title}The order",
+      "setup": "{=ceremony_t4_to_t5_imperial_setup}Mid-morning. The column dressed and quiet on the road behind, the standards still. {LORD_NAME} reads it from a tablet as if it were a count of grain — the holding, the names of the men said to shelter there, the disposition. Then your name, {PLAYER_NAME}, and what falls to you. Two children sit on the wall of the well and have not been told to move. The sergeant stands one pace off. The medic has her bag closed already, knowing.",
+      "options": [
+        {
+          "id": "obey",
+          "text": "{=ceremony_t4_to_t5_imperial_obey}It will be done, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_imperial_obey_tt}+1 Calculating. Lord pleased. Sergeant approves. Medic recoils.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_approve" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_obey" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "question",
+          "text": "{=ceremony_t4_to_t5_imperial_question}With respect, my lord — this will be ugly.",
+          "tooltip": "{=ceremony_t4_to_t5_imperial_question_tt}+1 Honor. Lord disapproves the words. Sergeant approves.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_lord_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_question" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        },
+        {
+          "id": "refuse",
+          "text": "{=ceremony_t4_to_t5_imperial_refuse}I will not, my lord.",
+          "tooltip": "{=ceremony_t4_to_t5_imperial_refuse_tt}+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_mercy_up" },
+            { "apply": "ceremony_witness_reaction_lord_strong_disapprove" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "ceremony_witness_reaction_field_medic_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t5_refuse" },
+            { "apply": "set_flag", "name": "ceremony_fired_t5" }
+          ]
+        }
+      ]
+    }
+  ]
+}

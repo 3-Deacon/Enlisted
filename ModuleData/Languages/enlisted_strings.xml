@@ -7777,5 +7777,194 @@
     <string id="duty_raid_split_loot_trait_1_opt_take_tt" text="+30 gold, rank XP." />
     <string id="duty_raid_split_loot_trait_1_setup" text="Your lord will not touch the pile until every man has his share marked out in full view. Coin, cloth, a single good mail-shirt. The sergeant calls the count and each man steps up when his name is read. You watch the ritual work." />
     <string id="duty_raid_split_loot_trait_1_title" text="The share by the old measure" />
+    <!-- Plan 3 Rank Ceremonies -->
+    <!-- ceremony_t1_to_t2_base -->
+    <string id="ceremony_t1_to_t2_base_luck" text="Luck, mostly. I won&apos;t pretend." />
+    <string id="ceremony_t1_to_t2_base_luck_tt" text="+1 Calculating. The sergeant grunts. Either honest or beneath comment." />
+    <string id="ceremony_t1_to_t2_base_own_steel" text="My own steel kept me up." />
+    <string id="ceremony_t1_to_t2_base_own_steel_tt" text="+1 Valor. The sergeant marks you a duelist." />
+    <string id="ceremony_t1_to_t2_base_setup" text="The fighting is done. Your hands shake when you sheathe the blade and you pretend they don&apos;t. Someone passes you water. Someone else strips a body. The sergeant watches you across the line and decides the question without asking it. {PLAYER_NAME}. Still standing. He wants to know how you reckon that." />
+    <string id="ceremony_t1_to_t2_base_title" text="First blood" />
+    <string id="ceremony_t1_to_t2_base_trust_sergeant" text="You did, Sergeant. The line did." />
+    <string id="ceremony_t1_to_t2_base_trust_sergeant_tt" text="+1 Honor. The sergeant takes the answer with him." />
+    <!-- ceremony_t1_to_t2_imperial -->
+    <string id="ceremony_t1_to_t2_imperial_luck" text="Luck, sir. I will not lie about it." />
+    <string id="ceremony_t1_to_t2_imperial_luck_tt" text="+1 Calculating. The sergeant grunts. Either honest or beneath comment." />
+    <string id="ceremony_t1_to_t2_imperial_own_steel" text="My own steel kept me up, Centurion." />
+    <string id="ceremony_t1_to_t2_imperial_own_steel_tt" text="+1 Valor. The sergeant marks you a duelist." />
+    <string id="ceremony_t1_to_t2_imperial_setup" text="Morning muster. The centurion calls names from the roll and most are answered. {PLAYER_NAME}. Step forward. The sergeant stands one pace off your shoulder where the formation breaks for the wounded. He has watched you eat your bread this morning and decided you owe an account of yesterday before he writes it down for the lord." />
+    <string id="ceremony_t1_to_t2_imperial_title" text="First blood" />
+    <string id="ceremony_t1_to_t2_imperial_trust_sergeant" text="The maniple did, sir. The man at my shoulder." />
+    <string id="ceremony_t1_to_t2_imperial_trust_sergeant_tt" text="+1 Honor. The sergeant takes the answer with him." />
+    <!-- ceremony_t1_to_t2_sturgian -->
+    <string id="ceremony_t1_to_t2_sturgian_luck" text="Luck, mostly. The gods were bored." />
+    <string id="ceremony_t1_to_t2_sturgian_luck_tt" text="+1 Calculating. The sergeant grunts. Either honest or beneath comment." />
+    <string id="ceremony_t1_to_t2_sturgian_own_steel" text="My own steel kept me up." />
+    <string id="ceremony_t1_to_t2_sturgian_own_steel_tt" text="+1 Valor. The sergeant marks you a duelist." />
+    <string id="ceremony_t1_to_t2_sturgian_setup" text="The fire is built up high against the cold. The men drink from the captured stores in silence — Sturgians do not toast a thing twice. The sergeant finds you at the edge of the light. The frost is in his beard. He has a question that he carried back from the field, {PLAYER_NAME}, and now he sets it down between you. Why are you here and not on the ground." />
+    <string id="ceremony_t1_to_t2_sturgian_title" text="First blood" />
+    <string id="ceremony_t1_to_t2_sturgian_trust_sergeant" text="You did, Sergeant. The shieldwall did." />
+    <string id="ceremony_t1_to_t2_sturgian_trust_sergeant_tt" text="+1 Honor. The sergeant takes the answer with him." />
+    <!-- ceremony_t1_to_t2_vlandian -->
+    <string id="ceremony_t1_to_t2_vlandian_luck" text="Luck, mostly. I won&apos;t pretend." />
+    <string id="ceremony_t1_to_t2_vlandian_luck_tt" text="+1 Calculating. The sergeant grunts. Either honest or beneath comment." />
+    <string id="ceremony_t1_to_t2_vlandian_own_steel" text="My own steel kept me up." />
+    <string id="ceremony_t1_to_t2_vlandian_own_steel_tt" text="+1 Valor. The sergeant marks you a duelist." />
+    <string id="ceremony_t1_to_t2_vlandian_setup" text="{LORD_NAME}&apos;s warband is loud tonight. Wine the colour of old rust passes hand to hand at the long table. The sergeant pulls you aside before you can sit. He wants to hear it from you, {PLAYER_NAME}, before the cups make you generous with the story. How are you still on your feet." />
+    <string id="ceremony_t1_to_t2_vlandian_title" text="First blood" />
+    <string id="ceremony_t1_to_t2_vlandian_trust_sergeant" text="You did, Sergeant. The line did." />
+    <string id="ceremony_t1_to_t2_vlandian_trust_sergeant_tt" text="+1 Honor. The sergeant takes the answer with him." />
+    <!-- ceremony_t2_to_t3_base -->
+    <string id="ceremony_t2_to_t3_base_family" text="Most of it goes home." />
+    <string id="ceremony_t2_to_t3_base_family_tt" text="+1 Honor. Sergeant approves. The old soldier respects this." />
+    <string id="ceremony_t2_to_t3_base_frugal" text="Bury it. Stone for a marker." />
+    <string id="ceremony_t2_to_t3_base_frugal_tt" text="+1 Calculating. Sergeant disapproves. Coin under a stone is not the company." />
+    <string id="ceremony_t2_to_t3_base_generous" text="Round for the recruits. On me." />
+    <string id="ceremony_t2_to_t3_base_generous_tt" text="+1 Generosity. Sergeant strongly approves. The company drinks together." />
+    <string id="ceremony_t2_to_t3_base_hedonist" text="Cards. Drink. What the night offers." />
+    <string id="ceremony_t2_to_t3_base_hedonist_tt" text="-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it." />
+    <string id="ceremony_t2_to_t3_base_setup" text="Dusk over the camp. The raid is done and the share is paid out. {PLAYER_NAME}, the coin still warm in your fist. The sergeant finds you between the wagons before you have made up your mind. He looks once at the purse, once at you, and waits." />
+    <string id="ceremony_t2_to_t3_base_title" text="First share" />
+    <!-- ceremony_t2_to_t3_imperial -->
+    <string id="ceremony_t2_to_t3_imperial_family" text="Most of it goes home, Sergeant." />
+    <string id="ceremony_t2_to_t3_imperial_family_tt" text="+1 Honor. Sergeant approves. The old soldier respects this." />
+    <string id="ceremony_t2_to_t3_imperial_frugal" text="Bury it, sir. Stone for a marker." />
+    <string id="ceremony_t2_to_t3_imperial_frugal_tt" text="+1 Calculating. Sergeant disapproves. Coin under a stone is not the company." />
+    <string id="ceremony_t2_to_t3_imperial_generous" text="A round for the maniple. On me." />
+    <string id="ceremony_t2_to_t3_imperial_generous_tt" text="+1 Generosity. Sergeant strongly approves. The company drinks together." />
+    <string id="ceremony_t2_to_t3_imperial_hedonist" text="Cards. Drink. What the night offers." />
+    <string id="ceremony_t2_to_t3_imperial_hedonist_tt" text="-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it." />
+    <string id="ceremony_t2_to_t3_imperial_setup" text="Morning at the quartermaster&apos;s tent. The receipt for your share is folded in your tunic and the line stretches back past the picket. {PLAYER_NAME}. The sergeant stands one pace behind you in the queue. He has watched you sign for the coin and now he watches what your hand does next." />
+    <string id="ceremony_t2_to_t3_imperial_title" text="First share" />
+    <!-- ceremony_t2_to_t3_sturgian -->
+    <string id="ceremony_t2_to_t3_sturgian_family" text="Most of it goes home to my kin." />
+    <string id="ceremony_t2_to_t3_sturgian_family_tt" text="+1 Honor. Sergeant approves. The old soldier respects this." />
+    <string id="ceremony_t2_to_t3_sturgian_frugal" text="Bury it. Stone for a marker." />
+    <string id="ceremony_t2_to_t3_sturgian_frugal_tt" text="+1 Calculating. Sergeant disapproves. Coin under a stone is not the company." />
+    <string id="ceremony_t2_to_t3_sturgian_generous" text="Mead for the hall. On me." />
+    <string id="ceremony_t2_to_t3_sturgian_generous_tt" text="+1 Generosity. Sergeant strongly approves. The company drinks together." />
+    <string id="ceremony_t2_to_t3_sturgian_hedonist" text="Drink. Dice. The cold takes the rest." />
+    <string id="ceremony_t2_to_t3_sturgian_hedonist_tt" text="-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it." />
+    <string id="ceremony_t2_to_t3_sturgian_setup" text="The column halts at a steading by the wood. Snow falls slow and thick on the captured purse cinched at your belt, {PLAYER_NAME}. The sergeant breaks black bread next to you on the bench and does not speak. He waits. Sturgians let a question lie until it answers itself." />
+    <string id="ceremony_t2_to_t3_sturgian_title" text="First share" />
+    <!-- ceremony_t2_to_t3_vlandian -->
+    <string id="ceremony_t2_to_t3_vlandian_family" text="Most of it goes home." />
+    <string id="ceremony_t2_to_t3_vlandian_family_tt" text="+1 Honor. Sergeant approves. The old soldier respects this." />
+    <string id="ceremony_t2_to_t3_vlandian_frugal" text="Bury it. Stone for a marker." />
+    <string id="ceremony_t2_to_t3_vlandian_frugal_tt" text="+1 Calculating. Sergeant disapproves. Coin under a stone is not the company." />
+    <string id="ceremony_t2_to_t3_vlandian_generous" text="A cask for the table. On me." />
+    <string id="ceremony_t2_to_t3_vlandian_generous_tt" text="+1 Generosity. Sergeant strongly approves. The company drinks together." />
+    <string id="ceremony_t2_to_t3_vlandian_hedonist" text="Cards. Drink. What the night offers." />
+    <string id="ceremony_t2_to_t3_vlandian_hedonist_tt" text="-1 Mercy. Sergeant disapproves. You take pleasure where blood leaves it." />
+    <string id="ceremony_t2_to_t3_vlandian_setup" text="A back room of a Vlandian tavern. {LORD_NAME} paid the share out before sunset and the wine is cheap as water tonight. The sergeant has cornered you against the cask, {PLAYER_NAME}, before the recruits at the long table can buy you a cup. The purse is in your hand and he wants to see what you do with it." />
+    <string id="ceremony_t2_to_t3_vlandian_title" text="First share" />
+    <!-- ceremony_t4_to_t5_base -->
+    <string id="ceremony_t4_to_t5_base_obey" text="Aye, my lord." />
+    <string id="ceremony_t4_to_t5_base_obey_tt" text="+1 Calculating. Lord pleased. Sergeant approves. Medic recoils." />
+    <string id="ceremony_t4_to_t5_base_question" text="This will be ugly, my lord." />
+    <string id="ceremony_t4_to_t5_base_question_tt" text="+1 Honor. Lord disapproves the words. Sergeant approves." />
+    <string id="ceremony_t4_to_t5_base_refuse" text="I will not, my lord." />
+    <string id="ceremony_t4_to_t5_base_refuse_tt" text="+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved." />
+    <string id="ceremony_t4_to_t5_base_setup" text="Evening. The holding sits low against the field, thatch grey in the failing light. Smoke is already up from the next one over. {LORD_NAME} keeps his horse where the column can see him and his voice where it cannot. He says the word for it and then he says yours, {PLAYER_NAME}. Burn it. Children at the edge of the rye stop running and watch you back. The sergeant is at your elbow. The medic is two paces off, her bag still open from the last man." />
+    <string id="ceremony_t4_to_t5_base_title" text="The order" />
+    <!-- ceremony_t4_to_t5_imperial -->
+    <string id="ceremony_t4_to_t5_imperial_obey" text="It will be done, my lord." />
+    <string id="ceremony_t4_to_t5_imperial_obey_tt" text="+1 Calculating. Lord pleased. Sergeant approves. Medic recoils." />
+    <string id="ceremony_t4_to_t5_imperial_question" text="With respect, my lord — this will be ugly." />
+    <string id="ceremony_t4_to_t5_imperial_question_tt" text="+1 Honor. Lord disapproves the words. Sergeant approves." />
+    <string id="ceremony_t4_to_t5_imperial_refuse" text="I will not, my lord." />
+    <string id="ceremony_t4_to_t5_imperial_refuse_tt" text="+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved." />
+    <string id="ceremony_t4_to_t5_imperial_setup" text="Mid-morning. The column dressed and quiet on the road behind, the standards still. {LORD_NAME} reads it from a tablet as if it were a count of grain — the holding, the names of the men said to shelter there, the disposition. Then your name, {PLAYER_NAME}, and what falls to you. Two children sit on the wall of the well and have not been told to move. The sergeant stands one pace off. The medic has her bag closed already, knowing." />
+    <string id="ceremony_t4_to_t5_imperial_title" text="The order" />
+    <!-- ceremony_t4_to_t5_sturgian -->
+    <string id="ceremony_t4_to_t5_sturgian_obey" text="It is done, my lord." />
+    <string id="ceremony_t4_to_t5_sturgian_obey_tt" text="+1 Calculating. Lord pleased. Sergeant approves. Medic recoils." />
+    <string id="ceremony_t4_to_t5_sturgian_question" text="This will be ugly work, my lord." />
+    <string id="ceremony_t4_to_t5_sturgian_question_tt" text="+1 Honor. Lord disapproves the words. Sergeant approves." />
+    <string id="ceremony_t4_to_t5_sturgian_refuse" text="Not by my hand, my lord." />
+    <string id="ceremony_t4_to_t5_sturgian_refuse_tt" text="+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved." />
+    <string id="ceremony_t4_to_t5_sturgian_setup" text="Cold dusk. Smoke from the holding&apos;s hearth still rising as if no one inside has decided yet to be afraid. {LORD_NAME}&apos;s breath shows when he speaks. He gives the order low and short, the way Sturgian lords give orders that are not to be told twice. {PLAYER_NAME}. See it done. A girl at the edge of the rye holds a smaller boy by the wrist. The sergeant does not look at them. The medic does, and then at you." />
+    <string id="ceremony_t4_to_t5_sturgian_title" text="The order" />
+    <!-- ceremony_t4_to_t5_vlandian -->
+    <string id="ceremony_t4_to_t5_vlandian_obey" text="As you command, my lord." />
+    <string id="ceremony_t4_to_t5_vlandian_obey_tt" text="+1 Calculating. Lord pleased. Sergeant approves. Medic recoils." />
+    <string id="ceremony_t4_to_t5_vlandian_question" text="This will be an ugly business, my lord." />
+    <string id="ceremony_t4_to_t5_vlandian_question_tt" text="+1 Honor. Lord disapproves the words. Sergeant approves." />
+    <string id="ceremony_t4_to_t5_vlandian_refuse" text="I cannot do it, my lord." />
+    <string id="ceremony_t4_to_t5_vlandian_refuse_tt" text="+1 Mercy. Lord furious. Sergeant disapproves. Medic relieved." />
+    <string id="ceremony_t4_to_t5_vlandian_setup" text="Late afternoon. The holding under thatch, the rye half-cut and stacked. {LORD_NAME} sits the destrier with his gauntlets resting on the pommel and names the men he says are sheltered there. Then he names what is to be done, {PLAYER_NAME}, and he names you to do it. Two children at the field&apos;s edge have not run. They are not certain yet whether they should. The sergeant breathes once at your shoulder. The medic stands clear, her hands still red." />
+    <string id="ceremony_t4_to_t5_vlandian_title" text="The order" />
+    <!-- ceremony_t6_to_t7_base -->
+    <string id="ceremony_t6_to_t7_base_humble_accept" text="Kneel. &apos;I will not fail the men, my lord.&apos;" />
+    <string id="ceremony_t6_to_t7_base_humble_accept_tt" text="+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves." />
+    <string id="ceremony_t6_to_t7_base_proud_accept" text="Stand. &apos;I have earned it. The men know it.&apos;" />
+    <string id="ceremony_t6_to_t7_base_proud_accept_tt" text="+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove." />
+    <string id="ceremony_t6_to_t7_base_setup" text="The army stands in formation on flat ground, the wind moving across the line. {LORD_NAME} sits his horse in front of the colours and the men know what this is before he speaks. The sergeant is one pace off your shoulder, where he has always been. The veteran has his arms crossed at the edge of the formation and gives nothing away. {PLAYER_NAME}. The lord calls you out by your new title, {PLAYER_RANK}, and the company hears it. He waits. He is not a man who waits often." />
+    <string id="ceremony_t6_to_t7_base_title" text="The commission" />
+    <string id="ceremony_t6_to_t7_base_try_to_refuse" text="&apos;Too much weight, my lord. Too soon.&apos;" />
+    <string id="ceremony_t6_to_t7_base_try_to_refuse_tt" text="+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty." />
+    <!-- ceremony_t6_to_t7_imperial -->
+    <string id="ceremony_t6_to_t7_imperial_humble_accept" text="Kneel. &apos;I will not fail the men, my lord.&apos;" />
+    <string id="ceremony_t6_to_t7_imperial_humble_accept_tt" text="+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves." />
+    <string id="ceremony_t6_to_t7_imperial_proud_accept" text="Stand at attention. &apos;I have earned it, sir. The men know it.&apos;" />
+    <string id="ceremony_t6_to_t7_imperial_proud_accept_tt" text="+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove." />
+    <string id="ceremony_t6_to_t7_imperial_setup" text="The muster yard. The ranks are dressed and silent. {LORD_NAME} reads from a small scroll in the formal hand, the way the Empire has read such things since before any man here was born. The sergeant is one pace off your shoulder. The quartermaster waits at the lord&apos;s elbow with the new device folded on a square of cloth. {PLAYER_NAME}. {PLAYER_RANK}. The lord pronounces it the way the writ pronounces it, and the formality of it is the ceremony — there is no other." />
+    <string id="ceremony_t6_to_t7_imperial_title" text="The commission" />
+    <string id="ceremony_t6_to_t7_imperial_try_to_refuse" text="&apos;Too much weight, sir. Too soon.&apos;" />
+    <string id="ceremony_t6_to_t7_imperial_try_to_refuse_tt" text="+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty." />
+    <!-- ceremony_t6_to_t7_sturgian -->
+    <string id="ceremony_t6_to_t7_sturgian_humble_accept" text="Kneel in the snow. &apos;I will not fail the men, my lord.&apos;" />
+    <string id="ceremony_t6_to_t7_sturgian_humble_accept_tt" text="+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves." />
+    <string id="ceremony_t6_to_t7_sturgian_proud_accept" text="Stand straight. &apos;I have earned it. The men know it.&apos;" />
+    <string id="ceremony_t6_to_t7_sturgian_proud_accept_tt" text="+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove." />
+    <string id="ceremony_t6_to_t7_sturgian_setup" text="The column has halted on open ground. The fires are lit and the men gather without being told to. {LORD_NAME} stands on the back of a wagon so the rear ranks can see him. The wind takes the smoke sideways and the snow with it. The veteran is at the edge of the firelight with his arms crossed. {PLAYER_NAME}, the lord calls. {PLAYER_RANK}. He gives you the title plain, the way the Sturgians give a thing — once, with no flourish, in front of the men who will have to live with it." />
+    <string id="ceremony_t6_to_t7_sturgian_title" text="The commission" />
+    <string id="ceremony_t6_to_t7_sturgian_try_to_refuse" text="&apos;Too much weight, my lord. Too soon.&apos;" />
+    <string id="ceremony_t6_to_t7_sturgian_try_to_refuse_tt" text="+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty." />
+    <!-- ceremony_t6_to_t7_vlandian -->
+    <string id="ceremony_t6_to_t7_vlandian_humble_accept" text="Kneel. &apos;I will not fail the men, my lord.&apos;" />
+    <string id="ceremony_t6_to_t7_vlandian_humble_accept_tt" text="+1 Honor, +1 Generosity. Lord and sergeant strongly approve. Field Medic approves." />
+    <string id="ceremony_t6_to_t7_vlandian_proud_accept" text="Stand. &apos;I have earned it. The men know it.&apos;" />
+    <string id="ceremony_t6_to_t7_vlandian_proud_accept_tt" text="+1 Valor, +1 Calculating. Lord approves, veteran strongly approves. Sergeant and medic disapprove." />
+    <string id="ceremony_t6_to_t7_vlandian_setup" text="The keep&apos;s courtyard. {LORD_NAME} has called the warband in from the wall and the men have come — sergeants, the four who ride at his hand, the levies in their dyed coats. The banner is real cloth, faded at the edges, a thing that has hung over actual fighting. The sergeant stands at your shoulder. {PLAYER_NAME}, the lord says, and the courtyard quiets. He gives you the new word. {PLAYER_RANK}. The wine is waiting on the long table behind him for after the words are said." />
+    <string id="ceremony_t6_to_t7_vlandian_title" text="The commission" />
+    <string id="ceremony_t6_to_t7_vlandian_try_to_refuse" text="&apos;Too much weight, my lord. Too soon.&apos;" />
+    <string id="ceremony_t6_to_t7_vlandian_try_to_refuse_tt" text="+1 Mercy, -10 renown. Lord and veteran disapprove. Sergeant and medic respect the honesty." />
+    <!-- ceremony_t7_to_t8_base -->
+    <string id="ceremony_t7_to_t8_base_authority" text="Stand down, Lieutenant. The decision is mine." />
+    <string id="ceremony_t7_to_t8_base_authority_tt" text="+1 Valor. Junior officer marked. Veteran approves the iron." />
+    <string id="ceremony_t7_to_t8_base_compromise" text="Take the left flank. We split the difference." />
+    <string id="ceremony_t7_to_t8_base_compromise_tt" text="+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_base_debate" text="Speak. — Heard. We hold." />
+    <string id="ceremony_t7_to_t8_base_debate_tt" text="+1 Honor. Junior officer heard. QM approves. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_base_setup" text="The map is spread across a drum head. Wind catches the corner and someone&apos;s boot pins it down. You have called the line. The junior officer is at your elbow with two fingers planted on the ridge to your left, voice carrying further than he means it to. He is not wrong about the terrain and the men nearest you have heard him say so, {PLAYER_RANK} {PLAYER_NAME}. The decision is still yours. The witnesses are still watching." />
+    <string id="ceremony_t7_to_t8_base_title" text="A challenge in the field" />
+    <!-- ceremony_t7_to_t8_imperial -->
+    <string id="ceremony_t7_to_t8_imperial_authority" text="Stand down, Lieutenant. The decision is mine." />
+    <string id="ceremony_t7_to_t8_imperial_authority_tt" text="+1 Valor. Junior officer marked. Veteran approves the iron." />
+    <string id="ceremony_t7_to_t8_imperial_compromise" text="Take the left flank. We split the difference." />
+    <string id="ceremony_t7_to_t8_imperial_compromise_tt" text="+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_imperial_debate" text="Speak your case. — Heard. We hold." />
+    <string id="ceremony_t7_to_t8_imperial_debate_tt" text="+1 Honor. Junior officer heard. QM approves. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_imperial_setup" text="A posting house at the crossroads. Quill, ink, the day&apos;s roll half-written in the clerk&apos;s hand. The plan is read out for the witnesses to mark. The junior officer interrupts before the seal is set and asks the clerk to strike the line. He has the terrain right and he has chosen his moment to say it, {PLAYER_RANK} {PLAYER_NAME}. The clerk&apos;s quill is held above the page. Yours to give the next word." />
+    <string id="ceremony_t7_to_t8_imperial_title" text="A challenge at the staff table" />
+    <!-- ceremony_t7_to_t8_sturgian -->
+    <string id="ceremony_t7_to_t8_sturgian_authority" text="Pull your spear, Lieutenant. The decision is mine." />
+    <string id="ceremony_t7_to_t8_sturgian_authority_tt" text="+1 Valor. Junior officer marked. Veteran approves the iron." />
+    <string id="ceremony_t7_to_t8_sturgian_compromise" text="Take the left flank. We split the difference." />
+    <string id="ceremony_t7_to_t8_sturgian_compromise_tt" text="+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_sturgian_debate" text="Speak. — Heard. We hold." />
+    <string id="ceremony_t7_to_t8_sturgian_debate_tt" text="+1 Honor. Junior officer heard. QM approves. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_sturgian_setup" text="The fire spits. The kettle steams. The column has stopped to chew bread and water the horses and you have given the order for the morning. The junior officer plants his spear in the dirt before he speaks — Sturgian custom, a man who plants his spear is owed a hearing. He names the ground he wants. The veterans around the fire have heard him plant it, {PLAYER_RANK} {PLAYER_NAME}. They are watching to see what you do with a spear in the ground." />
+    <string id="ceremony_t7_to_t8_sturgian_title" text="A challenge on the march" />
+    <!-- ceremony_t7_to_t8_vlandian -->
+    <string id="ceremony_t7_to_t8_vlandian_authority" text="Stand down, Lieutenant. The decision is mine." />
+    <string id="ceremony_t7_to_t8_vlandian_authority_tt" text="+1 Valor. Junior officer marked. Veteran approves the iron." />
+    <string id="ceremony_t7_to_t8_vlandian_compromise" text="Take the left flank. We split the difference." />
+    <string id="ceremony_t7_to_t8_vlandian_compromise_tt" text="+1 Calculating. Junior officer approves. QM strongly. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_vlandian_debate" text="Speak your piece. — Heard. We hold." />
+    <string id="ceremony_t7_to_t8_vlandian_debate_tt" text="+1 Honor. Junior officer heard. QM approves. Veteran disapproves." />
+    <string id="ceremony_t7_to_t8_vlandian_setup" text="{LORD_NAME}&apos;s tent. Tallow candles guttering, wine sour at the bottom of the cup. The plan for tomorrow is laid out in chalk on a board and the warband&apos;s captains stand around it. The junior officer has had just enough wine to find his nerve. He puts a finger on the ridge you have ceded and asks why. Loud enough that the table goes quiet. {PLAYER_RANK} {PLAYER_NAME}, the room is yours to keep or to lose." />
+    <string id="ceremony_t7_to_t8_vlandian_title" text="A challenge in the warband" />
   </strings>
 </base>

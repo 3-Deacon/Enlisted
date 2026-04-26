@@ -5,13 +5,14 @@
 **Source spec:** [CK3 Wanderer Mechanics Systems Analysis (v6)](../superpowers/specs/2026-04-24-ck3-wanderer-systems-analysis.md).
 **Owning plan:** [Plan 1 — Architecture Foundation](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation.md).
 
-**Plan family progress (2026-04-25):**
+**Plan family progress (2026-04-26):**
 
 | Plan | Status | Verification |
 | :-- | :-- | :-- |
 | Plan 1 — Architecture Foundation | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) |
 | Plan 2 — Companion Substrate | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) |
-| Plans 3-7 | not started | — |
+| Plan 3 — Rank-Ceremony Arc | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-rank-ceremony-arc-verification.md) |
+| Plans 4-7 | not started | — |
 
 **Plan 2 hand-off surface (Plans 3-7 may use):**
 - `Enlisted.Features.Companions.CompanionLifecycleHandler.Instance.GetSpawnedCompanions()` — `List<Hero>` of currently-spawned, alive companions. Plan 3 ceremony witness selection reads this.
@@ -20,6 +21,17 @@
 - `Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior.Instance.ClearCompanionSlot(Hero)` — null the slot matching a hero. Plan 6 patron loaned-knight cleanup uses its own pathway, but the helper is available for plans that need to remove a Plan-2 companion outside the death/discharge defaults.
 - `Enlisted.Features.Companions.Data.CompanionDialogueCatalog.Instance.GetNode(nodeId, ctx)` — specificity-ranked variant lookup. Plans 3-7 hooking conversation rendering against the catalog use this directly.
 - Six archetype catalogs at `ModuleData/Enlisted/Dialogue/companion_<id>.json` with stable node-id prefixes (`companion_<id>_intro_greeting`, `_root`, `_topic_*`, `_goodbye`). Plans 3-7 may add new `companion_*.json` files; the loader picks them all up.
+
+**Plan 3 hand-off surface (Plans 4-7 may use):**
+- `FlagStore.Instance.Has("ceremony_fired_t{N}")` — check whether the player has resolved their ceremony at tier N. Set when a ceremony option is picked.
+- `FlagStore.Instance.Has("ceremony_choice_t{N}_<choice_id>")` — check whether the player picked a specific option. One bool per option (`FlagStore` is bool-only). Plan 4 reads `ceremony_choice_t7_humble_accept` / `_proud_accept` / `_try_to_refuse` to flavor officer-tier dialog. Plan 5 may gate endeavors on T2/T3/T5 ceremony picks. Plan 6 may flavor patron favor outcomes on prior ceremony choices.
+- `Enlisted.Features.Ceremonies.CeremonyProvider.FireCeremonyForTier(int newTier)` — public accessor; downstream plans can fire a ceremony manually if needed (testing, debug). Dedup gate ensures idempotency.
+- `Enlisted.Features.Ceremonies.CeremonyWitnessSelector.GetWitnessesForCeremony(int newTier)` — returns `Dictionary<string, Hero>` keyed by `witness_<archetype>` slot name. Plans 4-7 may reuse this helper for any ceremony-style modal that needs the same witness composition.
+- `Enlisted.Features.Ceremonies.CeremonyCultureSelector.SelectVariantSuffix()` — returns `vlandian` / `sturgian` / `imperial` / `base`. Reusable by any culture-flavored content plan.
+- 5 ceremony storylet files at `ModuleData/Enlisted/Storylets/ceremony_t{prev}_to_t{curr}.json` (T1→T2, T2→T3, T4→T5, T6→T7, T7→T8) — additional cultural variants may be added in Plan 7 polish pass; the loader picks up any storylet matching the ID prefix.
+- 44 ceremony scripted effects in `ModuleData/Enlisted/Effects/scripted_effects.json` (10 trait drift + 34 witness reactions × 7 archetypes including `lord`) — reusable by any future modal that wants the same drift/reaction shapes.
+
+**PathCrossroads collision avoidance — locked:** ceremonies do NOT fire at `newTier ∈ {4, 6, 9}` (Plan 3 Lock 1). `PathCrossroadsBehavior` already fires Modal storylets at those tiers; Plan 3's `RankCeremonyBehavior` skips them via `CeremonyProvider.CeremonyTiers = { 2, 3, 5, 7, 8 }`. Plans 4-7 hooking `OnTierChanged` should plan around this constraint — three subscribers exist on the event today (`PathScorer`, `PathCrossroadsBehavior`, `RankCeremonyBehavior`).
 
 ---
 

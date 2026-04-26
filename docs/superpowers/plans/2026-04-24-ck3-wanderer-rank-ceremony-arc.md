@@ -4,6 +4,33 @@
 
 **v2 changes from v1:** flag-key naming aligned with architecture brief §4 rule 6 (flat underscore, not dotted) AND with the docstring already shipped in `RankCeremonyBehavior.cs:8-15` (`ceremony_fired_t{N}` + `ceremony_choice_t{N}` + `ceremony_witness_<archetype>_reaction_t{N}` + `ceremony_culture_variant_t{N}` — "system_scope_id" pattern with the tier suffix at the end); scripted-effects schema corrected to match the actual `{ "effects": { "<id>": [<primitives>] } }` shape with `apply` keys; explicit Plan 2 hand-off surface listed; dialog token interpolation contract called out for ceremony storylet authoring (per AGENTS.md pitfall #23, established by Plan 2 Phase 5++); Phase 20 validator reframed as "created from scratch" since Plan 1 verification §5 confirms no Phase 20 stub shipped (Plan 1 deferred validator phases 18-20 to the plans that need them); EnlistmentBehavior.cs line-number references updated to post-Plan-2 values (OnTierChanged event at ~8570, SetTier at ~9828, OnTierChanged.Invoke at ~9882) with a grep-the-symbol fallback note since plans drift per AGENTS.md pitfall #22.
 
+---
+
+## 🔒 LOCKED 2026-04-25 — execution amendments
+
+This block records decisions locked at the start of plan execution. They override the body of the plan where they conflict.
+
+**Lock 1 — PathCrossroads collision: Option A (skip).** Architecture brief §6 (lines 205-216) flagged that `PathCrossroadsBehavior` already fires Modal storylets at `newTier ∈ {4, 6, 9}` and deferred the coordination choice to Plan 3. **Locked at user direction: drop ceremonies at colliding tiers.** Concrete impact:
+
+| Plan task | Status | Reason |
+| :-- | :-- | :-- |
+| T11 (T3→T4, newTier=4) | ❌ DROPPED | Collides with `path_crossroads_<path>_t4` modal |
+| T13 (T5→T6, newTier=6) | ❌ DROPPED | Collides with `path_crossroads_<path>_t6` modal |
+| T16 (T8→T9, newTier=9) | ❌ DROPPED | Collides with `path_crossroads_<path>_t9` modal |
+| T14 (T6→T7, newTier=7) — THE COMMISSION | ✅ KEPT | newTier=7 has no PathCrossroads collision; marquee beat preserved |
+
+Final ceremony count: **5** (T9, T10, T12, T14, T15). Authoring burden -38%. Total scripted effects -3 ceremonies' worth. Phase 20 validator checks 5 transitions, not 8.
+
+**Lock 2 — Choice memory schema: bool-per-choice, not string flag.** `FlagStore` is bool-only (verified at `src/Features/Flags/FlagStore.cs`); the plan's `FlagStore.GetString("ceremony_choice_t{N}")` references a non-existent API. Replacement convention: one bool flag per option ID — `ceremony_choice_t{N}_<choice_id> = true` (e.g. `ceremony_choice_t3_frugal`). Dedup flag `ceremony_fired_t{N}` unchanged.
+
+**Lock 3 — Trait drift uses existing `trait_xp` primitive, no new C# handler.** `EffectExecutor.DoTraitXp` (line 240) already does ±1 step via `Math.Sign(amount)`. Plan §4.5's proposed `trait_drift` primitive is redundant. Scripted effects in `scripted_effects.json` use `apply: trait_xp` with `amount: ±1`.
+
+**Lock 4 — Witness reactions use existing `relation_change` primitive, no new C# handler.** `EffectExecutor.DoRelationChange` (line 496) already resolves `Hero` from `ctx.ResolvedSlots[target_slot]`. `CeremonyProvider` populates `ResolvedSlots["witness_<archetype>"] = hero` before firing (T5 work). Plan §4.6's proposed `companion_relation` primitive is redundant. Scripted effects use `apply: relation_change` with `target_slot: witness_<archetype>` and `delta: ±5/±10`.
+
+**Lock 5 — Smoke recipe flag references use underscore notation.** Plan §5 smoke recipes still reference dotted notation (`FlagStore.GetBool("ceremony.fired.t{N+1}")`). Brief §4 rule 6 + Lock 2 above mandate flat underscore (`ceremony_fired_t{N}`, `ceremony_choice_t{N}_<choice>`).
+
+**Lock 6 — Schema example in T6 task body is superseded by §4.5's corrected shape.** T6 originally shows `{ "id": ..., "primitive": "trait_drift", ... }`. The actual `scripted_effects.json` shape is `{ "effects": { "<id>": [{ "apply": ..., ... }] } }`. Use §4.5's shape for all ceremony scripted effects.
+
 **Scope:** Eight character-defining ceremony storylets at tier transitions (T1→T2 through T8→T9). Each fires as a modal popup via the canonical pipeline (`StoryletEventAdapter.BuildModal` + `StoryDirector.EmitCandidate`). Choice memory persists across the career via `FlagStore`; trait drift applies vanilla `DefaultTraits` (Mercy/Valor/Honor/Generosity/Calculating); companion witnesses (from Plan 2) react via `ChangeRelationAction.ApplyPlayerRelation`. **NO endeavors, NO officer equipment, NO patron favors** — those are Plans 4, 5, 6.
 
 **Estimated tasks:** 20. **Estimated effort:** 3-4 days with AI-driven implementation.

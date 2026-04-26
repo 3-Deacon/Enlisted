@@ -1,0 +1,172 @@
+{
+  "storylets": [
+    {
+      "id": "ceremony_t1_to_t2_base",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t1_to_t2_base_title}First blood",
+      "setup": "{=ceremony_t1_to_t2_base_setup}The fighting is done. Your hands shake when you sheathe the blade and you pretend they don't. Someone passes you water. Someone else strips a body. The sergeant watches you across the line and decides the question without asking it. {PLAYER_NAME}. Still standing. He wants to know how you reckon that.",
+      "options": [
+        {
+          "id": "own_steel",
+          "text": "{=ceremony_t1_to_t2_base_own_steel}My own steel kept me up.",
+          "tooltip": "{=ceremony_t1_to_t2_base_own_steel_tt}+1 Valor. The sergeant marks you a duelist.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_own_steel" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "trust_sergeant",
+          "text": "{=ceremony_t1_to_t2_base_trust_sergeant}You did, Sergeant. The line did.",
+          "tooltip": "{=ceremony_t1_to_t2_base_trust_sergeant_tt}+1 Honor. The sergeant takes the answer with him.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_trust_sergeant" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "luck",
+          "text": "{=ceremony_t1_to_t2_base_luck}Luck, mostly. I won't pretend.",
+          "tooltip": "{=ceremony_t1_to_t2_base_luck_tt}+1 Calculating. The sergeant grunts. Either honest or beneath comment.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_luck" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t1_to_t2_vlandian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t1_to_t2_vlandian_title}First blood",
+      "setup": "{=ceremony_t1_to_t2_vlandian_setup}{LORD_NAME}'s warband is loud tonight. Wine the colour of old rust passes hand to hand at the long table. The sergeant pulls you aside before you can sit. He wants to hear it from you, {PLAYER_NAME}, before the cups make you generous with the story. How are you still on your feet.",
+      "options": [
+        {
+          "id": "own_steel",
+          "text": "{=ceremony_t1_to_t2_vlandian_own_steel}My own steel kept me up.",
+          "tooltip": "{=ceremony_t1_to_t2_vlandian_own_steel_tt}+1 Valor. The sergeant marks you a duelist.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_own_steel" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "trust_sergeant",
+          "text": "{=ceremony_t1_to_t2_vlandian_trust_sergeant}You did, Sergeant. The line did.",
+          "tooltip": "{=ceremony_t1_to_t2_vlandian_trust_sergeant_tt}+1 Honor. The sergeant takes the answer with him.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_trust_sergeant" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "luck",
+          "text": "{=ceremony_t1_to_t2_vlandian_luck}Luck, mostly. I won't pretend.",
+          "tooltip": "{=ceremony_t1_to_t2_vlandian_luck_tt}+1 Calculating. The sergeant grunts. Either honest or beneath comment.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_luck" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t1_to_t2_sturgian",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t1_to_t2_sturgian_title}First blood",
+      "setup": "{=ceremony_t1_to_t2_sturgian_setup}The fire is built up high against the cold. The men drink from the captured stores in silence — Sturgians do not toast a thing twice. The sergeant finds you at the edge of the light. The frost is in his beard. He has a question that he carried back from the field, {PLAYER_NAME}, and now he sets it down between you. Why are you here and not on the ground.",
+      "options": [
+        {
+          "id": "own_steel",
+          "text": "{=ceremony_t1_to_t2_sturgian_own_steel}My own steel kept me up.",
+          "tooltip": "{=ceremony_t1_to_t2_sturgian_own_steel_tt}+1 Valor. The sergeant marks you a duelist.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_own_steel" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "trust_sergeant",
+          "text": "{=ceremony_t1_to_t2_sturgian_trust_sergeant}You did, Sergeant. The shieldwall did.",
+          "tooltip": "{=ceremony_t1_to_t2_sturgian_trust_sergeant_tt}+1 Honor. The sergeant takes the answer with him.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_trust_sergeant" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "luck",
+          "text": "{=ceremony_t1_to_t2_sturgian_luck}Luck, mostly. The gods were bored.",
+          "tooltip": "{=ceremony_t1_to_t2_sturgian_luck_tt}+1 Calculating. The sergeant grunts. Either honest or beneath comment.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_luck" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ceremony_t1_to_t2_imperial",
+      "category": "ceremony",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=ceremony_t1_to_t2_imperial_title}First blood",
+      "setup": "{=ceremony_t1_to_t2_imperial_setup}Morning muster. The centurion calls names from the roll and most are answered. {PLAYER_NAME}. Step forward. The sergeant stands one pace off your shoulder where the formation breaks for the wounded. He has watched you eat your bread this morning and decided you owe an account of yesterday before he writes it down for the lord.",
+      "options": [
+        {
+          "id": "own_steel",
+          "text": "{=ceremony_t1_to_t2_imperial_own_steel}My own steel kept me up, Centurion.",
+          "tooltip": "{=ceremony_t1_to_t2_imperial_own_steel_tt}+1 Valor. The sergeant marks you a duelist.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_valor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_disapprove" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_own_steel" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "trust_sergeant",
+          "text": "{=ceremony_t1_to_t2_imperial_trust_sergeant}The maniple did, sir. The man at my shoulder.",
+          "tooltip": "{=ceremony_t1_to_t2_imperial_trust_sergeant_tt}+1 Honor. The sergeant takes the answer with him.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "ceremony_witness_reaction_sergeant_strong_approve" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_trust_sergeant" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        },
+        {
+          "id": "luck",
+          "text": "{=ceremony_t1_to_t2_imperial_luck}Luck, sir. I will not lie about it.",
+          "tooltip": "{=ceremony_t1_to_t2_imperial_luck_tt}+1 Calculating. The sergeant grunts. Either honest or beneath comment.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "set_flag", "name": "ceremony_choice_t2_luck" },
+            { "apply": "set_flag", "name": "ceremony_fired_t2" }
+          ]
+        }
+      ]
+    }
+  ]
+}

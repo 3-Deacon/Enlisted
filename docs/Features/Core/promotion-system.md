@@ -3,8 +3,8 @@
 **Summary:** Complete guide to military rank progression from T1 (Follower) to T9 (Marshal). Covers XP requirements, multi-factor promotion criteria, proving events, culture-specific rank titles, and the mechanics of advancement. This system rewards consistent service, combat performance, and maintaining good standing with your lord.
 
 **Status:** ✅ Current  
-**Last Updated:** 2026-01-14 (Updated to reflect Scrutiny 0-100 and native lord relation system)  
-**Related Docs:** [Enlistment System](enlistment.md), [Training System](../Combat/training-system.md), [Pay System](pay-system.md), [Order Progression System](order-progression-system.md)
+**Last Updated:** 2026-04-26 (Added Character Ceremony hook for Plan 3 — Rank-Ceremony Arc)  
+**Related Docs:** [Enlistment System](enlistment.md), [Training System](../Combat/training-system.md), [Pay System](pay-system.md), [Order Progression System](order-progression-system.md), [Ceremony storylet schema](../Ceremonies/ceremony-storylet-schema.md)
 
 **SYSTEM CHANGES (2026-01-14):**
 - **Scrutiny** is now 0-100 scale (merged from old Discipline 0-10)
@@ -21,9 +21,10 @@
 4. [XP Sources](#xp-sources)
 5. [The Promotion Process](#the-promotion-process)
 6. [Proving Events](#proving-events)
-7. [Culture-Specific Ranks](#culture-specific-ranks)
-8. [Equipment & Benefits](#equipment--benefits)
-9. [Configuration](#configuration)
+7. [Character Ceremony (Plan 3)](#4-character-ceremony-plan-3)
+8. [Culture-Specific Ranks](#culture-specific-ranks)
+9. [Equipment & Benefits](#equipment--benefits)
+10. [Configuration](#configuration)
 
 ---
 
@@ -203,6 +204,24 @@ After choosing your option:
 - Wage increase applied
 - Promotion notification shown
 - Entry added to Personal Feed
+
+### 4. Character Ceremony (Plan 3)
+
+After tier advances, `EnlistmentBehavior.SetTier` raises the static `OnTierChanged(previousTier, newTier)` event. `RankCeremonyBehavior` listens and fires a character-defining ceremony modal at five retained tier transitions:
+
+| New tier | Ceremony question | Drift axis |
+| :-: | :-- | :-- |
+| **2** | First combat survival — who do you credit? | Self-reliance vs trust-the-line |
+| **3** | First raid share — what do you do with the gold? | Frugal / Generous / Family / Hedonist |
+| **5** | Lord orders something questionable — obey, question, refuse? | Mercy / Honor / Calculating |
+| **7** | THE COMMISSION — humble accept, proud accept, or refuse | Identity locks in from prior choices |
+| **8** | Junior officer questions your tactical call — authority, debate, or compromise? | Officer leadership style |
+
+**Tiers 4, 6, and 9 deliberately have no ceremony** — `PathCrossroadsBehavior` already fires Modal storylets at those tiers, so a ceremony there would create a back-to-back popup. Career-direction commitment beats land in the crossroads modal; character ceremonies land at the other five transitions.
+
+Ceremony picks drift the player's vanilla traits (`Mercy` / `Valor` / `Honor` / `Generosity` / `Calculating`) by ±1 each, drift the relation with witness companions present at the ceremony, and set choice-memory flags (`ceremony_choice_t{N}_<choice_id>`) that downstream plans (officer dialog, endeavors, patron favors) read to flavor content. The same `OnTierChanged` hook handles all three T6→T7 promotion paths (auto proving-event, decline-then-dialog, dialog-request) with one ceremony per tier transition (dedup gated by `ceremony_fired_t{N}` flag).
+
+See [Ceremony storylet schema](../Ceremonies/ceremony-storylet-schema.md) and [Ceremony flag conventions](../Ceremonies/ceremony-flag-conventions.md) for authoring details.
 
 ---
 

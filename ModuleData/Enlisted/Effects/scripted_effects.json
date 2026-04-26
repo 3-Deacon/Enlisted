@@ -26,6 +26,52 @@
     "readiness_down_moderate":   [ { "apply": "quality_add", "quality": "readiness", "amount": -10 } ],
 
     "loyalty_up_small_for_slot":   [ { "apply": "quality_add_for_hero", "quality": "loyalty", "amount": 2 } ],
-    "loyalty_down_major_for_slot": [ { "apply": "quality_add_for_hero", "quality": "loyalty", "amount": -5 } ]
+    "loyalty_down_major_for_slot": [ { "apply": "quality_add_for_hero", "quality": "loyalty", "amount": -5 } ],
+
+    "ceremony_trait_drift_mercy_up":         [ { "apply": "trait_xp", "trait": "Mercy",       "amount":  1 } ],
+    "ceremony_trait_drift_mercy_down":       [ { "apply": "trait_xp", "trait": "Mercy",       "amount": -1 } ],
+    "ceremony_trait_drift_valor_up":         [ { "apply": "trait_xp", "trait": "Valor",       "amount":  1 } ],
+    "ceremony_trait_drift_valor_down":       [ { "apply": "trait_xp", "trait": "Valor",       "amount": -1 } ],
+    "ceremony_trait_drift_honor_up":         [ { "apply": "trait_xp", "trait": "Honor",       "amount":  1 } ],
+    "ceremony_trait_drift_honor_down":       [ { "apply": "trait_xp", "trait": "Honor",       "amount": -1 } ],
+    "ceremony_trait_drift_generosity_up":    [ { "apply": "trait_xp", "trait": "Generosity",  "amount":  1 } ],
+    "ceremony_trait_drift_generosity_down":  [ { "apply": "trait_xp", "trait": "Generosity",  "amount": -1 } ],
+    "ceremony_trait_drift_calculating_up":   [ { "apply": "trait_xp", "trait": "Calculating", "amount":  1 } ],
+    "ceremony_trait_drift_calculating_down": [ { "apply": "trait_xp", "trait": "Calculating", "amount": -1 } ],
+
+    "ceremony_witness_reaction_sergeant_approve":              [ { "apply": "relation_change", "target_slot": "witness_sergeant",         "delta":   5 } ],
+    "ceremony_witness_reaction_sergeant_disapprove":           [ { "apply": "relation_change", "target_slot": "witness_sergeant",         "delta":  -5 } ],
+    "ceremony_witness_reaction_sergeant_strong_approve":       [ { "apply": "relation_change", "target_slot": "witness_sergeant",         "delta":  10 } ],
+    "ceremony_witness_reaction_sergeant_strong_disapprove":    [ { "apply": "relation_change", "target_slot": "witness_sergeant",         "delta": -10 } ],
+
+    "ceremony_witness_reaction_field_medic_approve":           [ { "apply": "relation_change", "target_slot": "witness_field_medic",      "delta":   5 } ],
+    "ceremony_witness_reaction_field_medic_disapprove":        [ { "apply": "relation_change", "target_slot": "witness_field_medic",      "delta":  -5 } ],
+    "ceremony_witness_reaction_field_medic_strong_approve":    [ { "apply": "relation_change", "target_slot": "witness_field_medic",      "delta":  10 } ],
+    "ceremony_witness_reaction_field_medic_strong_disapprove": [ { "apply": "relation_change", "target_slot": "witness_field_medic",      "delta": -10 } ],
+
+    "ceremony_witness_reaction_pathfinder_approve":            [ { "apply": "relation_change", "target_slot": "witness_pathfinder",       "delta":   5 } ],
+    "ceremony_witness_reaction_pathfinder_disapprove":         [ { "apply": "relation_change", "target_slot": "witness_pathfinder",       "delta":  -5 } ],
+    "ceremony_witness_reaction_pathfinder_strong_approve":     [ { "apply": "relation_change", "target_slot": "witness_pathfinder",       "delta":  10 } ],
+    "ceremony_witness_reaction_pathfinder_strong_disapprove":  [ { "apply": "relation_change", "target_slot": "witness_pathfinder",       "delta": -10 } ],
+
+    "ceremony_witness_reaction_veteran_approve":               [ { "apply": "relation_change", "target_slot": "witness_veteran",          "delta":   5 } ],
+    "ceremony_witness_reaction_veteran_disapprove":            [ { "apply": "relation_change", "target_slot": "witness_veteran",          "delta":  -5 } ],
+    "ceremony_witness_reaction_veteran_strong_approve":        [ { "apply": "relation_change", "target_slot": "witness_veteran",          "delta":  10 } ],
+    "ceremony_witness_reaction_veteran_strong_disapprove":     [ { "apply": "relation_change", "target_slot": "witness_veteran",          "delta": -10 } ],
+
+    "ceremony_witness_reaction_qm_officer_approve":            [ { "apply": "relation_change", "target_slot": "witness_qm_officer",       "delta":   5 } ],
+    "ceremony_witness_reaction_qm_officer_disapprove":         [ { "apply": "relation_change", "target_slot": "witness_qm_officer",       "delta":  -5 } ],
+    "ceremony_witness_reaction_qm_officer_strong_approve":     [ { "apply": "relation_change", "target_slot": "witness_qm_officer",       "delta":  10 } ],
+    "ceremony_witness_reaction_qm_officer_strong_disapprove":  [ { "apply": "relation_change", "target_slot": "witness_qm_officer",       "delta": -10 } ],
+
+    "ceremony_witness_reaction_junior_officer_approve":            [ { "apply": "relation_change", "target_slot": "witness_junior_officer",  "delta":   5 } ],
+    "ceremony_witness_reaction_junior_officer_disapprove":         [ { "apply": "relation_change", "target_slot": "witness_junior_officer",  "delta":  -5 } ],
+    "ceremony_witness_reaction_junior_officer_strong_approve":     [ { "apply": "relation_change", "target_slot": "witness_junior_officer",  "delta":  10 } ],
+    "ceremony_witness_reaction_junior_officer_strong_disapprove":  [ { "apply": "relation_change", "target_slot": "witness_junior_officer",  "delta": -10 } ],
+
+    "ceremony_witness_reaction_lord_approve":                  [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":   5 } ],
+    "ceremony_witness_reaction_lord_disapprove":               [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":  -5 } ],
+    "ceremony_witness_reaction_lord_strong_approve":           [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":  10 } ],
+    "ceremony_witness_reaction_lord_strong_disapprove":        [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta": -10 } ]
   }
 }
