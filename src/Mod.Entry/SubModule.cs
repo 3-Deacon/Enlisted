@@ -186,6 +186,9 @@ namespace Enlisted.Mod.Entry
                     _ = typeof(SkillSuppressionPatch);
                     _ = typeof(TownLeaveButtonPatch);
                     _ = typeof(VisibilityEnforcementPatch);
+                    _ = typeof(OfficerTentHealingPatch);
+                    _ = typeof(OfficerSurgeryPatch);
+                    _ = typeof(OfficerMessMoralePatch);
 
                     // These patches are deferred until first Campaign.Tick() to avoid TypeInitializationException.
                     // Their target classes (DefaultArmyManagementCalculationModel, EncounterGameMenuBehavior)

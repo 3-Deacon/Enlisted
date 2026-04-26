@@ -636,6 +636,11 @@
     <Compile Include="src\Mod.GameAdapters\Patches\CapturedLordConversationSuppressionPatch.cs"/>
     <Compile Include="src\Mod.GameAdapters\Patches\EncounterCaptureEnemySuppressionPatch.cs"/>
     <Compile Include="src\Mod.GameAdapters\Patches\EndCaptivityCleanupPatch.cs"/>
+
+    <!-- Officer-tier passive buffs (Plan 4) -->
+    <Compile Include="src\Mod.GameAdapters\Patches\OfficerTentHealingPatch.cs"/>
+    <Compile Include="src\Mod.GameAdapters\Patches\OfficerSurgeryPatch.cs"/>
+    <Compile Include="src\Mod.GameAdapters\Patches\OfficerMessMoralePatch.cs"/>
   </ItemGroup>
   <!-- ========================================================================
        CONTENT FILES
