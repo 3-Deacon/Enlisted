@@ -10,6 +10,7 @@
     { "id": "path_support_score",  "displayName": "{=q_path_support}Support path", "min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
     { "id": "path_diplomat_score", "displayName": "{=q_path_diplomat}Diplomat path","min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
     { "id": "path_rogue_score",    "displayName": "{=q_path_rogue}Rogue path",     "min": 0, "max": 100, "default": 0, "scope": "Global", "kind": "Stored", "writable": true, "decay": null },
-    { "id": "committed_path",      "displayName": "{=q_committed_path}Committed path","min": 0, "max": 1,   "default": 0, "scope": "Global", "kind": "Stored", "writable": false, "decay": null }
+    { "id": "committed_path",      "displayName": "{=q_committed_path}Committed path","min": 0, "max": 1,   "default": 0, "scope": "Global", "kind": "Stored", "writable": false, "decay": null },
+    { "id": "endeavor_active_score","displayName": "{=q_endeavor_score}Endeavor score","min": -20, "max": 20,  "default": 0, "scope": "Global", "kind": "Stored", "writable": true,  "decay": null }
   ]
 }

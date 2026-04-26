@@ -76,6 +76,26 @@ Slot 5 is free for Plan 5's "Endeavors" sub-menu entry both before and after Pla
 
 **Lock 7 — Scripted-effect ID collision check passed (verification, NOT BLOCKING).** Plan 5 §3 file change list claims ~20 new effect IDs with prefixes `scrutiny_drift_endeavor_*`, `endeavor_skill_xp_*`, `lord_relation_endeavor_*`. Verified against `ModuleData/Enlisted/Effects/scripted_effects.json` (current 44 entries from the Plan 3 ceremony catalog): no IDs in the proposed prefix space exist today. Plan 3's catalog uses `ceremony_drift_*` for trait drift and `ceremony_witness_reaction_*` for witness reactions; Plan 5's prefixes are disjoint. Plan 5 T6 implementer can author the ~20 endeavor effects without re-checking collision per-ID at task time. Source-of-truth check: at write time, just verify no exact-string match against existing keys (Phase 12 validator catches unknown `apply` values at build time, but does not catch duplicate definitions — JSON loader is "last write wins").
 
+### Execution-shape locks (9-10) — added 2026-04-26 at start of execution
+
+**Lock 9 — Phase advancement is driven by `EndeavorRunner`, NOT by `ActivityRuntime.TryAdvancePhase` (BLOCKING for T1, T3, T9, T10, T12, T14-T18, T28).** The plan's prescribed shape implies a parallel phase system: §4.8 `phase_pool` is an ordered storylet list (one entry = one phase), and T12 has `EndeavorRunner` subscribe to `OnHourlyTick` to advance phases. This conflicts with `ActivityRuntime`'s built-in `DurationHours` + `TryAdvancePhase` model where `Phase.Pool` is a weighted bag picked per tick.
+
+Resolution: **path (a2) — minimal `activity_endeavor.json` + `activity_contract.json` ActivityType definitions**, each with a single long-duration "running" phase (Auto delivery, empty pool, `DurationHours` set well above any endeavor's max so `TryAdvancePhase` never advances). This keeps:
+
+1. Save-load polymorphism via `List<Activity>` at offset 57 (and 56 for contracts).
+2. The `Instance => ActivityRuntime.Instance?.FindActive<EndeavorActivity>()` accessor pattern (mirrors `OrderActivity.Instance`).
+3. `ActivityRuntime.Start` quiet — without the type registration, `Start` would emit `ModLogger.Surfaced("ACTIVITY", "activity started with no phases resolved — type may be missing from ActivityTypeCatalog")` (verified at `src/Features/Activities/ActivityRuntime.cs:130-134`).
+
+`EndeavorRunner` then:
+- Reads `EndeavorTemplate.PhasePool` (ordered storylet IDs) from the loaded catalog.
+- Tracks current phase via `EndeavorActivity.AccumulatedOutcomes` (e.g. key `__phase_index__` = N) — no new `CurrentPhase`/`TotalPhases` fields needed; existing dictionary is sufficient.
+- Fires phase modals via `ModalEventBuilder.FireEndeavorPhase` on its own hourly schedule.
+- Calls `ActivityRuntime.Stop(activity, ActivityEndReason.Completed)` when the resolution storylet has fired.
+
+T3 implication: `EndeavorActivity` keeps Plan 1's existing field set (`EndeavorId, CategoryId, AssignedCompanionIds, StartedOn, AccumulatedOutcomes`). No `CurrentPhase`/`TotalPhases`/`Phase1ChoiceFlag` additions — phase index lives in `AccumulatedOutcomes` under a reserved key, choice memory under per-phase keys (`phase_<N>_choice` etc.). T4 mirrors for `ContractActivity`. Auto-properties on a `[Serializable]` class — NOT `[SaveableField]` (Plan 1 verif §5 fix #4).
+
+**Lock 10 — Execution-order tweak: T28 (validator Phase 19) lands BEFORE the T20-T23 storylet content dispatch (clarification, NOT BLOCKING).** Plan body sequences T28 after T27. But T19-T23 are five categories of ~10-12 storylets each, naturally parallelizable via subagent dispatch. Authoring the validator first (so it fail-closes on missing phase storylet refs / unknown skill axes / out-of-band scrutiny risk values) catches schema violations during the parallel author phase rather than after-the-fact. Final execution order: T1 → T2 → T3-T6 → T28 → T7-T13 → T14-T18 → T19 (main thread, tone exemplar) → T20-T23 (parallel subagents with T2 design guide + T19 references + Phase 19 validator as the gate) → T24-T25 → T26 (defer per stretch flag) → T27 → T29-T30.
+
 ### Logistics
 
 **Lock 8 — Architecture brief Plan 4 hand-off lands as a SEPARATE commit on `development`, NOT folded into this Plan 5 prep commit.** Plan 5 prep commit is purely doc edits to this plan file. The architecture brief Plan 4 hand-off section (lists the 18 `lord_gifted_<culture>_t<tier>` ItemModifier StringIds + the `mod_lord_gifted` ItemModifierGroup, the cape mapping in `cape_progression.json` with 6 culture buckets, the 3 banner-flag schema keys `officer_banner_t<7,8,9>`, the 4 added dialog tokens `IS_OFFICER` / `PLAYER_RANK_TITLE` / `BANNER_NAME` / `PATRON_NAME`, the 3 Harmony-patched APIs, the subscriber-order convention that `OfficerTrajectoryBehavior` registers after `RankCeremonyBehavior`) gets its own small commit on `development` AFTER Plan 4 merges. Keeping the two commits separate isolates the Plan 5 prep diff for review and lets the Plan 4 hand-off entry land precisely when its claims are true on `development`.

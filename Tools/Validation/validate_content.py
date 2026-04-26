@@ -3303,6 +3303,388 @@ def phase18_companion_dialogue(ctx: ValidationContext) -> None:
         )
 
 
+# Skill IDs accepted in endeavor template `skill_axis` arrays. Authoritative
+# source is Decompile/TaleWorlds.Core/DefaultSkills.cs (the StringIds passed to
+# `new SkillObject(stringId)`). Phase 19 cross-checks endeavor template values
+# against this set; case-insensitive comparison via lower().
+_VALID_SKILL_IDS_LOWER = frozenset(
+    s.lower()
+    for s in (
+        "OneHanded", "TwoHanded", "Polearm", "Bow", "Crossbow", "Throwing",
+        "Riding", "Athletics", "Crafting", "Tactics", "Scouting", "Roguery",
+        "Charm", "Leadership", "Trade", "Steward", "Medicine", "Engineering",
+    )
+)
+
+# Companion archetype IDs from Plan 2 (Enlistment.Behaviors.EnlistmentBehavior
+# .GetCompanionTypeId returns one of these strings). `archetype: "lord"` is NOT
+# valid for endeavor companion_slots (lord is a ceremony-only witness).
+_VALID_COMPANION_ARCHETYPES = frozenset(
+    {"sergeant", "field_medic", "pathfinder", "veteran", "qm_officer", "junior_officer"}
+)
+
+# Endeavor categories from Plan 5 §4.1 (locked). Adding a sixth category requires
+# both content + a new branch in EndeavorPhaseProvider; not a casual JSON edit.
+_VALID_ENDEAVOR_CATEGORIES = frozenset(
+    {"soldier", "rogue", "medical", "scouting", "social"}
+)
+
+# Notable types accepted in contract_archetypes.json. Mirrors `Hero.IsNotable`
+# variants in vanilla; six-bucket simplification of the underlying enum.
+_VALID_NOTABLE_TYPES = frozenset(
+    {"headman", "merchant", "gangleader", "artisan", "rural_notable", "urban_notable"}
+)
+
+
+def _load_all_storylet_ids() -> set[str]:
+    """Best-effort scan of every storylet JSON under ModuleData/Enlisted/Storylets.
+    Returns the union of storylet IDs encountered. Skips parse errors silently —
+    other validator phases (12, 13, 20) report storylet-level parse failures."""
+    ids: set[str] = set()
+    for path_str in glob.glob("ModuleData/Enlisted/Storylets/**/*.json", recursive=True):
+        try:
+            with open(path_str, encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except Exception:
+            continue
+        for s in doc.get("storylets", []) if isinstance(doc, dict) else []:
+            if isinstance(s, dict):
+                sid = s.get("id")
+                if isinstance(sid, str) and sid:
+                    ids.add(sid)
+    return ids
+
+
+def _validate_endeavor_template(
+    template: dict,
+    *,
+    is_contract: bool,
+    file_path: str,
+    storylet_ids: set[str],
+    ctx: ValidationContext,
+) -> None:
+    """Per-template validation shared by endeavor_catalog.json and
+    contract_archetypes.json. is_contract toggles the field swaps documented
+    in endeavor-catalog-schema.md §8."""
+    cat = "contract" if is_contract else "endeavor"
+    tid = template.get("id")
+    if not isinstance(tid, str) or not tid:
+        ctx.add_issue("error", cat, f"{file_path}: template missing required 'id'", file_path)
+        return
+
+    # Required common fields. is_contract swaps category->notable_type.
+    if is_contract:
+        notable_type = template.get("notable_type")
+        if notable_type not in _VALID_NOTABLE_TYPES:
+            ctx.add_issue(
+                "error", cat,
+                f"{file_path}: '{tid}' notable_type={notable_type!r} not one of {sorted(_VALID_NOTABLE_TYPES)}",
+                file_path,
+            )
+        payment = template.get("payment_denars")
+        if payment is not None and (not isinstance(payment, int) or payment < 0):
+            ctx.add_issue(
+                "error", cat,
+                f"{file_path}: '{tid}' payment_denars must be a non-negative int (got {payment!r})",
+                file_path,
+            )
+        notable_rel_min = template.get("notable_relation_min", 0)
+        if not isinstance(notable_rel_min, int) or notable_rel_min < -100 or notable_rel_min > 100:
+            ctx.add_issue(
+                "error", cat,
+                f"{file_path}: '{tid}' notable_relation_min must be an int in [-100, 100] (got {notable_rel_min!r})",
+                file_path,
+            )
+    else:
+        category = template.get("category")
+        if category not in _VALID_ENDEAVOR_CATEGORIES:
+            ctx.add_issue(
+                "error", cat,
+                f"{file_path}: '{tid}' category={category!r} not one of {sorted(_VALID_ENDEAVOR_CATEGORIES)}",
+                file_path,
+            )
+
+    # Phase pool (1-4 ordered storylet IDs)
+    phase_pool = template.get("phase_pool")
+    if not isinstance(phase_pool, list) or not phase_pool:
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' phase_pool missing or empty", file_path)
+    elif len(phase_pool) > 4:
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' phase_pool length {len(phase_pool)} exceeds max 4", file_path)
+    else:
+        for ph in phase_pool:
+            if not isinstance(ph, str) or not ph:
+                ctx.add_issue("error", cat, f"{file_path}: '{tid}' phase_pool contains non-string entry", file_path)
+            elif ph not in storylet_ids:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' phase_pool storylet '{ph}' not found in StoryletCatalog",
+                    file_path,
+                )
+
+    # Resolution storylets (success + failure required, partial optional)
+    rs = template.get("resolution_storylets")
+    if not isinstance(rs, dict):
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' resolution_storylets missing or not an object", file_path)
+    else:
+        for key in ("success", "failure"):
+            ref = rs.get(key)
+            if not isinstance(ref, str) or not ref:
+                ctx.add_issue("error", cat, f"{file_path}: '{tid}' resolution_storylets.{key} missing", file_path)
+            elif ref not in storylet_ids:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' resolution_storylets.{key}='{ref}' not found in StoryletCatalog",
+                    file_path,
+                )
+        partial = rs.get("partial")
+        if partial is not None and partial != "":
+            if not isinstance(partial, str) or partial not in storylet_ids:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' resolution_storylets.partial='{partial}' not found in StoryletCatalog (set null to omit)",
+                    file_path,
+                )
+
+    # skill_axis — required, list of valid skill IDs
+    sa = template.get("skill_axis")
+    if not isinstance(sa, list) or not sa:
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' skill_axis missing or empty", file_path)
+    else:
+        for sk in sa:
+            if not isinstance(sk, str) or sk.lower() not in _VALID_SKILL_IDS_LOWER:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' skill_axis contains invalid skill {sk!r} "
+                    f"(valid: {sorted(s for s in _VALID_SKILL_IDS_LOWER)})",
+                    file_path,
+                )
+
+    # self_gate_skill_threshold
+    thr = template.get("self_gate_skill_threshold")
+    if not isinstance(thr, int) or thr < 0 or thr > 300:
+        ctx.add_issue(
+            "error", cat,
+            f"{file_path}: '{tid}' self_gate_skill_threshold must be int in [0, 300] (got {thr!r})",
+            file_path,
+        )
+
+    # scrutiny_risk_per_phase + category coherence
+    risk = template.get("scrutiny_risk_per_phase")
+    if not isinstance(risk, (int, float)) or risk < 0.0 or risk > 1.0:
+        ctx.add_issue(
+            "error", cat,
+            f"{file_path}: '{tid}' scrutiny_risk_per_phase must be number in [0.0, 1.0] (got {risk!r})",
+            file_path,
+        )
+    elif not is_contract and template.get("category") != "rogue" and risk != 0:
+        ctx.add_issue(
+            "error", cat,
+            f"{file_path}: '{tid}' non-rogue category requires scrutiny_risk_per_phase=0.0 (got {risk!r})",
+            file_path,
+        )
+
+    # duration_days
+    dd = template.get("duration_days")
+    if not isinstance(dd, int) or dd < 1 or dd > 14:
+        ctx.add_issue(
+            "error", cat,
+            f"{file_path}: '{tid}' duration_days must be int in [1, 14] (got {dd!r})",
+            file_path,
+        )
+
+    # tier_min — optional, default 1
+    tm = template.get("tier_min", 1)
+    if not isinstance(tm, int) or tm < 1 or tm > 9:
+        ctx.add_issue(
+            "error", cat,
+            f"{file_path}: '{tid}' tier_min must be int in [1, 9] (got {tm!r})",
+            file_path,
+        )
+
+    # companion_slots — optional, ≤2 entries, archetype IDs valid
+    cs = template.get("companion_slots") or []
+    if not isinstance(cs, list):
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' companion_slots must be array", file_path)
+    elif len(cs) > 2:
+        ctx.add_issue("error", cat, f"{file_path}: '{tid}' companion_slots length {len(cs)} exceeds max 2", file_path)
+    else:
+        for slot in cs:
+            if not isinstance(slot, dict):
+                ctx.add_issue("error", cat, f"{file_path}: '{tid}' companion_slots entry is not an object", file_path)
+                continue
+            arch = slot.get("archetype")
+            if arch not in _VALID_COMPANION_ARCHETYPES:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' companion_slot archetype={arch!r} not one of "
+                    f"{sorted(_VALID_COMPANION_ARCHETYPES)}",
+                    file_path,
+                )
+            ba = slot.get("skill_bonus_axis")
+            if ba is not None and (not isinstance(ba, str) or ba.lower() not in _VALID_SKILL_IDS_LOWER):
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' companion_slot skill_bonus_axis={ba!r} invalid",
+                    file_path,
+                )
+            bm = slot.get("skill_bonus_amount", 0)
+            if not isinstance(bm, int) or bm < 0 or bm > 50:
+                ctx.add_issue(
+                    "error", cat,
+                    f"{file_path}: '{tid}' companion_slot skill_bonus_amount must be int in [0, 50] (got {bm!r})",
+                    file_path,
+                )
+
+    # phase_offsets_hours — optional, length must equal phase_pool length
+    poh = template.get("phase_offsets_hours")
+    if poh is not None:
+        if not isinstance(poh, list):
+            ctx.add_issue("error", cat, f"{file_path}: '{tid}' phase_offsets_hours must be array", file_path)
+        elif isinstance(phase_pool, list) and len(poh) != len(phase_pool):
+            ctx.add_issue(
+                "error", cat,
+                f"{file_path}: '{tid}' phase_offsets_hours length {len(poh)} must equal phase_pool length {len(phase_pool)}",
+                file_path,
+            )
+        else:
+            for off in poh:
+                if not isinstance(off, int) or off < 0:
+                    ctx.add_issue(
+                        "error", cat,
+                        f"{file_path}: '{tid}' phase_offsets_hours contains non-int or negative value: {off!r}",
+                        file_path,
+                    )
+
+
+def phase19_endeavor_catalog(ctx: ValidationContext) -> None:
+    """Plan 5 §6 T28. Validates ModuleData/Enlisted/Endeavors/endeavor_catalog.json
+    and contract_archetypes.json (same schema family with three field swaps —
+    see docs/Features/Endeavors/endeavor-catalog-schema.md §8).
+
+    Errors (build break):
+      - Required fields missing or wrong type
+      - phase_pool / resolution_storylets reference unknown storylet IDs
+      - skill_axis contains invalid skill IDs
+      - companion_slots[].archetype not in Plan 2 archetype set
+      - Bounds violations: duration_days, scrutiny_risk_per_phase, tier_min
+      - Category-scrutiny coherence: non-rogue with non-zero scrutiny
+
+    Warnings:
+      - Catalog file absent (incremental landing — Plan 5 ships templates in T14-T18)
+      - Contract catalog absent (T24 deliverable)
+    """
+    print("[Phase 19] Validating endeavor + contract catalogs...")
+
+    storylet_ids = _load_all_storylet_ids()
+
+    endeavor_path = "ModuleData/Enlisted/Endeavors/endeavor_catalog.json"
+    contract_path = "ModuleData/Enlisted/Endeavors/contract_archetypes.json"
+
+    endeavor_count = 0
+    contract_count = 0
+
+    if not Path(endeavor_path).exists():
+        ctx.add_issue(
+            "warning", "endeavor",
+            f"{endeavor_path} not authored yet — Plan 5 T14-T18 ships catalog incrementally",
+            endeavor_path,
+        )
+    else:
+        try:
+            with open(endeavor_path, encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except Exception as exc:
+            ctx.add_issue("error", "endeavor", f"{endeavor_path}: failed to parse JSON ({exc})", endeavor_path)
+            doc = None
+
+        if isinstance(doc, dict):
+            entries = doc.get("endeavors")
+            if not isinstance(entries, list):
+                ctx.add_issue(
+                    "error", "endeavor",
+                    f"{endeavor_path}: top-level 'endeavors' array missing or not a list",
+                    endeavor_path,
+                )
+            else:
+                seen_ids: set[str] = set()
+                for entry in entries:
+                    if not isinstance(entry, dict):
+                        ctx.add_issue("error", "endeavor", f"{endeavor_path}: entry is not an object", endeavor_path)
+                        continue
+                    tid = entry.get("id")
+                    if isinstance(tid, str) and tid in seen_ids:
+                        ctx.add_issue(
+                            "error", "endeavor",
+                            f"{endeavor_path}: duplicate id '{tid}' (loader is last-write-wins; rename one)",
+                            endeavor_path,
+                        )
+                    if isinstance(tid, str):
+                        seen_ids.add(tid)
+                    _validate_endeavor_template(
+                        entry,
+                        is_contract=False,
+                        file_path=endeavor_path,
+                        storylet_ids=storylet_ids,
+                        ctx=ctx,
+                    )
+                endeavor_count = len(entries)
+
+    if not Path(contract_path).exists():
+        ctx.add_issue(
+            "warning", "endeavor",
+            f"{contract_path} not authored yet — Plan 5 T24 ships contract catalog",
+            contract_path,
+        )
+    else:
+        try:
+            with open(contract_path, encoding="utf-8") as fh:
+                doc = json.load(fh)
+        except Exception as exc:
+            ctx.add_issue("error", "endeavor", f"{contract_path}: failed to parse JSON ({exc})", contract_path)
+            doc = None
+
+        if isinstance(doc, dict):
+            entries = doc.get("contracts")
+            if not isinstance(entries, list):
+                ctx.add_issue(
+                    "error", "endeavor",
+                    f"{contract_path}: top-level 'contracts' array missing or not a list",
+                    contract_path,
+                )
+            else:
+                seen_ids = set()
+                for entry in entries:
+                    if not isinstance(entry, dict):
+                        ctx.add_issue("error", "endeavor", f"{contract_path}: entry is not an object", contract_path)
+                        continue
+                    tid = entry.get("id")
+                    if isinstance(tid, str) and tid in seen_ids:
+                        ctx.add_issue(
+                            "error", "endeavor",
+                            f"{contract_path}: duplicate id '{tid}'",
+                            contract_path,
+                        )
+                    if isinstance(tid, str):
+                        seen_ids.add(tid)
+                    _validate_endeavor_template(
+                        entry,
+                        is_contract=True,
+                        file_path=contract_path,
+                        storylet_ids=storylet_ids,
+                        ctx=ctx,
+                    )
+                contract_count = len(entries)
+
+    errors_for_phase = sum(
+        1 for i in ctx.issues
+        if i.category == "endeavor" and i.severity == "error"
+    )
+    if errors_for_phase == 0:
+        print(
+            f"  OK: {endeavor_count} endeavor template(s) and {contract_count} contract template(s) validated."
+        )
+
+
 def phase20_ceremony_storylets(ctx: ValidationContext) -> None:
     """Plan 3 §6 T17. Confirm the five retained tier-transition ceremonies are
     authored. Tiers 4 / 6 / 9 are intentionally skipped (PathCrossroads collision
@@ -3493,6 +3875,9 @@ def main():
 
     # Phase 18: Companion dialog catalog schema (Plan 2)
     phase18_companion_dialogue(ctx)
+
+    # Phase 19: Endeavor + contract catalog schema (Plan 5)
+    phase19_endeavor_catalog(ctx)
 
     # Phase 20: Ceremony storylet completeness (Plan 3)
     phase20_ceremony_storylets(ctx)

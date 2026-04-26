@@ -1,0 +1,14 @@
+{
+  "id": "endeavor_activity",
+  "display_name": "{=activity_endeavor}Endeavor",
+  "valid_intents": [],
+  "phases": [
+    {
+      "id": "running",
+      "duration_hours": 999999,
+      "fire_interval_hours": 0,
+      "delivery": "auto",
+      "pool": []
+    }
+  ]
+}

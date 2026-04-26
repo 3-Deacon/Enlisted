@@ -72,6 +72,44 @@
     "ceremony_witness_reaction_lord_approve":                  [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":   5 } ],
     "ceremony_witness_reaction_lord_disapprove":               [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":  -5 } ],
     "ceremony_witness_reaction_lord_strong_approve":           [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta":  10 } ],
-    "ceremony_witness_reaction_lord_strong_disapprove":        [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta": -10 } ]
+    "ceremony_witness_reaction_lord_strong_disapprove":        [ { "apply": "relation_change", "target_slot": "witness_lord",             "delta": -10 } ],
+
+    "endeavor_score_plus_1":                                   [ { "apply": "quality_add", "quality": "endeavor_active_score", "amount":  1 } ],
+    "endeavor_score_minus_1":                                  [ { "apply": "quality_add", "quality": "endeavor_active_score", "amount": -1 } ],
+    "endeavor_score_plus_2":                                   [ { "apply": "quality_add", "quality": "endeavor_active_score", "amount":  2 } ],
+    "endeavor_score_minus_2":                                  [ { "apply": "quality_add", "quality": "endeavor_active_score", "amount": -2 } ],
+
+    "endeavor_skill_xp_minor_combat":                          [ { "apply": "skill_xp", "skill": "OneHanded",   "amount": 25 } ],
+    "endeavor_skill_xp_major_combat":                          [ { "apply": "skill_xp", "skill": "OneHanded",   "amount": 75 } ],
+    "endeavor_skill_xp_minor_athletics":                       [ { "apply": "skill_xp", "skill": "Athletics",   "amount": 25 } ],
+    "endeavor_skill_xp_minor_leadership":                      [ { "apply": "skill_xp", "skill": "Leadership",  "amount": 25 } ],
+    "endeavor_skill_xp_major_leadership":                      [ { "apply": "skill_xp", "skill": "Leadership",  "amount": 75 } ],
+    "endeavor_skill_xp_minor_roguery":                         [ { "apply": "skill_xp", "skill": "Roguery",     "amount": 25 } ],
+    "endeavor_skill_xp_major_roguery":                         [ { "apply": "skill_xp", "skill": "Roguery",     "amount": 75 } ],
+    "endeavor_skill_xp_minor_charm":                           [ { "apply": "skill_xp", "skill": "Charm",       "amount": 25 } ],
+    "endeavor_skill_xp_major_charm":                           [ { "apply": "skill_xp", "skill": "Charm",       "amount": 75 } ],
+    "endeavor_skill_xp_minor_medicine":                        [ { "apply": "skill_xp", "skill": "Medicine",    "amount": 25 } ],
+    "endeavor_skill_xp_major_medicine":                        [ { "apply": "skill_xp", "skill": "Medicine",    "amount": 75 } ],
+    "endeavor_skill_xp_minor_scouting":                        [ { "apply": "skill_xp", "skill": "Scouting",    "amount": 25 } ],
+    "endeavor_skill_xp_major_scouting":                        [ { "apply": "skill_xp", "skill": "Scouting",    "amount": 75 } ],
+
+    "endeavor_lord_relation_up_small":                         [ { "apply": "quality_add", "quality": "lord_relation", "amount":   3 } ],
+    "endeavor_lord_relation_up_moderate":                      [ { "apply": "quality_add", "quality": "lord_relation", "amount":   8 } ],
+    "endeavor_lord_relation_down_small":                       [ { "apply": "quality_add", "quality": "lord_relation", "amount":  -3 } ],
+    "endeavor_lord_relation_down_moderate":                    [ { "apply": "quality_add", "quality": "lord_relation", "amount":  -8 } ],
+
+    "endeavor_scrutiny_drift_minor":                           [ { "apply": "quality_add", "quality": "scrutiny", "amount":   5 } ],
+    "endeavor_scrutiny_drift_moderate":                        [ { "apply": "quality_add", "quality": "scrutiny", "amount":  10 } ],
+    "endeavor_scrutiny_drift_major":                           [ { "apply": "quality_add", "quality": "scrutiny", "amount":  15 } ],
+
+    "endeavor_gold_reward_small":                              [ { "apply": "give_gold", "amount":  100 } ],
+    "endeavor_gold_reward_moderate":                           [ { "apply": "give_gold", "amount":  500 } ],
+    "endeavor_gold_reward_large":                              [ { "apply": "give_gold", "amount": 1500 } ],
+
+    "endeavor_readiness_up_small":                             [ { "apply": "quality_add", "quality": "readiness", "amount":  3 } ],
+    "endeavor_readiness_up_moderate":                          [ { "apply": "quality_add", "quality": "readiness", "amount":  6 } ],
+
+    "endeavor_medical_risk_down_small":                        [ { "apply": "quality_add", "quality": "medical_risk", "amount": -1 } ],
+    "endeavor_medical_risk_down_moderate":                     [ { "apply": "quality_add", "quality": "medical_risk", "amount": -2 } ]
   }
 }
