@@ -105,7 +105,7 @@ Implementer must verify which hook actually fires. **§T16 task expands to inclu
 | :-- | :-- | :-- | :-- |
 | Enlisted lord | `lord_pretalk` | `IsOfficer() && IsCurrentEnlistedLord(Hero.OneToOneConversationHero)` | "How fares the standard, captain? I trust you keep it close." |
 | Peer officer | `officer_chat_hub` | `IsOfficer() && IsPeerOfficerInArmy(Hero.OneToOneConversationHero)` | "Banners count for something. Yours has been seen." |
-| Notable in patron's culture | `notable_pretalk` | `IsOfficer() && Hero.OneToOneConversationHero?.IsNotable == true && Hero.OneToOneConversationHero?.Culture == EnlistedLord.Culture` | "I've seen your standard pass through. Good men under it." |
+| Notable in enlisted lord's culture | `notable_pretalk` | `IsOfficer() && Hero.OneToOneConversationHero?.IsNotable == true && Hero.OneToOneConversationHero?.Culture == EnlistedLord.Culture` | "I've seen your standard pass through. Good men under it." |
 
 Cost: 3 dialog lines + 3 loc-keys synced via `sync_event_strings.py`. Optional `BANNER_NAME` token added to `SetCommonDialogueVariables` (T16) — populated from `MobileParty.MainParty.ItemRoster.FirstOrDefault(e => e.EquipmentElement.Item?.StringId?.StartsWith("banner_") == true)?.EquipmentElement.Item?.Name?.ToString() ?? "your standard"`.
 

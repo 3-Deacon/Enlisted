@@ -302,6 +302,12 @@ namespace Enlisted.Mod.Entry
 
                 if (gameStarterObject is CampaignGameStarter campaignStarter)
                 {
+                    // Register officer-tier weapon modifiers before any save deserialization runs.
+                    // Saved Hero.BattleEquipment references ItemModifier StringIds; if registration
+                    // happens later (e.g. OnSessionLaunched), the deserialized refs come back null
+                    // because MBObjectManager hasn't seen the IDs yet. Idempotent across reloads.
+                    Features.Officer.OfficerGearRegistry.Initialize();
+
                     // Initialize event catalog before registering behaviors that might use it
                     EventCatalog.Initialize();
 

@@ -196,6 +196,17 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-NAVAL-b9b9 | Lord has no ships for enlisted player - cannot join naval battle safely | src/Mod.GameAdapters/Patches/NavalBattleShipAssignmentPatch.cs:136 |
 
+## OFFICER
+
+| Code | Summary | Source |
+|---|---|---|
+| E-OFFICER-3c14 | group_register_failed | src/Features/Officer/ItemModifierFactory.cs:104 |
+| E-OFFICER-3ca9 | modifier_register_failed | src/Features/Officer/ItemModifierFactory.cs:67 |
+| E-OFFICER-5006 | modifier_property_missing | src/Features/Officer/ItemModifierFactory.cs:118 |
+| E-OFFICER-616e | modifier_manager_unavailable | src/Features/Officer/ItemModifierFactory.cs:35 |
+| E-OFFICER-dff4 | group_manager_unavailable | src/Features/Officer/ItemModifierFactory.cs:83 |
+| E-OFFICER-e104 | modifier_setter_missing | src/Features/Officer/ItemModifierFactory.cs:128 |
+
 ## PATCH
 
 | Code | Summary | Source |

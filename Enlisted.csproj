@@ -466,6 +466,8 @@
     <Compile Include="src\Features\Ceremonies\CeremonyWitnessSelector.cs"/>
     <Compile Include="src\Features\Ceremonies\CeremonyProvider.cs"/>
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
+    <Compile Include="src\Features\Officer\ItemModifierFactory.cs"/>
+    <Compile Include="src\Features\Officer\OfficerGearRegistry.cs"/>
     <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
     <Compile Include="src\Features\Companions\CompanionLifecycleHandler.cs"/>
     <Compile Include="src\Features\Companions\Data\CompanionDialogueCatalog.cs"/>
