@@ -1,21 +1,36 @@
 {
   "schemaVersion": 1,
-  "_comment": "Maps culture variant suffix (CeremonyCultureSelector.SelectVariantSuffix output) to tier-band (recruit T1-T3, nco T4-T6, officer T7-T9) to a vanilla shoulder-armor ItemObject StringId. v1 ships placeholder picks using existing vanilla items; Plan 7 polish may swap in per-culture variants. CapeProgression looks up via MBObjectManager.GetObject<ItemObject>; null lookup logs Expected and skips.",
+  "_comment": "Maps the enlisted lord's Culture.StringId to (tier band → vanilla shoulder-armor ItemObject). Six-culture coverage: each entry uses an item from that culture so a Vlandian player wears a Vlandian cape, a Khuzait player wears a Khuzait cape, etc. CapeProgression looks up via MBObjectManager.GetObject<ItemObject>(stringId); null lookup falls through to the 'base' bucket. All listed IDs verified Type=\"Cape\" in vanilla shoulder_armors.xml.",
   "variants": {
-    "vlandian": {
-      "recruit": "southern_shawl",
+    "vlandia": {
+      "recruit": "hood",
+      "nco": "padded_leather_shoulders",
+      "officer": "noble_pauldron_with_cape"
+    },
+    "sturgia": {
+      "recruit": "stitched_leather_shoulders",
+      "nco": "mail_shoulders",
+      "officer": "brass_lamellar_shoulder_white"
+    },
+    "empire": {
+      "recruit": "woven_leather_shoulders",
+      "nco": "empire_warrior_padded_armor_shoulder",
+      "officer": "pauldron_cape_a"
+    },
+    "aserai": {
+      "recruit": "desert_fabric_shoulderpad",
+      "nco": "desert_scale_shoulders",
+      "officer": "aserai_horseman_shoulder"
+    },
+    "battania": {
+      "recruit": "battania_shoulder_strap",
       "nco": "battania_cloak",
-      "officer": "battania_cloak_furr"
+      "officer": "battania_woodland_cloak"
     },
-    "sturgian": {
-      "recruit": "southern_shawl",
-      "nco": "a_khuzait_leather_shoulder_b_a",
-      "officer": "a_khuzait_leather_shoulder_b_b"
-    },
-    "imperial": {
-      "recruit": "southern_shawl",
-      "nco": "a_empire_plated_shoulder_a",
-      "officer": "a_empire_plated_shoulder_b"
+    "khuzait": {
+      "recruit": "bolted_leather_strips",
+      "nco": "steppe_leather_shoulders",
+      "officer": "reinforced_suede_shoulders"
     },
     "base": {
       "recruit": "southern_shawl",

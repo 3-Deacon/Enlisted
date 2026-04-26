@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Enlisted.Features.Ceremonies;
+using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using Newtonsoft.Json;
@@ -13,9 +13,11 @@ namespace Enlisted.Features.Officer
 {
     /// <summary>
     /// Assigns the appropriate cape (a vanilla shoulder-armor <see cref="ItemObject"/>) to the
-    /// player's cape slot at tier-band transitions. v1 ships using existing vanilla items by
-    /// StringId, mapped per culture variant via <c>cape_progression.json</c>. Plan 7 polish
-    /// may swap in per-culture authored items if desired.
+    /// player's cape slot at tier-band transitions. Uses existing vanilla items keyed by the
+    /// enlisted lord's <c>Culture.StringId</c> so a Vlandian player wears a Vlandian cape,
+    /// a Khuzait player wears a Khuzait cape, etc. (Six-culture coverage; not the three-bucket
+    /// fallback used by ceremony content where authoring scope made coverage gaps acceptable.)
+    /// Mapping lives in <c>cape_progression.json</c>; null lookup falls through to <c>base</c>.
     /// </summary>
     public static class CapeProgression
     {
@@ -72,10 +74,11 @@ namespace Enlisted.Features.Officer
                 return;
             }
 
-            var variantSuffix = CeremonyCultureSelector.SelectVariantSuffix();
+            var lord = EnlistmentBehavior.Instance?.EnlistedLord;
+            var cultureId = lord?.Culture?.StringId ?? "base";
             var band = TierBand(newTier);
 
-            var capeId = ResolveCapeId(variantSuffix, band);
+            var capeId = ResolveCapeId(cultureId, band);
             if (string.IsNullOrEmpty(capeId))
             {
                 return;
@@ -88,7 +91,7 @@ namespace Enlisted.Features.Officer
                     "OFFICER",
                     "cape_lookup_failed",
                     "vanilla cape ItemObject not found",
-                    LogCtx.Of("StringId", capeId, "Variant", variantSuffix, "Band", band));
+                    LogCtx.Of("StringId", capeId, "Culture", cultureId, "Band", band));
                 return;
             }
 
@@ -102,10 +105,11 @@ namespace Enlisted.Features.Officer
             }
         }
 
-        private static string ResolveCapeId(string variantSuffix, string band)
+        private static string ResolveCapeId(string cultureId, string band)
         {
-            if (_variants.TryGetValue(variantSuffix, out var variantMap)
-                && variantMap.TryGetValue(band, out var v))
+            if (!string.IsNullOrEmpty(cultureId)
+                && _variants.TryGetValue(cultureId, out var cultureMap)
+                && cultureMap.TryGetValue(band, out var v))
             {
                 return v;
             }
