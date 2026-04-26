@@ -10,6 +10,121 @@
 
 ---
 
+## 🔒 LOCKED 2026-04-26 — readiness amendments (pre-execution)
+
+This block consolidates the pre-execution readiness audit (Plan 4 was authored 2026-04-24 before Plans 2+3 shipped — drift accumulated) plus deeper research findings against the decompile and existing codebase, plus four game-design decisions locked after the synthesis. **Locks override the body of the plan where they conflict.** Same pattern as Plan 3.
+
+### Audit-correction locks (1-7)
+
+**Lock 1 — `ItemModifier` reflection target (BLOCKING for §T2).** The §T2 example uses field names `_damage`, `_speed`, `_armor`, `_priceMultiplier`, `_itemQuality`, `_name`, `_stringId`. **No such fields exist.** Decompile `TaleWorlds.Core/ItemModifier.cs:13-41` shows auto-properties with private setters (`public int Damage { get; private set; }`). Compiler-generated backing fields are named `<Damage>k__BackingField`-style; reflection on `_damage` finds nothing.
+
+Use **property-setter reflection** (recommended): `typeof(ItemModifier).GetProperty(nameof(ItemModifier.Damage)).GetSetMethod(nonPublic: true).Invoke(mod, new object[] { value })`. Survives Bannerlord patches better than backing-field names; uses the same setter path as XML `Deserialize` (decompile lines 60-77). `MBObjectBase.StringId` is publicly settable (`{ get; set; }`) — assign directly, no reflection needed for it. See Lock 8 for the registration timing this binds to.
+
+**Lock 2 — Ceremony flag references (BLOCKING for §T17 `lord_address_humble_or_proud`).** §4.7 says the row reads `ceremony.t7.choice` flag with dotted notation and string semantics. Wrong on three counts:
+1. Notation is flat underscore (architecture brief §4 rule 6): `ceremony_choice_t7_*`, never `ceremony.t7.choice`.
+2. `FlagStore` is bool-only (verified `src/Features/Flags/FlagStore.cs:44-106` — `Has`/`Set`/`Clear` only, no `GetString`).
+3. Schema is one bool flag per option ID. Plan 3 ships these flags at T7:
+   - `ceremony_choice_t7_humble_accept`
+   - `ceremony_choice_t7_proud_accept`
+   - `ceremony_choice_t7_try_to_refuse`
+   - Plus the dedup `ceremony_fired_t7`.
+
+§T17 `lord_address_humble_or_proud` becomes **three separate `AddDialogLine` calls** — one per ceremony flag — at priority 112. Cleaner than one branched condition; avoids the "which flag is set?" ambiguity.
+
+**Lock 3 — `EnlistmentBehavior.cs` line references shifted (advisory).** §0 reference 17 says `AssignInitialEquipment` is at lines 11223-11248. Actual location after Plans 2+3 shipped: **line 11512** (Plan 2 added 24 SyncKey fields + 6 GetOrCreate methods around lines 8500-8700). Other line refs:
+- `EnlistedFormationAssignmentBehavior.cs:705-892 TryTeleportPlayerToFormationPosition` → actual 709 ✓
+- `EnlistedDialogManager.cs:1360-1386 SetCommonDialogueVariables` → exact match ✓
+- `EnlistedDialogManager.cs:347-368` → exact match ✓
+
+Implementer must grep-the-symbol per AGENTS.md pitfall #22.
+
+**Lock 4 — Cape culture coverage: 3 cultures + fallback.** §T4 says "6 cultures × 3 tier bands = 18 ItemObjects." §T5-T6 banners say "3 cultures × 3 tiers = 9 banner ItemObjects" using Plan 3's fallback (Battania→Vlandian, Khuzait→Sturgian, Aserai→Imperial). **Lock: align capes to the banner approach — 3 cultures × 3 bands = 9 cape ItemObjects.** Reduces authoring 50% and keeps the cluster's culture-fallback strategy uniform across Plans 3-4. Update §T4 file count + the cape lookup helper to read culture via `CeremonyCultureSelector.SelectVariantSuffix()` (Plan 3's helper, free to reuse — listed in Plan 3 hand-off surface in the architecture brief).
+
+**Lock 5 — §T12 visual-order timing claim is wrong (advisory).** §T12 reasons: "Since ceremony modal is a `MultiSelectionInquiryData` that pauses the game, the next frame doesn't fire until the player picks an option." Two issues:
+1. Ceremony modals route through `EventDeliveryManager.QueueEvent` (per Plan 3 + Critical Rule #10), which does NOT pause the game — it queues an event for next-tick rendering through the `EventPopupViewModel` Gauntlet layer. Campaign tick continues; only the player's input is captured by the popup.
+2. `InformationManager.DisplayMessage` (used for gear toasts) writes to the message log scroll, which renders behind/over Gauntlet popups regardless of modal state.
+
+In practice: ceremony modal opens, gear toasts appear in the message log scroll behind it, player picks, modal closes, player sees the toasts. **This is acceptable UX** — modal owns attention, toasts wait peripherally. Implementation guidance:
+- Register `OfficerTrajectoryBehavior` AFTER `RankCeremonyBehavior` in `SubModule.cs` so subscriber order puts ceremony emit before gear apply (defensive; effect is small).
+- **Drop the `NextFrameDispatcher.RunNextFrame` complexity in §T12** — not needed.
+- If playtest shows a real UX problem, the cleaner fix is to gate gear application on the `ceremony_fired_t7` flag being set (apply on next campaign tick after the player resolves the ceremony) — but ship without this and only add if smoke fails.
+
+**Lock 6 — Banner items are inventory items in v1, not equipped (clarification + §1 correction).** §T5-T6 already states "Banners are NOT a standard `EquipmentIndex` slot... Plan 4 v1 ships banners as inventory items." Worth flagging that the §1 deliverable line "T7+: banner item with `BannerComponent` formation aura" overstates v1 — `BannerComponent.GetBannerEffectBonus` only fires on equipped banners (decompile confirms it reads from a Hero's equipped banner slot). Inventory-only banners give NO formation aura in v1.
+
+**§1 correction:** the banner deliverable reads "T7+: banner item granted to inventory (cosmetic narrative; aura deferred to Plan 7 polish)". v1 ships narrative flavor ("Lord Crassus has granted you the Cavalier's Standard") without combat effect. The aura ships properly in Plan 7 polish if a real banner equip slot is implemented. **See Lock 13 for the dialog hooks that anchor the banner narratively in v1.**
+
+**Lock 7 — `PatronRoll.Has(MBGUID)` exists from Plan 1 substrate (verification).** §T16 calls `PatronRoll.Instance?.Has(conversationTarget.Id)`. Verified at `src/Features/Patrons/PatronRoll.cs:37`. Plan 1 shipped the stub accessor. Returns false for all heroes until Plan 6 populates the roll, so `PATRON_NAME` is always empty until Plan 6 ships — that's expected. **No code change needed; this lock just records that the dependency is genuinely available even though Plan 6 isn't written yet.**
+
+### Research-derived locks (8-12)
+
+**Lock 8 — Save-load timing for runtime ItemModifier registration (BLOCKING, supersedes Plan §T2 footgun).** Saved `Hero.BattleEquipment` references ItemModifier StringIds. SaveSystem deserializes Hero state BEFORE `Behavior.OnSessionLaunched` fires. If modifiers register at OnSessionLaunched, the save-loaded equipment already has null modifier refs, and `MBObjectManager.RegisterObject` (decompile lines 213-243) suffixes a numeric on collision (`obj.StringId = text + num`) — re-registering session 2 with a different instance corrupts the saved reference.
+
+**Fix:**
+- Register modifiers at `SubModule.OnGameStart` (or earlier, e.g. `OnSubModuleLoad`) using a `GetOrCreate` pattern: `MBObjectManager.GetObject<ItemModifier>(stringId) ?? CreateAndRegister(...)`. Idempotent across reloads.
+- Use **static StringIds**: `lord_gifted_<culture>_t<tier>` (e.g. `lord_gifted_vlandian_t7`). NO per-hero suffix — the save's reference is to an ID that always exists post-registration.
+- Personalization (lord name) flows through the `Name` TextObject's `{LORD_NAME}` variable resolved at display time, not the StringId.
+- 18 modifiers max: 6 cultures × 3 tier bands. (Lock 4 reduces capes to 9; modifiers stay 18 because the StringId encodes per-culture-per-tier and there's no fallback at registration time — the registry just exists, lookup fallback can happen via culture-mapping in `PatronWeaponModifier`.)
+- The `mod_lord_gifted` `ItemModifierGroup` is created similarly: `MBObjectManager.GetObject<ItemModifierGroup>("mod_lord_gifted") ?? new ItemModifierGroup(...) → RegisterObject`.
+
+**§T2 + §T7 restructure:**
+- §T2 `ItemModifierFactory` ships the helper class but no caller-site registration.
+- §T2.5 (new sub-task) ships the bootstrap registration in `SubModule.OnGameStart`: registers the group + 18 modifiers idempotently.
+- §T7 `OfficerTrajectoryBehavior.OnTierChanged` does ONLY lookup-and-apply. No registration.
+
+**Lock 9 — `GetSurgeryChance` returns `float`, not `ExplainedNumber` (BLOCKING for §T10).** Plan §T9-T11 examples show `ref ExplainedNumber __result` for all three patches. Decompile `Decompile/TaleWorlds.CampaignSystem.GameComponents/DefaultPartyHealingModel.cs:45-49` confirms: `public override float GetSurgeryChance(PartyBase party)`. T10 patch must use `ref float __result` and `__result += 0.15f`. Cannot pass a TextObject reason via `ExplainedNumber.Add` here; the surgery bonus won't appear in any tooltip — that's fine, surgery doesn't have a UI breakdown like ExplainedNumber-backed stats do.
+
+**Lock 10 — T11 patches public `GetEffectivePartyMorale`, NOT private `CalculateFoodVarietyMoraleBonus` (BLOCKING for §T11).** The food-variety calc method is `private void CalculateFoodVarietyMoraleBonus(MobileParty party, ref ExplainedNumber result)` (decompile lines 63-130 of `DefaultPartyMoraleModel.cs`). Patching a private method requires string-name targeting (no `nameof`), more brittle. The public `GetEffectivePartyMorale(MobileParty mobileParty, bool includeDescription = false)` returns the final ExplainedNumber after the food-variety calc has been added; postfix on this is cleaner.
+
+**Game-design decision (locked):** flat +2 morale via `__result.Add(2f, new TextObject("{=officer_mess_bonus}Officer's Mess"))` regardless of food state. Reading (a) per design verdict — legible tooltip ("+2 from Officer's Mess"), steady felt bonus. Reading (b) "+2 to variety count" produces inconsistent morale gains depending on current food state, which is invisible to the player.
+
+**Lock 11 — T13 rear-formation offset DROPPED for v1 (BLOCKING design decision); replaced with "Inspect officer's tent" Camp menu.** Verified at `src/Features/Combat/Behaviors/EnlistedFormationAssignmentBehavior.cs:704` doc comment ("Only applies to T1-T6 soldiers. T7+ commanders control their own party and spawn position") and lines 727-731 explicit early-return for `EnlistmentTier >= RetinueManager.CommanderTier1`. Sub-T7 already gets `var behindOffset = -formationDirection.ToVec3() * 5f` at line 778. Plan §4.6 wants T7+ to also receive rear offset, but this conflicts with established commander-tier design AND brings real risk (off-map spawns, AI pathing breaks on small formations) for marginal payoff (officer survivability is already covered by Lock 9-10 patches).
+
+**T13 (rear-formation) is a no-op task.** T14 + T15 (reserved for T13 follow-up) are dropped. T20 verification report documents: "rear-formation offset verified for T1-T6 enlisted soldiers via line 778 (pre-Plan-4); T7+ retains commander-tier spawn behavior; future Plan 7 polish may reassign T7+ players to a rear formation slot via `FormationArrangement` APIs if playtest demand surfaces."
+
+**Replacement for the T13 slot (game-design scope-add): "Inspect your officer's tent" Camp menu line.** One Camp menu option visible only to T7+ officers. Selecting it shows `InformationManager.ShowInquiry` (or equivalent text-only popup) listing accumulated officer story:
+- Current banner StringId + display name (looked up from `MobileParty.MainParty.ItemRoster`)
+- Sword modifier display name (read from `Hero.MainHero.BattleEquipment[Weapon0].ItemModifier?.Name`)
+- Current `Hero.MainHero.GetRelation(EnlistedLord)`
+- Ceremony choices made — one line per resolved tier (read `ceremony_choice_t{N}_*` flags via `FlagStore.Instance.Has(...)` for tiers 2/3/5/7/8 if `ceremony_fired_t{N}` is set)
+
+Zero gameplay effect; pure trophy/character-sheet view. ~50 lines of C# in `EnlistedMenuBehavior` (Camp section). Uses the existing native-menu pattern (per AGENTS.md "native menus over Gauntlet"). Reuses the dropped T13 task slot to keep the plan-task count balanced. Player-facing payoff: the T7+ promotion has a visible place where accumulated story lives, which is what makes a CK3-style trinket feel meaningful.
+
+**Lock 12 — `SetCommonDialogueVariables` timing requires conversation-activation hook for §T16 (BLOCKING for §T17 `inn_greet_officer`).** `SetCommonDialogueVariables` currently fires only inside `LoadDialogueFromJson` parsing (lines 1494, 1533, 1574, 1672 of `EnlistedDialogManager.cs`) — i.e., inside QM-flow JSON processing. The vanilla `start` token used by `inn_greet_officer` fires BEFORE this. Without intervention, `{IS_OFFICER}` / `{PLAYER_RANK_TITLE}` / `{PATRON_NAME}` won't be populated when the innkeeper's officer-greeting line evaluates.
+
+**Fix:** extend `EnlistedDialogManager` so `SetCommonDialogueVariables` runs on every conversation activation, not just inside QM-flow. Two options:
+- **(a) Override `OnConversationActivated`** if `CampaignBehaviorBase` exposes that virtual.
+- **(b) Subscribe to `CampaignEvents.ConversationStarted`** in `RegisterEvents` (canonical pattern; verify the event exists at decompile `TaleWorlds.CampaignSystem/CampaignEvents.cs`).
+
+Implementer must verify which hook actually fires. **§T16 task expands to include this wiring.** Testing: enlisted at T7 enters an inn → tooltip-render of `{IS_OFFICER}` resolves to `"1"` and `{PLAYER_RANK_TITLE}` to `"Cavalier"` (or equivalent culture-rank).
+
+### Game-design decision locks (13-14)
+
+**Lock 13 — Banner narrative dialog hooks (game-design scope-add for §T17/T18).** Lock 6 ships banners as inventory items with no combat effect. To anchor the banner narratively without code changes elsewhere, T17 + T18 add three NPC references to the player's banner so it becomes a referenced token of identity rather than a forgotten inventory entry:
+
+| Speaker | Input | Condition | Line (paraphrased; final wording in T17/T18) |
+| :-- | :-- | :-- | :-- |
+| Enlisted lord | `lord_pretalk` | `IsOfficer() && IsCurrentEnlistedLord(Hero.OneToOneConversationHero)` | "How fares the standard, captain? I trust you keep it close." |
+| Peer officer | `officer_chat_hub` | `IsOfficer() && IsPeerOfficerInArmy(Hero.OneToOneConversationHero)` | "Banners count for something. Yours has been seen." |
+| Notable in patron's culture | `notable_pretalk` | `IsOfficer() && Hero.OneToOneConversationHero?.IsNotable == true && Hero.OneToOneConversationHero?.Culture == EnlistedLord.Culture` | "I've seen your standard pass through. Good men under it." |
+
+Cost: 3 dialog lines + 3 loc-keys synced via `sync_event_strings.py`. Optional `BANNER_NAME` token added to `SetCommonDialogueVariables` (T16) — populated from `MobileParty.MainParty.ItemRoster.FirstOrDefault(e => e.EquipmentElement.Item?.StringId?.StartsWith("banner_") == true)?.EquipmentElement.Item?.Name?.ToString() ?? "your standard"`.
+
+**Lock 14 — T19 validator phase rescoped (advisory).** Plan §T19 says "extend Phase 12 to verify ItemModifier StringIds don't shadow vanilla." Phase 12 scans JSON `apply` IDs in storylet/effects content; runtime-registered ItemModifiers are NOT in JSON. T19 is rescoped or dropped:
+- **(rescope)** Add a `Tools/Validation/check_modifier_collisions.py` (or Phase 21 in `validate_content.py`) that loads vanilla `Modules/Native/ModuleData/item_modifiers.xml` IDs and warns if any `lord_gifted_*_t*` collides with a vanilla one.
+- **(drop)** Rely on `MBObjectManager`'s deduplicate-with-suffix behavior (decompile lines 222-234) — first-registration wins on idempotency. Document in T20 verification report that no static IDs collide with vanilla XML `lord_gifted_*` (none exist in vanilla — verified).
+
+**Recommendation: drop T19** as the cheaper path; first-time Plan 4 ships, the implementer greps vanilla `item_modifiers.xml` once, confirms zero collision, and writes the result in T20.
+
+### Revised task count
+
+20 tasks → 17 effective:
+- T2 split into T2 (factory) + T2.5 (bootstrap registration) — net +1
+- T13 (rear-formation) → no-op; replaced by "Inspect officer's tent" Camp menu (still T13)
+- T14, T15 dropped (were reserved for T13 follow-up)
+- T19 dropped (or rescoped to one-line grep, ship-time only)
+
+---
+
 ## §0 — Read these first
 
 ### Required prior plan documentation
