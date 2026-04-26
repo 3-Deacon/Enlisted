@@ -61,6 +61,17 @@ namespace Enlisted.Features.Officer
             {
                 ModLogger.Caught("OFFICER", "tier_changed_weapon_apply_failed", ex);
             }
+
+            // Refresh dialog tokens so subsequent conversations see the updated officer state
+            // (IS_OFFICER, PLAYER_RANK_TITLE, BANNER_NAME). PATRON_NAME stays empty until Plan 6.
+            try
+            {
+                Conversations.Behaviors.EnlistedDialogManager.Instance?.RefreshOfficerTokens();
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("OFFICER", "tier_changed_token_refresh_failed", ex);
+            }
         }
     }
 }

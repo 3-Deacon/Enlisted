@@ -84,6 +84,13 @@ namespace Enlisted.Features.Conversations.Behaviors
 
             AddEnlistedDialogs(starter);
             AddQuartermasterDialogs(starter);
+            AddOfficerDialogs(starter);
+
+            // Seed officer-tier tokens once at session start so vanilla input tokens
+            // (e.g. "start" for innkeeper greetings) see them populated. State-change
+            // refreshes happen via RefreshOfficerTokens (Plan 4 Lock 12 revision).
+            SetCommonDialogueVariables();
+
             // The menu system is handled by EnlistedMenuBehavior.cs, which provides the main enlisted status menu
         }
 
@@ -1383,6 +1390,30 @@ namespace Enlisted.Features.Conversations.Behaviors
             // Current tier
             var tier = enlistment?.EnlistmentTier ?? 1;
             MBTextManager.SetTextVariable("PLAYER_TIER", tier.ToString());
+
+            // Plan 4 — officer-tier tokens. State-driven, not per-conversation:
+            // CampaignEvents has no ConversationStarted hook, so tokens are seeded at
+            // OnSessionLaunched and refreshed via RefreshOfficerTokens() on tier transition
+            // (called from OfficerTrajectoryBehavior.OnTierChanged) and on enlist/discharge.
+            // PATRON_NAME stays empty until Plan 6 ships PatronRoll population.
+            var isOfficer = enlistment?.IsEnlisted == true && enlistment.EnlistmentTier >= 7;
+            MBTextManager.SetTextVariable("IS_OFFICER", isOfficer ? "1" : "0");
+            MBTextManager.SetTextVariable("PLAYER_RANK_TITLE", rankTitle);
+            MBTextManager.SetTextVariable(
+                "BANNER_NAME",
+                Features.Officer.BannerProvision.GetCurrentBannerName() ?? "your standard");
+            MBTextManager.SetTextVariable("PATRON_NAME", string.Empty);
+        }
+
+        /// <summary>
+        /// Public accessor for refreshing the officer-tier dialog tokens. Called by
+        /// <see cref="Features.Officer.OfficerTrajectoryBehavior"/> after a tier transition
+        /// so subsequent conversation lines see the updated IS_OFFICER / PLAYER_RANK_TITLE /
+        /// BANNER_NAME values.
+        /// </summary>
+        public void RefreshOfficerTokens()
+        {
+            SetCommonDialogueVariables();
         }
 
         /// <summary>
@@ -4582,6 +4613,161 @@ namespace Enlisted.Features.Conversations.Behaviors
             catch (Exception ex)
             {
                 ModLogger.Caught("DIALOGMANAGER", "Error accepting commander promotion", ex);
+            }
+        }
+
+        #endregion
+
+        #region Officer Trajectory (Plan 4)
+
+        private static bool IsOfficer()
+        {
+            var e = EnlistmentBehavior.Instance;
+            return e?.IsEnlisted == true && e.EnlistmentTier >= 7;
+        }
+
+        private static bool IsCurrentEnlistedLord(Hero hero)
+        {
+            return hero != null && hero == EnlistmentBehavior.Instance?.EnlistedLord;
+        }
+
+        private static bool IsPeerOfficerInArmy(Hero candidate)
+        {
+            if (!IsOfficer() || candidate == null || !candidate.IsLord)
+            {
+                return false;
+            }
+
+            var enlistedLord = EnlistmentBehavior.Instance?.EnlistedLord;
+            if (enlistedLord == null || candidate == enlistedLord)
+            {
+                return false;
+            }
+
+            var candidateArmy = candidate.PartyBelongedTo?.Army;
+            var enlistedArmy = enlistedLord.PartyBelongedTo?.Army;
+            return candidateArmy != null && candidateArmy == enlistedArmy;
+        }
+
+        private static bool InSettlement()
+        {
+            return Hero.MainHero?.CurrentSettlement != null;
+        }
+
+        /// <summary>
+        /// Adds officer-tier rank-gated greeting and recognition lines at priority 110-115.
+        /// Three lord-side variants gate on the T7 ceremony flag so the player's commission
+        /// choice (humble / proud / try-to-refuse) colors the lord's address. Notable banner
+        /// hook (Lock 13) anchors the inventory-only banner narratively.
+        /// </summary>
+        private void AddOfficerDialogs(CampaignGameStarter starter)
+        {
+            try
+            {
+                // ===== Greetings =====
+
+                // Innkeeper / settlement greeting at "start" — uses tokens seeded by
+                // SetCommonDialogueVariables at OnSessionLaunched and refreshed on tier change.
+                starter.AddDialogLine(
+                    "officer_inn_greet",
+                    "start",
+                    "inn_hub",
+                    "{=officer_inn_greeting}Good evening, {PLAYER_RANK_TITLE}. The night's quiet — sit, eat.",
+                    () => IsOfficer() && InSettlement(),
+                    null,
+                    115);
+
+                // Notable greeting (any culture)
+                starter.AddDialogLine(
+                    "officer_notable_greet",
+                    "notable_pretalk",
+                    "notable_pretalk",
+                    "{=officer_notable_greeting}Captain {PLAYER_NAME}. Word of you has reached my door.",
+                    () => IsOfficer() && Hero.OneToOneConversationHero?.IsNotable == true,
+                    null,
+                    113);
+
+                // Notable banner hook (Lock 13) — fires above the generic notable greeting when
+                // the speaker shares the enlisted lord's culture and the player carries a banner.
+                starter.AddDialogLine(
+                    "officer_banner_notable_hook",
+                    "notable_pretalk",
+                    "notable_pretalk",
+                    "{=officer_banner_notable_hook}I've seen your standard pass through. Good men under it.",
+                    () => IsOfficer()
+                          && Hero.OneToOneConversationHero?.IsNotable == true
+                          && Hero.OneToOneConversationHero?.Culture != null
+                          && EnlistmentBehavior.Instance?.EnlistedLord?.Culture != null
+                          && Hero.OneToOneConversationHero.Culture == EnlistmentBehavior.Instance.EnlistedLord.Culture
+                          && Features.Officer.BannerProvision.GetCurrentBannerTier() > 0,
+                    null,
+                    114);
+
+                // Lord greeting — generic fallback when no ceremony flag is set (rare —
+                // Plan 3 always fires a T7 ceremony, but the line guards against the edge case).
+                starter.AddDialogLine(
+                    "officer_lord_greet",
+                    "lord_pretalk",
+                    "lord_pretalk",
+                    "{=officer_lord_greeting}You've come up through the ranks, {PLAYER_NAME}. Well done.",
+                    () => IsOfficer()
+                          && IsCurrentEnlistedLord(Hero.OneToOneConversationHero),
+                    null,
+                    112);
+
+                // ===== Ceremony-flag flavor (Lock 2) =====
+                // Three variants of the lord's address based on which T7 commission option
+                // the player picked in Plan 3's ceremony storylet. Priority 113 beats the
+                // generic officer_lord_greet (112) when a flag is set.
+
+                starter.AddDialogLine(
+                    "officer_lord_humble_t7",
+                    "lord_pretalk",
+                    "lord_pretalk",
+                    "{=officer_lord_humble}A humble officer — the men follow you for it.",
+                    () => IsOfficer()
+                          && IsCurrentEnlistedLord(Hero.OneToOneConversationHero)
+                          && Features.Flags.FlagStore.Instance?.Has("ceremony_choice_t7_humble_accept") == true,
+                    null,
+                    113);
+
+                starter.AddDialogLine(
+                    "officer_lord_proud_t7",
+                    "lord_pretalk",
+                    "lord_pretalk",
+                    "{=officer_lord_proud}You earned the rank, {PLAYER_NAME}. I see that.",
+                    () => IsOfficer()
+                          && IsCurrentEnlistedLord(Hero.OneToOneConversationHero)
+                          && Features.Flags.FlagStore.Instance?.Has("ceremony_choice_t7_proud_accept") == true,
+                    null,
+                    113);
+
+                starter.AddDialogLine(
+                    "officer_lord_mercy_t7",
+                    "lord_pretalk",
+                    "lord_pretalk",
+                    "{=officer_lord_mercy}You doubted yourself, {PLAYER_NAME}. Yet here you are.",
+                    () => IsOfficer()
+                          && IsCurrentEnlistedLord(Hero.OneToOneConversationHero)
+                          && Features.Flags.FlagStore.Instance?.Has("ceremony_choice_t7_try_to_refuse") == true,
+                    null,
+                    113);
+
+                // Peer officer recognition (one-line flavor; multi-stage tree deferred to Plan 7)
+                starter.AddDialogLine(
+                    "officer_peer_chat",
+                    "lord_pretalk",
+                    "lord_pretalk",
+                    "{=officer_peer_chat}Captain. Word in the army says you're holding the line.",
+                    () => IsPeerOfficerInArmy(Hero.OneToOneConversationHero),
+                    null,
+                    111);
+
+                ModLogger.Info("OFFICER", $"Officer dialog branches registered (8 lines, priority 110-115).");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("OFFICER", "officer_dialogs_register_failed", ex);
             }
         }
 
