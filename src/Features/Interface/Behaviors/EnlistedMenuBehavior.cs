@@ -1412,6 +1412,25 @@ namespace Enlisted.Features.Interface.Behaviors
                 OnTalkToSelected,
                 false, 7);
 
+            // Inspect officer's tent — T7+ trophy view (Plan 4 — replaces dropped rear-formation T13).
+            // Pure narrative read-only window over accumulated officer state: banner, sword
+            // modifier, lord relation, ceremony choices made. No gameplay effect.
+            starter.AddGameMenuOption(CampHubMenuId, "camp_hub_inspect_tent",
+                "{=enlisted_camp_inspect_tent}Inspect your officer's tent",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Manage;
+                    var enl = EnlistmentBehavior.Instance;
+                    if (enl?.IsEnlisted != true || enl.EnlistmentTier < 7)
+                    {
+                        return false;
+                    }
+                    args.Tooltip = new TextObject("{=enlisted_camp_inspect_tent_tooltip}Review the marks of your commission — banner, gifted blade, and the choices that brought you here.");
+                    return true;
+                },
+                _ => OnInspectOfficerTentSelected(),
+                false, 8);
+
 
             // Back
             starter.AddGameMenuOption(CampHubMenuId, "camp_hub_back",
@@ -4432,6 +4451,123 @@ namespace Enlisted.Features.Interface.Behaviors
         #endregion
 
         // Note: Removed unused Military Styling Helper Methods region (GetFormationSymbol, GetProgressBar)
+
+        #region Inspect Officer's Tent (Plan 4)
+
+        /// <summary>
+        /// Renders an InformationManager.ShowInquiry dialog summarising the player's accumulated
+        /// officer-tier story: rank, banner, gifted weapon modifier, lord relation, and the
+        /// ceremony choices (one line per resolved tier). Read-only; no gameplay effect.
+        /// </summary>
+        private static void OnInspectOfficerTentSelected()
+        {
+            try
+            {
+                var sb = new System.Text.StringBuilder();
+                var hero = Hero.MainHero;
+                var enlistment = EnlistmentBehavior.Instance;
+                var lord = enlistment?.EnlistedLord;
+                var rankTitle = enlistment != null ? RankHelper.GetCurrentRank(enlistment) : "Soldier";
+
+                sb.AppendLine(new TextObject("{=enlisted_tent_rank_line}You bear the title of {RANK}, sworn to {LORD_NAME}.")
+                    .SetTextVariable("RANK", rankTitle)
+                    .SetTextVariable("LORD_NAME", lord?.Name?.ToString() ?? "no one")
+                    .ToString());
+                sb.AppendLine();
+
+                var bannerName = Features.Officer.BannerProvision.GetCurrentBannerName();
+                if (!string.IsNullOrEmpty(bannerName))
+                {
+                    sb.AppendLine(new TextObject("{=enlisted_tent_banner_line}Your standard: {BANNER_NAME}.")
+                        .SetTextVariable("BANNER_NAME", bannerName)
+                        .ToString());
+                }
+
+                if (hero != null)
+                {
+                    var weapon = hero.BattleEquipment[EquipmentIndex.Weapon0];
+                    if (weapon.Item != null && weapon.ItemModifier != null)
+                    {
+                        sb.AppendLine(new TextObject("{=enlisted_tent_blade_line}A blade marked: {MOD_NAME}.")
+                            .SetTextVariable("MOD_NAME", weapon.ItemModifier.Name?.ToString() ?? rankTitle)
+                            .ToString());
+                    }
+                }
+
+                if (lord != null && hero != null)
+                {
+                    sb.AppendLine(new TextObject("{=enlisted_tent_relation_line}Standing with {LORD_NAME}: {RELATION}.")
+                        .SetTextVariable("LORD_NAME", lord.Name)
+                        .SetTextVariable("RELATION", hero.GetRelation(lord).ToString())
+                        .ToString());
+                }
+
+                AppendCeremonyChoices(sb);
+
+                var title = new TextObject("{=enlisted_tent_title}Your Officer's Tent").ToString();
+                var close = new TextObject("{=enlisted_tent_close}Close").ToString();
+
+                InformationManager.ShowInquiry(new InquiryData(
+                    titleText: title,
+                    text: sb.ToString(),
+                    isAffirmativeOptionShown: true,
+                    isNegativeOptionShown: false,
+                    affirmativeText: close,
+                    negativeText: null,
+                    affirmativeAction: null,
+                    negativeAction: null), true);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("OFFICER", "inspect_tent_render_failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Appends one line per resolved ceremony tier to the trophy view, listing the choice
+        /// the player made. Iterates FlagStore.GlobalFlags directly to find ceremony_choice_t{N}_*
+        /// keys without hardcoding the option list (so Plan 7 polish adding new ceremonies
+        /// surfaces here automatically).
+        /// </summary>
+        private static void AppendCeremonyChoices(System.Text.StringBuilder sb)
+        {
+            var flags = Features.Flags.FlagStore.Instance;
+            if (flags?.GlobalFlags == null)
+            {
+                return;
+            }
+
+            var anyShown = false;
+            for (int tier = 2; tier <= 9; tier++)
+            {
+                if (!flags.Has($"ceremony_fired_t{tier}"))
+                {
+                    continue;
+                }
+
+                if (!anyShown)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(new TextObject("{=enlisted_tent_ceremonies_header}Ceremonies you have stood through:").ToString());
+                    anyShown = true;
+                }
+
+                var prefix = $"ceremony_choice_t{tier}_";
+                string chosenSuffix = null;
+                foreach (var key in flags.GlobalFlags.Keys)
+                {
+                    if (key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && flags.Has(key))
+                    {
+                        chosenSuffix = key.Substring(prefix.Length).Replace('_', ' ');
+                        break;
+                    }
+                }
+
+                sb.AppendLine($"  • Tier {tier}: {chosenSuffix ?? "(unrecorded)"}");
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>
