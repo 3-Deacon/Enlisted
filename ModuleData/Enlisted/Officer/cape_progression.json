@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "_comment": "Maps culture variant suffix (CeremonyCultureSelector.SelectVariantSuffix output) to tier-band (recruit T1-T3, nco T4-T6, officer T7-T9) to a vanilla shoulder-armor ItemObject StringId. v1 ships placeholder picks using existing vanilla items; Plan 7 polish may swap in per-culture variants. CapeProgression looks up via MBObjectManager.GetObject<ItemObject>; null lookup logs Expected and skips.",
+  "variants": {
+    "vlandian": {
+      "recruit": "southern_shawl",
+      "nco": "battania_cloak",
+      "officer": "battania_cloak_furr"
+    },
+    "sturgian": {
+      "recruit": "southern_shawl",
+      "nco": "a_khuzait_leather_shoulder_b_a",
+      "officer": "a_khuzait_leather_shoulder_b_b"
+    },
+    "imperial": {
+      "recruit": "southern_shawl",
+      "nco": "a_empire_plated_shoulder_a",
+      "officer": "a_empire_plated_shoulder_b"
+    },
+    "base": {
+      "recruit": "southern_shawl",
+      "nco": "leopard_pelt",
+      "officer": "leopard_pelt"
+    }
+  }
+}

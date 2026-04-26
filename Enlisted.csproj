@@ -468,6 +468,10 @@
     <Compile Include="src\Features\PersonalKit\PersonalKitTickHandler.cs"/>
     <Compile Include="src\Features\Officer\ItemModifierFactory.cs"/>
     <Compile Include="src\Features\Officer\OfficerGearRegistry.cs"/>
+    <Compile Include="src\Features\Officer\PatronWeaponModifier.cs"/>
+    <Compile Include="src\Features\Officer\CapeProgression.cs"/>
+    <Compile Include="src\Features\Officer\BannerProvision.cs"/>
+    <Compile Include="src\Features\Officer\OfficerTrajectoryBehavior.cs"/>
     <Compile Include="src\Features\Companions\CompanionSpawnFactory.cs"/>
     <Compile Include="src\Features\Companions\CompanionLifecycleHandler.cs"/>
     <Compile Include="src\Features\Companions\Data\CompanionDialogueCatalog.cs"/>
@@ -726,6 +730,11 @@
     <CompanionsData Include="ModuleData\Enlisted\Companions\*.json"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Officer (Plan 4 — cape progression vanilla-item mappings) -->
+    <OfficerData Include="ModuleData\Enlisted\Officer\*.json"/>
+  </ItemGroup>
+
   <!-- ========================================================================
        DOCUMENTATION & PROJECT FILES
        ======================================================================== -->
@@ -798,6 +807,7 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Qualities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Loot"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Companions"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Officer"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Languages"/>
     
     <!-- COPY MODULE CONFIGURATION -->
@@ -815,6 +825,7 @@
     <Copy SourceFiles="@(StoryletsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Storylets\"/>
     <Copy SourceFiles="@(QualitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Qualities\"/>
     <Copy SourceFiles="@(CompanionsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Companions\"/>
+    <Copy SourceFiles="@(OfficerData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Officer\"/>
 
     <!-- COPY LOCALIZATION FILES (XML) -->
     <Copy SourceFiles="ModuleData\Languages\enlisted_strings.xml" DestinationFolder="$(OutputPath)..\..\ModuleData\Languages\"/>

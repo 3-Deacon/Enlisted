@@ -392,6 +392,10 @@ namespace Enlisted.Mod.Entry
                     campaignStarter.AddBehavior(new Features.Patrons.PatronRollBehavior());
                     campaignStarter.AddBehavior(new Features.Lifestyles.LifestyleUnlockBehavior());
                     campaignStarter.AddBehavior(new Features.Ceremonies.RankCeremonyBehavior());
+                    // Officer trajectory: registered AFTER RankCeremonyBehavior so the ceremony
+                    // modal fires first on OnTierChanged and gear application runs second.
+                    // Subscriber order is the visual-sequencing mechanism per Plan 4 Lock 5.
+                    campaignStarter.AddBehavior(new Features.Officer.OfficerTrajectoryBehavior());
                     campaignStarter.AddBehavior(new Features.PersonalKit.PersonalKitTickHandler());
                     campaignStarter.AddBehavior(new Features.Companions.CompanionLifecycleHandler());
 
