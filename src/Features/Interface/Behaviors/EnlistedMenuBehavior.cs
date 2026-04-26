@@ -9,6 +9,7 @@ using Enlisted.Features.Camp;
 using Enlisted.Features.Camp.Models;
 using Enlisted.Features.Companions;
 using Enlisted.Features.Content;
+using Enlisted.Features.Endeavors;
 using Enlisted.Features.Content.Models;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Behaviors;
@@ -1367,6 +1368,33 @@ namespace Enlisted.Features.Interface.Behaviors
                 },
                 OnQuartermasterSelected,
                 false, 4);
+
+            // Endeavors - opens enlisted_endeavors sub-menu (Plan 5; EndeavorsMenuHandler registers the menu)
+            starter.AddGameMenuOption(CampHubMenuId, "camp_hub_endeavors",
+                "{=enlisted_camp_endeavors}Endeavors",
+                args =>
+                {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Manage;
+                    if (EndeavorActivity.Instance != null)
+                    {
+                        args.Tooltip = new TextObject("{=enlisted_camp_endeavors_tooltip_active}You have an active endeavor. View status or abandon it here.");
+                        return true;
+                    }
+                    if (EndeavorCatalog.Count == 0)
+                    {
+                        args.IsEnabled = false;
+                        args.Tooltip = new TextObject("{=enlisted_camp_endeavors_tooltip_no_catalog}No endeavors have been authored yet.");
+                        return true;
+                    }
+                    args.Tooltip = new TextObject("{=enlisted_camp_endeavors_tooltip}Pursue a self-directed multi-day arc — drill, recon, court a notable, or worse.");
+                    return true;
+                },
+                _ =>
+                {
+                    QuartermasterManager.CaptureTimeStateBeforeMenuActivation();
+                    GameMenu.SwitchToMenu("enlisted_endeavors");
+                },
+                false, 5);
 
             // Medical care migrated to decision system (Phase 6G)
             // Treatment decisions appear as orchestrated opportunities when player has conditions

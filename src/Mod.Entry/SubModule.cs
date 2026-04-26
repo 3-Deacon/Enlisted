@@ -388,6 +388,8 @@ namespace Enlisted.Mod.Entry
                     campaignStarter.AddBehavior(new Features.Ceremonies.RankCeremonyBehavior());
                     campaignStarter.AddBehavior(new Features.PersonalKit.PersonalKitTickHandler());
                     campaignStarter.AddBehavior(new Features.Companions.CompanionLifecycleHandler());
+                    campaignStarter.AddBehavior(new Features.Endeavors.EndeavorRunner());
+                    campaignStarter.AddBehavior(new Features.Endeavors.EndeavorsMenuHandler());
 
                     // Plan 2 — Lord AI Intervention. Three MBGameModel wrappers
                     // that bias target choice, army formation, and pursuit for

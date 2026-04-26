@@ -458,6 +458,13 @@
     <Compile Include="src\Features\Patrons\PatronRoll.cs"/>
     <Compile Include="src\Features\Patrons\PatronRollBehavior.cs"/>
     <Compile Include="src\Features\Endeavors\EndeavorActivity.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorTemplate.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorCatalog.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorGatingResolver.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorPhaseProvider.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorRunner.cs"/>
+    <Compile Include="src\Features\Endeavors\ScrutinyRiskCalculator.cs"/>
+    <Compile Include="src\Features\Endeavors\EndeavorsMenuHandler.cs"/>
     <Compile Include="src\Features\Contracts\ContractActivity.cs"/>
     <Compile Include="src\Features\Lifestyles\LifestyleUnlockStore.cs"/>
     <Compile Include="src\Features\Lifestyles\LifestyleUnlockBehavior.cs"/>
