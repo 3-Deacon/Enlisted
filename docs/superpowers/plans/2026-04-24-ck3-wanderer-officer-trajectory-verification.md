@@ -82,12 +82,19 @@ The 18 `lord_gifted_<culture>_t<tier>` modifier StringIds are stable across relo
 - ✅ No conflict with existing patches: 37 patches in `src/Mod.GameAdapters/Patches/`, none target the three vanilla model methods Plan 4 hooks. Multiple Harmony patches on the same method are allowed (sequential application order); v1 ships first-mover for these methods.
 - ✅ Dialog conditions consume `FlagStore.Instance.Has("ceremony_choice_t7_*")` per Lock 2 — flat underscore, bool-only flags. No `GetString` call (which doesn't exist on `FlagStore`).
 - ✅ Camp menu slot index 8 unique vs Plan 2 slot 6 ("Talk to companion"), slot 7 ("My Lord"), slot 100 (Back) — verified at `EnlistedMenuBehavior.cs:1394, 1413, 1417`.
+- ✅ All 8 cape IDs in `cape_progression.json` confirmed `Type="Cape"` in vanilla `Modules/SandBoxCore/ModuleData/items/shoulder_armors.xml`: `southern_shawl`, `battania_cloak`, `battania_cloak_furr`, `a_khuzait_leather_shoulder_b_a`, `a_khuzait_leather_shoulder_b_b`, `a_empire_plated_shoulder_a`, `a_empire_plated_shoulder_b`, `leopard_pelt`. The slot assignment to `EquipmentIndex.Cape` is type-compatible for every mapped item.
 
 ---
 
 ## §3 — Pending: in-game manual smoke
 
 Build + validator gates can't cover the runtime modifier-render pipeline, save-load round-trips, dialog-line eligibility evaluation, or Camp menu rendering. A human operator must run the scenarios below.
+
+> **⚠️ Run Scenario F (save-load) FIRST.** It tests the most foundational assumption in Plan 4: that `OfficerGearRegistry.Initialize()` running at `SubModule.OnGameStart` fires BEFORE save-deserialize, so saved `Hero.BattleEquipment.ItemModifier` references resolve. The timing was reasoned from the `OnGameStart` doc comment ("called when a new game starts or when loading a save game"); empirical confirmation is pending. If Scenario F fails (loaded weapon shows null modifier despite save-time having one), every other scenario builds on a broken foundation — the registration call must move to `OnSubModuleLoad` or into a marker behavior that runs before any other behavior's `SyncData(load)`.
+
+### Known cross-cutting issue (out of Plan 4 scope)
+
+`ceremony_choice_t7_humble_accept` (and the proud / try-to-refuse variants) persist in `FlagStore.GlobalFlags` across discharge and re-enlist. A player who picks "humble" with Lord A, discharges, re-enlists with Lord B, and gets promoted to T7 with Lord B's ceremony will see Lord B's officer-tier dialog still colored by Lord A's prior commission choice. Plan 3's T7 ceremony probably re-sets the flag at the new commission, so the flags compound rather than cleanly replace. This is a real lore inconsistency but it's outside Plan 4's scope — a future plan owning the enlistment-lifecycle policy (Plan 7 polish or a dedicated cross-cutting fix) should clear `ceremony_choice_*` flags on discharge.
 
 ### Scenario A — Phase 1+2 gear application at T7 commission
 
