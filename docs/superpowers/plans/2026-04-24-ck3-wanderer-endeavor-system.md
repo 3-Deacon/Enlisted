@@ -6,7 +6,79 @@
 
 **Estimated tasks:** 30 (largest plan in the spec). **Estimated effort:** 5-7 days with AI-driven implementation.
 
-**Dependencies:** Plans 1-4 must be complete. Plan 5 depends most heavily on Plan 2 (companion presence drives gating) and Plan 1 (`ModalEventBuilder` + Activity backbone scaffolding).
+**Dependencies:** Plans 1-3 are required (substrate + companions + ceremony flags). Plan 4 is referenced for officer-tier flavor only — see Lock 6 below; Plan 5 has NO hard cross-branch dependency on Plan 4 and can begin on `development` independently of when Plan 4 merges.
+
+---
+
+## 🔒 LOCKED 2026-04-26 — readiness amendments (pre-execution)
+
+This block consolidates the pre-execution readiness audit (Plan 5 was authored 2026-04-24 before Plans 2-4 shipped — drift accumulated). **Locks override the body of the plan where they conflict.** Same pattern as Plans 3 and 4. No game-design locks — Plan 5's design is already pinned by §4.1-§4.8 and the user has not asked for design rethinks.
+
+### Audit-correction locks (1-5)
+
+**Lock 1 — `IsOfficer()` helper does NOT ship from Plan 4 (BLOCKING for §0 ref 19 + officer-flavor task hooks).** §0 ref 19 reads "Plan 4 verification — `IsOfficer()` helper available; officer-tier endeavor flavor possible." Verified on the `feature/plan4-officer-trajectory` branch: no public or private `IsOfficer()` method exists. The only `IsOfficer` references in the codebase are (a) `EnlistedDialogManager.cs:1720` setting `IsOfficer = playerTier >= 7` on a `QMDialogueContext` DTO, (b) `QuartermasterManager.IsOfficerExclusive` (boolean flag on a different concept, equipment exclusivity). Plan 4 inline-checks `playerTier >= 7` at every dialog hook site.
+
+**Fix:** Plan 5 uses inline `EnlistmentBehavior.Instance?.EnlistmentTier >= 7` at every officer-flavor call site (mirrors Plan 4's idiom; keeps cross-feature coupling minimal). Alternative — extract a single helper into `src/Features/Officer/OfficerHelpers.cs` — is rejected for v1 because the check is one line and lives at <10 sites total. Update §0 ref 19 to read "Plan 4 ships officer-tier dialog flavor via inline `EnlistmentTier >= 7` checks; Plan 5 uses the same idiom for officer-tier endeavor flavor."
+
+**Lock 2 — Ceremony flag schema is `ceremony_choice_t<N>_<id>` bool, NOT `ceremony.t<N>.choice` string (BLOCKING for §0 ref 18 + lines 305 + 435 + 436).** Plan 5 §0 ref 18 reads "choice-memory `FlagStore` keys (`ceremony.t{N}.choice`) available". Wrong on two counts:
+1. Notation is flat underscore (architecture brief §4 rule 6 + Plan 4 Lock 2): `ceremony_choice_t<N>_<id>`, never dotted.
+2. `FlagStore` is bool-only (Plan 4 Lock 2 verified `src/Features/Flags/FlagStore.cs:44-106` — `Has`/`Set`/`Clear` only, no `GetString`).
+
+Plan 3 ships one bool flag per option pick + a dedup `ceremony_fired_t<N>` per fired tier. Verified option IDs from `ModuleData/Enlisted/Storylets/ceremony_t2_to_t3.json`: `frugal`, `generous`, `family`, `hedonist`. T4→T5 + T7→T8 option IDs must be grepped from their respective ceremony JSON at task time per AGENTS.md pitfall #22 — the option IDs are short stable identifiers, not random GUIDs.
+
+**Fixes (line-by-line):**
+- §0 ref 18: replace `ceremony.t{N}.choice` with `ceremony_choice_t<N>_<id>` and add "(bool flag per pick; one row per option ID)".
+- Line 305 (`endeavor_set_choice_flag` description): replace `set ceremony.endeavor.<id>.<phase>.<choice>` with `set endeavor_choice_<endeavor_id>_<phase>_<option_id> bool`. Same flat-underscore convention; lives in `FlagStore` global namespace alongside ceremony flags.
+- Line 435 (`endeavor.rogue.dice_game` gating example): replace `requires ceremony.t2.choice == "frugal"` with `requires FlagStore.Instance.Has("ceremony_choice_t2_frugal")`.
+- Line 436 (`endeavor.medical.poultice_recipes` flavor example): replace `flavored by ceremony.t4.choice` with `flavored by ceremony_choice_t4_<id>` and add author-time note: implementer must grep `ModuleData/Enlisted/Storylets/ceremony_t4_to_t5.json` for actual option IDs (likely 3-4 IDs in the same shape as T2's `frugal`/`generous`/`family`/`hedonist`).
+
+**Lock 3 — `ActivityRuntime.cs` line ref drift (advisory, NOT BLOCKING).** §0 ref 13 says `src/Features/Content/ActivityRuntime.cs:267`. Two issues:
+1. The file lives at `src/Features/Activities/ActivityRuntime.cs`, not `src/Features/Content/ActivityRuntime.cs` (Plan 1 rehoming).
+2. Line 267 is wrong. Actual `storylet.ToCandidate(ctx)` call sites: **line 220** (`activity.ToCandidate(ctx)` inside `EmitForActivePhases` loop, gated by `ChainContinuation = true` at line 223) and **line 338** (`s.ToCandidate(ctx)` inside the auto-emit pool path).
+
+Plan 5's narrative claim ("auto-emits phase storylets via `storylet.ToCandidate(ctx)`. Plan 5 does NOT use this path for player-choice modals; uses `ModalEventBuilder.FireEndeavorPhase` instead.") is correct — only the line ref is stale. Implementer must grep `ToCandidate(ctx)` per AGENTS.md pitfall #22. **Fix §0 ref 13 path + line:** `src/Features/Activities/ActivityRuntime.cs:220 + 338`.
+
+**Lock 4 — `EnlistedMenuBehavior` Camp menu line range drift (advisory, BLOCKING for §3 file change list + T7-T8 task).** §0 ref 18 + §3 file change list both reference `EnlistedMenuBehavior.cs:1345-1482`. Actual Camp menu range on `development`: lines **1290-1417** (extends through `camp_hub_back` at line 1417). Camp menu slot indices verified:
+
+| Slot | Option | Source |
+| :-- | :-- | :-- |
+| 1 | `camp_hub_service_records` | pre-existing |
+| 2 | `camp_hub_companions` | pre-existing |
+| 3 | `camp_hub_retinue` (T7+) | pre-existing |
+| 4 | `camp_hub_quartermaster` | pre-existing |
+| **5** | **FREE** | **Plan 5 claims** |
+| 6 | `camp_hub_talk_to_companion` | Plan 2 |
+| 7 | `camp_hub_talk_to_lord` | pre-existing |
+| 8 | `camp_hub_inspect_officer_tent` | Plan 4 (`feature/plan4-officer-trajectory`, T7+ visible) |
+| 100 | `camp_hub_back` | pre-existing |
+
+Slot 5 is free for Plan 5's "Endeavors" sub-menu entry both before and after Plan 4 merges to development. **Fixes:** §3 file change list updates `1345-1482` to `1290-1417` (or simply removes the line range and instructs implementer to grep `CampHubMenuId` per AGENTS.md pitfall #22). T7-T8 task narrative confirms slot 5 is the target index.
+
+**Lock 5 — Phase 19 validator stub does NOT exist; Plan 5 authors from scratch (clarification, BLOCKING for §T28 task description).** §1 deliverable line + §3 file change list both imply "Phase 19 (endeavor catalog validation) populated from Plan 1 stub". Verified: `Tools/Validation/validate_content.py` contains zero references to "phase 19", "endeavor", or `validate_phase_19`. Plan 1 verification doc explicitly states: "no validator phase 18-20 stubs (those land with the Plan that needs them)". Plan 2 ships Phase 18 (companion archetype validation), Plan 3 ships Phase 20 (ceremony completeness, fail-closed). Plan 5 ships Phase 19 from scratch.
+
+**Fix:** §T28 task description amends from "populated from Plan 1 stub" to "authored from scratch following the same shape as Plan 3's `validate_phase_20_ceremony_completeness` (validator function + integration into the main validator dispatch + fail-closed semantics for missing required catalog entries)". §1 deliverable line drops "populated" and reads "Phase 19 validator authored: validates endeavor templates have valid skill axes, companion archetype refs, phase storylet refs, scrutiny risk values within bounds."
+
+### Research-derived locks (6-7)
+
+**Lock 6 — Cross-branch dependency analysis: Plan 5 has NO hard dependency on Plan 4 (BLOCKING for execution-branch decision).** Plan 4 ships on `feature/plan4-officer-trajectory`; not yet merged to `development` as of 2026-04-26. Plan 5's actual substrate dependencies:
+
+| Plan 5 dependency | Source | Branch | Available for Plan 5 prep? |
+| :-- | :-- | :-- | :-- |
+| `ModalEventBuilder.FireEndeavorPhase` | Plan 1 | `development` | ✓ |
+| `EndeavorActivity.cs` + `ContractActivity.cs` empty shells | Plan 1 | `development` | ✓ |
+| `CompanionAssignmentManager.IsAssignedToEndeavor` getter/setter scaffolding | Plan 1 | `development` | ✓ |
+| `EnlistmentBehavior.EnlistmentTier` (T7+ check for officer flavor) | shipped years | `development` | ✓ |
+| `CompanionLifecycleHandler.GetSpawnedCompanions()` (gating predicate) | Plan 2 | `development` | ✓ |
+| `ceremony_choice_t<N>_<id>` flags (Rogue-track gating, Lock 2) | Plan 3 | `development` | ✓ |
+| `IsOfficer()` helper (Lock 1 says inline-check instead) | Plan 4 | not needed | n/a |
+
+**Net:** Plan 5 prep + execution can begin on `development` immediately. The Plan 4 reference at §0 ref 19 becomes informational ("Plan 4 ships officer-tier dialog flavor via inline `EnlistmentTier >= 7` checks; Plan 5 uses the same idiom for officer-tier endeavor flavor"). No worktree branched off the Plan 4 feature branch is required. **Fix:** rewrite the dependency line at the top of §0 to read "Plans 1-3 are required (substrate + companions + ceremony flags); Plan 4 is referenced for officer-tier idiom only — no hard dependency."
+
+**Lock 7 — Scripted-effect ID collision check passed (verification, NOT BLOCKING).** Plan 5 §3 file change list claims ~20 new effect IDs with prefixes `scrutiny_drift_endeavor_*`, `endeavor_skill_xp_*`, `lord_relation_endeavor_*`. Verified against `ModuleData/Enlisted/Effects/scripted_effects.json` (current 44 entries from the Plan 3 ceremony catalog): no IDs in the proposed prefix space exist today. Plan 3's catalog uses `ceremony_drift_*` for trait drift and `ceremony_witness_reaction_*` for witness reactions; Plan 5's prefixes are disjoint. Plan 5 T6 implementer can author the ~20 endeavor effects without re-checking collision per-ID at task time. Source-of-truth check: at write time, just verify no exact-string match against existing keys (Phase 12 validator catches unknown `apply` values at build time, but does not catch duplicate definitions — JSON loader is "last write wins").
+
+### Logistics
+
+**Lock 8 — Architecture brief Plan 4 hand-off lands as a SEPARATE commit on `development`, NOT folded into this Plan 5 prep commit.** Plan 5 prep commit is purely doc edits to this plan file. The architecture brief Plan 4 hand-off section (lists the 18 `lord_gifted_<culture>_t<tier>` ItemModifier StringIds + the `mod_lord_gifted` ItemModifierGroup, the cape mapping in `cape_progression.json` with 6 culture buckets, the 3 banner-flag schema keys `officer_banner_t<7,8,9>`, the 4 added dialog tokens `IS_OFFICER` / `PLAYER_RANK_TITLE` / `BANNER_NAME` / `PATRON_NAME`, the 3 Harmony-patched APIs, the subscriber-order convention that `OfficerTrajectoryBehavior` registers after `RankCeremonyBehavior`) gets its own small commit on `development` AFTER Plan 4 merges. Keeping the two commits separate isolates the Plan 5 prep diff for review and lets the Plan 4 hand-off entry land precisely when its claims are true on `development`.
 
 ---
 
