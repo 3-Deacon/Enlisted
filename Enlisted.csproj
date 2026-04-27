@@ -455,6 +455,7 @@
     <Compile Include="src\Mod.Core\Helpers\ModalEventBuilder.cs"/>
     <Compile Include="src\Features\Patrons\FavorKind.cs"/>
     <Compile Include="src\Features\Patrons\PatronEntry.cs"/>
+    <Compile Include="src\Features\Patrons\PatronFavorResolver.cs"/>
     <Compile Include="src\Features\Patrons\PatronRoll.cs"/>
     <Compile Include="src\Features\Patrons\PatronRollBehavior.cs"/>
     <Compile Include="src\Features\Endeavors\EndeavorActivity.cs"/>

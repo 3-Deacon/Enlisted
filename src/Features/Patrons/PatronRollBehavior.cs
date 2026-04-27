@@ -1,12 +1,16 @@
 ﻿using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 
 namespace Enlisted.Features.Patrons
 {
     /// <summary>
     /// CampaignBehavior that owns PatronRoll lifecycle — construction, SyncData,
-    /// EnsureInitialized, instance binding. Plan 6 layers discharge / OnHeroKilled /
-    /// favor-grant logic onto this behavior; Plan 1 ships the empty host.
+    /// EnsureInitialized, instance binding, and the HeroKilledEvent subscription
+    /// that flips PatronEntry.IsDead. Discharge (mid-career) and full-retirement
+    /// hooks live in EnlistmentBehavior, which calls PatronRoll.Instance methods
+    /// directly — those event surfaces don't have a generic CampaignEvents hook
+    /// to subscribe to.
     /// </summary>
     public sealed class PatronRollBehavior : CampaignBehaviorBase
     {
@@ -16,6 +20,7 @@ namespace Enlisted.Features.Patrons
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
+            CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnHeroKilled);
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -39,6 +44,11 @@ namespace Enlisted.Features.Patrons
         {
             _store.EnsureInitialized();
             PatronRoll.SetInstance(_store);
+        }
+
+        private void OnHeroKilled(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)
+        {
+            _store?.OnHeroKilled(victim);
         }
     }
 }
