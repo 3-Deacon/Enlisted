@@ -6,7 +6,64 @@
 
 **Estimated tasks:** 18. **Estimated effort:** 3-4 days with AI-driven implementation.
 
-**Dependencies:** Plans 1-5 must be complete. Plan 6 depends most heavily on Plan 1 (PatronRoll/PatronEntry shells + FavorKind enum stub) and Plan 5 (ContractActivity for "another contract" favor).
+**Dependencies:** Plans 1-3 are required and on `development`. Plans 4 + 5 are on feature branches and NOT yet on `development` — see Lock 1 below for the decoupling strategy that lets Plan 6 ship without rebasing on either.
+
+---
+
+## 📍 EXECUTION PROGRESS — 2026-04-27 (PRE-EXECUTION SCAFFOLDING — hand-off)
+
+**Status:** 🟡 **0 of 18 tasks complete. Worktree + branch + task tracking + locks in place; ready for T1 execution by the next session.**
+
+**Branch:** `feature/plan6-roll-of-patrons` (worktree at `.worktrees/plan6-roll-of-patrons/`, branched from `development` at `3953f9b`, pushed to `origin`).
+**Sibling worktrees on the repo:** `feature/plan4-officer-trajectory` (Plan 4 in-progress, separate session) and `feature/plan5-endeavor-system` (Plan 5 code + content shipped 2026-04-26, in-game smoke pending).
+
+**Verification gates as of scaffolding (2026-04-27):**
+- ✅ Worktree clean; branch tracks origin.
+- ⏳ No code yet — build + validator gates pass at the `development` baseline (3953f9b).
+
+**Resume path for the next session:**
+1. `cd .worktrees/plan6-roll-of-patrons`.
+2. Read **Locks 1-3 below** — they override the plan body where they conflict and capture three load-bearing decisions made during scaffolding (Plan 4/5 dependency decoupling, plan-vs-codebase drift fixes, branch logistics).
+3. Read the verification doc at `docs/superpowers/plans/2026-04-24-ck3-wanderer-roll-of-patrons-verification.md` — has the canonical T1-T18 task breakdown + per-task footguns + the in-game smoke runbook seed.
+4. Start at T1 (FavorKind enum population + favor-catalog doc). Plan 6's tasks are sequential and mostly small; can execute serially in main thread without subagent dispatch (unlike Plan 5's 30-task scope).
+
+---
+
+## 🔒 LOCKED 2026-04-27 — readiness amendments (pre-execution)
+
+This block consolidates the pre-execution readiness audit. Locks override the plan body where they conflict. Same pattern Plans 3 + 5 used.
+
+### Lock 1 — Plan 4 + Plan 5 dependency strategy: DECOUPLE (BLOCKING for §0 dependency line + T14 + T15)
+
+Plan 6 §0 reads "Plans 1-5 must be complete." Reality (as of 2026-04-27): Plans 1-3 on `development`; Plans 4 + 5 are on sibling feature branches not yet merged. Two specific Plan 4/5 hooks the body relies on:
+
+- **Plan 4 — `PATRON_NAME` text variable.** §0 ref 19 reads "Plan 4 verification — `PATRON_NAME` text variable already extended into `SetCommonDialogueVariables` at T16." Plan 4 hasn't shipped this yet on its branch (Plan 4 is mid-execution as of 2026-04-27). Decoupling fix: **Plan 6 wires `PATRON_NAME` itself** in T15 — add the `MBTextManager.SetTextVariable("PATRON_NAME", patronEntry.HeroName ?? Hero name lookup via MBObjectManager)` call inside `EnlistedDialogManager.AddPatronDialogs` *just before* opening the patron favor sub-tree. ~3 lines. When Plan 4 eventually merges, the Plan 6 wiring can be deleted in favor of Plan 4's centralized SetCommonDialogueVariables call (one-line cleanup).
+
+- **Plan 5 — `ContractActivity` for `AnotherContract` favor.** §6 T14 references `ContractActivity` for the `patron_another_contract.json` storylet outcome. Plan 5 ships `ContractActivity` (offset 56) — Plan 1 actually claimed the offset, so the type EXISTS on `development`, but the runtime infrastructure (EndeavorRunner / EndeavorPhaseProvider) only exists on Plan 5's branch. Decoupling fix: **`AnotherContract` favor degrades gracefully when Plan 5's runtime isn't loaded.** T6's `PatronFavorResolver.TryGrantFavor` checks `Type.GetType("Enlisted.Features.Endeavors.EndeavorRunner") != null` (or equivalent reflection-free check via `EndeavorRunner.Instance != null`); if absent, the favor option is hidden from the dialog branch (T15) with no user-visible "this favor is unavailable" message. When Plan 5 merges to development, the AnotherContract path becomes live without further Plan 6 changes.
+
+**Net:** Plan 6 ships entirely on `feature/plan6-roll-of-patrons` branched from `development`. No rebasing on Plan 4 or Plan 5 branches. The two hooks above are the only Plan 4/5 dependencies; both are decoupled at the implementation level.
+
+### Lock 2 — Plan-vs-codebase drift fixes (BLOCKING — implementer verifies inline per AGENTS.md pitfall #22)
+
+The plan body prescribes several APIs / patterns that need verification against the actual codebase + decompile before T1 implementer work begins. This is the same pattern Plans 1 + 5's verification §5 captured in retrospect; recording up front for Plan 6 saves the catch-and-correct cycle:
+
+1. **`[SaveableField]` attribute (§4.3 PatronEntry struct example).** Mod convention: `[Serializable]` class with public auto-properties. `PatronEntry.cs` already exists from Plan 1 — verify the existing shape and continue the convention (auto-properties, NOT `[SaveableField]`). Plan 1's verification §5 fix #4 codified this.
+
+2. **`Enum.GetValues<FavorKind>()` (§6 T15 example).** C# 7.0 (mod's target) does not support the generic overload. Use `Enum.GetValues(typeof(FavorKind)).Cast<FavorKind>()` instead.
+
+3. **`lord.GetRelationWithPlayer()` (§4.2 conditions + §6 T6 resolver).** Verify against decompile: `Hero.GetRelation(Hero other)` is the actual API; some shipped mod code uses a `GetRelationWithPlayer()` extension/helper. Grep `src/` for `GetRelationWithPlayer` to confirm whether a mod-side helper exists, and verify against `Decompile/TaleWorlds.CampaignSystem/Hero.cs` for the vanilla method shape.
+
+4. **`Hero.OneToOneConversationHero` (§6 T9 PatronAudienceExtension).** Verify against decompile: this is the standard 1:1 conversation accessor in the campaign system, but confirm the static property name + namespace (likely `Hero.OneToOneConversationHero` static, but verify).
+
+5. **`EnlistmentBehavior.Instance.DaysServed` (§6 T3 discharge handler).** Verify this property exists. Grep the existing `EnlistmentBehavior.cs` for `DaysServed` — the mod has `DaysInRank` and `DaysEnlisted`; `DaysServed` may need to be derived (`CampaignTime.Now - EnlistmentDate`) or a new property added. If the property doesn't exist, T3 implementer adds it (small addition; trivial save backfill needed).
+
+6. **`MBObjectManager.Instance.GetObject<Hero>(MBGUID)` (§6 T5 + T6).** This DOES work — verified during Plan 5 Phase A. But note Plan 5's T3 used the non-generic `MBObjectManager.Instance?.GetObject(guid) as Hero` form for null-safety; either is fine.
+
+### Lock 3 — Branch logistics (NOT BLOCKING — already configured)
+
+Worktree at `.worktrees/plan6-roll-of-patrons/` branched from `development` at commit `3953f9b`. Branch `feature/plan6-roll-of-patrons` is pushed to origin with upstream tracking. `packages/` directory copied from main repo (per Plan 5 worktree setup pattern; if missing, `cp -r ../../packages packages` from the worktree).
+
+No save-definer offsets needed — `PatronRoll` (54), `PatronEntry` (55), `FavorKind` enum (84) are all claimed by Plan 1 (commit `aa3ef16`, on `development`). Plan 6 only populates the existing shells.
 
 ---
 
