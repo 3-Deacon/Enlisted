@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_audience_title}{LORD_NAME} arranges a door",
-      "setup": "{=patron_audience_setup}{LORD_NAME} listens, fingers laced. \"An audience. Yes. Easier asked than given. Whose hall would you stand in. A peer of mine? A rival? Tell me which kind of meeting you want, and I will pick the man.\"",
+      "title": "{=patron_audience_title}{PATRON_NAME} arranges a door",
+      "setup": "{=patron_audience_setup}{PATRON_NAME} listens, fingers laced. \"An audience. Yes. Easier asked than given. Whose hall would you stand in. A peer of mine? A rival? Tell me which kind of meeting you want, and I will pick the man.\"",
       "options": [
         {
           "id": "ally_court",

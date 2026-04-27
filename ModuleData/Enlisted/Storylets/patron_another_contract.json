@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_contract_title}{LORD_NAME} has need again",
-      "setup": "{=patron_contract_setup}{LORD_NAME} hears you out, then pulls a folded dispatch from his belt pouch. \"Convenient. There is a thing. Not a war thing — a thing for someone with hands. The pay would be soldier's pay, the trouble worse. Will you take it?\"",
+      "title": "{=patron_contract_title}{PATRON_NAME} has need again",
+      "setup": "{=patron_contract_setup}{PATRON_NAME} hears you out, then pulls a folded dispatch from his belt pouch. \"Convenient. There is a thing. Not a war thing — a thing for someone with hands. The pay would be soldier's pay, the trouble worse. Will you take it?\"",
       "options": [
         {
           "id": "name_terms",

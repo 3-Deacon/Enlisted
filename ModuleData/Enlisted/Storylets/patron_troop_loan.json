@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_troop_loan_title}Steel from {LORD_NAME}'s muster",
-      "setup": "{=patron_troop_loan_setup}{LORD_NAME} laughs at the request, then doesn't. \"You want my men. For your road.\" He thinks for a moment. \"My captain at the muster yard answers to my seal. I will write you in. He will not love it. Choose what you take.\"",
+      "title": "{=patron_troop_loan_title}Steel from {PATRON_NAME}'s muster",
+      "setup": "{=patron_troop_loan_setup}{PATRON_NAME} laughs at the request, then doesn't. \"You want my men. For your road.\" He thinks for a moment. \"My captain at the muster yard answers to my seal. I will write you in. He will not love it. Choose what you take.\"",
       "options": [
         {
           "id": "two_picks",

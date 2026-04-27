@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_marriage_title}A name from {LORD_NAME}'s court",
-      "setup": "{=patron_marriage_setup}{LORD_NAME} sets his cup down with care, the way he does when the talk has gone serious. \"Marriage is not done by passing a name. But I can pass a name. The right hall, the right hour, the right introduction. Tell me what you want of the match.\"",
+      "title": "{=patron_marriage_title}A name from {PATRON_NAME}'s court",
+      "setup": "{=patron_marriage_setup}{PATRON_NAME} sets his cup down with care, the way he does when the talk has gone serious. \"Marriage is not done by passing a name. But I can pass a name. The right hall, the right hour, the right introduction. Tell me what you want of the match.\"",
       "options": [
         {
           "id": "alliance",

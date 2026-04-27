@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_letter_title}A letter under {LORD_NAME}'s seal",
-      "setup": "{=patron_letter_setup}{LORD_NAME} calls for parchment. Wax. The seal he travels with, not the household one. He looks at you over the rim of a cup that has gone too warm. \"Whose door, then. Tell me whose door, and I will write you in past it.\"",
+      "title": "{=patron_letter_title}A letter under {PATRON_NAME}'s seal",
+      "setup": "{=patron_letter_setup}{PATRON_NAME} calls for parchment. Wax. The seal he travels with, not the household one. He looks at you over the rim of a cup that has gone too warm. \"Whose door, then. Tell me whose door, and I will write you in past it.\"",
       "options": [
         {
           "id": "name_with_weight",

@@ -190,6 +190,8 @@ Per AGENTS.md pitfall #22, all plan-prescribed APIs were verified against the ac
 
 15. **`sync_event_strings.py --generate` encoding bug (NOT a Plan 6 fix).** The generator emits Windows-1252 instead of UTF-8 — em-dashes and other special characters round-trip as cp1252 single bytes. Worked around by reading source storylets directly and writing UTF-8 patron entries via Python. Pre-existing bytes in `enlisted_strings.xml` (~176 cp1252-suspicious) are NOT introduced by Plan 6; that's a project-wide cleanup task for a separate spec.
 
+16. **`{LORD_NAME}` vs `{PATRON_NAME}` in patron storylet content** — caught at the verification advisor checkpoint. All six patron favor outcome storylets initially used `{LORD_NAME}` in title + setup text, but `SetCommonDialogueVariables` binds `LORD_NAME` to the player's currently-enlisted lord (`enlistment?.EnlistedLord?.Name`). When the player audiences a former patron Lord A while enlisted with Lord B, the storylet would have rendered "Lord B pours wine for you both" — the wrong lord. AGENTS.md pitfall #23 exactly. Fix: replace `{LORD_NAME}` → `{PATRON_NAME}` in all 6 storylet JSON files (12 token replacements) and in the matching enlisted_strings.xml entries (12 replacements in the patron block). The `PATRON_NAME` token is set by `PatronAcknowledgeCondition` immediately before the favor option line renders, so it's bound to the correct hero by the time the modal storylet fires (same frame).
+
 ---
 
 ## §6 — Hand-off surface (Plan 7 may use)

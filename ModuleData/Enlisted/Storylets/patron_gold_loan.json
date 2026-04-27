@@ -5,8 +5,8 @@
       "category": "patron_favor",
       "trigger": [],
       "scope": { "context": "any" },
-      "title": "{=patron_gold_loan_title}Five thousand from {LORD_NAME}",
-      "setup": "{=patron_gold_loan_setup}{LORD_NAME} pours wine for you both and considers the request. \"Five thousand. It is not nothing, friend. I owe you something for the campaigns you stood in. The question is what you owe me back, and when.\" He waits. The cup is between you on the table.",
+      "title": "{=patron_gold_loan_title}Five thousand from {PATRON_NAME}",
+      "setup": "{=patron_gold_loan_setup}{PATRON_NAME} pours wine for you both and considers the request. \"Five thousand. It is not nothing, friend. I owe you something for the campaigns you stood in. The question is what you owe me back, and when.\" He waits. The cup is between you on the table.",
       "options": [
         {
           "id": "with_interest",
