@@ -7966,5 +7966,59 @@
     <string id="ceremony_t7_to_t8_vlandian_debate_tt" text="+1 Honor. Junior officer heard. QM approves. Veteran disapproves." />
     <string id="ceremony_t7_to_t8_vlandian_setup" text="{LORD_NAME}&apos;s tent. Tallow candles guttering, wine sour at the bottom of the cup. The plan for tomorrow is laid out in chalk on a board and the warband&apos;s captains stand around it. The junior officer has had just enough wine to find his nerve. He puts a finger on the ridge you have ceded and asks why. Loud enough that the table goes quiet. {PLAYER_RANK} {PLAYER_NAME}, the room is yours to keep or to lose." />
     <string id="ceremony_t7_to_t8_vlandian_title" text="A challenge in the warband" />
-  </strings>
+    <!-- patron_another_contract -->
+    <string id="patron_contract_decline" text="Not this time, lord. The road is mine." />
+    <string id="patron_contract_decline_tt" text="+3 relation. Patron folds the dispatch back into his belt." />
+    <string id="patron_contract_name_terms" text="Tell me the work and the silver, lord, and I'll decide." />
+    <string id="patron_contract_name_terms_tt" text="Patron offers a contract; payout adjusted for negotiation. +1 calculating." />
+    <string id="patron_contract_setup" text="{LORD_NAME} hears you out, then pulls a folded dispatch from his belt pouch. &quot;Convenient. There is a thing. Not a war thing — a thing for someone with hands. The pay would be soldier's pay, the trouble worse. Will you take it?&quot;" />
+    <string id="patron_contract_title" text="{LORD_NAME} has need again" />
+    <string id="patron_contract_trust" text="I'll take it, lord. The terms can wait." />
+    <string id="patron_contract_trust_tt" text="Patron names a generous purse for the trust. +2500 denars, +5 patron relation." />
+    <!-- patron_audience -->
+    <string id="patron_audience_ally" text="A peer in your circle. Someone who would receive me kindly." />
+    <string id="patron_audience_ally_tt" text="Patron arranges a friendly audience. +5 renown, +3 relation seed for next encounter with target." />
+    <string id="patron_audience_rival" text="A rival of yours, lord. I would learn the other side." />
+    <string id="patron_audience_rival_tt" text="Patron writes a cooler introduction. -2 patron relation. +1 calculating. Insight is the trade." />
+    <string id="patron_audience_setup" text="{LORD_NAME} listens, fingers laced. &quot;An audience. Yes. Easier asked than given. Whose hall would you stand in. A peer of mine? A rival? Tell me which kind of meeting you want, and I will pick the man.&quot;" />
+    <string id="patron_audience_title" text="{LORD_NAME} arranges a door" />
+    <string id="patron_audience_withdraw" text="I have spoken too quickly. Forget the request, lord." />
+    <string id="patron_audience_withdraw_tt" text="+3 relation. He sets the matter aside without comment." />
+    <!-- patron_gold_loan -->
+    <string id="patron_gold_loan_in_debt" text="I am in your debt, lord. I will not forget." />
+    <string id="patron_gold_loan_in_debt_tt" text="+5000 denars. -1 relation. Debt logged. He liked the framing." />
+    <string id="patron_gold_loan_setup" text="{LORD_NAME} pours wine for you both and considers the request. &quot;Five thousand. It is not nothing, friend. I owe you something for the campaigns you stood in. The question is what you owe me back, and when.&quot; He waits. The cup is between you on the table." />
+    <string id="patron_gold_loan_title" text="Five thousand from {LORD_NAME}" />
+    <string id="patron_gold_loan_with_interest" text="With interest, lord. When I can." />
+    <string id="patron_gold_loan_with_interest_tt" text="+5000 denars. -3 relation. Debt logged for repayment." />
+    <string id="patron_gold_loan_withdraw" text="On reflection, lord, I withdraw the request." />
+    <string id="patron_gold_loan_withdraw_tt" text="+3 relation. He marks you down as someone who knows when not to ask." />
+    <!-- patron_letter_of_introduction -->
+    <string id="patron_letter_anyone" text="Anyone who would take me. I am not particular." />
+    <string id="patron_letter_anyone_tt" text="+5 renown. The patron writes a generic introduction; doors will open, none of them grand." />
+    <string id="patron_letter_blessing" text="Forget the letter. Your blessing is enough." />
+    <string id="patron_letter_blessing_tt" text="Patron warms toward you for not pressing. +5 relation with him." />
+    <string id="patron_letter_name_with_weight" text="A name with weight, lord. Someone whose word carries." />
+    <string id="patron_letter_name_with_weight_tt" text="+10 renown, +1 honor. Patron remembers the ambition." />
+    <string id="patron_letter_setup" text="{LORD_NAME} calls for parchment. Wax. The seal he travels with, not the household one. He looks at you over the rim of a cup that has gone too warm. &quot;Whose door, then. Tell me whose door, and I will write you in past it.&quot;" />
+    <string id="patron_letter_title" text="A letter under {LORD_NAME}'s seal" />
+    <!-- patron_marriage -->
+    <string id="patron_marriage_alliance" text="An alliance, lord. Steel and land before sentiment." />
+    <string id="patron_marriage_alliance_tt" text="Patron writes the introduction with strategic phrasing. +10 renown. -2 relation for the cold framing." />
+    <string id="patron_marriage_honest" text="Someone who would have me, lord. Truthfully written." />
+    <string id="patron_marriage_honest_tt" text="Patron writes a frank introduction. +5 renown, +3 patron relation, +1 honor." />
+    <string id="patron_marriage_setup" text="{LORD_NAME} sets his cup down with care, the way he does when the talk has gone serious. &quot;Marriage is not done by passing a name. But I can pass a name. The right hall, the right hour, the right introduction. Tell me what you want of the match.&quot;" />
+    <string id="patron_marriage_title" text="A name from {LORD_NAME}'s court" />
+    <string id="patron_marriage_withdraw" text="Forget I asked, lord. The road is enough for now." />
+    <string id="patron_marriage_withdraw_tt" text="+3 relation. He nods. The cup goes back up." />
+    <!-- patron_troop_loan -->
+    <string id="patron_troop_loan_one_pick" text="Only one. Half the favor. Half the debt." />
+    <string id="patron_troop_loan_one_pick_tt" text="+1000 denars. -1 relation. Cleaner exchange." />
+    <string id="patron_troop_loan_own" text="Forget it, lord. I'd rather lean on my own." />
+    <string id="patron_troop_loan_own_tt" text="+5 relation. He approves of the self-reliance." />
+    <string id="patron_troop_loan_setup" text="{LORD_NAME} laughs at the request, then doesn't. &quot;You want my men. For your road.&quot; He thinks for a moment. &quot;My captain at the muster yard answers to my seal. I will write you in. He will not love it. Choose what you take.&quot;" />
+    <string id="patron_troop_loan_title" text="Steel from {LORD_NAME}'s muster" />
+    <string id="patron_troop_loan_two_picks" text="Two of your veterans, lord. For one campaign." />
+    <string id="patron_troop_loan_two_picks_tt" text="+2000 denars in equipment credit. -2 relation. Patron's captain will remember the imposition." />
+</strings>
 </base>

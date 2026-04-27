@@ -190,12 +190,12 @@ namespace Enlisted.Features.Patrons
         {
             switch (kind)
             {
-                case FavorKind.LetterOfIntroduction: return "patron.letter_of_introduction";
-                case FavorKind.GoldLoan: return "patron.gold_loan";
-                case FavorKind.TroopLoan: return "patron.troop_loan";
-                case FavorKind.AudienceArrangement: return "patron.audience";
-                case FavorKind.MarriageFacilitation: return "patron.marriage";
-                case FavorKind.AnotherContract: return "patron.another_contract";
+                case FavorKind.LetterOfIntroduction: return "patron_letter_of_introduction";
+                case FavorKind.GoldLoan: return "patron_gold_loan";
+                case FavorKind.TroopLoan: return "patron_troop_loan";
+                case FavorKind.AudienceArrangement: return "patron_audience";
+                case FavorKind.MarriageFacilitation: return "patron_marriage";
+                case FavorKind.AnotherContract: return "patron_another_contract";
                 default: return string.Empty;
             }
         }

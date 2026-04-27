@@ -1,0 +1,45 @@
+{
+  "storylets": [
+    {
+      "id": "patron_troop_loan",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_troop_loan_title}Steel from {LORD_NAME}'s muster",
+      "setup": "{=patron_troop_loan_setup}{LORD_NAME} laughs at the request, then doesn't. \"You want my men. For your road.\" He thinks for a moment. \"My captain at the muster yard answers to my seal. I will write you in. He will not love it. Choose what you take.\"",
+      "options": [
+        {
+          "id": "two_picks",
+          "text": "{=patron_troop_loan_two_picks}Two of your veterans, lord. For one campaign.",
+          "tooltip": "{=patron_troop_loan_two_picks_tt}+2000 denars in equipment credit. -2 relation. Patron's captain will remember the imposition.",
+          "effects": [
+            { "apply": "give_gold", "amount": 2000 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -2 },
+            { "apply": "set_flag", "name": "patron_troop_loan_active", "days": 7 },
+            { "apply": "grant_renown", "amount": 5 }
+          ]
+        },
+        {
+          "id": "one_pick",
+          "text": "{=patron_troop_loan_one_pick}Only one. Half the favor. Half the debt.",
+          "tooltip": "{=patron_troop_loan_one_pick_tt}+1000 denars. -1 relation. Cleaner exchange.",
+          "effects": [
+            { "apply": "give_gold", "amount": 1000 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -1 },
+            { "apply": "set_flag", "name": "patron_troop_loan_active", "days": 7 },
+            { "apply": "grant_renown", "amount": 3 }
+          ]
+        },
+        {
+          "id": "lean_on_own",
+          "text": "{=patron_troop_loan_own}Forget it, lord. I'd rather lean on my own.",
+          "tooltip": "{=patron_troop_loan_own_tt}+5 relation. He approves of the self-reliance.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 5 },
+            { "apply": "ceremony_trait_drift_valor_up" }
+          ]
+        }
+      ]
+    }
+  ]
+}

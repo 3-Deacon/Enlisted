@@ -1,0 +1,44 @@
+{
+  "storylets": [
+    {
+      "id": "patron_gold_loan",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_gold_loan_title}Five thousand from {LORD_NAME}",
+      "setup": "{=patron_gold_loan_setup}{LORD_NAME} pours wine for you both and considers the request. \"Five thousand. It is not nothing, friend. I owe you something for the campaigns you stood in. The question is what you owe me back, and when.\" He waits. The cup is between you on the table.",
+      "options": [
+        {
+          "id": "with_interest",
+          "text": "{=patron_gold_loan_with_interest}With interest, lord. When I can.",
+          "tooltip": "{=patron_gold_loan_with_interest_tt}+5000 denars. -3 relation. Debt logged for repayment.",
+          "effects": [
+            { "apply": "give_gold", "amount": 5000 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -3 },
+            { "apply": "set_flag", "name": "patron_debt_5000", "days": 0 }
+          ]
+        },
+        {
+          "id": "in_your_debt",
+          "text": "{=patron_gold_loan_in_debt}I am in your debt, lord. I will not forget.",
+          "tooltip": "{=patron_gold_loan_in_debt_tt}+5000 denars. -1 relation. Debt logged. He liked the framing.",
+          "effects": [
+            { "apply": "give_gold", "amount": 5000 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -1 },
+            { "apply": "set_flag", "name": "patron_debt_5000", "days": 0 },
+            { "apply": "ceremony_trait_drift_honor_up" }
+          ]
+        },
+        {
+          "id": "withdraw",
+          "text": "{=patron_gold_loan_withdraw}On reflection, lord, I withdraw the request.",
+          "tooltip": "{=patron_gold_loan_withdraw_tt}+3 relation. He marks you down as someone who knows when not to ask.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 3 },
+            { "apply": "ceremony_trait_drift_honor_up" }
+          ]
+        }
+      ]
+    }
+  ]
+}

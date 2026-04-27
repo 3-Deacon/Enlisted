@@ -15,6 +15,12 @@ namespace Enlisted.Features.Patrons
     /// hours-since-epoch (CampaignTime.ToHours), giving daily-granularity
     /// resolution that's more than sufficient for 30-180 day favor cooldowns and
     /// avoids depending on the private NumTicks accessor.
+    ///
+    /// RelationSnapshotOnDischarge captures the post-discharge relation value —
+    /// the band-driven ChangeRelationAction deltas (+30 heroic / +10 honorable /
+    /// -10 washout / -50 deserter) have already applied by the time the patron
+    /// hook fires inside StopEnlist. The snapshot reflects what the player will
+    /// next encounter the patron at, not the in-service value.
     /// </summary>
     [Serializable]
     public sealed class PatronEntry

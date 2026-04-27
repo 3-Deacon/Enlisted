@@ -11,6 +11,7 @@ using Enlisted.Features.Equipment.UI;
 using Enlisted.Features.Escalation;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Logistics;
+using Enlisted.Features.Patrons;
 using Enlisted.Features.Ranks;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
@@ -84,6 +85,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
             AddEnlistedDialogs(starter);
             AddQuartermasterDialogs(starter);
+            AddPatronDialogs(starter);
             // The menu system is handled by EnlistedMenuBehavior.cs, which provides the main enlisted status menu
         }
 
@@ -4582,6 +4584,132 @@ namespace Enlisted.Features.Conversations.Behaviors
             catch (Exception ex)
             {
                 ModLogger.Caught("DIALOGMANAGER", "Error accepting commander promotion", ex);
+            }
+        }
+
+        #endregion
+
+        #region Patron Roll favor branches
+
+        /// <summary>
+        ///     Adds the "Call in a favor" branch at lord_pretalk priority 112 when the
+        ///     conversation target is a former patron (on PatronRoll). Six per-favor
+        ///     options surface, each gated by PatronFavorResolver.IsKindAvailable —
+        ///     options that fail the cooldown or condition check don't appear at all
+        ///     (vanilla pattern; greying isn't a Bannerlord dialog primitive).
+        ///     Selecting an available favor calls TryGrantFavor, which stamps the
+        ///     cooldown on the entry and fires the matching outcome storylet via
+        ///     ModalEventBuilder.FireDecisionOutcome. Dialog returns to lord_pretalk.
+        /// </summary>
+        private void AddPatronDialogs(CampaignGameStarter starter)
+        {
+            try
+            {
+                _ = starter.AddPlayerLine(
+                    "patron_call_in_favor",
+                    "lord_pretalk",
+                    "patron_favor_hub",
+                    "{=patron_call_in_favor}My lord, I have served you faithfully in the past. I come now to ask a favor.",
+                    PatronAudienceExtension.IsConversationTargetPatron,
+                    null,
+                    112);
+
+                _ = starter.AddDialogLine(
+                    "patron_acknowledge",
+                    "patron_favor_hub",
+                    "patron_favor_options",
+                    "{=patron_acknowledge}{PATRON_NAME} pours a cup. \"Speak. I owe you the listening, at least. What is it you want?\"",
+                    PatronAcknowledgeCondition,
+                    null,
+                    112);
+
+                foreach (FavorKind kind in Enum.GetValues(typeof(FavorKind)).Cast<FavorKind>())
+                {
+                    if (kind == FavorKind.None)
+                    {
+                        continue;
+                    }
+                    AddPatronFavorOption(starter, kind);
+                }
+
+                _ = starter.AddPlayerLine(
+                    "patron_favor_back_out",
+                    "patron_favor_options",
+                    "lord_pretalk",
+                    "{=patron_favor_back_out}On reflection, lord, the matter can wait.",
+                    null,
+                    null,
+                    112);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DIALOGMANAGER", "Failed to register patron dialogs", ex);
+            }
+        }
+
+        private bool PatronAcknowledgeCondition()
+        {
+            SetCommonDialogueVariables();
+            var target = Hero.OneToOneConversationHero;
+            var patronName = target?.Name?.ToString() ?? "the lord";
+            MBTextManager.SetTextVariable("PATRON_NAME", patronName);
+            return true;
+        }
+
+        private void AddPatronFavorOption(CampaignGameStarter starter, FavorKind kind)
+        {
+            var (text, fallback) = GetFavorOptionText(kind);
+            _ = starter.AddPlayerLine(
+                $"patron_favor_pick_{kind}",
+                "patron_favor_options",
+                "lord_pretalk",
+                $"{{={text}}}{fallback}",
+                () => PatronFavorOptionCondition(kind),
+                () => PatronFavorOptionConsequence(kind),
+                112);
+        }
+
+        private static (string locKey, string fallback) GetFavorOptionText(FavorKind kind)
+        {
+            switch (kind)
+            {
+                case FavorKind.LetterOfIntroduction:
+                    return ("patron_favor_pick_letter", "A letter of introduction, lord. Pen and seal.");
+                case FavorKind.GoldLoan:
+                    return ("patron_favor_pick_gold", "A loan of coin, lord. Five thousand denars.");
+                case FavorKind.TroopLoan:
+                    return ("patron_favor_pick_troops", "Steel from your muster, lord. A few veterans for the road.");
+                case FavorKind.AudienceArrangement:
+                    return ("patron_favor_pick_audience", "An audience, lord. With someone in your circle.");
+                case FavorKind.MarriageFacilitation:
+                    return ("patron_favor_pick_marriage", "A name, lord. Someone of your court I might call on.");
+                case FavorKind.AnotherContract:
+                    return ("patron_favor_pick_contract", "A contract, lord. Whatever needs hands.");
+                default:
+                    return ("patron_favor_pick_unknown", "A favor, lord.");
+            }
+        }
+
+        private bool PatronFavorOptionCondition(FavorKind kind)
+        {
+            var entry = PatronAudienceExtension.GetEntryForTarget();
+            return entry != null && PatronFavorResolver.IsKindAvailable(entry, kind);
+        }
+
+        private void PatronFavorOptionConsequence(FavorKind kind)
+        {
+            try
+            {
+                var entry = PatronAudienceExtension.GetEntryForTarget();
+                if (entry == null)
+                {
+                    return;
+                }
+                _ = PatronFavorResolver.TryGrantFavor(entry, kind, out _);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DIALOGMANAGER", "Patron favor consequence threw", ex);
             }
         }
 

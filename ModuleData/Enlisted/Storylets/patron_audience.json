@@ -1,0 +1,41 @@
+{
+  "storylets": [
+    {
+      "id": "patron_audience",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_audience_title}{LORD_NAME} arranges a door",
+      "setup": "{=patron_audience_setup}{LORD_NAME} listens, fingers laced. \"An audience. Yes. Easier asked than given. Whose hall would you stand in. A peer of mine? A rival? Tell me which kind of meeting you want, and I will pick the man.\"",
+      "options": [
+        {
+          "id": "ally_court",
+          "text": "{=patron_audience_ally}A peer in your circle. Someone who would receive me kindly.",
+          "tooltip": "{=patron_audience_ally_tt}Patron arranges a friendly audience. +5 renown, +3 relation seed for next encounter with target.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_audience_pending_ally", "days": 30 },
+            { "apply": "grant_renown", "amount": 5 }
+          ]
+        },
+        {
+          "id": "rival_court",
+          "text": "{=patron_audience_rival}A rival of yours, lord. I would learn the other side.",
+          "tooltip": "{=patron_audience_rival_tt}Patron writes a cooler introduction. -2 patron relation. +1 calculating. Insight is the trade.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_audience_pending_rival", "days": 30 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -2 },
+            { "apply": "ceremony_trait_drift_calculating_up" }
+          ]
+        },
+        {
+          "id": "withdraw",
+          "text": "{=patron_audience_withdraw}I have spoken too quickly. Forget the request, lord.",
+          "tooltip": "{=patron_audience_withdraw_tt}+3 relation. He sets the matter aside without comment.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

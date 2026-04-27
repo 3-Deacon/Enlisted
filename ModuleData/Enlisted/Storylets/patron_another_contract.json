@@ -1,0 +1,42 @@
+{
+  "storylets": [
+    {
+      "id": "patron_another_contract",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_contract_title}{LORD_NAME} has need again",
+      "setup": "{=patron_contract_setup}{LORD_NAME} hears you out, then pulls a folded dispatch from his belt pouch. \"Convenient. There is a thing. Not a war thing — a thing for someone with hands. The pay would be soldier's pay, the trouble worse. Will you take it?\"",
+      "options": [
+        {
+          "id": "name_terms",
+          "text": "{=patron_contract_name_terms}Tell me the work and the silver, lord, and I'll decide.",
+          "tooltip": "{=patron_contract_name_terms_tt}Patron offers a contract; payout adjusted for negotiation. +1 calculating.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_contract_offered_negotiated", "days": 14 },
+            { "apply": "ceremony_trait_drift_calculating_up" },
+            { "apply": "give_gold", "amount": 1500 }
+          ]
+        },
+        {
+          "id": "trust",
+          "text": "{=patron_contract_trust}I'll take it, lord. The terms can wait.",
+          "tooltip": "{=patron_contract_trust_tt}Patron names a generous purse for the trust. +2500 denars, +5 patron relation.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_contract_offered_trusted", "days": 14 },
+            { "apply": "give_gold", "amount": 2500 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 5 }
+          ]
+        },
+        {
+          "id": "decline",
+          "text": "{=patron_contract_decline}Not this time, lord. The road is mine.",
+          "tooltip": "{=patron_contract_decline_tt}+3 relation. Patron folds the dispatch back into his belt.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

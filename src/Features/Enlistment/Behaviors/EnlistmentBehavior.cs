@@ -11,6 +11,7 @@ using Enlisted.Features.Escalation;
 using Enlisted.Features.Identity;
 using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Features.Logistics;
+using Enlisted.Features.Patrons;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Features.Retinue.Data;
 using Enlisted.Mod.Core;
@@ -3362,6 +3363,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 ModLogger.Info("ENLISTMENT", $"Service ended: {reason} (Honorable: {isHonorableDischarge})");
 
+                TryUpdatePatronRollOnServiceEnd(reason, isHonorableDischarge);
+
                 try
                 {
                     OnEnlistmentEnded?.Invoke(reason, isHonorableDischarge);
@@ -3756,6 +3759,83 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // This ensures OnClanChangedKingdom returns to normal behavior after discharge completes.
                 _isProcessingDischarge = false;
             }
+        }
+
+        /// <summary>
+        ///     Single Plan 6 chokepoint for Roll-of-Patrons lifecycle. Mid-career
+        ///     discharge of every kind (fired / captured / lord lost / faction-switch /
+        ///     deserter / grace-period transfer) records a patron entry; player-initiated
+        ///     full retirement clears the Roll. Branches on the reason string passed
+        ///     into StopEnlist — single hook avoids 17 individual injection sites.
+        /// </summary>
+        private void TryUpdatePatronRollOnServiceEnd(string reason, bool isHonorableDischarge)
+        {
+            try
+            {
+                var roll = PatronRoll.Instance;
+                if (roll == null)
+                {
+                    return;
+                }
+
+                if (IsFullRetirementReason(reason))
+                {
+                    roll.Clear();
+                    return;
+                }
+
+                if (_enlistedLord == null)
+                {
+                    return;
+                }
+
+                var band = DerivePatronDischargeBand(reason, isHonorableDischarge);
+                roll.OnDischarge(_enlistedLord, band);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("PATRONS", "Failed to update patron roll on service end", ex);
+            }
+        }
+
+        private static bool IsFullRetirementReason(string reason)
+        {
+            if (string.IsNullOrEmpty(reason))
+            {
+                return false;
+            }
+            return reason.IndexOf("Honorable retirement", StringComparison.OrdinalIgnoreCase) >= 0
+                || reason.IndexOf("Honorable discharge - renewal term", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private string DerivePatronDischargeBand(string reason, bool isHonorable)
+        {
+            if (!string.IsNullOrEmpty(_lastDischargeBand))
+            {
+                return _lastDischargeBand;
+            }
+            var lower = (reason ?? string.Empty).ToLowerInvariant();
+            if (lower.Contains("desert"))
+            {
+                return "deserter";
+            }
+            if (lower.Contains("captured"))
+            {
+                return "captured";
+            }
+            if (lower.Contains("killed") || lower.Contains("died"))
+            {
+                return "lord_lost";
+            }
+            if (lower.Contains("disbanded") || lower.Contains("invalid") || lower.Contains("army defeated"))
+            {
+                return "lord_lost";
+            }
+            if (lower.Contains("vassal"))
+            {
+                return "faction_switch";
+            }
+            return isHonorable ? "honorable" : "washout";
         }
 
         /// <summary>

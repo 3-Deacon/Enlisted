@@ -1,0 +1,44 @@
+{
+  "storylets": [
+    {
+      "id": "patron_marriage",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_marriage_title}A name from {LORD_NAME}'s court",
+      "setup": "{=patron_marriage_setup}{LORD_NAME} sets his cup down with care, the way he does when the talk has gone serious. \"Marriage is not done by passing a name. But I can pass a name. The right hall, the right hour, the right introduction. Tell me what you want of the match.\"",
+      "options": [
+        {
+          "id": "alliance",
+          "text": "{=patron_marriage_alliance}An alliance, lord. Steel and land before sentiment.",
+          "tooltip": "{=patron_marriage_alliance_tt}Patron writes the introduction with strategic phrasing. +10 renown. -2 relation for the cold framing.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_marriage_alliance_pending", "days": 30 },
+            { "apply": "grant_renown", "amount": 10 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": -2 },
+            { "apply": "ceremony_trait_drift_calculating_up" }
+          ]
+        },
+        {
+          "id": "honest",
+          "text": "{=patron_marriage_honest}Someone who would have me, lord. Truthfully written.",
+          "tooltip": "{=patron_marriage_honest_tt}Patron writes a frank introduction. +5 renown, +3 patron relation, +1 honor.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_marriage_honest_pending", "days": 30 },
+            { "apply": "grant_renown", "amount": 5 },
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 3 },
+            { "apply": "ceremony_trait_drift_honor_up" }
+          ]
+        },
+        {
+          "id": "withdraw",
+          "text": "{=patron_marriage_withdraw}Forget I asked, lord. The road is enough for now.",
+          "tooltip": "{=patron_marriage_withdraw_tt}+3 relation. He nods. The cup goes back up.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}

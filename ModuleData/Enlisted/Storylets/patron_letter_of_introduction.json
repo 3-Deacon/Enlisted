@@ -1,0 +1,41 @@
+{
+  "storylets": [
+    {
+      "id": "patron_letter_of_introduction",
+      "category": "patron_favor",
+      "trigger": [],
+      "scope": { "context": "any" },
+      "title": "{=patron_letter_title}A letter under {LORD_NAME}'s seal",
+      "setup": "{=patron_letter_setup}{LORD_NAME} calls for parchment. Wax. The seal he travels with, not the household one. He looks at you over the rim of a cup that has gone too warm. \"Whose door, then. Tell me whose door, and I will write you in past it.\"",
+      "options": [
+        {
+          "id": "name_with_weight",
+          "text": "{=patron_letter_name_with_weight}A name with weight, lord. Someone whose word carries.",
+          "tooltip": "{=patron_letter_name_with_weight_tt}+10 renown, +1 honor. Patron remembers the ambition.",
+          "effects": [
+            { "apply": "ceremony_trait_drift_honor_up" },
+            { "apply": "set_flag", "name": "patron_letter_introduction_pending", "days": 30 },
+            { "apply": "grant_renown", "amount": 10 }
+          ]
+        },
+        {
+          "id": "anyone_who_takes",
+          "text": "{=patron_letter_anyone}Anyone who would take me. I am not particular.",
+          "tooltip": "{=patron_letter_anyone_tt}+5 renown. The patron writes a generic introduction; doors will open, none of them grand.",
+          "effects": [
+            { "apply": "set_flag", "name": "patron_letter_introduction_general", "days": 30 },
+            { "apply": "grant_renown", "amount": 5 }
+          ]
+        },
+        {
+          "id": "blessing_only",
+          "text": "{=patron_letter_blessing}Forget the letter. Your blessing is enough.",
+          "tooltip": "{=patron_letter_blessing_tt}Patron warms toward you for not pressing. +5 relation with him.",
+          "effects": [
+            { "apply": "relation_change", "target_slot": "Patron", "delta": 5 }
+          ]
+        }
+      ]
+    }
+  ]
+}
