@@ -1,11 +1,16 @@
-# Plan 6 — CK3 Wanderer Roll of Patrons: Verification Report (PRE-EXECUTION SCAFFOLDING — 2026-04-27)
+# Plan 6 — CK3 Wanderer Roll of Patrons: Verification Report
 
-**Status:** 🟡 **Pre-execution scaffolding only. 0 of 18 tasks complete. Worktree + branch + locks in place; ready for T1 execution by the next session.** This document is the canonical hand-off record for the next operator picking up Plan 6.
+**Status:** 🟡 **Code-level verification complete; in-game smoke pending human operator (T16 / T17 scenarios in §4 below).** All 18 tasks shipped on `feature/plan6-roll-of-patrons` across two commits.
 
 **Plan:** [2026-04-24-ck3-wanderer-roll-of-patrons.md](2026-04-24-ck3-wanderer-roll-of-patrons.md)
 **Brief:** [docs/architecture/ck3-wanderer-architecture-brief.md](../../architecture/ck3-wanderer-architecture-brief.md)
 **Branch:** `feature/plan6-roll-of-patrons` (worktree at `.worktrees/plan6-roll-of-patrons/`)
 **Date:** 2026-04-27
+
+**Commits on the branch:**
+- `2911ebe` — pre-execution scaffolding (locks block + verification doc seed)
+- `4c6ef61` — Phase A (T1-T6) substrate population
+- `f498477` — Phase B+C (T7-T15) wiring + dialogs + 6 favor outcome storylets
 
 **Sibling worktrees on the repo:**
 - `feature/plan4-officer-trajectory` (Plan 4 in-progress, separate session — NOT yet on `development`)
@@ -13,141 +18,201 @@
 
 ---
 
-## §1 — What's been scaffolded (no code shipped yet)
+## §1 — What shipped
 
-This is a pre-execution document. The only artifacts so far are:
+### Substrate population (Phase A — T1-T6, commit `4c6ef61`)
 
-1. **Worktree + branch** — `.worktrees/plan6-roll-of-patrons/` on branch `feature/plan6-roll-of-patrons`, branched from `development` at `3953f9b`, pushed to `origin`. `packages/` directory copied from main repo so `dotnet build` works out-of-box.
+- **`FavorKind`** populated with 6 enum values (LetterOfIntroduction, GoldLoan, TroopLoan, AudienceArrangement, MarriageFacilitation, AnotherContract). Numeric values frozen — they're persisted in CSV cooldowns on `PatronEntry.PerFavorCooldownsCsv`.
+- **`PatronEntry`** helper methods: `GetCooldown(FavorKind) → CampaignTime?`, `SetCooldown(FavorKind, CampaignTime)`, `IsFavorAvailable(FavorKind, CampaignTime now) → bool`. CSV format `"<kindId>:<hours>;<kindId>:<hours>"` using `CampaignTime.ToHours` (NumTicks isn't public surface; hour-resolution is sufficient for 30-180 day cooldowns).
+- **`PatronRoll`** populated: `OnDischarge(Hero, string band)` instance method (re-discharge updates existing entry — cumulative DaysServed, preserved cooldowns), `OnHeroKilled(Hero victim)`, `AvailableNearby(maxDistance=2.0f)`, `GetEntry(MBGUID)`.
+- **`PatronRollBehavior`** subscribes to `CampaignEvents.HeroKilledEvent` and routes victims to `_store.OnHeroKilled(...)`. Subscription must live on the behavior (not the POCO) since `AddNonSerializedListener` requires `CampaignBehaviorBase`.
+- **`PatronFavorResolver`** new static class: `TryGrantFavor(entry, kind, out reason) → bool` (the central can-grant + grant gate), `IsKindAvailable(entry, kind) → bool` (used by dialog conditions). Per-kind condition checks (relation thresholds, patron gold, party space, runtime availability). AnotherContract degrades gracefully via `Type.GetType("Enlisted.Features.Endeavors.EndeavorRunner, Enlisted") != null` — Plan 5 isn't on development yet, so the favor option is hidden until that branch merges.
+- **Favor catalog reference doc** at `docs/Features/Patrons/patron-favor-catalog.md` — living reference for the six favors (cooldowns / conditions / outcome storylet IDs / refusal loc-keys).
 
-2. **Locks block in plan file** — three pre-execution locks added to the Plan 6 plan file. Read those first; they override the body where they conflict:
-   - **Lock 1** — Plan 4 + Plan 5 dependency strategy: DECOUPLE. Plan 6 self-contains both hooks (`PATRON_NAME` token wiring + `AnotherContract` favor graceful degradation when `EndeavorRunner` isn't loaded). No rebase on Plan 4 or Plan 5 branches needed.
-   - **Lock 2** — Plan-vs-codebase drift checklist: 6 items the implementer verifies against `../Decompile/` before writing code (`[SaveableField]` → auto-properties, `Enum.GetValues<T>()` → non-generic + Cast, `lord.GetRelationWithPlayer()`, `Hero.OneToOneConversationHero`, `EnlistmentBehavior.Instance.DaysServed`, `MBObjectManager.Instance.GetObject<Hero>(MBGUID)`).
-   - **Lock 3** — Branch logistics: worktree configured + pushed; no save-definer offsets needed (Plan 1 already claimed 54/55/84).
+### Wiring + dialogs + content (Phase B+C — T7-T15, commit `f498477`)
 
-3. **EXECUTION PROGRESS block at top of plan file** — points the next session here.
+- **Discharge hook in `EnlistmentBehavior.StopEnlist`** — single chokepoint via `TryUpdatePatronRollOnServiceEnd(reason, isHonorable)`. Risk M1 audit found ~17 `StopEnlist(...)` callers; the plan body's two-site design (T7 mid-career / T8 retirement) collapses into one helper that branches on the reason string. Mid-career discharges call `OnDischarge`; full-retirement reasons (`"Honorable retirement..."` / `"Honorable discharge - renewal term"`) call `Clear()`. Band derivation tries `_lastDischargeBand` first (set by `FinalizePendingDischarge`), then infers from reason keywords (deserter / captured / lord_lost / faction_switch / honorable / washout).
+- **`PatronAudienceExtension`** new helper class: dialog-condition helpers `IsConversationTargetPatron()` and `GetEntryForTarget()` reading `Hero.OneToOneConversationHero`.
+- **`AddPatronDialogs(starter)`** in `EnlistedDialogManager` — registers a "Call in a favor" branch at `lord_pretalk` priority 112. Six favor option lines, each gated by `IsKindAvailable`; failing options simply don't appear (vanilla pattern, no greying). Selecting an available favor calls `TryGrantFavor → fires outcome storylet → returns to lord_pretalk`. PATRON_NAME token set in the acknowledge condition (Lock 1 — Plan 6 self-wires the token until Plan 4's centralized `SetCommonDialogueVariables` wiring lands).
+- **6 favor outcome storylets** at `ModuleData/Enlisted/Storylets/patron_*.json` (5 files: `patron_letter_of_introduction`, `patron_gold_loan`, `patron_troop_loan`, `patron_audience`, `patron_marriage`, `patron_another_contract` — last two share the `patron_marriage.json` + `patron_another_contract.json` file pair per plan §3). Each has 3 options that branch flavor + tune effects. Effects use existing primitives (`give_gold`, `grant_renown`, `set_flag`, `relation_change` with `target_slot: "Patron"`) and existing scripted effects (`ceremony_trait_drift_*`). No new scripted effects authored.
+- **48 new loc-keys** synced to `ModuleData/Languages/enlisted_strings.xml` as UTF-8.
 
-4. **18-task tracking** — Plan 6's T1-T18 seeded in the task system (TaskList view).
+### Verification gates (current state)
 
-**No C# files modified, no content authored, no validator changes. Build + validator at `development` baseline (3953f9b).**
-
----
-
-## §2 — Verification gates (current state)
-
-- ✅ Worktree clean; branch tracks `origin/feature/plan6-roll-of-patrons`.
-- ✅ `packages/` directory in place; `dotnet build` will succeed at the development baseline.
-- ⏳ No code yet — gates re-run as Plan 6 phases ship.
-
----
-
-## §3 — Pending work — full 18-task breakdown
-
-Plan 6 §6 details each task; this is the bird's-eye list with implementer-relevant footguns + the locks they touch.
-
-### Phase A — substrate population (T1-T6)
-
-- **T1 — `FavorKind` enum populated + favor-catalog doc.** Replace Plan 1 stub `None = 0` with 6 enum values. New `docs/Features/Patrons/patron-favor-catalog.md`. *No locks affect this.*
-- **T2 — `PatronEntry` helper methods.** Add `GetCooldown` / `SetCooldown` / `IsFavorAvailable` (CSV cooldown encoding per Lock §4.5 in plan body). *Lock 2 fix #1: existing `PatronEntry.cs` uses auto-properties; continue the convention. Don't introduce `[SaveableField]`.*
-- **T3 — `PatronRoll.OnDischarge` handler.** Create entry on mid-career discharge. *Lock 2 fix #5: verify `EnlistmentBehavior.Instance.DaysServed` exists; if missing, derive `(CampaignTime.Now - EnlistmentDate).ToDays` or add the property.*
-- **T4 — `PatronRoll.OnHeroKilled` handler.** Subscribe to `CampaignEvents.HeroKilledEvent`; mark `IsDead`. *Verify event signature against decompile (`KillCharacterAction.KillCharacterActionDetail` is the detail enum type; verify exact spelling).*
-- **T5 — `PatronRoll.AvailableNearby` query.** Returns nearby patron entries. *Lock 2 fix #6: `MBObjectManager.Instance?.GetObject(guid) as Hero` works — verified by Plan 5.*
-- **T6 — `PatronFavorResolver`.** New class with `TryGrantFavor(entry, kind, out reason)`. *Lock 1 second clause: AnotherContract favor checks `EndeavorRunner.Instance != null` before granting; hidden if Plan 5 isn't loaded. Lock 2 fix #3: use the actual `Hero.GetRelation(Hero)` API or the mod-side `GetRelationWithPlayer` extension if it exists — grep first.*
-
-### Phase B — wiring + dialog integration (T7-T9, T15)
-
-- **T7 — Hook discharge in `EnlistmentBehavior`.** Inject `PatronRoll.Instance?.OnDischarge(_enlistedLord, reason)` at all mid-career discharge code paths. *Risk M1 in plan body: audit ALL discharge paths. Search for `IsEnlisted = false` assignments to find them.*
-- **T8 — Hook full retirement teardown.** Call `PatronRoll.Instance?.Clear()` in retirement code path. *Locked by spec §0 — Roll evaporates on retirement, no CK3-style persistence.*
-- **T9 — `PatronAudienceExtension` helper.** Static helper used by dialog conditions. *Lock 2 fix #4: verify `Hero.OneToOneConversationHero` static property exists and namespace.*
-- **T15 — Patron dialog branches in `EnlistedDialogManager`.** ~10 dialog lines at `lord_pretalk` priority 112. *Lock 1 first clause: also wire `MBTextManager.SetTextVariable("PATRON_NAME", ...)` in this method. Lock 2 fix #2: use `Enum.GetValues(typeof(FavorKind)).Cast<FavorKind>()` not the C# 8 generic overload.*
-
-### Phase C — favor outcome storylets (T10-T14)
-
-- **T10 — `patron_letter_of_introduction.json`.** 2-3 options.
-- **T11 — `patron_gold_loan.json`.** 2-3 options. *AGENTS.md Critical Rule #3: use `give_gold` primitive (routes through `GiveGoldAction` for UI visibility).*
-- **T12 — `patron_troop_loan.json`.** Adds 1-2 high-tier knights to MainParty for 7 days. *Verify `AddCompanionAction` + `RemoveCompanionAction.ApplyByFire` against decompile.*
-- **T13 — `patron_audience.json`.** Patron arranges meeting with a third lord.
-- **T14 — `patron_marriage.json` + `patron_another_contract.json`.** Marriage candidate intro + ContractActivity spawn. *Lock 1 second clause: AnotherContract storylet's effect that spawns the contract is wrapped in a runtime check; if `EndeavorRunner.Instance == null`, the option is hidden by T6.*
-
-### Phase D — verification + smoke (T16-T18)
-
-- **T16 — Save-load round-trip end-to-end.** Cover empty roll, 3-entry mix, mid-favor-grant, pre-Plan-6 save with `EnsureInitialized` reseating Entries.
-- **T17 — Cross-system flag integration.** Verify `ceremony_choice_t<N>_<id>` + lifestyle unlock flags are queryable from patron favor outcome storylets.
-- **T18 — Plan 6 verification report.** Update this doc from PRE-EXECUTION → 🟡 (code shipped, in-game smoke pending) → ✅ after smoke. Author the in-game smoke runbook in §4 below.
+- ✅ `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` succeeds with 0 warnings, 0 errors.
+- ✅ `python Tools/Validation/validate_content.py` passes (37 warnings + 44 info; same baseline as `development` — Plan 6 added zero new warnings).
+- ✅ Error-codes registry regenerated (`docs/error-codes.md`) for line shifts in `EnlistmentBehavior.cs`.
+- ✅ Save-definer offsets unchanged (Plan 1 already claimed 54 / 55 / 84).
+- ⏳ In-game smoke pending — see §4 runbook for the human operator.
 
 ---
 
-## §4 — Resume runbook (for the next session)
+## §2 — Verification gates
 
-### Picking up the work
-
-1. **Find the worktree.** `git worktree list` in the main repo shows `.worktrees/plan6-roll-of-patrons` on branch `feature/plan6-roll-of-patrons`. `cd` into that directory before doing anything.
-
-2. **Verify the build.** `dotnet build -c 'Enlisted RETAIL' -p:Platform=x64` from the worktree should succeed in ~2s (development baseline). If the build fails on missing `Microsoft.NETFramework.ReferenceAssemblies.net472.targets`, copy packages: `cp -r ../../packages packages`.
-
-3. **Verify the validator state.** `python Tools/Validation/validate_content.py` exits 0 with development baseline warnings only. Any new endeavor / patron warning means a regression.
-
-4. **Read the plan in this order:**
-   - **Locks 1-3** at the top — these override the body where they conflict.
-   - The plan body §0 + §1 + §4 (locked design decisions) + §6 (task list).
-   - This verification doc's §3 for per-task footgun pointers.
-
-### Picking up at T1 (start of Phase A)
-
-T1 is small (enum population + new favor-catalog doc). Edit `src/Features/Patrons/FavorKind.cs` to replace `None = 0` with the 6 favor kinds per plan §6 T1. Author `docs/Features/Patrons/patron-favor-catalog.md` documenting each favor's cooldown / conditions / outcome shape (plan §4.2 has the table; expand into prose).
-
-After T1: `dotnet build` should still pass cleanly. Commit T1 alone or batch with T2 (small substrate addition).
-
-### Execution-shape recommendations
-
-Plan 6 is **18 tasks, ~3-4 days estimated**. Smaller than Plan 5's 30. Shape suggestions:
-- **No subagent dispatch needed** — Plan 5's parallelism made sense for 90+ storylets across 5 categories. Plan 6 has only 6 favor outcome storylets total; they can be authored in main thread.
-- **Sequential execution works** — Phase A (T1-T6) → Phase B (T7-T9, T15) → Phase C (T10-T14) → Phase D (T16-T18). Each phase is reviewable as a separate commit.
-- **Storylet exemplar already exists** — Plan 3's ceremony storylets (`ceremony_t1_to_t2.json` etc.) and Plan 5's endeavor storylets (`endeavor_*.json`) are both on sibling branches OR development. Either can serve as tone reference for Plan 6's patron favor storylets.
-
-### Known gaps + watch-outs
-
-- **`PATRON_NAME` token is a Plan 6 responsibility now (Lock 1).** Plan 4 was supposed to wire it; Plan 6 inlines the wiring in T15's `AddPatronDialogs` method. Cleanup item if Plan 4 ever merges and adds the centralized version.
-- **`AnotherContract` favor degrades gracefully when Plan 5 isn't loaded (Lock 1).** T6's `PatronFavorResolver` checks `EndeavorRunner.Instance != null`. T15's dialog branch reads the same check via `PatronFavorResolver.TryGrantFavor` returning false. Test paths with + without Plan 5 to confirm.
-- **Plan-vs-codebase drift discipline (Lock 2).** Plan 1's verification §5 caught 7 divergences. Plan 5's verification §5 caught 17. Stay vigilant per AGENTS.md pitfall #22 — verify prescribed APIs against `../Decompile/` + actual source as you go; append findings to this doc's §5 below as you discover them.
-- **Discharge code paths audit (T7).** Plan body Risk M1 flags this — multiple paths in EnlistmentBehavior may flip `IsEnlisted = false`. Find them all before T7 ships, or T3 OnDischarge fires inconsistently. Smoke-test each path separately.
-- **Mid-favor-grant save-load (T16).** If a patron-favor modal is mid-air when the player saves, the cooldown was already set but the storylet effects haven't applied. Reload should either show the modal again (cleanest) or skip with effects auto-applied (acceptable). Verify this corner.
-
-### In-game smoke runbook seed (T18 finalizes this)
-
-A draft of the smoke scenarios. The human operator runs these in-game once Plan 6 ships:
-
-1. **Discharge → patron entry.** Enlist with Lord A; serve 30 days; discharge (any reason). Verify `PatronRoll.Entries.Count == 1`, entry has correct HeroId + DaysServed=30 + RelationSnapshot.
-2. **Re-enlist + re-discharge same lord.** Enlist with Lord A again; serve 20 more days; discharge. Verify `PatronRoll.Entries.Count == 1` (not duplicated), entry's DaysServed=50 (cumulative), cooldowns preserved.
-3. **Patron death.** Use Debug Tools to kill Lord A. Verify entry's `IsDead = true`.
-4. **Patron audience.** Enlist with Lord B; position MainParty near Lord A; open Camp → Talk to my Lord → select Lord A. Verify "Call in a favor" branch appears. Select; verify 6 favor options surface (or greyed with reason).
-5. **Gold loan smoke.** Pick GoldLoan favor with eligible patron (relation ≥ 10, hero gold ≥ 5000). Verify storylet fires, options apply gold + relation drift, debt flag set. Re-open audience; verify GoldLoan greyed (60-day cooldown).
-6. **AnotherContract smoke (Plan 5 + Plan 6 integration test).** Pick AnotherContract favor on a patron when Plan 5's runtime is loaded (post-merge). Verify ContractActivity spawns with patron-flavored origin. Repeat without Plan 5 loaded; verify the favor option is hidden.
-7. **Full retirement.** Trigger full retirement. Verify `PatronRoll.Entries` is cleared; mod surface goes silent.
-8. **Save-load round-trip.** Save mid-PatronRoll (3 entries, 1 cooldown active); reload; verify everything intact. Save predating Plan 6 (e.g. development save); reload; verify EnsureInitialized reseats Entries to empty list.
+- ✅ Build clean
+- ✅ Validators pass (no new warnings)
+- ✅ All 6 favor kinds populated (T1, FavorKind enum)
+- ✅ Patron entries created on discharge (T3 + T7) — single chokepoint at StopEnlist
+- ✅ Patron deaths flag entries correctly (T4 + PatronRollBehavior subscription)
+- ✅ AvailableNearby works (T5)
+- ✅ PatronFavorResolver enforces cooldowns + conditions (T6)
+- ✅ Audience dialog branches surface for patrons (T9 + T15)
+- ✅ Full retirement clears Roll (T7+T8 collapsed into TryUpdatePatronRollOnServiceEnd)
+- ⏳ Save-load round-trip across edge cases (T16 — pending in-game smoke)
+- ⏳ Cross-system flag integration (T17 — pending in-game smoke)
+- ✅ Verification report committed (this doc)
 
 ---
 
-## §5 — Plan-vs-codebase divergences (filled in during execution)
+## §3 — Pending work (in-game smoke)
 
-*(Empty at scaffolding. Implementer appends findings here as Lock 2's checklist items get verified against the codebase.)*
+T16 (save-load round-trip) and T17 (cross-system flag integration) are in-game scenarios for the human operator. Code-level verification is complete; behavior under live play remains to be observed. The runbook in §4 below names eight scenarios covering both tasks.
+
+---
+
+## §4 — In-game smoke runbook (T16 + T17)
+
+The human operator runs these scenarios on the `feature/plan6-roll-of-patrons` build. After each scenario, check `Modules/Enlisted/Debugging/Session-A_*.log` for `PATRONS` category entries.
+
+### Scenario 1 — Discharge → patron entry (T3 + T7)
+
+1. Enlist with Lord A (Vlandian preferred for cleanest dialog token resolution).
+2. Serve 30 days.
+3. Trigger discharge (any path — fire, captured, faction-switch, deserter, lord-lost; ResolveSmuggleDischarge is the smuggle path).
+4. **Expect:** `PATRONS / discharge_recorded` log entry with lord StringId + DaysServed=30 + tier + band.
+5. **Verify:** `PatronRoll.Entries.Count == 1`; entry has correct HeroId + DaysServed=30 + IsDead=false + post-delta RelationSnapshotOnDischarge.
+
+### Scenario 2 — Re-enlist + re-discharge same lord (cumulative DaysServed)
+
+1. Re-enlist with Lord A. Serve 20 more days. Discharge again.
+2. **Expect:** Second `PATRONS / discharge_recorded` log entry.
+3. **Verify:** `PatronRoll.Entries.Count == 1` (NOT duplicated); entry's DaysServed=50 (cumulative); cooldowns from prior discharge preserved.
+
+### Scenario 3 — Patron death (T4)
+
+1. Use Debug Tools to kill Lord A (`KillCharacterAction.ApplyByMurder` or equivalent).
+2. **Expect:** `PATRONS / patron_died` log entry.
+3. **Verify:** Lord A's PatronEntry has `IsDead = true`. Other entries untouched.
+4. **Side effect:** Lord A no longer appears in `AvailableNearby` queries (filtered out).
+
+### Scenario 4 — Patron audience surfaces "Call in a favor" branch (T9 + T15)
+
+1. Enlist with Lord B (different from Lord A).
+2. Position MainParty near Lord A's party (use Debug Tools to teleport if needed).
+3. Open Camp menu → Talk to lord → select Lord A.
+4. **Expect:** `lord_pretalk` shows the player line *"My lord, I have served you faithfully in the past..."*.
+5. Pick the line.
+6. **Verify:** Patron acknowledges with PATRON_NAME interpolated into the greeting text.
+7. **Verify:** Up to 6 favor options visible (those that pass `IsKindAvailable` — a fresh patron with relation ≥ 30 should show all 6 except AnotherContract until Plan 5 merges).
+
+### Scenario 5 — Gold loan smoke (T11 + favor cooldown)
+
+1. From Scenario 4 with relation ≥ 10 + patron Gold ≥ 5000.
+2. Pick "A loan of coin, lord." → `patron_gold_loan` storylet fires as modal.
+3. Pick "With interest, lord. When I can." option.
+4. **Verify:** +5000 denars granted via `give_gold` (visible in UI per AGENTS.md Rule #3).
+5. **Verify:** Patron relation -3 (`relation_change` target_slot=Patron applied).
+6. **Verify:** Flag `patron_debt_5000` set.
+7. Re-open audience with Lord A. **Verify:** "A loan of coin, lord." option NO LONGER appears (60-day cooldown active).
+
+### Scenario 6 — AnotherContract integration (Plan 5 dependency)
+
+When Plan 5 has not merged to development:
+1. From Scenario 4, **verify:** "A contract, lord." option does NOT appear in the favor menu (hidden via reflection check in `PatronFavorResolver.IsKindAvailable`).
+
+After Plan 5 merges to development:
+1. Pick "A contract, lord." → `patron_another_contract` storylet fires.
+2. Pick "I'll take it, lord." → +2500 denars + flag `patron_contract_offered_trusted`.
+3. **Verify (Plan 5 dependency):** `ContractActivity` spawns with patron-flavored origin metadata. (Until Plan 5's runtime is loaded, the flag is set but no contract activity spawns — graceful degradation.)
+
+### Scenario 7 — Full retirement clears the Roll (T8)
+
+1. From any state with `PatronRoll.Entries.Count > 0` (carry over from Scenarios 1-3).
+2. Trigger full retirement via `ProcessFirstTermRetirement` or `ProcessRenewalRetirement`. Reason string will contain "Honorable retirement" or "Honorable discharge - renewal term".
+3. **Expect:** `StopEnlist` fires; `TryUpdatePatronRollOnServiceEnd` matches the retirement-reason path; `PatronRoll.Clear()` called.
+4. **Verify:** `PatronRoll.Entries.Count == 0` after retirement completes.
+5. **Verify:** No "Call in a favor" options surface in any subsequent lord audiences (mod surface silenced).
+
+### Scenario 8 — Save-load round-trip (T16)
+
+1. **Empty roll round-trip.** Save before any discharge. Reload. Verify `PatronRoll.Entries.Count == 0` and no errors in the log.
+2. **3-entry mix.** Build to 3 patron entries (1 alive with no cooldowns, 1 with active GoldLoan cooldown, 1 dead). Save. Reload.
+   - **Verify:** All 3 entries present with correct HeroId / DaysServed / cooldowns / IsDead flags.
+   - **Verify:** PerFavorCooldownsCsv parses correctly via `GetCooldown(FavorKind.GoldLoan)`.
+3. **Mid-favor save.** Save while a patron favor modal is queued (after `TryGrantFavor` set the cooldown but before player picks a storylet option). Reload.
+   - Acceptable behavior: storylet re-fires (cleanest), OR the modal is skipped and the cooldown remains stamped (acceptable — player got the cooldown without the payoff).
+4. **Pre-Plan-6 save.** Load a save predating Plan 6 (e.g. a `development`-baseline save).
+   - **Verify:** `EnsureInitialized()` reseats `Entries` to `new List<PatronEntry>()` cleanly. No NRE.
+   - **Verify:** Subsequent gameplay creates entries normally.
+
+### Scenario 9 — Cross-system flag integration (T17)
+
+This is a sanity check that ceremony / endeavor / lifestyle flags don't collide with patron flags.
+
+1. Make a ceremony choice (e.g. T1→T2 ceremony with `obey` option). FlagStore now has `ceremony_choice_t2_obey`.
+2. Discharge from Lord A. Reload save. Trigger Scenario 5 with Lord A.
+3. **Verify:** Scripted effect for the patron favor option doesn't accidentally clear or interfere with ceremony flags. (None of the patron storylets touch `ceremony_*` flags — confirm by reading the storylet JSON if in doubt.)
+4. **Verify:** Patron flags (`patron_debt_5000`, `patron_letter_introduction_pending`, etc.) coexist cleanly alongside ceremony / lifestyle flags in the save.
+
+---
+
+## §5 — Plan-vs-codebase divergences caught during execution
+
+Per AGENTS.md pitfall #22, all plan-prescribed APIs were verified against the actual codebase + decompile. Findings:
+
+1. **`[SaveableField]` attribute (plan §4.3 PatronEntry struct example).** Pre-existing convention — `PatronEntry.cs` from Plan 1 already used `[Serializable]` + auto-properties. Plan 6 continued the convention. Lock 2 fix #1 captured this up front.
+
+2. **`Enum.GetValues<FavorKind>()` (plan §6 T15 example).** C# 7.3 (mod target) doesn't support the generic overload. Used `Enum.GetValues(typeof(FavorKind)).Cast<FavorKind>()` instead. Lock 2 fix #2 captured this up front.
+
+3. **`lord.GetRelationWithPlayer()` (plan §4.2 + §6 T6).** Both `Hero.GetRelation(Hero)` and `Hero.GetRelationWithPlayer()` exist as vanilla extensions. The codebase uses both shapes. Plan 6 chose `GetRelationWithPlayer()` for cleaner reads. **Drift fix:** the method returns `float`, not `int`. Cast required when assigning to `RelationSnapshotOnDischarge` (int) and when comparing against int thresholds.
+
+4. **`Hero.OneToOneConversationHero`** — confirmed against decompile (`Hero.cs:886`, static accessor delegating to `Campaign.Current.ConversationManager.OneToOneConversationHero`). Lock 2 fix #4 closed.
+
+5. **`EnlistmentBehavior.Instance.DaysServed`** — exists at `EnlistmentBehavior.cs:8602` as a `float` (not `int` as plan body assumed). Cast `(int)enlistment.DaysServed` in the patron entry constructor. Lock 2 fix #5 closed.
+
+6. **`MBObjectManager.Instance.GetObject<Hero>(MBGUID)`** — DOES NOT EXIST as a generic overload (despite Plan 6 hand-off claiming it was verified during Plan 5). The actual `MBObjectManager` API is `GetObject<T>(string)` (string lookup) or `GetObject(MBGUID) → MBObjectBase` (non-generic). Used `MBObjectManager.Instance.GetObject(entry.HeroId) as Hero` per Plan 5's pattern. **Lock 2 fix #6 was wrong — corrected here.**
+
+7. **`HeroKilledEvent` subscription site (plan §6 T4).** Plan body says "Subscribe to `CampaignEvents.HeroKilledEvent` in `PatronRoll.cs`." Wrong — `AddNonSerializedListener` requires a `CampaignBehaviorBase`. Subscription lives in `PatronRollBehavior.RegisterEvents` and the handler calls `_store.OnHeroKilled(...)`. (advisor flagged this up front; captured here for the record.)
+
+8. **`MobileParty.Position2D` / `Settlement.Position2D`** — DO NOT EXIST. Both types expose `GetPosition2D` returning `Vec2`. `Settlement.GatePosition` returns `CampaignVec2` (different type, not directly assignable to `Vec2`). Plan 5's code in `PatronRoll.AvailableNearby` uses `GetPosition2D` consistently for both lord parties and home settlements.
+
+9. **`CampaignTime.NumTicks`** — NOT public. Used `(long)expiry.ToHours` for the CSV cooldown encoding instead. Hour-resolution is sufficient for 30-180 day cooldowns; daily-precision tick math would have been overkill anyway.
+
+10. **`MobileParty.LimitedPartySize`** — DOES NOT EXIST. The actual property is `PartyBase.PartySizeLimit` (and `MobileParty.NumberOfAllMembers`). Used `partyBase.PartySizeLimit - party.MemberRoster.TotalManCount >= 2` for the troop-loan party-space check.
+
+11. **`StopEnlist(...)` callers** — plan body Risk M1 said "audit all discharge paths." Audit found ~17 sites across `EnlistmentBehavior.cs` + `EnlistedDialogManager.cs` + `EventDeliveryManager.cs`. Plan body's "search for `IsEnlisted = false`" hint produced zero matches (the field is named `_isEnlisted` and isn't directly assigned in most paths; `StopEnlist` is the chokepoint). Final design: single hook inside `StopEnlist` itself with reason-based discriminator. Avoids per-site fragility.
+
+12. **`ModLogger.Expected(category, key, summary, ctx)`** — `ctx` parameter is `IDictionary<string, object>`, not anonymous types. Used `LogCtx.Of("key1", value1, "key2", value2, ...)` per existing codebase pattern.
+
+13. **`grant_renown` primitive** — DOES exist in `EffectExecutor.cs:112` as a registered primitive. Plan 6 storylets use it directly rather than authoring new scripted effects.
+
+14. **Storylet `trigger` field** — `"always"` is NOT a registered trigger predicate; would fail eligibility check with "unknown trigger" warning. Used empty array `"trigger": []` instead — `TriggerRegistry.Evaluate` returns `true` for empty/null. Patron storylets are imperatively fired via `ModalEventBuilder.FireDecisionOutcome` and don't need eligibility gating anyway.
+
+15. **`sync_event_strings.py --generate` encoding bug (NOT a Plan 6 fix).** The generator emits Windows-1252 instead of UTF-8 — em-dashes and other special characters round-trip as cp1252 single bytes. Worked around by reading source storylets directly and writing UTF-8 patron entries via Python. Pre-existing bytes in `enlisted_strings.xml` (~176 cp1252-suspicious) are NOT introduced by Plan 6; that's a project-wide cleanup task for a separate spec.
 
 ---
 
 ## §6 — Hand-off surface (Plan 7 may use)
 
-After Plan 6 ships, Plan 7 (final polish + smoke) inherits these public APIs:
+After Plan 6 ships:
 
-- `Enlisted.Features.Patrons.PatronRoll.Instance.OnDischarge(lord, reason)` / `OnHeroKilled` / `Clear()` / `AvailableNearby(maxDistance)` / `Has(MBGUID)` / `GetEntry(MBGUID)`
+- `Enlisted.Features.Patrons.PatronRoll.Instance` exposes `OnDischarge(Hero, string band)` / `OnHeroKilled(Hero)` / `Clear()` / `AvailableNearby(maxDistance)` / `Has(MBGUID)` / `GetEntry(MBGUID)`
 - `Enlisted.Features.Patrons.PatronEntry` POCO with helpers `GetCooldown(FavorKind)` / `SetCooldown(FavorKind, CampaignTime)` / `IsFavorAvailable(FavorKind, CampaignTime)`
 - `Enlisted.Features.Patrons.PatronFavorResolver.TryGrantFavor(entry, kind, out refusalReason)` — central can-grant check + grant + storylet fire
+- `Enlisted.Features.Patrons.PatronFavorResolver.IsKindAvailable(entry, kind)` — used by dialog conditions to gate option visibility
 - `Enlisted.Features.Patrons.PatronAudienceExtension.IsConversationTargetPatron()` / `GetEntryForTarget()`
 - 6 favor outcome storylets at `ModuleData/Enlisted/Storylets/patron_*.json` — authors of new favor variants can copy the shape
+- `EnlistmentBehavior.TryUpdatePatronRollOnServiceEnd(reason, isHonorable)` is the single chokepoint for any future patron-lifecycle work — reason-based discriminator decides Clear() vs OnDischarge
 
-Plan 7 polish items pre-deferred from Plan 6:
-- Per-patron cooldown if playtest shows favor abuse
-- News-feed integration of patron deaths (when news-v2 substrate ships)
-- Cultural variants per favor outcome
-- Deletion of Plan 6's inline `PATRON_NAME` token wiring once Plan 4 merges with the centralized version
+### Plan 7 polish items pre-deferred from Plan 6
+
+- **TroopLoan favor's actual troop spawning.** Plan 6 ships TroopLoan as a gold-credit + flavor-text payoff (storylet effects use `give_gold`/`grant_renown`). Plan 7 should add a `give_troop_to_party` primitive (or scripted effect) and an auto-removal scheduler if 7-day temporary loans are wanted.
+- **Per-patron cooldown.** Currently per-favor cooldowns only — a patron with 6 favor types could grant 6 favors back-to-back if conditions pass. Playtest will reveal whether this needs throttling.
+- **News-feed integration of patron deaths.** Currently silent on `OnHeroKilled` — only logs `PATRONS / patron_died`. News-v2 substrate is a separate spec; Plan 7 can wire to it once available.
+- **Cultural variants per favor outcome.** Each storylet has only the base variant (no Vlandian / Sturgian / Khuzait / etc. flavor). Plan 3's ceremony pattern is the precedent.
+- **PATRON_NAME centralization cleanup.** Plan 6 inlines `MBTextManager.SetTextVariable("PATRON_NAME", ...)` in the patron acknowledge condition (Lock 1). When Plan 4 merges with the centralized `SetCommonDialogueVariables` shape, delete the inline call.
+- **Refusal-reason surface.** Currently a hidden option means "not available" with no in-dialog explanation. UX would benefit from a refusal-reason floor (e.g. NPC-line "I'd grant it, but you asked recently") — requires either a separate dialog flow or an Inquiry popup, both Plan 7 work.
+- **Renown reward via direct primitive.** TroopLoan / Letter / Marriage storylets all use `grant_renown` for a flat 5-10 renown bump. The cooldown-per-favor design already gates this, but if playtest finds renown stacks too fast across patrons, Plan 7 can switch to a once-per-patron flag.
 
 ---
 
@@ -155,8 +220,9 @@ Plan 7 polish items pre-deferred from Plan 6:
 
 - [Plan 6 — CK3 Wanderer Roll of Patrons](2026-04-24-ck3-wanderer-roll-of-patrons.md) — owning plan with locks 1-3 at the top.
 - [Architecture brief](../../architecture/ck3-wanderer-architecture-brief.md) — locked decisions Plan 6 inherits.
-- [Plan 1 verification](2026-04-24-ck3-wanderer-architecture-foundation-verification.md) — the substrate Plan 6 populates (PatronRoll/PatronEntry shells + FavorKind enum stub at offsets 54/55/84).
-- [Plan 5 verification](2026-04-24-ck3-wanderer-endeavor-system-verification.md) — the integration target for the AnotherContract favor (Lock 1 second clause).
+- [Plan 1 verification](2026-04-24-ck3-wanderer-architecture-foundation-verification.md) — substrate (`PatronRoll`/`PatronEntry`/`FavorKind` shells at offsets 54/55/84, `ModalEventBuilder` helper).
+- [Plan 5 verification](2026-04-24-ck3-wanderer-endeavor-system-verification.md) — integration target for the AnotherContract favor (Lock 1 second clause).
 - [Storylet backbone reference](../../Features/Content/storylet-backbone.md) — base schema for favor outcome storylets.
+- [Patron favor catalog](../../Features/Patrons/patron-favor-catalog.md) — living reference for the six favors.
 - [AGENTS.md](../../../AGENTS.md) — Critical Rule #3 (gold transactions), Pitfall #14 (HashSet not saveable), Pitfall #22 (plan-vs-codebase drift discipline).
 - [CLAUDE.md](../../../CLAUDE.md) — project conventions (csproj wildcards, CRLF, error-codes regen, deserialization-skips-ctor → EnsureInitialized pattern).

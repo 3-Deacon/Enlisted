@@ -10,22 +10,26 @@
 
 ---
 
-## 📍 EXECUTION PROGRESS — 2026-04-27 (PRE-EXECUTION SCAFFOLDING — hand-off)
+## 📍 EXECUTION PROGRESS — 2026-04-27 (CODE-LEVEL VERIFICATION COMPLETE)
 
-**Status:** 🟡 **0 of 18 tasks complete. Worktree + branch + task tracking + locks in place; ready for T1 execution by the next session.**
+**Status:** 🟡 **18 of 18 tasks complete. Code shipped on `feature/plan6-roll-of-patrons`. Code-level verification complete; in-game smoke pending human operator (T16/T17 scenarios in the verification doc §4).**
 
-**Branch:** `feature/plan6-roll-of-patrons` (worktree at `.worktrees/plan6-roll-of-patrons/`, branched from `development` at `3953f9b`, pushed to `origin`).
+**Branch:** `feature/plan6-roll-of-patrons` (worktree at `.worktrees/plan6-roll-of-patrons/`, branched from `development` at `3953f9b`).
+
+**Commits on the branch:**
+- `2911ebe` — pre-execution scaffolding (locks block + verification doc seed)
+- `4c6ef61` — Phase A (T1-T6): substrate population — FavorKind populated, PatronEntry helpers, PatronRoll OnDischarge / OnHeroKilled / AvailableNearby, PatronFavorResolver, favor-catalog reference doc
+- `f498477` — Phase B+C (T7-T15): EnlistmentBehavior.StopEnlist hook (single chokepoint for ~17 callers, replaces plan body's 2-site design after risk M1 audit), PatronAudienceExtension, EnlistedDialogManager.AddPatronDialogs, 6 favor outcome storylets (5 JSON files), 48 loc-keys synced to enlisted_strings.xml as UTF-8
+
+**Verification gates:**
+- ✅ Build clean (0 warnings, 0 errors)
+- ✅ Validator passes (no new warnings introduced)
+- ✅ Error-codes registry regenerated for line shifts
+- ⏳ In-game smoke pending — see verification doc §4 for the 9-scenario runbook
+
 **Sibling worktrees on the repo:** `feature/plan4-officer-trajectory` (Plan 4 in-progress, separate session) and `feature/plan5-endeavor-system` (Plan 5 code + content shipped 2026-04-26, in-game smoke pending).
 
-**Verification gates as of scaffolding (2026-04-27):**
-- ✅ Worktree clean; branch tracks origin.
-- ⏳ No code yet — build + validator gates pass at the `development` baseline (3953f9b).
-
-**Resume path for the next session:**
-1. `cd .worktrees/plan6-roll-of-patrons`.
-2. Read **Locks 1-3 below** — they override the plan body where they conflict and capture three load-bearing decisions made during scaffolding (Plan 4/5 dependency decoupling, plan-vs-codebase drift fixes, branch logistics).
-3. Read the verification doc at `docs/superpowers/plans/2026-04-24-ck3-wanderer-roll-of-patrons-verification.md` — has the canonical T1-T18 task breakdown + per-task footguns + the in-game smoke runbook seed.
-4. Start at T1 (FavorKind enum population + favor-catalog doc). Plan 6's tasks are sequential and mostly small; can execute serially in main thread without subagent dispatch (unlike Plan 5's 30-task scope).
+The verification doc at [2026-04-24-ck3-wanderer-roll-of-patrons-verification.md](2026-04-24-ck3-wanderer-roll-of-patrons-verification.md) is the canonical record — §1 (what shipped), §4 (in-game smoke runbook), §5 (15 plan-vs-codebase divergences caught during execution), §6 (Plan 7 hand-off surface).
 
 ---
 
