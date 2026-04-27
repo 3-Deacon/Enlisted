@@ -9,10 +9,11 @@
 
 | Plan | Status | Verification |
 | :-- | :-- | :-- |
-| Plan 1 — Architecture Foundation | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) |
-| Plan 2 — Companion Substrate | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) |
-| Plan 3 — Rank-Ceremony Arc | 🟡 code shipped, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-rank-ceremony-arc-verification.md) |
-| Plans 4-7 | not started | — |
+| Plan 1 — Architecture Foundation | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) |
+| Plan 2 — Companion Substrate | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) |
+| Plan 3 — Rank-Ceremony Arc | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-rank-ceremony-arc-verification.md) |
+| Plan 5 — Endeavor System | 🟡 Phase A + B (substrate + wiring) shipped on `feature/plan5-endeavor-system` worktree (NOT yet on `development`); 13 of 30 tasks complete; content authoring + smoke pending | [verification (PARTIAL)](../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system-verification.md) |
+| Plans 4 + 6-7 | not started | — |
 
 **Plan 2 hand-off surface (Plans 3-7 may use):**
 - `Enlisted.Features.Companions.CompanionLifecycleHandler.Instance.GetSpawnedCompanions()` — `List<Hero>` of currently-spawned, alive companions. Plan 3 ceremony witness selection reads this.
@@ -21,6 +22,17 @@
 - `Enlisted.Features.Enlistment.Behaviors.EnlistmentBehavior.Instance.ClearCompanionSlot(Hero)` — null the slot matching a hero. Plan 6 patron loaned-knight cleanup uses its own pathway, but the helper is available for plans that need to remove a Plan-2 companion outside the death/discharge defaults.
 - `Enlisted.Features.Companions.Data.CompanionDialogueCatalog.Instance.GetNode(nodeId, ctx)` — specificity-ranked variant lookup. Plans 3-7 hooking conversation rendering against the catalog use this directly.
 - Six archetype catalogs at `ModuleData/Enlisted/Dialogue/companion_<id>.json` with stable node-id prefixes (`companion_<id>_intro_greeting`, `_root`, `_topic_*`, `_goodbye`). Plans 3-7 may add new `companion_*.json` files; the loader picks them all up.
+
+**Plan 5 Phase A + B hand-off surface (Plans 6-7 + ongoing maintenance may use; full detail in [verification doc §6](../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system-verification.md#6--hand-off-surface-plans-6-7-and-ongoing-maintenance-may-use)):**
+- `Enlisted.Features.Endeavors.EndeavorActivity.Instance` / `Enlisted.Features.Contracts.ContractActivity.Instance` — singletons returning the active player-issued / notable-issued endeavor or `null`. Phase index + total + score in `AccumulatedOutcomes` under reserved `__-prefixed` keys; per-phase choice memory in `FlagStore` under `endeavor_choice_<endeavor_id>_<phase>_<option_id>`.
+- `Enlisted.Features.Endeavors.EndeavorRunner.Instance` — public surface includes `StartEndeavor(template, companions)` / `CancelEndeavor(reason)` / `CanStartCategory(category)` / `GetCategoryCooldownEnd(category)` / `GetSpawnedCompanions()`. Owns the per-category 3-day cooldown dictionary (`Dictionary<string, CampaignTime> _categoryLastResolved`).
+- `Enlisted.Features.Endeavors.EndeavorCatalog.GetById(id)` / `GetByCategory(category)` / `All` / `Count` — JSON-loaded template catalog. Loaded by `EndeavorRunner.OnSessionLaunched`.
+- `Enlisted.Features.Endeavors.EndeavorGatingResolver.IsAvailable(template, player, spawnedCompanions)` / `Resolve(template, player, spawnedCompanions)` — hybrid gating. `Resolution.LockReason` enum surfaces tooltip routing reasons (`BelowTier` / `FlagGateMissing` / `FlagBlockerSet` / `SkillAndCompanionMissing` / `RequiredCompanionMissing`).
+- `Enlisted.Features.Endeavors.ScrutinyRiskCalculator.ComputeEffectiveRisk(baseRisk, player, agents)` / `RollDiscovery(...)` — pure risk math + roll. Charm coefficients are constants in the file.
+- `Enlisted.Features.Endeavors.EndeavorPhaseProvider.FirePhase(activity)` / `FireResolution(activity)` / `PickResolutionStoryletId(template, score)` — modal-fire helpers, route through `ModalEventBuilder.FireEndeavorPhase`.
+- `endeavor_active_score` quality (range −20..+20, default 0, no decay) — single global accumulator. **Reserved for `EndeavorRunner`** (resets on every endeavor start + finish); downstream plans should not write to it.
+- 31 endeavor scripted effects in `ModuleData/Enlisted/Effects/scripted_effects.json` with prefixes `endeavor_score_*`, `endeavor_skill_xp_*_<axis>`, `endeavor_lord_relation_*`, `endeavor_scrutiny_drift_*`, `endeavor_gold_reward_*`, `endeavor_readiness_*`, `endeavor_medical_risk_*` — reusable by any future endeavor / contract storylet.
+- Camp menu slot 5 "Endeavors" + sub-menu `enlisted_endeavors` (status text + Browse + Cancel + Back). Browse opens single `MultiSelectionInquiryData` with `[Category]` prefix.
 
 **Plan 3 hand-off surface (Plans 4-7 may use):**
 - `FlagStore.Instance.Has("ceremony_fired_t{N}")` — check whether the player has resolved their ceremony at tier N. Set when a ceremony option is picked.

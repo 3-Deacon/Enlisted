@@ -10,6 +10,31 @@
 
 ---
 
+## 📍 EXECUTION PROGRESS — 2026-04-26 (HAND-OFF — partial)
+
+**Status:** 🟡 **13 of 30 tasks complete (T1-T13 + T28). Phase A + B shipped on `feature/plan5-endeavor-system` worktree. Content authoring (Phase C-E) + integration + smoke (Phase F) pending.** Next operator should read the verification doc first: [Plan 5 Verification — PARTIAL](2026-04-24-ck3-wanderer-endeavor-system-verification.md). It contains the full hand-off record including the resume runbook (§4), what shipped (§1), what's pending (§3), and the smoke-scenario seeds (§4).
+
+**Branch:** `feature/plan5-endeavor-system` (worktree at `.worktrees/plan5-endeavor-system/`).
+**Commits on the branch (newest first):**
+- `4e854b4` — `feat(endeavors): Plan 5 Phase B — C# wiring stack + Camp menu slot 5` (T7-T13)
+- `81fa6de` — `feat(endeavors): Plan 5 Phase A — substrate + effects + Phase 19 validator` (T1-T6 + T28)
+
+**Verification gates as of 2026-04-26:**
+- ✅ `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` — clean (0 warnings, 0 errors).
+- ✅ `python Tools/Validation/validate_content.py` — passes; Phase 19 emits 2 expected warnings (endeavor_catalog.json + contract_archetypes.json absent — intentional, T14/T24 ship them).
+- ✅ Error-codes registry regenerated (131 Surfaced calls across 30 categories).
+- ⏳ In-game smoke pending — runbook seed in verification doc §4.
+
+**Pending phases:**
+- **Phase C — Endeavor catalog data (T14-T18, ~30 templates).** First task ALSO wires `Endeavors` data dir in `Enlisted.csproj` (3 lines per CLAUDE.md project conventions).
+- **Phase D — Endeavor storylets (T19-T23, ~50 storylets).** T19 Soldier in main thread as tone exemplar; T20-T23 dispatched to parallel subagents per Lock 10.
+- **Phase E — Contracts (T24-T25).** ~10 templates + ~15 storylets.
+- **Phase F — Integration + smoke (T27 + T29-T30).** Cross-system flag wiring + smoke runbook + finalize verification doc. **T26 deferred to Plan 7 polish** per stretch flag in §6.
+
+**Resume**: `cd` into the worktree, follow the verification doc §4 runbook.
+
+---
+
 ## 🔒 LOCKED 2026-04-26 — readiness amendments (pre-execution)
 
 This block consolidates the pre-execution readiness audit (Plan 5 was authored 2026-04-24 before Plans 2-4 shipped — drift accumulated). **Locks override the body of the plan where they conflict.** Same pattern as Plans 3 and 4. No game-design locks — Plan 5's design is already pinned by §4.1-§4.8 and the user has not asked for design rethinks.
