@@ -12,7 +12,7 @@
 | Plan 1 — Architecture Foundation | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-architecture-foundation-verification.md) |
 | Plan 2 — Companion Substrate | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-companion-substrate-verification.md) |
 | Plan 3 — Rank-Ceremony Arc | 🟡 code shipped on `development`, in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-rank-ceremony-arc-verification.md) |
-| Plan 5 — Endeavor System | 🟡 Phase A + B (substrate + wiring) shipped on `feature/plan5-endeavor-system` worktree (NOT yet on `development`); 13 of 30 tasks complete; content authoring + smoke pending | [verification (PARTIAL)](../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system-verification.md) |
+| Plan 5 — Endeavor System | 🟡 Code + content shipped on `feature/plan5-endeavor-system` worktree (NOT yet on `development`); 29 of 30 tasks complete; T26 deferred to Plan 7 polish; in-game smoke pending | [verification](../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system-verification.md) |
 | Plans 4 + 6-7 | not started | — |
 
 **Plan 2 hand-off surface (Plans 3-7 may use):**

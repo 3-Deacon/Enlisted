@@ -240,6 +240,9 @@
       ],
       "scrutiny_risk_per_phase": 0.05,
       "tier_min": 1,
+      "flag_blockers": [
+        "ceremony_choice_t2_frugal"
+      ],
       "tags": [
         "rogue_intro"
       ]
@@ -860,6 +863,9 @@
       "companion_slots": [],
       "scrutiny_risk_per_phase": 0.0,
       "tier_min": 1,
+      "flag_gates": [
+        "ceremony_choice_t2_generous"
+      ],
       "tags": []
     },
     {

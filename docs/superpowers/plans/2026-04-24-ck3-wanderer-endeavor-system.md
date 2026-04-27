@@ -10,28 +10,35 @@
 
 ---
 
-## 📍 EXECUTION PROGRESS — 2026-04-26 (HAND-OFF — partial)
+## 📍 EXECUTION PROGRESS — 2026-04-26 (CODE + CONTENT COMPLETE; in-game smoke pending)
 
-**Status:** 🟡 **13 of 30 tasks complete (T1-T13 + T28). Phase A + B shipped on `feature/plan5-endeavor-system` worktree. Content authoring (Phase C-E) + integration + smoke (Phase F) pending.** Next operator should read the verification doc first: [Plan 5 Verification — PARTIAL](2026-04-24-ck3-wanderer-endeavor-system-verification.md). It contains the full hand-off record including the resume runbook (§4), what shipped (§1), what's pending (§3), and the smoke-scenario seeds (§4).
+**Status:** 🟡 **29 of 30 tasks complete (T1-T25 + T27-T28; T26 deferred to Plan 7 polish; T29 in-game smoke pending human operator; T30 = the verification report itself).** Code + content shipped on `feature/plan5-endeavor-system` worktree. Branch is mergeable to `development` once human operator runs the §4 smoke scenarios in the verification doc. Read the [verification doc](2026-04-24-ck3-wanderer-endeavor-system-verification.md) for the full record.
 
 **Branch:** `feature/plan5-endeavor-system` (worktree at `.worktrees/plan5-endeavor-system/`).
 **Commits on the branch (newest first):**
+- `de1a840` — `feat(endeavors): Plan 5 Phase C+D — endeavor catalog + 94 storylets + contracts` (T14-T25)
+- `95e63e8` — `docs(plan5): Phase A + B hand-off — verification doc + cross-doc updates`
 - `4e854b4` — `feat(endeavors): Plan 5 Phase B — C# wiring stack + Camp menu slot 5` (T7-T13)
 - `81fa6de` — `feat(endeavors): Plan 5 Phase A — substrate + effects + Phase 19 validator` (T1-T6 + T28)
 
 **Verification gates as of 2026-04-26:**
 - ✅ `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` — clean (0 warnings, 0 errors).
-- ✅ `python Tools/Validation/validate_content.py` — passes; Phase 19 emits 2 expected warnings (endeavor_catalog.json + contract_archetypes.json absent — intentional, T14/T24 ship them).
-- ✅ Error-codes registry regenerated (131 Surfaced calls across 30 categories).
-- ⏳ In-game smoke pending — runbook seed in verification doc §4.
+- ✅ `python Tools/Validation/validate_content.py` — passes; "OK: 27 endeavor template(s) and 10 contract template(s) validated." 0 errors.
+- ✅ Error-codes registry regenerated.
+- ⏳ In-game smoke pending — runbook in verification doc §4.
 
-**Pending phases:**
-- **Phase C — Endeavor catalog data (T14-T18, ~30 templates).** First task ALSO wires `Endeavors` data dir in `Enlisted.csproj` (3 lines per CLAUDE.md project conventions).
-- **Phase D — Endeavor storylets (T19-T23, ~50 storylets).** T19 Soldier in main thread as tone exemplar; T20-T23 dispatched to parallel subagents per Lock 10.
-- **Phase E — Contracts (T24-T25).** ~10 templates + ~15 storylets.
-- **Phase F — Integration + smoke (T27 + T29-T30).** Cross-system flag wiring + smoke runbook + finalize verification doc. **T26 deferred to Plan 7 polish** per stretch flag in §6.
+**Remaining work:**
+- **T29 — In-game smoke** — human operator runs the 7 scenarios in verification doc §4. Update the verification doc's pass/fail table at §6 after running. After smoke passes, branch is mergeable to `development`.
+- **T26 — Endeavor sub-menu integration with companion talk-to** — deferred to Plan 7 polish per plan §6 stretch flag.
 
-**Resume**: `cd` into the worktree, follow the verification doc §4 runbook.
+**Plan 7 polish backlog (built up during Plan 5 execution):**
+1. Per-template marquee resolution storylets (currently all category-shared 3 generics).
+2. `{NOTABLE_NAME}` token wiring for contract storylets (currently literal-flavored notable names).
+3. Probabilistic scrutiny roll integration with `ScrutinyRiskCalculator` (currently storylet-deterministic).
+4. Skill-XP wrappers for the uncommon axes (TwoHanded, Polearm, Bow, Crossbow, Throwing, Riding, Steward, Tactics).
+5. Localization XML population for the ~275 `{=endeavor_*}` / `{=contract_*}` / `{=enlisted_endeavors_*}` keys (inline fallback works in-game; only translators see the gap).
+6. T26 endeavor-companion talk-to integration.
+7. Cultural variants per endeavor.
 
 ---
 

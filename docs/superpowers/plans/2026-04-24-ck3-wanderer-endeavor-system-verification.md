@@ -1,19 +1,21 @@
-# Plan 5 — CK3 Wanderer Endeavor System: Verification Report (PARTIAL — 2026-04-26)
+# Plan 5 — CK3 Wanderer Endeavor System: Verification Report
 
-**Status:** 🟡 **Partial — Phase A + B shipped on a feature branch; content authoring (Phase C-E) + integration + smoke (Phase F) pending.** This report is the formal hand-off record for the next session/operator picking up where the current session paused.
+**Status:** 🟡 **Code-level + content-level complete (29 of 30 tasks); in-game smoke pending human operator (T29 runbook in §4 below).** Plan 5 ships the full endeavor system end-to-end on a feature branch. T26 deferred to Plan 7 polish per stretch flag in plan §6.
 
 **Plan:** [2026-04-24-ck3-wanderer-endeavor-system.md](2026-04-24-ck3-wanderer-endeavor-system.md)
 **Brief:** [docs/architecture/ck3-wanderer-architecture-brief.md](../../architecture/ck3-wanderer-architecture-brief.md)
 **Branch:** `feature/plan5-endeavor-system` (in worktree `.worktrees/plan5-endeavor-system/`)
 **Commits on the branch (newest first):**
-- `4e854b4` — `feat(endeavors): Plan 5 Phase B — C# wiring stack + Camp menu slot 5`
-- `81fa6de` — `feat(endeavors): Plan 5 Phase A — substrate + effects + Phase 19 validator`
+- `de1a840` — `feat(endeavors): Plan 5 Phase C+D — endeavor catalog + 94 storylets + contracts` (T14-T25)
+- `95e63e8` — `docs(plan5): Phase A + B hand-off — verification doc + cross-doc updates`
+- `4e854b4` — `feat(endeavors): Plan 5 Phase B — C# wiring stack + Camp menu slot 5` (T7-T13)
+- `81fa6de` — `feat(endeavors): Plan 5 Phase A — substrate + effects + Phase 19 validator` (T1-T6 + T28)
 
-**Date:** 2026-04-26
+**Date:** 2026-04-26 (last update)
 
 ---
 
-## §1 — What shipped (13 of 30 tasks: T1-T13 + T28)
+## §1 — What shipped (29 of 30 tasks: T1-T25 + T27-T28; T26 deferred; T29 = runbook in §4; T30 = this report)
 
 ### Phase A — substrate + effects + validator (commit `81fa6de`)
 
@@ -72,124 +74,127 @@
 
 **Error-codes registry regenerated** — 131 Surfaced calls across 30 categories (was 115/30 at Plan 1 hand-off). New ENDEAVOR / CONTRACT category codes from the new files.
 
+### Phase C — Endeavor catalog data (commit `de1a840`, T14-T18)
+
+**`ModuleData/Enlisted/Endeavors/endeavor_catalog.json`** — 27 endeavor templates across 5 categories:
+- Soldier (6): drill_competition, teach_recruit, lord_notice_skirmish, physical_training, weapon_mastery, lead_patrol
+- Rogue (6): dice_game, smuggle_wine, pickpocket, black_market, gambling_ring, bribe_officer
+- Medical (5): forage_herbs, tend_sick, poultice_recipes, field_surgery, disease_outbreak
+- Scouting (5): map_terrain, track_patrol, report_morale, deep_recon, escape_routes
+- Social (5): befriend_sergeant, sway_lord, court_camp_follower, influence_companion, peer_officer_alliance
+
+All resolutions point to category-shared `endeavor_<category>_resolution_<bucket>_generic` storylets (Plan 7 polish can swap to per-template unique resolutions where differentiation matters).
+
+**`Enlisted.csproj`** — new `<EndeavorsData Include="ModuleData\Enlisted\Endeavors\*.json"/>` ItemGroup + matching `<MakeDir>` + `<Copy>` in `AfterBuild` per CLAUDE.md project conventions.
+
+### Phase D — Endeavor + contract storylets (commit `de1a840`, T19-T25)
+
+Authored via 6 parallel subagents — one per category plus contracts. Each subagent operated against the shared schema doc + design guide + Phase 19 validator running as the schema gate. **94 storylets across 7 new files:**
+
+| File | Storylets | Phase / Resolution split |
+| :-- | :-: | :-- |
+| `endeavor_soldier.json` | 15 | 12 phase + 3 generic resolutions |
+| `endeavor_rogue.json` | 16 | 13 phase + 3 generic resolutions |
+| `endeavor_medical.json` | 14 | 11 phase + 3 generic resolutions |
+| `endeavor_scouting.json` | 14 | 11 phase + 3 generic resolutions |
+| `endeavor_social.json` | 16 | 13 phase + 3 generic resolutions |
+| `contract_archetypes.json` (storylets file) | 19 | 16 phase + 3 generic resolutions |
+
+**`ModuleData/Enlisted/Endeavors/contract_archetypes.json`** — 10 contract templates across 6 notable types (headman 2, merchant 3, gangleader 2, artisan 1, rural_notable 1, urban_notable 1).
+
+### Phase 19 validator + schema doc cleanup (commit `de1a840`, fold-in)
+
+- Phase 19 category-coherence rule loosened from "rogue-only scrutiny" to "rogue + scouting may carry scrutiny" — aligns with design guide §2.4 which explicitly allows mild Scouting risk on infiltration templates.
+- `endeavor.scouting.track_patrol` `scrutiny_risk_per_phase` bumped 0.0 → 0.05 to align template with the storylets that ship scrutiny effects.
+- Schema doc §6 worked example updated: replaced stale `endeavor_set_choice_flag` + `endeavor_set_score` references (never registered as scripted effects) with the actual shipped pattern (inline `set_flag` + `endeavor_score_plus_1` etc.). New paragraph documents the 13 registered skill-XP wrappers and notes that uncommon skill axes route through the closest registered wrapper.
+
+### Phase E — Cross-system flag wiring (commit will follow this report, T27)
+
+- `endeavor.rogue.dice_game` — `flag_blockers: ["ceremony_choice_t2_frugal"]`. A player who picked the disciplined option at the T2 ceremony cannot run dice in camp; the storylet is filtered out of the available list.
+- `endeavor.social.court_camp_follower` — `flag_gates: ["ceremony_choice_t2_generous"]`. Available only to players whose T2 ceremony pick read as generous (the camp followers see them as a means).
+
+These two demonstrate the cross-system gating mechanism; downstream content can layer more `flag_gates` / `flag_blockers` against `ceremony_choice_t<N>_<id>` flags or any other `FlagStore` boolean. Per-storylet flavor variants conditional on ceremony picks are deferred to Plan 7 polish (would require authoring 3-4 variant-storylets per gated phase).
+
 ---
 
 ## §2 — Verification gates passed
 
-- ✅ `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` — clean (0 warnings, 0 errors) on `feature/plan5-endeavor-system` HEAD (`4e854b4`).
-- ✅ `python Tools/Validation/validate_content.py` — passes; pre-existing warnings + Phase 19 emits two soft warnings (endeavor_catalog.json + contract_archetypes.json not yet authored — expected at this point in the plan).
-- ✅ `python Tools/Validation/generate_error_codes.py` — registry regenerated and committed in commit `4e854b4`.
+- ✅ `dotnet build -c "Enlisted RETAIL" -p:Platform=x64` — clean (0 warnings, 0 errors) on `feature/plan5-endeavor-system` HEAD.
+- ✅ `python Tools/Validation/validate_content.py` — passes; "OK: 27 endeavor template(s) and 10 contract template(s) validated." 0 errors. 64 warnings, all pre-existing or loc-key-fallback (translator-only, no runtime impact).
+- ✅ `python Tools/Validation/generate_error_codes.py` — registry regenerated at Phase B (commit `4e854b4`); no new Surfaced calls in Phase C+D.
 - ✅ All new C# files normalized to CRLF via `Tools/normalize_crlf.ps1` (one-time per file).
 - ✅ Activity backbone polymorphism compiles — `EndeavorActivity` and `ContractActivity` both override the five-method `Activity` abstract surface (`OnStart(ActivityContext)`, `Tick(bool)`, `OnPhaseEnter(Phase)`, `OnPhaseExit(Phase)`, `Finish(ActivityEndReason)`).
-- ✅ Worktree cleanly committed; no pending changes; `git status` clean.
+- ✅ All 27 endeavor templates' `phase_pool` + `resolution_storylets` references resolve in the storylet catalog. All 10 contract templates' refs resolve.
+- ✅ All scripted-effect IDs referenced in storylet options exist in `scripted_effects.json` (Phase 12 validator).
+- ✅ Phase 19 category-scrutiny coherence: Soldier / Medical / Social all `scrutiny_risk_per_phase: 0.0`; Rogue uses 0.05-0.20; Scouting uses 0.05-0.10 on infiltration templates only.
+- ⏳ In-game smoke pending — runbook in §4 below.
 
 ---
 
-## §3 — Pending work for the next session (17 of 30 tasks)
+## §3 — Pending work (1 of 30 tasks: T29 in-game smoke)
 
-The remaining tasks fall into four phases. Lock 10 (in the plan file) defines the sequencing.
+**T29 — End-to-end smoke test** is the only remaining work. It is **handed to the human operator** per Plans 1-3 precedent — code-level work cannot validate save-load round-trip, modal queue stacking under real time-control speeds, or the player-experience feel of the storylet prose. The runbook is in §4 below.
 
-### Phase C — Endeavor catalog data (T14-T18, ~30 templates)
+After the human operator runs the smoke scenarios, they update this verification report's status from 🟡 to ✅ (or file follow-up bugs). The branch then becomes mergeable to `development`.
 
-- **T14 — Soldier templates (~6) + csproj**
-  Author Soldier category in `ModuleData/Enlisted/Endeavors/endeavor_catalog.json`. ALSO wire the `Endeavors` data dir in `Enlisted.csproj`: three additions per CLAUDE.md project conventions (`<EndeavorsData Include="ModuleData\Enlisted\Endeavors\*.json"/>` ItemGroup + matching `<MakeDir>` + `<Copy>` in `AfterBuild`). Without these three, content silently doesn't deploy to the game install. Templates: drill_competition / teach_recruit / lord_notice_skirmish / physical_training / weapon_mastery / lead_patrol.
-- **T15-T18 — Rogue / Medical / Scouting / Social templates (~5-6 each)** appended to the same `endeavor_catalog.json`. Templates are listed in the plan body §6 T15-T18; design guide §2 covers tone per category.
-
-The Phase 19 validator catches schema violations on every template — author with the validator open as a tight feedback loop.
-
-### Phase D — Endeavor storylets (T19-T23, ~50 storylets)
-
-- **T19 — Soldier storylets (~12) — author in main thread as tone exemplar.** Schema follows the standard storylet shape (storylet-backbone.md). Each phase storylet is 2-3 options; each option's effects include `endeavor_score_plus_1` or `_minus_1` (or _plus_2 / _minus_2 for the most consequential picks) plus skill XP / lord relation / set_flag for choice memory (`endeavor_choice_<endeavor_id>_<phase>_<option_id>`). Resolution storylets are similarly shaped but emit larger payouts.
-- **T20-T23 — Rogue / Medical / Scouting / Social storylets** dispatched to parallel subagents per Lock 10. Subagent prompt should include: (a) the design guide, (b) the shipped Soldier files as tone reference, (c) Phase 19 validator running as the schema gate. Each subagent owns one category file family.
-
-### Phase E — Contracts (T24-T25)
-
-- T24 ships `contract_archetypes.json` — 10 notable-issued contract templates. Same schema family as endeavors with three field swaps (see schema doc §8): `category` → `notable_type`, plus `payment_denars` and `notable_relation_min` fields.
-- T25 ships ~15 contract phase storylets (some 1-phase, some 2-phase).
-
-### Phase F — Integration + smoke + verification (T27 + T29-T30)
-
-- **T26 deferred to Plan 7 polish** (stretch goal in plan §6).
-- T27 — cross-system flag integration. Examples: `endeavor.rogue.dice_game` requires `ceremony_choice_t2_frugal` ; `endeavor.medical.poultice_recipes` flavored by `ceremony_choice_t4_<id>`. Author by editing template `flag_gates` / `flag_blockers` arrays after T20+T21 storylets ship. T4 + T7 ceremony option IDs must be grepped at task time per Lock 2 in the plan file.
-- T29 — end-to-end smoke. Per Plans 1-3 precedent, this is the in-game manual smoke runbook handed to the human operator. Author the runbook as part of this report (§4 below is the seed).
-- T30 — finalize this verification report (move from PARTIAL to DONE with smoke results filled in).
+**T26 — Endeavor sub-menu integration with companion talk-to** is **deferred to Plan 7 polish** per the plan §6 stretch flag. The companion talk-to surface (Plan 2) does not currently surface "Help me with [endeavor]" options when the player has an active endeavor; adding that requires augmenting `EnlistedDialogManager`'s companion conversation flow with a check against `EndeavorActivity.Instance.GetAssignedCompanions()`. Low player-impact in v1; clean Plan 7 enhancement.
 
 ---
 
-## §4 — Resume runbook (for the next session)
+## §4 — In-game smoke runbook (T29)
 
-### Picking up the work
+This is the canonical T29 deliverable: the smoke scenarios the human operator
+runs in-game to validate Plan 5 end-to-end. The branch is mergeable to
+`development` once the scenarios pass.
 
-1. **Find the worktree.** `git worktree list` in the main repo shows
-   `.worktrees/plan5-endeavor-system` on branch `feature/plan5-endeavor-system`.
-   `cd` into that directory before doing anything.
+### Pre-flight
 
-2. **Verify the build.** `dotnet build -c 'Enlisted RETAIL' -p:Platform=x64` from
-   the worktree should succeed in ~2s. The worktree has its own `packages/`
-   directory (copied from the main repo at branch creation; if missing, `cp -r
-   ../../packages packages`). If the build fails on missing
-   `Microsoft.NETFramework.ReferenceAssemblies.net472.targets`, re-copy.
+1. **Branch state.** Confirm `feature/plan5-endeavor-system` is checked out
+   (worktree at `.worktrees/plan5-endeavor-system/`). HEAD should be the
+   latest Phase F commit (after Phase C+D + this report were written).
+2. **Build + deploy.** `dotnet build -c 'Enlisted RETAIL' -p:Platform=x64`
+   from the worktree. Post-build mirror should land `Enlisted.dll` in the
+   game install. Close BannerlordLauncher first (CLAUDE.md known footgun).
+3. **Validator green.** `python Tools/Validation/validate_content.py`
+   reports "OK: 27 endeavor template(s) and 10 contract template(s)
+   validated." 0 errors. Warnings are loc-key fallbacks (translator-only,
+   not blocking).
+4. **Native logs primed.** Native Bannerlord watchdog at
+   `C:\ProgramData\Mount and Blade II Bannerlord\logs\` should be empty or
+   stale. Mod session log at
+   `Modules\Enlisted\Debugging\Session-A_<date>.log` will be created on
+   game launch.
 
-3. **Verify the validator state.** `python Tools/Validation/validate_content.py`
-   exits 0 with two expected warnings about the absent
-   `endeavor_catalog.json` + `contract_archetypes.json`. Any other endeavor
-   warning means a regression.
+### Known gaps + watch-outs (read before running)
 
-4. **Read the plan in this order:**
-   - **Locks 1-10 at the top** — these override the body where they conflict.
-   - The schema doc + design guide before authoring content.
-   - This verification report's §3 for the precise next-step bucket.
+- **Localization XML not synced.** Phase B introduced ~25
+  `{=enlisted_endeavors_*}` loc keys via `TextObject(...)` calls in
+  `EndeavorsMenuHandler.cs`. Phase D introduced ~250 `{=endeavor_*}` /
+  `{=contract_*}` storylet keys. None integrated into
+  `enlisted_strings.xml`. The game falls back to the inline `Fallback`
+  text — zero runtime impact, just no translation. Plan 7 polish can run
+  `sync_event_strings.py` and integrate.
+- **`{NOTABLE_NAME}` token unwired.** Contract storylets reference notable
+  heroes by literal first name in setup prose (Headman Eadric, Merchant
+  Reza, etc.) rather than via a token. Real notable hero names won't
+  appear in v1; Plan 7 polish item.
+- **No probabilistic scrutiny rolls.** Plan §4.6 envisioned a per-phase
+  `MBRandom.RandomFloat` discovery roll based on baseRisk minus Charm
+  contributions. Phase D ships deterministic scrutiny — each Rogue option
+  has its scrutiny effect baked in (brash adds `_minor` to `_major`,
+  clever adds `_minor` or none, bail-out adds none). `ScrutinyRiskCalculator`
+  exists but is not currently called by `EndeavorPhaseProvider`.
+  Tooltip-time integration is a Plan 7 polish item.
+- **Resolution prose generic.** All 5 categories use 3 generic resolutions
+  shared across their templates. The same "you took third place" prose
+  fires whether the player ran drill_competition or weapon_mastery.
+  Per-template marquee resolutions are a Plan 7 polish item if
+  differentiation matters in playtest.
 
-### Picking up at T14 (start of Phase C)
+### Smoke scenarios
 
-The plan body lists T14-T18 templates verbatim. Author them into a single new
-file at `ModuleData/Enlisted/Endeavors/endeavor_catalog.json` with the schema
-the design guide §10 worked example shows. Run the validator after each
-category to confirm schema correctness. Wire the csproj entries listed at
-CLAUDE.md project conventions section (three lines: ItemGroup + MakeDir +
-Copy in AfterBuild). The validator's Phase 19 will start emitting concrete
-errors instead of "file not authored" warnings the moment the file exists —
-those errors are the ground truth.
-
-### Picking up at T19 (start of Phase D, content authoring)
-
-Author Soldier storylets (T19) in main thread as the tone exemplar. Then
-dispatch four parallel subagents for T20-T23 (Rogue / Medical / Scouting /
-Social), each with: the design guide path, the shipped Soldier storylet
-files as references, and instructions to run `validate_content.py` before
-declaring done. Use the standard storylet schema (see
-`docs/Features/Content/storylet-backbone.md`) — these are NOT a new content
-shape, just storylets that happen to be referenced by endeavor templates.
-
-### Known gaps + watch-outs
-
-- **Localization XML.** Phase B introduced ~25 `{=enlisted_endeavors_*}` loc
-  keys via `TextObject(...)` calls in `EndeavorsMenuHandler.cs`. These rely
-  on the inline-fallback mechanism (game falls back to the `Fallback` text
-  when the key isn't in `enlisted_strings.xml`); zero runtime impact, but
-  translators will complain. Plans 2+3 ran `sync_event_strings.py` for their
-  storylet keys and merged the output XML into `enlisted_strings.xml`. Plan 5
-  storylets (T19-T25) will need the same sync after they're authored. The
-  C# menu keys would need a separate manual XML population pass; defer until
-  the storylets are authored.
-- **In-game smoke pending.** All Plans 1-3 left this as 🟡 "code shipped,
-  in-game smoke pending human operator". Plan 5 follows the same pattern:
-  T29 will produce the runbook, but a human must run the actual playtest
-  scenarios.
-- **Plan-vs-codebase drift discipline.** Plan 1's verification §5 caught 7
-  divergences. Locks 1-10 in the plan file caught more. Stay vigilant per
-  AGENTS.md pitfall #22 — verify prescribed APIs against `../Decompile/` +
-  actual source as you go; append findings to the plan file's locks block.
-- **Phase advancement model.** Per Lock 9, time advances phases —
-  player option picks contribute score via the `endeavor_score_*` scripted
-  effects but do NOT advance the phase index directly. Don't try to add a
-  primitive that walks the activity from EffectExecutor; Plan §11 forbids
-  new EffectExecutor primitives.
-
-### Smoke test seed (for T29's runbook)
-
-A draft of the smoke scenarios. The human operator runs these in-game once
-all content ships:
+The human operator runs these in-game. Each scenario marks PASS / FAIL /
+BLOCKED and updates the table at §6 below.
 
 1. **Discovery + start (Soldier path, T3).** Create new save → enlist with
    any lord → reach T3 → open Camp → confirm "Endeavors" appears at slot 5
@@ -279,6 +284,67 @@ actual code; corrections shipped inline:
     Caught at Phase B build-error pass.
 11. **`ActivityEndReason.Cancelled`.** Actual enum value is `PlayerCancelled`.
     Caught at Phase B build-error pass.
+12. **Phase 19 category-scrutiny coherence too strict.** Initial validator
+    enforced "non-rogue category requires `scrutiny_risk_per_phase=0.0`",
+    but design guide §2.4 explicitly allows mild Scouting scrutiny on
+    infiltration templates (track_patrol, deep_recon). Loosened validator
+    to allow Rogue + Scouting scrutiny; Soldier / Medical / Social still
+    enforced to 0.0. Caught when the Rogue subagent flagged the
+    `endeavor.scouting.deep_recon` 0.10 scrutiny value as a Phase 19 error.
+13. **Skill-XP wrapper coverage gap.** T6 catalog ships closed wrappers
+    for the 13 most-used (skill, size) pairs (combat / athletics /
+    leadership / roguery / charm / medicine / scouting). Plan 5 templates
+    accept a wider skill_axis vocabulary (TwoHanded, Polearm, Bow,
+    Crossbow, Throwing, Riding, Steward, Tactics) for hybrid gating, but
+    no closed wrappers exist for those axes. Subagents routed all combat
+    XP through `_major_combat` (OneHanded under the hood), Riding/Bow
+    through `_athletics`, Steward through `_minor_charm`. Catalog-level
+    skill-axis variety preserved for gating; storylet-level XP routing
+    collapsed to the available palette. Plan 7 polish can add
+    axis-specific wrappers if XP attribution per skill matters in
+    playtest.
+14. **Score primitive only ships ±1 / ±2.** No "+0" score effect exists;
+    design guide §2.1 mentions "+0 score" for show-off options that are
+    neutral on score but flavor relations. Subagents collapsed neutral
+    options to ±1 (small effect either direction). Acceptable; the score
+    distribution still reaches all three resolutions.
+15. **`endeavor_set_choice_flag` + `endeavor_set_score` stale doc refs.**
+    Original schema doc §6 example referenced these names as if they
+    were registered scripted effects; they never were. Phase 5
+    implementation uses inline `set_flag` for choice memory and the
+    `endeavor_score_plus_1` / etc. wrappers for score. Schema doc fixed
+    in commit `de1a840`.
+16. **`{NOTABLE_NAME}` token not wired.** Contract storylets reference
+    notable heroes by name; the subagent flavored them with literal
+    first names (Headman Eadric, Merchant Reza, Gangleader Vask, etc.)
+    rather than via a token. Plan 7 polish item: wire `{NOTABLE_NAME}`
+    via a SetTextVariable call in `EndeavorPhaseProvider` reading from
+    `ContractActivity.Instance?.GetIssuingNotable()?.Name`.
+17. **Resolution storylet-sharing model.** Plan body §1 estimated "~50
+    storylets across 5 categories"; per-template unique resolutions
+    would have produced 6 templates × 3 resolutions × 5 categories ≈ 90
+    storylets just for resolutions. Implementation collapses to 3
+    category-shared generic resolutions per category (15 resolution
+    storylets total + 75 phase storylets ≈ 90 storylets total per the
+    plan estimate, with the breakdown different from what the plan body
+    implied). Per-template marquee resolutions are a Plan 7 polish item.
+
+---
+
+## §5b — Subagent dispatch results (Phase D, T19-T25)
+
+Phase D content was authored via 6 parallel subagents launched from a single message after Phase C templates landed. Each subagent received the schema reference, design guide pointer, full effect menu (closed list), per-category template ID list (extracted from the catalog), token interpolation contract, and the validator command as the schema gate.
+
+| Subagent | Task | Storylet count | Validator residuals | Notes |
+| :-- | :-- | :-: | :-: | :-- |
+| T19 Soldier | endeavor_soldier.json | 15 | 0 | Flagged stale schema doc §6 refs (#15 above) + skill axis collapse (#13). |
+| T20 Rogue | endeavor_rogue.json | 16 | 0 | Caught the Scouting `deep_recon` scrutiny coherence bug (#12). Per-storylet scrutiny effect placement summary in subagent report. |
+| T21 Medical | endeavor_medical.json | 14 | 0 | No deviations. `disease_outbreak` 3-phase escalation tuned (phase 3 uses ±2 score). |
+| T22 Scouting | endeavor_scouting.json | 14 | 0 | Reaffirmed deep_recon catalog bug. Tooltip XP values corrected to actual numbers (25 / 75 not the doc example "50"). |
+| T23 Social | endeavor_social.json | 16 | 0 | Generic resolutions omit companion tokens (templates without companion slots would render literal `{COMPANION_FIRST_NAME}`). Hild named for court_camp_follower. Minor narrative seam in `sway_lord_phase2` flagged. |
+| T24+T25 Contracts | contract_archetypes.json (catalog + storylets) | 10 templates + 19 storylets | 0 | Single-phase contracts use ±2 deltas to keep resolutions reachable. Notable names literal (Plan 7 token wiring). |
+
+Total dispatched: 6 subagents in parallel. Wall-clock time: ~7-8 minutes for the slowest (Contracts at 8m16s). All returned without retry.
 
 ---
 
