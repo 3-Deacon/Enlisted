@@ -110,23 +110,22 @@ Phase storylets are regular storylets (see [storylet-backbone.md](../Content/sto
 
 ```json
 {
-  "id": "drill_phase1_drill_hard",
-  "text": "{=endeavor_soldier_drill_phase1_drill_hard}Drill until your arms ache.",
-  "tooltip": "{=endeavor_soldier_drill_phase1_drill_hard_tt}+50 XP One-Handed. Sets up phase 2 with a tired-arms penalty.",
+  "id": "drill_hard",
+  "text": "{=endeavor_soldier_drill_competition_phase1_drill_hard}Drill until your arms ache.",
+  "tooltip": "{=endeavor_soldier_drill_competition_phase1_drill_hard_tt}+75 XP combat. Sets up phase 2 with a tired-arms flag.",
   "effects": [
-    { "apply": "endeavor_skill_xp_one_handed_major" },
-    { "apply": "endeavor_set_choice_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_1_drill_hard" },
-    { "apply": "endeavor_set_score", "name": "endeavor_score_endeavor.soldier.drill_competition", "delta": 1 }
+    { "apply": "endeavor_skill_xp_major_combat" },
+    { "apply": "endeavor_score_plus_1" },
+    { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_1_drill_hard" }
   ]
 }
 ```
 
-**Choice flag naming.** Per [Lock 2](../../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system.md#-locked-2026-04-26--readiness-amendments-pre-execution), choice flags use flat-underscore naming: `endeavor_choice_<endeavor_id>_<phase_index>_<option_id>`. The N-th phase's options should set the matching N. `EndeavorRunner` reads these to:
+**Choice flag naming.** Per [Lock 2](../../superpowers/plans/2026-04-24-ck3-wanderer-endeavor-system.md#-locked-2026-04-26--readiness-amendments-pre-execution), choice flags use flat-underscore naming: `endeavor_choice_<endeavor_id>_<phase_index>_<option_id>`. The N-th phase's options set the matching N via the standard `set_flag` primitive (no new primitive needed). The dotted endeavor ID embeds inside the underscore wrapper as in the example above. `EndeavorRunner` and downstream phase storylets read these via `FlagStore.Instance.Has(name)`.
 
-1. Determine "did this option fire" downstream (e.g. phase 2 storylet may flavor based on phase 1's pick).
-2. Tally the `endeavor_score_<endeavor_id>` accumulator (via the `endeavor_set_score` scripted-effect's `delta` argument) which gates which `resolution_storylets` entry fires.
+**Score primitive.** Score writes go through the `endeavor_score_plus_1` / `endeavor_score_minus_1` / `_plus_2` / `_minus_2` scripted-effect family (T6 catalog). Each is a closed wrapper around `quality_add` against the single global quality `endeavor_active_score` (range -20..+20, default 0). Every phase option must apply exactly one score effect; resolutions don't apply score (the runner reads the accumulated value to pick success/partial/failure, then clears to 0). `EndeavorRunner` resets the quality to 0 on endeavor start AND finish so the score doesn't leak between endeavors.
 
-**Score primitive.** Score writes go through the `endeavor_score_plus_1` / `endeavor_score_minus_1` / `_plus_2` / `_minus_2` scripted-effect family (T6 catalog). Each is a closed wrapper around `quality_add` against the single global quality `endeavor_active_score` (range -20..+20, default 0). `EndeavorRunner` clears the quality to 0 on endeavor start AND finish so the score doesn't leak between endeavors.
+**Available skill-XP wrappers.** T6 ships closed wrappers for the most-used (skill, size) pairs only — see `ModuleData/Enlisted/Effects/scripted_effects.json` for the full list (e.g. `endeavor_skill_xp_minor_combat` / `_major_combat` for OneHanded, `_minor_athletics`, `_minor_leadership` / `_major_leadership`, `_minor_roguery` / `_major_roguery`, `_minor_charm` / `_major_charm`, `_minor_medicine` / `_major_medicine`, `_minor_scouting` / `_major_scouting`). Skill axes outside this list (TwoHanded / Polearm / Bow / Crossbow / Throwing / Riding / Steward / Tactics) are accepted in `skill_axis` for hybrid-gating purposes but storylet effects route through the closest registered wrapper (typically `_major_combat` for any weapon, `_athletics` for physical work). Adding category-specific wrappers is a Plan 7 polish item.
 
 ---
 

@@ -1,0 +1,941 @@
+{
+  "schemaVersion": 1,
+  "endeavors": [
+    {
+      "id": "endeavor.soldier.drill_competition",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_drill_competition_title",
+      "title": "Win the regimental drill competition",
+      "description_id": "endeavor_soldier_drill_competition_desc",
+      "description": "Outperform your peers in the company's monthly drill. Recognition or shame, all in five days.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_soldier_drill_competition_phase1",
+        "endeavor_soldier_drill_competition_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "OneHanded",
+        "Athletics"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "veteran",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "OneHanded",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "soldier_intro"
+      ]
+    },
+    {
+      "id": "endeavor.soldier.teach_recruit",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_teach_recruit_title",
+      "title": "Teach a recruit your trade",
+      "description_id": "endeavor_soldier_teach_recruit_desc",
+      "description": "A new soldier needs a mentor. Show them the work. Lord notices steady hands.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_soldier_teach_recruit_phase1",
+        "endeavor_soldier_teach_recruit_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Leadership",
+        "OneHanded"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "sergeant",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "Leadership",
+          "skill_bonus_amount": 20
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 2,
+      "tags": [
+        "soldier_intro"
+      ]
+    },
+    {
+      "id": "endeavor.soldier.lord_notice_skirmish",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_lord_notice_skirmish_title",
+      "title": "Earn the lord's eye in the next fight",
+      "description_id": "endeavor_soldier_lord_notice_skirmish_desc",
+      "description": "Position yourself to be seen — well-placed sword, well-fought retreat. Whatever puts you in his line of sight.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_soldier_lord_notice_skirmish_phase1",
+        "endeavor_soldier_lord_notice_skirmish_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "OneHanded",
+        "TwoHanded",
+        "Polearm"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 2,
+      "tags": []
+    },
+    {
+      "id": "endeavor.soldier.physical_training",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_physical_training_title",
+      "title": "Athletics-focused training",
+      "description_id": "endeavor_soldier_physical_training_desc",
+      "description": "Run, lift, climb. Four days of breaking the body to remake it.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_soldier_physical_training_phase1",
+        "endeavor_soldier_physical_training_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Athletics"
+      ],
+      "self_gate_skill_threshold": 30,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "soldier_intro"
+      ]
+    },
+    {
+      "id": "endeavor.soldier.weapon_mastery",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_weapon_mastery_title",
+      "title": "Master your weapon",
+      "description_id": "endeavor_soldier_weapon_mastery_desc",
+      "description": "Pick a weapon. Spend five days knowing it as well as your name.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_soldier_weapon_mastery_phase1",
+        "endeavor_soldier_weapon_mastery_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "OneHanded",
+        "TwoHanded",
+        "Polearm",
+        "Bow",
+        "Crossbow",
+        "Throwing"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "veteran",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "OneHanded",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 3,
+      "tags": []
+    },
+    {
+      "id": "endeavor.soldier.lead_patrol",
+      "category": "soldier",
+      "title_id": "endeavor_soldier_lead_patrol_title",
+      "title": "Lead a small patrol",
+      "description_id": "endeavor_soldier_lead_patrol_desc",
+      "description": "The lord trusts you with a handful of men for three days. Bring them all back. Or don't.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_soldier_lead_patrol_phase1",
+        "endeavor_soldier_lead_patrol_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_soldier_resolution_success_generic",
+        "partial": "endeavor_soldier_resolution_partial_generic",
+        "failure": "endeavor_soldier_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Leadership",
+        "Tactics"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "junior_officer",
+          "role": "partner",
+          "required": false,
+          "skill_bonus_axis": "Tactics",
+          "skill_bonus_amount": 15
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 5,
+      "tags": [
+        "t5_plus"
+      ]
+    },
+    {
+      "id": "endeavor.rogue.dice_game",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_dice_game_title",
+      "title": "Run a dice game in camp",
+      "description_id": "endeavor_rogue_dice_game_desc",
+      "description": "Three nights of bones and silver. Quiet table; small stakes. Quiet stakes — quiet risk.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_rogue_dice_game_phase1",
+        "endeavor_rogue_dice_game_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.05,
+      "tier_min": 1,
+      "tags": [
+        "rogue_intro"
+      ]
+    },
+    {
+      "id": "endeavor.rogue.smuggle_wine",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_smuggle_wine_title",
+      "title": "Smuggle wine past the quartermaster",
+      "description_id": "endeavor_rogue_smuggle_wine_desc",
+      "description": "There's a barrel of southern red the QM doesn't know about. There could be coin in moving it.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_rogue_smuggle_wine_phase1",
+        "endeavor_rogue_smuggle_wine_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.1,
+      "tier_min": 2,
+      "tags": []
+    },
+    {
+      "id": "endeavor.rogue.pickpocket",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_pickpocket_title",
+      "title": "Pickpocket camp followers",
+      "description_id": "endeavor_rogue_pickpocket_desc",
+      "description": "Camp followers carry their savings on them. So would you, if you were them. Three days, no witnesses.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_rogue_pickpocket_phase1",
+        "endeavor_rogue_pickpocket_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.15,
+      "tier_min": 1,
+      "tags": []
+    },
+    {
+      "id": "endeavor.rogue.black_market",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_black_market_title",
+      "title": "Sell looted goods on the black market",
+      "description_id": "endeavor_rogue_black_market_desc",
+      "description": "What the quartermaster doesn't see, he doesn't tax. There's a buyer in every camp town.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_rogue_black_market_phase1",
+        "endeavor_rogue_black_market_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.1,
+      "tier_min": 3,
+      "tags": []
+    },
+    {
+      "id": "endeavor.rogue.gambling_ring",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_gambling_ring_title",
+      "title": "Build a gambling ring",
+      "description_id": "endeavor_rogue_gambling_ring_desc",
+      "description": "Bigger than dice. Real coin, regular nights, real consequences if it surfaces. A week of careful work.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_rogue_gambling_ring_phase1",
+        "endeavor_rogue_gambling_ring_phase2",
+        "endeavor_rogue_gambling_ring_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 70,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.15,
+      "tier_min": 3,
+      "tags": []
+    },
+    {
+      "id": "endeavor.rogue.bribe_officer",
+      "category": "rogue",
+      "title_id": "endeavor_rogue_bribe_officer_title",
+      "title": "Bribe an officer for inside information",
+      "description_id": "endeavor_rogue_bribe_officer_desc",
+      "description": "Coin opens many doors. Including doors that hang you. Four days. Officer corruption is a hanging offense.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_rogue_bribe_officer_phase1",
+        "endeavor_rogue_bribe_officer_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_rogue_resolution_success_generic",
+        "partial": "endeavor_rogue_resolution_partial_generic",
+        "failure": "endeavor_rogue_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm",
+        "Roguery"
+      ],
+      "self_gate_skill_threshold": 70,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.2,
+      "tier_min": 5,
+      "tags": [
+        "t5_plus"
+      ]
+    },
+    {
+      "id": "endeavor.medical.forage_herbs",
+      "category": "medical",
+      "title_id": "endeavor_medical_forage_herbs_title",
+      "title": "Forage medicinal herbs",
+      "description_id": "endeavor_medical_forage_herbs_desc",
+      "description": "Three days walking the company's perimeter. Yarrow, comfrey, willow bark. The medic's tent will be glad of it.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_medical_forage_herbs_phase1",
+        "endeavor_medical_forage_herbs_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_medical_resolution_success_generic",
+        "partial": "endeavor_medical_resolution_partial_generic",
+        "failure": "endeavor_medical_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Medicine",
+        "Scouting"
+      ],
+      "self_gate_skill_threshold": 30,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "Medicine",
+          "skill_bonus_amount": 50
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "medical_intro"
+      ]
+    },
+    {
+      "id": "endeavor.medical.tend_sick",
+      "category": "medical",
+      "title_id": "endeavor_medical_tend_sick_title",
+      "title": "Tend a sick officer",
+      "description_id": "endeavor_medical_tend_sick_desc",
+      "description": "An officer is bedridden with fever. The medic wants help. You decide how much.",
+      "duration_days": 2,
+      "phase_pool": [
+        "endeavor_medical_tend_sick_phase1",
+        "endeavor_medical_tend_sick_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_medical_resolution_success_generic",
+        "partial": "endeavor_medical_resolution_partial_generic",
+        "failure": "endeavor_medical_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Medicine",
+        "Steward"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "Medicine",
+          "skill_bonus_amount": 50
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "medical_intro"
+      ]
+    },
+    {
+      "id": "endeavor.medical.poultice_recipes",
+      "category": "medical",
+      "title_id": "endeavor_medical_poultice_recipes_title",
+      "title": "Learn new poultice recipes",
+      "description_id": "endeavor_medical_poultice_recipes_desc",
+      "description": "An old field medic has notes you've never seen. Four days of practice; if it sticks, it sticks.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_medical_poultice_recipes_phase1",
+        "endeavor_medical_poultice_recipes_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_medical_resolution_success_generic",
+        "partial": "endeavor_medical_resolution_partial_generic",
+        "failure": "endeavor_medical_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Medicine"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "mentor",
+          "required": false,
+          "skill_bonus_axis": "Medicine",
+          "skill_bonus_amount": 50
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 2,
+      "tags": []
+    },
+    {
+      "id": "endeavor.medical.field_surgery",
+      "category": "medical",
+      "title_id": "endeavor_medical_field_surgery_title",
+      "title": "Perform field surgery",
+      "description_id": "endeavor_medical_field_surgery_desc",
+      "description": "Five days assisting a real cut. Closing wounds, taking arrowheads, holding the table. Hands learn what minds resist.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_medical_field_surgery_phase1",
+        "endeavor_medical_field_surgery_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_medical_resolution_success_generic",
+        "partial": "endeavor_medical_resolution_partial_generic",
+        "failure": "endeavor_medical_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Medicine"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "agent",
+          "required": true,
+          "skill_bonus_axis": "Medicine",
+          "skill_bonus_amount": 50
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 3,
+      "tags": [
+        "requires_field_medic"
+      ]
+    },
+    {
+      "id": "endeavor.medical.disease_outbreak",
+      "category": "medical",
+      "title_id": "endeavor_medical_disease_outbreak_title",
+      "title": "Manage a disease outbreak",
+      "description_id": "endeavor_medical_disease_outbreak_desc",
+      "description": "A bad cough is moving through the company. A week to keep it from being something worse.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_medical_disease_outbreak_phase1",
+        "endeavor_medical_disease_outbreak_phase2",
+        "endeavor_medical_disease_outbreak_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_medical_resolution_success_generic",
+        "partial": "endeavor_medical_resolution_partial_generic",
+        "failure": "endeavor_medical_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Medicine",
+        "Steward"
+      ],
+      "self_gate_skill_threshold": 70,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "agent",
+          "required": true,
+          "skill_bonus_axis": "Medicine",
+          "skill_bonus_amount": 50
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 5,
+      "tags": [
+        "t5_plus",
+        "requires_field_medic"
+      ]
+    },
+    {
+      "id": "endeavor.scouting.map_terrain",
+      "category": "scouting",
+      "title_id": "endeavor_scouting_map_terrain_title",
+      "title": "Map the surrounding terrain",
+      "description_id": "endeavor_scouting_map_terrain_desc",
+      "description": "Walk a day's ride out, four directions, four days. Mark what you find. The lord pays for ink and parchment.",
+      "duration_days": 4,
+      "phase_pool": [
+        "endeavor_scouting_map_terrain_phase1",
+        "endeavor_scouting_map_terrain_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_scouting_resolution_success_generic",
+        "partial": "endeavor_scouting_resolution_partial_generic",
+        "failure": "endeavor_scouting_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Riding"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "scouting_intro"
+      ]
+    },
+    {
+      "id": "endeavor.scouting.track_patrol",
+      "category": "scouting",
+      "title_id": "endeavor_scouting_track_patrol_title",
+      "title": "Track an enemy patrol",
+      "description_id": "endeavor_scouting_track_patrol_desc",
+      "description": "An enemy column moves three days east of camp. Know its size; know its heading. Know it without being known.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_scouting_track_patrol_phase1",
+        "endeavor_scouting_track_patrol_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_scouting_resolution_success_generic",
+        "partial": "endeavor_scouting_resolution_partial_generic",
+        "failure": "endeavor_scouting_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Bow"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.05,
+      "tier_min": 2,
+      "tags": []
+    },
+    {
+      "id": "endeavor.scouting.report_morale",
+      "category": "scouting",
+      "title_id": "endeavor_scouting_report_morale_title",
+      "title": "Report on village morale",
+      "description_id": "endeavor_scouting_report_morale_desc",
+      "description": "Visit the closest three villages. Listen to who curses the lord and who blesses him. Three days of quiet conversation.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_scouting_report_morale_phase1",
+        "endeavor_scouting_report_morale_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_scouting_resolution_success_generic",
+        "partial": "endeavor_scouting_resolution_partial_generic",
+        "failure": "endeavor_scouting_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "scouting_intro"
+      ]
+    },
+    {
+      "id": "endeavor.scouting.deep_recon",
+      "category": "scouting",
+      "title_id": "endeavor_scouting_deep_recon_title",
+      "title": "Deep reconnaissance behind enemy lines",
+      "description_id": "endeavor_scouting_deep_recon_desc",
+      "description": "A week behind their forward camps. Real intelligence. Real risk. The lord pays for what no one else can bring him.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_scouting_deep_recon_phase1",
+        "endeavor_scouting_deep_recon_phase2",
+        "endeavor_scouting_deep_recon_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_scouting_resolution_success_generic",
+        "partial": "endeavor_scouting_resolution_partial_generic",
+        "failure": "endeavor_scouting_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Riding"
+      ],
+      "self_gate_skill_threshold": 70,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": true,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.1,
+      "tier_min": 5,
+      "tags": [
+        "t5_plus",
+        "requires_pathfinder"
+      ]
+    },
+    {
+      "id": "endeavor.scouting.escape_routes",
+      "category": "scouting",
+      "title_id": "endeavor_scouting_escape_routes_title",
+      "title": "Identify escape routes",
+      "description_id": "endeavor_scouting_escape_routes_desc",
+      "description": "If the lord's camp is overrun tomorrow, where do the survivors go? Three days of asking the question no officer wants asked.",
+      "duration_days": 3,
+      "phase_pool": [
+        "endeavor_scouting_escape_routes_phase1",
+        "endeavor_scouting_escape_routes_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_scouting_resolution_success_generic",
+        "partial": "endeavor_scouting_resolution_partial_generic",
+        "failure": "endeavor_scouting_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Riding"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 2,
+      "tags": []
+    },
+    {
+      "id": "endeavor.social.befriend_sergeant",
+      "category": "social",
+      "title_id": "endeavor_social_befriend_sergeant_title",
+      "title": "Befriend the sergeant",
+      "description_id": "endeavor_social_befriend_sergeant_desc",
+      "description": "A week of small kindnesses. Shared rations, kept secrets, drinks bought. A friend in the ranks is worth more than coin.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_social_befriend_sergeant_phase1",
+        "endeavor_social_befriend_sergeant_phase2",
+        "endeavor_social_befriend_sergeant_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_social_resolution_success_generic",
+        "partial": "endeavor_social_resolution_partial_generic",
+        "failure": "endeavor_social_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "sergeant",
+          "role": "confidant",
+          "required": true,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 0
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "social_intro",
+        "requires_sergeant"
+      ]
+    },
+    {
+      "id": "endeavor.social.sway_lord",
+      "category": "social",
+      "title_id": "endeavor_social_sway_lord_title",
+      "title": "Sway the lord's opinion",
+      "description_id": "endeavor_social_sway_lord_desc",
+      "description": "Five days of careful words at council, careful silences elsewhere. Move him toward the position you want him to take.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_social_sway_lord_phase1",
+        "endeavor_social_sway_lord_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_social_resolution_success_generic",
+        "partial": "endeavor_social_resolution_partial_generic",
+        "failure": "endeavor_social_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm",
+        "Leadership"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 3,
+      "tags": []
+    },
+    {
+      "id": "endeavor.social.court_camp_follower",
+      "category": "social",
+      "title_id": "endeavor_social_court_camp_follower_title",
+      "title": "Court a camp follower",
+      "description_id": "endeavor_social_court_camp_follower_desc",
+      "description": "A washerwoman, a smith's daughter, a peddler at the edge of the camp. A week of warmth that costs nothing but time. Or everything.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_social_court_camp_follower_phase1",
+        "endeavor_social_court_camp_follower_phase2",
+        "endeavor_social_court_camp_follower_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_social_resolution_success_generic",
+        "partial": "endeavor_social_resolution_partial_generic",
+        "failure": "endeavor_social_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": []
+    },
+    {
+      "id": "endeavor.social.influence_companion",
+      "category": "social",
+      "title_id": "endeavor_social_influence_companion_title",
+      "title": "Deepen relation with a companion",
+      "description_id": "endeavor_social_influence_companion_desc",
+      "description": "Five days of paying attention. Learning the small histories. Trust that wasn't there last week.",
+      "duration_days": 5,
+      "phase_pool": [
+        "endeavor_social_influence_companion_phase1",
+        "endeavor_social_influence_companion_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_social_resolution_success_generic",
+        "partial": "endeavor_social_resolution_partial_generic",
+        "failure": "endeavor_social_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "veteran",
+          "role": "confidant",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 0
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 1,
+      "tags": [
+        "social_intro"
+      ]
+    },
+    {
+      "id": "endeavor.social.peer_officer_alliance",
+      "category": "social",
+      "title_id": "endeavor_social_peer_officer_alliance_title",
+      "title": "Build a peer-officer alliance",
+      "description_id": "endeavor_social_peer_officer_alliance_desc",
+      "description": "A week with a junior officer of equal rank. Shared cups, shared frustrations, shared favors-owed. The kind of bond that survives the next promotion.",
+      "duration_days": 7,
+      "phase_pool": [
+        "endeavor_social_peer_officer_alliance_phase1",
+        "endeavor_social_peer_officer_alliance_phase2",
+        "endeavor_social_peer_officer_alliance_phase3"
+      ],
+      "resolution_storylets": {
+        "success": "endeavor_social_resolution_success_generic",
+        "partial": "endeavor_social_resolution_partial_generic",
+        "failure": "endeavor_social_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Leadership",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "junior_officer",
+          "role": "partner",
+          "required": true,
+          "skill_bonus_axis": "Leadership",
+          "skill_bonus_amount": 25
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "tier_min": 7,
+      "tags": [
+        "officer_only",
+        "requires_junior_officer"
+      ]
+    }
+  ]
+}

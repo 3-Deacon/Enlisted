@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 1,
+  "contracts": [
+    {
+      "id": "contract.headman.find_runaway_apprentice",
+      "notable_type": "headman",
+      "title_id": "contract_headman_find_runaway_apprentice_title",
+      "title": "Find the headman's runaway apprentice",
+      "description_id": "contract_headman_find_runaway_apprentice_desc",
+      "description": "A 14-year-old fled to the army. Three days to bring him back before he signs the muster roll.",
+      "duration_days": 3,
+      "phase_pool": [
+        "contract_headman_find_runaway_apprentice_phase1"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm",
+        "Scouting"
+      ],
+      "self_gate_skill_threshold": 30,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 200,
+      "notable_relation_min": 0,
+      "tags": [
+        "contract_intro"
+      ]
+    },
+    {
+      "id": "contract.headman.clear_bandit_trail",
+      "notable_type": "headman",
+      "title_id": "contract_headman_clear_bandit_trail_title",
+      "title": "Mark the bandit trail above the village",
+      "description_id": "contract_headman_clear_bandit_trail_desc",
+      "description": "Bandits raid down a wood-line trail. Walk it, mark the camp, deliver coordinates. Four days.",
+      "duration_days": 4,
+      "phase_pool": [
+        "contract_headman_clear_bandit_trail_phase1",
+        "contract_headman_clear_bandit_trail_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Bow"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.05,
+      "payment_denars": 400,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.merchant.deliver_letter_to_townsman",
+      "notable_type": "merchant",
+      "title_id": "contract_merchant_deliver_letter_to_townsman_title",
+      "title": "Carry a sealed letter to a townsman",
+      "description_id": "contract_merchant_deliver_letter_to_townsman_desc",
+      "description": "Two days east. Place the letter in the right hand. Quick and quiet.",
+      "duration_days": 2,
+      "phase_pool": [
+        "contract_merchant_deliver_letter_to_townsman_phase1"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm",
+        "Scouting"
+      ],
+      "self_gate_skill_threshold": 30,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 150,
+      "notable_relation_min": 0,
+      "tags": [
+        "contract_intro"
+      ]
+    },
+    {
+      "id": "contract.merchant.courier_silver_to_neighbor",
+      "notable_type": "merchant",
+      "title_id": "contract_merchant_courier_silver_to_neighbor_title",
+      "title": "Courier a silver pouch to a neighbor merchant",
+      "description_id": "contract_merchant_courier_silver_to_neighbor_desc",
+      "description": "Carry the pouch three days. Don't open it. Discretion is paid for.",
+      "duration_days": 3,
+      "phase_pool": [
+        "contract_merchant_courier_silver_to_neighbor_phase1"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Charm",
+        "Scouting"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 350,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.merchant.scout_tariff_routes",
+      "notable_type": "merchant",
+      "title_id": "contract_merchant_scout_tariff_routes_title",
+      "title": "Scout three border routes",
+      "description_id": "contract_merchant_scout_tariff_routes_desc",
+      "description": "Walk three border tracks. Mark which the toll-collectors actually patrol. Four days.",
+      "duration_days": 4,
+      "phase_pool": [
+        "contract_merchant_scout_tariff_routes_phase1",
+        "contract_merchant_scout_tariff_routes_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Riding"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 500,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.gangleader.collect_owed_debts",
+      "notable_type": "gangleader",
+      "title_id": "contract_gangleader_collect_owed_debts_title",
+      "title": "Collect three owed debts",
+      "description_id": "contract_gangleader_collect_owed_debts_desc",
+      "description": "Three names. Three doors. Make them pay. Or take it from them. Three days.",
+      "duration_days": 3,
+      "phase_pool": [
+        "contract_gangleader_collect_owed_debts_phase1",
+        "contract_gangleader_collect_owed_debts_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "veteran",
+          "role": "partner",
+          "required": false,
+          "skill_bonus_axis": "Roguery",
+          "skill_bonus_amount": 20
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.10,
+      "payment_denars": 300,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.gangleader.smuggle_contraband_to_back_alley",
+      "notable_type": "gangleader",
+      "title_id": "contract_gangleader_smuggle_contraband_to_back_alley_title",
+      "title": "Smuggle a crate to a back alley",
+      "description_id": "contract_gangleader_smuggle_contraband_to_back_alley_desc",
+      "description": "From the river docks to a back alley four days west. Don't ask what's in it. Don't open the crate.",
+      "duration_days": 4,
+      "phase_pool": [
+        "contract_gangleader_smuggle_contraband_to_back_alley_phase1",
+        "contract_gangleader_smuggle_contraband_to_back_alley_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Charm"
+      ],
+      "self_gate_skill_threshold": 60,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.15,
+      "payment_denars": 600,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.artisan.gather_rare_pigments",
+      "notable_type": "artisan",
+      "title_id": "contract_artisan_gather_rare_pigments_title",
+      "title": "Forage cinnabar and ochre from the hills",
+      "description_id": "contract_artisan_gather_rare_pigments_desc",
+      "description": "Five days in the upland scrub. The artisan pays per dram and weighs everything twice.",
+      "duration_days": 5,
+      "phase_pool": [
+        "contract_artisan_gather_rare_pigments_phase1",
+        "contract_artisan_gather_rare_pigments_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Steward"
+      ],
+      "self_gate_skill_threshold": 40,
+      "companion_slots": [
+        {
+          "archetype": "pathfinder",
+          "role": "agent",
+          "required": false,
+          "skill_bonus_axis": "Scouting",
+          "skill_bonus_amount": 40
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 250,
+      "notable_relation_min": 0,
+      "tags": []
+    },
+    {
+      "id": "contract.rural_notable.inspect_outlying_pasture",
+      "notable_type": "rural_notable",
+      "title_id": "contract_rural_notable_inspect_outlying_pasture_title",
+      "title": "Inspect the outlying pasture for poachers",
+      "description_id": "contract_rural_notable_inspect_outlying_pasture_desc",
+      "description": "A landowner wants their distant pasture walked. Three days. Bring back what you find.",
+      "duration_days": 3,
+      "phase_pool": [
+        "contract_rural_notable_inspect_outlying_pasture_phase1"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Scouting",
+        "Riding"
+      ],
+      "self_gate_skill_threshold": 30,
+      "companion_slots": [],
+      "scrutiny_risk_per_phase": 0.0,
+      "payment_denars": 200,
+      "notable_relation_min": 0,
+      "tags": [
+        "contract_intro"
+      ]
+    },
+    {
+      "id": "contract.urban_notable.discreet_inquiry",
+      "notable_type": "urban_notable",
+      "title_id": "contract_urban_notable_discreet_inquiry_title",
+      "title": "Watch a rival's household, quietly",
+      "description_id": "contract_urban_notable_discreet_inquiry_desc",
+      "description": "A merchant lord wants a rival watched. Four days of unseen eyes. Don't be seen.",
+      "duration_days": 4,
+      "phase_pool": [
+        "contract_urban_notable_discreet_inquiry_phase1",
+        "contract_urban_notable_discreet_inquiry_phase2"
+      ],
+      "resolution_storylets": {
+        "success": "contract_resolution_success_generic",
+        "partial": "contract_resolution_partial_generic",
+        "failure": "contract_resolution_failure_generic"
+      },
+      "skill_axis": [
+        "Roguery",
+        "Scouting"
+      ],
+      "self_gate_skill_threshold": 50,
+      "companion_slots": [
+        {
+          "archetype": "field_medic",
+          "role": "cover",
+          "required": false,
+          "skill_bonus_axis": "Charm",
+          "skill_bonus_amount": 30
+        }
+      ],
+      "scrutiny_risk_per_phase": 0.10,
+      "payment_denars": 400,
+      "notable_relation_min": 0,
+      "tags": []
+    }
+  ]
+}

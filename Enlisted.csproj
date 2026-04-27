@@ -731,6 +731,11 @@
     <CompanionsData Include="ModuleData\Enlisted\Companions\*.json"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Endeavors (Plan 5 — endeavor + contract template catalogs) -->
+    <EndeavorsData Include="ModuleData\Enlisted\Endeavors\*.json"/>
+  </ItemGroup>
+
   <!-- ========================================================================
        DOCUMENTATION & PROJECT FILES
        ======================================================================== -->
@@ -803,6 +808,7 @@
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Qualities"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Loot"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Companions"/>
+    <MakeDir Directories="$(OutputPath)..\..\ModuleData\Enlisted\Endeavors"/>
     <MakeDir Directories="$(OutputPath)..\..\ModuleData\Languages"/>
     
     <!-- COPY MODULE CONFIGURATION -->
@@ -820,6 +826,7 @@
     <Copy SourceFiles="@(StoryletsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Storylets\"/>
     <Copy SourceFiles="@(QualitiesData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Qualities\"/>
     <Copy SourceFiles="@(CompanionsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Companions\"/>
+    <Copy SourceFiles="@(EndeavorsData)" DestinationFolder="$(OutputPath)..\..\ModuleData\Enlisted\Endeavors\"/>
 
     <!-- COPY LOCALIZATION FILES (XML) -->
     <Copy SourceFiles="ModuleData\Languages\enlisted_strings.xml" DestinationFolder="$(OutputPath)..\..\ModuleData\Languages\"/>

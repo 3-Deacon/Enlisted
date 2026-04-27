@@ -1,0 +1,587 @@
+{
+  "storylets": [
+    {
+      "id": "endeavor_social_befriend_sergeant_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_befriend_sergeant_phase1_title}First watch together",
+      "setup": "{=endeavor_social_befriend_sergeant_phase1_setup}{COMPANION_FIRST_NAME} draws the same dog watch as you. Two hours of black sky and the small sounds beyond the picket line. The flask in your coat is half full. He has not asked for it. He will not. The space between you is the kind a man either fills or doesn't, and he is letting you choose, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "share_drink",
+          "text": "{=endeavor_social_befriend_sergeant_phase1_share_drink}Pass him the flask. Say his brother's name.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase1_share_drink_tt}+75 XP Charm. Open the door first; the bond starts here.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_1_share_drink" }
+          ]
+        },
+        {
+          "id": "ask_about_war",
+          "text": "{=endeavor_social_befriend_sergeant_phase1_ask_about_war}Ask him how he learned to soldier.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase1_ask_about_war_tt}+25 XP Charm. Easy talk. Builds nothing dangerous.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_1_ask_about_war" }
+          ]
+        },
+        {
+          "id": "watch_in_silence",
+          "text": "{=endeavor_social_befriend_sergeant_phase1_watch_in_silence}Watch the line. Say nothing. Let the watch end.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase1_watch_in_silence_tt}+25 XP Charm. He marks the silence; some men prefer it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_1_watch_in_silence" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_befriend_sergeant_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_befriend_sergeant_phase2_title}A loss, told once",
+      "setup": "{=endeavor_social_befriend_sergeant_phase2_setup}Three days on. {COMPANION_FIRST_NAME} comes to you after mess. He says it without preface — a sister, dead two summers, never written about. He says it the way men say a thing they have not said aloud before. Then he stops, and he waits to see what you make of it, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "give_back_a_loss",
+          "text": "{=endeavor_social_befriend_sergeant_phase2_give_back_a_loss}Tell him about your own dead.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase2_give_back_a_loss_tt}+75 XP Charm. Trade weight for weight; the only honest answer.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_2_give_back_a_loss" }
+          ]
+        },
+        {
+          "id": "soldier_condolence",
+          "text": "{=endeavor_social_befriend_sergeant_phase2_soldier_condolence}Take his arm. The soldier's word for it. Move on.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase2_soldier_condolence_tt}+25 XP Charm. Adequate. Not what he came for.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_2_soldier_condolence" }
+          ]
+        },
+        {
+          "id": "change_the_subject",
+          "text": "{=endeavor_social_befriend_sergeant_phase2_change_the_subject}Steer it elsewhere. The mess line. The weather.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase2_change_the_subject_tt}+25 XP Charm. He learns where the door closes.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_2_change_the_subject" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_befriend_sergeant_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_befriend_sergeant_phase3_title}A favour asked",
+      "setup": "{=endeavor_social_befriend_sergeant_phase3_setup}The week is nearly out. {COMPANION_FIRST_NAME} finds you alone at the supply tent. He has a thing to ask, and the asking costs him. A name on the muster he wants moved off a fatigue detail. A small thing. A favour that is also a test of what the past week was, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "do_the_favour",
+          "text": "{=endeavor_social_befriend_sergeant_phase3_do_the_favour}Tell him it's done. Mean it.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase3_do_the_favour_tt}+75 XP Charm. He will remember this longer than the watch.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_3_do_the_favour" }
+          ]
+        },
+        {
+          "id": "do_it_for_a_price",
+          "text": "{=endeavor_social_befriend_sergeant_phase3_do_it_for_a_price}Do it. Note that you'll call it back one day.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase3_do_it_for_a_price_tt}+25 XP Charm. He nods, but the room cools.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_3_do_it_for_a_price" }
+          ]
+        },
+        {
+          "id": "refuse_safely",
+          "text": "{=endeavor_social_befriend_sergeant_phase3_refuse_safely}Tell him you can't. Sound regretful.",
+          "tooltip": "{=endeavor_social_befriend_sergeant_phase3_refuse_safely_tt}+25 XP Charm. The week was air. He hears it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.befriend_sergeant_3_refuse_safely" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_social_sway_lord_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_sway_lord_phase1_title}A word at council",
+      "setup": "{=endeavor_social_sway_lord_phase1_setup}The council tent is half empty when you come in. {LORD_NAME} is reading dispatches alone, the candle low. He looks up, sees you, gestures to the bench. There is a question on the table — a march route, a billeting choice, a thing his officers have been arguing in private — and you are, for this one moment, in the room. How you open this is the whole game, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "speak_plainly",
+          "text": "{=endeavor_social_sway_lord_phase1_speak_plainly}Say what you think. Plainly. Name the cost.",
+          "tooltip": "{=endeavor_social_sway_lord_phase1_speak_plainly_tt}+75 XP Charm. Plain dealing reads as weight.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_1_speak_plainly" }
+          ]
+        },
+        {
+          "id": "agree_then_steer",
+          "text": "{=endeavor_social_sway_lord_phase1_agree_then_steer}Agree with him first. Move him sideways.",
+          "tooltip": "{=endeavor_social_sway_lord_phase1_agree_then_steer_tt}+25 XP Charm. Works. He'll know you worked it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_1_agree_then_steer" }
+          ]
+        },
+        {
+          "id": "defer_to_him",
+          "text": "{=endeavor_social_sway_lord_phase1_defer_to_him}Defer. Praise the question. Decide nothing.",
+          "tooltip": "{=endeavor_social_sway_lord_phase1_defer_to_him_tt}+25 XP Charm. Safe. Forgettable. He returns to his dispatches.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_1_defer_to_him" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_sway_lord_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_sway_lord_phase2_title}The room rearranges",
+      "setup": "{=endeavor_social_sway_lord_phase2_setup}Two days later. The senior officers are present this time, and they have not forgotten that {LORD_NAME} took your word in private. One of them, sharp-eyed, asks for your view in front of the others. The lord watches. The room watches. A wrong answer here scrapes off everything you laid down, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "hold_the_line",
+          "text": "{=endeavor_social_sway_lord_phase2_hold_the_line}Repeat your view. Word for word. Eyes on the lord.",
+          "tooltip": "{=endeavor_social_sway_lord_phase2_hold_the_line_tt}+75 XP Charm + +75 XP Leadership. Risk pays in respect.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_2_hold_the_line" }
+          ]
+        },
+        {
+          "id": "soften_for_the_room",
+          "text": "{=endeavor_social_sway_lord_phase2_soften_for_the_room}Restate it gentler. Give the officer a way down.",
+          "tooltip": "{=endeavor_social_sway_lord_phase2_soften_for_the_room_tt}+25 XP Charm. Politic. The lord still hears you.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_2_soften_for_the_room" }
+          ]
+        },
+        {
+          "id": "withdraw_the_view",
+          "text": "{=endeavor_social_sway_lord_phase2_withdraw_the_view}Walk it back. The officer was right; you misspoke.",
+          "tooltip": "{=endeavor_social_sway_lord_phase2_withdraw_the_view_tt}+25 XP Charm. Survival. The lord's face closes.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.sway_lord_2_withdraw_the_view" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_social_court_camp_follower_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_court_camp_follower_phase1_title}The washerwoman, Hild",
+      "setup": "{=endeavor_social_court_camp_follower_phase1_setup}Her name is Hild. She has been with the company longer than you and she folds linen the way other women count coin — knowing the value of it. You bring her your mended shirt and your foreign accent and she looks at you the way she looks at a coin she is not sure is true. The first word matters more than the next ten, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "speak_true_name",
+          "text": "{=endeavor_social_court_camp_follower_phase1_speak_true_name}Tell her where you're from. The real name of the place.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase1_speak_true_name_tt}+75 XP Charm. The honest start; rarely picked.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_1_speak_true_name" }
+          ]
+        },
+        {
+          "id": "compliment_her_work",
+          "text": "{=endeavor_social_court_camp_follower_phase1_compliment_her_work}Praise the stitching. Pay the half coin extra.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase1_compliment_her_work_tt}+25 XP Charm. Polite. She has heard it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_1_compliment_her_work" }
+          ]
+        },
+        {
+          "id": "leave_quickly",
+          "text": "{=endeavor_social_court_camp_follower_phase1_leave_quickly}Take the shirt. Mumble thanks. Go.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase1_leave_quickly_tt}+25 XP Charm. She marks you as another soldier. Nothing more.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_1_leave_quickly" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_court_camp_follower_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_court_camp_follower_phase2_title}A small gift, refused",
+      "setup": "{=endeavor_social_court_camp_follower_phase2_setup}Mid-week. You bring Hild a folded square of southern cloth from the camp peddler — too fine for a soldier's pay, exactly fine enough for her to refuse it. She holds it. She does not say no. She does not say yes. The refusal lives in the held breath, {PLAYER_NAME}, and you have to answer it.",
+      "options": [
+        {
+          "id": "take_it_back",
+          "text": "{=endeavor_social_court_camp_follower_phase2_take_it_back}Take it back. Tell her you only meant for her to see it.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase2_take_it_back_tt}+75 XP Charm. The soft answer. The right one.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_2_take_it_back" }
+          ]
+        },
+        {
+          "id": "leave_it_anyway",
+          "text": "{=endeavor_social_court_camp_follower_phase2_leave_it_anyway}Leave it on the bench. Walk away before she can speak.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase2_leave_it_anyway_tt}+25 XP Charm. She'll keep it. She'll resent it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_2_leave_it_anyway" }
+          ]
+        },
+        {
+          "id": "press_the_gift",
+          "text": "{=endeavor_social_court_camp_follower_phase2_press_the_gift}Press it on her. Insist. You can afford it.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase2_press_the_gift_tt}+25 XP Charm. Reads as purchase. The cloth becomes a ledger.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_2_press_the_gift" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_court_camp_follower_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_court_camp_follower_phase3_title}The march moves",
+      "setup": "{=endeavor_social_court_camp_follower_phase3_setup}Word from the captain — the company breaks at dawn, two days' march east. Hild is already folding her tent when you find her. She does not look up. There are things to say at this moment that cannot be said at any other, {PLAYER_NAME}, and the dawn comes whether you say them or not.",
+      "options": [
+        {
+          "id": "say_it_plain",
+          "text": "{=endeavor_social_court_camp_follower_phase3_say_it_plain}Tell her. Simply. Whether she comes is hers to choose.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase3_say_it_plain_tt}+75 XP Charm. Whatever she answers, she'll keep the asking.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_3_say_it_plain" }
+          ]
+        },
+        {
+          "id": "promise_a_letter",
+          "text": "{=endeavor_social_court_camp_follower_phase3_promise_a_letter}Promise to write. Mean half of it.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase3_promise_a_letter_tt}+25 XP Charm. The soldier's lie. She has heard it before.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_3_promise_a_letter" }
+          ]
+        },
+        {
+          "id": "leave_unsaid",
+          "text": "{=endeavor_social_court_camp_follower_phase3_leave_unsaid}Help her fold the tent. Say nothing of leaving.",
+          "tooltip": "{=endeavor_social_court_camp_follower_phase3_leave_unsaid_tt}+25 XP Charm. The kindness that is also a closing.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.court_camp_follower_3_leave_unsaid" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_social_influence_companion_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_influence_companion_phase1_title}A history offered",
+      "setup": "{=endeavor_social_influence_companion_phase1_setup}{COMPANION_FIRST_NAME} sits across from you at mess and starts a sentence about the years before the company — the years he never opens. He stops himself, and waits to see whether you will pull on the thread or let it lie. He has done this before with other men, {PLAYER_NAME}, and let the silence kill it.",
+      "options": [
+        {
+          "id": "ask_to_continue",
+          "text": "{=endeavor_social_influence_companion_phase1_ask_to_continue}Ask him to go on. Mean it.",
+          "tooltip": "{=endeavor_social_influence_companion_phase1_ask_to_continue_tt}+75 XP Charm. The thread held; the bond starts.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_1_ask_to_continue" }
+          ]
+        },
+        {
+          "id": "match_with_a_story",
+          "text": "{=endeavor_social_influence_companion_phase1_match_with_a_story}Offer a small piece of your own past in trade.",
+          "tooltip": "{=endeavor_social_influence_companion_phase1_match_with_a_story_tt}+25 XP Charm. Symmetry. He relaxes a degree.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_1_match_with_a_story" }
+          ]
+        },
+        {
+          "id": "let_it_drop",
+          "text": "{=endeavor_social_influence_companion_phase1_let_it_drop}Nod once. Pass the bread. Move on.",
+          "tooltip": "{=endeavor_social_influence_companion_phase1_let_it_drop_tt}+25 XP Charm. He learns this door stays shut with you too.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_1_let_it_drop" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_influence_companion_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_influence_companion_phase2_title}A bad night",
+      "setup": "{=endeavor_social_influence_companion_phase2_setup}{COMPANION_FIRST_NAME} comes to your tent past second watch. He is not drunk. He is the worse thing — the cold-sober man who has been thinking. He sits on your bedroll and does not say what brought him. Whatever you do in the next minute, {PLAYER_NAME}, he will remember in five years.",
+      "options": [
+        {
+          "id": "sit_with_him",
+          "text": "{=endeavor_social_influence_companion_phase2_sit_with_him}Sit with him. Don't fill the silence.",
+          "tooltip": "{=endeavor_social_influence_companion_phase2_sit_with_him_tt}+75 XP Charm. Presence is the answer.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_2_sit_with_him" }
+          ]
+        },
+        {
+          "id": "ask_what_is_wrong",
+          "text": "{=endeavor_social_influence_companion_phase2_ask_what_is_wrong}Ask what brought him. Soft.",
+          "tooltip": "{=endeavor_social_influence_companion_phase2_ask_what_is_wrong_tt}+25 XP Charm. Kind. Not what he came for.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_2_ask_what_is_wrong" }
+          ]
+        },
+        {
+          "id": "send_him_to_bed",
+          "text": "{=endeavor_social_influence_companion_phase2_send_him_to_bed}Tell him to sleep it off. Roll over.",
+          "tooltip": "{=endeavor_social_influence_companion_phase2_send_him_to_bed_tt}+25 XP Charm. He goes. He does not come again.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.influence_companion_2_send_him_to_bed" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_social_peer_officer_alliance_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_peer_officer_alliance_phase1_title}A cup, between equals",
+      "setup": "{=endeavor_social_peer_officer_alliance_phase1_setup}{COMPANION_FIRST_NAME} is your rank. Your peer. Your possible rival when {LORD_NAME} next thins the officers' bench. You catch him alone at the officer's mess after the senior tables have cleared. There is wine left in the bottle and one chair across from him, and he does not look surprised when you take it, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "name_the_rivalry",
+          "text": "{=endeavor_social_peer_officer_alliance_phase1_name_the_rivalry}Name it aloud. Better an ally than a knife.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase1_name_the_rivalry_tt}+75 XP Charm + +25 XP Leadership. Officers respect plain talk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_1_name_the_rivalry" }
+          ]
+        },
+        {
+          "id": "talk_around_it",
+          "text": "{=endeavor_social_peer_officer_alliance_phase1_talk_around_it}Talk around it. Drink. Trade complaints about the captain.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase1_talk_around_it_tt}+25 XP Leadership. Easier. Slower.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_1_talk_around_it" }
+          ]
+        },
+        {
+          "id": "keep_distance",
+          "text": "{=endeavor_social_peer_officer_alliance_phase1_keep_distance}Drink the cup. Make your excuses. Leave.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase1_keep_distance_tt}+25 XP Charm. He has his answer about you.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_1_keep_distance" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_peer_officer_alliance_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_peer_officer_alliance_phase2_title}A favour, in private",
+      "setup": "{=endeavor_social_peer_officer_alliance_phase2_setup}Mid-week. {COMPANION_FIRST_NAME} catches your sleeve outside the council tent. He needs a thing — a duty roster shifted, a name kept off a punishment list, the small currency of officer-life. He is offering it as a trade, {PLAYER_NAME}, not a request. The shape of the alliance is in your answer.",
+      "options": [
+        {
+          "id": "do_it_no_terms",
+          "text": "{=endeavor_social_peer_officer_alliance_phase2_do_it_no_terms}Do it. No terms. Trust the ledger to balance.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase2_do_it_no_terms_tt}+75 XP Leadership. The deeper bond costs the receipt.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_2_do_it_no_terms" }
+          ]
+        },
+        {
+          "id": "trade_explicit",
+          "text": "{=endeavor_social_peer_officer_alliance_phase2_trade_explicit}Do it. Name what you'll need back. Shake on it.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase2_trade_explicit_tt}+25 XP Leadership. Workable. Less brotherhood, more contract.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_2_trade_explicit" }
+          ]
+        },
+        {
+          "id": "decline_politely",
+          "text": "{=endeavor_social_peer_officer_alliance_phase2_decline_politely}Tell him you can't see it from here. Stay clean.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase2_decline_politely_tt}+25 XP Charm. He nods. The week's wine evaporates.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_2_decline_politely" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_peer_officer_alliance_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_peer_officer_alliance_phase3_title}A test, before the lord",
+      "setup": "{=endeavor_social_peer_officer_alliance_phase3_setup}End of the week. {LORD_NAME} hauls both of you in front of him over a thing that went wrong on the line — neither of you fully at fault, both of you reachable. {COMPANION_FIRST_NAME} stands at your shoulder and does not know yet what you will say. The lord waits. The room waits. The alliance is decided in the next sentence, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "share_the_blame",
+          "text": "{=endeavor_social_peer_officer_alliance_phase3_share_the_blame}Take the share. Name it ours. Look the lord in the eye.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase3_share_the_blame_tt}+75 XP Leadership + +75 XP Charm. The bond holds; the lord notes it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_3_share_the_blame" }
+          ]
+        },
+        {
+          "id": "let_him_lead",
+          "text": "{=endeavor_social_peer_officer_alliance_phase3_let_him_lead}Let him answer first. Back his words after.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase3_let_him_lead_tt}+25 XP Leadership. Loyal enough. Not equal-footed.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_3_let_him_lead" }
+          ]
+        },
+        {
+          "id": "shed_the_blame",
+          "text": "{=endeavor_social_peer_officer_alliance_phase3_shed_the_blame}Lay it on him. Cleanly. The lord respects clarity.",
+          "tooltip": "{=endeavor_social_peer_officer_alliance_phase3_shed_the_blame_tt}+25 XP Charm. He learns you in one sentence.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.social.peer_officer_alliance_3_shed_the_blame" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_social_resolution_success_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_resolution_success_generic_title}A bond, made",
+      "setup": "{=endeavor_social_resolution_success_generic_setup}It is a quiet thing in the end. The week is over and the warmth is real and the other party knows you, {PLAYER_NAME}, in a way they did not seven days ago. The bond is the kind that survives a march, a wound, a long winter apart. {LORD_NAME} hears of it the way lords hear such things — not directly, but accurately. He files it. Such men, he thinks, are kept close.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_social_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=endeavor_social_resolution_success_generic_continue_tt}+75 XP Charm. +3 lord relation. The bond stays.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_resolution_partial_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_resolution_partial_generic_title}Warmth, no depth",
+      "setup": "{=endeavor_social_resolution_partial_generic_setup}You are on better terms than you were. They smile when you cross paths. They will pass the salt without making you ask. It is not the bond you were after, {PLAYER_NAME} — there is a wall still there that the week did not breach — but it is something. Some weeks you build a friend. Some weeks you build a habit. This was the latter.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_social_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=endeavor_social_resolution_partial_generic_continue_tt}+25 XP Charm. The acquaintance, not the friend.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_social_resolution_failure_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_social_resolution_failure_generic_title}The conversation, ended",
+      "setup": "{=endeavor_social_resolution_failure_generic_setup}It does not end with a row. Worse — it ends quietly. The week passes its last day and they no longer seek you out. The mess line shifts to put another body between you. The polite nod is unbroken and the warmth is gone from it. You misplayed something in the middle and could not name what, {PLAYER_NAME}, and {LORD_NAME}'s officers are the kind of people who notice when a thing goes cold.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_social_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=endeavor_social_resolution_failure_generic_continue_tt}-3 lord relation. The week was air.",
+          "effects": [
+            { "apply": "endeavor_lord_relation_down_small" }
+          ]
+        }
+      ]
+    }
+  ]
+}

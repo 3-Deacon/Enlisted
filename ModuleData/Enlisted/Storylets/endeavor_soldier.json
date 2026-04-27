@@ -1,0 +1,550 @@
+{
+  "storylets": [
+    {
+      "id": "endeavor_soldier_drill_competition_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_drill_competition_phase1_title}First-Day Drill",
+      "setup": "{=endeavor_soldier_drill_competition_phase1_setup}The competition starts at dawn. Sword forms, then the line drills, then the run. {LORD_NAME}'s officers will watch from the rise. The sergeant pulls you aside before formation. {PLAYER_NAME}. He wants to know how you mean to take this. Hard, clever, or loud.",
+      "options": [
+        {
+          "id": "drill_hard",
+          "text": "{=endeavor_soldier_drill_competition_phase1_drill_hard}Drill until your arms ache.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase1_drill_hard_tt}+75 OneHanded XP. Tired arms going into day two.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_1_drill_hard" }
+          ]
+        },
+        {
+          "id": "drill_smart",
+          "text": "{=endeavor_soldier_drill_competition_phase1_drill_smart}Watch the older men first. Copy their footwork.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase1_drill_smart_tt}+25 OneHanded XP. Sets up day two with better stance.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_1_drill_smart" }
+          ]
+        },
+        {
+          "id": "show_off",
+          "text": "{=endeavor_soldier_drill_competition_phase1_show_off}Show off. Let the officers hear your name.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase1_show_off_tt}+25 OneHanded XP. Lord notices. Sergeant disapproves.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_lord_relation_up_small" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_1_show_off" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_drill_competition_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_drill_competition_phase2_title}Final Round",
+      "setup": "{=endeavor_soldier_drill_competition_phase2_setup}Two days in. The field is thinned to half. The last bouts are paired by lot and you draw a man who beat you at your last drill. The sergeant gives you no advice. {LORD_NAME} stands at the rail with his officers. The horn sounds.",
+      "options": [
+        {
+          "id": "press_attack",
+          "text": "{=endeavor_soldier_drill_competition_phase2_press_attack}Press hard. End it in three exchanges.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase2_press_attack_tt}+75 OneHanded XP. Win or burn out.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_2_press_attack" }
+          ]
+        },
+        {
+          "id": "wait_him_out",
+          "text": "{=endeavor_soldier_drill_competition_phase2_wait_him_out}Hold your stance. Make him come to you.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase2_wait_him_out_tt}+25 OneHanded XP. Patient win, sergeant nods.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_2_wait_him_out" }
+          ]
+        },
+        {
+          "id": "play_to_crowd",
+          "text": "{=endeavor_soldier_drill_competition_phase2_play_to_crowd}Fight loud. Make the lord's table laugh.",
+          "tooltip": "{=endeavor_soldier_drill_competition_phase2_play_to_crowd_tt}+25 OneHanded XP. Lord pleased; sloppy form.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "endeavor_lord_relation_up_small" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.drill_competition_2_play_to_crowd" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_teach_recruit_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_teach_recruit_phase1_title}New Hands",
+      "setup": "{=endeavor_soldier_teach_recruit_phase1_setup}The recruit is younger than you remember being. He holds the sword like it might bite him. The sergeant sets him in your charge for three days and walks off without watching to see how you start. The men nearby pretend not to listen. {PLAYER_NAME}. Your call, the first lesson.",
+      "options": [
+        {
+          "id": "drill_basics",
+          "text": "{=endeavor_soldier_teach_recruit_phase1_drill_basics}Stance, grip, footwork. Two hours of nothing else.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase1_drill_basics_tt}+75 Leadership XP. Slow, solid grounding.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_1_drill_basics" }
+          ]
+        },
+        {
+          "id": "spar_lightly",
+          "text": "{=endeavor_soldier_teach_recruit_phase1_spar_lightly}Spar with him at half speed. Let him feel a real edge.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase1_spar_lightly_tt}+25 OneHanded XP. He'll remember this lesson.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_1_spar_lightly" }
+          ]
+        },
+        {
+          "id": "tell_war_story",
+          "text": "{=endeavor_soldier_teach_recruit_phase1_tell_war_story}Sit him down. Tell him what a real fight is.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase1_tell_war_story_tt}+25 Leadership XP. Sergeant frowns at the talk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_1_tell_war_story" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_teach_recruit_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_teach_recruit_phase2_title}The Mistake",
+      "setup": "{=endeavor_soldier_teach_recruit_phase2_setup}On the third morning the recruit drops his blade in formation. The sergeant turns. Half the line turns. He looks to you, white-faced. {PLAYER_NAME}. The sergeant's eyes find yours over the boy's head. How you handle this becomes the lesson.",
+      "options": [
+        {
+          "id": "take_blame",
+          "text": "{=endeavor_soldier_teach_recruit_phase2_take_blame}Step in. Tell the sergeant the boy was on your time.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase2_take_blame_tt}+75 Leadership XP. Sergeant respects the cover.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_2_take_blame" }
+          ]
+        },
+        {
+          "id": "let_him_learn",
+          "text": "{=endeavor_soldier_teach_recruit_phase2_let_him_learn}Stay quiet. Let the sergeant correct him.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase2_let_him_learn_tt}+25 Leadership XP. He'll learn from the shouting.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_2_let_him_learn" }
+          ]
+        },
+        {
+          "id": "blame_recruit",
+          "text": "{=endeavor_soldier_teach_recruit_phase2_blame_recruit}Cuff him yourself. Make a show of it.",
+          "tooltip": "{=endeavor_soldier_teach_recruit_phase2_blame_recruit_tt}+25 Leadership XP. The recruit goes quiet.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.teach_recruit_2_blame_recruit" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_lord_notice_skirmish_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_lord_notice_skirmish_phase1_title}Position Yourself",
+      "setup": "{=endeavor_soldier_lord_notice_skirmish_phase1_setup}A skirmish is brewing two days out. {LORD_NAME} will ride at the head of the column with his officers. You can pick where in the line you stand when the order comes. The sergeant doesn't ask why you're asking. He just nods at the muster roll.",
+      "options": [
+        {
+          "id": "front_line",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase1_front_line}Volunteer for the vanguard. Be the first sword forward.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase1_front_line_tt}+75 OneHanded XP. High visibility, high cost.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_1_front_line" }
+          ]
+        },
+        {
+          "id": "lord_flank",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase1_lord_flank}Take the wing nearest the lord's banner.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase1_lord_flank_tt}+25 OneHanded XP. Seen but not exposed.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_1_lord_flank" }
+          ]
+        },
+        {
+          "id": "wait_chance",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase1_wait_chance}Stand in the center. Wait for the moment.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase1_wait_chance_tt}+25 OneHanded XP. Safe but unremarkable.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_1_wait_chance" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_lord_notice_skirmish_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_lord_notice_skirmish_phase2_title}The Moment",
+      "setup": "{=endeavor_soldier_lord_notice_skirmish_phase2_setup}The line breaks. A cluster of enemy horse swings around the rise toward {LORD_NAME}'s standard. Three men. You see them before the officers do. {PLAYER_NAME}. The decision is yours and small and fast.",
+      "options": [
+        {
+          "id": "charge_horse",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase2_charge_horse}Run at the lead rider. Drag him from the saddle.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase2_charge_horse_tt}+75 OneHanded XP. Lord sees it. So does death.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_lord_relation_up_small" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_2_charge_horse" }
+          ]
+        },
+        {
+          "id": "shout_warning",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase2_shout_warning}Shout the warning. Hold the line.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase2_shout_warning_tt}+25 OneHanded XP. Useful, not memorable.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_2_shout_warning" }
+          ]
+        },
+        {
+          "id": "let_others_act",
+          "text": "{=endeavor_soldier_lord_notice_skirmish_phase2_let_others_act}Stay your ground. The officers will see them.",
+          "tooltip": "{=endeavor_soldier_lord_notice_skirmish_phase2_let_others_act_tt}+25 OneHanded XP. Chance lost.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lord_notice_skirmish_2_let_others_act" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_physical_training_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_physical_training_phase1_title}First Days",
+      "setup": "{=endeavor_soldier_physical_training_phase1_setup}Four days of breaking the body. You set the work yourself. The sergeant doesn't care how, only that you keep formation when it's done. {PLAYER_NAME}. The first morning is yours to plan.",
+      "options": [
+        {
+          "id": "long_runs",
+          "text": "{=endeavor_soldier_physical_training_phase1_long_runs}Run before dawn. Until your lungs burn.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase1_long_runs_tt}+25 Athletics XP. Hardest path, sets up lasting stamina.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_1_long_runs" }
+          ]
+        },
+        {
+          "id": "weighted_marches",
+          "text": "{=endeavor_soldier_physical_training_phase1_weighted_marches}Pack the rucksack heavy. Walk the perimeter all day.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase1_weighted_marches_tt}+25 Athletics XP. Steady, useful in the line.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_1_weighted_marches" }
+          ]
+        },
+        {
+          "id": "lift_heavy",
+          "text": "{=endeavor_soldier_physical_training_phase1_lift_heavy}Lift stones with the smith. Build the shoulders.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase1_lift_heavy_tt}+25 Athletics XP. Strength over wind.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_1_lift_heavy" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_physical_training_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_physical_training_phase2_title}The Wall",
+      "setup": "{=endeavor_soldier_physical_training_phase2_setup}Day three. Your legs shake before the morning roll. The body is past the easy part and into the part that doesn't want to continue. {PLAYER_NAME}. The choice is whether to push it, ride it out, or admit the cost.",
+      "options": [
+        {
+          "id": "push_through",
+          "text": "{=endeavor_soldier_physical_training_phase2_push_through}Push harder. Pain is the lesson.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase2_push_through_tt}+25 Athletics XP. Risk of injury, real gain.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_2_push_through" }
+          ]
+        },
+        {
+          "id": "steady_pace",
+          "text": "{=endeavor_soldier_physical_training_phase2_steady_pace}Hold the pace. Don't add weight today.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase2_steady_pace_tt}+25 Athletics XP. Smart pacing finishes strong.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_2_steady_pace" }
+          ]
+        },
+        {
+          "id": "rest_day",
+          "text": "{=endeavor_soldier_physical_training_phase2_rest_day}Take the day. Sit it out.",
+          "tooltip": "{=endeavor_soldier_physical_training_phase2_rest_day_tt}+25 Athletics XP. The work loses its edge.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.physical_training_2_rest_day" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_weapon_mastery_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_weapon_mastery_phase1_title}Pick the Blade",
+      "setup": "{=endeavor_soldier_weapon_mastery_phase1_setup}Five days, one weapon. You take the chosen blade off the rack and the sergeant gives you no advice except to come back knowing it. {PLAYER_NAME}. The first day is forms or sparring or the cold quiet of just holding it. Your choice.",
+      "options": [
+        {
+          "id": "endless_forms",
+          "text": "{=endeavor_soldier_weapon_mastery_phase1_endless_forms}Run the forms a hundred times. Then a hundred more.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase1_endless_forms_tt}+75 OneHanded XP. Pure repetition pays.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_1_endless_forms" }
+          ]
+        },
+        {
+          "id": "spar_partners",
+          "text": "{=endeavor_soldier_weapon_mastery_phase1_spar_partners}Find sparring partners. Learn against real edges.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase1_spar_partners_tt}+25 OneHanded XP. Faster lessons, harder bruises.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_1_spar_partners" }
+          ]
+        },
+        {
+          "id": "study_old_men",
+          "text": "{=endeavor_soldier_weapon_mastery_phase1_study_old_men}Sit with the veterans. Watch how they hold it.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase1_study_old_men_tt}+25 OneHanded XP. Slow start, deep grasp.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_1_study_old_men" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_weapon_mastery_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_weapon_mastery_phase2_title}The Test",
+      "setup": "{=endeavor_soldier_weapon_mastery_phase2_setup}Day four. The veterans gather at the practice ground after evening mess. Word has gotten around. They want to see what you have learned. {PLAYER_NAME}. You can show off what you have, work the ugly drill nobody likes to watch, or take a real bout and risk being humbled.",
+      "options": [
+        {
+          "id": "demonstrate_clean",
+          "text": "{=endeavor_soldier_weapon_mastery_phase2_demonstrate_clean}Demonstrate clean forms. Let them see precision.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase2_demonstrate_clean_tt}+25 OneHanded XP. Veterans nod. Polished.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_2_demonstrate_clean" }
+          ]
+        },
+        {
+          "id": "ugly_drill",
+          "text": "{=endeavor_soldier_weapon_mastery_phase2_ugly_drill}Run the ugly drill. The one that builds the muscle nobody sees.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase2_ugly_drill_tt}+75 OneHanded XP. The hardest gain.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_2_ugly_drill" }
+          ]
+        },
+        {
+          "id": "challenge_veteran",
+          "text": "{=endeavor_soldier_weapon_mastery_phase2_challenge_veteran}Call out the best of them. Bout, real edges.",
+          "tooltip": "{=endeavor_soldier_weapon_mastery_phase2_challenge_veteran_tt}+75 OneHanded XP. Win or eat dirt.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.weapon_mastery_2_challenge_veteran" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_lead_patrol_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_lead_patrol_phase1_title}Five Men",
+      "setup": "{=endeavor_soldier_lead_patrol_phase1_setup}{LORD_NAME} hands you five men and three days. The road south. Look for raiders, look for sign, bring them all back. The men file out behind you and wait for the first order. {PLAYER_NAME}. How you start sets the tone.",
+      "options": [
+        {
+          "id": "set_hard_pace",
+          "text": "{=endeavor_soldier_lead_patrol_phase1_set_hard_pace}Set a hard pace. Make ground while the light holds.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase1_set_hard_pace_tt}+75 Leadership XP. Cover ground, tire the men.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_1_set_hard_pace" }
+          ]
+        },
+        {
+          "id": "scout_first",
+          "text": "{=endeavor_soldier_lead_patrol_phase1_scout_first}Send one ahead. March the rest cautious.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase1_scout_first_tt}+25 Leadership XP. Slow but blind nothing.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_1_scout_first" }
+          ]
+        },
+        {
+          "id": "share_command",
+          "text": "{=endeavor_soldier_lead_patrol_phase1_share_command}Ask the senior man how he'd run it.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase1_share_command_tt}+25 Leadership XP. Humble, costs the edge.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_1_share_command" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_lead_patrol_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_lead_patrol_phase2_title}Contact",
+      "setup": "{=endeavor_soldier_lead_patrol_phase2_setup}Second night, near a stand of pines. Hooves on the road, slow, four maybe five horses moving without lanterns. The men look to you. {PLAYER_NAME}. The choice is whether to fight, hide, or test what they are.",
+      "options": [
+        {
+          "id": "ambush",
+          "text": "{=endeavor_soldier_lead_patrol_phase2_ambush}Set a quick ambush. Hit them before they see us.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase2_ambush_tt}+75 Leadership XP. Bold call, bloody if right.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_leadership" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_2_ambush" }
+          ]
+        },
+        {
+          "id": "hold_silent",
+          "text": "{=endeavor_soldier_lead_patrol_phase2_hold_silent}Pull off the road. Let them pass. Mark the count.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase2_hold_silent_tt}+25 Leadership XP. Cautious, useful intel.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_2_hold_silent" }
+          ]
+        },
+        {
+          "id": "challenge_loud",
+          "text": "{=endeavor_soldier_lead_patrol_phase2_challenge_loud}Step into the road. Hail them. See what answers.",
+          "tooltip": "{=endeavor_soldier_lead_patrol_phase2_challenge_loud_tt}+25 Leadership XP. Brave or stupid, no middle.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_leadership" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.soldier.lead_patrol_2_challenge_loud" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "endeavor_soldier_resolution_success_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_resolution_success_generic_title}Earned",
+      "setup": "{=endeavor_soldier_resolution_success_generic_setup}You did the work and it was seen. {LORD_NAME} marked your name; the sergeant kept his counsel and that, from him, was the better praise. The coin in your hand weighs what it should.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_soldier_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=endeavor_soldier_resolution_success_generic_continue_tt}+75 OneHanded XP. +8 lord relation. +100 denars.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_combat" },
+            { "apply": "endeavor_lord_relation_up_moderate" },
+            { "apply": "endeavor_gold_reward_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_resolution_partial_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_resolution_partial_generic_title}Mixed Bag",
+      "setup": "{=endeavor_soldier_resolution_partial_generic_setup}Some of it landed and some of it did not. The sergeant gives you the look that means he saw both. The work is yours either way. You learned what was worth learning.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_soldier_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=endeavor_soldier_resolution_partial_generic_continue_tt}+25 OneHanded XP. +3 lord relation.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_combat" },
+            { "apply": "endeavor_lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_soldier_resolution_failure_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_soldier_resolution_failure_generic_title}Marked Down",
+      "setup": "{=endeavor_soldier_resolution_failure_generic_setup}It went poorly. {LORD_NAME} said nothing and that was the worst part. The sergeant said only that the company will remember this. He is not wrong.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_soldier_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=endeavor_soldier_resolution_failure_generic_continue_tt}-3 lord relation. The work was not yours today.",
+          "effects": [
+            { "apply": "endeavor_lord_relation_down_small" }
+          ]
+        }
+      ]
+    }
+  ]
+}

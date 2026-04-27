@@ -3476,10 +3476,13 @@ def _validate_endeavor_template(
             f"{file_path}: '{tid}' scrutiny_risk_per_phase must be number in [0.0, 1.0] (got {risk!r})",
             file_path,
         )
-    elif not is_contract and template.get("category") != "rogue" and risk != 0:
+    elif not is_contract and template.get("category") not in ("rogue", "scouting") and risk != 0:
+        # Per design guide §2.4: Scouting allows mild scrutiny on infiltration-style templates
+        # (track_patrol, deep_recon). Rogue is the dominant scrutiny category. Soldier /
+        # Medical / Social MUST stay scrutiny-free.
         ctx.add_issue(
             "error", cat,
-            f"{file_path}: '{tid}' non-rogue category requires scrutiny_risk_per_phase=0.0 (got {risk!r})",
+            f"{file_path}: '{tid}' category {template.get('category')!r} requires scrutiny_risk_per_phase=0.0 (got {risk!r}); only rogue + scouting may carry scrutiny",
             file_path,
         )
 

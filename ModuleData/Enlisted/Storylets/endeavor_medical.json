@@ -1,0 +1,503 @@
+{
+  "storylets": [
+    {
+      "id": "endeavor_medical_forage_herbs_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_forage_herbs_phase1_title}Walking the perimeter",
+      "setup": "{=endeavor_medical_forage_herbs_phase1_setup}First light, {PLAYER_NAME}. Cold dew on the grass at the company's edge. Yarrow likes the sunlit ridges; comfrey wants the wet ground by the stream; willow bark waits on the bend half a mile out. The medic's basket is empty. How you fill it is up to you.",
+      "options": [
+        {
+          "id": "wide_sweep",
+          "text": "{=endeavor_medical_forage_herbs_phase1_wide_sweep}Walk all three. Ridge, stream, willow bend.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase1_wide_sweep_tt}+25 XP Medicine. Heavy day on the legs. Full basket.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_1_wide_sweep" }
+          ]
+        },
+        {
+          "id": "let_medic_lead",
+          "text": "{=endeavor_medical_forage_herbs_phase1_let_medic_lead}Let {COMPANION_FIRST_NAME} pick the route. Carry the basket.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase1_let_medic_lead_tt}+25 XP Medicine. The medic chooses well. Quiet morning.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_1_let_medic_lead" }
+          ]
+        },
+        {
+          "id": "ridge_only",
+          "text": "{=endeavor_medical_forage_herbs_phase1_ridge_only}Just the ridge. Yarrow's the one that matters.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase1_ridge_only_tt}+25 XP Medicine. Half a basket. The medic notices.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_1_ridge_only" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_forage_herbs_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_forage_herbs_phase2_title}The drying line",
+      "setup": "{=endeavor_medical_forage_herbs_phase2_setup}Day three. The herbs need hanging in the right shade or they rot to nothing. {COMPANION_FIRST_NAME} has set up two lines under the medic's tent and a third by the wagon — half-sun, slower drying, but the basket is full and the tent is crowded. Where do the bundles go?",
+      "options": [
+        {
+          "id": "tent_shade",
+          "text": "{=endeavor_medical_forage_herbs_phase2_tent_shade}Tent shade. Slow and right. Even if it crowds the medic.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase2_tent_shade_tt}+75 XP Medicine. The medic respects the patience.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_2_tent_shade" }
+          ]
+        },
+        {
+          "id": "split_lines",
+          "text": "{=endeavor_medical_forage_herbs_phase2_split_lines}Split them. Strongest leaves under cover, the rest on the wagon.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase2_split_lines_tt}+25 XP Medicine. Sensible. Saves most of it.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_2_split_lines" }
+          ]
+        },
+        {
+          "id": "wagon_all",
+          "text": "{=endeavor_medical_forage_herbs_phase2_wagon_all}Wagon line. Faster. We need the herbs sooner than perfect.",
+          "tooltip": "{=endeavor_medical_forage_herbs_phase2_wagon_all_tt}+25 XP Medicine. Half the yarrow turns brown by morning.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.forage_herbs_2_wagon_all" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_tend_sick_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_tend_sick_phase1_title}Bedside watch",
+      "setup": "{=endeavor_medical_tend_sick_phase1_setup}The officer's fever has held since dawn. The medic's tent smells of crushed willow and damp wool. He sweats through the second blanket and mutters to no one. {PLAYER_NAME}, the medic has stitches to set in the next tent over and asks how you mean to keep watch.",
+      "options": [
+        {
+          "id": "force_rest",
+          "text": "{=endeavor_medical_tend_sick_phase1_force_rest}Force rest. Water, blanket, no visitors.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase1_force_rest_tt}+75 XP Medicine. Quiet hours. The fever may yet break.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_1_force_rest" }
+          ]
+        },
+        {
+          "id": "let_medic_handle",
+          "text": "{=endeavor_medical_tend_sick_phase1_let_medic_handle}Let {COMPANION_FIRST_NAME} take the watch. You hand them what they ask for.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase1_let_medic_handle_tt}+25 XP Medicine. The medic works. You learn quietly.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_1_let_medic_handle" }
+          ]
+        },
+        {
+          "id": "back_to_duties",
+          "text": "{=endeavor_medical_tend_sick_phase1_back_to_duties}Check on him every hour. Other duties don't wait.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase1_back_to_duties_tt}+25 XP Medicine. The fever climbs while you're gone.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_1_back_to_duties" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_tend_sick_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_tend_sick_phase2_title}Past midnight",
+      "setup": "{=endeavor_medical_tend_sick_phase2_setup}Past midnight. The fever spiked an hour ago and is breaking now — the officer shivers, soaked through. {LORD_NAME}'s tent is dark. The medic's stores have one dose of the strong tincture left, and the man on the cot tomorrow may need it more than the man on the cot tonight.",
+      "options": [
+        {
+          "id": "spend_tincture",
+          "text": "{=endeavor_medical_tend_sick_phase2_spend_tincture}Use the tincture now. Tomorrow worries about itself.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase2_spend_tincture_tt}+75 XP Medicine. The fever falls fast. Stores are empty.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_2_spend_tincture" }
+          ]
+        },
+        {
+          "id": "willow_water",
+          "text": "{=endeavor_medical_tend_sick_phase2_willow_water}Willow tea, dry blanket, sit with him. Save the tincture.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase2_willow_water_tt}+25 XP Medicine. The slow way. The fever yields by dawn.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_2_willow_water" }
+          ]
+        },
+        {
+          "id": "leave_to_medic",
+          "text": "{=endeavor_medical_tend_sick_phase2_leave_to_medic}Wake {COMPANION_FIRST_NAME}. They'll know what's needed.",
+          "tooltip": "{=endeavor_medical_tend_sick_phase2_leave_to_medic_tt}+25 XP Medicine. The medic is tired. Notes the lean.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.tend_sick_2_leave_to_medic" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_poultice_recipes_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_poultice_recipes_phase1_title}The notebook",
+      "setup": "{=endeavor_medical_poultice_recipes_phase1_setup}A dog-eared notebook in the medic's hand, {PLAYER_NAME}. Recipes in three different inks, three different decades. The first page is the easy one — boiled comfrey for a clean wound. The middle is harder. The last is in a script even the medic squints at. Where do you start?",
+      "options": [
+        {
+          "id": "work_through_all",
+          "text": "{=endeavor_medical_poultice_recipes_phase1_work_through_all}Work through every recipe. Mix what you can; copy what you can't.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase1_work_through_all_tt}+75 XP Medicine. Long day at the mortar.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_1_work_through_all" }
+          ]
+        },
+        {
+          "id": "follow_medic",
+          "text": "{=endeavor_medical_poultice_recipes_phase1_follow_medic}Watch {COMPANION_FIRST_NAME} mix the ones they remember. Take notes.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase1_follow_medic_tt}+25 XP Medicine. Patient learning. Honest knowledge.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_1_follow_medic" }
+          ]
+        },
+        {
+          "id": "skip_to_useful",
+          "text": "{=endeavor_medical_poultice_recipes_phase1_skip_to_useful}Just the wound poultice. The rest can wait for slower weeks.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase1_skip_to_useful_tt}+25 XP Medicine. The medic looked forward to teaching more.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_1_skip_to_useful" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_poultice_recipes_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_poultice_recipes_phase2_title}First test",
+      "setup": "{=endeavor_medical_poultice_recipes_phase2_setup}Day three. A picket comes in with a knife slash along the forearm — clean enough, deep enough. {COMPANION_FIRST_NAME} steps back from the table. \"Your recipe, {PLAYER_NAME}. Mix it.\" The book is open beside the basin. The man on the table watches the ceiling.",
+      "options": [
+        {
+          "id": "mix_by_book",
+          "text": "{=endeavor_medical_poultice_recipes_phase2_mix_by_book}Mix it slowly, by the book. Read it twice.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase2_mix_by_book_tt}+75 XP Medicine. Right proportions. The cut closes clean.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_2_mix_by_book" }
+          ]
+        },
+        {
+          "id": "let_medic_correct",
+          "text": "{=endeavor_medical_poultice_recipes_phase2_let_medic_correct}Mix it under {COMPANION_FIRST_NAME}'s eye. Let them correct your hands.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase2_let_medic_correct_tt}+25 XP Medicine. The medic adjusts twice. The cut closes.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_2_let_medic_correct" }
+          ]
+        },
+        {
+          "id": "guess_proportions",
+          "text": "{=endeavor_medical_poultice_recipes_phase2_guess_proportions}Mix from memory. You watched it twice — close enough.",
+          "tooltip": "{=endeavor_medical_poultice_recipes_phase2_guess_proportions_tt}+25 XP Medicine. The cut weeps. The medic corrects later.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.poultice_recipes_2_guess_proportions" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_field_surgery_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_field_surgery_phase1_title}The table",
+      "setup": "{=endeavor_medical_field_surgery_phase1_setup}A spear took the man under the ribs in the day's skirmish. He is breathing, badly. {COMPANION_FIRST_NAME} has the wound packed and the table scrubbed. {PLAYER_NAME}, they say, without looking up — what's your part of this. The steel will need pulling. Two hands aren't enough.",
+      "options": [
+        {
+          "id": "hold_him",
+          "text": "{=endeavor_medical_field_surgery_phase1_hold_him}Hold him. Both shoulders. {COMPANION_FIRST_NAME} works the wound.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase1_hold_him_tt}+25 XP Medicine. The hardest part is not flinching.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_1_hold_him" }
+          ]
+        },
+        {
+          "id": "take_the_pliers",
+          "text": "{=endeavor_medical_field_surgery_phase1_take_the_pliers}Take the pliers. Pull the spear yourself.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase1_take_the_pliers_tt}+75 XP Medicine. Steady hands. The blood comes fast.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_1_take_the_pliers" }
+          ]
+        },
+        {
+          "id": "fetch_water",
+          "text": "{=endeavor_medical_field_surgery_phase1_fetch_water}Fetch water. Hand them tools when they ask. Stay back from the table.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase1_fetch_water_tt}+25 XP Medicine. Useful work. Not in the room when it counts.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_1_fetch_water" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_field_surgery_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_field_surgery_phase2_title}Closing the wound",
+      "setup": "{=endeavor_medical_field_surgery_phase2_setup}The spear is out. The bleeding is slowing. The man on the table has gone quiet — passed out, not dead, {COMPANION_FIRST_NAME} confirms with a thumb to the throat. The wound needs closing, and the medic's wrists ache from the morning's stitches. They look up at you, {PLAYER_NAME}, and offer the needle.",
+      "options": [
+        {
+          "id": "take_needle",
+          "text": "{=endeavor_medical_field_surgery_phase2_take_needle}Take the needle. Slow stitches. Match what they showed you.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase2_take_needle_tt}+75 XP Medicine. Your hands shake; the stitches hold.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_2_take_needle" }
+          ]
+        },
+        {
+          "id": "guide_hands",
+          "text": "{=endeavor_medical_field_surgery_phase2_guide_hands}Stitch beside {COMPANION_FIRST_NAME}. Two needles, halved work.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase2_guide_hands_tt}+25 XP Medicine. The medic guides. The wound closes well.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_2_guide_hands" }
+          ]
+        },
+        {
+          "id": "decline_needle",
+          "text": "{=endeavor_medical_field_surgery_phase2_decline_needle}Hand the needle back. Not yet. The medic finishes alone.",
+          "tooltip": "{=endeavor_medical_field_surgery_phase2_decline_needle_tt}+25 XP Medicine. The medic nods. Some lessons wait.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.field_surgery_2_decline_needle" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_disease_outbreak_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_disease_outbreak_phase1_title}A bad cough",
+      "setup": "{=endeavor_medical_disease_outbreak_phase1_setup}Six men coughing in the third tent line, {PLAYER_NAME}. {COMPANION_FIRST_NAME} has a cloth tied over the mouth and a worried look that won't sit still. Lung-wet, not throat-dry. The kind that travels. {LORD_NAME}'s adjutant wants to know how you'll keep this off the marching column.",
+      "options": [
+        {
+          "id": "isolate_now",
+          "text": "{=endeavor_medical_disease_outbreak_phase1_isolate_now}Quarantine the third line. Move the rest of the company to the far field.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase1_isolate_now_tt}+75 XP Medicine. Hard call early. The company grumbles.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_1_isolate_now" }
+          ]
+        },
+        {
+          "id": "medic_protocol",
+          "text": "{=endeavor_medical_disease_outbreak_phase1_medic_protocol}Let {COMPANION_FIRST_NAME} run the watch. Boiled water, distance, watch the rest.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase1_medic_protocol_tt}+25 XP Medicine. Sound protocol. Slower to bite.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_1_medic_protocol" }
+          ]
+        },
+        {
+          "id": "wait_and_see",
+          "text": "{=endeavor_medical_disease_outbreak_phase1_wait_and_see}Watch them another day. Six men is six men, not the company.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase1_wait_and_see_tt}+25 XP Medicine. By morning the cough has crossed two tents.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_1_wait_and_see" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_disease_outbreak_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_disease_outbreak_phase2_title}The third day",
+      "setup": "{=endeavor_medical_disease_outbreak_phase2_setup}The cough is in fifteen tents now. Two of the first six are running fevers; {COMPANION_FIRST_NAME} has been awake since the second night. The medical stores will hold for three more days at this draw. The lord's column moves in four. He has not yet been told it will move without the sick.",
+      "options": [
+        {
+          "id": "tell_lord",
+          "text": "{=endeavor_medical_disease_outbreak_phase2_tell_lord}Tell {LORD_NAME} now. The column waits, or it moves with a divided company.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase2_tell_lord_tt}+75 XP Medicine. The lord scowls. Listens. Plans.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_2_tell_lord" }
+          ]
+        },
+        {
+          "id": "double_stores",
+          "text": "{=endeavor_medical_disease_outbreak_phase2_double_stores}Send {COMPANION_FIRST_NAME} to the camp town for more stores. Buy what you need.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase2_double_stores_tt}+25 XP Medicine. Stores arrive. Two more men down by then.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_2_double_stores" }
+          ]
+        },
+        {
+          "id": "hide_severity",
+          "text": "{=endeavor_medical_disease_outbreak_phase2_hide_severity}Don't tell the lord. Manage it yourself. He has enough.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase2_hide_severity_tt}+25 XP Medicine. The truth gets out anyway. From the wrong mouth.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_2_hide_severity" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_disease_outbreak_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_disease_outbreak_phase3_title}The crisis",
+      "setup": "{=endeavor_medical_disease_outbreak_phase3_setup}Day six. The first man — the picket who came in with the cough — is dying. The medic's tent has eight cots and ten patients. {COMPANION_FIRST_NAME} has not slept in two days. The lord's column moves at first light tomorrow. Hard choices won't wait, {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "stay_with_dying",
+          "text": "{=endeavor_medical_disease_outbreak_phase3_stay_with_dying}Stay with the picket. Send the company on. The dying deserve a face.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase3_stay_with_dying_tt}+75 XP Medicine. He goes quietly. The medic saves the rest.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_3_stay_with_dying" }
+          ]
+        },
+        {
+          "id": "triage_hard",
+          "text": "{=endeavor_medical_disease_outbreak_phase3_triage_hard}Triage. Save the strongest. Make peace with the weakest.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase3_triage_hard_tt}+75 XP Medicine. Cold work. Most live who can.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_3_triage_hard" }
+          ]
+        },
+        {
+          "id": "treat_all_equally",
+          "text": "{=endeavor_medical_disease_outbreak_phase3_treat_all_equally}Treat all ten the same. No man chooses who's saved by rank.",
+          "tooltip": "{=endeavor_medical_disease_outbreak_phase3_treat_all_equally_tt}+25 XP Medicine. Stores stretched thin. Some that could live, don't.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.medical.disease_outbreak_3_treat_all_equally" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_resolution_success_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_resolution_success_generic_title}The patient lives",
+      "setup": "{=endeavor_medical_resolution_success_generic_setup}The fever broke before dawn, or the wound closed clean, or the cough left the company's tents. Whichever it was, the work held. The medic shares a quiet nod. {LORD_NAME} hears about it the way good news travels — secondhand, from a satisfied source. The company is healthier than it was a week ago.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_medical_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=endeavor_medical_resolution_success_generic_continue_tt}Medicine XP. Readiness up. Medical risk down. Lord notices.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_medicine" },
+            { "apply": "endeavor_readiness_up_moderate" },
+            { "apply": "endeavor_medical_risk_down_moderate" },
+            { "apply": "endeavor_lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_resolution_partial_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_resolution_partial_generic_title}Muddled through",
+      "setup": "{=endeavor_medical_resolution_partial_generic_setup}Not clean, not lost. The patient pulled through with a worse scar than was needed, or the cough lingered in the back tents another week, or the herbs you saved are half what you set out to save. The medic doesn't say much. {PLAYER_NAME}, they only say. Better next time.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_medical_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=endeavor_medical_resolution_partial_generic_continue_tt}Small Medicine XP. Some readiness recovered.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_readiness_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_medical_resolution_failure_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_medical_resolution_failure_generic_title}The patient died",
+      "setup": "{=endeavor_medical_resolution_failure_generic_setup}The patient died at first light, or the cough swept three more tents while you slept, or the wound went bad and took the arm. The medic packs their tools without speaking. The company is sicker than it was a week ago, and {LORD_NAME} hears about that, too — also secondhand, from less kind sources.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_medical_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=endeavor_medical_resolution_failure_generic_continue_tt}Small Medicine XP. The lord notes the loss.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_medicine" },
+            { "apply": "endeavor_lord_relation_down_small" }
+          ]
+        }
+      ]
+    }
+  ]
+}

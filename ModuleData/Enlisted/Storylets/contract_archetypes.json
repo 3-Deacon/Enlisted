@@ -1,0 +1,722 @@
+{
+  "storylets": [
+    {
+      "id": "contract_headman_find_runaway_apprentice_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_headman_find_runaway_apprentice_phase1_title}On the Boy's Trail",
+      "setup": "{=contract_headman_find_runaway_apprentice_phase1_setup}Headman Eadric pressed three coins into your hand and a name in your ear. The boy is fourteen and gone two days. He left footprints in the mud beside the millstream and a stolen knife with his father's mark. You ride out at first light. {PLAYER_NAME}. The recruiters' camp is a day's ride south. He'll sign the muster roll if no one stops him.",
+      "options": [
+        {
+          "id": "talk_him_out",
+          "text": "{=contract_headman_find_runaway_apprentice_phase1_talk_him_out}Sit with him. Talk him out of it.",
+          "tooltip": "{=contract_headman_find_runaway_apprentice_phase1_talk_him_out_tt}+25 Charm XP. Patient persuasion. Clean return.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.find_runaway_apprentice_1_talk_him_out" }
+          ]
+        },
+        {
+          "id": "drag_him_back",
+          "text": "{=contract_headman_find_runaway_apprentice_phase1_drag_him_back}Bind his wrists. Drag him back to the village.",
+          "tooltip": "{=contract_headman_find_runaway_apprentice_phase1_drag_him_back_tt}+25 Roguery XP. The boy will not forget.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.find_runaway_apprentice_1_drag_him_back" }
+          ]
+        },
+        {
+          "id": "lose_the_trail",
+          "text": "{=contract_headman_find_runaway_apprentice_phase1_lose_the_trail}Look two days, then turn back. The trail is cold.",
+          "tooltip": "{=contract_headman_find_runaway_apprentice_phase1_lose_the_trail_tt}+25 Scouting XP. Headman will hear you tried.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.find_runaway_apprentice_1_lose_the_trail" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_headman_clear_bandit_trail_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_headman_clear_bandit_trail_phase1_title}Above the Wood Line",
+      "setup": "{=contract_headman_clear_bandit_trail_phase1_setup}Headman Brun walked the path with you to the tree edge and turned back. The trail rises into beech and thorn. The bandits come down at dusk and go up at dawn. You're meant to find their camp, not to fight them. The work is quiet feet and good eyes.",
+      "options": [
+        {
+          "id": "circle_wide",
+          "text": "{=contract_headman_clear_bandit_trail_phase1_circle_wide}Circle wide. Mark every approach.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase1_circle_wide_tt}+25 Scouting XP. Slow, thorough, unseen.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_1_circle_wide" }
+          ]
+        },
+        {
+          "id": "follow_at_dusk",
+          "text": "{=contract_headman_clear_bandit_trail_phase1_follow_at_dusk}Wait at dusk. Follow them home.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase1_follow_at_dusk_tt}+25 Scouting XP. Faster, riskier.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_1_follow_at_dusk" }
+          ]
+        },
+        {
+          "id": "hire_local_boy",
+          "text": "{=contract_headman_clear_bandit_trail_phase1_hire_local_boy}Pay a village boy to point the way.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase1_hire_local_boy_tt}+25 Charm XP. Shorter walk, the boy talks.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_1_hire_local_boy" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_headman_clear_bandit_trail_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_headman_clear_bandit_trail_phase2_title}The Camp",
+      "setup": "{=contract_headman_clear_bandit_trail_phase2_setup}You found it. Six men, a fire, a picket of two. The picket is asleep. The captain wears mail he didn't earn. {PLAYER_NAME}. You can sketch what you see and walk back. You can do more.",
+      "options": [
+        {
+          "id": "sketch_and_leave",
+          "text": "{=contract_headman_clear_bandit_trail_phase2_sketch_and_leave}Sketch the camp. Slip away.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase2_sketch_and_leave_tt}+25 Scouting XP. Clean job, full pay.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_2_sketch_and_leave" }
+          ]
+        },
+        {
+          "id": "drop_one_picket",
+          "text": "{=contract_headman_clear_bandit_trail_phase2_drop_one_picket}Drop the sleeping picket. Take his blade.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase2_drop_one_picket_tt}+25 Roguery XP. They'll know someone came.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_2_drop_one_picket" }
+          ]
+        },
+        {
+          "id": "spook_them",
+          "text": "{=contract_headman_clear_bandit_trail_phase2_spook_them}Loose an arrow into the fire. Run.",
+          "tooltip": "{=contract_headman_clear_bandit_trail_phase2_spook_them_tt}+25 Scouting XP. They move; you lose the location.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.headman.clear_bandit_trail_2_spook_them" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_merchant_deliver_letter_to_townsman_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_merchant_deliver_letter_to_townsman_phase1_title}Sealed and Quick",
+      "setup": "{=contract_merchant_deliver_letter_to_townsman_phase1_setup}Merchant Reza pressed the letter into your hand wax-side down. Two days east. A grey townhouse with green shutters. Place it in the right hand and walk away. He named the recipient twice and never wrote it. {PLAYER_NAME}. You ride before the next bell.",
+      "options": [
+        {
+          "id": "deliver_clean",
+          "text": "{=contract_merchant_deliver_letter_to_townsman_phase1_deliver_clean}Ride straight. Hand it over. Walk away.",
+          "tooltip": "{=contract_merchant_deliver_letter_to_townsman_phase1_deliver_clean_tt}+25 Scouting XP. Clean and quiet.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.deliver_letter_to_townsman_1_deliver_clean" }
+          ]
+        },
+        {
+          "id": "linger_and_listen",
+          "text": "{=contract_merchant_deliver_letter_to_townsman_phase1_linger_and_listen}Linger after. Listen at the window.",
+          "tooltip": "{=contract_merchant_deliver_letter_to_townsman_phase1_linger_and_listen_tt}+25 Roguery XP. Curiosity has a price.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.deliver_letter_to_townsman_1_linger_and_listen" }
+          ]
+        },
+        {
+          "id": "open_the_seal",
+          "text": "{=contract_merchant_deliver_letter_to_townsman_phase1_open_the_seal}Open the seal. Read it. Re-seal it badly.",
+          "tooltip": "{=contract_merchant_deliver_letter_to_townsman_phase1_open_the_seal_tt}+25 Roguery XP. Reza will notice.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.deliver_letter_to_townsman_1_open_the_seal" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_merchant_courier_silver_to_neighbor_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_merchant_courier_silver_to_neighbor_phase1_title}Three Days With a Pouch",
+      "setup": "{=contract_merchant_courier_silver_to_neighbor_phase1_setup}Merchant Hara handed you the pouch and watched your face. The cord was double-knotted. The weight was honest. Three days west; deliver to a man named Tarn who keeps a stall by the south gate. {PLAYER_NAME}. Pouches like this draw eyes. The road is long.",
+      "options": [
+        {
+          "id": "ride_visible",
+          "text": "{=contract_merchant_courier_silver_to_neighbor_phase1_ride_visible}Ride the main road. Travel under the king's writ.",
+          "tooltip": "{=contract_merchant_courier_silver_to_neighbor_phase1_ride_visible_tt}+25 Scouting XP. Safe. Slow. Witnessed.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.courier_silver_to_neighbor_1_ride_visible" }
+          ]
+        },
+        {
+          "id": "cut_through_woods",
+          "text": "{=contract_merchant_courier_silver_to_neighbor_phase1_cut_through_woods}Cut through the woods. Save a day.",
+          "tooltip": "{=contract_merchant_courier_silver_to_neighbor_phase1_cut_through_woods_tt}+25 Scouting XP. Faster. Less witnessed.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.courier_silver_to_neighbor_1_cut_through_woods" }
+          ]
+        },
+        {
+          "id": "lighten_the_pouch",
+          "text": "{=contract_merchant_courier_silver_to_neighbor_phase1_lighten_the_pouch}Slip three coins out. Cord knotted; weight close enough.",
+          "tooltip": "{=contract_merchant_courier_silver_to_neighbor_phase1_lighten_the_pouch_tt}+25 Roguery XP. Hara is a careful man.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.courier_silver_to_neighbor_1_lighten_the_pouch" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_merchant_scout_tariff_routes_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_merchant_scout_tariff_routes_phase1_title}Three Roads, Four Days",
+      "setup": "{=contract_merchant_scout_tariff_routes_phase1_setup}Merchant Olek wants the tax-takers' real schedule, not the one posted at the gate. Three border routes; he named them by the rivers they cross. You have four days to walk them and count the patrols. {PLAYER_NAME}. He wants to move untaxed wool. He didn't say so. He didn't have to.",
+      "options": [
+        {
+          "id": "walk_all_three",
+          "text": "{=contract_merchant_scout_tariff_routes_phase1_walk_all_three}Walk all three at dusk. Count the patrols.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase1_walk_all_three_tt}+25 Scouting XP. Thorough; legs ache.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_1_walk_all_three" }
+          ]
+        },
+        {
+          "id": "ride_one_well",
+          "text": "{=contract_merchant_scout_tariff_routes_phase1_ride_one_well}Ride the busiest. Skip the other two.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase1_ride_one_well_tt}+25 Riding XP. One good answer; two unread.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_1_ride_one_well" }
+          ]
+        },
+        {
+          "id": "talk_to_drovers",
+          "text": "{=contract_merchant_scout_tariff_routes_phase1_talk_to_drovers}Sit at the inn. Buy ale for drovers.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase1_talk_to_drovers_tt}+25 Charm XP. Soft work. Useful answers.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_1_talk_to_drovers" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_merchant_scout_tariff_routes_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_merchant_scout_tariff_routes_phase2_title}The Toll-Captain",
+      "setup": "{=contract_merchant_scout_tariff_routes_phase2_setup}On the third night a toll-captain rides up to the inn fire. He knows your face from the road. He sits down with two cups and one of them is yours. {PLAYER_NAME}. He doesn't ask why you're walking the borders. He waits for you to volunteer.",
+      "options": [
+        {
+          "id": "play_innocent",
+          "text": "{=contract_merchant_scout_tariff_routes_phase2_play_innocent}Talk weather and horses. Drink slowly.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase2_play_innocent_tt}+25 Charm XP. Quiet exit. Olek's report kept.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_2_play_innocent" }
+          ]
+        },
+        {
+          "id": "feed_him_a_lie",
+          "text": "{=contract_merchant_scout_tariff_routes_phase2_feed_him_a_lie}Tell him you're a peddler. Mention a town two days off.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase2_feed_him_a_lie_tt}+25 Roguery XP. He'll check; you'll be gone.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_2_feed_him_a_lie" }
+          ]
+        },
+        {
+          "id": "sell_olek",
+          "text": "{=contract_merchant_scout_tariff_routes_phase2_sell_olek}Trade Olek's name for a quiet road.",
+          "tooltip": "{=contract_merchant_scout_tariff_routes_phase2_sell_olek_tt}+25 Charm XP. Olek will hear of this.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.merchant.scout_tariff_routes_2_sell_olek" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_gangleader_collect_owed_debts_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_gangleader_collect_owed_debts_phase1_title}Three Names",
+      "setup": "{=contract_gangleader_collect_owed_debts_phase1_setup}Gangleader Vask read you the three names without looking up. A baker, a widow, a smith. Each owes coin and has missed two collections. He didn't say what the coin was for. He didn't say what happens if they keep refusing. He didn't have to. {PLAYER_NAME}. The baker's first.",
+      "options": [
+        {
+          "id": "talk_terms",
+          "text": "{=contract_gangleader_collect_owed_debts_phase1_talk_terms}Sit at the baker's table. Talk new terms.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase1_talk_terms_tt}+25 Charm XP. Patient money returns clean.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_1_talk_terms" }
+          ]
+        },
+        {
+          "id": "lean_hard",
+          "text": "{=contract_gangleader_collect_owed_debts_phase1_lean_hard}Stand close. Speak slowly. Take what's there.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase1_lean_hard_tt}+25 Roguery XP. Coin same day. Reputation cost.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_1_lean_hard" }
+          ]
+        },
+        {
+          "id": "skip_the_widow",
+          "text": "{=contract_gangleader_collect_owed_debts_phase1_skip_the_widow}Pay the widow's share yourself. Move on.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase1_skip_the_widow_tt}+25 Charm XP. Vask wants three names paid.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_1_skip_the_widow" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_gangleader_collect_owed_debts_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_gangleader_collect_owed_debts_phase2_title}The Smith's Door",
+      "setup": "{=contract_gangleader_collect_owed_debts_phase2_setup}The smith opens the door with the hammer in his hand. He has not paid in three months and his eyes say he will not pay tonight. His apprentice watches from behind the forge. The bellows hisses. {PLAYER_NAME}. Vask wants every name on the list closed by morning.",
+      "options": [
+        {
+          "id": "outwait_him",
+          "text": "{=contract_gangleader_collect_owed_debts_phase2_outwait_him}Stand at the door. Wait. Say nothing.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase2_outwait_him_tt}+25 Charm XP. He pays. The forge stays whole.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_2_outwait_him" }
+          ]
+        },
+        {
+          "id": "smash_the_anvil",
+          "text": "{=contract_gangleader_collect_owed_debts_phase2_smash_the_anvil}Tip the anvil over. Tell him the next visit costs more.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase2_smash_the_anvil_tt}+25 Roguery XP. Coin and a story spread.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_2_smash_the_anvil" }
+          ]
+        },
+        {
+          "id": "back_off",
+          "text": "{=contract_gangleader_collect_owed_debts_phase2_back_off}Step back. Tell Vask the smith was empty.",
+          "tooltip": "{=contract_gangleader_collect_owed_debts_phase2_back_off_tt}+25 Roguery XP. Vask checks. Always.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.collect_owed_debts_2_back_off" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_gangleader_smuggle_contraband_to_back_alley_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_title}From the River Docks",
+      "setup": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_setup}Gangleader Tev pointed at the crate and said two things. Don't open it. Don't be late. The crate sits the wrong weight in your hands. The dock men do not look at you and that is itself a kind of looking. Four days west to a back alley behind a tannery. {PLAYER_NAME}. The road is watched in places.",
+      "options": [
+        {
+          "id": "river_barge",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_river_barge}Pay a barge captain. Travel by water.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_river_barge_tt}+25 Charm XP. Slow and hidden.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_1_river_barge" }
+          ]
+        },
+        {
+          "id": "ride_back_roads",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_ride_back_roads}Ride the back roads. Travel at dusk.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_ride_back_roads_tt}+25 Roguery XP. Faster, more exposure.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_1_ride_back_roads" }
+          ]
+        },
+        {
+          "id": "open_the_crate",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_open_the_crate}Pry the crate open at first camp.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase1_open_the_crate_tt}+25 Roguery XP. Tev was clear. Tev was clear.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_1_open_the_crate" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_gangleader_smuggle_contraband_to_back_alley_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_title}A Patrol on the Bridge",
+      "setup": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_setup}Two riders sit horse on the bridge ahead. They are not toll-takers and they are not bandits. The coats are cut for crossbows under the cloak. They have seen you and the crate and have not yet decided what to do about either. {PLAYER_NAME}.",
+      "options": [
+        {
+          "id": "calm_passage",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_calm_passage}Ride up plain. Greet them. Pass through.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_calm_passage_tt}+25 Charm XP. Held face wins.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_2_calm_passage" }
+          ]
+        },
+        {
+          "id": "bribe_them",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_bribe_them}Press a coin into the older one's hand.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_bribe_them_tt}+25 Charm XP. Coin spent. Story spreads.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_2_bribe_them" }
+          ]
+        },
+        {
+          "id": "bolt_for_woods",
+          "text": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_bolt_for_woods}Spur the horse. Cut for the woods.",
+          "tooltip": "{=contract_gangleader_smuggle_contraband_to_back_alley_phase2_bolt_for_woods_tt}+25 Riding XP. They'll ride faster.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.gangleader.smuggle_contraband_to_back_alley_2_bolt_for_woods" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_artisan_gather_rare_pigments_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_artisan_gather_rare_pigments_phase1_title}Cinnabar in the Scree",
+      "setup": "{=contract_artisan_gather_rare_pigments_phase1_setup}Artisan Calla wrote out the colors and the weights and the prices in a hand small as a sparrow's. Cinnabar from the red scree, ochre from the south face. She paid a third in advance and weighed the empty pouches before you left. {PLAYER_NAME}. The hills are five days for a careless walker and three for a careful one.",
+      "options": [
+        {
+          "id": "patient_pick",
+          "text": "{=contract_artisan_gather_rare_pigments_phase1_patient_pick}Walk the scree slow. Take only the brightest.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase1_patient_pick_tt}+25 Scouting XP. Less weight, better color.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_1_patient_pick" }
+          ]
+        },
+        {
+          "id": "fill_the_pouches",
+          "text": "{=contract_artisan_gather_rare_pigments_phase1_fill_the_pouches}Fill every pouch. Sort at the camp.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase1_fill_the_pouches_tt}+25 Scouting XP. More weight, mixed quality.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_1_fill_the_pouches" }
+          ]
+        },
+        {
+          "id": "trade_with_shepherds",
+          "text": "{=contract_artisan_gather_rare_pigments_phase1_trade_with_shepherds}Trade bread for shepherds' samples.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase1_trade_with_shepherds_tt}+25 Charm XP. Easier; less of your work.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_1_trade_with_shepherds" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_artisan_gather_rare_pigments_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_artisan_gather_rare_pigments_phase2_title}The Storm",
+      "setup": "{=contract_artisan_gather_rare_pigments_phase2_setup}On the fourth day a hill storm rolls in faster than the wind warned. The pouches will keep dry under your cloak; the cloak will not. There is a high cave half a mile up and a low farm two miles back. {PLAYER_NAME}. Calla weighs everything when you return.",
+      "options": [
+        {
+          "id": "find_the_cave",
+          "text": "{=contract_artisan_gather_rare_pigments_phase2_find_the_cave}Climb to the cave. Wait it out.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase2_find_the_cave_tt}+25 Scouting XP. Pigments dry. You miserable.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_2_find_the_cave" }
+          ]
+        },
+        {
+          "id": "ride_for_farm",
+          "text": "{=contract_artisan_gather_rare_pigments_phase2_ride_for_farm}Ride hard for the farm.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase2_ride_for_farm_tt}+25 Riding XP. Lose a day, save the pouches.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_2_ride_for_farm" }
+          ]
+        },
+        {
+          "id": "push_through",
+          "text": "{=contract_artisan_gather_rare_pigments_phase2_push_through}Push through. Trust the cloak.",
+          "tooltip": "{=contract_artisan_gather_rare_pigments_phase2_push_through_tt}+25 Scouting XP. Pigments soak. Color ruined.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.artisan.gather_rare_pigments_2_push_through" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_rural_notable_inspect_outlying_pasture_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_rural_notable_inspect_outlying_pasture_phase1_title}Three Days Out",
+      "setup": "{=contract_rural_notable_inspect_outlying_pasture_phase1_setup}Squire Mervas owns the high pasture and rarely rides to it. He told you the herders had not reported in two weeks. He paid in advance and counted out the coins twice. The pasture is three days out, two of them through scrub. {PLAYER_NAME}. He wants to know who walks his land. He wants names if you have them.",
+      "options": [
+        {
+          "id": "walk_the_fence",
+          "text": "{=contract_rural_notable_inspect_outlying_pasture_phase1_walk_the_fence}Walk the fence line. Note every break.",
+          "tooltip": "{=contract_rural_notable_inspect_outlying_pasture_phase1_walk_the_fence_tt}+25 Scouting XP. Slow; thorough.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.rural_notable.inspect_outlying_pasture_1_walk_the_fence" }
+          ]
+        },
+        {
+          "id": "track_the_poachers",
+          "text": "{=contract_rural_notable_inspect_outlying_pasture_phase1_track_the_poachers}Find the poachers. Mark their trail back.",
+          "tooltip": "{=contract_rural_notable_inspect_outlying_pasture_phase1_track_the_poachers_tt}+25 Scouting XP. Names for the squire.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.rural_notable.inspect_outlying_pasture_1_track_the_poachers" }
+          ]
+        },
+        {
+          "id": "ride_the_perimeter",
+          "text": "{=contract_rural_notable_inspect_outlying_pasture_phase1_ride_the_perimeter}Ride the perimeter once. Call it done.",
+          "tooltip": "{=contract_rural_notable_inspect_outlying_pasture_phase1_ride_the_perimeter_tt}+25 Riding XP. Cursory; squire will know.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_athletics" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.rural_notable.inspect_outlying_pasture_1_ride_the_perimeter" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_urban_notable_discreet_inquiry_phase1",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_urban_notable_discreet_inquiry_phase1_title}A Door Across the Square",
+      "setup": "{=contract_urban_notable_discreet_inquiry_phase1_setup}Lord-merchant Gareth named the rival in a low room and named the price twice as high. The household sits across a small square; the front door faces a wineshop, the back gives on a lane that drains to the river. He wants names of who comes and goes, and times. He wants nothing else. {PLAYER_NAME}. He pays for invisibility.",
+      "options": [
+        {
+          "id": "wineshop_table",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase1_wineshop_table}Take the wineshop table. Watch the front door.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase1_wineshop_table_tt}+25 Charm XP. Slow watch; nothing missed.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_1_wineshop_table" }
+          ]
+        },
+        {
+          "id": "back_lane_alley",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase1_back_lane_alley}Crouch in the back lane. Watch the kitchen door.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase1_back_lane_alley_tt}+25 Roguery XP. Better names; sharper risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_1_back_lane_alley" }
+          ]
+        },
+        {
+          "id": "knock_on_door",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase1_knock_on_door}Knock. Pretend a wrong address.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase1_knock_on_door_tt}+25 Charm XP. Bold. Memorable. Wrong.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_1_knock_on_door" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_urban_notable_discreet_inquiry_phase2",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_urban_notable_discreet_inquiry_phase2_title}A Servant on the Stair",
+      "setup": "{=contract_urban_notable_discreet_inquiry_phase2_setup}On the third day a serving girl comes out the back, sees you, freezes, and does not run. She is the rival's, and she knows you are not from this lane. She does not call out. She watches and waits. {PLAYER_NAME}. The decision is hers and yours and lord-merchant Gareth's, in that order.",
+      "options": [
+        {
+          "id": "vanish",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase2_vanish}Walk away. Never come back to this lane.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase2_vanish_tt}+25 Roguery XP. Clean exit; partial report.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_2_vanish" }
+          ]
+        },
+        {
+          "id": "buy_her_silence",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase2_buy_her_silence}Press a coin into her hand. Walk past.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase2_buy_her_silence_tt}+25 Charm XP. Coin spent. Hope she keeps quiet.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_2_buy_her_silence" }
+          ]
+        },
+        {
+          "id": "follow_her_in",
+          "text": "{=contract_urban_notable_discreet_inquiry_phase2_follow_her_in}Push past her. Inside is the answer.",
+          "tooltip": "{=contract_urban_notable_discreet_inquiry_phase2_follow_her_in_tt}+25 Roguery XP. Brazen. The household wakes.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "set_flag", "name": "endeavor_choice_contract.urban_notable.discreet_inquiry_2_follow_her_in" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "id": "contract_resolution_success_generic",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_resolution_success_generic_title}Paid Clean",
+      "setup": "{=contract_resolution_success_generic_setup}Delivered, paid, parted on good terms. The notable counted the coin into your hand and looked at you long enough to remember the face. You will be asked again. The work was yours and is now finished.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=contract_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=contract_resolution_success_generic_continue_tt}+25 Charm XP. +3 lord relation. +500 denars.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_lord_relation_up_small" },
+            { "apply": "endeavor_gold_reward_moderate" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_resolution_partial_generic",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_resolution_partial_generic_title}Partial Pay",
+      "setup": "{=contract_resolution_partial_generic_setup}Some of the work was done and some was not. The notable counted out half the coin and watched you take it. He did not say much else. Watch your back on the road home; the people who pay this kind of work do not forget.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=contract_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=contract_resolution_partial_generic_continue_tt}+25 Charm XP. +100 denars. Half rate.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_gold_reward_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contract_resolution_failure_generic",
+      "category": "contract",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=contract_resolution_failure_generic_title}Marked Face",
+      "setup": "{=contract_resolution_failure_generic_setup}No pay. The notable would not look at you when you came back. He turned to a clerk and the clerk turned to a back room. The door closed. You will not be hired here again. {LORD_NAME} will hear soon enough that you walked into something and walked back out poorer.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=contract_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=contract_resolution_failure_generic_continue_tt}-3 lord relation. The work was not yours today.",
+          "effects": [
+            { "apply": "endeavor_lord_relation_down_small" }
+          ]
+        }
+      ]
+    }
+  ]
+}

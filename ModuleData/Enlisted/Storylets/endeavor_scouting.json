@@ -1,0 +1,506 @@
+{
+  "storylets": [
+    {
+      "id": "endeavor_scouting_map_terrain_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_map_terrain_phase1_title}First quadrant",
+      "setup": "{=endeavor_scouting_map_terrain_phase1_setup}First light. {PLAYER_NAME} rolls the parchment flat against a saddle and weighs the corners with stones. {LORD_NAME} wants the country known. The horse paws the ground. Where do you ride first.",
+      "options": [
+        {
+          "id": "ride_far",
+          "text": "{=endeavor_scouting_map_terrain_phase1_ride_far}Push the long ride. Cover ground.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase1_ride_far_tt}+75 XP Scouting. Wide pass. Tires the horse.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_1_ride_far" }
+          ]
+        },
+        {
+          "id": "ride_careful",
+          "text": "{=endeavor_scouting_map_terrain_phase1_ride_careful}Stay close. Map what you can see properly.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase1_ride_careful_tt}+25 XP Scouting. Less ground, cleaner marks.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_1_ride_careful" }
+          ]
+        },
+        {
+          "id": "delegate_pathfinder",
+          "text": "{=endeavor_scouting_map_terrain_phase1_delegate_pathfinder}Send {COMPANION_FIRST_NAME} ahead. Ride the near ground yourself.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase1_delegate_pathfinder_tt}+25 XP Scouting. Splits the work. No risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_1_delegate_pathfinder" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_map_terrain_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_map_terrain_phase2_title}The fourth quadrant",
+      "setup": "{=endeavor_scouting_map_terrain_phase2_setup}Day three. The map is filling. There is a stretch east no one in camp has ridden. {PLAYER_NAME} weighs it. The light is short. The horse is tired. {LORD_NAME} will read what you bring back.",
+      "options": [
+        {
+          "id": "push_through",
+          "text": "{=endeavor_scouting_map_terrain_phase2_push_through}Push through. Mark the ground before dark.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase2_push_through_tt}+75 XP Scouting. Complete map. Hard ride.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_2_push_through" }
+          ]
+        },
+        {
+          "id": "estimate_from_ridge",
+          "text": "{=endeavor_scouting_map_terrain_phase2_estimate_from_ridge}Sketch it from the ridge. Honest about the gaps.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase2_estimate_from_ridge_tt}+25 XP Scouting. Partial map. Honest legend.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_2_estimate_from_ridge" }
+          ]
+        },
+        {
+          "id": "fake_the_lines",
+          "text": "{=endeavor_scouting_map_terrain_phase2_fake_the_lines}Guess the lines. {LORD_NAME} won't ride them.",
+          "tooltip": "{=endeavor_scouting_map_terrain_phase2_fake_the_lines_tt}+25 XP Scouting. Map looks complete. It isn't.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.map_terrain_2_fake_the_lines" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_track_patrol_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_track_patrol_phase1_title}Find the track",
+      "setup": "{=endeavor_scouting_track_patrol_phase1_setup}Pre-dawn. The wood line. {PLAYER_NAME} crouches against the cold and listens for the column. Hoofprints, three days old, point east. The wind moves the grass behind them. How close do you hold.",
+      "options": [
+        {
+          "id": "stay_close",
+          "text": "{=endeavor_scouting_track_patrol_phase1_stay_close}Stay close. They won't see you.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase1_stay_close_tt}+75 XP Scouting. Real numbers. Risky proximity.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_1_stay_close" }
+          ]
+        },
+        {
+          "id": "hold_the_ridge",
+          "text": "{=endeavor_scouting_track_patrol_phase1_hold_the_ridge}Hold the ridge. Count what you can see.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase1_hold_the_ridge_tt}+25 XP Scouting. Count from cover. No risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_1_hold_the_ridge" }
+          ]
+        },
+        {
+          "id": "lose_the_trail",
+          "text": "{=endeavor_scouting_track_patrol_phase1_lose_the_trail}Pull off. Pick the track up tomorrow.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase1_lose_the_trail_tt}+25 XP Scouting. Trail goes cold by morning.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_1_lose_the_trail" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_track_patrol_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_track_patrol_phase2_title}The picket",
+      "setup": "{=endeavor_scouting_track_patrol_phase2_setup}Their picket sits ten yards off the path. He has not seen {PLAYER_NAME} yet. The column heads north at first light. The intel is in his hands as much as on the ground. Decide.",
+      "options": [
+        {
+          "id": "lift_the_dispatch",
+          "text": "{=endeavor_scouting_track_patrol_phase2_lift_the_dispatch}Take the dispatch. Slip past while he sleeps.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase2_lift_the_dispatch_tt}+75 XP Scouting. Real intel. High risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_2_lift_the_dispatch" }
+          ]
+        },
+        {
+          "id": "watch_until_dawn",
+          "text": "{=endeavor_scouting_track_patrol_phase2_watch_until_dawn}Watch until dawn. Note the relief schedule.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase2_watch_until_dawn_tt}+25 XP Scouting. Solid reckoning. No risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_2_watch_until_dawn" }
+          ]
+        },
+        {
+          "id": "spooked",
+          "text": "{=endeavor_scouting_track_patrol_phase2_spooked}He stirs. Pull back fast. Lose the line.",
+          "tooltip": "{=endeavor_scouting_track_patrol_phase2_spooked_tt}+25 XP Scouting. Clean withdrawal. No count.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.track_patrol_2_spooked" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_report_morale_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_report_morale_phase1_title}First village",
+      "setup": "{=endeavor_scouting_report_morale_phase1_setup}The village is a crossroads and a well. {PLAYER_NAME} ties the horse and walks in slow. The headman watches from his door. The priest counts beads on the church step. The tavern is the loudest place. Who do you sit with first.",
+      "options": [
+        {
+          "id": "drink_with_headman",
+          "text": "{=endeavor_scouting_report_morale_phase1_drink_with_headman}Sit with the headman. Buy the cup.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase1_drink_with_headman_tt}+75 XP Scouting. Honest opinions. Slow conversation.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_1_drink_with_headman" }
+          ]
+        },
+        {
+          "id": "listen_at_tavern",
+          "text": "{=endeavor_scouting_report_morale_phase1_listen_at_tavern}Take a corner of the tavern. Listen to the room.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase1_listen_at_tavern_tt}+25 XP Scouting. Loud talk. Mixed reliability.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_1_listen_at_tavern" }
+          ]
+        },
+        {
+          "id": "ask_too_direct",
+          "text": "{=endeavor_scouting_report_morale_phase1_ask_too_direct}Ask outright who curses {LORD_NAME}.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase1_ask_too_direct_tt}+25 XP Scouting. Mouths close. Bad start.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_1_ask_too_direct" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_report_morale_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_report_morale_phase2_title}Third village",
+      "setup": "{=endeavor_scouting_report_morale_phase2_setup}The third village blesses {LORD_NAME} loud and curses his tax-collector louder. {PLAYER_NAME} sits with a baker's widow who has lost two sons to the levy. She wants someone to hear it. {LORD_NAME} will want to hear something else. How do you write the report.",
+      "options": [
+        {
+          "id": "name_the_grievance",
+          "text": "{=endeavor_scouting_report_morale_phase2_name_the_grievance}Write what she said. Name the tax-collector.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase2_name_the_grievance_tt}+75 XP Scouting. Honest report. Useful intelligence.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_2_name_the_grievance" }
+          ]
+        },
+        {
+          "id": "soften_the_report",
+          "text": "{=endeavor_scouting_report_morale_phase2_soften_the_report}Mention the grievance. Don't name names.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase2_soften_the_report_tt}+25 XP Scouting. Useful, but vague.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_2_soften_the_report" }
+          ]
+        },
+        {
+          "id": "write_what_he_wants",
+          "text": "{=endeavor_scouting_report_morale_phase2_write_what_he_wants}Write what {LORD_NAME} wants to read. Loyal villages.",
+          "tooltip": "{=endeavor_scouting_report_morale_phase2_write_what_he_wants_tt}+25 XP Scouting. Flattering report. Wrong country.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.report_morale_2_write_what_he_wants" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_deep_recon_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_deep_recon_phase1_title}The crossing",
+      "setup": "{=endeavor_scouting_deep_recon_phase1_setup}Their forward camps lie three days the wrong side of the river. {PLAYER_NAME} kneels in the reeds with {COMPANION_FIRST_NAME} and looks at the ford. There is a known crossing. There is a longer way around through the marsh. The water is cold and rising.",
+      "options": [
+        {
+          "id": "take_the_ford",
+          "text": "{=endeavor_scouting_deep_recon_phase1_take_the_ford}Take the ford. Be across before light.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase1_take_the_ford_tt}+75 XP Scouting. Fast crossing. Watched ground.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_1_take_the_ford" }
+          ]
+        },
+        {
+          "id": "go_round_the_marsh",
+          "text": "{=endeavor_scouting_deep_recon_phase1_go_round_the_marsh}Go round through the marsh. Slow but unwatched.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase1_go_round_the_marsh_tt}+25 XP Scouting. Long crossing. No eyes.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_1_go_round_the_marsh" }
+          ]
+        },
+        {
+          "id": "wait_for_dark",
+          "text": "{=endeavor_scouting_deep_recon_phase1_wait_for_dark}Sit the day. Cross at dark. Lose the day.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase1_wait_for_dark_tt}+25 XP Scouting. Cautious. Day burned.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_1_wait_for_dark" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_deep_recon_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_deep_recon_phase2_title}Inside the perimeter",
+      "setup": "{=endeavor_scouting_deep_recon_phase2_setup}Day five. {PLAYER_NAME} lies on a slope above their muster ground and counts banners. {COMPANION_FIRST_NAME} marks the count on a strip of bark. There is a tent staked apart from the rest. An officer's tent. Maps inside, almost certainly. Decide.",
+      "options": [
+        {
+          "id": "lift_the_maps",
+          "text": "{=endeavor_scouting_deep_recon_phase2_lift_the_maps}Slip in. Lift the maps. Slip out.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase2_lift_the_maps_tt}+75 XP Scouting. Whole campaign in your hands. Heavy risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_2_lift_the_maps" }
+          ]
+        },
+        {
+          "id": "count_and_withdraw",
+          "text": "{=endeavor_scouting_deep_recon_phase2_count_and_withdraw}Count what you can see. Mark heading and strength.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase2_count_and_withdraw_tt}+25 XP Scouting. Solid count. No risk.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_2_count_and_withdraw" }
+          ]
+        },
+        {
+          "id": "compromised",
+          "text": "{=endeavor_scouting_deep_recon_phase2_compromised}A sentry calls. Run for cover. Lose the count.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase2_compromised_tt}+25 XP Scouting. Clean break. Count lost.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_2_compromised" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_deep_recon_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_deep_recon_phase3_title}The road back",
+      "setup": "{=endeavor_scouting_deep_recon_phase3_setup}Day seven. {PLAYER_NAME} and {COMPANION_FIRST_NAME} hold the same wood line as the start, this time on the wrong side. There is a faster way back along the road. There is a long way back through the hills. Every hour the report ages. Every hour the country wakes up.",
+      "options": [
+        {
+          "id": "ride_the_road",
+          "text": "{=endeavor_scouting_deep_recon_phase3_ride_the_road}Ride the road. Fast. {LORD_NAME} reads it tonight.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase3_ride_the_road_tt}+75 XP Scouting. Hot intel. Real chance of pursuit.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_3_ride_the_road" }
+          ]
+        },
+        {
+          "id": "take_the_hills",
+          "text": "{=endeavor_scouting_deep_recon_phase3_take_the_hills}Take the hills. Slow. Sure.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase3_take_the_hills_tt}+25 XP Scouting. Late report. Clean return.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_3_take_the_hills" }
+          ]
+        },
+        {
+          "id": "split_and_pray",
+          "text": "{=endeavor_scouting_deep_recon_phase3_split_and_pray}Split. {COMPANION_FIRST_NAME} the road. You the hills.",
+          "tooltip": "{=endeavor_scouting_deep_recon_phase3_split_and_pray_tt}+25 XP Scouting. Hedge the bet. Halve the report.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.deep_recon_3_split_and_pray" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_escape_routes_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_escape_routes_phase1_title}If the camp falls",
+      "setup": "{=endeavor_scouting_escape_routes_phase1_setup}{PLAYER_NAME} stands at the edge of {LORD_NAME}'s camp at dusk and asks the question no officer wants asked. If they overrun this ground tomorrow, where do the survivors go. East to the river. South to the hills. North to the friendly garrison. Three roads. One day each.",
+      "options": [
+        {
+          "id": "scout_the_river",
+          "text": "{=endeavor_scouting_escape_routes_phase1_scout_the_river}Walk the river road. Bridges, fords, broken cover.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase1_scout_the_river_tt}+75 XP Scouting. Real survey. Long day.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_1_scout_the_river" }
+          ]
+        },
+        {
+          "id": "ride_the_hills",
+          "text": "{=endeavor_scouting_escape_routes_phase1_ride_the_hills}Ride the hill track. Cover, but harder going.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase1_ride_the_hills_tt}+25 XP Scouting. Solid line. Slow ground.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_1_ride_the_hills" }
+          ]
+        },
+        {
+          "id": "delegate_pathfinder",
+          "text": "{=endeavor_scouting_escape_routes_phase1_delegate_pathfinder}Send {COMPANION_FIRST_NAME} the river. You the near road.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase1_delegate_pathfinder_tt}+25 XP Scouting. Splits the work. Smaller picture.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_1_delegate_pathfinder" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_escape_routes_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_escape_routes_phase2_title}Who knows",
+      "setup": "{=endeavor_scouting_escape_routes_phase2_setup}{PLAYER_NAME} has the routes. The question now is who carries them. The whole officer cadre. {LORD_NAME} alone. Or the sergeants, who would actually be moving men in the dark. Decide what kind of question this was.",
+      "options": [
+        {
+          "id": "tell_the_sergeants",
+          "text": "{=endeavor_scouting_escape_routes_phase2_tell_the_sergeants}Brief the sergeants. They lead the survivors.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase2_tell_the_sergeants_tt}+75 XP Scouting. Useful where it counts.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_2_tell_the_sergeants" }
+          ]
+        },
+        {
+          "id": "lord_only",
+          "text": "{=endeavor_scouting_escape_routes_phase2_lord_only}{LORD_NAME} only. He decides who else hears.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase2_lord_only_tt}+25 XP Scouting. Discreet. Slow command.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_2_lord_only" }
+          ]
+        },
+        {
+          "id": "burn_the_map",
+          "text": "{=endeavor_scouting_escape_routes_phase2_burn_the_map}Keep it for yourself. Burn the sketch.",
+          "tooltip": "{=endeavor_scouting_escape_routes_phase2_burn_the_map_tt}+25 XP Scouting. Knowledge hoarded. Use unclear.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.scouting.escape_routes_2_burn_the_map" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_resolution_success_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_resolution_success_generic_title}Actionable intel",
+      "setup": "{=endeavor_scouting_resolution_success_generic_setup}{PLAYER_NAME} lays the report on the camp table. Lines drawn straight. Numbers reckoned twice. {LORD_NAME} reads it once and nods. Three days ahead of schedule. He folds the map and slides a small purse across the wood without a word.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_scouting_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=endeavor_scouting_resolution_success_generic_continue_tt}+75 XP Scouting. Lord's regard up. Coin in hand.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_scouting" },
+            { "apply": "endeavor_lord_relation_up_moderate" },
+            { "apply": "endeavor_gold_reward_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_resolution_partial_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_resolution_partial_generic_title}Half the picture",
+      "setup": "{=endeavor_scouting_resolution_partial_generic_setup}{PLAYER_NAME} sets down what was seen and admits what was not. {LORD_NAME} reads it slow. Useful in places. Honest in others. He grunts once and sets the parchment aside without folding it.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_scouting_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=endeavor_scouting_resolution_partial_generic_continue_tt}+25 XP Scouting. Small lord's regard.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_scouting" },
+            { "apply": "endeavor_lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_scouting_resolution_failure_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_scouting_resolution_failure_generic_title}Spotted",
+      "setup": "{=endeavor_scouting_resolution_failure_generic_setup}{PLAYER_NAME} comes back with the trail lost and the country no clearer than before. Worse — pickets out east have been doubled. {LORD_NAME} already knows why. He does not look up from the table.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_scouting_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=endeavor_scouting_resolution_failure_generic_continue_tt}Lord's regard down. Trust to rebuild.",
+          "effects": [
+            { "apply": "endeavor_lord_relation_down_small" }
+          ]
+        }
+      ]
+    }
+  ]
+}

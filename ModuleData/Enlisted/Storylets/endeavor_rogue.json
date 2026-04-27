@@ -1,0 +1,593 @@
+{
+  "storylets": [
+    {
+      "id": "endeavor_rogue_dice_game_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_dice_game_phase1_title}Set the table",
+      "setup": "{=endeavor_rogue_dice_game_phase1_setup}First night. A blanket stretched between two crates, a borrowed cup, three pairs of bones. Half the company will play if the stakes are right. {PLAYER_NAME} sets them. The wrong number tonight is the difference between three quiet evenings and a sergeant standing over you with questions.",
+      "options": [
+        {
+          "id": "deep_pockets",
+          "text": "{=endeavor_rogue_dice_game_phase1_deep_pockets}Deep pockets. Real silver on the blanket.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase1_deep_pockets_tt}+75 XP Roguery. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_1_deep_pockets" }
+          ]
+        },
+        {
+          "id": "low_stakes",
+          "text": "{=endeavor_rogue_dice_game_phase1_low_stakes}Low stakes. Quiet table, quiet purses.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase1_low_stakes_tt}+25 XP Roguery. No scrutiny.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_1_low_stakes" }
+          ]
+        },
+        {
+          "id": "fold_table",
+          "text": "{=endeavor_rogue_dice_game_phase1_fold_table}Fold the blanket. Sleep instead.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase1_fold_table_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_1_fold_table" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_dice_game_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_dice_game_phase2_title}A bad loss",
+      "setup": "{=endeavor_rogue_dice_game_phase2_setup}Second night. A spearman three cups deep loses a week's pay on a single throw and won't have it. He goes for his belt knife. The crowd between you breathes in and waits. {LORD_NAME}'s pickets are not far. A loud word would carry.",
+      "options": [
+        {
+          "id": "press_him",
+          "text": "{=endeavor_rogue_dice_game_phase2_press_him}Press him. Coin owed is coin owed.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase2_press_him_tt}+75 XP Roguery. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_2_press_him" }
+          ]
+        },
+        {
+          "id": "smooth_it",
+          "text": "{=endeavor_rogue_dice_game_phase2_smooth_it}Buy him a cup. Settle for half. Smile.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase2_smooth_it_tt}+25 XP Charm. No scrutiny.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_2_smooth_it" }
+          ]
+        },
+        {
+          "id": "give_back",
+          "text": "{=endeavor_rogue_dice_game_phase2_give_back}Hand back his coin. Walk away.",
+          "tooltip": "{=endeavor_rogue_dice_game_phase2_give_back_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.dice_game_2_give_back" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_smuggle_wine_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_smuggle_wine_phase1_title}The barrel",
+      "setup": "{=endeavor_rogue_smuggle_wine_phase1_setup}Southern red. A full barrel sweating in a wagon the QM hasn't tallied. The driver wants it gone before the count and won't ask twice. {PLAYER_NAME} stands in the dark with the seal still warm. There are three ways to move it tonight.",
+      "options": [
+        {
+          "id": "wagon_run",
+          "text": "{=endeavor_rogue_smuggle_wine_phase1_wagon_run}Take the wagon. Drive it out past the pickets.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase1_wagon_run_tt}+75 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_1_wagon_run" }
+          ]
+        },
+        {
+          "id": "bottle_run",
+          "text": "{=endeavor_rogue_smuggle_wine_phase1_bottle_run}Decant it. Carry it out a bottle at a time.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase1_bottle_run_tt}+25 XP Roguery. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_1_bottle_run" }
+          ]
+        },
+        {
+          "id": "tip_qm",
+          "text": "{=endeavor_rogue_smuggle_wine_phase1_tip_qm}Tip the quartermaster. Walk away clean.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase1_tip_qm_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_1_tip_qm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_smuggle_wine_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_smuggle_wine_phase2_title}Short by one",
+      "setup": "{=endeavor_rogue_smuggle_wine_phase2_setup}Third day. The buyer's count is short by one bottle and he is not a man who forgets. The QM is asking quiet questions about a missing wax seal. Two stories pull at {PLAYER_NAME} and only one of them stays standing past tomorrow.",
+      "options": [
+        {
+          "id": "blame_drover",
+          "text": "{=endeavor_rogue_smuggle_wine_phase2_blame_drover}Blame the drover. He's already fled.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase2_blame_drover_tt}+75 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_2_blame_drover" }
+          ]
+        },
+        {
+          "id": "charm_buyer",
+          "text": "{=endeavor_rogue_smuggle_wine_phase2_charm_buyer}Charm the buyer down. Make up the bottle yourself.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase2_charm_buyer_tt}+25 XP Charm. No scrutiny.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_2_charm_buyer" }
+          ]
+        },
+        {
+          "id": "confess_short",
+          "text": "{=endeavor_rogue_smuggle_wine_phase2_confess_short}Eat the loss. Hand the QM the seal back.",
+          "tooltip": "{=endeavor_rogue_smuggle_wine_phase2_confess_short_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.smuggle_wine_2_confess_short" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_pickpocket_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_pickpocket_phase1_title}Mark a purse",
+      "setup": "{=endeavor_rogue_pickpocket_phase1_setup}Followers' lane at first light. Washerwomen, peddlers, a smith's wife counting copper at the end of a row. {PLAYER_NAME} walks it twice and decides which throat the day's coin hangs at. The choice of mark is the choice of how much risk you carry into the next three days.",
+      "options": [
+        {
+          "id": "fat_purse",
+          "text": "{=endeavor_rogue_pickpocket_phase1_fat_purse}The peddler. Heavy belt, slow eyes.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase1_fat_purse_tt}+75 XP Roguery. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_1_fat_purse" }
+          ]
+        },
+        {
+          "id": "small_lifts",
+          "text": "{=endeavor_rogue_pickpocket_phase1_small_lifts}Three light lifts across the lane. Coppers only.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase1_small_lifts_tt}+25 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_1_small_lifts" }
+          ]
+        },
+        {
+          "id": "walk_off",
+          "text": "{=endeavor_rogue_pickpocket_phase1_walk_off}Keep your hands at your sides. Walk through.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase1_walk_off_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_1_walk_off" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_pickpocket_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_pickpocket_phase2_title}A face that remembers",
+      "setup": "{=endeavor_rogue_pickpocket_phase2_setup}Second day. A woman in the lane stops short and stares at {PLAYER_NAME} like she has counted a thing twice and come up wrong. She does not call out. Not yet. Whatever comes next decides whether her cry reaches the pickets at dusk.",
+      "options": [
+        {
+          "id": "lift_again",
+          "text": "{=endeavor_rogue_pickpocket_phase2_lift_again}Hold her gaze. Lift the man behind her.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase2_lift_again_tt}+75 XP Roguery. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_2_lift_again" }
+          ]
+        },
+        {
+          "id": "buy_silence",
+          "text": "{=endeavor_rogue_pickpocket_phase2_buy_silence}Slip her a coin. Smile like you owe it.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase2_buy_silence_tt}+25 XP Charm. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_2_buy_silence" }
+          ]
+        },
+        {
+          "id": "vanish",
+          "text": "{=endeavor_rogue_pickpocket_phase2_vanish}Turn into the crowd. Lose the day.",
+          "tooltip": "{=endeavor_rogue_pickpocket_phase2_vanish_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.pickpocket_2_vanish" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_black_market_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_black_market_phase1_title}The buyer",
+      "setup": "{=endeavor_rogue_black_market_phase1_setup}A man in a stained surcoat at the back of a tavern in the camp town. Looted blades, looted silver, looted boots — he buys all of it without asking where the bodies fell. {PLAYER_NAME} sets his cut. The cut sets how loud the door closes on the way out.",
+      "options": [
+        {
+          "id": "full_haul",
+          "text": "{=endeavor_rogue_black_market_phase1_full_haul}Move the full haul. Take the fat price.",
+          "tooltip": "{=endeavor_rogue_black_market_phase1_full_haul_tt}+75 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_1_full_haul" }
+          ]
+        },
+        {
+          "id": "trickle_sale",
+          "text": "{=endeavor_rogue_black_market_phase1_trickle_sale}Trickle it out across the week. Boring is safe.",
+          "tooltip": "{=endeavor_rogue_black_market_phase1_trickle_sale_tt}+25 XP Charm. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_1_trickle_sale" }
+          ]
+        },
+        {
+          "id": "sell_to_qm",
+          "text": "{=endeavor_rogue_black_market_phase1_sell_to_qm}Hand the lot to the QM at half the price.",
+          "tooltip": "{=endeavor_rogue_black_market_phase1_sell_to_qm_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_1_sell_to_qm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_black_market_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_black_market_phase2_title}A second buyer",
+      "setup": "{=endeavor_rogue_black_market_phase2_setup}Fourth day. A second man finds {PLAYER_NAME} at the back gate. He says the first buyer is a thief who pays in clipped coin. He offers double — and a longer ride to a quieter cellar. The first buyer does not like to be cut out.",
+      "options": [
+        {
+          "id": "second_buyer",
+          "text": "{=endeavor_rogue_black_market_phase2_second_buyer}Take the double. Let the first man learn.",
+          "tooltip": "{=endeavor_rogue_black_market_phase2_second_buyer_tt}+75 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_2_second_buyer" }
+          ]
+        },
+        {
+          "id": "play_both",
+          "text": "{=endeavor_rogue_black_market_phase2_play_both}Talk both up. Sell each what you don't have.",
+          "tooltip": "{=endeavor_rogue_black_market_phase2_play_both_tt}+25 XP Charm. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_minor" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_2_play_both" }
+          ]
+        },
+        {
+          "id": "stay_first",
+          "text": "{=endeavor_rogue_black_market_phase2_stay_first}Refuse the second man. Stay with the first.",
+          "tooltip": "{=endeavor_rogue_black_market_phase2_stay_first_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.black_market_2_stay_first" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_gambling_ring_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_gambling_ring_phase1_title}Find the room",
+      "setup": "{=endeavor_rogue_gambling_ring_phase1_setup}A real ring needs four walls and a man at the door. {PLAYER_NAME} walks the camp town in the rain and considers the options. A back room costs more and breathes easier. A surgeon's tent costs nothing and stinks of blood. Whichever you choose decides how the rest of the week sounds.",
+      "options": [
+        {
+          "id": "back_room",
+          "text": "{=endeavor_rogue_gambling_ring_phase1_back_room}Rent the tavern's back room. Pay loudly.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase1_back_room_tt}+75 XP Charm. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_1_back_room" }
+          ]
+        },
+        {
+          "id": "surgeon_tent",
+          "text": "{=endeavor_rogue_gambling_ring_phase1_surgeon_tent}Use the surgeon's tent after dark. Cheap, foul.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase1_surgeon_tent_tt}+25 XP Roguery. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_1_surgeon_tent" }
+          ]
+        },
+        {
+          "id": "delay_open",
+          "text": "{=endeavor_rogue_gambling_ring_phase1_delay_open}Walk it back. The rain is too heavy tonight.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase1_delay_open_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_1_delay_open" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_gambling_ring_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_gambling_ring_phase2_title}A heavy loser",
+      "setup": "{=endeavor_rogue_gambling_ring_phase2_setup}Third night. A junior officer of {LORD_NAME}'s lays a month of pay on the table and loses it before the bones stop moving. He sits very still. He understands what was done to him. {PLAYER_NAME} can read his shoulders from across the room.",
+      "options": [
+        {
+          "id": "let_him_lose",
+          "text": "{=endeavor_rogue_gambling_ring_phase2_let_him_lose}Let him lose. Coin is coin.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase2_let_him_lose_tt}+75 XP Roguery. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_2_let_him_lose" }
+          ]
+        },
+        {
+          "id": "fix_one_throw",
+          "text": "{=endeavor_rogue_gambling_ring_phase2_fix_one_throw}Fix one throw his way. Buy his silence.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase2_fix_one_throw_tt}+25 XP Charm. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_2_fix_one_throw" }
+          ]
+        },
+        {
+          "id": "return_pay",
+          "text": "{=endeavor_rogue_gambling_ring_phase2_return_pay}Slide his pay back across the table. Take nothing.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase2_return_pay_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_2_return_pay" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_gambling_ring_phase3",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_gambling_ring_phase3_title}A knock at the door",
+      "setup": "{=endeavor_rogue_gambling_ring_phase3_setup}Sixth night. A knock that isn't a player's knock. A sergeant on the other side of the door, breathing hard, half-drunk, asking by name for the man who runs the room. The week's coin sits in three bags under the table. {PLAYER_NAME} has a heartbeat to choose.",
+      "options": [
+        {
+          "id": "open_proud",
+          "text": "{=endeavor_rogue_gambling_ring_phase3_open_proud}Open the door. Offer him a seat at the table.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase3_open_proud_tt}+75 XP Roguery. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_3_open_proud" }
+          ]
+        },
+        {
+          "id": "bribe_sergeant",
+          "text": "{=endeavor_rogue_gambling_ring_phase3_bribe_sergeant}Crack the door. Slide him a bag.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase3_bribe_sergeant_tt}+25 XP Charm. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_3_bribe_sergeant" }
+          ]
+        },
+        {
+          "id": "kill_lights",
+          "text": "{=endeavor_rogue_gambling_ring_phase3_kill_lights}Kill the lights. Wait him out in the dark.",
+          "tooltip": "{=endeavor_rogue_gambling_ring_phase3_kill_lights_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.gambling_ring_3_kill_lights" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_bribe_officer_phase1",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_bribe_officer_phase1_title}The approach",
+      "setup": "{=endeavor_rogue_bribe_officer_phase1_setup}A junior officer of {LORD_NAME}'s drinks alone behind the supply tent on his off-night. {PLAYER_NAME} carries a purse heavier than a {PLAYER_RANK}'s pay should explain. The first move sets the price of every move after. Officer corruption is a hanging offense; he knows that as well as you do.",
+      "options": [
+        {
+          "id": "open_silver",
+          "text": "{=endeavor_rogue_bribe_officer_phase1_open_silver}Lay the purse on the crate between you.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase1_open_silver_tt}+75 XP Charm. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_1_open_silver" }
+          ]
+        },
+        {
+          "id": "talk_first",
+          "text": "{=endeavor_rogue_bribe_officer_phase1_talk_first}Drink with him an hour. Speak in shapes, not numbers.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase1_talk_first_tt}+25 XP Charm. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_1_talk_first" }
+          ]
+        },
+        {
+          "id": "walk_back",
+          "text": "{=endeavor_rogue_bribe_officer_phase1_walk_back}Pocket the purse. Walk past him to the latrines.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase1_walk_back_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_1_walk_back" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_bribe_officer_phase2",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_bribe_officer_phase2_title}A second pair of eyes",
+      "setup": "{=endeavor_rogue_bribe_officer_phase2_setup}Third day. The officer wants a second meeting. He brings another man with him this time — a friend, he says. {PLAYER_NAME} has not heard the friend's name before. The friend looks a great deal like an officer of the watch out of uniform. The next breath either pays for everything or hangs for it.",
+      "options": [
+        {
+          "id": "name_the_price",
+          "text": "{=endeavor_rogue_bribe_officer_phase2_name_the_price}Name the price aloud. Force them both to choose.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase2_name_the_price_tt}+75 XP Charm. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_charm" },
+            { "apply": "endeavor_scrutiny_drift_major" },
+            { "apply": "endeavor_score_plus_2" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_2_name_the_price" }
+          ]
+        },
+        {
+          "id": "split_purse",
+          "text": "{=endeavor_rogue_bribe_officer_phase2_split_purse}Split the purse. Buy the friend in too.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase2_split_purse_tt}+25 XP Charm. Scrutiny+10.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_charm" },
+            { "apply": "endeavor_scrutiny_drift_moderate" },
+            { "apply": "endeavor_score_plus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_2_split_purse" }
+          ]
+        },
+        {
+          "id": "burn_meeting",
+          "text": "{=endeavor_rogue_bribe_officer_phase2_burn_meeting}Stand. Excuse yourself. Never come back.",
+          "tooltip": "{=endeavor_rogue_bribe_officer_phase2_burn_meeting_tt}-1 score. No risk this phase.",
+          "effects": [
+            { "apply": "endeavor_score_minus_1" },
+            { "apply": "set_flag", "name": "endeavor_choice_endeavor.rogue.bribe_officer_2_burn_meeting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_resolution_success_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_resolution_success_generic_title}Walk away clean",
+      "setup": "{=endeavor_rogue_resolution_success_generic_setup}{PLAYER_NAME} sleeps with a heavier purse and an empty doorway. No knock. No questions at first muster. {LORD_NAME} signs the morning's roster without lifting his eyes. The trick of getting away with a thing is to never look back at it.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_rogue_resolution_success_generic_continue}Continue.",
+          "tooltip": "{=endeavor_rogue_resolution_success_generic_continue_tt}+75 XP Roguery. Gold and small lord favor.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_major_roguery" },
+            { "apply": "endeavor_gold_reward_moderate" },
+            { "apply": "endeavor_lord_relation_up_small" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_resolution_partial_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_resolution_partial_generic_title}Coin earned, eyes earned",
+      "setup": "{=endeavor_rogue_resolution_partial_generic_setup}{PLAYER_NAME} counts the coin in the dark and sets some aside for the day a sergeant comes asking. There is a man at morning muster who watches a beat too long. Nothing is said. Nothing yet.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_rogue_resolution_partial_generic_continue}Continue.",
+          "tooltip": "{=endeavor_rogue_resolution_partial_generic_continue_tt}+25 XP Roguery. Small gold. Scrutiny+5.",
+          "effects": [
+            { "apply": "endeavor_skill_xp_minor_roguery" },
+            { "apply": "endeavor_gold_reward_small" },
+            { "apply": "endeavor_scrutiny_drift_minor" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "endeavor_rogue_resolution_failure_generic",
+      "category": "endeavor",
+      "trigger": ["is_enlisted"],
+      "scope": { "context": "any" },
+      "title": "{=endeavor_rogue_resolution_failure_generic_title}Caught",
+      "setup": "{=endeavor_rogue_resolution_failure_generic_setup}A hand on {PLAYER_NAME}'s shoulder before first light. The sergeant has it written in plain words. {LORD_NAME} reads the page and does not raise his voice. A flogging at noon, perhaps worse if the wrong officer signs the order. The coin is gone. The face of every witness is not.",
+      "options": [
+        {
+          "id": "continue",
+          "text": "{=endeavor_rogue_resolution_failure_generic_continue}Continue.",
+          "tooltip": "{=endeavor_rogue_resolution_failure_generic_continue_tt}-8 with the lord. Scrutiny+15.",
+          "effects": [
+            { "apply": "endeavor_lord_relation_down_moderate" },
+            { "apply": "endeavor_scrutiny_drift_major" }
+          ]
+        }
+      ]
+    }
+  ]
+}
