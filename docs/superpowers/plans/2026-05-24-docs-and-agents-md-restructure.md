@@ -43,7 +43,7 @@
 | `Tools/Validation/validate_docs_structure.py` | Mirror validator (Phase 21 of validate_content.py) |
 | `Tools/Validation/find_stale_refs.py` | Helper script for rename ref-repair |
 | `docs/superpowers/STATUS.md` | Lifted project status (from CLAUDE.md) |
-| `docs/PROJECT-OVERVIEW.md` | Renamed from docs/Features/Core/core-gameplay.md |
+| `docs/PROJECT-OVERVIEW.md` | Renamed from docs/PROJECT-OVERVIEW.md |
 | `docs/Archive/BLUEPRINT-2026-04-archived.md` | Archived BLUEPRINT.md |
 | `docs/Archive/DEVELOPER-GUIDE-2026-04-archived.md` | Archived DEVELOPER-GUIDE.md |
 
@@ -75,7 +75,7 @@
 | `docs/BLUEPRINT.md` | Moved to `docs/Archive/` |
 | `docs/DEVELOPER-GUIDE.md` | Moved to `docs/Archive/` |
 | `docs/BUILD-CONFIGURATIONS.md` | Folded into `Tools/AGENTS.md` |
-| `docs/Features/Core/core-gameplay.md` | Promoted to `docs/PROJECT-OVERVIEW.md` |
+| `docs/PROJECT-OVERVIEW.md` | Promoted to `docs/PROJECT-OVERVIEW.md` |
 
 ---
 
@@ -2400,14 +2400,14 @@ mkdir -p docs/Features/Enlistment docs/Features/Retinue docs/Features/Ranks docs
 - [ ] **Step 3: git mv each file**
 
 ```bash
-git mv docs/Features/Core/enlistment.md docs/Features/Enlistment/enlistment.md
-git mv docs/Features/Core/pay-system.md docs/Features/Enlistment/pay-system.md
-git mv docs/Features/Core/muster-system.md docs/Features/Enlistment/muster-system.md
-git mv docs/Features/Core/retinue-system.md docs/Features/Retinue/retinue-system.md
-git mv docs/Features/Core/promotion-system.md docs/Features/Ranks/promotion-system.md
-git mv docs/Features/Core/company-events.md docs/Features/Company/company-events.md
-git mv docs/Features/Core/companion-management.md docs/Features/Companions/companion-management.md
-git mv docs/Features/Core/core-gameplay.md docs/PROJECT-OVERVIEW.md
+git mv docs/Features/Enlistment/enlistment.md docs/Features/Enlistment/enlistment.md
+git mv docs/Features/Enlistment/pay-system.md docs/Features/Enlistment/pay-system.md
+git mv docs/Features/Enlistment/muster-system.md docs/Features/Enlistment/muster-system.md
+git mv docs/Features/Retinue/retinue-system.md docs/Features/Retinue/retinue-system.md
+git mv docs/Features/Ranks/promotion-system.md docs/Features/Ranks/promotion-system.md
+git mv docs/Features/Company/company-events.md docs/Features/Company/company-events.md
+git mv docs/Features/Companions/companion-management.md docs/Features/Companions/companion-management.md
+git mv docs/PROJECT-OVERVIEW.md docs/PROJECT-OVERVIEW.md
 ```
 
 - [ ] **Step 4: Audit moved files for stale references**
@@ -2415,7 +2415,7 @@ git mv docs/Features/Core/core-gameplay.md docs/PROJECT-OVERVIEW.md
 The files may internally reference each other or other Core/ paths. Run for each old path:
 
 ```bash
-for old in docs/Features/Core/enlistment.md docs/Features/Core/pay-system.md docs/Features/Core/muster-system.md docs/Features/Core/retinue-system.md docs/Features/Core/promotion-system.md docs/Features/Core/company-events.md docs/Features/Core/companion-management.md docs/Features/Core/core-gameplay.md; do
+for old in docs/Features/Enlistment/enlistment.md docs/Features/Enlistment/pay-system.md docs/Features/Enlistment/muster-system.md docs/Features/Retinue/retinue-system.md docs/Features/Ranks/promotion-system.md docs/Features/Company/company-events.md docs/Features/Companions/companion-management.md docs/PROJECT-OVERVIEW.md; do
   python3 Tools/Validation/find_stale_refs.py "$old"
 done
 ```
@@ -2425,14 +2425,14 @@ done
 For each old-path → new-path pair from the table in Step 1:
 
 ```bash
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/enlistment.md" "docs/Features/Enlistment/enlistment.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/pay-system.md" "docs/Features/Enlistment/pay-system.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/muster-system.md" "docs/Features/Enlistment/muster-system.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/retinue-system.md" "docs/Features/Retinue/retinue-system.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/promotion-system.md" "docs/Features/Ranks/promotion-system.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/company-events.md" "docs/Features/Company/company-events.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/companion-management.md" "docs/Features/Companions/companion-management.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Core/core-gameplay.md" "docs/PROJECT-OVERVIEW.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Enlistment/enlistment.md" "docs/Features/Enlistment/enlistment.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Enlistment/pay-system.md" "docs/Features/Enlistment/pay-system.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Enlistment/muster-system.md" "docs/Features/Enlistment/muster-system.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Retinue/retinue-system.md" "docs/Features/Retinue/retinue-system.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Ranks/promotion-system.md" "docs/Features/Ranks/promotion-system.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Company/company-events.md" "docs/Features/Company/company-events.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Companions/companion-management.md" "docs/Features/Companions/companion-management.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/PROJECT-OVERVIEW.md" "docs/PROJECT-OVERVIEW.md" --apply
 ```
 
 - [ ] **Step 6: Sweep for any remaining `docs/Features/Core/` references**

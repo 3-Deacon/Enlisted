@@ -25,7 +25,7 @@
 | **Runtime debug logs** | `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging` | ModLogger output, error codes, save diagnostics |
 | **Steam Workshop upload** | `Tools/Steam/WORKSHOP_UPLOAD.md` | VDF char limits, run `.\Tools\Steam\upload.ps1` in interactive PS |
 | **Add/edit events/orders** | `docs/Features/Content/writing-style-guide.md` | Voice, tone, storylet/content rules |
-| **Understand a feature** | `docs/Features/Core/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
+| **Understand a feature** | `docs/Features/Enlistment/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
 | **Code quality issues** | `.editorconfig`, `ruff.toml`, `PSScriptAnalyzerSettings.psd1`, `Tools/Validation/lint_repo.ps1` | ReSharper settings in .sln.DotSettings |
 | **Validation errors** | `Tools/README.md` | Run `.\Tools\Validation\lint_repo.ps1` for full repo checks or `python Tools/Validation/validate_content.py` for content-only checks |
 | **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.3.13 specific, don't use online docs |
@@ -71,8 +71,8 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | Topic | File |
 | --- | --- |
 | Full doc catalog | [docs/INDEX.md](INDEX.md) |
-| Core gameplay | [docs/Features/Core/core-gameplay.md](Features/Core/core-gameplay.md) |
-| Enlistment system | [docs/Features/Core/enlistment.md](Features/Core/enlistment.md) |
+| Core gameplay | [docs/PROJECT-OVERVIEW.md](Features/Core/core-gameplay.md) |
+| Enlistment system | [docs/Features/Enlistment/enlistment.md](Features/Core/enlistment.md) |
 | Content authoring | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |
 | Writing style | [docs/Features/Content/writing-style-guide.md](Features/Content/writing-style-guide.md) |
 | Storylet/content schema | [docs/Features/Content/storylet-backbone.md](Features/Content/storylet-backbone.md) |

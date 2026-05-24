@@ -1,3 +1,15 @@
+# Enlisted Documentation Index [ARCHIVED 2026-05-24]
+
+> **This folder was split 2026-05-24.** Files redistributed to per-subsystem folders:
+> - [Enlistment/](../Enlistment/) — enlistment.md, pay-system.md, muster-system.md
+> - [Retinue/](../Retinue/) — retinue-system.md
+> - [Ranks/](../Ranks/) — promotion-system.md
+> - [Company/](../Company/) — company-events.md
+> - [Companions/](../Companions/) — companion-management.md
+> - [docs/PROJECT-OVERVIEW.md](../../PROJECT-OVERVIEW.md) — formerly core-gameplay.md
+>
+> This file is kept as a historical redirect. See [docs/INDEX.md](../../INDEX.md) for the current catalog.
+
 # Enlisted Documentation Index
 
 **Summary:** Single entry point for all Enlisted mod documentation, providing organized access to core systems, gameplay features, UI documentation, and technical references. This index reflects the current state of the mod (v0.9.0) targeting Bannerlord v1.3.13.
