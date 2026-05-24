@@ -3497,6 +3497,25 @@ def main():
     # Phase 20: Ceremony storylet completeness (Plan 3)
     phase20_ceremony_storylets(ctx)
 
+    # Phase 21: docs structure mirror validator
+    import subprocess as _sp  # local import to avoid changing imports at top
+    try:
+        _r = _sp.run(
+            ["python3", str(Path(__file__).parent / "validate_docs_structure.py"), "--json"],
+            capture_output=True, text=True, check=False
+        )
+        if _r.stdout.strip():
+            import json as _json
+            _payload = _json.loads(_r.stdout)
+            for _f in _payload.get("failures", []):
+                ctx.add_issue("error", "docs-structure", _f, "Phase 21")
+            for _w in _payload.get("warnings", []):
+                ctx.add_issue("info", "docs-structure", _w, "Phase 21")
+        elif _r.returncode != 0:
+            ctx.add_issue("error", "docs-structure", "Phase 21 validator returned non-zero with no output", "Phase 21")
+    except Exception as _e:
+        ctx.add_issue("error", "docs-structure", f"Phase 21 validator failed to run: {_e}", "Phase 21")
+
     # Generate missing strings file if requested
     if args.fix_refs:
         missing_strings = []
