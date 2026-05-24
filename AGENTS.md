@@ -26,7 +26,12 @@ python Tools/Validation/sync_event_strings.py
 # Upload to Steam Workshop
 ./Tools/Steam/upload.ps1
 
-# Regenerate ../Decompile/ from your local Bannerlord install (first-time setup)
+# Regenerate the Decompile tree from your local Bannerlord install.
+# Path depends on env: ../Decompile/ (Windows, sibling of repo) OR ./Decompile/ (WSL, inside repo, gitignored).
+# Windows: ./Tools/Decompile-Bannerlord.bat
+# WSL Linux: dotnet tool install -g ilspycmd --version 8.2.0.7535
+#            DOTNET_ROLL_FORWARD=LatestMajor ~/.dotnet/tools/ilspycmd -p <DLL> -o Decompile/<AssemblyName>
+#            (loop over the 40 assemblies in bin/Win64_Shipping_Client + Modules/{Native,SandBox,SandBoxCore,StoryMode,NavalDLC}/bin/Win64_Shipping_Client)
 ./Tools/Decompile-Bannerlord.bat
 ```
 
@@ -34,11 +39,12 @@ python Tools/Validation/sync_event_strings.py
 
 ## Critical Rules (Will Break Mod)
 
-### 1. Verify every TaleWorlds API against `../Decompile/`
+### 1. Verify every TaleWorlds API against the local Decompile tree
 
-- The decompile is the only authoritative reference for the Bannerlord API surface the user has installed. It's a sibling of the repo root, external to git, regenerated via `Tools/Decompile-Bannerlord.bat` from the local install.
+- The decompile is the only authoritative reference for the Bannerlord API surface the user has installed.
+- **Location depends on environment:** `../Decompile/` (Windows, sibling of repo root, external to git) OR `./Decompile/` (WSL, inside the repo, gitignored — see `.gitignore`). Check `[ -d ./Decompile ] || ls ../Decompile` to pick the right base path. Code in this repo references the Windows form (`../Decompile`); from WSL, use `./Decompile`.
+- Regenerate per the Quick Commands section above when the install is patched.
 - NEVER use online docs, Context7, or training knowledge for TaleWorlds APIs — they drift across patches.
-- If the user upgrades Bannerlord, regenerate the decompile before verifying APIs for new work.
 
 ### 2. New C# Files Must Be Registered in .csproj
 
@@ -212,7 +218,7 @@ ModuleData/Enlisted/   JSON events, storylets, incidents
 ModuleData/Languages/  enlisted_strings.xml (localization)
 docs/                  All documentation (see docs/INDEX.md)
 Tools/Validation/      Validators (run before commit)
-../Decompile/          Bannerlord API reference — AUTHORITATIVE (external to repo, regenerate from local install with Tools/Decompile-Bannerlord.bat)
+../Decompile/          Bannerlord API reference — AUTHORITATIVE (Windows: sibling of repo; WSL: ./Decompile/ inside repo, gitignored). Regenerate per Quick Commands.
 ```
 
 ### Key Feature Folders
@@ -230,7 +236,7 @@ Tools/Validation/      Validators (run before commit)
 
 ## Pre-Commit Checklist
 
-- [ ] APIs verified against `../Decompile/` (regenerate if the install has been patched since last run)
+- [ ] APIs verified against the local Decompile tree (`../Decompile/` on Windows or `./Decompile/` on WSL — regenerate if the install has been patched since last run)
 - [ ] New C# files added to `Enlisted.csproj`
 - [ ] JSON field order correct (fallback after ID)
 - [ ] Tooltips on all event options (<80 chars)
@@ -271,7 +277,7 @@ Link, don't duplicate — open these for depth:
 10. Relying on external API docs (wrong version)
 11. Creating mod-spawned heroes (QM, etc.) with `Occupation.Wanderer` triggers
     vanilla wanderer-introduction dialogue. Use `Occupation.Soldier`. Verified
-    in the developer-local decompile (sibling of repo root — see §1):
+    in the developer-local decompile (see Critical Rule #1 for location):
     `TaleWorlds.CampaignSystem/TaleWorlds.CampaignSystem.CampaignBehaviors/LordConversationsCampaignBehavior.cs:607`
     (`AddWandererConversations`) and `:1274` (`conversation_wanderer_on_condition`,
     checks `Occupation == Occupation.Wanderer`).
@@ -381,11 +387,13 @@ Full pitfalls list with solutions: [docs/BLUEPRINT.md](docs/BLUEPRINT.md).
 
 ## Diagnostic Logs
 
-When debugging runtime issues, check both log sources:
+When debugging runtime issues, check both log sources. Paths are Windows-side; from WSL Linux prepend `/mnt/c/` (so `C:\ProgramData\…` becomes `/mnt/c/ProgramData/…`).
 
 - **Native Bannerlord logs** — `C:\ProgramData\Mount and Blade II Bannerlord\`
+  WSL: `/mnt/c/ProgramData/Mount and Blade II Bannerlord/`
   (engine crashes, save errors, low-level TaleWorlds output)
 - **Enlisted mod logs** — `C:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\Enlisted\Debugging\`
+  WSL: `/mnt/c/Program Files (x86)/Steam/steamapps/common/Mount & Blade II Bannerlord/Modules/Enlisted/Debugging/`
   (`ModLogger` output, session logs, conflict reports, validation reports)
 
 Details on log categories, session naming (`Session-A_*.log`), and error-code conventions live in [Tools/TECHNICAL-REFERENCE.md](Tools/TECHNICAL-REFERENCE.md).
