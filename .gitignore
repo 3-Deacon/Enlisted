@@ -34,6 +34,9 @@ $RECYCLE.BIN/
 # Tooling
 .qodo/
 
+# Decompiled TaleWorlds reference source (regenerated locally per game version)
+Decompile/
+
 # Codex CLI — keep .codex/config.toml tracked, ignore personal overrides and local state
 AGENTS.override.md
 .codex/cache/
