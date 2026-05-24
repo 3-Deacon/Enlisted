@@ -4,6 +4,8 @@ C# mod transforming Mount & Blade II: Bannerlord into a soldier career simulator
 
 This file is the shared source of truth for AI coding agents (Claude Code, Codex, Cursor, Copilot, Aider, etc.). Tool-specific extras live alongside: `CLAUDE.md` imports this file.
 
+**Active work:** see [docs/superpowers/STATUS.md](docs/superpowers/STATUS.md) for current plan/spec progress.
+
 ---
 
 ## Quick Commands
