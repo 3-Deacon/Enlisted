@@ -26,8 +26,11 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float DefendingFactor =>
             BaseModel?.DefendingFactor ?? 2f;
 
-        public override float GetPatrollingFactor(bool isNavalPatrolling) =>
-            BaseModel?.GetPatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
+        public override float GetOffensivePatrollingFactor(bool isNavalPatrolling) =>
+            BaseModel?.GetOffensivePatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
+
+        public override float GetDefensivePatrollingFactor(bool isNavalPatrolling) =>
+            BaseModel?.GetDefensivePatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
 
         public override float GetTargetScoreForFaction(
             Settlement targetSettlement,
@@ -94,9 +97,9 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             });
         }
 
-        public override float CalculatePatrollingScoreForSettlement(
+        public override float CalculateOffensivePatrollingScoreForSettlement(
             Settlement settlement,
-            bool isFromPort,
+            bool isTargetingPort,
             MobileParty mobileParty)
         {
             if (BaseModel == null)
@@ -104,19 +107,51 @@ namespace Enlisted.Features.CampaignIntelligence.Models
                 ModLogger.Surfaced("INTELAI", "base_model_missing");
                 return 0f;
             }
-            var vanilla = BaseModel.CalculatePatrollingScoreForSettlement(
-                settlement, isFromPort, mobileParty);
+            var vanilla = BaseModel.CalculateOffensivePatrollingScoreForSettlement(
+                settlement, isTargetingPort, mobileParty);
 
             return VanillaOnlyOrBias(mobileParty, vanilla, (snapshot, v) =>
             {
-                // Patrol suppressor under pressure. Patrolling is the wrong
-                // posture when the front is lit up or supply is failing.
+                // Offensive patrol suppressor under pressure — chasing trouble
+                // far from home is the wrong posture when the front is lit up
+                // or supply is failing.
                 if (snapshot.FrontPressure >= FrontPressure.High
                     || snapshot.SupplyPressure >= SupplyPressure.Strained
                     || snapshot.RecoveryNeed >= RecoveryNeed.Medium)
                 {
-                    EnlistedAiBiasHeartbeat.Record("patrol_suppressed", v, v * 0.4f);
+                    EnlistedAiBiasHeartbeat.Record("offensive_patrol_suppressed", v, v * 0.4f);
                     return v * 0.4f;
+                }
+                return v;
+            });
+        }
+
+        public override float CalculateDefensivePatrollingScoreForSettlement(
+            Settlement settlement,
+            bool isTargetingPort,
+            MobileParty mobileParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return 0f;
+            }
+            var vanilla = BaseModel.CalculateDefensivePatrollingScoreForSettlement(
+                settlement, isTargetingPort, mobileParty);
+
+            return VanillaOnlyOrBias(mobileParty, vanilla, (snapshot, v) =>
+            {
+                // Defensive patrolling under pressure is still useful (it IS
+                // defense), but heavy supply strain or recovery need should
+                // still discourage extended patrol routes. Lighter suppression
+                // than the offensive variant — only suppress on supply/recovery,
+                // not on front pressure (which makes defensive patrol MORE
+                // appropriate, not less).
+                if (snapshot.SupplyPressure >= SupplyPressure.Strained
+                    || snapshot.RecoveryNeed >= RecoveryNeed.Medium)
+                {
+                    EnlistedAiBiasHeartbeat.Record("defensive_patrol_suppressed", v, v * 0.6f);
+                    return v * 0.6f;
                 }
                 return v;
             });

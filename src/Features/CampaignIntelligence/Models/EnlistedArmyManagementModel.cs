@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using Enlisted.Features.CampaignIntelligence;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
@@ -107,14 +107,16 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float DailyBeingAtArmyInfluenceAward(MobileParty armyMemberParty) =>
             BaseModel?.DailyBeingAtArmyInfluenceAward(armyMemberParty) ?? 0f;
 
-        public override List<MobileParty> GetMobilePartiesToCallToArmy(MobileParty leaderParty)
+        public override bool CanLordCreateArmy(MobileParty leaderParty, out MBList<MobileParty> possibleArmyMembers)
         {
             if (BaseModel == null)
             {
                 ModLogger.Surfaced("INTELAI", "base_model_missing");
-                return new List<MobileParty>();
+                possibleArmyMembers = new MBList<MobileParty>();
+                return false;
             }
-            var vanilla = BaseModel.GetMobilePartiesToCallToArmy(leaderParty);
+
+            var vanilla = BaseModel.CanLordCreateArmy(leaderParty, out possibleArmyMembers);
 
             if (!EnlistedAiGate.TryGetSnapshotForParty(leaderParty, out var snapshot))
             {
@@ -130,6 +132,12 @@ namespace Enlisted.Features.CampaignIntelligence.Models
                 return vanilla;
             }
 
+            // Vanilla already said no — respect it (lord can't form army regardless of bias).
+            if (!vanilla)
+            {
+                return false;
+            }
+
             try
             {
                 bool strained = snapshot.SupplyPressure >= SupplyPressure.Strained
@@ -138,27 +146,28 @@ namespace Enlisted.Features.CampaignIntelligence.Models
 
                 if (strained)
                 {
-                    EnlistedAiBiasHeartbeat.Record("call_to_army_suppressed", vanilla.Count, 0);
-                    return new List<MobileParty>();
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_suppressed", possibleArmyMembers.Count, 0);
+                    possibleArmyMembers = new MBList<MobileParty>();
+                    return false;
                 }
 
                 // Front pressure without full strain: trim the list to half so
                 // the lord calls a smaller, closer army rather than a sprawling
                 // one. Preserve ordering — vanilla list is strength-weighted at
                 // DefaultArmyManagementCalculationModel.cs:178-204.
-                if (snapshot.FrontPressure >= FrontPressure.High && vanilla.Count > 2)
+                if (snapshot.FrontPressure >= FrontPressure.High && possibleArmyMembers.Count > 2)
                 {
-                    int trimTarget = Math.Max(2, vanilla.Count / 2);
-                    var trimmed = new List<MobileParty>(trimTarget);
-                    for (int i = 0; i < trimTarget && i < vanilla.Count; i++)
+                    int trimTarget = Math.Max(2, possibleArmyMembers.Count / 2);
+                    var trimmed = new MBList<MobileParty>();
+                    for (int i = 0; i < trimTarget && i < possibleArmyMembers.Count; i++)
                     {
-                        trimmed.Add(vanilla[i]);
+                        trimmed.Add(possibleArmyMembers[i]);
                     }
-                    EnlistedAiBiasHeartbeat.Record("call_to_army_trimmed", vanilla.Count, trimmed.Count);
-                    return trimmed;
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_trimmed", possibleArmyMembers.Count, trimmed.Count);
+                    possibleArmyMembers = trimmed;
                 }
 
-                return vanilla;
+                return true;
             }
             catch (Exception ex)
             {

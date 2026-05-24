@@ -34,8 +34,13 @@ namespace Enlisted.Features.Combat.Behaviors
 
         private Agent _assignedAgent;
 
-        // Cached spawn logic to detect reinforcement phase
-        private MissionAgentSpawnLogic _spawnLogic;
+        // Cached spawn logic to detect reinforcement phase.
+        // Renamed in 2026-05 game update: MissionAgentSpawnLogic was refactored
+        // into IMissionAgentSpawnLogic interface + DefaultBattleMissionAgentSpawnLogic
+        // concrete class. IsInitialSpawnOver lives on the concrete class only.
+        // Naval battles short-circuit out via Mission.Current?.IsNavalBattle check
+        // (see TryAssignPlayerToFormation), so we only need the battle variant here.
+        private DefaultBattleMissionAgentSpawnLogic _spawnLogic;
 
         // Track if we've logged the behavior initialization
         private bool _hasLoggedInit;
@@ -80,7 +85,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 base.AfterStart();
 
                 // Cache the spawn logic for reinforcement detection
-                _spawnLogic = Mission.Current?.GetMissionBehavior<MissionAgentSpawnLogic>();
+                _spawnLogic = Mission.Current?.GetMissionBehavior<DefaultBattleMissionAgentSpawnLogic>();
                 _loggedSoloAttachOutcome = false;
                 _loggedSoloAttachMissing = false;
 

@@ -504,7 +504,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 return;
             }
 
-            bool isHovered = _resizeHandleWidget.EventManager?.HoveredView == _resizeHandleWidget;
+            bool isHovered = _resizeHandleWidget.EventManager?.HoveredWidget == _resizeHandleWidget;
             if (!_isResizing && isHovered && Input.IsKeyPressed(InputKey.LeftMouseButton))
             {
                 _isResizing = true;
@@ -555,7 +555,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 return;
             }
 
-            bool isHovered = _headerBarWidget.EventManager?.HoveredView == _headerBarWidget;
+            bool isHovered = _headerBarWidget.EventManager?.HoveredWidget == _headerBarWidget;
             if (!_isDragging && isHovered && Input.IsKeyPressed(InputKey.LeftMouseButton))
             {
                 _isDragging = true;
