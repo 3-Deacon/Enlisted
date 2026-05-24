@@ -57,7 +57,7 @@
 | `.gitignore` | Adds `CLAUDE.local.md` |
 | `Tools/Validation/validate_content.py` | Adds Phase 21 hook calling validate_docs_structure.py |
 | `docs/INDEX.md` | Rewritten as ~150-line master catalog |
-| `docs/Features/Campaign/` → `docs/Features/Camp/` | Folder rename |
+| `docs/Features/Camp/` → `docs/Features/Camp/` | Folder rename |
 | `docs/Features/UI/` → `docs/Features/Interface/` | Folder rename |
 | `docs/Features/Core/*.md` | Split into per-subsystem folders |
 | `docs/Features/Technical/*.md` | Split into owning subsystems, folder deleted |
@@ -2213,20 +2213,20 @@ EOF
 
 # Phase F — Align docs/Features/ tree (mirror) + repair live references
 
-**Goal:** Rename `docs/Features/Campaign/` → `Camp/`; `UI/` → `Interface/`; split `Core/` per-subsystem; split `Technical/` and delete folder; promote `core-gameplay.md` to `docs/PROJECT-OVERVIEW.md`. Each rename group is ONE commit including the live-reference repair (find_stale_refs.py --apply runs in the same commit).
+**Goal:** Rename `docs/Features/Camp/` → `Camp/`; `UI/` → `Interface/`; split `Core/` per-subsystem; split `Technical/` and delete folder; promote `core-gameplay.md` to `docs/PROJECT-OVERVIEW.md`. Each rename group is ONE commit including the live-reference repair (find_stale_refs.py --apply runs in the same commit).
 
 **Files (per sub-task):** see individual tasks.
 
 ---
 
-### Task F1: Rename `docs/Features/Campaign/` → `docs/Features/Camp/`
+### Task F1: Rename `docs/Features/Camp/` → `docs/Features/Camp/`
 
 **Sub-phase F.1 — one commit.**
 
 - [ ] **Step 1: Verify Campaign/ contents**
 
 ```bash
-ls docs/Features/Campaign/
+ls docs/Features/Camp/
 ```
 
 Expected: 5 files (camp-life-simulation.md, camp-routine-schedule-spec.md, camp-simulation-system.md, temporary-leave.md, town-access-system.md).
@@ -2234,7 +2234,7 @@ Expected: 5 files (camp-life-simulation.md, camp-routine-schedule-spec.md, camp-
 - [ ] **Step 2: Audit for stale content references retired CampOpportunityGenerator / ContentOrchestrator**
 
 ```bash
-grep -l 'CampOpportunityGenerator\|ContentOrchestrator\|DecisionManager\|DecisionCatalog' docs/Features/Campaign/
+grep -l 'CampOpportunityGenerator\|ContentOrchestrator\|DecisionManager\|DecisionCatalog' docs/Features/Camp/
 ```
 
 Expected: at least `camp-simulation-system.md` and possibly `camp-life-simulation.md`.
@@ -2249,13 +2249,13 @@ The implementer makes the call based on reading each file. Don't blindly carry s
 - [ ] **Step 3: Use git mv to rename the folder**
 
 ```bash
-git mv docs/Features/Campaign docs/Features/Camp
+git mv docs/Features/Camp docs/Features/Camp
 ```
 
-- [ ] **Step 4: Scan for stale references to docs/Features/Campaign**
+- [ ] **Step 4: Scan for stale references to docs/Features/Camp**
 
 ```bash
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Campaign"
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Camp"
 ```
 
 Expected: any matches in `*.md`, `*.csproj`, `*.cs`, etc.
@@ -2263,14 +2263,14 @@ Expected: any matches in `*.md`, `*.csproj`, `*.cs`, etc.
 - [ ] **Step 5: Apply rewrites**
 
 ```bash
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Campaign" "docs/Features/Camp" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Camp" "docs/Features/Camp" --apply
 ```
 
-Expected: prints "Rewrote 'docs/Features/Campaign' → 'docs/Features/Camp' in N file(s)."
+Expected: prints "Rewrote 'docs/Features/Camp' → 'docs/Features/Camp' in N file(s)."
 
 - [ ] **Step 6: Update validate_docs_structure.py STALE_PATHS list**
 
-After the apply rewrites everything, the STALE_PATHS list (line 27 of validate_docs_structure.py) does NOT need entries for this rename since the rename is complete. But if any references were intentionally left (e.g., archived plans that should keep historical paths), add `"docs/Features/Campaign"` to STALE_PATHS so future commits don't reintroduce stale refs. For Phase F.1, this list stays empty IF the apply succeeded everywhere.
+After the apply rewrites everything, the STALE_PATHS list (line 27 of validate_docs_structure.py) does NOT need entries for this rename since the rename is complete. But if any references were intentionally left (e.g., archived plans that should keep historical paths), add `"docs/Features/Camp"` to STALE_PATHS so future commits don't reintroduce stale refs. For Phase F.1, this list stays empty IF the apply succeeded everywhere.
 
 - [ ] **Step 7: Verify Phase 21 passes**
 
@@ -2296,7 +2296,7 @@ git add docs/Features/Camp/ AGENTS.md CLAUDE.md docs/INDEX.md Enlisted.csproj 2>
 git add -u  # picks up any other modified files from --apply
 git status --short  # verify only expected changes
 git commit -m "$(cat <<'EOF'
-docs: rename docs/Features/Campaign → Camp (mirror src/Features/Camp)
+docs: rename docs/Features/Camp → Camp (mirror src/Features/Camp)
 
 Phase F.1 of docs-and-agents-md-restructure. Folder rename + live-ref
 repair via find_stale_refs.py --apply. Stale Camp-cluster references

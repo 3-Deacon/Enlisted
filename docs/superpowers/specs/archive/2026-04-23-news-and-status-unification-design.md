@@ -208,7 +208,7 @@ This refactor changes shipped surfaces documented in multiple places. All must b
 | `docs/Features/Core/order-progression-system.md` | Lines 838 + 856 + 962 describe `SINCE LAST MUSTER` + `UPCOMING` as shipped — confirm the spec preserves these contracts verbatim or update the doc if content shifts |
 | `docs/Features/UI/news-reporting-system.md` | Extensively describes "Daily Brief" as shipped. Must be rewritten to describe the `DISPATCHES` weekly-edition flow, remove references to the orphaned `BuildDailyBriefSection`, and clarify the two-feed separation |
 | `docs/Features/Core/muster-system.md` | If it cross-references news surfaces used by the ceremony |
-| `docs/Features/Campaign/camp-life-simulation.md` | If it references camp-hub body sections by name |
+| `docs/Features/Camp/camp-life-simulation.md` | If it references camp-hub body sections by name |
 
 Doc-update commit lands alongside the implementation commit(s), not as a separate pass.
 

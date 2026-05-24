@@ -313,7 +313,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ### Task T4: Design snapshot → opportunity mapping
 
 **Files:**
-- Create: `docs/Features/CampaignIntelligence/duty-opportunity-mapping.md`
+- Create: `docs/Features/CampIntelligence/duty-opportunity-mapping.md`
 
 - [ ] **Step 1: Author the mapping table**
 

@@ -700,9 +700,9 @@ Contains needs prediction templates for each strategic context. Used by `Company
 - `CampMenuHandler.cs`: Service Records, Retinue, Companions submenus
 - `EnlistedMenuBehavior.cs`: Main Camp Hub, status displays
 
-**Content Delivery:**
-- `DecisionManager.cs`: Manages decision availability and cooldowns
-- `DecisionCatalog.cs`: Loads and organizes all 37 decisions
+**Content Delivery (NOTE 2026-05-24: DecisionManager and DecisionCatalog were retired 2026-04-25 as part of the ContentOrchestrator cluster removal. EventPacingManager and EventDeliveryManager remain live.):**
+- ~~`DecisionManager.cs`~~: Retired 2026-04-25
+- ~~`DecisionCatalog.cs`~~: Retired 2026-04-25
 - `EventPacingManager.cs`: Controls camp event firing
 - `EventDeliveryManager.cs`: Handles event popups and effects
 

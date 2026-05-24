@@ -1,5 +1,7 @@
 # Camp Routine Schedule System
 
+> **NOTE 2026-05-24:** The ContentOrchestrator override system described in the "Orchestrator Integration & Automatic Routine Processing" section (and `OrchestratorOverride.cs`) was retired 2026-04-25. The core schedule system (CampScheduleManager, CampRoutineProcessor, ScheduledPhase, camp_schedule.json) remains live. Treat all ContentOrchestrator references in this document as historical context only.
+
 **Summary:** A default daily schedule system that gives the camp a predictable military routine. The camp follows a baseline schedule (dawn = formations, midday = work, dusk = social, night = rest) with world state causing deviations. Players can see the upcoming schedule and make commitments that override routine activities.
 
 **Status:** ✅ Implemented  

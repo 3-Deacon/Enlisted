@@ -100,7 +100,7 @@ Depth reference table for the 8 nested locations (validator computes these):
 
 | Current | Action | Reason |
 |---|---|---|
-| `docs/Features/Campaign/` (5 files) | Rename → `docs/Features/Camp/` | Mirrors `src/Features/Camp/`. Folder is about Camp Life, not Campaign |
+| `docs/Features/Camp/` (5 files) | Rename → `docs/Features/Camp/` | Mirrors `src/Features/Camp/`. Folder is about Camp Life, not Campaign |
 | `docs/Features/UI/` (5 files) | Rename → `docs/Features/Interface/` | Mirrors `src/Features/Interface/`. Code wins (less code churn than renaming src) |
 | `docs/Features/Core/` (9 files, **including `index.md`**) | **Split per-file** by subsystem | None map to a "Core" src folder. `enlistment.md`, `pay-system.md`, `muster-system.md` → `Enlistment/`; `retinue-system.md` → `Retinue/`; `promotion-system.md` → `Ranks/`; `company-events.md` → `Company/`; `companion-management.md` → `Companions/`; `core-gameplay.md` → `docs/PROJECT-OVERVIEW.md` (standalone, player-facing). **`index.md` is rewritten** as a redirect stub ("This folder was split 2026-05-24 — see X / Y / Z") OR merged into `docs/INDEX.md`'s subsystem catalog. Audit its existing stale links (e.g. `order-progression-system.md` at line 75, `../Gameplay/...` at line 96) and either fix or drop them during the rewrite |
 | `docs/Features/Technical/` (3 files) | **Split per-file** + delete folder | `commander-track-schema.md` → `Orders/`; `conflict-detection-system.md` → `Content/`; `encounter-safety.md` → `docs/architecture/` |
@@ -269,7 +269,7 @@ Explains the three-layer model once, with the cascade map and a quick decision t
 4. Root `CLAUDE.md` ≤ 40 lines and is a `@AGENTS.md` + Claude-specifics shim.
 5. `.gemini/GEMINI.md` ≤ 15 lines, contains no hardcoded user paths, and uses `@../AGENTS.md` (or `.gemini/settings.json` configuration) such that Gemini sessions actually load AGENTS.md content.
 6. Every nested `AGENTS.md` resolves its cross-link template paths correctly (per the §1 depth table); Phase 21 validates this.
-7. `docs/Features/Campaign/` renamed to `Camp/` with stale-content audit done; `UI/` renamed to `Interface/`; `Core/` split into per-subsystem folders (including `index.md` rewrite/retire); `Technical/` files relocated and folder deleted.
+7. `docs/Features/Camp/` renamed to `Camp/` with stale-content audit done; `UI/` renamed to `Interface/`; `Core/` split into per-subsystem folders (including `index.md` rewrite/retire); `Technical/` files relocated and folder deleted.
 8. `BLUEPRINT.md` and `DEVELOPER-GUIDE.md` archived to `docs/Archive/` via `git mv` (history preserved); any unique content rescued into nested AGENTS.md.
 9. `BUILD-CONFIGURATIONS.md` folded into `Tools/AGENTS.md` and removed from `docs/` via `git mv`.
 10. `docs/INDEX.md` rewritten as ≤ 200-line master catalog of nested AGENTS.md + docs/Features/ + Reference/ + superpowers/.

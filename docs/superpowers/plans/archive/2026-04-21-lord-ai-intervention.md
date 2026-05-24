@@ -2,7 +2,7 @@
 
 > **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. Plan 2 shipped on `development` 2026-04-22 and Phase H smoke passed the same day; no human-smoke task remains open.
 
-> **Status:** ✅ **Shipped on `development` 2026-04-22.** Commit chain `4929246` → `f289b9b`. Three MBGameModel wrappers registered via `SubModule.OnGameStart`; `EnlistedAiGate` per-call identity filter live; snapshot-driven bias active; `EnlistedAiBiasHeartbeat` throttled emitter routes bias events under the `INTELAI` category. Build GREEN, content validator passes. **Phase H smoke passed 2026-04-22** — all three wrapper families fired with arithmetic matching prescribed multipliers; load-bearing T13 bait-break validated (276→0 score zeroing while FrontPressure.High + EngageParty matched); lord pivoted `OffensiveSiege` → `FrontierDefense` as the design-spec §8.1+§8.2 intent prescribes. Log excerpt: [docs/Features/CampaignIntelligence/plan2-phase-h-log.md](../../../Features/CampaignIntelligence/plan2-phase-h-log.md). **T16-T18 Phase F narrow Harmony not required** — no vanilla AI decision path was observed where the wrapper layer could not reach the consumer. Full `API Corrections Appendix` at bottom of this file records drift and idiom notes surfaced during execution.
+> **Status:** ✅ **Shipped on `development` 2026-04-22.** Commit chain `4929246` → `f289b9b`. Three MBGameModel wrappers registered via `SubModule.OnGameStart`; `EnlistedAiGate` per-call identity filter live; snapshot-driven bias active; `EnlistedAiBiasHeartbeat` throttled emitter routes bias events under the `INTELAI` category. Build GREEN, content validator passes. **Phase H smoke passed 2026-04-22** — all three wrapper families fired with arithmetic matching prescribed multipliers; load-bearing T13 bait-break validated (276→0 score zeroing while FrontPressure.High + EngageParty matched); lord pivoted `OffensiveSiege` → `FrontierDefense` as the design-spec §8.1+§8.2 intent prescribes. Log excerpt: [docs/Features/CampIntelligence/plan2-phase-h-log.md](../../../Features/CampaignIntelligence/plan2-phase-h-log.md). **T16-T18 Phase F narrow Harmony not required** — no vanilla AI decision path was observed where the wrapper layer could not reach the consumer. Full `API Corrections Appendix` at bottom of this file records drift and idiom notes surfaced during execution.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -1576,7 +1576,7 @@ wrapper layer (Phases B/C/D) addresses all four design-spec §8.1-8.3
 failure modes observed before shipping. No narrow Harmony patches
 authored. EnlistedLordAiNarrowPatches.cs stays empty as documented.
 Session-A log excerpts supporting this conclusion saved at
-docs/Features/CampaignIntelligence/plan2-phase-h-log.md (if relevant).
+docs/Features/CampIntelligence/plan2-phase-h-log.md (if relevant).
 
 Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ```
@@ -2197,7 +2197,7 @@ These are not defects — they are behaviors worth observing when the 14-in-game
 
 ## Phase F closure record
 
-**Closed 2026-04-22.** Phase H smoke (`Session-A_2026-04-22_17-59-40.log`, excerpt at [docs/Features/CampaignIntelligence/plan2-phase-h-log.md](../../../Features/CampaignIntelligence/plan2-phase-h-log.md)) confirmed the model-wrapper layer addresses every design-spec §8.1-§8.3 failure mode the plan targeted. All three wrapper families fired under correct conditions with arithmetic matching the prescribed multipliers; the load-bearing T13 bait-break zeroed a 276-score EngageParty candidate and the lord pivoted from `OffensiveSiege/BesiegeSettlement` to `FrontierDefense/DefendSettlement`, which the vanilla consumer at `MobilePartyAi.cs:488` honored (score > 1f commit threshold). No AI decision path was observed where vanilla's behavior reached a consumer the wrapper layer could not reach. `EnlistedLordAiNarrowPatches.cs` stays absent from the source tree.
+**Closed 2026-04-22.** Phase H smoke (`Session-A_2026-04-22_17-59-40.log`, excerpt at [docs/Features/CampIntelligence/plan2-phase-h-log.md](../../../Features/CampaignIntelligence/plan2-phase-h-log.md)) confirmed the model-wrapper layer addresses every design-spec §8.1-§8.3 failure mode the plan targeted. All three wrapper families fired under correct conditions with arithmetic matching the prescribed multipliers; the load-bearing T13 bait-break zeroed a 276-score EngageParty candidate and the lord pivoted from `OffensiveSiege/BesiegeSettlement` to `FrontierDefense/DefendSettlement`, which the vanilla consumer at `MobilePartyAi.cs:488` honored (score > 1f commit threshold). No AI decision path was observed where vanilla's behavior reached a consumer the wrapper layer could not reach. `EnlistedLordAiNarrowPatches.cs` stays absent from the source tree.
 
 ---
 

@@ -459,7 +459,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 ### Task T5: Design the snapshot → signal mapping table
 
 **Files:**
-- Create: `docs/Features/CampaignIntelligence/signal-projection-mapping.md` (reference doc, not code)
+- Create: `docs/Features/CampIntelligence/signal-projection-mapping.md` (reference doc, not code)
 
 - [ ] **Step 1: Author the mapping table**
 

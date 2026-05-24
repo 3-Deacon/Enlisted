@@ -1,8 +1,10 @@
 # Camp Simulation System: Living Military Company
 
+> **ARCHIVED 2026-05-24** — This document describes the ContentOrchestrator + CampOpportunityGenerator architecture, both retired 2026-04-25. The opportunity scheduling layer (ContentOrchestrator, OrchestratorOverride, CampOpportunityGenerator) no longer exists. Background simulation (CompanySimulationBehavior) and the camp schedule (CampScheduleManager, CampRoutineProcessor) remain live but are documented in current files. This file is kept for historical context only.
+
 **Summary:** The Camp Simulation System creates a living, breathing military company through two integrated layers: Background Simulation (autonomous company life that runs automatically) and Camp Opportunities (player-facing activities generated contextually). Together they make the camp feel real - things happen whether you engage or not, and you can choose when and how to participate in camp life.
 
-**Status:** ✅ Implemented  
+**Status:** ⛔ ARCHIVED — Architecture retired 2026-04-25  
 **Last Updated:** 2026-01-03 (Bug fixes: opportunities persist when lord leaves, decisions correctly disappear after selection)  
 **Implementation:** `src/Features/Camp/CompanySimulationBehavior.cs`, `src/Features/Camp/CampOpportunityGenerator.cs`  
 **Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [News Reporting System](../UI/news-reporting-system.md), [Company Supply Simulation](../Equipment/company-supply-simulation.md), [Camp Routine Schedule](camp-routine-schedule-spec.md), [Content Reference](../Content/README.md)
