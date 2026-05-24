@@ -101,7 +101,7 @@ Depth reference table for the 8 nested locations (validator computes these):
 | Current | Action | Reason |
 |---|---|---|
 | `docs/Features/Camp/` (5 files) | Rename → `docs/Features/Camp/` | Mirrors `src/Features/Camp/`. Folder is about Camp Life, not Campaign |
-| `docs/Features/UI/` (5 files) | Rename → `docs/Features/Interface/` | Mirrors `src/Features/Interface/`. Code wins (less code churn than renaming src) |
+| `docs/Features/Interface/` (5 files) | Rename → `docs/Features/Interface/` | Mirrors `src/Features/Interface/`. Code wins (less code churn than renaming src) |
 | `docs/Features/Core/` (9 files, **including `index.md`**) | **Split per-file** by subsystem | None map to a "Core" src folder. `enlistment.md`, `pay-system.md`, `muster-system.md` → `Enlistment/`; `retinue-system.md` → `Retinue/`; `promotion-system.md` → `Ranks/`; `company-events.md` → `Company/`; `companion-management.md` → `Companions/`; `core-gameplay.md` → `docs/PROJECT-OVERVIEW.md` (standalone, player-facing). **`index.md` is rewritten** as a redirect stub ("This folder was split 2026-05-24 — see X / Y / Z") OR merged into `docs/INDEX.md`'s subsystem catalog. Audit its existing stale links (e.g. `order-progression-system.md` at line 75, `../Gameplay/...` at line 96) and either fix or drop them during the rewrite |
 | `docs/Features/Technical/` (3 files) | **Split per-file** + delete folder | `commander-track-schema.md` → `Orders/`; `conflict-detection-system.md` → `Content/`; `encounter-safety.md` → `docs/architecture/` |
 

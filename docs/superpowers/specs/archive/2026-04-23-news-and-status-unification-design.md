@@ -7,7 +7,7 @@
 - `enlisted_status` body → `KINGDOM REPORTS` (tick-rebuild, top 2 kingdom-feed items + live war-stance prose), `COMPANY REPORTS`, `PLAYER STATUS`.
 - `enlisted_status` option → `HEADLINES [NEW]` → `enlisted_headlines` submenu (renders unread headline-tier **personal-feed** items via `GetPersonalFeedSince(today - 7)`).
 - `enlisted_camp_hub` body → `COMPANY STATUS`, `SINCE LAST MUSTER` (12-day period recap), `UPCOMING`, `RECENT ACTIVITY` (personal-feed items), `STATUS`.
-- `EnlistedNewsBehavior.BuildDailyBriefSection()` / `EnsureDailyBriefGenerated()` + persisted `_dailyBriefCompany/_dailyBriefUnit/_dailyBriefKingdom` state — defined but **not wired** to any menu. Documented in `docs/Features/UI/news-reporting-system.md` as shipped functionality; in practice it's dead code.
+- `EnlistedNewsBehavior.BuildDailyBriefSection()` / `EnsureDailyBriefGenerated()` + persisted `_dailyBriefCompany/_dailyBriefUnit/_dailyBriefKingdom` state — defined but **not wired** to any menu. Documented in `docs/Features/Interface/news-reporting-system.md` as shipped functionality; in practice it's dead code.
 
 The UI cost: (a) a menu option slot for `HEADLINES` whose content is scoped differently from the `KINGDOM REPORTS` paragraph next to it; (b) `COMPANY REPORTS` and `PLAYER STATUS` duplicated between main body and camp body; (c) the `UPCOMING` forecast surface sitting in Camp but describing imminent-duty stuff that belongs with the main Kingdom news. The gameplay cost: at fast-forward (16×) the main body text re-renders faster than the player can read.
 
@@ -206,7 +206,7 @@ This refactor changes shipped surfaces documented in multiple places. All must b
 | `docs/Features/Content/home-surface.md` | References to `enlisted_status` body composition (if any touch Kingdom/Company/Player sections) |
 | `docs/INDEX.md` | Feature-lookup rows referencing HEADLINES or the camp-body section list |
 | `docs/Features/Core/order-progression-system.md` | Lines 838 + 856 + 962 describe `SINCE LAST MUSTER` + `UPCOMING` as shipped — confirm the spec preserves these contracts verbatim or update the doc if content shifts |
-| `docs/Features/UI/news-reporting-system.md` | Extensively describes "Daily Brief" as shipped. Must be rewritten to describe the `DISPATCHES` weekly-edition flow, remove references to the orphaned `BuildDailyBriefSection`, and clarify the two-feed separation |
+| `docs/Features/Interface/news-reporting-system.md` | Extensively describes "Daily Brief" as shipped. Must be rewritten to describe the `DISPATCHES` weekly-edition flow, remove references to the orphaned `BuildDailyBriefSection`, and clarify the two-feed separation |
 | `docs/Features/Core/muster-system.md` | If it cross-references news surfaces used by the ceremony |
 | `docs/Features/Camp/camp-life-simulation.md` | If it references camp-hub body sections by name |
 

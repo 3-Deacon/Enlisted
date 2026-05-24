@@ -35,7 +35,7 @@ Archived specs are kept because they contain load-bearing institutional knowledg
 
 | File | Archived | Status |
 |---|---|---|
-| [`2026-04-21-top-right-combat-log-design.md`](2026-04-21-top-right-combat-log-design.md) | 2026-04-25 | Top-right combat-log shipped. Plan archived at [`../../plans/archive/2026-04-21-top-right-combat-log.md`](../../plans/archive/2026-04-21-top-right-combat-log.md). Living reference: [`docs/Features/UI/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md). |
+| [`2026-04-21-top-right-combat-log-design.md`](2026-04-21-top-right-combat-log-design.md) | 2026-04-25 | Top-right combat-log shipped. Plan archived at [`../../plans/archive/2026-04-21-top-right-combat-log.md`](../../plans/archive/2026-04-21-top-right-combat-log.md). Living reference: [`docs/Features/Interface/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md). |
 
 ### Superseded by menu+duty unification design
 

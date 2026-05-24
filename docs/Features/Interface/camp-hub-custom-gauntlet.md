@@ -2065,7 +2065,7 @@ _gauntletLayer.LoadMovie("EnlistedCampHub", _viewModel);
 
 ### Related Documentation
 
-- `docs/Features/UI/ui-systems-master.md` - Overall UI architecture
+- `docs/Features/Interface/ui-systems-master.md` - Overall UI architecture
 - `docs/Features/Equipment/quartermaster-system.md` - Example Gauntlet implementation
 - `docs/Features/Core/muster-menu-revamp.md` - GameMenu vs Gauntlet comparison
 

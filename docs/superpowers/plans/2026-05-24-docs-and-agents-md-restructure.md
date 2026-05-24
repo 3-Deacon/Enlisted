@@ -58,7 +58,7 @@
 | `Tools/Validation/validate_content.py` | Adds Phase 21 hook calling validate_docs_structure.py |
 | `docs/INDEX.md` | Rewritten as ~150-line master catalog |
 | `docs/Features/Camp/` → `docs/Features/Camp/` | Folder rename |
-| `docs/Features/UI/` → `docs/Features/Interface/` | Folder rename |
+| `docs/Features/Interface/` → `docs/Features/Interface/` | Folder rename |
 | `docs/Features/Core/*.md` | Split into per-subsystem folders |
 | `docs/Features/Technical/*.md` | Split into owning subsystems, folder deleted |
 | `Enlisted.csproj` | Line 14 ref to BLUEPRINT.md updated to new doc |
@@ -2310,14 +2310,14 @@ EOF
 
 ---
 
-### Task F2: Rename `docs/Features/UI/` → `docs/Features/Interface/`
+### Task F2: Rename `docs/Features/Interface/` → `docs/Features/Interface/`
 
 **Sub-phase F.2 — one commit. Same shape as F.1.**
 
 - [ ] **Step 1: Verify UI/ contents**
 
 ```bash
-ls docs/Features/UI/
+ls docs/Features/Interface/
 ```
 
 Expected: 5 files (camp-hub-custom-gauntlet.md, color-scheme.md, enlisted-combat-log.md, news-reporting-system.md, ui-systems-master.md).
@@ -2325,13 +2325,13 @@ Expected: 5 files (camp-hub-custom-gauntlet.md, color-scheme.md, enlisted-combat
 - [ ] **Step 2: Rename via git mv**
 
 ```bash
-git mv docs/Features/UI docs/Features/Interface
+git mv docs/Features/Interface docs/Features/Interface
 ```
 
 - [ ] **Step 3: Scan + apply**
 
 ```bash
-python3 Tools/Validation/find_stale_refs.py "docs/Features/UI" "docs/Features/Interface" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Interface" "docs/Features/Interface" --apply
 ```
 
 - [ ] **Step 4: Verify Phase 21 + build + validator**
@@ -2350,7 +2350,7 @@ All pass.
 git add -A docs/Features/Interface/
 git add -u
 git commit -m "$(cat <<'EOF'
-docs: rename docs/Features/UI → Interface (mirror src/Features/Interface)
+docs: rename docs/Features/Interface → Interface (mirror src/Features/Interface)
 
 Phase F.2 of docs-and-agents-md-restructure. Code wins on the naming
 disagreement: matches existing src/Features/Interface/ folder (no

@@ -1,6 +1,6 @@
 # Top-Right Combat Log Implementation Plan
 
-> **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. The top-right live feed, drag/resize behavior, persisted UI state, background modes, and updated feature documentation shipped on `development` in the combat-log work chain (`d963c56`, `424cffc`, `2d64497`, `69927f9`, `5f595c1`). Current behavior is documented at [`docs/Features/UI/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md).
+> **RETIRED (2026-04-24).** This plan is a frozen-in-time execution record. The top-right live feed, drag/resize behavior, persisted UI state, background modes, and updated feature documentation shipped on `development` in the combat-log work chain (`d963c56`, `424cffc`, `2d64497`, `69927f9`, `5f595c1`). Current behavior is documented at [`docs/Features/Interface/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -61,7 +61,7 @@ Enlisted.csproj
 GUI/Prefabs/Interface/EnlistedCombatLog.xml
   -- move anchor to top-right, add header/expand affordance, add expanded resize widgets
 
-docs/Features/UI/enlisted-combat-log.md
+docs/Features/Interface/enlisted-combat-log.md
   -- update behavior and layout documentation to match the shipped top-right design
 ```
 
@@ -656,11 +656,11 @@ git commit -m "feat(interface): add expandable top-right combat log behavior"
 ## Task 4: Refresh docs and run acceptance verification
 
 **Files:**
-- Modify: `docs/Features/UI/enlisted-combat-log.md`
+- Modify: `docs/Features/Interface/enlisted-combat-log.md`
 
 - [ ] **Step 1: Update the feature doc to match the new behavior**
 
-Edit `docs/Features/UI/enlisted-combat-log.md` so these statements become true:
+Edit `docs/Features/Interface/enlisted-combat-log.md` so these statements become true:
 
 - it is described as **top-right**, not bottom-right,
 - compact mode is called out as always visible and scrollable,
@@ -704,7 +704,7 @@ Expected: all ten checks pass without off-screen rendering, overlap regressions,
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/Features/UI/enlisted-combat-log.md
+git add docs/Features/Interface/enlisted-combat-log.md
 git commit -m "docs(interface): update combat log guide for top-right redesign"
 ```
 

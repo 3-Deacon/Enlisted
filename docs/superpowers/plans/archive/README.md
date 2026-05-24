@@ -40,7 +40,7 @@ Archived plans are kept because they contain load-bearing institutional knowledg
 
 | File | Archived | Status |
 |---|---|---|
-| [`2026-04-21-top-right-combat-log.md`](2026-04-21-top-right-combat-log.md) | 2026-04-24 | Shipped top-right combat-log implementation and current UI reference at [`docs/Features/UI/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md). |
+| [`2026-04-21-top-right-combat-log.md`](2026-04-21-top-right-combat-log.md) | 2026-04-24 | Shipped top-right combat-log implementation and current UI reference at [`docs/Features/Interface/enlisted-combat-log.md`](../../../Features/UI/enlisted-combat-log.md). |
 
 ### Superseded by menu+duty unification
 

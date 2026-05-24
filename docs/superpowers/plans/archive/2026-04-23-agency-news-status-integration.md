@@ -50,7 +50,7 @@ Those excluded items depend on this routing layer but are not required to make t
 | `Tools/Tests/Enlisted.UnitTests/StoryletAgencyTests.cs` | Unit tests for agency role mapping and JSON names. |
 | `Tools/Tests/Enlisted.UnitTests/Enlisted.UnitTests.csproj` | Links pure source files used by tests. |
 | `Enlisted.csproj` | Registers new C# files. |
-| `docs/Features/UI/news-reporting-system.md` | Docs sync for typed routing and surface ownership. |
+| `docs/Features/Interface/news-reporting-system.md` | Docs sync for typed routing and surface ownership. |
 | `docs/Features/Content/storylet-backbone.md` | Docs sync for storylet `agency` metadata. |
 
 ---
@@ -1135,13 +1135,13 @@ git commit -m "feat: validate storylet agency metadata"
 ### Task 8: Sync Documentation
 
 **Files:**
-- Modify: `docs/Features/UI/news-reporting-system.md`
+- Modify: `docs/Features/Interface/news-reporting-system.md`
 - Modify: `docs/Features/Content/storylet-backbone.md`
 - Modify: `docs/INDEX.md` if it links individual UI/content references
 
 - [ ] **Step 1: Update news reporting docs**
 
-In `docs/Features/UI/news-reporting-system.md`, add a section titled `Typed Routing Metadata`:
+In `docs/Features/Interface/news-reporting-system.md`, add a section titled `Typed Routing Metadata`:
 
 ```markdown
 ## Typed Routing Metadata
@@ -1193,7 +1193,7 @@ Expected: validation succeeds.
 - [ ] **Step 4: Commit**
 
 ```powershell
-git add docs/Features/UI/news-reporting-system.md docs/Features/Content/storylet-backbone.md docs/INDEX.md
+git add docs/Features/Interface/news-reporting-system.md docs/Features/Content/storylet-backbone.md docs/INDEX.md
 git commit -m "docs: document agency news routing"
 ```
 

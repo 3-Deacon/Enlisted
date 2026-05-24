@@ -281,7 +281,7 @@ starter.AddPlayerLine(
 - Triggered by: EventPacingManager, EscalationManager, DecisionManager
 - Muster-specific events integrated as menu stages
 
-**Full documentation:** See [ui-systems-master.md](../docs/Features/UI/ui-systems-master.md)
+**Full documentation:** See [ui-systems-master.md](../docs/Features/Interface/ui-systems-master.md)
 
 ---
 
