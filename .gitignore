@@ -39,6 +39,7 @@ Decompile/
 
 # Codex CLI — keep .codex/config.toml tracked, ignore personal overrides and local state
 AGENTS.override.md
+CLAUDE.local.md
 .codex/cache/
 .codex/logs/
 
