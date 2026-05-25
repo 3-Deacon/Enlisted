@@ -283,7 +283,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            Hero.MainHero?.HeroDeveloper.AddSkillXp(skillObj, amount, isAffectedByFocusFactor: false);
+            Hero.MainHero?.HeroDeveloper?.AddSkillXp(skillObj, amount, isAffectedByFocusFactor: false);
         }
 
         private static void DoGiveGold(EffectDecl eff)
@@ -342,7 +342,7 @@ namespace Enlisted.Features.Content
 
             try
             {
-                Hero.MainHero?.HeroDeveloper.ChangeSkillLevel(skill, amount);
+                Hero.MainHero?.HeroDeveloper?.ChangeSkillLevel(skill, amount);
             }
             catch (Exception ex)
             {
@@ -369,7 +369,7 @@ namespace Enlisted.Features.Content
             try
             {
                 // checkUnspentFocusPoints: false — this is a reward grant, not spending from the pool.
-                Hero.MainHero?.HeroDeveloper.AddFocus(skill, amount, checkUnspentFocusPoints: false);
+                Hero.MainHero?.HeroDeveloper?.AddFocus(skill, amount, checkUnspentFocusPoints: false);
             }
             catch (Exception ex)
             {
@@ -417,7 +417,7 @@ namespace Enlisted.Features.Content
             try
             {
                 // checkUnspentPoints: false — this is a reward grant, not spending from the pool.
-                Hero.MainHero?.HeroDeveloper.AddAttribute(attr, amount, checkUnspentPoints: false);
+                Hero.MainHero?.HeroDeveloper?.AddAttribute(attr, amount, checkUnspentPoints: false);
             }
             catch (Exception ex)
             {

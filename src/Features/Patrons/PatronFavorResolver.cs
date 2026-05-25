@@ -57,7 +57,7 @@ namespace Enlisted.Features.Patrons
             // text interpolates correctly. The dialog condition in EnlistedDialogManager also
             // sets this via SetPatronConversationVariables, but the bag is process-global and
             // may have stale data if this path is reached outside a live conversation frame.
-            MBTextManager.SetTextVariable("PATRON_NAME", hero.Name?.ToString() ?? "the lord");
+            MBTextManager.SetTextVariable("PATRON_NAME", hero.Name ?? new TextObject("the lord"));
 
             var ctx = new StoryletContext
             {

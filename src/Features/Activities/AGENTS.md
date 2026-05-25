@@ -35,7 +35,7 @@ Orders-surface tick behaviors.
 
 `OrdersNewsFeedThrottle.TryClaim()` rejects at extreme fast-forward speeds. Intentional silence at extreme fast-forward. Full pitfall in [../Content/AGENTS.md](../Content/AGENTS.md#pitfall-news-feed-throttle-silent-at-4x-speed). Tick-driven `ModLogger` entries (DRIFT, DUTYPROFILE heartbeats, PATH heartbeats) still log at any speed.
 
-API note: `Campaign.Current.TimeControlMode` is a `CampaignTimeControlMode` enum (values: `UnstoppableFastForward`, `StoppableFastForward`, `FastForward`, `Stop`, `StoppablePlay`, `UnstoppablePlay`). `Campaign.Current.SpeedUpMultiplier` is a separate `float` property (default `4f`). The throttle should test something like `Campaign.Current.TimeControlMode == CampaignTimeControlMode.StoppableFastForward && Campaign.Current.SpeedUpMultiplier > 4f` — NOT `TimeControlMode == SpeedUpMultiplier` (that would be a type-mismatch that never compiles).
+API note: `Campaign.Current.SpeedUpMultiplier` is a `float` property (default `4f`). The implementation tests only this property: `Campaign.Current?.SpeedUpMultiplier > 4f`. Do NOT add a `TimeControlMode == StoppableFastForward` guard — that would miss the `UnstoppableFastForward` case and contradict the implementation. Full pitfall and corrected example in [../Content/AGENTS.md](../Content/AGENTS.md#pitfall-news-feed-throttle-silent-at-4x-speed).
 
 ---
 

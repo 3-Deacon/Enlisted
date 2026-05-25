@@ -4657,7 +4657,7 @@ namespace Enlisted.Features.Conversations.Behaviors
         private static void SetPatronConversationVariables()
         {
             var target = Hero.OneToOneConversationHero;
-            var patronName = target?.Name?.ToString() ?? "the lord";
+            var patronName = target?.Name ?? new TextObject("the lord");
             MBTextManager.SetTextVariable("PATRON_NAME", patronName);
         }
 

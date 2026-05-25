@@ -108,17 +108,14 @@ This is intentional silence, not a bug. When smoke-testing the Orders surface,
 run at 1x–4x to see news output; tick-driven `ModLogger` entries (DRIFT,
 DUTYPROFILE heartbeats, PATH heartbeats) still log at any speed.
 
-API note: `Campaign.Current.TimeControlMode` is a `CampaignTimeControlMode`
-enum (values: `UnstoppableFastForward`, `StoppableFastForward`, `FastForward`,
-`Stop`, `StoppablePlay`, `UnstoppablePlay`). `Campaign.Current.SpeedUpMultiplier`
-is a separate `float` property (default `4f`). The throttle condition should
-test something like:
+API note: `Campaign.Current.SpeedUpMultiplier` is a `float` property
+(default `4f`). The implementation tests only this property:
 ```csharp
-Campaign.Current.TimeControlMode == CampaignTimeControlMode.StoppableFastForward
-    && Campaign.Current.SpeedUpMultiplier > 4f
+// CORRECT — matches OrdersNewsFeedThrottle
+if (Campaign.Current?.SpeedUpMultiplier > 4f) { /* suppress */ }
 ```
-Do NOT write `TimeControlMode == SpeedUpMultiplier` — that is a type-mismatch
-(enum vs float) that would never compile.
+Do NOT add a `TimeControlMode == StoppableFastForward` guard — that would miss
+the `UnstoppableFastForward` case and contradict the implementation.
 
 ---
 

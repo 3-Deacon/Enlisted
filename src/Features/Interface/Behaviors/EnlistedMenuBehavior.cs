@@ -721,7 +721,8 @@ namespace Enlisted.Features.Interface.Behaviors
                         // For castle/town menus (inside, outside, wait variants, and naval), check if player explicitly visited
                         if ((_currentMenuId == "castle" || _currentMenuId == "castle_outside" ||
                              _currentMenuId == "town" || _currentMenuId == "town_outside" ||
-                             _currentMenuId == "town_wait_menus" || _currentMenuId == "naval_town_outside") && HasExplicitlyVisitedSettlement)
+                             _currentMenuId == "town_wait_menus" || _currentMenuId == "village_wait_menus" ||
+                             _currentMenuId == "naval_town_outside") && HasExplicitlyVisitedSettlement)
                         {
                             ModLogger.Info("MENU", $"Not overriding {_currentMenuId} - player explicitly visited settlement");
                             return;

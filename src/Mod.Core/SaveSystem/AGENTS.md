@@ -67,7 +67,11 @@ without audit.
 
 ## Hero/Skill XP gotchas
 
-- **`Hero.AddSkillXp(skill, xp)` 2-arg form** decrements the hero's unspent focus pool and fires level-up events — it is NOT quiet. For background XP awards (events, scripted effects, daily drift) use `hero.HeroDeveloper.AddSkillXp(skill, xp, isAffectedByFocusFactor: false)`.
+- **`hero.HeroDeveloper.AddSkillXp(skill, xp)` — 2-arg form (isAffectedByFocusFactor defaults to true):** calls `GainRawXp` internally, which (a) increments `_totalXp` and contributes to overall hero character-level advancement, and (b) multiplies the per-skill XP award by the hero's invested focus factor — heroes with focus in a skill earn more XP per award. This is vanilla behavior and fires level-up events. NOT quiet.
+
+- **`hero.HeroDeveloper.AddSkillXp(skill, xp, isAffectedByFocusFactor: false)` — 3-arg form:** skips `GainRawXp` (no character-level contribution) AND ignores focus factor (raw XP regardless of investment). This is what storylet/event/scripted-effect XP uses — intentional, but two designer consequences to know: (1) event XP does NOT contribute to the hero's overall character level, and (2) focus point investment does NOT scale these awards. If designers want event XP to contribute to character level (vanilla behavior), use the 2-arg form — but that brings the level-up notification and character-level side effect. Decompile reference: `HeroDeveloper.cs:198-218`.
+
+- For background XP awards (events, scripted effects, daily drift) use the 3-arg `isAffectedByFocusFactor: false` form.
 
 - **`TraitLevelingHelper.AddTraitXp` / `OnIncidentResolved`** are `private`/internal and route through `Campaign.Current.PlayerTraitDeveloper` — MainHero only. For non-player heroes use `Hero.SetTraitLevel(trait, level)` directly.
 
