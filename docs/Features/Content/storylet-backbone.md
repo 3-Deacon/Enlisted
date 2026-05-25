@@ -168,7 +168,7 @@ Unknown roles log `Expected("SLOT", "unknown_role_<role>", ...)` once and return
 | `clear_flag` | `name` |
 | `set_flag_on_hero` | `slot`, `name`, `days?` |
 | `trait_xp` | `trait`, `amount` (single-level step via `Math.Sign(amount)`) |
-| `skill_xp` | `skill`, `amount` (positive only) |
+| `skill_xp` | `skill`, `amount` (positive only) — uses 3-arg `isAffectedByFocusFactor: false`; does NOT contribute to character level and ignores focus investment. Intentional for event/scripted-effect XP. |
 | `give_gold` | `amount` (positive grant / negative charge, routed through `GiveGoldAction`) |
 | `give_item` | `item_id`, `count` |
 | `commit_path` | `path` (one of `ranger` / `enforcer` / `support` / `diplomat` / `rogue`) — sets `committed_path_<path>` flag permanently + bumps `committed_path` indicator to `1` via the internal `QualityStore.SetDirect` back-door. Added by Plan 5; see [Plan 5 additions](#plan-5-additions-career-path-primitives--overlay-preference) |

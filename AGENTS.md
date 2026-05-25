@@ -63,6 +63,8 @@ GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, amount);
 Hero.MainHero.ChangeHeroGold(amount);
 ```
 
+Exception: internal accounting that is NOT a player-facing transaction (e.g. QM NPC initialization) may use `ChangeHeroGold` **only** if accompanied by a `// Silent: <reason>` comment explaining why `GiveGoldAction` would be wrong here.
+
 ### 4. Equipment Iteration — numeric loop only
 
 ```csharp
@@ -147,8 +149,8 @@ EscalationManager.Instance.ModifyReputation(ReputationType.Soldier, 5, "reason")
 
 The mod prevents native menus from appearing while enlisted via two layers. Both must handle `*_outside` menu variants (`"castle_outside"`, `"town_outside"`) — the native system returns these when the lord enters a settlement without an explicit player encounter.
 
-- **Primary:** `GenericStateMenuPatch` patches `DefaultEncounterGameMenuModel.GetGenericStateMenu()`. Intercepts menu selection before native activation. Overrides `"castle"`, `"castle_outside"`, `"town"`, `"town_outside"`, `"village"`, `"army_wait"`, `"army_wait_at_settlement"` → returns `"enlisted_status"`. Respects `HasExplicitlyVisitedSettlement` flag (player clicked "Visit Settlement" and should see the native menu).
-- **Fallback:** `OnMenuOpened` event handler in `EnlistedMenuBehavior.cs`. Catches menus that bypass the Harmony patch. Same menu IDs. Defers override via `NextFrameDispatcher`.
+- **Primary:** `GenericStateMenuPatch` patches `DefaultEncounterGameMenuModel.GetGenericStateMenu()`. Intercepts menu selection before native activation. Overrides `"castle"`, `"castle_outside"`, `"town"`, `"town_outside"`, `"naval_town_outside"`, `"village"`, `"army_wait"`, `"army_wait_at_settlement"`, `"town_wait_menus"`, `"village_wait_menus"` → returns `"enlisted_status"`. Respects `HasExplicitlyVisitedSettlement` flag (player clicked "Visit Settlement" and should see the native menu). The `village_wait_menus` ID is also in the `HasExplicitlyVisitedSettlement` allowlist for symmetry.
+- **Fallback:** `OnMenuOpened` event handler in `EnlistedMenuBehavior.cs`. Catches menus that bypass the Harmony patch. Same menu IDs (`"castle"`, `"castle_outside"`, `"town"`, `"town_outside"`, `"naval_town_outside"`, `"village"`, `"army_wait"`, `"army_wait_at_settlement"`, `"town_wait_menus"`, `"village_wait_menus"`). Defers override via `NextFrameDispatcher`.
 
 If a new menu is added that should be blocked while enlisted, add its ID to **both** layers.
 

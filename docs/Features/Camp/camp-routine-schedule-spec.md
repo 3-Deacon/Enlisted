@@ -871,9 +871,9 @@ Each activity has configurable effect ranges per outcome type:
 ```
 
 **Applied Effects:**
-- **XP** → Hero.AddSkillXp() for appropriate skill
+- **XP** → `hero.HeroDeveloper.AddSkillXp(skill, xp, isAffectedByFocusFactor: false)` for appropriate skill (3-arg quiet form — does not contribute to character level or scale with focus)
 - **Fatigue** → CompanyNeeds.Rest modified (inverted)
-- **Gold** → Hero.ChangeHeroGold() for found items
+- **Gold** → `GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, amount)` for found items (never `ChangeHeroGold` — see AGENTS.md Rule #3)
 - **Supply** → CompanyNeeds.Supply for foraging
 - **Conditions** → Applied via condition system (injuries, illness)
 

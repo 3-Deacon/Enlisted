@@ -65,6 +65,12 @@ without audit.
 
 ---
 
+## Hero API: double null-conditional on HeroDeveloper
+
+Always use `hero?.HeroDeveloper?.AddSkillXp(...)` (double null-conditional) when calling HeroDeveloper from a non-trivially-alive context. `Hero._heroDeveloper` is nulled in `Hero.OnDeath()`, so a non-null `Hero` reference can have a null developer field immediately after death. Single-conditional `hero.HeroDeveloper.AddSkillXp(...)` NREs on the same tick a hero dies. This applies to all `HeroDeveloper` call sites in `EffectExecutor` and `EventDeliveryManager`.
+
+---
+
 ## Hero/Skill XP gotchas
 
 - **`hero.HeroDeveloper.AddSkillXp(skill, xp)` — 2-arg form (isAffectedByFocusFactor defaults to true):** calls `GainRawXp` internally, which (a) increments `_totalXp` and contributes to overall hero character-level advancement, and (b) multiplies the per-skill XP award by the hero's invested focus factor — heroes with focus in a skill earn more XP per award. This is vanilla behavior and fires level-up events. NOT quiet.

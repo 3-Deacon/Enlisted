@@ -25,8 +25,10 @@ When a patron dies (`OnHeroKilled`), their entry's `IsDead` flag flips. Dead pat
 1. Resolve the `Hero` from `entry.HeroId` via `MBObjectManager`. If null or `!IsAlive`, refuse with `{=patron_dead}`.
 2. Check per-favor cooldown via `entry.IsFavorAvailable(kind, CampaignTime.Now)`. If active, refuse with `{=patron_cooldown}`.
 3. Check kind-specific conditions (relation threshold, patron gold, party space, runtime availability of dependent systems).
-4. If granted: stamp the cooldown on the entry, fire the matching outcome storylet via `ModalEventBuilder.FireSimpleModal(...)`, return `true`.
+4. If granted: stamp the cooldown on the entry, call `EnlistedDialogManager.SetPatronConversationVariables(patron)` to set the `PATRON_NAME` token, fire the matching outcome storylet via `ModalEventBuilder.FireSimpleModal(...)`, return `true`.
 5. If refused: return `false` with a localized reason; the caller (`AddPatronDialogs`) shows the reason inline.
+
+**Conversation token wiring:** `PATRON_NAME` is a Plan-6-owned token populated by `EnlistedDialogManager.SetPatronConversationVariables(Hero patron)`. It is set in two places: (a) here in `TryGrantFavor` for the storylet pipeline, and (b) in `PatronAcknowledgeCondition` / `PatronFavorOptionCondition` for the dialog-layer conditions. Authored favor dialog content that uses `{PATRON_NAME}` relies on both call sites — see [src/Features/Conversations/AGENTS.md](../../src/Features/Conversations/AGENTS.md) for the token discipline.
 
 Per-favor cooldowns are stored as a CSV string on `PatronEntry.PerFavorCooldownsCsv` (`"<kindId>:<ticks>;<kindId>:<ticks>"`) — `Dictionary<FavorKind, CampaignTime>` is not a saveable container shape (CLAUDE.md known issue #14), so the entry serialises a flat string and the helper methods parse it on access.
 

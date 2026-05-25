@@ -20,7 +20,8 @@ catalogs ignores all of it. The QM precedent (`qm_gates.json`,
 Token resolution requires `MBTextManager.SetTextVariable` calls before
 the conversation opens; `EnlistedDialogManager.SetCommonDialogueVariables`
 (private) handles QM, `EnlistedMenuBehavior.SetCompanionConversationTokens`
-handles Plan 2 companions. New dialog-firing flows must populate the
+handles Plan 2 companions, and `EnlistedDialogManager.SetPatronConversationVariables(Hero patron)`
+handles Plan 6 patron dialogs (sets `PATRON_NAME`). New dialog-firing flows must populate the
 same six tokens (`PLAYER_NAME`, `PLAYER_RANK`, `LORD_NAME`, `PLAYER_TIER`,
 plus speaker-scoped tokens like `COMPANION_NAME` /
 `COMPANION_FIRST_NAME`) before opening the conversation, and the
@@ -29,6 +30,14 @@ authored content must reference them — only doing one or the other
 dialog flat or with literal `{PLAYER_RANK}` strings displayed. Plan 2
 Phase 5++ (commit `4dfe719`) shipped the wiring + content rewrite for
 the six companion catalogs after this gap was caught in code review.
+
+Plan 6 owns the `PATRON_NAME` token. It is set in two places: (1) by
+`SetPatronConversationVariables` in `EnlistedDialogManager.cs`, called
+from `PatronAcknowledgeCondition` and `PatronFavorOptionCondition` for the
+dialog-layer flow; and (2) by `PatronFavorResolver.TryGrantFavor` before
+`FireDecisionOutcome` for the storylet-pipeline flow. Both call sites must
+stay in sync — a patron dialog that fires without `SetPatronConversationVariables`
+will display a literal `{PATRON_NAME}` token.
 
 ---
 
