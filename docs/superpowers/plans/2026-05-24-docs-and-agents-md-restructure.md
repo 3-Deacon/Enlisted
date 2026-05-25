@@ -2518,19 +2518,19 @@ Expected: 3 files (commander-track-schema.md, conflict-detection-system.md, enco
 - [ ] **Step 2: Move per spec §2**
 
 ```bash
-git mv docs/Features/Technical/commander-track-schema.md docs/Features/Activities/commander-track-schema.md
-git mv docs/Features/Technical/conflict-detection-system.md docs/Features/Content/conflict-detection-system.md
+git mv docs/Features/Activities/commander-track-schema.md docs/Features/Activities/commander-track-schema.md
+git mv docs/Features/Content/conflict-detection-system.md docs/Features/Content/conflict-detection-system.md
 mkdir -p docs/architecture  # already exists per audit but defensive
-git mv docs/Features/Technical/encounter-safety.md docs/architecture/encounter-safety.md
+git mv docs/architecture/encounter-safety.md docs/architecture/encounter-safety.md
 rmdir docs/Features/Technical/
 ```
 
 - [ ] **Step 3: Apply rewrites**
 
 ```bash
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Technical/commander-track-schema.md" "docs/Features/Activities/commander-track-schema.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Technical/conflict-detection-system.md" "docs/Features/Content/conflict-detection-system.md" --apply
-python3 Tools/Validation/find_stale_refs.py "docs/Features/Technical/encounter-safety.md" "docs/architecture/encounter-safety.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Activities/commander-track-schema.md" "docs/Features/Activities/commander-track-schema.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/Features/Content/conflict-detection-system.md" "docs/Features/Content/conflict-detection-system.md" --apply
+python3 Tools/Validation/find_stale_refs.py "docs/architecture/encounter-safety.md" "docs/architecture/encounter-safety.md" --apply
 python3 Tools/Validation/find_stale_refs.py "docs/Features/Technical/"  # sweep for any holdouts
 ```
 

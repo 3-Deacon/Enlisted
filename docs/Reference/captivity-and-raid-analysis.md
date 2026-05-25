@@ -498,7 +498,7 @@ OnMapEventEnded → checks if someone else led raid
    - Add all 10 village raid menus to menu list
    - Update menu count
 
-3. **`docs/Features/Technical/encounter-safety.md`**
+3. **`docs/architecture/encounter-safety.md`**
    - Add section on captivity handling
    - Document army removal during captivity
    - Note gap: no auto-return after release
