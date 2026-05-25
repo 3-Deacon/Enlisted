@@ -9,9 +9,26 @@ This file owns Tools/ rules: build configurations, deploy scripts, and the works
 
 ## Build configurations
 
-The full build-configuration depth currently lives in [../docs/BUILD-CONFIGURATIONS.md](../docs/BUILD-CONFIGURATIONS.md). Phase G of the 2026-05-24 docs restructure folds the worth-keeping bits into THIS file and archives BUILD-CONFIGURATIONS.md.
+Single build configuration: `Enlisted RETAIL` (Platform `x64`). Produces one mod from one build invocation. Output: `Modules\Enlisted\` (Core + optional Battle AI SubModule).
 
-Until Phase G ships, refer to that file for the depth. The top-level build command lives in root [../AGENTS.md](../AGENTS.md) Quick Commands.
+```bash
+dotnet build -c "Enlisted RETAIL" /p:Platform=x64
+```
+
+**DLL mirror:** csproj `AfterBuild` target mirrors `Enlisted.dll` + `Enlisted.pdb` from `bin\Win64_Shipping_Client\` into `bin\Win64_Shipping_wEditor\`, so testing in either game mode uses the same compiled binary.
+
+**Build failure footgun:** Close `BannerlordLauncher.exe` before building. It holds the DLL open and the AfterBuild mirror fails with `MSB3021` (cannot copy file in use).
+
+**Optional Battle AI SubModule:** Users toggle via Bannerlord launcher checkbox. `SubModule.xml` declares two entries:
+
+```xml
+<SubModuleClassType value="Enlisted.Mod.Entry.SubModule"/>            <!-- required -->
+<SubModuleClassType value="Enlisted.Features.Combat.BattleAISubModule"/> <!-- optional -->
+```
+
+Both compile into the same DLL; the launcher decides which class instantiates at runtime.
+
+**Adding Battle AI files:** new `.cs` under `src/Features/Combat/BattleAI/` needs an explicit `<Compile Include>` in `Enlisted.csproj` (wildcards are non-recursive — see [../ModuleData/Enlisted/AGENTS.md](../ModuleData/Enlisted/AGENTS.md) wildcards quirk).
 
 ---
 

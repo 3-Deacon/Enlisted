@@ -1,3 +1,9 @@
+# ARCHIVED 2026-05-24
+
+This document predates the docs+AGENTS.md restructure landed 2026-05-24 (Phases A-G). It is retained as historical context. Authoritative rules now live in the AGENTS.md cascade (root [../AGENTS.md](../../AGENTS.md) + nested per-subsystem AGENTS.md). See the rewritten [docs/INDEX.md](../INDEX.md).
+
+---
+
 # Build Configuration & Optional Battle AI SubModule
 
 **Summary:** Quick guide for building the Enlisted mod with optional Battle AI SubModule that users can toggle in the Bannerlord launcher.

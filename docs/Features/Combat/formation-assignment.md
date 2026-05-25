@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-24  
-**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [Retinue System](../Core/retinue-system.md)
+**Related Docs:** Core Gameplay, [Retinue System](../Retinue/retinue-system.md)
 
 ---
 

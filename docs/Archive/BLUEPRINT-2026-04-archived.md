@@ -1,3 +1,9 @@
+# ARCHIVED 2026-05-24
+
+This document predates the docs+AGENTS.md restructure landed 2026-05-24 (Phases A-G). It is retained as historical context. Authoritative rules now live in the AGENTS.md cascade (root [../AGENTS.md](../../AGENTS.md) + nested per-subsystem AGENTS.md). See the rewritten [docs/INDEX.md](../INDEX.md).
+
+---
+
 # Enlisted - Project Blueprint
 
 **Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities/Flags/Activities/Storylets runtime + seed catalogs + validate_content.py Phase 12.)

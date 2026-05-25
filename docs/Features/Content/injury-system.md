@@ -5,7 +5,7 @@
 **Status:** ✅ Implemented  
 **Last Updated:** 2026-01-01  
 **Implementation:** `src/Features/Conditions/PlayerConditionBehavior.cs`, `src/Features/Content/EventDeliveryManager.cs`, `ModuleData/Enlisted/Conditions/condition_defs.json`  
-**Related Docs:** [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](storylet-backbone.md)
+**Related Docs:** Order Progression System, [Storylet Backbone](storylet-backbone.md)
 
 ---
 

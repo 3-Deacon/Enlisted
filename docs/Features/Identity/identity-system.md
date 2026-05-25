@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2026-01-14 (Updated to reflect Scrutiny/lord relation system)  
-**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Content Reference](../Content/README.md), [Promotion System](../Core/promotion-system.md)
+**Related Docs:** [Storylet Backbone](../Content/storylet-backbone.md), [Content Reference](../Content/README.md), [Promotion System](../Ranks/promotion-system.md)
 
 ---
 
@@ -38,7 +38,7 @@
 - Clear progression milestones
 - Culture-specific rank names
 - Equipment access tied to rank
-- See [Promotion System](../Core/promotion-system.md)
+- See [Promotion System](../Ranks/promotion-system.md)
 
 **Trait System**
 - Native Bannerlord personality traits (-2 to +2)

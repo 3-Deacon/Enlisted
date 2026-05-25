@@ -930,7 +930,7 @@ When a player first enlists (or re-enlists after retirement/desertion), they mus
 
 This status integrates with the [Baggage Train Availability](baggage-train-availability.md) system's raid mechanics.
 
-**Bug Fix (2026-01-03):** Fixed issue where baggage stowage dialog was incorrectly firing multiple times during active service. Root causes: (1) flag resets in EnlistmentBehavior, (2) EventSelector selecting onboarding events as regular camp events. Event now properly triggers only on first enlistment or after retirement/desertion. See [enlistment.md](../Core/enlistment.md) for complete behavior documentation.
+**Bug Fix (2026-01-03):** Fixed issue where baggage stowage dialog was incorrectly firing multiple times during active service. Root causes: (1) flag resets in EnlistmentBehavior, (2) EventSelector selecting onboarding events as regular camp events. Event now properly triggers only on first enlistment or after retirement/desertion. See [enlistment.md](../Enlistment/enlistment.md) for complete behavior documentation.
 
 ### Muster Baggage Access
 

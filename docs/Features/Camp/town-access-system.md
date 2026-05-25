@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-22  
-**Related Docs:** [Enlistment](../Core/enlistment.md), [Core Gameplay](../Core/core-gameplay.md)
+**Related Docs:** [Enlistment](../Enlistment/enlistment.md), Core Gameplay
 
 ---
 

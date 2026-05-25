@@ -1,3 +1,9 @@
+# ARCHIVED 2026-05-24
+
+This document predates the docs+AGENTS.md restructure landed 2026-05-24 (Phases A-G). It is retained as historical context. Authoritative rules now live in the AGENTS.md cascade (root [../AGENTS.md](../../AGENTS.md) + nested per-subsystem AGENTS.md). See the rewritten [docs/INDEX.md](../INDEX.md).
+
+---
+
 # Developer Guide
 
 **Summary:** Quick reference for building, modifying, and extending the Enlisted mod. Covers setup, structure, common tasks, and integration patterns.

@@ -337,7 +337,7 @@ Read these docs BEFORE implementing:
 3. docs/Features/Combat/agent-combat-ai.md
    - AgentStatCalculateModel section (how to override agent stats)
 
-4. docs/BLUEPRINT.md
+4. docs/Archive/BLUEPRINT-2026-04-archived.md
    - Quick Orientation (project constraints)
    - Common Tasks (adding files, logging)
 

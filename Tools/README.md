@@ -306,7 +306,7 @@ Validator checks structure, not gameplay logic. Test in-game!
 
 | Document | Description |
 | :--- | :--- |
-| [BLUEPRINT.md](../docs/BLUEPRINT.md) | Master project guide, coding standards, architecture |
+| [BLUEPRINT.md](../docs/Archive/BLUEPRINT-2026-04-archived.md) | Master project guide, coding standards, architecture |
 | [writing-style-guide.md](../docs/Features/Content/writing-style-guide.md) | Writing standards for RP text (voice, tone, tokens) |
 | [event-system-schemas.md](../docs/Features/Content/event-system-schemas.md) | JSON schema reference (source of truth) |
 | [TECHNICAL-REFERENCE.md](TECHNICAL-REFERENCE.md) | Logging, save system, code patterns |

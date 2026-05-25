@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-23  
-**Related Docs:** [Company Supply](../Equipment/company-supply-simulation.md), [Core Gameplay](../Core/core-gameplay.md), [Camp Fatigue](../Core/camp-fatigue.md)
+**Related Docs:** [Company Supply](../Equipment/company-supply-simulation.md), Core Gameplay, Camp Fatigue
 
 ---
 

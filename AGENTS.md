@@ -143,6 +143,15 @@ if (!PlayerEncounter.InsideSettlement) PlayerEncounter.Finish();
 EscalationManager.Instance.ModifyReputation(ReputationType.Soldier, 5, "reason");
 ```
 
+### Menu Override System — two-layer approach
+
+The mod prevents native menus from appearing while enlisted via two layers. Both must handle `*_outside` menu variants (`"castle_outside"`, `"town_outside"`) — the native system returns these when the lord enters a settlement without an explicit player encounter.
+
+- **Primary:** `GenericStateMenuPatch` patches `DefaultEncounterGameMenuModel.GetGenericStateMenu()`. Intercepts menu selection before native activation. Overrides `"castle"`, `"castle_outside"`, `"town"`, `"town_outside"`, `"village"`, `"army_wait"`, `"army_wait_at_settlement"` → returns `"enlisted_status"`. Respects `HasExplicitlyVisitedSettlement` flag (player clicked "Visit Settlement" and should see the native menu).
+- **Fallback:** `OnMenuOpened` event handler in `EnlistedMenuBehavior.cs`. Catches menus that bypass the Harmony patch. Same menu IDs. Defers override via `NextFrameDispatcher`.
+
+If a new menu is added that should be blocked while enlisted, add its ID to **both** layers.
+
 ---
 
 ## Platform notes (Windows + WSL)

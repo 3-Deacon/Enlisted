@@ -11,7 +11,7 @@
        - Battle AI runs as separate SubModule that users can disable in launcher
        - No performance cost when disabled (SubModule never initializes)
        
-       See docs/BLUEPRINT.md for complete documentation.
+       See docs/Archive/BLUEPRINT-2026-04-archived.md for complete documentation.
        ======================================================================== -->
   
   <PropertyGroup>

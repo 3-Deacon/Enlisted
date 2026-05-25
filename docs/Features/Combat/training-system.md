@@ -4,7 +4,7 @@
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-22  
-**Related Docs:** [Enlistment](../Core/enlistment.md), [Storylet Backbone](../Content/storylet-backbone.md)
+**Related Docs:** [Enlistment](../Enlistment/enlistment.md), [Storylet Backbone](../Content/storylet-backbone.md)
 
 ---
 

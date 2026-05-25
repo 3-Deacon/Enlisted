@@ -12,7 +12,7 @@
 
 **Status:** Current for `development`; legacy historical sections below are retained for context.
 **Last Updated:** 2026-04-24 (typed dispatch fields + plan incorporation)
-**Related Docs:** [Core Gameplay](../Core/core-gameplay.md), [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), [Order Progression System](../Core/order-progression-system.md), [Storylet Backbone](../Content/storylet-backbone.md), [Career Loop](../Content/career-loop.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Campaign/camp-routine-schedule-spec.md), [Menu + Duty Unification Spec](../../superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md)
+**Related Docs:** Core Gameplay, [UI Systems Master](ui-systems-master.md), [Color Scheme](color-scheme.md), Order Progression System, [Storylet Backbone](../Content/storylet-backbone.md), [Career Loop](../Content/career-loop.md), [Injury System](../Content/injury-system.md), [Camp Routine Schedule](../Camp/camp-routine-schedule-spec.md), [Menu + Duty Unification Spec](../../superpowers/specs/2026-04-24-enlisted-menu-duty-unification-design.md)
 
 ---
 

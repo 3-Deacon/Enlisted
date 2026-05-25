@@ -4,7 +4,7 @@
 
 **Status:** 📋 Specification (Partial Implementation)  
 **Last Updated:** 2025-12-23  
-**Related Docs:** [Retinue System](../Core/retinue-system.md), [Training System](../Combat/training-system.md)
+**Related Docs:** [Retinue System](../Retinue/retinue-system.md), [Training System](../Combat/training-system.md)
 
 > **Implementation Status:**
 > - ✅ **Implemented:** Basic retinue (T7: 20, T8: 30, T9: 40 soldiers), formation type selection, trickle replenishment, requisition, casualty tracking

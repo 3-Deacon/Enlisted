@@ -1,6 +1,6 @@
 # Enlisted Technical Reference
 
-Detailed technical specifications for the Enlisted mod codebase. For project overview and quick-start, see [BLUEPRINT.md](../docs/BLUEPRINT.md).
+Detailed technical specifications for the Enlisted mod codebase. For project overview and quick-start, see [BLUEPRINT.md](../docs/Archive/BLUEPRINT-2026-04-archived.md).
 
 ---
 
@@ -365,7 +365,7 @@ Solution-level ReSharper configuration:
 
 ## Related Documentation
 
-- [BLUEPRINT.md](../docs/BLUEPRINT.md) - Project overview and standards
+- [BLUEPRINT.md](../docs/Archive/BLUEPRINT-2026-04-archived.md) - Project overview and standards
 - [INDEX.md](../docs/INDEX.md) - Complete documentation catalog
 - [Tools/README.md](README.md) - Development tools reference
 - [native-apis.md](../docs/Reference/native-apis.md) - Bannerlord API snippets
