@@ -602,7 +602,7 @@ namespace Enlisted.Features.Content
                     var skill = SkillCheckHelper.GetSkillByName(skillXp.Key);
                     if (skill != null)
                     {
-                        hero.AddSkillXp(skill, skillXp.Value);
+                        hero.HeroDeveloper.AddSkillXp(skill, skillXp.Value, isAffectedByFocusFactor: false);
                         totalSkillXpAwarded += skillXp.Value;
                         feedbackMessages.Add($"+{skillXp.Value} {skillXp.Key} XP");
                         ModLogger.Debug(LogCategory, $"Applied {skillXp.Value} XP to {skillXp.Key}");
@@ -638,7 +638,7 @@ namespace Enlisted.Features.Content
 
                     if (targetSkill != null)
                     {
-                        hero.AddSkillXp(targetSkill, dynamicXp.Value);
+                        hero.HeroDeveloper.AddSkillXp(targetSkill, dynamicXp.Value, isAffectedByFocusFactor: false);
                         totalSkillXpAwarded += dynamicXp.Value;
                         ModLogger.Debug(LogCategory,
                             $"Applied dynamic {dynamicXp.Key} XP from effects: +{dynamicXp.Value} {targetSkill.Name}");
@@ -2414,7 +2414,7 @@ namespace Enlisted.Features.Content
                             modifiedXp = 1;
                         }
 
-                        hero.AddSkillXp(skill, modifiedXp);
+                        hero.HeroDeveloper.AddSkillXp(skill, modifiedXp, isAffectedByFocusFactor: false);
                         totalSkillXpAwarded += modifiedXp;
                         rewardMessages.Add($"+{modifiedXp} {skillXp.Key} XP");
 
@@ -2464,7 +2464,7 @@ namespace Enlisted.Features.Content
 
                     if (targetSkill != null)
                     {
-                        hero.AddSkillXp(targetSkill, dynamicXp.Value);
+                        hero.HeroDeveloper.AddSkillXp(targetSkill, dynamicXp.Value, isAffectedByFocusFactor: false);
                         totalSkillXpAwarded += dynamicXp.Value;
                         rewardMessages.Add($"+{dynamicXp.Value} {targetSkill.Name} XP");
                         ModLogger.Debug(LogCategory,

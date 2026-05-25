@@ -102,12 +102,23 @@ Defer diagnostic reads to `OnSessionLaunchedEvent` (see
 
 ## Pitfall: News-feed throttle silent at >4x speed
 
-`OrdersNewsFeedThrottle.TryClaim()` is designed to reject when
-`Campaign.Current.TimeControlMode == SpeedUpMultiplier` with the multiplier
-above 4x — news feed entries at extreme fast-forward would flood. This is
-intentional silence, not a bug. When smoke-testing the Orders surface, run
-at 1x–4x to see news output; tick-driven `ModLogger` entries (DRIFT,
+`OrdersNewsFeedThrottle.TryClaim()` is designed to reject at extreme
+fast-forward speeds — news feed entries at extreme fast-forward would flood.
+This is intentional silence, not a bug. When smoke-testing the Orders surface,
+run at 1x–4x to see news output; tick-driven `ModLogger` entries (DRIFT,
 DUTYPROFILE heartbeats, PATH heartbeats) still log at any speed.
+
+API note: `Campaign.Current.TimeControlMode` is a `CampaignTimeControlMode`
+enum (values: `UnstoppableFastForward`, `StoppableFastForward`, `FastForward`,
+`Stop`, `StoppablePlay`, `UnstoppablePlay`). `Campaign.Current.SpeedUpMultiplier`
+is a separate `float` property (default `4f`). The throttle condition should
+test something like:
+```csharp
+Campaign.Current.TimeControlMode == CampaignTimeControlMode.StoppableFastForward
+    && Campaign.Current.SpeedUpMultiplier > 4f
+```
+Do NOT write `TimeControlMode == SpeedUpMultiplier` — that is a type-mismatch
+(enum vs float) that would never compile.
 
 ---
 

@@ -65,6 +65,16 @@ without audit.
 
 ---
 
+## Hero/Skill XP gotchas
+
+- **`Hero.AddSkillXp(skill, xp)` 2-arg form** decrements the hero's unspent focus pool and fires level-up events — it is NOT quiet. For background XP awards (events, scripted effects, daily drift) use `hero.HeroDeveloper.AddSkillXp(skill, xp, isAffectedByFocusFactor: false)`.
+
+- **`TraitLevelingHelper.AddTraitXp` / `OnIncidentResolved`** are `private`/internal and route through `Campaign.Current.PlayerTraitDeveloper` — MainHero only. For non-player heroes use `Hero.SetTraitLevel(trait, level)` directly.
+
+- **`DefaultTraits.Tracking`** is catalogued in `DefaultTraits` but has no public static accessor in v1.3.13. Use `MBObjectManager.Instance.GetObject<TraitObject>("Tracking")` to resolve it at runtime. The same applies to any trait not exposed as a static property — confirm against `Decompile/TaleWorlds.CampaignSystem/DefaultTraits.cs` before assuming a static exists.
+
+---
+
 ## See also
 
 - [EnlistedSaveDefiner.cs](EnlistedSaveDefiner.cs) — the live offset registry

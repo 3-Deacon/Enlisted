@@ -283,7 +283,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            Hero.MainHero?.AddSkillXp(skillObj, amount);
+            Hero.MainHero?.HeroDeveloper.AddSkillXp(skillObj, amount, isAffectedByFocusFactor: false);
         }
 
         private static void DoGiveGold(EffectDecl eff)
