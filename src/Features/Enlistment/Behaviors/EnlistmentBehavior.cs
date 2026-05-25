@@ -10068,7 +10068,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // 5. Place in lord's party (stays in baggage train)
                 if (_enlistedLord.PartyBelongedTo != null)
                 {
-                    qm.ChangeHeroGold(-qm.Gold); // Remove default gold
+                    qm.ChangeHeroGold(-qm.Gold); // Silent: NPC initialization, not a player-facing transaction
                     EnterSettlementAction.ApplyForCharacterOnly(qm, birthSettlement);
                 }
 
@@ -10809,7 +10809,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             // Deduct gold
-            Hero.MainHero.ChangeHeroGold(-effectiveCost);
+            GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, null, effectiveCost);
 
             // Set quality and duration
             _currentFoodQuality = (int)tier;
@@ -10985,7 +10985,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             // Deduct gold
-            Hero.MainHero.ChangeHeroGold(-cost);
+            GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, null, cost);
 
             // Set provisioning tier and duration (7 days)
             _retinueProvisioningTier = (int)tier;

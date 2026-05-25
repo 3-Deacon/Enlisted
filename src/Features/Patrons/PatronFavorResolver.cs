@@ -4,6 +4,7 @@ using Enlisted.Mod.Core.Helpers;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
 
 namespace Enlisted.Features.Patrons
@@ -51,6 +52,12 @@ namespace Enlisted.Features.Patrons
 
             entry.SetCooldown(kind, CampaignTime.DaysFromNow(GetCooldownDays(kind)));
             entry.LastFavorRequestedOn = CampaignTime.Now;
+
+            // Populate PATRON_NAME before firing the storylet so patron_*.json title/setup
+            // text interpolates correctly. The dialog condition in EnlistedDialogManager also
+            // sets this via SetPatronConversationVariables, but the bag is process-global and
+            // may have stale data if this path is reached outside a live conversation frame.
+            MBTextManager.SetTextVariable("PATRON_NAME", hero.Name?.ToString() ?? "the lord");
 
             var ctx = new StoryletContext
             {

@@ -187,17 +187,23 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     return;
                 }
 
-                // Override army_wait, army_wait_at_settlement, and settlement menus to stay on enlisted menu
-                // This prevents unwanted menu switches when the player hasn't explicitly chosen to visit
-                // Settlement menus (town/castle/village) should only appear when player clicks "Visit Settlement"
-                // Includes both inside ("castle", "town") and outside ("castle_outside", "town_outside") menus
+                // Override army_wait, army_wait_at_settlement, and settlement menus to stay on enlisted menu.
+                // This prevents unwanted menu switches when the player hasn't explicitly chosen to visit.
+                // Settlement menus (town/castle/village) should only appear when player clicks "Visit Settlement".
+                // Includes inside, outside, wait, and naval variants returned by GetGenericStateMenu().
+                // naval_town_outside fires when IsCurrentlyAtSea (Naval DLC) — suppress the same as town_outside.
+                // town_wait_menus / village_wait_menus fire on PlayerEncounter.IsPlayerWaiting inside settlements.
+                // village_outside is NOT included — it is only returned by GetEncounterMenu, not GetGenericStateMenu.
                 if (__result == "army_wait" ||
                     __result == "army_wait_at_settlement" ||
                     __result == "town" ||
                     __result == "town_outside" ||
+                    __result == "town_wait_menus" ||
                     __result == "castle" ||
                     __result == "castle_outside" ||
-                    __result == "village")
+                    __result == "village" ||
+                    __result == "village_wait_menus" ||
+                    __result == "naval_town_outside")
                 {
                     ModLogger.Info("MenuGuard", $"MENU OVERRIDE: '{__result}' -> 'enlisted_status' (keeping enlisted menu)");
                     __result = "enlisted_status";

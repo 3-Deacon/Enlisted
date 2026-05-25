@@ -4647,12 +4647,24 @@ namespace Enlisted.Features.Conversations.Behaviors
             }
         }
 
-        private bool PatronAcknowledgeCondition()
+        /// <summary>
+        /// Sets PATRON_NAME in the text-variable bag from the current conversation hero.
+        /// Must be called from every patron dialog condition so the token is always
+        /// fresh — the bag is process-global and stale values silently mis-render.
+        /// Model after SetCommonDialogueVariables for the same discipline applied to
+        /// PLAYER_NAME / PLAYER_RANK / LORD_NAME.
+        /// </summary>
+        private static void SetPatronConversationVariables()
         {
-            SetCommonDialogueVariables();
             var target = Hero.OneToOneConversationHero;
             var patronName = target?.Name?.ToString() ?? "the lord";
             MBTextManager.SetTextVariable("PATRON_NAME", patronName);
+        }
+
+        private bool PatronAcknowledgeCondition()
+        {
+            SetCommonDialogueVariables();
+            SetPatronConversationVariables();
             return true;
         }
 
@@ -4692,6 +4704,7 @@ namespace Enlisted.Features.Conversations.Behaviors
 
         private bool PatronFavorOptionCondition(FavorKind kind)
         {
+            SetPatronConversationVariables();
             var entry = PatronAudienceExtension.GetEntryForTarget();
             return entry != null && PatronFavorResolver.IsKindAvailable(entry, kind);
         }

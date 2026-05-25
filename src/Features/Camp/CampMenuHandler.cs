@@ -2775,7 +2775,7 @@ namespace Enlisted.Features.Camp
             }
 
             // Pay the bribe
-            hero.ChangeHeroGold(-50);
+            GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, null, 50);
 
             // Roll for success/caught
             var successChance = 70; // 70% chance of success
@@ -2784,7 +2784,7 @@ namespace Enlisted.Features.Camp
             if (roll < successChance)
             {
                 // Success - gain more than you paid
-                hero.ChangeHeroGold(70);
+                GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, 70);
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=dm_bribe_success}The clerk adjusts the records in your favor. You gain 20 gold net.").ToString(),
                     Colors.Green));
@@ -2818,7 +2818,7 @@ namespace Enlisted.Features.Camp
             }
 
             // Gain supplies (as gold equivalent)
-            hero.ChangeHeroGold(30);
+            GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, 30);
 
             InformationManager.DisplayMessage(new InformationMessage(
                 new TextObject("{=dm_skim_success}You quietly divert some supplies for yourself. +30 gold worth of goods.").ToString(),
@@ -2854,7 +2854,7 @@ namespace Enlisted.Features.Camp
             var tier = enlistment?.EnlistmentTier ?? 1;
             var goldGain = tier * 25; // 25-225 gold based on tier
 
-            Hero.MainHero.ChangeHeroGold(goldGain);
+            GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, goldGain);
 
             InformationManager.DisplayMessage(new InformationMessage(
                 new TextObject("{=dm_sell_gear_success}You sell some of your issued equipment for {GOLD} gold. You'll need to replace it...")
@@ -2992,7 +2992,7 @@ namespace Enlisted.Features.Camp
             ReducePayTension(25);
 
             // Gain some gold personally
-            hero.ChangeHeroGold(50);
+            GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, 50);
 
             ModLogger.Info(LogCategory, "Volunteer raid mission");
             SwitchToMenuPreserveTime(HelpTheLordMenuId);

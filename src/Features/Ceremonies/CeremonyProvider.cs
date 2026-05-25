@@ -122,6 +122,10 @@ namespace Enlisted.Features.Ceremonies
             };
 
             var witnesses = CeremonyWitnessSelector.GetWitnessesForCeremony(newTier);
+            // REGRESSION GUARD: ModalEventBuilder.FireCeremony (src/Mod.Core/Helpers/ModalEventBuilder.cs)
+            // must NOT call IsEligible between BuildModal and DrainPendingEffects, or these
+            // pre-populated ResolvedSlots will be overwritten silently by SlotFiller.Resolve.
+            // Cross-check FireCeremony() if this guard ever needs updating.
             foreach (var kv in witnesses)
             {
                 ctx.ResolvedSlots[kv.Key] = kv.Value;
