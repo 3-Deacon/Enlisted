@@ -6,6 +6,7 @@ using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
@@ -107,18 +108,24 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float DailyBeingAtArmyInfluenceAward(MobileParty armyMemberParty) =>
             BaseModel?.DailyBeingAtArmyInfluenceAward(armyMemberParty) ?? 0f;
 
-        public override List<MobileParty> GetMobilePartiesToCallToArmy(MobileParty leaderParty)
+        public override bool CanLordCreateArmy(MobileParty leaderParty, out MBList<MobileParty> mobileParties)
         {
             if (BaseModel == null)
             {
                 ModLogger.Surfaced("INTELAI", "base_model_missing");
-                return new List<MobileParty>();
+                mobileParties = new MBList<MobileParty>();
+                return false;
             }
-            var vanilla = BaseModel.GetMobilePartiesToCallToArmy(leaderParty);
+
+            bool vanillaCanCreate = BaseModel.CanLordCreateArmy(leaderParty, out mobileParties);
+            if (!vanillaCanCreate || mobileParties == null)
+            {
+                return vanillaCanCreate;
+            }
 
             if (!EnlistedAiGate.TryGetSnapshotForParty(leaderParty, out var snapshot))
             {
-                return vanilla;
+                return vanillaCanCreate;
             }
 
             // Only bias when the enlisted lord would BE the army leader. If
@@ -127,7 +134,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             if (!EnlistedAiGate.IsEnlistedLordArmyLeader()
                 && EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo != leaderParty)
             {
-                return vanilla;
+                return vanillaCanCreate;
             }
 
             try
@@ -138,32 +145,34 @@ namespace Enlisted.Features.CampaignIntelligence.Models
 
                 if (strained)
                 {
-                    EnlistedAiBiasHeartbeat.Record("call_to_army_suppressed", vanilla.Count, 0);
-                    return new List<MobileParty>();
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_suppressed", mobileParties.Count, 0);
+                    mobileParties = new MBList<MobileParty>();
+                    return false;
                 }
 
                 // Front pressure without full strain: trim the list to half so
                 // the lord calls a smaller, closer army rather than a sprawling
                 // one. Preserve ordering — vanilla list is strength-weighted at
                 // DefaultArmyManagementCalculationModel.cs:178-204.
-                if (snapshot.FrontPressure >= FrontPressure.High && vanilla.Count > 2)
+                if (snapshot.FrontPressure >= FrontPressure.High && mobileParties.Count > 2)
                 {
-                    int trimTarget = Math.Max(2, vanilla.Count / 2);
-                    var trimmed = new List<MobileParty>(trimTarget);
-                    for (int i = 0; i < trimTarget && i < vanilla.Count; i++)
+                    int originalCount = mobileParties.Count;
+                    int trimTarget = Math.Max(2, originalCount / 2);
+                    var trimmed = new MBList<MobileParty>();
+                    for (int i = 0; i < trimTarget && i < mobileParties.Count; i++)
                     {
-                        trimmed.Add(vanilla[i]);
+                        trimmed.Add(mobileParties[i]);
                     }
-                    EnlistedAiBiasHeartbeat.Record("call_to_army_trimmed", vanilla.Count, trimmed.Count);
-                    return trimmed;
+                    mobileParties = trimmed;
+                    EnlistedAiBiasHeartbeat.Record("call_to_army_trimmed", originalCount, mobileParties.Count);
                 }
 
-                return vanilla;
+                return mobileParties.Count > 0;
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("INTELAI", "call_to_army_bias_failed", ex);
-                return vanilla;
+                return vanillaCanCreate;
             }
         }
 
