@@ -27,7 +27,9 @@ namespace Enlisted.Features.Activities.Orders
         };
 
         private int _lastHourlyHeartbeatTick = int.MinValue / 2;
+        private int _lastForcedSummaryDayNumber = int.MinValue;
         private const int HOURLY_HEARTBEAT_INTERVAL = 12;
+        private const int FORCED_SUMMARY_PENDING_SKILL_THRESHOLD = 6;
 
         public override void RegisterEvents()
         {
@@ -35,7 +37,10 @@ namespace Enlisted.Features.Activities.Orders
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
         }
 
-        public override void SyncData(IDataStore dataStore) { }
+        public override void SyncData(IDataStore dataStore)
+        {
+            _ = dataStore.SyncData("drift_lastForcedSummaryDayNumber", ref _lastForcedSummaryDayNumber);
+        }
 
         private void OnDailyTick()
         {
@@ -130,7 +135,16 @@ namespace Enlisted.Features.Activities.Orders
                     return;
                 }
 
-                FlushSummary(activity);
+                var emitted = FlushSummary(activity);
+                if (!emitted && activity.DriftPendingXp.Count >= FORCED_SUMMARY_PENDING_SKILL_THRESHOLD)
+                {
+                    var dayNumber = (int)CampaignTime.Now.ToDays;
+                    if (dayNumber != _lastForcedSummaryDayNumber)
+                    {
+                        _lastForcedSummaryDayNumber = dayNumber;
+                        ForceFlushSummary(activity, "pending_threshold");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -138,7 +152,26 @@ namespace Enlisted.Features.Activities.Orders
             }
         }
 
-        private static void FlushSummary(OrderActivity activity)
+        public static bool TryFlushCurrentSummary(string reason)
+        {
+            try
+            {
+                var activity = OrderActivity.Instance;
+                if (activity?.DriftPendingXp == null || activity.DriftPendingXp.Count == 0)
+                {
+                    return false;
+                }
+
+                return ForceFlushSummary(activity, reason);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DRIFT", "TryFlushCurrentSummary threw", ex);
+                return false;
+            }
+        }
+
+        private static bool FlushSummary(OrderActivity activity)
         {
             var pieces = activity.DriftPendingXp
                 .OrderByDescending(kv => kv.Value)
@@ -168,18 +201,26 @@ namespace Enlisted.Features.Activities.Orders
             {
                 // Boot-ordering fallback: emitter not yet registered. Direct
                 // Log-tier emit preserves the pre-T14 delivery contract.
-                StoryDirector.Instance?.EmitCandidate(new StoryCandidate
+                var director = StoryDirector.Instance;
+                if (director != null)
                 {
-                    SourceId = "orders.drift.summary",
-                    CategoryId = "orders.drift",
-                    ProposedTier = StoryTier.Log,
-                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
-                    EmittedAt = CampaignTime.Now,
-                    RenderedTitle = "Service notes",
-                    RenderedBody = summary,
-                    StoryKey = "orders_drift_summary"
-                });
-                emitted = true;
+                    director.EmitCandidate(new StoryCandidate
+                    {
+                        SourceId = "orders.drift.summary",
+                        CategoryId = "orders.drift",
+                        ProposedTier = StoryTier.Log,
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                        EmittedAt = CampaignTime.Now,
+                        RenderedTitle = "Service notes",
+                        RenderedBody = summary,
+                        StoryKey = "orders_drift_summary"
+                    });
+                    emitted = true;
+                }
+                else
+                {
+                    emitted = false;
+                }
             }
 
             if (emitted)
@@ -187,6 +228,48 @@ namespace Enlisted.Features.Activities.Orders
                 activity.DriftPendingXp.Clear();
                 ModLogger.Info("DRIFT", "flushed summary via signals: " + summary);
             }
+
+            return emitted;
+        }
+
+        private static bool ForceFlushSummary(OrderActivity activity, string reason)
+        {
+            if (activity?.DriftPendingXp == null || activity.DriftPendingXp.Count == 0)
+            {
+                return false;
+            }
+
+            var pieces = activity.DriftPendingXp
+                .OrderByDescending(kv => kv.Value)
+                .Take(4)
+                .Select(kv =>
+                {
+                    var name = MBObjectManager.Instance.GetObject<SkillObject>(kv.Key)?.Name?.ToString();
+                    return $"{name ?? kv.Key} +{kv.Value}";
+                });
+            var summary = "Daily duties: " + string.Join(", ", pieces) + " XP.";
+
+            var director = StoryDirector.Instance;
+            if (director == null)
+            {
+                return false;
+            }
+
+            director.EmitCandidate(new StoryCandidate
+            {
+                SourceId = "orders.drift.summary",
+                CategoryId = "orders.drift",
+                ProposedTier = StoryTier.Log,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
+                EmittedAt = CampaignTime.Now,
+                RenderedTitle = "Daily duties",
+                RenderedBody = summary,
+                StoryKey = "orders_drift_summary"
+            });
+
+            activity.DriftPendingXp.Clear();
+            ModLogger.Info("DRIFT", $"forced summary flush ({reason}): {summary}");
+            return true;
         }
     }
 }

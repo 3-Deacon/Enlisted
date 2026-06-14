@@ -3382,8 +3382,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 var freshlyEnlisted = enlistment?.DaysServed < 1f;
                 if (companyNeeds != null)
                 {
-                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 85;
+                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 90;
                     var suppliesLow = companyNeeds.Supplies < 40;
+                    var suppliesConcerning = companyNeeds.Supplies < 85;
 
                     // Only show hunger warnings when supplies are actually concerning
                     if (companyNeeds.Supplies < 20)
@@ -3405,10 +3406,10 @@ namespace Enlisted.Features.Interface.Behaviors
                             "Supply",
                             $"Player Status: Logistics warning (supplies={companyNeeds.Supplies}%, logisticsStrain={logisticsValue:F0})");
                     }
-                    else if (logisticsHigh)
+                    else if (logisticsHigh && suppliesConcerning)
                     {
                         var logisticsValue = campLife?.LogisticsStrain ?? 0f;
-                        sentences.Add("<span style=\"Alert\">The baggage train is overworked.</span> Stores remain adequate, but hard marching and recent disruption are wearing down the company train.");
+                        sentences.Add("<span style=\"Warning\">The baggage train is overworked.</span> Stores remain usable, but hard marching and recent disruption are wearing down the company train.");
                         ModLogger.LogOnce(
                             $"PlayerStatus_LogisticsStrain_Day{(int)CampaignTime.Now.ToDays}",
                             "Supply",

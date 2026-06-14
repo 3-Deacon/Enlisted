@@ -23,6 +23,10 @@ namespace Enlisted.Features.Activities.Orders
             EnlistmentBehavior.OnEnlisted += OnEnlistedStartActivity;
             EnlistmentBehavior.OnEnlistmentEnded -= OnEnlistmentEnded;
             EnlistmentBehavior.OnEnlistmentEnded += OnEnlistmentEnded;
+            EnlistmentBehavior.OnLeaveStarted -= OnLeaveStarted;
+            EnlistmentBehavior.OnLeaveStarted += OnLeaveStarted;
+            EnlistmentBehavior.OnLeaveEnded -= OnLeaveEnded;
+            EnlistmentBehavior.OnLeaveEnded += OnLeaveEnded;
         }
 
         public override void SyncData(IDataStore dataStore) { }
@@ -84,6 +88,41 @@ namespace Enlisted.Features.Activities.Orders
                     $"ActivityRuntime.Start returned but OrderActivity.Instance is still null; reason={reason}");
             }
             return started;
+        }
+
+
+        private static void OnLeaveStarted()
+        {
+            try
+            {
+                DailyDriftApplicator.TryFlushCurrentSummary("leave_started");
+
+                var activity = OrderActivity.Instance;
+                if (activity != null)
+                {
+                    ActivityRuntime.Instance?.Stop(activity, ActivityEndReason.Interrupted);
+                    ModLogger.Info("LORDSTATE", "OrderActivity suspended for temporary leave");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("LORDSTATE", "OnLeaveStarted activity suspension threw", ex);
+            }
+        }
+
+        private static void OnLeaveEnded()
+        {
+            try
+            {
+                if (EnlistmentBehavior.Instance?.IsEnlisted == true)
+                {
+                    StartOrderActivityIfNeeded("leave_ended");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("LORDSTATE", "OnLeaveEnded activity restart threw", ex);
+            }
         }
 
         private void OnClanChangedKingdom(Clan clan, Kingdom oldKingdom, Kingdom newKingdom, ChangeKingdomAction.ChangeKingdomActionDetail detail, bool showNotification)

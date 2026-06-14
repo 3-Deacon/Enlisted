@@ -12785,15 +12785,27 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         ModLogger.Debug("BATTLE", "Skipping battle XP - player waited in reserve");
                     }
 
-                    // Determine if this was a siege battle - affects cleanup strategy
-                    // CRITICAL: EventType == Siege covers auto-resolved sieges (where IsSiegeAssault is false).
-                    // IsSiegeAssault/IsSallyOut are only true for manually-fought siege battles.
-                    bool wasSiege = effectiveMapEvent?.EventType == MapEvent.BattleTypes.Siege ||
-                                   effectiveMapEvent?.IsSiegeAssault == true ||
-                                   effectiveMapEvent?.IsSallyOut == true ||
-                                   effectiveMapEvent?.IsSiegeOutside == true ||
-                                   lordParty?.BesiegedSettlement != null ||
-                                   main?.BesiegedSettlement != null;
+                    // Determine if this was a siege battle - affects cleanup strategy.
+                    // SiegeOutside is a field battle near a siege; it does not always carry BesiegerCamp.
+                    // Route that case through normal field cleanup instead of warning as broken siege integration.
+                    bool isSiegeOutsideOnly = effectiveMapEvent?.IsSiegeOutside == true &&
+                                              effectiveMapEvent?.EventType != MapEvent.BattleTypes.Siege &&
+                                              effectiveMapEvent?.IsSiegeAssault != true &&
+                                              effectiveMapEvent?.IsSallyOut != true &&
+                                              lordParty?.BesiegedSettlement == null &&
+                                              main?.BesiegedSettlement == null;
+                    bool wasSiege = !isSiegeOutsideOnly &&
+                                    (effectiveMapEvent?.EventType == MapEvent.BattleTypes.Siege ||
+                                     effectiveMapEvent?.IsSiegeAssault == true ||
+                                     effectiveMapEvent?.IsSallyOut == true ||
+                                     lordParty?.BesiegedSettlement != null ||
+                                     main?.BesiegedSettlement != null);
+
+                    if (isSiegeOutsideOnly)
+                    {
+                        ModLogger.Info("SiegeIntegration",
+                            "SiegeOutside battle ended without active BesiegerCamp; using field battle cleanup");
+                    }
 
                     if (wasSiege)
                     {
@@ -12817,8 +12829,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         }
                         else
                         {
-                            ModLogger.Warn("SiegeIntegration",
-                                "OnMapEventEnded: BesiegerCamp was null at siege end - integration may have been broken");
+                            ModLogger.Info("SiegeIntegration",
+                                "Siege aftermath ended without BesiegerCamp; continuing safe enlisted cleanup");
                         }
 
                         // Give native a frame to process aftermath before we clean up

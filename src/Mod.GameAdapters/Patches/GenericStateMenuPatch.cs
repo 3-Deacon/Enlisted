@@ -128,12 +128,12 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // even when the lord just enters a settlement (not when player clicks Visit).
                 var hasExplicitlyVisited = EnlistedMenuBehavior.HasExplicitlyVisitedSettlement;
 
-                if (hasExplicitlyVisited)
+                if (hasExplicitlyVisited && IsSettlementVisitMenu(__result))
                 {
-                    // Player has explicitly clicked "Visit Settlement" - don't override
+                    // Player has explicitly clicked "Visit Settlement" - don't override settlement menus only.
                     LogMenuGuardStateChange(ref _lastNativeMenuAllowSnapshot,
-                        $"explicit|{__result}",
-                        $"ALLOWING native menu '{__result}' - player explicitly visited settlement");
+                        $"explicit_settlement|{__result}",
+                        $"ALLOWING native settlement menu '{__result}' - player explicitly visited settlement");
                     return;
                 }
 
@@ -224,6 +224,15 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 ModLogger.Caught("GenericStateMenuPatch", "Error in GetGenericStateMenu patch", ex);
             }
         }
+        private static bool IsSettlementVisitMenu(string menuId)
+        {
+            return string.Equals(menuId, "town", StringComparison.Ordinal) ||
+                   string.Equals(menuId, "town_outside", StringComparison.Ordinal) ||
+                   string.Equals(menuId, "castle", StringComparison.Ordinal) ||
+                   string.Equals(menuId, "castle_outside", StringComparison.Ordinal) ||
+                   string.Equals(menuId, "village", StringComparison.Ordinal);
+        }
+
         private static void LogMenuGuardStateChange(ref string lastSnapshot, string snapshot, string message)
         {
             if (string.Equals(lastSnapshot, snapshot, StringComparison.Ordinal))
