@@ -274,9 +274,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // Skills.All from TaleWorlds.CampaignSystem.Extensions provides the live registry.
-            var skillObj = Skills.All.FirstOrDefault(
-                s => string.Equals(s.StringId, skill, StringComparison.OrdinalIgnoreCase));
+            var skillObj = ResolveSkillObject(skill);
             if (skillObj == null)
             {
                 ModLogger.Expected("EFFECT", "unknown_skill_" + skill, "Unknown skill id: " + skill);
@@ -284,6 +282,30 @@ namespace Enlisted.Features.Content
             }
 
             Hero.MainHero?.AddSkillXp(skillObj, amount);
+        }
+
+        private static SkillObject ResolveSkillObject(string skill)
+        {
+            if (string.IsNullOrWhiteSpace(skill))
+            {
+                return null;
+            }
+
+            // Bannerlord 1.4.x exposes the smithing skill internally as Crafting.
+            // Content uses the player-facing name Smithing, so keep that alias here
+            // instead of forcing every storylet to leak engine naming.
+            if (string.Equals(skill, "Smithing", StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultSkills.Crafting;
+            }
+
+            if (string.Equals(skill, "Crafting", StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultSkills.Crafting;
+            }
+
+            return Skills.All.FirstOrDefault(
+                s => string.Equals(s.StringId, skill, StringComparison.OrdinalIgnoreCase));
         }
 
         private static void DoGiveGold(EffectDecl eff)
@@ -333,7 +355,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            var skill = ResolveSkillObject(skillId) ?? MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
                 ModLogger.Expected("EFFECT", "grant_skill_level_skill_not_found", $"grant_skill_level: skill='{skillId}' not in catalog");
@@ -359,7 +381,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            var skill = ResolveSkillObject(skillId) ?? MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
                 ModLogger.Expected("EFFECT", "grant_focus_point_skill_not_found", $"grant_focus_point: skill='{skillId}' not in catalog");

@@ -2381,7 +2381,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     // Supplies with logistics strain context
                     // Only show "stretched thin" if logistics is strained AND supplies are actually concerning
-                    var logisticsHigh = campLife?.LogisticsStrain > 60;
+                    var logisticsHigh = campLife?.LogisticsStrain > 75;
                     var suppliesLow = companyNeeds.Supplies < 50;
 
                     // Diagnostic: Log supply status computation for troubleshooting news vs QM discrepancies
@@ -2390,7 +2390,7 @@ namespace Enlisted.Features.Interface.Behaviors
                         $"SupplyStatus_Day{(int)CampaignTime.Now.ToDays}",
                         "Supply",
                         $"Company Reports: Supplies={companyNeeds.Supplies}%, LogisticsStrain={logisticsValue:F0} (lower is better), " +
-                        $"ShowStretchedThin={logisticsHigh && suppliesLow} (requires both logisticsStrain>60 AND supplies<50)");
+                        $"ShowStretchedThin={logisticsHigh && suppliesLow} (requires both logisticsStrain>75 AND supplies<50)");
 
                     if (logisticsHigh && suppliesLow)
                     {
@@ -3382,7 +3382,7 @@ namespace Enlisted.Features.Interface.Behaviors
                 var freshlyEnlisted = enlistment?.DaysServed < 1f;
                 if (companyNeeds != null)
                 {
-                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 70;
+                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 85;
                     var suppliesLow = companyNeeds.Supplies < 40;
 
                     // Only show hunger warnings when supplies are actually concerning
@@ -3408,7 +3408,7 @@ namespace Enlisted.Features.Interface.Behaviors
                     else if (logisticsHigh)
                     {
                         var logisticsValue = campLife?.LogisticsStrain ?? 0f;
-                        sentences.Add("<span style=\"Alert\">The supply train is strained.</span> Stores remain adequate, but the company needs a proper stop soon.");
+                        sentences.Add("<span style=\"Alert\">The baggage train is overworked.</span> Stores remain adequate, but hard marching and recent disruption are wearing down the company train.");
                         ModLogger.LogOnce(
                             $"PlayerStatus_LogisticsStrain_Day{(int)CampaignTime.Now.ToDays}",
                             "Supply",

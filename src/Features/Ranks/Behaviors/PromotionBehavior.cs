@@ -138,13 +138,14 @@ namespace Enlisted.Features.Ranks.Behaviors
         /// </summary>
         private static string GetProvingEventId(int fromTier, int toTier)
         {
-            // Event IDs follow the pattern: promotion_t{from}_t{to}_*
-            // T1→T2 has no proving event; uses direct promotion (formation is equipment-based now)
+            // Event IDs follow the pattern: promotion_t{from}_t{to}_*.
+            // T1→T2 intentionally uses direct promotion; formation is now equipment/loadout-based.
             return fromTier switch
             {
+                1 => null,
                 2 => "promotion_t2_t3_sergeants_test",
                 3 => "promotion_t3_t4_crisis_of_command",
-                4 => "promotion_t4_t5_veterans_vote",
+                4 => "promotion_t4_t5_squad_vote",
                 5 => "promotion_t5_t6_lord_audience",
                 6 => "promotion_t6_t7_commanders_commission",
                 _ => $"promotion_t{fromTier}_t{toTier}" // Fallback pattern
@@ -364,8 +365,16 @@ namespace Enlisted.Features.Ranks.Behaviors
 
                 _pendingPromotionTier = targetTier;
 
-                // Try to queue the proving event
+                // Try to queue the proving event, except for tier transitions that are
+                // explicitly direct promotions.
                 var eventId = GetProvingEventId(currentTier, targetTier);
+                if (string.IsNullOrEmpty(eventId))
+                {
+                    ModLogger.Info("Promotion", $"Direct promotion path for T{currentTier} to T{targetTier} - no proving event required");
+                    FallbackDirectPromotion(targetTier, enlistment);
+                    return;
+                }
+
                 var provingEvent = Content.EventCatalog.GetEventById(eventId);
 
                 if (provingEvent != null)
@@ -403,8 +412,8 @@ namespace Enlisted.Features.Ranks.Behaviors
                 }
                 else
                 {
-                    // Fallback to direct promotion if event not in catalog
-                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found - using direct promotion");
+                    // Fallback to direct promotion if optional proving content is absent.
+                    ModLogger.Info("Promotion", $"Optional proving event '{eventId}' not found - using direct promotion");
                     FallbackDirectPromotion(targetTier, enlistment);
                 }
             }

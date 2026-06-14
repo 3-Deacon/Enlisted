@@ -888,8 +888,15 @@ namespace Enlisted.Mod.Core.Logging
                     }
 
                     WriteLine();
-                    WriteLine("  RECOMMENDATION: Verify game files or reinstall the mod.");
-                    WriteLine("  Fallback systems may activate for missing content.");
+                    if (issues.Count > 0)
+                    {
+                        WriteLine("  RECOMMENDATION: Verify game files or reinstall the mod.");
+                        WriteLine("  Fallback systems may activate for missing content.");
+                    }
+                    else
+                    {
+                        WriteLine("  RECOMMENDATION: Review warnings. Optional legacy content may be intentionally absent.");
+                    }
                 }
             }
             catch (Exception ex)
