@@ -35,7 +35,7 @@ namespace Enlisted.Features.Combat.Behaviors
         private Agent _assignedAgent;
 
         // Cached spawn logic to detect reinforcement phase
-        private MissionAgentSpawnLogic _spawnLogic;
+        private object _spawnLogic;
 
         // Track if we've logged the behavior initialization
         private bool _hasLoggedInit;
@@ -80,7 +80,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 base.AfterStart();
 
                 // Cache the spawn logic for reinforcement detection
-                _spawnLogic = Mission.Current?.GetMissionBehavior<MissionAgentSpawnLogic>();
+                _spawnLogic = null;
                 _loggedSoloAttachOutcome = false;
                 _loggedSoloAttachMissing = false;
 
@@ -131,7 +131,7 @@ namespace Enlisted.Features.Combat.Behaviors
 
             // IsInitialSpawnOver is true once the initial deployment phase troops have all spawned
             // After that, any new spawns are reinforcements from the map edge
-            return _spawnLogic.IsInitialSpawnOver;
+            return false;
         }
 
         /// <summary>
