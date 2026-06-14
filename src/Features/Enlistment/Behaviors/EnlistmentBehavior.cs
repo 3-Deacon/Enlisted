@@ -7463,16 +7463,27 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                         // The player will still participate via PlayerEncounter as crew member on lord's ship
                                         bool isNavalBattle = lordMapEvent.IsNavalMapEvent;
 
-                                        // Determine if we should set MapEventSide to join the battle
-                                        // NOTE: The old code avoided setting MapEventSide for parties with 0 troops,
-                                        // fearing a crash in ApplySimulatedHitRewardToSelectedTroop during auto-sim.
-                                        // However, this prevented enlisted players from joining small battles entirely!
-                                        // The auto-sim crash only occurs if the player uses "Send Troops" with 0 troops,
-                                        // which won't happen in practice - players will use "Attack" for manual combat.
-                                        // By setting MapEventSide, the player properly joins the MapEvent and can participate.
+                                        // Determine if we should set MapEventSide to join the battle.
+                                        // For individual lord battles, a player-only hidden MainParty can report 0 regular
+                                        // members. Forcing that party into MapEventSide during native deployment has been
+                                        // observed to feed unstable formation/spawn state into the engine. Prefer skipping
+                                        // this optional direct-join path over risking a protected-memory crash.
                                         var targetSide = lordSide == BattleSideEnum.Attacker
                                             ? lordMapEvent.AttackerSide
                                             : lordMapEvent.DefenderSide;
+
+                                        int partyTroopCount = mainParty.Party.NumberOfRegularMembers;
+                                        if (!isNavalBattle && partyTroopCount <= 0)
+                                        {
+                                            mainParty.IsActive = false;
+                                            mainParty.IsVisible = false;
+                                            mainParty.MapEventSide = null;
+                                            mainParty.ShouldJoinPlayerBattles = false;
+                                            ModLogger.Info("BATTLE",
+                                                $"Skipped direct individual lord battle join on {lordSide} side because player party has no regular troops; " +
+                                                "avoiding native deployment spawn corruption");
+                                            return;
+                                        }
 
                                         if (isNavalBattle)
                                         {
@@ -7486,7 +7497,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                         {
                                             // Land battle - join the MapEvent on lord's side
                                             mainParty.Party.MapEventSide = targetSide;
-                                            int partyTroopCount = mainParty.Party.NumberOfRegularMembers;
                                             ModLogger.Info("BATTLE",
                                                 $"Joined MapEvent on {lordSide} side (troops: {partyTroopCount}, bypass: {shouldBypassFactionCheck})");
                                         }

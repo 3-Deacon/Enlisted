@@ -31,6 +31,7 @@ namespace Enlisted.Features.Combat.Behaviors
         private const int MaxPositionFixAttempts = 120; // Try for about 2 seconds at 60fps (lord may spawn later)
         private const int MaxPartyAssignmentAttempts = 60; // Try for about 1 second at 60fps for party assignment
         private const int CompanionRemovalDelayTicks = 30; // Delay companion removal to avoid spawn corruption
+        private const int InitialDeploymentDeferLogTicks = 180;
 
         private Agent _assignedAgent;
 
@@ -60,6 +61,12 @@ namespace Enlisted.Features.Combat.Behaviors
         // Logging flags to avoid spamming user-facing logs
         private bool _loggedSoloAttachOutcome;
         private bool _loggedSoloAttachMissing;
+
+        // Initial deployment safety. Native spawn/deployment code is still building formation layouts
+        // while MissionMode is StartUp/Deployment; changing formation membership or teleporting then
+        // can corrupt BatchFormationUnitPositions in native code.
+        private bool _deferredInitialFormationLogged;
+        private int _deferredInitialFormationTicks;
 
         // Deferred companion removal to avoid corrupting spawn state
         // Removing agents during OnAgentBuild can crash the native spawn loop
@@ -324,6 +331,13 @@ namespace Enlisted.Features.Combat.Behaviors
             try
             {
                 base.OnMissionTick(dt);
+
+                if (IsInitialDeploymentUnsafeForFormationMutation("OnMissionTick"))
+                {
+                    LogInitialDeploymentDeferral("OnMissionTick");
+                    return;
+                }
+
                 TryAssignPlayerToFormation("OnMissionTick");
 
                 // Handle position fix for players who may have spawned in wrong location
@@ -372,12 +386,50 @@ namespace Enlisted.Features.Combat.Behaviors
             }
         }
 
+        private static bool IsInitialDeploymentUnsafeForFormationMutation(string caller)
+        {
+            if (caller == "OnDeploymentFinished")
+            {
+                return false;
+            }
+
+            var mode = Mission.Current?.Mode;
+            return mode == MissionMode.StartUp || mode == MissionMode.Deployment;
+        }
+
+        private void LogInitialDeploymentDeferral(string caller)
+        {
+            _deferredInitialFormationTicks++;
+
+            if (!_deferredInitialFormationLogged)
+            {
+                _deferredInitialFormationLogged = true;
+                ModLogger.Info("FORMATIONASSIGNMENT",
+                    $"[{caller}] Deferring formation assignment while native deployment is building spawn positions " +
+                    $"(mode={Mission.Current?.Mode}, agent={Agent.Main != null})");
+                return;
+            }
+
+            if (_deferredInitialFormationTicks == InitialDeploymentDeferLogTicks)
+            {
+                ModLogger.Info("FORMATIONASSIGNMENT",
+                    $"Formation assignment still deferred after {_deferredInitialFormationTicks} ticks " +
+                    $"(mode={Mission.Current?.Mode}, agent={Agent.Main != null})");
+            }
+        }
+
         /// <summary>
         ///     Attempts to assign the player to their designated formation.
         ///     Safe to call multiple times - will only assign once per agent instance.
         /// </summary>
         private void TryAssignPlayerToFormation(string caller, Agent specificAgent = null)
         {
+            if (IsInitialDeploymentUnsafeForFormationMutation(caller))
+            {
+                LogInitialDeploymentDeferral(caller);
+                return;
+            }
+
             // Get the player agent (either specific or Main)
             var playerAgent = specificAgent ?? Agent.Main;
 
