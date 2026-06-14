@@ -4736,7 +4736,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             int supplyLevel = _companyNeeds?.Supplies ?? 100;
 
             // Get QM reputation (now using lord relation instead of officer rep)
-            int qmRep = EscalationManager.Instance?.State?.LordReputation ?? 50;
+            int qmRep = EscalationManager.Instance?.GetCurrentLordRelation(50) ?? 50;
 
             // Get loss/sick counters from news behavior (before reset)
             // These are tracked by EnlistedNewsBehavior from battle events
@@ -4984,7 +4984,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private void IssueNewRation()
         {
             // Get QM reputation (now using lord relation)
-            int qmRep = EscalationManager.Instance?.State?.LordReputation ?? 50;
+            int qmRep = EscalationManager.Instance?.GetCurrentLordRelation(50) ?? 50;
 
             // Determine food item based on QM reputation
             string itemId = GetFoodItemForReputation(qmRep);

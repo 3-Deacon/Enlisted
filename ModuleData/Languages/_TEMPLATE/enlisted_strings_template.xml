@@ -280,6 +280,7 @@
     <!-- Escalation Notifications -->
     <string id="esc_rep_changed" text="Camp Reputation: {CHANGE} ({STATUS})" />
     <string id="esc_scrutiny_changed" text="Scrutiny increased (+{DELTA}) - Status: {STATUS}" />
+    <string id="esc_scrutiny_eased" text="Scrutiny eased: {OLD} -> {NEW}" />
     <string id="esc_discipline_changed" text="Discipline issues (+{DELTA}) - Status: {STATUS}" />
     
     <!-- Menu Disabled Tooltips -->

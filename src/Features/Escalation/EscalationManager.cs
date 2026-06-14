@@ -434,10 +434,17 @@ namespace Enlisted.Features.Escalation
             var next = oldValue + delta;
             _state.Scrutiny = Clamp(next, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
 
-            if (delta > 0)
+            if (_state.Scrutiny > oldValue)
             {
-                // Scrutiny decay requires a "quiet period" (no corrupt choices) since the last raise.
+                // Scrutiny decay requires a quiet period after an actual increase.
+                // Do not reset the quiet timer for no-op positive writes at the cap, or a
+                // maxed-out player can never decay back down while camp incidents keep firing.
                 _state.LastScrutinyRaisedTime = CampaignTime.Now;
+            }
+            else if (delta > 0 && oldValue >= EscalationState.ScrutinyMax)
+            {
+                ModLogger.Debug(LogCategory,
+                    $"Scrutiny raise ignored at cap ({oldValue}){FormatReason(reason)}");
             }
 
             LogTrackChange("Scrutiny", oldValue, _state.Scrutiny, reason);
@@ -449,54 +456,72 @@ namespace Enlisted.Features.Escalation
                 EscalationThresholds.ScrutinyCritical
             });
 
-            // Show UI notification for scrutiny changes (only when increasing - "attention" from authorities)
-            if (_state.Scrutiny != oldValue && delta > 0)
+            if (_state.Scrutiny != oldValue)
             {
-                var statusText = GetScrutinyStatus();
-                var color = _state.Scrutiny >= EscalationThresholds.ScrutinyShakedown
-                    ? TaleWorlds.Library.Colors.Red
-                    : TaleWorlds.Library.Colors.Yellow;
-                var msg = new TextObject("{=esc_scrutiny_changed}Scrutiny increased (+{DELTA}) - Status: {STATUS}");
-                _ = msg.SetTextVariable("DELTA", delta);
-                _ = msg.SetTextVariable("STATUS", statusText);
-                TaleWorlds.Library.InformationManager.DisplayMessage(
-                    new TaleWorlds.Library.InformationMessage(msg.ToString(), color));
+                ShowScrutinyChangeMessage(delta, oldValue, _state.Scrutiny);
             }
 
             EvaluateThresholdsAndQueueIfNeeded();
         }
 
         /// <summary>
+        /// Gets the current native relation with the enlisted lord and mirrors it into the legacy
+        /// LordReputation field so older UI/report code does not read stale save data.
+        /// </summary>
+        public int GetCurrentLordRelation(int fallback = 0)
+        {
+            var enlistment = EnlistmentBehavior.Instance;
+            var lord = enlistment?.EnlistedLord;
+            if (enlistment?.IsEnlisted != true || lord == null || Hero.MainHero == null)
+            {
+                return fallback;
+            }
+
+            var relation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, lord);
+            _state.LordReputation = Clamp(relation, -100, 100);
+            return relation;
+        }
+
+        /// <summary>
         /// Modifies the player's relation with their enlisted lord using native Bannerlord reputation system.
-        /// This now directly modifies Hero.GetRelation() rather than a custom LordReputation track.
+        /// Also mirrors the resulting value into the legacy LordReputation field for old consumers.
         /// </summary>
         public void ModifyLordReputation(int delta, string reason = null)
         {
-            if (!IsEnabled())
+            if (!IsEnabled() || delta == 0)
             {
                 return;
             }
 
             var enlistment = EnlistmentBehavior.Instance;
-            if (enlistment?.IsEnlisted != true || enlistment.EnlistedLord == null)
+            if (enlistment?.IsEnlisted != true || enlistment.EnlistedLord == null || Hero.MainHero == null)
             {
+                ModLogger.Expected(LogCategory, "lord_relation_target_missing",
+                    $"Lord relation change skipped: no enlisted lord/player{FormatReason(reason)}");
                 return;
             }
 
             var lord = enlistment.EnlistedLord;
             var oldValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, lord);
-            ChangeRelationAction.ApplyPlayerRelation(lord, delta);
+            ChangeRelationAction.ApplyPlayerRelation(lord, delta, affectRelatives: false, showQuickNotification: false);
             var newValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, lord);
+            _state.LordReputation = Clamp(newValue, -100, 100);
 
-            LogTrackChange("LordReputation", oldValue, newValue, reason);
+            if (oldValue == newValue)
+            {
+                ModLogger.Info(LogCategory,
+                    $"LordRelation unchanged at {newValue} after delta {delta:+#;-#;0}{FormatReason(reason)}");
+                return;
+            }
 
-            // Report significant changes to news system
-            if (Math.Abs(delta) >= 10 && EnlistedNewsBehavior.Instance != null)
+            LogTrackChange("LordRelation", oldValue, newValue, reason);
+
+            if (EnlistedNewsBehavior.Instance != null)
             {
                 string message = GetReputationChangeMessage("Lord", delta, newValue);
                 EnlistedNewsBehavior.Instance.AddReputationChange(
                     target: "Lord",
-                    delta: delta,
+                    delta: newValue - oldValue,
                     newValue: newValue,
                     message: message,
                     dayNumber: (int)CampaignTime.Now.ToDays
@@ -554,7 +579,8 @@ namespace Enlisted.Features.Escalation
                 {
                     _state.Scrutiny = updated;
                     _state.LastScrutinyDecayTime = updatedTime;
-                    ModLogger.Debug(LogCategory, $"Scrutiny decayed: {old} -> {updated}");
+                    ModLogger.Info(LogCategory, $"Scrutiny decayed: {old} -> {updated} (quiet service)");
+                    ShowScrutinyEasedMessage(old, updated);
                 }
             }
         }
@@ -811,6 +837,47 @@ namespace Enlisted.Features.Escalation
         }
 
         #endregion
+
+        private static string FormatReason(string reason)
+        {
+            return string.IsNullOrWhiteSpace(reason) ? string.Empty : $" ({reason})";
+        }
+
+        private void ShowScrutinyChangeMessage(int delta, int oldValue, int newValue)
+        {
+            if (delta > 0 && newValue > oldValue)
+            {
+                var statusText = GetScrutinyStatus();
+                var color = newValue >= EscalationThresholds.ScrutinyShakedown
+                    ? TaleWorlds.Library.Colors.Red
+                    : TaleWorlds.Library.Colors.Yellow;
+                var msg = new TextObject("{=esc_scrutiny_changed}Scrutiny increased (+{DELTA}) - Status: {STATUS}");
+                _ = msg.SetTextVariable("DELTA", newValue - oldValue);
+                _ = msg.SetTextVariable("STATUS", statusText);
+                TaleWorlds.Library.InformationManager.DisplayMessage(
+                    new TaleWorlds.Library.InformationMessage(msg.ToString(), color));
+                return;
+            }
+
+            if (delta < 0 && newValue < oldValue)
+            {
+                ShowScrutinyEasedMessage(oldValue, newValue);
+            }
+        }
+
+        private void ShowScrutinyEasedMessage(int oldValue, int newValue)
+        {
+            if (newValue >= oldValue)
+            {
+                return;
+            }
+
+            var msg = new TextObject("{=esc_scrutiny_eased}Scrutiny eased: {OLD} -> {NEW}");
+            _ = msg.SetTextVariable("OLD", oldValue);
+            _ = msg.SetTextVariable("NEW", newValue);
+            TaleWorlds.Library.InformationManager.DisplayMessage(
+                new TaleWorlds.Library.InformationMessage(msg.ToString(), TaleWorlds.Library.Colors.Green));
+        }
 
         private static int Clamp(int value, int min, int max)
         {

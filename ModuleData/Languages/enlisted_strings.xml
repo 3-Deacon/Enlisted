@@ -412,6 +412,7 @@
     
     
     <string id="esc_scrutiny_changed" text="Scrutiny increased (+{DELTA}) - Status: {STATUS}" />
+    <string id="esc_scrutiny_eased" text="Scrutiny eased: {OLD} -> {NEW}" />
     
     
     
