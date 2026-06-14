@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Activities.Orders;
@@ -392,6 +392,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 SourceId = "duty.arcscale",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
                 ProposedTier = StoryTier.Modal,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 ChainContinuation = true,
                 EmittedAt = CampaignTime.Now,
                 InteractiveEvent = evt,
@@ -414,6 +415,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 SourceId = "duty.episodic",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
                 ProposedTier = StoryTier.Log,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 EmittedAt = CampaignTime.Now,
                 RenderedTitle = storylet.Title,
                 RenderedBody = storylet.Setup,

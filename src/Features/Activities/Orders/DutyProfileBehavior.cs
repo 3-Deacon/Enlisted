@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -245,6 +245,7 @@ namespace Enlisted.Features.Activities.Orders
                         SourceId = "duty.transition",
                         CategoryId = "duty.transition",
                         ProposedTier = StoryTier.Modal,
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                         ChainContinuation = true,
                         EmittedAt = CampaignTime.Now,
                         InteractiveEvent = evt,

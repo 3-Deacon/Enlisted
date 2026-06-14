@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Activities.Orders;
@@ -235,6 +235,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                 SourceId = "signal." + signal.Type.ToString().ToLowerInvariant(),
                 CategoryId = "signal." + signal.Type.ToString().ToLowerInvariant(),
                 ProposedTier = StoryTier.Log,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 EmittedAt = CampaignTime.Now,
                 RenderedTitle = storylet.Title,
                 RenderedBody = overrideBody ?? storylet.Setup,
@@ -320,6 +321,7 @@ namespace Enlisted.Features.CampaignIntelligence.Signals
                     SourceId = "signal." + signal.Type.ToString().ToLowerInvariant(),
                     CategoryId = "signal." + signal.Type.ToString().ToLowerInvariant(),
                     ProposedTier = StoryTier.Log,
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                     EmittedAt = CampaignTime.Now,
                     RenderedTitle = "Service notes",
                     RenderedBody = bodyText,

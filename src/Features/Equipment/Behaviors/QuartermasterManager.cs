@@ -6,6 +6,7 @@ using Enlisted.Features.Camp;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Interface.Behaviors;
+using Enlisted.Features.Logistics;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
@@ -451,6 +452,199 @@ namespace Enlisted.Features.Equipment.Behaviors
         }
 
         /// <summary>
+        /// Builds weapon purchase options for the conversation-driven equipment selector.
+        /// EnlistedDialogManager still reflects this legacy method name, so keep the seam
+        /// present and route it through the current all-formation equipment discovery path.
+        /// </summary>
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildWeaponOptionsFromCurrentTroop()
+        {
+            return BuildEquipmentOptionsForSlots(new[]
+            {
+                EquipmentIndex.Weapon0,
+                EquipmentIndex.Weapon1,
+                EquipmentIndex.Weapon2,
+                EquipmentIndex.Weapon3
+            });
+        }
+
+        /// <summary>
+        /// Builds armor purchase options for the conversation-driven equipment selector.
+        /// EnlistedDialogManager reflects this legacy method name.
+        /// </summary>
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildArmorOptionsFromCurrentTroop()
+        {
+            return BuildEquipmentOptionsForSlots(new[]
+            {
+                EquipmentIndex.Head,
+                EquipmentIndex.Body,
+                EquipmentIndex.Gloves,
+                EquipmentIndex.Leg,
+                EquipmentIndex.Cape
+            });
+        }
+
+        /// <summary>
+        /// Builds shield purchase options from weapon-slot equipment.
+        /// EnlistedDialogManager reflects this legacy method name for the accessories tab.
+        /// </summary>
+        private List<EquipmentVariantOption> BuildShieldOptionsFromWeapons()
+        {
+            var weaponOptions = BuildWeaponOptionsFromCurrentTroop();
+            return weaponOptions
+                .SelectMany(kvp => kvp.Value)
+                .Where(option => option.Item?.WeaponComponent?.PrimaryWeapon?.IsShield == true)
+                .ToList();
+        }
+
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildEquipmentOptionsForSlots(IEnumerable<EquipmentIndex> slots)
+        {
+            var result = new Dictionary<EquipmentIndex, List<EquipmentVariantOption>>();
+
+            try
+            {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true)
+                {
+                    return result;
+                }
+
+                var tier = enlistment.EnlistmentTier;
+                var culture = enlistment.EnlistedLord?.Culture;
+                var hero = Hero.MainHero;
+                if (culture == null || hero == null)
+                {
+                    return result;
+                }
+
+                var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
+
+                foreach (var slot in slots)
+                {
+                    if (!allEquipment.TryGetValue(slot, out var items) || items == null || items.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var options = new List<EquipmentVariantOption>();
+                    var currentItem = hero.BattleEquipment[slot].Item;
+
+                    foreach (var item in items)
+                    {
+                        if (item == null)
+                        {
+                            continue;
+                        }
+
+                        options.Add(BuildEquipmentVariantOption(hero, item, slot, currentItem, isOfficerExclusive: false));
+                    }
+
+                    if (options.Count > 0)
+                    {
+                        result[slot] = options
+                            .OrderBy(o => o.IsCurrent ? 0 : 1)
+                            .ThenBy(o => o.Item.Name.ToString())
+                            .ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error building equipment selector options", ex);
+            }
+
+            return result;
+        }
+
+        private EquipmentVariantOption BuildEquipmentVariantOption(
+            Hero hero,
+            ItemObject item,
+            EquipmentIndex slot,
+            ItemObject currentItem,
+            bool isOfficerExclusive)
+        {
+            var rolledQuality = RollItemQualityByReputation();
+            var (modifier, actualQuality) = GetRandomModifierForQuality(item, rolledQuality);
+
+            var basePrice = item.Value;
+            if (modifier != null)
+            {
+                basePrice = (int)(basePrice * modifier.PriceMultiplier);
+            }
+
+            var price = CalculateQuartermasterPriceFromBase(basePrice);
+            var quantityAvailable = GetTrackedQuantity(item);
+            var isInStock = IsItemInStock(item) && quantityAvailable > 0;
+            string modifiedName = null;
+            if (modifier != null)
+            {
+                modifiedName = $"{modifier.Name} {item.Name}";
+            }
+
+            var duplicateCap = IsWeaponSlot(slot) || IsConsumableItem(item) ? 2 : 1;
+
+            return new EquipmentVariantOption
+            {
+                Item = item,
+                Cost = price,
+                IsCurrent = item == currentItem,
+                CanAfford = hero.Gold >= price,
+                Slot = slot,
+                IsOfficerExclusive = isOfficerExclusive,
+                AllowsDuplicatePurchase = IsWeaponSlot(slot) || IsConsumableItem(item),
+                IsAtLimit = GetPlayerItemCount(hero, item.StringId) >= duplicateCap,
+                IsNewlyUnlocked = IsNewlyUnlockedItem(item),
+                IsInStock = isInStock,
+                QuantityAvailable = quantityAvailable,
+                Modifier = modifier,
+                Quality = actualQuality,
+                ModifiedName = modifiedName
+            };
+        }
+
+        private void EnsureInventoryStateForBrowsableEquipment(Dictionary<EquipmentIndex, List<ItemObject>> allEquipment)
+        {
+            _inventoryState ??= new QMInventoryState();
+
+            var needsInitialRefresh = _inventoryState.NeedsRefresh()
+                || _inventoryState.CurrentStock == null
+                || _inventoryState.CurrentStock.Count == 0;
+
+            if (!needsInitialRefresh)
+            {
+                return;
+            }
+
+            var availableItems = new List<ItemObject>();
+            foreach (var slotItems in allEquipment.Values)
+            {
+                foreach (var item in slotItems)
+                {
+                    if (item != null && !availableItems.Contains(item))
+                    {
+                        availableItems.Add(item);
+                    }
+                }
+            }
+
+            var supplyLevel = EnlistmentBehavior.Instance?.CompanyNeeds?.Supplies ?? 100;
+            _inventoryState.RefreshInventory(supplyLevel, availableItems);
+            ModLogger.Info("QUARTERMASTER",
+                $"Inventory initialized during equipment browse: {availableItems.Count} items in pool, {_inventoryState.CurrentStock.Count} stocked, supply={supplyLevel:F1}%");
+        }
+
+        private int GetTrackedQuantity(ItemObject item)
+        {
+            if (item == null)
+            {
+                return 0;
+            }
+
+            _inventoryState ??= new QMInventoryState();
+            return _inventoryState.GetAvailableQuantity(item.StringId);
+        }
+
+        /// <summary>
         /// Get mount variants for the UI browser, using cross-formation discovery.
         /// Returns EquipmentVariantOption list with proper pricing, quality, and stock status.
         /// This is the public API for mount browsing - use this instead of reflection.
@@ -480,6 +674,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 // Get all equipment across all formations
                 var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
 
                 var mountOptions = new List<EquipmentVariantOption>();
 
@@ -580,6 +775,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 // Get all equipment across all formations
                 var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
 
                 var harnessOptions = new List<EquipmentVariantOption>();
 
@@ -2603,6 +2799,8 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var party = MobileParty.MainParty;
                 _ = party.ItemRoster.AddToCounts(MBObjectManager.Instance.GetObject<ItemObject>("grain"), 5);
                 _ = party.ItemRoster.AddToCounts(MBObjectManager.Instance.GetObject<ItemObject>("tools"), 2);
+
+                CompanySupplyManager.Instance?.AddSupplies(10f, "quartermaster supply purchase");
 
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_purchased_supplies}Purchased basic supplies: 5 grain, 2 tools.").ToString()));

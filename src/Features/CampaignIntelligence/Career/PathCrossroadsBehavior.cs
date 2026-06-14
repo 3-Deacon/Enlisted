@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Content;
@@ -127,6 +127,7 @@ namespace Enlisted.Features.CampaignIntelligence.Career
                 SourceId = "path.crossroads",
                 CategoryId = "path.crossroads",
                 ProposedTier = StoryTier.Modal,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 ChainContinuation = true,
                 EmittedAt = CampaignTime.Now,
                 InteractiveEvent = evt,

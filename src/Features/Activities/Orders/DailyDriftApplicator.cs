@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.CampaignIntelligence.Signals;
@@ -162,6 +162,7 @@ namespace Enlisted.Features.Activities.Orders
                     SourceId = "orders.drift.summary",
                     CategoryId = "orders.drift",
                     ProposedTier = StoryTier.Log,
+                    Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                     EmittedAt = CampaignTime.Now,
                     RenderedTitle = "Service notes",
                     RenderedBody = summary,
