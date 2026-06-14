@@ -7464,26 +7464,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
                                         bool isNavalBattle = lordMapEvent.IsNavalMapEvent;
 
                                         // Determine if we should set MapEventSide to join the battle.
-                                        // For individual lord battles, a player-only hidden MainParty can report 0 regular
-                                        // members. Forcing that party into MapEventSide during native deployment has been
-                                        // observed to feed unstable formation/spawn state into the engine. Prefer skipping
-                                        // this optional direct-join path over risking a protected-memory crash.
+                                        // Enlisted/hidden player parties can legitimately report 0 regular members.
+                                        // Do not skip the join on that basis: battle-spawn safety is handled later by
+                                        // mission/formation guards, while skipping here strands the player outside the
+                                        // lord battle and causes a realtime retry loop.
                                         var targetSide = lordSide == BattleSideEnum.Attacker
                                             ? lordMapEvent.AttackerSide
                                             : lordMapEvent.DefenderSide;
 
                                         int partyTroopCount = mainParty.Party.NumberOfRegularMembers;
-                                        if (!isNavalBattle && partyTroopCount <= 0)
-                                        {
-                                            mainParty.IsActive = false;
-                                            mainParty.IsVisible = false;
-                                            mainParty.MapEventSide = null;
-                                            mainParty.ShouldJoinPlayerBattles = false;
-                                            ModLogger.Info("BATTLE",
-                                                $"Skipped direct individual lord battle join on {lordSide} side because player party has no regular troops; " +
-                                                "avoiding native deployment spawn corruption");
-                                            return;
-                                        }
 
                                         if (isNavalBattle)
                                         {
