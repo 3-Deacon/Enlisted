@@ -39,6 +39,11 @@ namespace Enlisted.Features.Activities
 
         public override void RegisterEvents()
         {
+            // Make the runtime discoverable as soon as Bannerlord registers the
+            // behavior. OnSessionLaunched/GameLoaded also set this, but enlistment
+            // lifecycle listeners can fire before those callbacks during some
+            // new-campaign/load flows.
+            Instance = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);

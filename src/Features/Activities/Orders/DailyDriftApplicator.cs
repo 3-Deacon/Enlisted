@@ -43,6 +43,11 @@ namespace Enlisted.Features.Activities.Orders
             {
                 var isEnlisted = EnlistmentBehavior.Instance?.IsEnlisted == true;
                 var activity = OrderActivity.Instance;
+                if (isEnlisted && activity == null)
+                {
+                    EnlistmentLifecycleListener.StartOrderActivityIfNeeded("daily_drift_daily_tick");
+                    activity = OrderActivity.Instance;
+                }
                 var profile = activity?.CurrentDutyProfile ?? "none";
 
                 if (!isEnlisted)
@@ -100,17 +105,23 @@ namespace Enlisted.Features.Activities.Orders
             try
             {
                 var nowHour = (int)CampaignTime.Now.ToHours;
+                var isEnlisted = EnlistmentBehavior.Instance?.IsEnlisted == true;
                 var activity = OrderActivity.Instance;
+                if (isEnlisted && activity == null)
+                {
+                    EnlistmentLifecycleListener.StartOrderActivityIfNeeded("daily_drift_hourly_tick");
+                    activity = OrderActivity.Instance;
+                }
                 var pendingCount = activity?.DriftPendingXp?.Count ?? 0;
                 var speed = Campaign.Current?.SpeedUpMultiplier ?? 1f;
 
                 if (nowHour - _lastHourlyHeartbeatTick >= HOURLY_HEARTBEAT_INTERVAL)
                 {
                     _lastHourlyHeartbeatTick = nowHour;
-                    ModLogger.Info("DRIFT", $"hourly_heartbeat: enlisted={EnlistmentBehavior.Instance?.IsEnlisted == true} pending_count={pendingCount} speed={speed:F1}x");
+                    ModLogger.Info("DRIFT", $"hourly_heartbeat: enlisted={isEnlisted} activity={activity != null} pending_count={pendingCount} speed={speed:F1}x");
                 }
 
-                if (EnlistmentBehavior.Instance?.IsEnlisted != true)
+                if (!isEnlisted)
                 {
                     return;
                 }

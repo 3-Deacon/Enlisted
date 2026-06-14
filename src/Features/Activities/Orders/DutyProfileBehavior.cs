@@ -50,7 +50,14 @@ namespace Enlisted.Features.Activities.Orders
                 var orderActivity = OrderActivity.Instance;
                 if (orderActivity == null)
                 {
-                    return;
+                    EnlistmentLifecycleListener.StartOrderActivityIfNeeded("duty_profile_hourly_tick");
+                    orderActivity = OrderActivity.Instance;
+                    if (orderActivity == null)
+                    {
+                        ModLogger.Expected("DUTYPROFILE", "order_activity_missing",
+                            "Enlisted and lord party exists, but OrderActivity is still unavailable");
+                        return;
+                    }
                 }
 
                 var observed = DutyProfileSelector.Resolve(lordParty);

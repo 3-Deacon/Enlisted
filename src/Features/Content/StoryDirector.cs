@@ -62,19 +62,30 @@ namespace Enlisted.Features.Content
         {
             try
             {
-                if (candidate == null || Hero.MainHero == null)
+                if (candidate == null)
                 {
+                    ModLogger.Expected("CONTENT", "emit_null_candidate", "StoryDirector.EmitCandidate received null candidate");
+                    return;
+                }
+                if (Hero.MainHero == null)
+                {
+                    ModLogger.Expected("CONTENT", "emit_no_main_hero",
+                        $"candidate dropped before route: source={candidate.SourceId}, story={candidate.StoryKey}");
                     return;
                 }
 
                 var lord = EnlistmentBehavior.Instance?.EnlistedLord;
                 if (lord == null)
                 {
+                    ModLogger.Expected("CONTENT", "emit_no_enlisted_lord",
+                        $"candidate dropped before route: source={candidate.SourceId}, story={candidate.StoryKey}");
                     return;
                 }
 
                 if (!RelevanceFilter.Passes(candidate.Relevance, lord, MobileParty.MainParty))
                 {
+                    ModLogger.Expected("CONTENT", "emit_relevance_rejected",
+                        $"candidate dropped by relevance: source={candidate.SourceId}, story={candidate.StoryKey}, category={candidate.CategoryId}");
                     return;
                 }
 
@@ -307,7 +318,12 @@ namespace Enlisted.Features.Content
         private static void WriteDispatchItem(StoryCandidate c, StoryTier tier)
         {
             var news = Campaign.Current?.GetCampaignBehavior<Interface.Behaviors.EnlistedNewsBehavior>();
-            if (news == null) { return; }
+            if (news == null)
+            {
+                ModLogger.Expected("CONTENT", "dispatch_no_news_behavior",
+                    $"dispatch dropped: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}");
+                return;
+            }
 
             int severity = c.SeverityLevel;
             if (severity == 0)
@@ -330,6 +346,9 @@ namespace Enlisted.Features.Content
                 tier: tier,
                 beats: c.Beats != null ? new HashSet<StoryBeat>(c.Beats) : null,
                 body: c.RenderedBody);
+
+            ModLogger.Info("CONTENT",
+                $"dispatch_written: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}, title={c.RenderedTitle}");
         }
     }
 }
