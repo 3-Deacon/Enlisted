@@ -33,6 +33,7 @@ using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
 using ConfigurationManager = Enlisted.Mod.Core.Config.ConfigurationManager;
 using EnlistedConfig = Enlisted.Mod.Core.Config.ConfigurationManager;
