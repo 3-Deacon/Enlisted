@@ -259,7 +259,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // SetTraitLevel is the public API (SetTraitLevelInternal does not exist in v1.3.13).
+            // SetTraitLevel is the public API (SetTraitLevelInternal is not part of the supported public API).
             // Step by Math.Sign so a single effect nudges the trait by at most one level.
             var current = Hero.MainHero.GetTraitLevel(traitObj);
             Hero.MainHero.SetTraitLevel(traitObj, current + Math.Sign(amount));

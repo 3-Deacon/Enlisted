@@ -14,7 +14,7 @@ namespace Enlisted.Debugging.Behaviors
     ///     Modifiers use <see cref="Input.IsKeyDown"/> (held state); letters use
     ///     <see cref="Input.IsKeyPressed"/> (edge-triggered) so a held key fires once per press.
     ///     <para/>
-    ///     Key-binding audit against the v1.3.13 decompile
+    ///     Key-binding audit against the current target decompile
     ///     (TaleWorlds.Engine.InputSystem.DebugHotKeyCategory). Ctrl+Shift letter combos
     ///     already claimed by the native Debug category: E (SwapToEnemy, Mission-context
     ///     only — safe on campaign map), P, Tab, R, X, K, M, Numpad1/2/3. T is NOT in

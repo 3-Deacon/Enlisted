@@ -42,7 +42,7 @@ namespace Enlisted.Mod.Core.Logging
 
         private static string GetGameVersion()
         {
-            // v1.3.13 has no ApplicationVersionHelper.GameVersionString(); use
+            // Avoid depending on version-helper APIs that have drifted across Bannerlord releases; use
             // ApplicationVersion.FromParametersFile() which reads Parameters/Version.xml
             // (same approach already used by ModConflictDiagnostics).
             try
