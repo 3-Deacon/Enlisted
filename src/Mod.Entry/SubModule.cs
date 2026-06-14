@@ -201,7 +201,8 @@ namespace Enlisted.Mod.Entry
                         "EncounterAbandonArmyBlockPatch",         // Target: EncounterGameMenuBehavior (deferred)
                         "EncounterAbandonArmyBlockPatch2",        // Target: EncounterGameMenuBehavior (deferred)
                         "EncounterLeaveSuppressionPatch",         // Target: EncounterGameMenuBehavior (deferred)
-                        "MapConversationEndPatch"                 // Target: MapScreen explicit interface (deferred)
+                        "MapConversationEndPatch",                // Target: MapScreen explicit interface (deferred)
+                        "NavalAllocateTroopsPatch"                 // Optional War Sails target; patch manually only when method resolves
                     };
 
                     var assembly = Assembly.GetExecutingAssembly();
@@ -236,6 +237,39 @@ namespace Enlisted.Mod.Entry
                                 ModLogger.Caught("Bootstrap", "Inner exception during patch", patchEx.InnerException);
                             }
                         }
+                    }
+
+                    // Optional War Sails patch: Bannerlord/War Sails method names changed across versions.
+                    // Do not let a null HarmonyTargetMethod produce a scary boot-time exception.
+                    try
+                    {
+                        var navalAllocateTarget = NavalAllocateTroopsPatch.TargetMethod();
+                        if (navalAllocateTarget == null)
+                        {
+                            ModLogger.Info("Naval",
+                                "Naval troop allocation patch unavailable for this War Sails build; skipping optional crash guard");
+                        }
+                        else
+                        {
+                            var navalAllocatePrefix = typeof(NavalAllocateTroopsPatch).GetMethod(
+                                nameof(NavalAllocateTroopsPatch.Prefix),
+                                BindingFlags.Public | BindingFlags.Static);
+
+                            if (navalAllocatePrefix == null)
+                            {
+                                ModLogger.Warn("Naval", "Naval troop allocation prefix not found; skipping optional crash guard");
+                            }
+                            else
+                            {
+                                _harmony.Patch(navalAllocateTarget, prefix: new HarmonyMethod(navalAllocatePrefix));
+                                enabledCount++;
+                                ModLogger.Info("Naval", "Naval troop allocation fix applied manually");
+                            }
+                        }
+                    }
+                    catch (Exception optionalPatchEx)
+                    {
+                        ModLogger.Caught("Naval", "Optional NavalAllocateTroopsPatch manual apply failed", optionalPatchEx);
                     }
 
                     // Deferred patches will be applied later when campaign starts

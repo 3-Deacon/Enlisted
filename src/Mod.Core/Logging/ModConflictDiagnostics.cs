@@ -185,7 +185,18 @@ namespace Enlisted.Mod.Core.Logging
                         var instance = instanceProp?.GetValue(null);
                         var countProp = qmCatalogType.GetProperty("NodeCount");
                         var count = (int)(countProp?.GetValue(instance) ?? 0);
-                        catalogStatus.Add(("QM Dialogue", count, count > 0 ? "OK" : "EMPTY"));
+                        if (count == 0)
+                        {
+                            var dialoguePath = ModulePaths.GetContentPath("Dialogue");
+                            var fileCount = Directory.Exists(dialoguePath)
+                                ? Directory.GetFiles(dialoguePath, "*.json").Length
+                                : 0;
+                            catalogStatus.Add(("QM Dialogue", count, fileCount > 0 ? "PENDING" : "EMPTY"));
+                        }
+                        else
+                        {
+                            catalogStatus.Add(("QM Dialogue", count, "OK"));
+                        }
                     }
                 }
                 catch { catalogStatus.Add(("QM Dialogue", 0, "ERROR")); }
@@ -714,7 +725,8 @@ namespace Enlisted.Mod.Core.Logging
                     WriteLine("    Event Files: MISSING");
                 }
 
-                // Check Decisions JSON files
+                // Check legacy Decisions JSON files. Decisions are optional after the Spec 0 storylet backbone;
+                // missing Decisions should not be reported as a critical install failure.
                 WriteLine("  [Decision System]");
                 var decisionsPath = ModulePaths.GetContentPath("Decisions");
                 if (Directory.Exists(decisionsPath))
@@ -744,8 +756,8 @@ namespace Enlisted.Mod.Core.Logging
                 }
                 else
                 {
-                    issues.Add("Decisions directory missing");
-                    WriteLine("    Decision Files: MISSING");
+                    warnings.Add("Optional legacy Decisions directory missing");
+                    WriteLine("    Decision Files: optional legacy directory not present");
                 }
 
                 // Check Storylets JSON files (Spec 0 backbone)
@@ -799,7 +811,7 @@ namespace Enlisted.Mod.Core.Logging
                     var expectedConfigs = new[] {
                         "settings.json", "progression_config.json", "enlisted_config.json",
                         "equipment_pricing.json", "retinue_config.json", "baggage_config.json",
-                        "camp_schedule.json", "orchestrator_overrides.json", "routine_outcomes.json",
+                        "camp_schedule.json", "routine_outcomes.json",
                         "simulation_config.json", "strategic_context_config.json"
                     };
                     var foundCount = 0;

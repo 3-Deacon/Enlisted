@@ -12240,25 +12240,13 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                         if (!inBattleOrSiege)
                         {
-                            // Trigger settlement entered event for player (MainParty) to activate perks
-                            // This allows perks like "Show Your Scars" to trigger automatically when the lord enters a town
-                            if (MobileParty.MainParty != null && Hero.MainHero != null &&
-                                CampaignEventDispatcher.Instance != null)
-                            {
-                                try
-                                {
-                                    CampaignEventDispatcher.Instance.OnSettlementEntered(MobileParty.MainParty,
-                                        settlement, Hero.MainHero);
-                                    ModLogger.Info("Settlement",
-                                        $"Triggered synthetic SettlementEntered for {settlement.Name} to activate perks");
-                                }
-                                catch (Exception ex)
-                                {
-                                    // Safely ignore errors from native listeners (e.g. due to unusual enlisted party state)
-                                    ModLogger.Warn("Settlement",
-                                        $"Synthetic perk trigger suppressed error: {ex.Message}");
-                                }
-                            }
+                            // Do not synthesize CampaignEventDispatcher.OnSettlementEntered here.
+                            // In 1.4.6 and heavy mod stacks, native listeners can assume a fully native settlement
+                            // encounter context and throw NullReferenceException. The lord/player movement path already
+                            // performs the real settlement transition; this extra synthetic trigger was only for perk
+                            // convenience and was producing repeated suppressed errors.
+                            ModLogger.Debug("Settlement",
+                                $"Skipped synthetic SettlementEntered for {settlement.Name}; using native settlement flow only");
 
                             // Safe to show enlisted menu - no battles/sieges active
                             EnlistedMenuBehavior.SafeActivateEnlistedMenu();
@@ -12580,8 +12568,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 var main = MobileParty.MainParty;
 
-                // DEBUG: Log entry to confirm this handler is being called
-                ModLogger.Info("BATTLE",
+                // DEBUG only: native can call this for many unrelated map events.
+                ModLogger.Debug("BATTLE",
                     $"OnMapEventEnded CALLED - mapEvent={(mapEvent != null ? "present" : "null")}, IsEnlisted={IsEnlisted}");
 
                 // Reset PlayerEncounter guard flag - battle is ending
@@ -12628,8 +12616,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     }
                 }
 
-                // DEBUG: Log participation status for debugging battle cleanup issues
-                ModLogger.Info("BATTLE",
+                // DEBUG only: avoid log spam from unrelated world battles.
+                ModLogger.Debug("BATTLE",
                     $"OnMapEventEnded participation check: player={playerParticipated}, lord={lordParticipated}, hasEncounter={PlayerEncounter.Current != null}");
 
                 // Early exit for unrelated battles - don't log to avoid spam from all map battles

@@ -68,7 +68,7 @@ namespace Enlisted.Features.Content
                 }
                 else
                 {
-                    ModLogger.Warn(LogCategory, $"Decisions directory not found: {decisionsPath}");
+                    ModLogger.Info(LogCategory, $"Optional Decisions directory not found: {decisionsPath}");
                 }
 
                 var warningMsg = migrationWarnings > 0 ? $" ({migrationWarnings} migration warnings)" : "";

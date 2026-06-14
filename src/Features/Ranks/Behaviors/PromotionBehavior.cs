@@ -30,7 +30,7 @@ namespace Enlisted.Features.Ranks.Behaviors
         public static PromotionRequirements GetForTier(int targetTier)
         {
             // Promotion requirements table (XP values shown for reference only - actual values from progression_config.json):
-            // NOTE: Scrutiny is now 0-100 scale (merged discipline into scrutiny). Thresholds scaled x10.
+            // NOTE: Scrutiny/relation values are advisory context only, not hard promotion blockers.
             // | Promotion | XP | Days | Battles | Leader Rel | Max Scrutiny |
             // |-----------|-----|------|---------|------------|-------------|
             // | T1→T2 | 700 | 14 | 2 | ≥0 | <80 |
@@ -229,23 +229,31 @@ namespace Enlisted.Features.Ranks.Behaviors
                 reasons.Add($"Battles: {enlistment.BattlesSurvived}/{req.BattlesRequired}");
             }
 
-            // Check scrutiny (escalation system - merged discipline into this 0-100 track)
+            // Scrutiny and leader relation are advisory context, not hard promotion blockers.
+            // Logs showed players could sit at 100% progress while blocked by campaign-state side effects
+            // such as high scrutiny or relation drift. Promotion eligibility should be earned by service
+            // progression requirements: XP, days in rank, and battles survived.
             if (escalation?.IsEnabled() == true)
             {
                 var scrutiny = escalation.State?.Scrutiny ?? 0;
                 if (scrutiny >= req.MaxScrutiny)
                 {
-                    reasons.Add($"Scrutiny too high: {scrutiny} (max: {req.MaxScrutiny - 1})");
+                    ModLogger.LogOnce(
+                        $"promo_scrutiny_advisory_t{targetTier}",
+                        "Promotion",
+                        $"Promotion advisory for T{targetTier}: scrutiny high ({scrutiny}, former max {req.MaxScrutiny - 1}) but no longer blocks promotion");
                 }
             }
 
-            // Check leader relation
             if (enlistment.EnlistedLord != null)
             {
                 var relation = enlistment.EnlistedLord.GetRelationWithPlayer();
                 if (relation < req.MinLeaderRelation)
                 {
-                    reasons.Add($"Leader relation: {relation}/{req.MinLeaderRelation}");
+                    ModLogger.LogOnce(
+                        $"promo_relation_advisory_t{targetTier}",
+                        "Promotion",
+                        $"Promotion advisory for T{targetTier}: leader relation low ({relation}/{req.MinLeaderRelation}) but no longer blocks promotion");
                 }
             }
 

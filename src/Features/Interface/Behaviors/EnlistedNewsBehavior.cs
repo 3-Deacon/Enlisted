@@ -5001,6 +5001,7 @@ namespace Enlisted.Features.Interface.Behaviors
             try
             {
                 AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                WritePersonalDispatchToCampaignLog(category, headlineKey, placeholderValues, storyKey, severity, tier, body);
             }
             catch (Exception ex)
             {
@@ -5011,6 +5012,68 @@ namespace Enlisted.Features.Interface.Behaviors
         #endregion
 
         #region Internal Helpers
+
+        /// <summary>
+        /// Mirrors StoryDirector personal dispatches into Bannerlord's visible Campaign Log.
+        /// The personal feed is still the authoritative Enlisted feed; this bridge only makes
+        /// generated orders, duty notes, and incidents visible in the same log players already
+        /// watch for native campaign messages.
+        /// </summary>
+        private static void WritePersonalDispatchToCampaignLog(
+            string category,
+            string headlineKey,
+            Dictionary<string, string> placeholderValues,
+            string storyKey,
+            int severity,
+            StoryTier tier,
+            string body)
+        {
+            try
+            {
+                if (!IsEnlisted() || string.IsNullOrWhiteSpace(headlineKey))
+                {
+                    return;
+                }
+
+                var item = new DispatchItem
+                {
+                    DayCreated = (int)CampaignTime.Now.ToDays,
+                    Category = category ?? "personal",
+                    HeadlineKey = headlineKey,
+                    PlaceholderValues = placeholderValues ?? new Dictionary<string, string>(),
+                    StoryKey = storyKey,
+                    Type = DispatchType.Report,
+                    Confidence = 100,
+                    MinDisplayDays = 1,
+                    FirstShownDay = -1,
+                    Severity = severity,
+                    Tier = tier,
+                    Body = body
+                };
+
+                var text = FormatDispatchItem(item);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return;
+                }
+
+                var color = severity >= 3 || tier == StoryTier.Headline
+                    ? TaleWorlds.Library.Colors.Yellow
+                    : severity >= 1 || tier == StoryTier.Pertinent
+                        ? TaleWorlds.Library.Colors.Cyan
+                        : TaleWorlds.Library.Colors.White;
+
+                TaleWorlds.Library.InformationManager.DisplayMessage(
+                    new TaleWorlds.Library.InformationMessage(text, color));
+
+                ModLogger.Info("NEWS",
+                    $"campaign_log_written: category={category}, story={storyKey}, tier={tier}, title={text}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("NEWS", "WritePersonalDispatchToCampaignLog failed", ex);
+            }
+        }
 
         /// <summary>
         /// Checks if the player is currently enlisted.

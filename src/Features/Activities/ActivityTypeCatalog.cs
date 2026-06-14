@@ -40,6 +40,12 @@ namespace Enlisted.Features.Activities
                 {
                     var json = File.ReadAllText(file);
                     var root = JObject.Parse(json);
+                    if (IsActivityProfileFile(root, file))
+                    {
+                        ModLogger.Debug("ACTIVITY", "Skipping non-activity profile/config file: " + file);
+                        continue;
+                    }
+
                     var def = Parse(root);
                     if (def == null || string.IsNullOrEmpty(def.Id))
                     {
@@ -63,6 +69,30 @@ namespace Enlisted.Features.Activities
             {
                 ModLogger.Surfaced("ACTIVITY", "ActivityTypeCatalog registered 0 types despite JSON files present", null);
             }
+        }
+
+
+        private static bool IsActivityProfileFile(JObject root, string file)
+        {
+            if (root == null)
+            {
+                return false;
+            }
+
+            if (root["id"] != null)
+            {
+                return false;
+            }
+
+            if (root["profiles"] != null)
+            {
+                return true;
+            }
+
+            var fileName = Path.GetFileName(file);
+            return fileName != null &&
+                   (fileName.EndsWith("_profiles.json", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.EndsWith("_config.json", StringComparison.OrdinalIgnoreCase));
         }
 
         private static ActivityTypeDefinition Parse(JObject root)

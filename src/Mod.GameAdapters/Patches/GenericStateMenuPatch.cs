@@ -25,6 +25,9 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [HarmonyPatch(typeof(DefaultEncounterGameMenuModel), nameof(DefaultEncounterGameMenuModel.GetGenericStateMenu))]
     public class GenericStateMenuPatch
     {
+        private static string _lastNativeMenuRequestSnapshot;
+        private static string _lastNativeMenuAllowSnapshot;
+        private static string _lastNativeMenuOverrideSnapshot;
         /// <summary>
         /// Postfix that overrides the result when player is enlisted.
         /// Returns "enlisted_status" for non-combat situations and "enlisted_battle_wait" for combat.
@@ -60,12 +63,17 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 var inMapEvent = mainParty?.Party?.MapEvent != null;
                 var hasEncounter = PlayerEncounter.Current != null;
 
-                // Only log when result is meaningful (not null/empty)
+                // Only log when result/state changes. This method can be called hundreds of times per second.
                 if (!string.IsNullOrEmpty(__result))
                 {
-                    ModLogger.Info("MenuGuard",
-                        $"NATIVE MENU REQUEST: '{__result}' | Active={partyActive}, Visible={partyVisible}, " +
-                        $"InMapEvent={inMapEvent}, HasEncounter={hasEncounter}");
+                    var requestSnapshot = $"{__result}|{partyActive}|{partyVisible}|{inMapEvent}|{hasEncounter}";
+                    if (!string.Equals(_lastNativeMenuRequestSnapshot, requestSnapshot, StringComparison.Ordinal))
+                    {
+                        _lastNativeMenuRequestSnapshot = requestSnapshot;
+                        ModLogger.Info("MenuGuard",
+                            $"NATIVE MENU REQUEST: '{__result}' | Active={partyActive}, Visible={partyVisible}, " +
+                            $"InMapEvent={inMapEvent}, HasEncounter={hasEncounter}");
+                    }
                 }
 
                 // If native wants to push the encounter menu after the battle is already over, suppress it.
@@ -123,7 +131,9 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 if (hasExplicitlyVisited)
                 {
                     // Player has explicitly clicked "Visit Settlement" - don't override
-                    ModLogger.Info("MenuGuard", $"ALLOWING native menu '{__result}' - player explicitly visited settlement");
+                    LogMenuGuardStateChange(ref _lastNativeMenuAllowSnapshot,
+                        $"explicit|{__result}",
+                        $"ALLOWING native menu '{__result}' - player explicitly visited settlement");
                     return;
                 }
 
@@ -176,14 +186,18 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 if (lordInBattle && __result == "encounter")
                 {
                     // Lord is in battle and native wants to show encounter menu - don't override
-                    ModLogger.Info("MenuGuard", $"ALLOWING 'encounter' menu - lord is in battle");
+                    LogMenuGuardStateChange(ref _lastNativeMenuAllowSnapshot,
+                        $"lord_battle|{__result}",
+                        "ALLOWING 'encounter' menu - lord is in battle");
                     return;
                 }
 
                 // During sieges, let ALL native menus flow (army_wait, menu_siege_strategies, etc.)
                 if (lordInSiege)
                 {
-                    ModLogger.Info("MenuGuard", $"ALLOWING native menu '{__result}' - during siege");
+                    LogMenuGuardStateChange(ref _lastNativeMenuAllowSnapshot,
+                        $"siege|{__result}",
+                        $"ALLOWING native menu '{__result}' - during siege");
                     return;
                 }
 
@@ -199,7 +213,9 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     __result == "castle_outside" ||
                     __result == "village")
                 {
-                    ModLogger.Info("MenuGuard", $"MENU OVERRIDE: '{__result}' -> 'enlisted_status' (keeping enlisted menu)");
+                    LogMenuGuardStateChange(ref _lastNativeMenuOverrideSnapshot,
+                        $"override|{__result}|enlisted_status",
+                        $"MENU OVERRIDE: '{__result}' -> 'enlisted_status' (keeping enlisted menu)");
                     __result = "enlisted_status";
                 }
             }
@@ -207,6 +223,16 @@ namespace Enlisted.Mod.GameAdapters.Patches
             {
                 ModLogger.Caught("GenericStateMenuPatch", "Error in GetGenericStateMenu patch", ex);
             }
+        }
+        private static void LogMenuGuardStateChange(ref string lastSnapshot, string snapshot, string message)
+        {
+            if (string.Equals(lastSnapshot, snapshot, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            lastSnapshot = snapshot;
+            ModLogger.Info("MenuGuard", message);
         }
     }
 }
