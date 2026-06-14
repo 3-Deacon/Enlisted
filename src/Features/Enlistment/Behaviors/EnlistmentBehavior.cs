@@ -5200,7 +5200,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Damage relation with lord for stiffing us
             if (_enlistedLord != null)
             {
-                ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, -10, false);
+                EscalationManager.Instance?.ModifyLordReputation(-10, "backpay_written_off");
             }
 
             _lastPayOutcome = $"written_off:{writtenOff}";
@@ -5253,7 +5253,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                         ModLogger.Info("PAY", $"Corruption muster success (Payout={payout}, Chance={chance:0.00}, Roll={roll:0.00})");
                         if (_enlistedLord != null)
                         {
-                            ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, 1);
+                            EscalationManager.Instance?.ModifyLordReputation(1, "pay_corruption_success");
                         }
                     }
                     else
@@ -5289,7 +5289,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (_enlistedLord != null)
             {
-                ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, -5);
+                EscalationManager.Instance?.ModifyLordReputation(-5, "pay_corruption_failed");
             }
 
             _lastPayOutcome = $"corruption_fail:{payout}";
@@ -5517,7 +5517,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Apply relations
                 if (_enlistedLord != null)
                 {
-                    ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, lordRelation);
+                    EscalationManager.Instance?.ModifyLordReputation(lordRelation, "final_muster:" + band);
                 }
 
                 var faction = _enlistedLord?.MapFaction;
@@ -5591,7 +5591,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (_enlistedLord != null)
                 {
-                    ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, -50);
+                    EscalationManager.Instance?.ModifyLordReputation(-50, "smuggle_discharge_deserter");
                 }
 
                 // Deserter outcome: keep all gear, clear pension
@@ -8993,7 +8993,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // +30 with current lord
                 if (_enlistedLord != null)
                 {
-                    ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, config.LordRelationBonus);
+                    EscalationManager.Instance?.ModifyLordReputation(config.LordRelationBonus, "veteran_retirement");
                     ModLogger.Info("RETIREMENT", $"+{config.LordRelationBonus} relation with {_enlistedLord.Name}");
                 }
 
@@ -9084,7 +9084,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // +10 with current lord
                 if (_enlistedLord != null)
                 {
-                    ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, subsequentBonus);
+                    EscalationManager.Instance?.ModifyLordReputation(subsequentBonus, "subsequent_reenlistment");
                     ModLogger.Info("RETIREMENT", $"+{subsequentBonus} relation with {_enlistedLord.Name} (subsequent re-enlistment)");
                 }
 

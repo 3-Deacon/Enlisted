@@ -43,10 +43,10 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-COMPANION-1a21 | schema_version_mismatch | src/Features/Companions/CompanionSpawnFactory.cs:77 |
 | E-COMPANION-1dad | duplicate_companion_type | src/Features/Companions/CompanionSpawnFactory.cs:101 |
-| E-COMPANION-2e14 | companion_killed_in_battle | src/Features/Companions/CompanionLifecycleHandler.cs:211 |
 | E-COMPANION-3c31 | companion_type_no_archetypes | src/Features/Companions/CompanionSpawnFactory.cs:301 |
 | E-COMPANION-56bb | unknown_companion_type | src/Features/Companions/CompanionSpawnFactory.cs:160 |
 | E-COMPANION-6309 | spawn_no_template | src/Features/Companions/CompanionSpawnFactory.cs:196 |
+| E-COMPANION-71e1 | companion_death_cleanup_failed | src/Features/Companions/CompanionLifecycleHandler.cs:216 |
 | E-COMPANION-7de6 | no_archetype | src/Features/Companions/CompanionSpawnFactory.cs:184 |
 | E-COMPANION-7ee5 | companion_type_missing_id | src/Features/Companions/CompanionSpawnFactory.cs:268 |
 | E-COMPANION-aad7 | main_party_missing | src/Features/Companions/CompanionSpawnFactory.cs:244 |

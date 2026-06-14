@@ -343,7 +343,8 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (originalMapEventId != "none" && currentMapEventId != originalMapEventId)
                 {
                     ModLogger.Info("ENCOUNTERGUARD",
-                        $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - OnMapEventEnded likely already handled cleanup");
+                        $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - canonical cleanup already owns this transition");
+                    return;
                 }
 
                 // Check if cleanup is still needed - OnMapEventEnded may have already handled it

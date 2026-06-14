@@ -95,7 +95,15 @@ namespace Enlisted.Features.Content
         {
             Register("is_enlisted", (_, _2) => EnlistmentBehavior.Instance?.IsEnlisted == true);
 
-            Register("is_at_sea", (_, _2) => MobileParty.MainParty?.IsCurrentlyAtSea == true);
+            Register("is_at_sea", (_, _2) =>
+            {
+                var p = MobileParty.MainParty;
+                return p != null
+                    && p.CurrentSettlement == null
+                    && p.BesiegedSettlement == null
+                    && p.BesiegerCamp == null
+                    && p.IsCurrentlyAtSea;
+            });
 
             Register("in_settlement", (_, _2) => MobileParty.MainParty?.CurrentSettlement != null);
 

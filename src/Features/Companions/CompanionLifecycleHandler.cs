@@ -208,9 +208,13 @@ namespace Enlisted.Features.Companions
 
                 if (enlistment.ClearCompanionSlot(victim))
                 {
-                    ModLogger.Surfaced("COMPANION", "companion_killed_in_battle", null,
-                        LogCtx.Of("typeId", typeId, "name", victim.Name?.ToString() ?? "?"));
+                    ModLogger.Info("COMPANION",
+                        $"Companion killed in battle and slot cleared: {victim.Name} ({typeId})");
+                    return;
                 }
+
+                ModLogger.Surfaced("COMPANION", "companion_death_cleanup_failed", null,
+                    LogCtx.Of("typeId", typeId, "name", victim.Name?.ToString() ?? "?"));
             }
             catch (Exception ex)
             {
