@@ -35,6 +35,7 @@ namespace Enlisted.Features.Escalation
 
         private readonly EscalationState _state = new EscalationState();
         private int _lastDailyTickDayNumber = -1;
+        private int _lastScrutinyDecayDayNumber = -1;
         private HashSet<int> _declinedPromotions = new HashSet<int>();
 
         public EscalationState State => _state;
@@ -431,6 +432,20 @@ namespace Enlisted.Features.Escalation
             }
 
             var oldValue = _state.Scrutiny;
+            var isRoutineCampIncrease = delta > 0 &&
+                reason != null &&
+                reason.IndexOf("camp incident", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                !reason.Contains("discipline") &&
+                delta <= 5;
+
+            var today = (int)CampaignTime.Now.ToDays;
+            if (isRoutineCampIncrease && oldValue >= 95 && _lastScrutinyDecayDayNumber == today)
+            {
+                ModLogger.Info(LogCategory,
+                    $"Routine scrutiny increase suppressed after same-day quiet decay: {oldValue} unchanged (delta={delta}, reason={reason})");
+                return;
+            }
+
             var next = oldValue + delta;
             _state.Scrutiny = Clamp(next, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
 
@@ -510,9 +525,12 @@ namespace Enlisted.Features.Escalation
             if (oldValue == newValue)
             {
                 ModLogger.Info(LogCategory,
-                    $"LordRelation unchanged at {newValue} after delta {delta:+#;-#;0}{FormatReason(reason)}");
+                    $"Lord relation unchanged: {lord.Name} {newValue} after delta {delta:+#;-#;0}{FormatReason(reason)}");
                 return;
             }
+
+            ModLogger.Info(LogCategory,
+                $"Lord relation changed: {lord.Name} {oldValue} -> {newValue} (delta={newValue - oldValue:+#;-#;0}{FormatReason(reason)})");
 
             LogTrackChange("LordRelation", oldValue, newValue, reason);
 
@@ -579,6 +597,7 @@ namespace Enlisted.Features.Escalation
                 {
                     _state.Scrutiny = updated;
                     _state.LastScrutinyDecayTime = updatedTime;
+                    _lastScrutinyDecayDayNumber = (int)now.ToDays;
                     ModLogger.Info(LogCategory, $"Scrutiny decayed: {old} -> {updated} (quiet service)");
                     ShowScrutinyEasedMessage(old, updated);
                 }

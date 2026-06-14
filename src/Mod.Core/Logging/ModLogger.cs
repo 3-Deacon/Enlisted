@@ -43,6 +43,16 @@ namespace Enlisted.Mod.Core.Logging
         private const string SessionPrefix = "Session-";
         private static readonly string[] SessionSlots = { "Session-A", "Session-B", "Session-C" };
         private const string CombinedPointerFile = "Current_Session_README.txt";
+        private const string LoggerHealthFile = "LoggerHealth.txt";
+
+        private static string _primaryLogFilePath;
+        private static string _lastRecoveryLogFilePath;
+        private static int _writeFailureCount;
+        private static bool _usingRecoveryLog;
+        private static DateTime _lastSuccessfulWriteUtc = DateTime.MinValue;
+        private static DateTime _lastWriteFailureUtc = DateTime.MinValue;
+
+        internal static object FileWriteLock => Sync;
 
         // Per-category log levels (default to Info)
         private static Dictionary<string, LogLevel> _categoryLevels = new Dictionary<string, LogLevel>(StringComparer.OrdinalIgnoreCase);
@@ -115,6 +125,12 @@ namespace Enlisted.Mod.Core.Logging
                     _logFilePath = string.IsNullOrWhiteSpace(customPath) ? ResolveDefaultLogPath() : customPath;
                     _logFilePath = PrepareSessionLogFile(_logFilePath);
                     _sessionId = Path.GetFileNameWithoutExtension(_logFilePath) ?? "Session-A";
+                    _primaryLogFilePath = _logFilePath;
+                    _lastRecoveryLogFilePath = null;
+                    _writeFailureCount = 0;
+                    _usingRecoveryLog = false;
+                    _lastSuccessfulWriteUtc = DateTime.MinValue;
+                    _lastWriteFailureUtc = DateTime.MinValue;
 
                     // Clear session-specific tracking
                     LoggedOnceKeys.Clear();
@@ -128,6 +144,7 @@ namespace Enlisted.Mod.Core.Logging
 
                     // Write initialization message - this will test if logging works
                     WriteInternal("INFO", "Init", $"Logger initialized (session: {_sessionId}, path: {_logFilePath})");
+                    HealthCheck("initialize");
                 }
             }
             catch (Exception ex)
@@ -139,6 +156,8 @@ namespace Enlisted.Mod.Core.Logging
                 {
                     _logFilePath = PrepareSessionLogFile(ResolveDocumentsPath());
                     _sessionId = Path.GetFileNameWithoutExtension(_logFilePath) ?? "Session-A";
+                    _primaryLogFilePath = _logFilePath;
+                    _usingRecoveryLog = false;
                 }
                 catch
                 {
@@ -162,6 +181,24 @@ namespace Enlisted.Mod.Core.Logging
                 _throttleSeconds = Math.Max(0, throttleSeconds);
 
                 WriteInternal("INFO", "Init", $"Log levels configured: default={defaultLevel}, throttle={_throttleSeconds}s, categories={_categoryLevels.Count}");
+            }
+        }
+
+        /// <summary>
+        /// Writes a logger-health checkpoint to the active session log and to LoggerHealth.txt.
+        /// Use this at lifecycle boundaries so stale or redirected session logs are visible.
+        /// </summary>
+        public static void HealthCheck(string phase)
+        {
+            try
+            {
+                var status = BuildHealthStatus(phase);
+                WriteInternal("INFO", "LOGGER", status);
+                WriteLoggerHealthMarker(status);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Enlisted] Logger health check failed: {ex.Message}");
             }
         }
 
@@ -781,50 +818,229 @@ namespace Enlisted.Mod.Core.Logging
 
         private static void WriteInternal(string level, string category, string message)
         {
-            // Ensure path is set (in case Initialize wasn't called)
+            var line = FormatLine(level, category, message);
+
+            lock (Sync)
+            {
+                EnsureLogPathReady();
+
+                if (TryAppendText(_logFilePath, line, out var primaryError))
+                {
+                    _lastSuccessfulWriteUtc = DateTime.UtcNow;
+                    return;
+                }
+
+                _writeFailureCount++;
+                _lastWriteFailureUtc = DateTime.UtcNow;
+
+                var failedPath = _logFilePath;
+                var recoveryPath = ResolveRecoveryLogPath(failedPath);
+                var recoveryNotice = FormatLine(
+                    "WARN",
+                    "LOGGER",
+                    $"Primary session log write failed; switching to recovery log. primary={failedPath}, recovery={recoveryPath}, error={primaryError.GetType().Name}: {primaryError.Message}");
+
+                if (TryAppendText(recoveryPath, recoveryNotice + line, out var recoveryError))
+                {
+                    ActivateRecoveryLog(recoveryPath, "module_recovery", primaryError);
+                    _lastSuccessfulWriteUtc = DateTime.UtcNow;
+                    return;
+                }
+
+                var fallbackPath = ResolveDocumentsRecoveryPath();
+                var fallbackNotice = FormatLine(
+                    "WARN",
+                    "LOGGER",
+                    $"Module recovery log write failed; switching to Documents fallback. primary={failedPath}, recovery={recoveryPath}, fallback={fallbackPath}, primaryError={primaryError.GetType().Name}: {primaryError.Message}, recoveryError={recoveryError.GetType().Name}: {recoveryError.Message}");
+
+                if (TryAppendText(fallbackPath, fallbackNotice + line, out var fallbackError))
+                {
+                    ActivateRecoveryLog(fallbackPath, "documents_fallback", recoveryError);
+                    _lastSuccessfulWriteUtc = DateTime.UtcNow;
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[Enlisted][{level}][{category}] {message}");
+                System.Diagnostics.Debug.WriteLine($"[Enlisted] All log paths failed. Primary: {primaryError.Message}, Recovery: {recoveryError.Message}, Fallback: {fallbackError.Message}");
+            }
+        }
+
+        private static void EnsureLogPathReady()
+        {
+            if (!string.IsNullOrWhiteSpace(_logFilePath))
+            {
+                return;
+            }
+
+            _logFilePath = ResolveDefaultLogPath();
             if (string.IsNullOrWhiteSpace(_logFilePath))
             {
-                _logFilePath = ResolveDefaultLogPath();
-                if (string.IsNullOrWhiteSpace(_logFilePath))
-                {
-                    _logFilePath = ResolveDocumentsPath();
-                }
+                _logFilePath = ResolveDocumentsPath();
+            }
+
+            _logFilePath = PrepareSessionLogFile(_logFilePath);
+            _sessionId = Path.GetFileNameWithoutExtension(_logFilePath) ?? "Session-A";
+            _primaryLogFilePath = _logFilePath;
+            SessionSummaryFooter.SessionLogPath = _logFilePath;
+        }
+
+        private static bool TryAppendText(string path, string text, out Exception error)
+        {
+            error = null;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                error = new InvalidOperationException("Log path is empty");
+                return false;
             }
 
             try
             {
-                lock (Sync)
-                {
-                    var logDir = Path.GetDirectoryName(_logFilePath);
-                    EnsureDirectoryExists(logDir);
-                    var line = FormatLine(level, category, message);
-                    File.AppendAllText(_logFilePath, line, Encoding.UTF8);
-                }
+                var logDir = Path.GetDirectoryName(path);
+                EnsureDirectoryExists(logDir);
+                File.AppendAllText(path, text, Encoding.UTF8);
+                return true;
             }
             catch (Exception ex)
             {
-                // Fallback to Documents path
-                try
-                {
-                    var fallback = ResolveDocumentsPath();
-                    var logDir = Path.GetDirectoryName(fallback);
-                    EnsureDirectoryExists(logDir);
-                    var line = FormatLine(level, category, message);
-                    File.AppendAllText(fallback, line, Encoding.UTF8);
+                error = ex;
+                return false;
+            }
+        }
 
-                    // If we had to use fallback, update the main path for future writes
-                    if (_logFilePath != fallback)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[Enlisted] Primary log path failed, using fallback: {fallback} (Error: {ex.Message})");
-                        _logFilePath = fallback;
-                    }
-                }
-                catch (Exception fallbackEx)
+        private static void ActivateRecoveryLog(string path, string mode, Exception cause)
+        {
+            var previous = _logFilePath;
+            _logFilePath = path;
+            _sessionId = Path.GetFileNameWithoutExtension(path) ?? _sessionId;
+            _lastRecoveryLogFilePath = path;
+            _usingRecoveryLog = !string.Equals(path, _primaryLogFilePath, StringComparison.OrdinalIgnoreCase);
+            SessionSummaryFooter.SessionLogPath = path;
+
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                WriteCombinedPointer(dir, Path.GetFileName(path), null);
+            }
+
+            var primaryDir = string.IsNullOrWhiteSpace(_primaryLogFilePath)
+                ? null
+                : Path.GetDirectoryName(_primaryLogFilePath);
+            if (!string.IsNullOrWhiteSpace(primaryDir)
+                && !string.Equals(primaryDir, dir, StringComparison.OrdinalIgnoreCase))
+            {
+                WriteCombinedPointer(primaryDir, path, null);
+            }
+
+            var status = $"recovery activated: mode={mode}, previous={previous}, active={path}, failures={_writeFailureCount}, cause={cause.GetType().Name}: {cause.Message}";
+            WriteLoggerHealthMarker(status);
+        }
+
+        private static string ResolveRecoveryLogPath(string failedPath)
+        {
+            var logDir = Path.GetDirectoryName(failedPath);
+            if (string.IsNullOrWhiteSpace(logDir))
+            {
+                logDir = Path.GetDirectoryName(ResolveDocumentsPath());
+            }
+
+            var baseName = Path.GetFileNameWithoutExtension(failedPath);
+            if (string.IsNullOrWhiteSpace(baseName))
+            {
+                baseName = string.IsNullOrWhiteSpace(_sessionId) ? "Session-A" : _sessionId;
+            }
+
+            if (baseName.EndsWith("_recovery", StringComparison.OrdinalIgnoreCase)
+                || baseName.EndsWith("_documents", StringComparison.OrdinalIgnoreCase))
+            {
+                return Path.Combine(logDir, baseName + ".log");
+            }
+
+            return Path.Combine(logDir, baseName + "_recovery.log");
+        }
+
+        private static string ResolveDocumentsRecoveryPath()
+        {
+            var baseName = string.IsNullOrWhiteSpace(_sessionId) ? "Session-A" : _sessionId;
+            if (!baseName.EndsWith("_documents", StringComparison.OrdinalIgnoreCase))
+            {
+                baseName += "_documents";
+            }
+            return ResolveDocumentsPath(baseName + ".log");
+        }
+
+        private static string BuildHealthStatus(string phase)
+        {
+            var activePath = _logFilePath ?? "none";
+            var primaryPath = _primaryLogFilePath ?? "none";
+            return $"health: phase={phase}, active={activePath}, primary={primaryPath}, recovery={_lastRecoveryLogFilePath ?? "none"}, usingRecovery={_usingRecoveryLog}, failures={_writeFailureCount}, lastSuccessUtc={FormatUtc(_lastSuccessfulWriteUtc)}, lastFailureUtc={FormatUtc(_lastWriteFailureUtc)}, activeBytes={TryGetFileLength(activePath)}, primaryBytes={TryGetFileLength(primaryPath)}";
+        }
+
+        private static string FormatUtc(DateTime value)
+        {
+            return value == DateTime.MinValue
+                ? "never"
+                : value.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+        }
+
+        private static long TryGetFileLength(string path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
                 {
-                    // Last resort: Debug output
-                    System.Diagnostics.Debug.WriteLine($"[Enlisted][{level}][{category}] {message}");
-                    System.Diagnostics.Debug.WriteLine($"[Enlisted] Both primary and fallback log paths failed. Primary: {ex.Message}, Fallback: {fallbackEx.Message}");
+                    return -1;
                 }
+                return new FileInfo(path).Length;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        private static void WriteLoggerHealthMarker(string status)
+        {
+            try
+            {
+                var line = $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)}] {status}\r\n";
+                var dirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                AddDirectory(dirs, _primaryLogFilePath);
+                AddDirectory(dirs, _logFilePath);
+                AddDirectory(dirs, _lastRecoveryLogFilePath);
+
+                var defaultPath = ResolveDefaultLogPath();
+                AddDirectory(dirs, defaultPath);
+
+                foreach (var dir in dirs)
+                {
+                    var healthPath = Path.Combine(dir, LoggerHealthFile);
+                    _ = TryAppendText(healthPath, line, out _);
+                }
+            }
+            catch
+            {
+                // health markers must never break normal logging
+            }
+        }
+
+        private static void AddDirectory(HashSet<string> dirs, string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            try
+            {
+                var dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrWhiteSpace(dir))
+                {
+                    _ = dirs.Add(dir);
+                }
+            }
+            catch
+            {
+                // ignore invalid diagnostic paths
             }
         }
 
@@ -955,7 +1171,11 @@ namespace Enlisted.Mod.Core.Logging
                 // Emit the one-and-only header block (mod version, game version,
                 // player snapshot). File.AppendAllText creates the file if missing,
                 // so no separate WriteSessionHeader pass is needed.
-                WriteRawToSession(newLogPath, SessionHeaderWriter.Build());
+                if (!WriteRawToSession(newLogPath, SessionHeaderWriter.Build()))
+                {
+                    newLogPath = ResolveRecoveryLogPath(newLogPath);
+                    _ = WriteRawToSession(newLogPath, SessionHeaderWriter.Build());
+                }
                 // Publish the session log path to SessionSummaryFooter so it
                 // knows where to rewrite the rolling summary tail block.
                 SessionSummaryFooter.SessionLogPath = newLogPath;
@@ -1005,22 +1225,16 @@ namespace Enlisted.Mod.Core.Logging
         /// verbatim. Swallows any IO failure — header emission must never break
         /// the mod.
         /// </summary>
-        private static void WriteRawToSession(string path, string text)
+        private static bool WriteRawToSession(string path, string text)
         {
             if (string.IsNullOrEmpty(text))
             {
-                return;
+                return true;
             }
-            try
+
+            lock (Sync)
             {
-                lock (Sync)
-                {
-                    File.AppendAllText(path, text, Encoding.UTF8);
-                }
-            }
-            catch
-            {
-                // swallow — never break the mod for header emission
+                return TryAppendText(path, text, out _);
             }
         }
 
@@ -1072,6 +1286,9 @@ namespace Enlisted.Mod.Core.Logging
                 {
                     _ = sb.AppendLine($"Current file: {conflictsFile}");
                 }
+                _ = sb.AppendLine();
+                _ = sb.AppendLine("Logger health");
+                _ = sb.AppendLine("- LoggerHealth.txt: upload this too if Session-A stops growing or points at a recovery/fallback log.");
                 _ = sb.AppendLine();
                 _ = sb.AppendLine("Send both the session and conflicts logs (choose one path):");
                 _ = sb.AppendLine("- Option 1: Upload both logs to pastebin.com and post the links on the BUG forums: https://www.nexusmods.com/mountandblade2bannerlord/mods/9193?tab=posts");

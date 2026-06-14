@@ -55,6 +55,7 @@ namespace Enlisted.Features.Combat.Behaviors
 
         // Retry lord attach when formation is solo and lord agent was not spawned yet
         private bool _needsLordAttachRetry;
+        private bool _loggedLordAttachFailure;
         private int _lordAttachRetryAttempts;
         private const int MaxLordAttachRetryAttempts = 180; // ~3 seconds at 60fps
 
@@ -363,6 +364,13 @@ namespace Enlisted.Features.Combat.Behaviors
                 }
                 else if (_lordAttachRetryAttempts >= MaxLordAttachRetryAttempts)
                 {
+                    if (_needsLordAttachRetry && !_loggedLordAttachFailure)
+                    {
+                        ModLogger.Warn("FORMATIONASSIGNMENT",
+                            $"Lord/allied formation attach failed after {MaxLordAttachRetryAttempts} attempts; keeping current player formation");
+                        _loggedLordAttachFailure = true;
+                    }
+
                     _needsLordAttachRetry = false;
                 }
 
@@ -694,6 +702,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     }
 
                     _needsLordAttachRetry = false;
+                    _loggedLordAttachFailure = false;
                     return true;
                 }
 
@@ -724,19 +733,21 @@ namespace Enlisted.Features.Combat.Behaviors
                     }
 
                     _needsLordAttachRetry = false;
+                    _loggedLordAttachFailure = false;
                     return true;
                 }
 
                 var missionTeamCount = missionTeams?.Count() ?? 0;
                 if (!_loggedSoloAttachMissing)
                 {
-                    ModLogger.Warn("FORMATIONASSIGNMENT",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"[{caller}] Solo formation; no allied/lord formation yet (teams={missionTeamCount}). Will retry briefly.");
                     _loggedSoloAttachMissing = true;
                 }
 
                 // Schedule retry on tick (lord may not be spawned yet)
                 _needsLordAttachRetry = true;
+                _loggedLordAttachFailure = false;
                 _lordAttachRetryAttempts = 0;
                 return false;
             }

@@ -242,8 +242,18 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// </summary>
         private bool _isProcessingDischarge;
 
-        // Captivity settlement log throttle to avoid spamming every hop
-        private static readonly HashSet<string> _captivitySettlementsLogged = new HashSet<string>();
+        // Captivity settlement log throttle to avoid spamming every hop.
+        // Native settlement-enter events can fire for many unrelated parties while the
+        // player is prisoner; only log actual captor-party movement and summarize repeats.
+        private static string _lastCaptivitySettlementLogKey;
+        private static CampaignTime _lastCaptivitySettlementLogTime = CampaignTime.Zero;
+        private static int _suppressedCaptivitySettlementLogs;
+
+        // Native map-event callbacks can keep firing while player captivity owns state.
+        // Keep the safety guard but do not flood Session-A with identical skip lines.
+        private static string _lastPrisonerEventSafetyLogKey;
+        private static CampaignTime _lastPrisonerEventSafetyLogTime = CampaignTime.Zero;
+        private static int _suppressedPrisonerEventSafetyLogs;
 
         /// <summary>
         ///     Last campaign time when the real-time tick update was processed.
@@ -955,15 +965,25 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                     if (relationBonus > 0)
                     {
+                        var reason = $"reservist_reentry:{band}";
                         if (_enlistedLord != null)
                         {
-                            ChangeRelationAction.ApplyPlayerRelation(_enlistedLord, relationBonus);
+                            EscalationManager.Instance?.ModifyLordReputation(relationBonus, reason);
+                        }
+                        else
+                        {
+                            ModLogger.Expected("ENLISTMENT", "reservist_relation_lord_missing",
+                                $"Reservist relation bonus skipped: no enlisted lord (delta={relationBonus}, band={band})");
                         }
 
                         var factionLeader = faction.Leader;
-                        if (factionLeader != null && factionLeader != _enlistedLord)
+                        if (factionLeader != null && factionLeader != _enlistedLord && Hero.MainHero != null)
                         {
-                            ChangeRelationAction.ApplyPlayerRelation(factionLeader, relationBonus);
+                            var oldLeaderRelation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, factionLeader);
+                            ChangeRelationAction.ApplyPlayerRelation(factionLeader, relationBonus, affectRelatives: false, showQuickNotification: false);
+                            var newLeaderRelation = CharacterRelationManager.GetHeroRelation(Hero.MainHero, factionLeader);
+                            ModLogger.Info("Escalation",
+                                $"Faction leader relation changed: {factionLeader.Name} {oldLeaderRelation} -> {newLeaderRelation} (delta={relationBonus}, source={reason})");
                         }
                     }
 
@@ -12083,6 +12103,88 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
         }
 
+        private static void ResetCaptivitySettlementLogThrottle()
+        {
+            _lastCaptivitySettlementLogKey = null;
+            _lastCaptivitySettlementLogTime = CampaignTime.Zero;
+            _suppressedCaptivitySettlementLogs = 0;
+        }
+
+        private static void LogCaptorSettlementEntryIfRelevant(MobileParty party, Settlement settlement)
+        {
+            try
+            {
+                var mainHero = Hero.MainHero;
+                var captorParty = mainHero?.PartyBelongedToAsPrisoner?.MobileParty;
+                if (captorParty == null || party != captorParty)
+                {
+                    return;
+                }
+
+                var settlementId = settlement?.StringId ?? "unknown";
+                var settlementName = settlement?.Name?.ToString() ?? settlementId;
+                var key = captorParty.StringId + "|" + settlementId;
+                var now = CampaignTime.Now;
+                var elapsedHours = _lastCaptivitySettlementLogTime == CampaignTime.Zero
+                    ? double.MaxValue
+                    : (now - _lastCaptivitySettlementLogTime).ToHours;
+
+                if (string.Equals(_lastCaptivitySettlementLogKey, key, StringComparison.Ordinal) && elapsedHours < 6.0)
+                {
+                    _suppressedCaptivitySettlementLogs++;
+                    return;
+                }
+
+                var suffix = _suppressedCaptivitySettlementLogs > 0
+                    ? $" (suppressed {_suppressedCaptivitySettlementLogs} repeated captor settlement updates)"
+                    : string.Empty;
+
+                ModLogger.Info("Captivity",
+                    $"Captor entered {settlementName} with player as prisoner{suffix}");
+
+                _lastCaptivitySettlementLogKey = key;
+                _lastCaptivitySettlementLogTime = now;
+                _suppressedCaptivitySettlementLogs = 0;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Debug("Captivity", $"Error logging captor settlement entry: {ex.Message}");
+            }
+        }
+
+        private static void LogPrisonerEventSafetySkip(string context, bool isPrisoner, bool captureCleanupScheduled)
+        {
+            try
+            {
+                var now = CampaignTime.Now;
+                var key = context + "|" + isPrisoner + "|" + captureCleanupScheduled;
+                var elapsedHours = _lastPrisonerEventSafetyLogTime == CampaignTime.Zero
+                    ? double.MaxValue
+                    : (now - _lastPrisonerEventSafetyLogTime).ToHours;
+
+                if (string.Equals(_lastPrisonerEventSafetyLogKey, key, StringComparison.Ordinal) && elapsedHours < 1.0)
+                {
+                    _suppressedPrisonerEventSafetyLogs++;
+                    return;
+                }
+
+                var suffix = _suppressedPrisonerEventSafetyLogs > 0
+                    ? $" (suppressed {_suppressedPrisonerEventSafetyLogs} repeated prisoner-state map-event skips)"
+                    : string.Empty;
+
+                ModLogger.Info("EVENTSAFETY",
+                    $"Skipping {context} - player prisoner or cleanup pending (IsPrisoner={isPrisoner}, CaptureCleanupScheduled={captureCleanupScheduled}){suffix}");
+
+                _lastPrisonerEventSafetyLogKey = key;
+                _lastPrisonerEventSafetyLogTime = now;
+                _suppressedPrisonerEventSafetyLogs = 0;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Debug("EVENTSAFETY", $"Error logging prisoner map-event safety skip: {ex.Message}");
+            }
+        }
+
         /// <summary>
         ///     MINIMAL: Settlement entry detection for menu refresh only.
         ///     Just refreshes the menu when lord enters settlements - no complex logic.
@@ -12110,18 +12212,11 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     if (playerIsPrisoner)
                     {
-                        var settlementName = settlement?.Name?.ToString() ?? "unknown";
-                        if (!_captivitySettlementsLogged.Contains(settlementName))
-                        {
-                            ModLogger.Info("Captivity",
-                                $"Captor entered {settlementName} with player as prisoner");
-                            _ = _captivitySettlementsLogged.Add(settlementName);
-                        }
+                        LogCaptorSettlementEntryIfRelevant(party, settlement);
                     }
                     else
                     {
-                        // Clear throttle cache once not prisoner so next captivity run logs fresh
-                        _captivitySettlementsLogged.Clear();
+                        ResetCaptivitySettlementLogThrottle();
                     }
 
                     return;
@@ -12412,8 +12507,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // and forcing battle prep (teleport/army join) can crash when captors are attacked.
                 if (Hero.MainHero.IsPrisoner || _playerCaptureCleanupScheduled)
                 {
-                    ModLogger.Info("EVENTSAFETY",
-                        $"Skipping MapEventStarted - player prisoner or cleanup pending (IsPrisoner={Hero.MainHero.IsPrisoner}, CaptureCleanupScheduled={_playerCaptureCleanupScheduled})");
+                    LogPrisonerEventSafetySkip("MapEventStarted", Hero.MainHero.IsPrisoner, _playerCaptureCleanupScheduled);
                     return;
                 }
 
@@ -12588,8 +12682,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // enlistment cleanup (army/visibility/menu) and let native captivity flow finalize first.
                 if (Hero.MainHero.IsPrisoner || _playerCaptureCleanupScheduled)
                 {
-                    ModLogger.Info("EVENTSAFETY",
-                        $"Skipping MapEventEnded - player prisoner or cleanup pending (IsPrisoner={Hero.MainHero.IsPrisoner}, CaptureCleanupScheduled={_playerCaptureCleanupScheduled})");
+                    LogPrisonerEventSafetySkip("MapEventEnded", Hero.MainHero.IsPrisoner, _playerCaptureCleanupScheduled);
                     _cachedLordMapEvent = null;
                     return;
                 }

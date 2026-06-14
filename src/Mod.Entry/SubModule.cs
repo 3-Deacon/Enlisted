@@ -132,6 +132,7 @@ namespace Enlisted.Mod.Entry
             {
                 // Initialize logging system - this clears old logs and starts fresh
                 ModLogger.Initialize();
+                ModLogger.HealthCheck("submodule_load_after_initialize");
                 ModLogger.Info("Bootstrap", "SubModule loading");
 
                 // Create Harmony instance with a unique identifier to avoid patch collisions
@@ -293,8 +294,10 @@ namespace Enlisted.Mod.Entry
                 // Run mod conflict diagnostics and write to Debugging/Conflicts-A_*.log
                 // This helps users identify when other mods interfere with Enlisted
                 ModConflictDiagnostics.RunStartupDiagnostics(_harmony);
+                ModLogger.HealthCheck("submodule_load_after_startup_diagnostics");
 
                 ModLogger.Info("Bootstrap", "Harmony patched");
+                ModLogger.HealthCheck("submodule_load_complete");
             }
             catch (Exception ex)
             {
@@ -316,6 +319,7 @@ namespace Enlisted.Mod.Entry
         {
             try
             {
+                ModLogger.HealthCheck("game_start_entry");
                 ModLogger.Info("Bootstrap", "Game start");
                 EnlistedActivation.SetActive(false, "game_start");
 
@@ -330,6 +334,7 @@ namespace Enlisted.Mod.Entry
                 // Apply log level configuration from settings
                 // This enables per-category verbosity control and message throttling
                 _settings.ApplyLogLevels();
+                ModLogger.HealthCheck("game_start_after_log_levels");
 
                 // Log configuration values for verification
                 SessionDiagnostics.LogConfigurationValues();
@@ -578,6 +583,7 @@ namespace Enlisted.Mod.Entry
                     // Initializes static helper methods used throughout the enlistment system
                     EncounterGuard.Initialize();
                     ModLogger.Info("Bootstrap", "Military service behaviors registered successfully");
+                    ModLogger.HealthCheck("game_start_behaviors_registered");
 
                     // Log registered behaviors for conflict diagnostics — enumerate the starter's
                     // collection directly, before the engine transfers it to CampaignBehaviorManager.
@@ -602,6 +608,7 @@ namespace Enlisted.Mod.Entry
         {
             try
             {
+                ModLogger.HealthCheck("submodule_unload_before_footer_flush");
                 SessionSummaryFooter.Flush();
             }
             catch
@@ -624,6 +631,7 @@ namespace Enlisted.Mod.Entry
                 base.OnMissionBehaviorInitialize(mission);
 
                 // DIAGNOSTIC: Log that we entered the method
+                ModLogger.HealthCheck($"mission_initialize_{mission.Mode}");
                 ModLogger.Info("Mission", $"OnMissionBehaviorInitialize called (Mode: {mission.Mode})");
 
                 var enlistment = EnlistmentBehavior.Instance;
@@ -722,10 +730,12 @@ namespace Enlisted.Mod.Entry
                     NavalMobilePartyVisualUpdateEntityPositionCrashGuardPatch.TryApplyPatch(harmony);
 
                     ModLogger.Info("Bootstrap", "Deferred patches applied (campaign ready)");
+                    ModLogger.HealthCheck("deferred_patches_applied");
 
                     // Update conflict diagnostics with deferred patch info
                     // This appends to the existing conflict log so users can see all patches.
                     ModConflictDiagnostics.RefreshDeferredPatches(harmony);
+                    ModLogger.HealthCheck("deferred_diagnostics_refreshed");
                 }
                 catch (Exception ex)
                 {
