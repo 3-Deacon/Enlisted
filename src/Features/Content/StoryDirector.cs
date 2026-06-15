@@ -273,10 +273,14 @@ namespace Enlisted.Features.Content
 
             // Chain continuations (promotions, bag checks, chain events) are follow-up
             // beats the player already opted into. They bypass the in-game floor and
-            // the per-category cooldown but still honor the wall-clock guard so two
-            // modals never fire in the same second.
+            // the per-category cooldown. Named orders bypass the wall-clock floor too
+            // because they establish active order state rather than flavor cadence.
             if (c != null && c.ChainContinuation)
             {
+                if (IsNamedOrderCandidate(c))
+                {
+                    return true;
+                }
                 return wallClockFloor;
             }
 
@@ -286,6 +290,17 @@ namespace Enlisted.Features.Content
                 || (today - lastDay) >= DensitySettings.CategoryCooldownDays;
 
             return inGameFloor && wallClockFloor && categoryOk;
+        }
+
+        private static bool IsNamedOrderCandidate(StoryCandidate c)
+        {
+            if (c == null)
+            {
+                return false;
+            }
+
+            return string.Equals(c.SourceId, "duty.arcscale", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(c.CategoryId, "named_order", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void DownshiftSpeedIfNeeded()

@@ -96,14 +96,21 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
-                // Cannot propose a new arc while one is active. Filter to Episodic-only.
-                if (activity.ActiveNamedOrder != null)
+                var namedOrderCandidates = candidates
+                    .Where(c => c.Shape == DutyOpportunityShape.ArcScale)
+                    .ToList();
+                var episodicCandidates = candidates
+                    .Where(c => c.Shape != DutyOpportunityShape.ArcScale)
+                    .ToList();
+
+                if (activity.ActiveNamedOrder == null && TryEmitNamedOrder(activity, namedOrderCandidates))
                 {
-                    candidates.RemoveAll(c => c.Shape == DutyOpportunityShape.ArcScale);
-                    if (candidates.Count == 0)
-                    {
-                        return;
-                    }
+                    return;
+                }
+
+                if (episodicCandidates.Count == 0)
+                {
+                    return;
                 }
 
                 if (!OrdersNewsFeedThrottle.TryClaim())
@@ -111,7 +118,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
-                foreach (var opp in candidates)
+                foreach (var opp in episodicCandidates)
                 {
                     var storylet = ResolveStoryletForOpportunity(opp);
                     if (storylet == null)
@@ -124,17 +131,106 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 }
 
                 ModLogger.Expected("DUTY", "no_opportunity_storylet",
-                    "no eligible storylet found for any candidate",
+                    "no eligible storylet found for any episodic candidate",
                     new Dictionary<string, object>
                     {
-                        { "candidate_count", candidates.Count },
-                        { "profile", activity.CurrentDutyProfile }
+                        { "candidate_count", episodicCandidates.Count },
+                        { "named_order_candidate_count", namedOrderCandidates.Count },
+                        { "profile", activity.CurrentDutyProfile },
+                        { "active_named_order", activity.ActiveNamedOrder?.OrderStoryletId ?? "none" }
                     });
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("DUTY", "OnHourlyTick threw", ex);
             }
+        }
+
+        private bool TryEmitNamedOrder(OrderActivity activity, List<DutyOpportunity> namedOrderCandidates)
+        {
+            if (activity == null || activity.ActiveNamedOrder != null)
+            {
+                return false;
+            }
+
+            if (namedOrderCandidates == null || namedOrderCandidates.Count == 0)
+            {
+                ModLogger.Expected("DUTY", "no_named_order_candidates",
+                    "no named-order candidates produced for current duty profile",
+                    new Dictionary<string, object>
+                    {
+                        { "profile", activity.CurrentDutyProfile ?? "unknown" },
+                        { "order_activity_active", true },
+                        { "active_named_order", "none" }
+                    });
+                return false;
+            }
+
+            var rejected = new List<string>();
+            foreach (var opp in namedOrderCandidates)
+            {
+                if (!TryResolveNamedOrderStorylet(opp, out var storylet, out var rejectionReason))
+                {
+                    rejected.Add($"{opp?.ArchetypeStoryletId ?? "unknown"}:{rejectionReason}");
+                    continue;
+                }
+
+                ModLogger.Info("DUTY",
+                    $"selected named-order storylet={storylet.Id} profile={activity.CurrentDutyProfile} reason={opp.TriggerReason} candidates={namedOrderCandidates.Count}");
+                EmitOpportunity(opp, storylet);
+                return true;
+            }
+
+            ModLogger.Expected("DUTY", "no_named_order_storylet",
+                "no eligible storylet found for any named-order candidate",
+                new Dictionary<string, object>
+                {
+                    { "profile", activity.CurrentDutyProfile ?? "unknown" },
+                    { "named_order_candidate_count", namedOrderCandidates.Count },
+                    { "active_named_order", "none" },
+                    { "rejected_named_orders", string.Join(",", rejected.Take(8)) }
+                });
+            return false;
+        }
+
+        private bool TryResolveNamedOrderStorylet(DutyOpportunity opp, out Storylet storylet, out string rejectionReason)
+        {
+            storylet = null;
+            rejectionReason = "unknown";
+
+            if (opp == null)
+            {
+                rejectionReason = "candidate_null";
+                return false;
+            }
+
+            if (opp.Shape != DutyOpportunityShape.ArcScale)
+            {
+                rejectionReason = "not_named_order";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(opp.ArchetypeStoryletId))
+            {
+                rejectionReason = "missing_storylet_id";
+                return false;
+            }
+
+            var direct = StoryletCatalog.GetById(opp.ArchetypeStoryletId);
+            if (direct == null)
+            {
+                rejectionReason = "storylet_missing";
+                return false;
+            }
+
+            if (!TryIsEligibleForEmit(direct, out rejectionReason))
+            {
+                return false;
+            }
+
+            storylet = direct;
+            rejectionReason = string.Empty;
+            return true;
         }
 
         private Storylet ResolveStoryletForOpportunity(DutyOpportunity opp)
@@ -246,8 +342,15 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
         private bool IsEligibleForEmit(Storylet storylet)
         {
+            return TryIsEligibleForEmit(storylet, out _);
+        }
+
+        private bool TryIsEligibleForEmit(Storylet storylet, out string rejectionReason)
+        {
+            rejectionReason = string.Empty;
             if (storylet == null || string.IsNullOrEmpty(storylet.Id))
             {
+                rejectionReason = "storylet_null_or_missing_id";
                 return false;
             }
 
@@ -259,12 +362,14 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     : DEFAULT_COOLDOWN_HOURS;
                 if (nowHours - (int)last.ToHours < cooldownHours)
                 {
+                    rejectionReason = $"cooldown:{nowHours - (int)last.ToHours}/{cooldownHours}";
                     return false;
                 }
             }
 
             if (!TriggerRegistry.Evaluate(storylet.Trigger, null))
             {
+                rejectionReason = "trigger_failed";
                 return false;
             }
 
@@ -279,6 +384,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 {
                     if (storylet.RequiresCulture.Count > 0)
                     {
+                        rejectionReason = "required_culture_missing_lord_culture";
                         return false;
                     }
                 }
@@ -288,11 +394,13 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         && !storylet.RequiresCulture.Any(c =>
                             string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
                     {
+                        rejectionReason = $"required_culture_mismatch:{lordCulture}";
                         return false;
                     }
                     if (storylet.ExcludesCulture.Any(c =>
                         string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
                     {
+                        rejectionReason = $"excluded_culture:{lordCulture}";
                         return false;
                     }
                 }
@@ -311,6 +419,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 {
                     if (storylet.RequiresLordTrait.Count > 0)
                     {
+                        rejectionReason = "required_trait_missing_lord";
                         return false;
                     }
                 }
@@ -325,6 +434,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
                         if (trait == null || lord.GetTraitLevel(trait) <= 0)
                         {
+                            rejectionReason = $"required_trait_missing:{traitId}";
                             return false;
                         }
                     }
@@ -337,6 +447,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
                         if (trait != null && lord.GetTraitLevel(trait) > 0)
                         {
+                            rejectionReason = $"excluded_trait:{traitId}";
                             return false;
                         }
                     }
