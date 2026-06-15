@@ -58,6 +58,50 @@ namespace Enlisted.Features.Content
         internal int PendingQueueCountForDebug => _pendingEvents.Count;
         internal IEnumerable<string> PendingQueueIdsForDebug => _pendingEvents.Select(e => e?.Id ?? "(null)");
 
+
+        /// <summary>True while any interactive event modal is visible or queued.</summary>
+        public bool HasActiveOrPendingModalEvent =>
+            (_isShowingEvent && _currentEvent != null) || _pendingEvents.Count > 0;
+
+        /// <summary>Best-effort id for diagnostics when a modal event blocks order production.</summary>
+        public string ActiveOrPendingModalEventId
+        {
+            get
+            {
+                if (_isShowingEvent && _currentEvent != null)
+                {
+                    return _currentEvent.Id ?? string.Empty;
+                }
+
+                return _pendingEvents.FirstOrDefault()?.Id ?? string.Empty;
+            }
+        }
+
+        /// <summary>True while a promotion/proving event is visible or queued.</summary>
+        public bool HasActiveOrPendingPromotionEvent =>
+            IsPromotionEventId(_currentEvent?.Id)
+            || _pendingEvents.Any(e => IsPromotionEventId(e?.Id));
+
+        /// <summary>Best-effort id for diagnostics when a promotion blocks order production.</summary>
+        public string ActiveOrPendingPromotionEventId
+        {
+            get
+            {
+                if (IsPromotionEventId(_currentEvent?.Id))
+                {
+                    return _currentEvent.Id;
+                }
+
+                return _pendingEvents.FirstOrDefault(e => IsPromotionEventId(e?.Id))?.Id ?? string.Empty;
+            }
+        }
+
+        public static bool IsPromotionEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("promotion_", StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>True while a named-order terminal resolve prompt is visible or queued for delivery.</summary>
         public bool HasActiveOrPendingNamedOrderResolveEvent =>
             IsNamedOrderResolveEventId(_currentEvent?.Id)

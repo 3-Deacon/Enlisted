@@ -178,6 +178,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         ///     Used to determine tier promotions based on thresholds in progression_config.json.
         /// </summary>
         private int _enlistmentXP;
+        private bool _progressionOvercapMigrationApplied;
 
         /// <summary>
         ///     Date of last promotion (or enlistment if T1). Used to calculate days in rank.
@@ -1326,6 +1327,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 SyncKey(dataStore, "_enlistedLord", ref _enlistedLord);
                 SyncKey(dataStore, "_enlistmentTier", ref _enlistmentTier);
                 SyncKey(dataStore, "_enlistmentXP", ref _enlistmentXP);
+                SyncKey(dataStore, "_progressionOvercapMigrationApplied", ref _progressionOvercapMigrationApplied);
                 SyncKey(dataStore, "_lastPromotionBlockedMessageTime", ref _lastPromotionBlockedMessageTime);
                 SyncKey(dataStore, "_baggageStash", ref _baggageStash);
                 SyncKey(dataStore, "_baggageStashFactionId", ref _baggageStashFactionId);
@@ -6652,8 +6654,58 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Migrate tracking fields for existing saves.
             MigratePhase7TrackingFields();
+            MigrateOvercapProgressionSave();
 
             ModLogger.Info("SaveLoad", $"Validated enlistment state - Tier: {_enlistmentTier}, XP: {_enlistmentXP}");
+        }
+
+
+        /// <summary>
+        /// One-time migration for saves affected by the grace/reservist XP double-count bug.
+        /// We preserve promotion eligibility for the next tier but remove impossible multi-tier
+        /// overcap XP so the normal one-rank-at-a-time proving pipeline can own advancement.
+        /// </summary>
+        private void MigrateOvercapProgressionSave()
+        {
+            if (_progressionOvercapMigrationApplied || !IsEnlisted)
+            {
+                return;
+            }
+
+            _progressionOvercapMigrationApplied = true;
+
+            try
+            {
+                var tierXp = ConfigurationManager.GetTierXpRequirements();
+                var maxTier = ConfigurationManager.GetMaxTier();
+                if (tierXp == null || tierXp.Length == 0 || _enlistmentTier >= maxTier)
+                {
+                    return;
+                }
+
+                var nextTierXp = _enlistmentTier < tierXp.Length
+                    ? tierXp[_enlistmentTier]
+                    : tierXp[tierXp.Length - 1];
+
+                if (nextTierXp <= 0 || _enlistmentXP <= nextTierXp)
+                {
+                    return;
+                }
+
+                var oldXp = _enlistmentXP;
+                _enlistmentXP = nextTierXp;
+                if (_xpAtLastMuster > _enlistmentXP)
+                {
+                    _xpAtLastMuster = _enlistmentXP;
+                }
+
+                ModLogger.Info("SaveLoad",
+                    $"Progression overcap migration applied: tier={_enlistmentTier}, xp {oldXp} -> {_enlistmentXP} (nextTier={_enlistmentTier + 1})");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("SaveLoad", "Progression overcap migration failed", ex);
+            }
         }
 
         /// <summary>
@@ -9791,7 +9843,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // Get tier requirements to show progress
             var tierXP = ConfigurationManager.GetTierXpRequirements();
             var nextTierXP = _enlistmentTier < tierXP.Length ? tierXP[_enlistmentTier] : tierXP[tierXP.Length - 1];
-            var progressPercent = nextTierXP > 0 ? _enlistmentXP * 100 / nextTierXP : 100;
+            var progressPercent = nextTierXP > 0 ? Math.Min(100, _enlistmentXP * 100 / nextTierXP) : 100;
 
             ModLogger.Info("XP",
                 $"+{xp} XP from {source} | Total: {_enlistmentXP}/{nextTierXP} ({progressPercent}% to Tier {_enlistmentTier + 1})");
@@ -12261,6 +12313,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     var restoredFromSlots = RestoreKnownCompanionSlotsToPlayer(main.MemberRoster, "lord_party_missing");
                     ModLogger.Warn("ENLISTMENT",
                         $"RestoreCompanionsToPlayer fallback used because lord party is missing; restoredKnownSlots={restoredFromSlots}");
+                    LogCompanionRestoreAudit(main.MemberRoster, "lord_party_missing", restoredFromSlots, 0);
                     return;
                 }
 
@@ -12310,6 +12363,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     _ = mainRoster.AddToCounts(companion.Character, companion.Number);
                 }
 
+                LogCompanionRestoreAudit(mainRoster, "lord_party_restore", companionsToRestore.Count, staleRefsToRemove.Count);
+
                 if (companionsToRestore.Count > 0)
                 {
                     var message =
@@ -12330,6 +12385,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 ModLogger.Caught("ENLISTMENT", "Error restoring companions on retirement", ex);
             }
+        }
+
+
+        private void LogCompanionRestoreAudit(TroopRoster mainRoster, string reason, int restored, int staleRefsCleaned)
+        {
+            try
+            {
+                var known = GetKnownCompanionSlots().Where(h => IsExistingEnlistedCompanionCandidate(h)).ToList();
+                var present = known.Count(h => h?.CharacterObject != null && mainRoster?.GetTroopCount(h.CharacterObject) > 0);
+                var missing = known
+                    .Where(h => h?.CharacterObject != null && (mainRoster == null || mainRoster.GetTroopCount(h.CharacterObject) <= 0))
+                    .Select(h => h.Name?.ToString() ?? h.CharacterObject?.StringId ?? "unknown")
+                    .ToList();
+
+                ModLogger.Info("ENLISTMENT",
+                    $"Companion restore audit: reason={reason ?? "unknown"}, knownSlots={known.Count}, presentInPlayerRoster={present}, restored={restored}, staleRefsCleaned={staleRefsCleaned}, missing={string.Join("|", missing.Take(6))}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ENLISTMENT", "Companion restore audit failed", ex);
+            }
+        }
+
+        private IEnumerable<Hero> GetKnownCompanionSlots()
+        {
+            yield return _sergeantHero;
+            yield return _fieldMedicHero;
+            yield return _pathfinderHero;
+            yield return _veteranHero;
+            yield return _qmOfficerHero;
+            yield return _juniorOfficerHero;
         }
 
         private int RestoreKnownCompanionSlotsToPlayer(TroopRoster mainRoster, string reason)

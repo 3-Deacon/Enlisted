@@ -75,15 +75,23 @@ namespace Enlisted.Features.Activities.Orders
 
             try
             {
+                if (StoryletCatalog.Count == 0)
+                {
+                    ModLogger.Expected("ARC", "arc_reconstruct_catalog_empty",
+                        $"OrderStoryletId='{ActiveNamedOrder.OrderStoryletId}' reconstruction deferred because StoryletCatalog is empty");
+                    return;
+                }
+
                 var storylet = StoryletCatalog.GetById(ActiveNamedOrder.OrderStoryletId);
                 if (storylet?.Arc == null)
                 {
                     ModLogger.Expected("ARC", "stale_arc_id_on_load",
-                        $"OrderStoryletId='{ActiveNamedOrder.OrderStoryletId}' missing or has no arc; clearing");
+                        $"OrderStoryletId='{ActiveNamedOrder.OrderStoryletId}' missing or has no arc after catalog load; clearing");
                     ActiveNamedOrder = null;
                     return;
                 }
                 NamedOrderArcRuntime.RebuildSplicedPhasesOnLoad(this, storylet);
+                ModLogger.Info("ARC", $"Reconstructed active named-order arc on load: {ActiveNamedOrder.OrderStoryletId}/{ActiveNamedOrder.Intent}");
             }
             catch (Exception ex)
             {

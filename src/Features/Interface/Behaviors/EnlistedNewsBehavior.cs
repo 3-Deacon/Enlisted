@@ -5100,7 +5100,16 @@ namespace Enlisted.Features.Interface.Behaviors
 
             try
             {
-                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                if (ShouldSurfacePersonalDispatch(tier, severity))
+                {
+                    AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                }
+                else
+                {
+                    ModLogger.Debug("NEWS",
+                        $"personal_dispatch_surface_skipped_low_tier: category={category}, story={storyKey}, tier={tier}, severity={severity}, title={headlineKey}");
+                }
+
                 WritePersonalDispatchToCampaignLog(category, headlineKey, placeholderValues, storyKey, severity, tier, body);
             }
             catch (Exception ex)
@@ -5112,6 +5121,14 @@ namespace Enlisted.Features.Interface.Behaviors
         #endregion
 
         #region Internal Helpers
+
+        private static bool ShouldSurfacePersonalDispatch(StoryTier tier, int severity)
+        {
+            // Log-tier / severity-0 entries are background texture (order midbeats, rumors,
+            // silence-with-implication, routine duty notes). Keep them in diagnostics via
+            // CONTENT/NEWS logs but do not push every title into the visible Enlisted feed.
+            return tier != StoryTier.Log || severity > 0;
+        }
 
         /// <summary>
         /// Mirrors StoryDirector personal dispatches into Bannerlord's visible Campaign Log.

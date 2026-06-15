@@ -78,6 +78,10 @@ namespace Enlisted.Features.Activities
         {
             Instance = this;
             ActivityTypeCatalog.LoadAll();
+            // OrderActivity arc reconstruction depends on authored storylet arcs.
+            // Load the storylet catalog before reconstructing saved active orders; otherwise
+            // valid saved OrderStoryletIds can look stale and get cleared during load.
+            StoryletCatalog.LoadAll();
             _active ??= new List<Activity>();
             _active.RemoveAll(a => a == null);
 

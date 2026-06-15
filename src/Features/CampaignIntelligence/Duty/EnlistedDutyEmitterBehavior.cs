@@ -39,7 +39,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
         private const int NAMED_ORDER_COMPLETION_COOLDOWN_HOURS = 8;
-        private const int NAMED_ORDER_GLOBAL_CADENCE_HOURS = 24;
+        private const int NAMED_ORDER_GLOBAL_CADENCE_HOURS = 168;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
@@ -240,7 +240,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 return false;
             }
 
-            reason = $"named_order_global_cadence id={_cooldowns?.LastNamedOrderEmittedId ?? "unknown"} profile={_cooldowns?.LastNamedOrderEmittedProfile ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_GLOBAL_CADENCE_HOURS}h";
+            reason = $"named_order_service_cadence id={_cooldowns?.LastNamedOrderEmittedId ?? "unknown"} profile={_cooldowns?.LastNamedOrderEmittedProfile ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_GLOBAL_CADENCE_HOURS}h";
             return true;
         }
 
@@ -355,6 +355,24 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     reason = string.IsNullOrEmpty(eventId)
                         ? "named_order_resolve_choice_active"
                         : "named_order_resolve_choice_active:" + eventId;
+                    return true;
+                }
+
+                if (delivery?.HasActiveOrPendingPromotionEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingPromotionEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "promotion_event_active"
+                        : "promotion_event_active:" + eventId;
+                    return true;
+                }
+
+                if (delivery?.HasActiveOrPendingModalEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingModalEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "modal_event_active"
+                        : "modal_event_active:" + eventId;
                     return true;
                 }
 

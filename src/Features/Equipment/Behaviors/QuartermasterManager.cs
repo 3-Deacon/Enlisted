@@ -2938,7 +2938,7 @@ namespace Enlisted.Features.Equipment.Behaviors
         /// Check if an item is consumable (arrows, bolts, throwing weapons, etc).
         /// Consumable items can be stacked and soldiers may want multiple stacks.
         /// </summary>
-        private static bool IsConsumableItem(ItemObject item)
+        public static bool IsConsumableItem(ItemObject item)
         {
             if (item?.WeaponComponent?.PrimaryWeapon == null)
             {
@@ -3536,6 +3536,11 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             var item = currentElement.Item;
+            if (IsConsumableItem(item))
+            {
+                return 0;
+            }
+
             var currentModifier = currentElement.ItemModifier;
             var baseValue = item.Value;
 
@@ -3627,6 +3632,13 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             var item = currentElement.Item;
+            if (IsConsumableItem(item))
+            {
+                errorMessage = "Stacked ammunition and thrown supplies cannot be improved here.";
+                ModLogger.Info("EQUIPMENT", $"Upgrade blocked: consumable item {item.StringId} cannot be quality-upgraded");
+                return false;
+            }
+
             var modGroup = item.ItemComponent?.ItemModifierGroup;
 
             if (modGroup == null)
