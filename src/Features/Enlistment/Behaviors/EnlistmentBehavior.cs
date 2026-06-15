@@ -11802,7 +11802,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             return GetInitialEquipmentForTroop(troop) != null;
         }
 
-        private static Equipment GetInitialEquipmentForTroop(CharacterObject troop)
+        private static TaleWorlds.Core.Equipment GetInitialEquipmentForTroop(CharacterObject troop)
         {
             if (troop == null)
             {
