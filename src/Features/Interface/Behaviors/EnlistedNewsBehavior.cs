@@ -442,6 +442,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 _dailyBriefUnit ??= string.Empty;
                 _dailyBriefKingdom ??= string.Empty;
 
+                if (dataStore.IsLoading)
+                {
+                    RemoveQueuedNamedOrderResolveOutcomes("load_stale_named_order_resolve");
+                }
+
                 // Trim feeds to max size
                 TrimFeeds();
 
@@ -2552,6 +2557,41 @@ namespace Enlisted.Features.Interface.Behaviors
             catch (Exception ex)
             {
                 ModLogger.Caught("News", "RemoveQueuedNamedOrderAcceptOutcomes failed", ex);
+                return 0;
+            }
+        }
+
+        public int RemoveQueuedNamedOrderResolveOutcomes(string reason)
+        {
+            try
+            {
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var removedIds = _eventOutcomes
+                    .Where(e => e != null
+                        && !e.IsCurrentlyShown
+                        && e.DayShown < 0
+                        && EventDeliveryManager.IsNamedOrderResolveEventId(e.EventId))
+                    .Select(e => e.EventId)
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .ToList();
+
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && EventDeliveryManager.IsNamedOrderResolveEventId(e.EventId));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued named-order resolve outcome(s) reason={reason ?? "unknown"} ids={string.Join(",", removedIds)}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedNamedOrderResolveOutcomes failed", ex);
                 return 0;
             }
         }

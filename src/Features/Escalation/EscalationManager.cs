@@ -30,6 +30,7 @@ namespace Enlisted.Features.Escalation
     public sealed class EscalationManager : CampaignBehaviorBase
     {
         private const string LogCategory = "Escalation";
+        private const int MinimumScrutinyRecoveryGraceDays = 14;
 
         public static EscalationManager Instance { get; private set; }
 
@@ -182,6 +183,9 @@ namespace Enlisted.Features.Escalation
                     }
 
                     _state.ClampAll();
+                    _lastScrutinyDecayDayNumber = _state.LastScrutinyDecayTime == CampaignTime.Zero
+                        ? -1
+                        : (int)_state.LastScrutinyDecayTime.ToDays;
                 }
                 else
                 {
@@ -432,20 +436,19 @@ namespace Enlisted.Features.Escalation
             }
 
             var oldValue = _state.Scrutiny;
-            var isRoutineCampIncrease = delta > 0 &&
-                reason != null &&
-                reason.IndexOf("camp incident", StringComparison.OrdinalIgnoreCase) >= 0;
+            var attempted = oldValue + delta;
+            var next = Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
 
-            var today = (int)CampaignTime.Now.ToDays;
-            if (isRoutineCampIncrease && _lastScrutinyDecayDayNumber == today)
+            if (TryCapScrutinyIncreaseDuringRecovery(oldValue, attempted, delta, reason, out var cappedValue, out var graceAgeDays, out var graceDays))
             {
+                next = cappedValue;
                 ModLogger.Info(LogCategory,
-                    $"Routine scrutiny increase suppressed after same-day quiet decay: {oldValue} unchanged (delta={delta}, reason={reason})");
-                return;
+                    $"Scrutiny increase capped during recovery grace: {oldValue} -> {next} " +
+                    $"(attempted={Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax)}, delta={delta}, " +
+                    $"reason={reason ?? "unknown"}, graceAgeDays={graceAgeDays:F1}, graceDays={graceDays})");
             }
 
-            var next = oldValue + delta;
-            _state.Scrutiny = Clamp(next, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            _state.Scrutiny = next;
 
             if (_state.Scrutiny > oldValue)
             {
@@ -475,6 +478,81 @@ namespace Enlisted.Features.Escalation
             }
 
             EvaluateThresholdsAndQueueIfNeeded();
+        }
+
+        private bool TryCapScrutinyIncreaseDuringRecovery(
+            int oldValue,
+            int attemptedValue,
+            int delta,
+            string reason,
+            out int cappedValue,
+            out float graceAgeDays,
+            out int graceDays)
+        {
+            cappedValue = Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            graceAgeDays = 0f;
+            graceDays = GetScrutinyRecoveryGraceDays();
+
+            if (delta <= 0 || attemptedValue < EscalationState.ScrutinyMax)
+            {
+                return false;
+            }
+
+            if (_state.LastScrutinyDecayTime == CampaignTime.Zero)
+            {
+                return false;
+            }
+
+            graceAgeDays = CampaignTime.Now.ToDays - _state.LastScrutinyDecayTime.ToDays;
+            if (graceAgeDays < 0f || graceAgeDays > graceDays)
+            {
+                return false;
+            }
+
+            if (IsSevereScrutinyReason(reason))
+            {
+                return false;
+            }
+
+            cappedValue = Math.Min(EscalationState.ScrutinyMax - 1,
+                Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax));
+            cappedValue = Math.Max(oldValue, cappedValue);
+            return cappedValue != Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+        }
+
+        private static bool IsSevereScrutinyReason(string reason)
+        {
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                return false;
+            }
+
+            var severeMarkers = new[]
+            {
+                "severe",
+                "disciplinary",
+                "discipline",
+                "desertion",
+                "desert",
+                "crime",
+                "criminal",
+                "arrest",
+                "mutiny",
+                "treason",
+                "execution",
+                "exposed",
+                "critical",
+                "audit"
+            };
+
+            return severeMarkers.Any(marker => reason.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static int GetScrutinyRecoveryGraceDays()
+        {
+            var cfg = ConfigurationManager.LoadEscalationConfig() ?? new EscalationConfig();
+            var intervalDays = Math.Max(1, cfg.ScrutinyDecayIntervalDays);
+            return Math.Max(MinimumScrutinyRecoveryGraceDays, intervalDays * 2);
         }
 
         /// <summary>

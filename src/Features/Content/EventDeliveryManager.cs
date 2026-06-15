@@ -98,15 +98,49 @@ namespace Enlisted.Features.Content
 
         public override void RegisterEvents()
         {
-            // No campaign events needed - events are queued programmatically
+            CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
+        }
+
+        private void OnSessionLaunched(CampaignGameStarter starter)
+        {
+            Instance = this;
+        }
+
+        private void OnGameLoaded(CampaignGameStarter starter)
+        {
+            Instance = this;
+            _needsHydration = true;
+            HydrateFromPendingIdsIfNeeded();
+            ModLogger.Info(LogCategory,
+                $"load restore: pending={_pendingEvents.Count}, showing={_isShowingEvent}, current={_currentEvent?.Id ?? "none"}");
+            if (!_isShowingEvent && _pendingEvents.Count > 0)
+            {
+                TryDeliverNextEvent();
+            }
         }
 
         public override void SyncData(IDataStore dataStore)
         {
             if (dataStore.IsSaving)
             {
-                // Snapshot the current live queue into the serializable ID list.
-                _pendingEventIds = _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)).ToList();
+                // Snapshot the currently visible event first, then the queued events.
+                // Bannerlord inquiry UI state itself is not save-backed, so a save while
+                // a modal is visible must round-trip that event as the next pending id.
+                _pendingEventIds = new List<string>();
+                if (!string.IsNullOrEmpty(_currentEvent?.Id))
+                {
+                    _pendingEventIds.Add(_currentEvent.Id);
+                }
+
+                foreach (var id in _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)))
+                {
+                    if (!_pendingEventIds.Contains(id, StringComparer.OrdinalIgnoreCase))
+                    {
+                        _pendingEventIds.Add(id);
+                    }
+                }
+
                 if (_pendingEventIds.Count > PendingQueueCap)
                 {
                     _pendingEventIds = _pendingEventIds.Take(PendingQueueCap).ToList();
@@ -115,8 +149,16 @@ namespace Enlisted.Features.Content
 
             _ = dataStore.SyncData("evt_delivery_pendingIds", ref _pendingEventIds);
 
-            // Re-hydration happens lazily on the next tick via HydrateFromPendingIdsIfNeeded — not
-            // here, because EventCatalog load-order relative to SyncData is not guaranteed.
+            if (dataStore.IsLoading)
+            {
+                _pendingEvents.Clear();
+                _currentEvent = null;
+                _isShowingEvent = false;
+                _needsHydration = true;
+            }
+
+            // Re-hydration happens lazily after load via HydrateFromPendingIdsIfNeeded —
+            // EventCatalog load-order relative to SyncData is not guaranteed.
         }
 
         /// <summary>
@@ -211,8 +253,14 @@ namespace Enlisted.Features.Content
 
             int resolved = 0;
             int dropped = 0;
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var id in _pendingEventIds)
             {
+                if (string.IsNullOrWhiteSpace(id) || !seen.Add(id))
+                {
+                    continue;
+                }
+
                 // EventCatalog.GetEvent is static and self-initializing (see EventCatalog.cs:127).
                 var evt = EventCatalog.GetEvent(id);
                 if (evt != null)

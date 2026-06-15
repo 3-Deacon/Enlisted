@@ -5,6 +5,7 @@ using Enlisted.Features.Content;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.SaveSystem;
 
 namespace Enlisted.Features.Activities.Orders
 {
@@ -20,16 +21,16 @@ namespace Enlisted.Features.Activities.Orders
     {
         public const string TYPE_ID = "order_activity";
 
-        public string CurrentDutyProfile { get; set; } = "wandering";
-        public Dictionary<string, int> PendingProfileMatches { get; set; } = new Dictionary<string, int>();
-        public int LastProfileSampleHourTick { get; set; }
-        public NamedOrderState ActiveNamedOrder { get; set; }
-        public CampaignTime LastNamedOrderCompletedAt { get; set; } = CampaignTime.Zero;
-        public string LastNamedOrderCompletedId { get; set; } = string.Empty;
-        public string LastNamedOrderCompletedIntent { get; set; } = string.Empty;
-        public FormationClass CachedCombatClass { get; set; } = FormationClass.Infantry;
-        public int CombatClassResampleHourTick { get; set; }
-        public Dictionary<string, int> DriftPendingXp { get; set; } = new Dictionary<string, int>();
+        [SaveableProperty(1)] public string CurrentDutyProfile { get; set; } = "wandering";
+        [SaveableProperty(2)] public Dictionary<string, int> PendingProfileMatches { get; set; } = new Dictionary<string, int>();
+        [SaveableProperty(3)] public int LastProfileSampleHourTick { get; set; }
+        [SaveableProperty(4)] public NamedOrderState ActiveNamedOrder { get; set; }
+        [SaveableProperty(5)] public CampaignTime LastNamedOrderCompletedAt { get; set; } = CampaignTime.Zero;
+        [SaveableProperty(6)] public string LastNamedOrderCompletedId { get; set; } = string.Empty;
+        [SaveableProperty(7)] public string LastNamedOrderCompletedIntent { get; set; } = string.Empty;
+        [SaveableProperty(8)] public FormationClass CachedCombatClass { get; set; } = FormationClass.Infantry;
+        [SaveableProperty(9)] public int CombatClassResampleHourTick { get; set; }
+        [SaveableProperty(10)] public Dictionary<string, int> DriftPendingXp { get; set; } = new Dictionary<string, int>();
 
         public static OrderActivity Instance => ActivityRuntime.Instance?.FindActive<OrderActivity>();
 

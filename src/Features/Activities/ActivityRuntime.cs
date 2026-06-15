@@ -78,6 +78,11 @@ namespace Enlisted.Features.Activities
         {
             Instance = this;
             ActivityTypeCatalog.LoadAll();
+            _active ??= new List<Activity>();
+            _active.RemoveAll(a => a == null);
+
+            ModLogger.Info("ACTIVITY", $"load restore: activeCount={_active.Count}");
+
             foreach (var a in _active)
             {
                 a.ResolvePhasesFromType(_types);
@@ -89,6 +94,12 @@ namespace Enlisted.Features.Activities
             {
                 if (a is Enlisted.Features.Activities.Orders.OrderActivity oa)
                 {
+                    oa.EnsureInitialized();
+                    var activeOrder = oa.ActiveNamedOrder;
+                    ModLogger.Info("ACTIVITY",
+                        $"load order activity: profile={oa.CurrentDutyProfile ?? "unknown"}, phase={oa.CurrentPhaseIndex}, " +
+                        $"activeOrder={activeOrder?.OrderStoryletId ?? "none"}, intent={activeOrder?.Intent ?? "none"}, " +
+                        $"lastCompleted={oa.LastNamedOrderCompletedId ?? string.Empty}, lastIntent={oa.LastNamedOrderCompletedIntent ?? string.Empty}");
                     oa.ReconstructArcOnLoad();
                 }
             }
@@ -97,12 +108,14 @@ namespace Enlisted.Features.Activities
             // restore, a save taken mid-PlayerChoice phase would surface a hidden
             // menu slot-bank until the next phase transition. break on first match:
             // only one PlayerChoice phase is active at a time by design.
+            _activeChoicePhase = null;
             foreach (var a in _active)
             {
                 var phase = a.CurrentPhase;
                 if (phase != null && phase.Delivery == PhaseDelivery.PlayerChoice)
                 {
                     _activeChoicePhase = (a, phase);
+                    ModLogger.Info("ACTIVITY", $"load restored choice phase: activity={a.TypeId}, phase={phase.Id}");
                     break;
                 }
             }

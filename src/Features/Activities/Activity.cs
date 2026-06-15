@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.SaveSystem;
 
 namespace Enlisted.Features.Activities
 {
@@ -12,14 +13,14 @@ namespace Enlisted.Features.Activities
     [Serializable]
     public abstract class Activity
     {
-        public string Id { get; set; } = string.Empty;                 // instance id
-        public string TypeId { get; set; } = string.Empty;             // template id
-        public string Intent { get; set; } = string.Empty;
-        public int CurrentPhaseIndex { get; set; }
-        public List<Hero> Attendees { get; set; } = new List<Hero>();
-        public CampaignTime StartedAt { get; set; } = CampaignTime.Zero;
-        public CampaignTime EndsAt { get; set; } = CampaignTime.Zero;
-        public Dictionary<string, int> PhaseQuality { get; set; } = new Dictionary<string, int>();
+        [SaveableProperty(1)] public string Id { get; set; } = string.Empty;                 // instance id
+        [SaveableProperty(2)] public string TypeId { get; set; } = string.Empty;             // template id
+        [SaveableProperty(3)] public string Intent { get; set; } = string.Empty;
+        [SaveableProperty(4)] public int CurrentPhaseIndex { get; set; }
+        [SaveableProperty(5)] public List<Hero> Attendees { get; set; } = new List<Hero>();
+        [SaveableProperty(6)] public CampaignTime StartedAt { get; set; } = CampaignTime.Zero;
+        [SaveableProperty(7)] public CampaignTime EndsAt { get; set; } = CampaignTime.Zero;
+        [SaveableProperty(8)] public Dictionary<string, int> PhaseQuality { get; set; } = new Dictionary<string, int>();
 
         /// <summary>
         /// The in-game hour at which the last Auto-phase storylet fired, used to honour
@@ -27,7 +28,7 @@ namespace Enlisted.Features.Activities
         /// Generic: any Auto phase on any Activity subclass can use interval pacing.
         /// Serialized as part of Activity state; survives save-reload.
         /// </summary>
-        public int LastAutoFireHour { get; set; } = -1;
+        [SaveableProperty(9)] public int LastAutoFireHour { get; set; } = -1;
 
         // Non-serialized runtime cache — resolved from ActivityTypeDefinition on load.
         [NonSerialized] private List<Phase> _cachedPhases;

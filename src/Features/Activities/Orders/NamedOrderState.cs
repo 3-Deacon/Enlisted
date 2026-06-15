@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.SaveSystem;
 
 namespace Enlisted.Features.Activities.Orders
 {
@@ -15,17 +16,17 @@ namespace Enlisted.Features.Activities.Orders
     [Serializable]
     public sealed class NamedOrderState
     {
-        public string OrderStoryletId { get; set; } = string.Empty;
-        public CampaignTime StartedAt { get; set; } = CampaignTime.Zero;
+        [SaveableProperty(1)] public string OrderStoryletId { get; set; } = string.Empty;
+        [SaveableProperty(2)] public CampaignTime StartedAt { get; set; } = CampaignTime.Zero;
 
         /// <summary>
         /// Arc-relative phase index within the named-order's Phases list.
         /// Distinct from Activity.CurrentPhaseIndex on the enclosing OrderActivity,
         /// which tracks the duty-profile phase.
         /// </summary>
-        public int CurrentPhaseIndex { get; set; }
-        public string Intent { get; set; } = string.Empty;
-        public FormationClass CombatClassAtAccept { get; set; } = FormationClass.Infantry;
-        public Dictionary<string, float> AccumulatedOutcomes { get; set; } = new Dictionary<string, float>();
+        [SaveableProperty(3)] public int CurrentPhaseIndex { get; set; }
+        [SaveableProperty(4)] public string Intent { get; set; } = string.Empty;
+        [SaveableProperty(5)] public FormationClass CombatClassAtAccept { get; set; } = FormationClass.Infantry;
+        [SaveableProperty(6)] public Dictionary<string, float> AccumulatedOutcomes { get; set; } = new Dictionary<string, float>();
     }
 }

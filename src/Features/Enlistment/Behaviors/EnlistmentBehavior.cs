@@ -4185,8 +4185,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 return false;
             }
 
-            CharacterObject selectedTroop = null;
-            if (!string.IsNullOrEmpty(preferredTroopId))
+            var selectedTroop = ResolveInitialEquipmentTroopTemplate(_enlistedLord.Culture, _enlistmentTier, out var source);
+            if (selectedTroop == null && !string.IsNullOrEmpty(preferredTroopId))
             {
                 try
                 {
@@ -4195,6 +4195,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     {
                         selectedTroop = null;
                     }
+                    source = selectedTroop != null ? "preferred_saved_fallback" : source;
                 }
                 catch
                 {
@@ -4204,17 +4205,15 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             if (selectedTroop == null)
             {
-                var unlocked = manager.GetUnlockedTroopsForCurrentTier(_enlistedLord.Culture.StringId, _enlistmentTier);
-                selectedTroop = unlocked?.FirstOrDefault();
-            }
-
-            if (selectedTroop == null)
-            {
-                ModLogger.Info("ENLISTMENT", "Grace enlistment could not find matching troop; using default kit");
+                ModLogger.Info("ENLISTMENT",
+                    $"Grace enlistment could not find tier-aware equipment troop for culture={_enlistedLord.Culture.StringId ?? "unknown"}, tier={_enlistmentTier}; using default kit");
                 return false;
             }
 
             manager.ApplySelectedTroopEquipment(Hero.MainHero, selectedTroop, autoIssueEquipment: true);
+            ModLogger.Info("EQUIPMENT",
+                $"Grace equipment assigned: culture={_enlistedLord.Culture.StringId ?? "unknown"}, enlistmentTier={_enlistmentTier}, " +
+                $"troop={selectedTroop.StringId ?? "unknown"}, troopTier={SafeGetInitialEquipmentTroopTier(selectedTroop)}, source={source}");
             return true;
         }
 
