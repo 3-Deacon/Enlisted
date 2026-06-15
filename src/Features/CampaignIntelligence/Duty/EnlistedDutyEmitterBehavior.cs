@@ -33,6 +33,9 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private int _lastHeartbeatHourTick = int.MinValue / 2;
         private int _lastDailyCountReportHourTick = int.MinValue / 2;
 
+        private static CampaignTime _lastServiceCadenceRejectLogAt = CampaignTime.Zero;
+        private static int _suppressedServiceCadenceRejectLogs;
+
         private readonly Dictionary<string, int> _sessionEmissionsByProfile = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
@@ -40,6 +43,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private const int DEFAULT_COOLDOWN_HOURS = 36;
         private const int NAMED_ORDER_COMPLETION_COOLDOWN_HOURS = 8;
         private const int NAMED_ORDER_GLOBAL_CADENCE_HOURS = 168;
+        private const int SERVICE_CADENCE_REJECT_LOG_INTERVAL_HOURS = 24;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
@@ -306,10 +310,47 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
         private static void LogNamedOrderRejected(List<DutyOpportunity> namedOrderCandidates, string reason, OrderActivity activity, string emissionProfile)
         {
+            if (ShouldSuppressServiceCadenceRejectLog(reason, out var suppressedSummary))
+            {
+                return;
+            }
+
             var candidateId = namedOrderCandidates?.FirstOrDefault()?.ArchetypeStoryletId ?? "none";
             var count = namedOrderCandidates?.Count ?? 0;
+            var suffix = string.IsNullOrEmpty(suppressedSummary) ? string.Empty : $" {suppressedSummary}";
             ModLogger.Info("DUTY",
-                $"named-order rejected: reason={reason} candidate={candidateId} candidates={count} profile={emissionProfile ?? activity?.CurrentDutyProfile ?? "unknown"} active={activity?.ActiveNamedOrder?.OrderStoryletId ?? "none"}");
+                $"named-order rejected: reason={reason} candidate={candidateId} candidates={count} profile={emissionProfile ?? activity?.CurrentDutyProfile ?? "unknown"} active={activity?.ActiveNamedOrder?.OrderStoryletId ?? "none"}{suffix}");
+        }
+
+        private static bool ShouldSuppressServiceCadenceRejectLog(string reason, out string suppressedSummary)
+        {
+            suppressedSummary = string.Empty;
+
+            if (string.IsNullOrEmpty(reason) ||
+                !reason.StartsWith("named_order_service_cadence", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var now = CampaignTime.Now;
+            if (_lastServiceCadenceRejectLogAt != CampaignTime.Zero)
+            {
+                var elapsedHours = (now - _lastServiceCadenceRejectLogAt).ToHours;
+                if (elapsedHours < SERVICE_CADENCE_REJECT_LOG_INTERVAL_HOURS)
+                {
+                    _suppressedServiceCadenceRejectLogs++;
+                    return true;
+                }
+            }
+
+            if (_suppressedServiceCadenceRejectLogs > 0)
+            {
+                suppressedSummary = $"(suppressed_service_cadence_rejects={_suppressedServiceCadenceRejectLogs})";
+                _suppressedServiceCadenceRejectLogs = 0;
+            }
+
+            _lastServiceCadenceRejectLogAt = now;
+            return false;
         }
 
         private static bool ShouldSuppressNamedOrderEmission(out string reason)

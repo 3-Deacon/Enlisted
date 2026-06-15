@@ -329,6 +329,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private int _savedGraceTier = -1;
         private string _savedGraceTroopId;
         private int _savedGraceXP;
+        private bool _gracePreservedAfterKingdomChurn;
         private GraceLordMarkerSnapshot? _lastGraceLordMarkerSnapshot;
 
         // Grace period tracking for lord transfers
@@ -1357,6 +1358,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 SyncKey(dataStore, "_savedGraceLord", ref _savedGraceLord);
                 SyncKey(dataStore, "_savedGraceXP", ref _savedGraceXP);
                 SyncKey(dataStore, "_savedGraceTroopId", ref _savedGraceTroopId);
+                SyncKey(dataStore, "_gracePreservedAfterKingdomChurn", ref _gracePreservedAfterKingdomChurn);
                 SyncKey(dataStore, "_pendingMusterPay", ref _pendingMusterPay);
                 SyncKey(dataStore, "_nextPayday", ref _nextPayday);
                 SyncKey(dataStore, "_payMusterPending", ref _payMusterPending);
@@ -3889,8 +3891,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     return;
                 }
 
-                // Check if player already left kingdom (edge case: manual kingdom leave)
-                if (playerClan.Kingdom != _pendingDesertionKingdom)
+                // If native/capture cleanup detached the player from the kingdom after grace
+                // started, the grace still expires normally and penalties apply. Only clear
+                // without penalties for non-preserved/manual kingdom exits.
+                if (playerClan.Kingdom != _pendingDesertionKingdom && !_gracePreservedAfterKingdomChurn)
                 {
                     ModLogger.Info("Desertion",
                         "Player already left kingdom - clearing grace period without penalties");
@@ -4085,6 +4089,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             _savedGraceXP = 0;
             _savedGraceTroopId = null;
             _savedGraceEnlistmentDate = CampaignTime.Zero;
+            _gracePreservedAfterKingdomChurn = false;
             _graceProtectionEnds = CampaignTime.Zero;
 
             SyncActivationState("clear_grace_period");
@@ -9765,14 +9770,24 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 }
             }
 
-            // Edge case: If player changes kingdoms during grace period, clear it
-            // Player can only rejoin the pending desertion kingdom during grace period
-            // Any kingdom change (join different kingdom, become independent) invalidates grace period
+            // Grace period should survive native/capture cleanup. Bannerlord may transiently
+            // detach the player's clan from the mercenary kingdom after captivity starts, after
+            // the mod has already preserved grace state. Treat an independence transition as
+            // native churn; joining another kingdom remains an explicit grace break.
             if (IsInDesertionGracePeriod)
             {
-                // If player left the grace period kingdom (became independent or joined different kingdom), clear grace period
                 if (oldKingdom == _pendingDesertionKingdom && newKingdom != _pendingDesertionKingdom)
                 {
+                    if (newKingdom == null && ShouldPreserveGraceAfterKingdomChurn(oldKingdom))
+                    {
+                        _gracePreservedAfterKingdomChurn = true;
+                        ModLogger.Info("Desertion",
+                            $"Grace preserved after native kingdom churn: left={oldKingdom?.Name?.ToString() ?? "unknown"}, savedTier={_savedGraceTier}, savedXP={_savedGraceXP}, savedLord={_savedGraceLord?.Name?.ToString() ?? "unknown"}");
+                        EnsureGraceLordMarker(forceRefresh: true, "native_kingdom_churn");
+                        SyncActivationState("grace_native_kingdom_churn");
+                        return;
+                    }
+
                     if (newKingdom == null)
                     {
                         ModLogger.Info("Desertion", "Player left kingdom during grace period - clearing grace period");
@@ -9788,6 +9803,21 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // If player is joining the grace period kingdom from a different kingdom, that's okay (rejoin during grace period)
                 // This is handled in StartEnlist() which clears the grace period when rejoining
             }
+        }
+
+        private bool ShouldPreserveGraceAfterKingdomChurn(Kingdom oldKingdom)
+        {
+            if (_pendingDesertionKingdom == null || oldKingdom != _pendingDesertionKingdom)
+            {
+                return false;
+            }
+
+            if (_desertionGracePeriodEnd == CampaignTime.Zero || CampaignTime.Now >= _desertionGracePeriodEnd)
+            {
+                return false;
+            }
+
+            return _savedGraceTier > 0 && _savedGraceXP >= 0 && _savedGraceLord != null;
         }
 
         /// <summary>
@@ -9824,6 +9854,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             var previousXP = _enlistmentXP;
             _enlistmentXP += xp;
+            CapProgressionOverflowWhilePromotionPending(source);
 
             // Track XP by source for muster period summary display
             if (_xpSourcesThisPeriod == null)
@@ -9856,6 +9887,40 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Check if we crossed a promotion threshold
             CheckPromotionNotification(previousXP, _enlistmentXP);
+        }
+
+        private void CapProgressionOverflowWhilePromotionPending(string source)
+        {
+            try
+            {
+                var tierXP = ConfigurationManager.GetTierXpRequirements();
+                var maxTier = ConfigurationManager.GetMaxTier();
+                if (tierXP == null || tierXP.Length == 0 || _enlistmentTier >= maxTier)
+                {
+                    return;
+                }
+
+                var nextTierXP = _enlistmentTier < tierXP.Length ? tierXP[_enlistmentTier] : tierXP[tierXP.Length - 1];
+                if (nextTierXP <= 0 || _enlistmentXP <= nextTierXP)
+                {
+                    return;
+                }
+
+                var oldTotal = _enlistmentXP;
+                var overflow = oldTotal - nextTierXP;
+                _enlistmentXP = nextTierXP;
+                if (_xpAtLastMuster > _enlistmentXP)
+                {
+                    _xpAtLastMuster = _enlistmentXP;
+                }
+
+                ModLogger.Info("XP",
+                    $"Progression overflow capped while promotion pending: tier={_enlistmentTier}, total {oldTotal}->{_enlistmentXP}, overflow={overflow}, source={source ?? "unknown"}, nextTier={_enlistmentTier + 1}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("XP", "Progression overflow cap failed", ex);
+            }
         }
 
         /// <summary>
@@ -12311,9 +12376,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (lordParty == null)
                 {
                     var restoredFromSlots = RestoreKnownCompanionSlotsToPlayer(main.MemberRoster, "lord_party_missing");
-                    ModLogger.Warn("ENLISTMENT",
-                        $"RestoreCompanionsToPlayer fallback used because lord party is missing; restoredKnownSlots={restoredFromSlots}");
-                    LogCompanionRestoreAudit(main.MemberRoster, "lord_party_missing", restoredFromSlots, 0);
+                    var auditClean = LogCompanionRestoreAudit(main.MemberRoster, "lord_party_missing", restoredFromSlots, 0);
+                    var fallbackMessage = $"RestoreCompanionsToPlayer fallback used because lord party is missing; restoredKnownSlots={restoredFromSlots}";
+                    if (auditClean && restoredFromSlots == 0)
+                    {
+                        ModLogger.Info("ENLISTMENT", fallbackMessage + "; audit clean");
+                    }
+                    else
+                    {
+                        ModLogger.Warn("ENLISTMENT", fallbackMessage);
+                    }
                     return;
                 }
 
@@ -12388,7 +12460,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
 
-        private void LogCompanionRestoreAudit(TroopRoster mainRoster, string reason, int restored, int staleRefsCleaned)
+        private bool LogCompanionRestoreAudit(TroopRoster mainRoster, string reason, int restored, int staleRefsCleaned)
         {
             try
             {
@@ -12401,10 +12473,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 ModLogger.Info("ENLISTMENT",
                     $"Companion restore audit: reason={reason ?? "unknown"}, knownSlots={known.Count}, presentInPlayerRoster={present}, restored={restored}, staleRefsCleaned={staleRefsCleaned}, missing={string.Join("|", missing.Take(6))}");
+                return missing.Count == 0 && present == known.Count;
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("ENLISTMENT", "Companion restore audit failed", ex);
+                return false;
             }
         }
 

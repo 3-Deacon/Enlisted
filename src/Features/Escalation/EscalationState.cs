@@ -39,6 +39,11 @@ namespace Enlisted.Features.Escalation
         // latest decay floor so the grace survives save/load.
         public int ScrutinyRecoveryFloor { get; set; } = ScrutinyMax;
 
+        // Ordinary high-scrutiny pressure (camp/storylet/routine events) is capped so
+        // routine noise cannot pin the player at critical exposure while no decay has
+        // had time to run. Severe discipline/crime/desertion reasons still bypass.
+        public CampaignTime LastOrdinaryHighScrutinyPressureTime { get; set; } = CampaignTime.Zero;
+
         // Medical risk is special: it should reset when treated and decay only when resting.
         public CampaignTime LastMedicalRiskDecayTime { get; set; } = CampaignTime.Zero;
 

@@ -31,6 +31,7 @@ namespace Enlisted.Features.Escalation
     {
         private const string LogCategory = "Escalation";
         private const int MinimumScrutinyRecoveryGraceDays = 14;
+        private const int OrdinaryHighScrutinyCeiling = EscalationThresholds.ScrutinyExposed;
 
         public static EscalationManager Instance { get; private set; }
 
@@ -102,11 +103,13 @@ namespace Enlisted.Features.Escalation
                 // Timestamps for decay logic
                 var lastScrutinyRaised = _state.LastScrutinyRaisedTime;
                 var lastScrutinyDecay = _state.LastScrutinyDecayTime;
+                var lastOrdinaryHighScrutinyPressure = _state.LastOrdinaryHighScrutinyPressureTime;
                 var lastMedicalDecay = _state.LastMedicalRiskDecayTime;
                 var lastThresholdEvent = _state.LastThresholdEventTime;
 
                 _ = dataStore.SyncData("esc_lastScrutinyRaised", ref lastScrutinyRaised);
                 _ = dataStore.SyncData("esc_lastScrutinyDecay", ref lastScrutinyDecay);
+                _ = dataStore.SyncData("esc_lastOrdinaryHighScrutinyPressure", ref lastOrdinaryHighScrutinyPressure);
                 _ = dataStore.SyncData("esc_lastMedicalDecay", ref lastMedicalDecay);
                 _ = dataStore.SyncData("esc_lastThresholdEvent", ref lastThresholdEvent);
 
@@ -142,6 +145,7 @@ namespace Enlisted.Features.Escalation
 
                     _state.LastScrutinyRaisedTime = lastScrutinyRaised;
                     _state.LastScrutinyDecayTime = lastScrutinyDecay;
+                    _state.LastOrdinaryHighScrutinyPressureTime = lastOrdinaryHighScrutinyPressure;
                     if (_state.LastScrutinyDecayTime != CampaignTime.Zero && _state.ScrutinyRecoveryFloor > _state.Scrutiny)
                     {
                         _state.ScrutinyRecoveryFloor = _state.Scrutiny;
@@ -454,6 +458,15 @@ namespace Enlisted.Features.Escalation
                     $"(attempted={Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax)}, delta={delta}, " +
                     $"floor={recoveryFloor}, reason={reason ?? "unknown"}, graceAgeDays={graceAgeDays:F1}, graceDays={graceDays})");
             }
+            else if (TryCapOrdinaryHighScrutinyPressure(oldValue, attempted, delta, reason, out cappedValue))
+            {
+                next = cappedValue;
+                _state.LastOrdinaryHighScrutinyPressureTime = CampaignTime.Now;
+                ModLogger.Info(LogCategory,
+                    $"Ordinary scrutiny pressure capped at high-scrutiny ceiling: {oldValue} -> {next} " +
+                    $"(attempted={Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax)}, delta={delta}, " +
+                    $"ceiling={OrdinaryHighScrutinyCeiling}, reason={reason ?? "unknown"})");
+            }
 
             _state.Scrutiny = next;
 
@@ -529,6 +542,37 @@ namespace Enlisted.Features.Escalation
             // instead of allowing a bounce back to 99 under the hard cap.
             recoveryFloor = Math.Min(recoveryFloor, oldValue);
             cappedValue = oldValue;
+            return cappedValue != clampedAttempt;
+        }
+
+        private bool TryCapOrdinaryHighScrutinyPressure(
+            int oldValue,
+            int attemptedValue,
+            int delta,
+            string reason,
+            out int cappedValue)
+        {
+            var clampedAttempt = Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            cappedValue = clampedAttempt;
+
+            if (delta <= 0 || clampedAttempt <= oldValue)
+            {
+                return false;
+            }
+
+            if (IsSevereScrutinyReason(reason))
+            {
+                return false;
+            }
+
+            if (oldValue < OrdinaryHighScrutinyCeiling && clampedAttempt <= OrdinaryHighScrutinyCeiling)
+            {
+                return false;
+            }
+
+            cappedValue = oldValue >= OrdinaryHighScrutinyCeiling
+                ? oldValue
+                : OrdinaryHighScrutinyCeiling;
             return cappedValue != clampedAttempt;
         }
 
