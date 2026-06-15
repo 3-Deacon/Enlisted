@@ -176,6 +176,7 @@ namespace Enlisted.Mod.Entry
                     _ = typeof(LootBlockPatch.LootScreenPatch);
                     _ = typeof(NavalBattleArmyWaitCrashFix);
                     _ = typeof(NavalBattleShipAssignmentPatch);
+                    _ = typeof(NavalAddReservedTroopToShipGuardPatch);
                     _ = typeof(NavalNavigationCapabilityPatch);
                     _ = typeof(NavalShipDamageProtectionPatch);
                     _ = typeof(OrderOfBattleSuppressionPatch);
@@ -203,7 +204,8 @@ namespace Enlisted.Mod.Entry
                         "EncounterAbandonArmyBlockPatch2",        // Target: EncounterGameMenuBehavior (deferred)
                         "EncounterLeaveSuppressionPatch",         // Target: EncounterGameMenuBehavior (deferred)
                         "MapConversationEndPatch",                // Target: MapScreen explicit interface (deferred)
-                        "NavalAllocateTroopsPatch"                 // Optional War Sails target; patch manually only when method resolves
+                        "NavalAllocateTroopsPatch",                // Optional War Sails target; patch manually only when method resolves
+                        "NavalAddReservedTroopToShipGuardPatch"     // Optional War Sails target; patch manually only when method resolves
                     };
 
                     var assembly = Assembly.GetExecutingAssembly();
@@ -271,6 +273,44 @@ namespace Enlisted.Mod.Entry
                     catch (Exception optionalPatchEx)
                     {
                         ModLogger.Caught("Naval", "Optional NavalAllocateTroopsPatch manual apply failed", optionalPatchEx);
+                    }
+
+                    try
+                    {
+                        var navalAddReservedTarget = NavalAddReservedTroopToShipGuardPatch.TargetMethod();
+                        if (navalAddReservedTarget == null)
+                        {
+                            ModLogger.Info("Naval",
+                                "Naval AddReservedTroopToShip guard unavailable for this War Sails build; skipping optional crash guard");
+                        }
+                        else
+                        {
+                            var navalAddReservedPrefix = typeof(NavalAddReservedTroopToShipGuardPatch).GetMethod(
+                                nameof(NavalAddReservedTroopToShipGuardPatch.Prefix),
+                                BindingFlags.Public | BindingFlags.Static);
+                            var navalAddReservedFinalizer = typeof(NavalAddReservedTroopToShipGuardPatch).GetMethod(
+                                nameof(NavalAddReservedTroopToShipGuardPatch.Finalizer),
+                                BindingFlags.Public | BindingFlags.Static);
+
+                            if (navalAddReservedPrefix == null || navalAddReservedFinalizer == null)
+                            {
+                                ModLogger.Warn("Naval",
+                                    "Naval AddReservedTroopToShip guard prefix/finalizer not found; skipping optional crash guard");
+                            }
+                            else
+                            {
+                                _harmony.Patch(
+                                    navalAddReservedTarget,
+                                    prefix: new HarmonyMethod(navalAddReservedPrefix),
+                                    finalizer: new HarmonyMethod(navalAddReservedFinalizer));
+                                enabledCount++;
+                                ModLogger.Info("Naval", "Naval AddReservedTroopToShip guard applied manually");
+                            }
+                        }
+                    }
+                    catch (Exception optionalPatchEx)
+                    {
+                        ModLogger.Caught("Naval", "Optional NavalAddReservedTroopToShipGuardPatch manual apply failed", optionalPatchEx);
                     }
 
                     // Deferred patches will be applied later when campaign starts
