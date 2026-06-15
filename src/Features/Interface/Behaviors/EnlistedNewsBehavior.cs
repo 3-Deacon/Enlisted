@@ -5135,6 +5135,13 @@ namespace Enlisted.Features.Interface.Behaviors
                     return;
                 }
 
+                if (tier == StoryTier.Log && severity <= 0)
+                {
+                    ModLogger.Debug("NEWS",
+                        $"campaign_log_skipped_low_tier: category={category}, story={storyKey}, tier={tier}, severity={severity}");
+                    return;
+                }
+
                 var item = new DispatchItem
                 {
                     DayCreated = (int)CampaignTime.Now.ToDays,

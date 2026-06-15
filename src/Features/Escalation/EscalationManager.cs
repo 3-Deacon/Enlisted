@@ -92,10 +92,12 @@ namespace Enlisted.Features.Escalation
                 var scrutiny = _state.Scrutiny;
                 var lordRep = _state.LordReputation;
                 var medical = _state.MedicalRisk;
+                var scrutinyRecoveryFloor = _state.ScrutinyRecoveryFloor;
 
                 _ = dataStore.SyncData("esc_scrutiny", ref scrutiny);
                 _ = dataStore.SyncData("esc_lordRep", ref lordRep);
                 _ = dataStore.SyncData("esc_medical", ref medical);
+                _ = dataStore.SyncData("esc_scrutinyRecoveryFloor", ref scrutinyRecoveryFloor);
 
                 // Timestamps for decay logic
                 var lastScrutinyRaised = _state.LastScrutinyRaisedTime;
@@ -136,9 +138,14 @@ namespace Enlisted.Features.Escalation
                     _state.Scrutiny = scrutiny;
                     _state.LordReputation = lordRep;
                     _state.MedicalRisk = medical;
+                    _state.ScrutinyRecoveryFloor = scrutinyRecoveryFloor;
 
                     _state.LastScrutinyRaisedTime = lastScrutinyRaised;
                     _state.LastScrutinyDecayTime = lastScrutinyDecay;
+                    if (_state.LastScrutinyDecayTime != CampaignTime.Zero && _state.ScrutinyRecoveryFloor > _state.Scrutiny)
+                    {
+                        _state.ScrutinyRecoveryFloor = _state.Scrutiny;
+                    }
                     _state.LastMedicalRiskDecayTime = lastMedicalDecay;
                     _state.LastThresholdEventTime = lastThresholdEvent;
 
@@ -439,13 +446,13 @@ namespace Enlisted.Features.Escalation
             var attempted = oldValue + delta;
             var next = Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
 
-            if (TryCapScrutinyIncreaseDuringRecovery(oldValue, attempted, delta, reason, out var cappedValue, out var graceAgeDays, out var graceDays))
+            if (TryCapScrutinyIncreaseDuringRecovery(oldValue, attempted, delta, reason, out var cappedValue, out var graceAgeDays, out var graceDays, out var recoveryFloor))
             {
                 next = cappedValue;
                 ModLogger.Info(LogCategory,
-                    $"Scrutiny increase capped during recovery grace: {oldValue} -> {next} " +
+                    $"Scrutiny increase suppressed during recovery grace: {oldValue} -> {next} " +
                     $"(attempted={Clamp(attempted, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax)}, delta={delta}, " +
-                    $"reason={reason ?? "unknown"}, graceAgeDays={graceAgeDays:F1}, graceDays={graceDays})");
+                    $"floor={recoveryFloor}, reason={reason ?? "unknown"}, graceAgeDays={graceAgeDays:F1}, graceDays={graceDays})");
             }
 
             _state.Scrutiny = next;
@@ -487,13 +494,16 @@ namespace Enlisted.Features.Escalation
             string reason,
             out int cappedValue,
             out float graceAgeDays,
-            out int graceDays)
+            out int graceDays,
+            out int recoveryFloor)
         {
-            cappedValue = Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            var clampedAttempt = Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            cappedValue = clampedAttempt;
             graceAgeDays = 0f;
             graceDays = GetScrutinyRecoveryGraceDays();
+            recoveryFloor = Clamp(_state.ScrutinyRecoveryFloor, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
 
-            if (delta <= 0 || attemptedValue < EscalationState.ScrutinyMax)
+            if (delta <= 0 || clampedAttempt <= oldValue)
             {
                 return false;
             }
@@ -514,10 +524,12 @@ namespace Enlisted.Features.Escalation
                 return false;
             }
 
-            cappedValue = Math.Min(EscalationState.ScrutinyMax - 1,
-                Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax));
-            cappedValue = Math.Max(oldValue, cappedValue);
-            return cappedValue != Clamp(attemptedValue, EscalationState.ScrutinyMin, EscalationState.ScrutinyMax);
+            // During recovery grace, ordinary camp/storylet pressure must not erase
+            // the player's recovered value. Freeze the track at the current value
+            // instead of allowing a bounce back to 99 under the hard cap.
+            recoveryFloor = Math.Min(recoveryFloor, oldValue);
+            cappedValue = oldValue;
+            return cappedValue != clampedAttempt;
         }
 
         private static bool IsSevereScrutinyReason(string reason)
@@ -673,6 +685,7 @@ namespace Enlisted.Features.Escalation
                         out var decaySteps))
                 {
                     _state.Scrutiny = updated;
+                    _state.ScrutinyRecoveryFloor = updated;
                     _state.LastScrutinyDecayTime = updatedTime;
                     _lastScrutinyDecayDayNumber = (int)now.ToDays;
                     ModLogger.Info(LogCategory,

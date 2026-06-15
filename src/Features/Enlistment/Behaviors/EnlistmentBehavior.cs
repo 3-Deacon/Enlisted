@@ -3143,7 +3143,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _retirementNotificationShown = false;
                 _currentTermKills = 0;
 
-                TryApplyReservistReentryBoost(_enlistedLord?.MapFaction);
+                if (resumedFromGrace)
+                {
+                    ModLogger.Info("ENLISTMENT",
+                        $"Grace resume: skipping reservist re-entry boost (savedTier={_enlistmentTier}, savedXP={_enlistmentXP})");
+                }
+                else
+                {
+                    TryApplyReservistReentryBoost(_enlistedLord?.MapFaction);
+                }
+
                 RefreshQuartermasterInventoryAfterTierResolution(resumedFromGrace ? "grace_reentry" : "start_enlist");
 
                 // Show experience track notification AFTER all tier calculations are complete.
@@ -11304,22 +11313,23 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     return;
                 }
 
-                // Check if we crossed any promotion threshold up to max tier
-                for (var tier = _enlistmentTier; tier < maxTier && tier >= 0; tier++)
+                // Only the next rank can be promoted. Do not scan future thresholds,
+                // because over-threshold XP is not allowed to auto-skip ranks and logging
+                // future tiers makes grace/re-entry states look corrupt.
+                if (_enlistmentTier >= maxTier || _enlistmentTier >= tierXPRequirements.Length)
                 {
-                    var requiredXP = tierXPRequirements[tier];
+                    return;
+                }
 
-                    // If we crossed from below to above a threshold
-                    if (previousXP < requiredXP && currentXP >= requiredXP)
-                    {
-                        // Troop selection menu removed. Promotions are handled via PromotionBehavior
-                        // which triggers proving events and culture-specific notifications.
-                        // Player visits Quartermaster manually for equipment after promotion.
-                        // The PromotionBehavior.CheckForPromotion() handles the actual tier advancement.
-                        ModLogger.Info("Progression", $"XP threshold crossed for tier {tier + 1} - PromotionBehavior will handle");
-
-                        break; // Only notify for the first threshold crossed
-                    }
+                var requiredXP = tierXPRequirements[_enlistmentTier];
+                if (previousXP < requiredXP && currentXP >= requiredXP)
+                {
+                    // Troop selection menu removed. Promotions are handled via PromotionBehavior
+                    // which triggers proving events and culture-specific notifications.
+                    // Player visits Quartermaster manually for equipment after promotion.
+                    // The PromotionBehavior.CheckForPromotion() handles the actual tier advancement.
+                    ModLogger.Info("Progression",
+                        $"XP threshold crossed for tier {_enlistmentTier + 1} - PromotionBehavior will handle");
                 }
             }
             catch (Exception ex)

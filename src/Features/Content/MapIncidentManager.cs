@@ -317,20 +317,24 @@ namespace Enlisted.Features.Content
                     return false;
                 }
 
-                // Filter out decisions and onboarding events - these are handled by the accordion/menu system
-                // Decisions with context="Any" would otherwise match every map incident context
+                var totalCandidates = candidates.Count;
+
+                // Map incidents may match context=Any. Use a positive category allowlist so
+                // promotion, threshold, onboarding, decision, and other interactive event
+                // categories cannot leak into passive map-incident delivery.
                 candidates = candidates
-                    .Where(e => !e.Category.Equals("decision", StringComparison.OrdinalIgnoreCase) &&
-                                !e.Category.Equals("onboarding", StringComparison.OrdinalIgnoreCase))
+                    .Where(e => string.Equals(e.Category, category, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 if (candidates.Count == 0)
                 {
-                    ModLogger.Debug(LogCategory, $"No map_incident events for context: {context} (excluded decisions/onboarding)");
+                    ModLogger.Debug(LogCategory,
+                        $"No map_incident events for context: {context} (total candidates={totalCandidates})");
                     return false;
                 }
 
-                ModLogger.Debug(LogCategory, $"Found {candidates.Count} candidate events for context: {context}");
+                ModLogger.Debug(LogCategory,
+                    $"Found {candidates.Count}/{totalCandidates} map_incident candidate events for context: {context}");
 
                 // Filter by requirements and cooldowns
                 var eligible = candidates.Where(e => IsEventEligible(e)).ToList();

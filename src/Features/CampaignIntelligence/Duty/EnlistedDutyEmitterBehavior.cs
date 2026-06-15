@@ -39,6 +39,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
         private const int NAMED_ORDER_COMPLETION_COOLDOWN_HOURS = 8;
+        private const int NAMED_ORDER_GLOBAL_CADENCE_HOURS = 24;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
@@ -215,7 +216,32 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 return true;
             }
 
+            if (IsNamedOrderGlobalCadenceActive(out reason))
+            {
+                return true;
+            }
+
             return false;
+        }
+
+        private bool IsNamedOrderGlobalCadenceActive(out string reason)
+        {
+            reason = string.Empty;
+
+            var emittedAt = _cooldowns?.LastNamedOrderEmittedAt ?? CampaignTime.Zero;
+            if (emittedAt == CampaignTime.Zero)
+            {
+                return false;
+            }
+
+            var elapsedHours = (CampaignTime.Now - emittedAt).ToHours;
+            if (elapsedHours >= NAMED_ORDER_GLOBAL_CADENCE_HOURS)
+            {
+                return false;
+            }
+
+            reason = $"named_order_global_cadence id={_cooldowns?.LastNamedOrderEmittedId ?? "unknown"} profile={_cooldowns?.LastNamedOrderEmittedProfile ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_GLOBAL_CADENCE_HOURS}h";
+            return true;
         }
 
         private bool IsNamedOrderCompletionCooldownActive(OrderActivity activity, out string reason)
@@ -760,7 +786,10 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 StoryKey = storylet.Id
             });
 
-            _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            var emittedAt = CampaignTime.Now;
+            _cooldowns.LastFiredAt[storylet.Id] = emittedAt;
+            var profile = OrderActivity.Instance?.CurrentDutyProfile ?? "unknown";
+            _cooldowns.RecordNamedOrderEmission(storylet.Id, profile, emittedAt);
             IncrementProfileCount("arcscale");
 
             ModLogger.Info("DUTY",
