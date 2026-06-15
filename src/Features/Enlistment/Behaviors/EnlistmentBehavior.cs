@@ -5,6 +5,7 @@ using System.Reflection;
 using Enlisted.Features.Combat.Behaviors;
 using Enlisted.Features.Company;
 using Enlisted.Features.Content;
+using Enlisted.Features.Equipment;
 using Enlisted.Features.Equipment.Behaviors;
 using Enlisted.Features.Enlistment.Core;
 using Enlisted.Features.Escalation;
@@ -11691,15 +11692,25 @@ namespace Enlisted.Features.Enlistment.Behaviors
         }
 
         /// <summary>
-        ///     Assign initial recruit equipment based on lord's culture.
+        ///     Assign initial equipment from a lord-culture troop template matching the resolved enlistment tier.
         ///     PROTECTS QUEST ITEMS: Quest items are preserved during equipment assignment.
         /// </summary>
         private void AssignInitialEquipment()
         {
             try
             {
-                if (_enlistedLord?.Culture?.BasicTroop?.Equipment == null)
+                var culture = _enlistedLord?.Culture;
+                if (culture == null)
                 {
+                    return;
+                }
+
+                var selectedTroop = ResolveInitialEquipmentTroopTemplate(culture, _enlistmentTier, out var source);
+                var equipment = GetInitialEquipmentForTroop(selectedTroop);
+                if (equipment == null)
+                {
+                    ModLogger.Info("EQUIPMENT",
+                        $"No initial equipment template found for culture={culture.StringId ?? "unknown"}, tier={_enlistmentTier}");
                     return;
                 }
 
@@ -11707,18 +11718,127 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 var equipmentManager = EquipmentManager.Instance;
                 var questItems = equipmentManager?.PreserveEquippedQuestItems() ?? new Dictionary<EquipmentIndex, EquipmentElement>();
 
-                // Use lord's culture basic troop equipment
-                var basicTroopEquipment = _enlistedLord.Culture.BasicTroop.Equipment;
-                EquipmentHelper.AssignHeroEquipmentFromEquipment(Hero.MainHero, basicTroopEquipment);
+                EquipmentHelper.AssignHeroEquipmentFromEquipment(Hero.MainHero, equipment);
 
                 // CRITICAL: Restore quest items after equipment assignment
                 equipmentManager?.RestoreEquippedQuestItems(questItems);
 
-                ModLogger.Info("EQUIPMENT", $"Assigned initial {_enlistedLord.Culture.Name} recruit equipment (quest items protected)");
+                var troopTier = SafeGetInitialEquipmentTroopTier(selectedTroop);
+                ModLogger.Info("EQUIPMENT",
+                    $"Assigned initial {culture.Name} tier {_enlistmentTier} equipment from {selectedTroop?.Name?.ToString() ?? "unknown troop"} " +
+                    $"(troop={selectedTroop?.StringId ?? "unknown"}, troopTier={troopTier}, source={source}, quest items protected)");
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("EQUIPMENT", "Error assigning initial equipment", ex);
+            }
+        }
+
+        private CharacterObject ResolveInitialEquipmentTroopTemplate(CultureObject culture, int enlistmentTier, out string source)
+        {
+            source = "unresolved";
+            if (culture == null)
+            {
+                return null;
+            }
+
+            var resolvedTier = Math.Max(1, enlistmentTier);
+            var troopTree = CultureTroopTreeHelper.BuildCultureTroopTree(culture) ?? new List<CharacterObject>();
+            var equippedTroops = troopTree
+                .Where(troop => troop != null && !troop.IsHero && HasInitialEquipment(troop))
+                .ToList();
+
+            var exactTier = SelectInitialEquipmentTroop(equippedTroops
+                .Where(troop => SafeGetInitialEquipmentTroopTier(troop) == resolvedTier));
+            if (exactTier != null)
+            {
+                source = "exact_tier";
+                return exactTier;
+            }
+
+            var nearestLower = SelectInitialEquipmentTroop(equippedTroops
+                .Where(troop => SafeGetInitialEquipmentTroopTier(troop) <= resolvedTier)
+                .OrderByDescending(SafeGetInitialEquipmentTroopTier));
+            if (nearestLower != null)
+            {
+                source = "nearest_lower_tier";
+                return nearestLower;
+            }
+
+            var nearestHigher = SelectInitialEquipmentTroop(equippedTroops
+                .Where(troop => SafeGetInitialEquipmentTroopTier(troop) > resolvedTier)
+                .OrderBy(SafeGetInitialEquipmentTroopTier));
+            if (nearestHigher != null)
+            {
+                source = "nearest_higher_tier";
+                return nearestHigher;
+            }
+
+            if (HasInitialEquipment(culture.BasicTroop))
+            {
+                source = "culture_basic_fallback";
+                return culture.BasicTroop;
+            }
+
+            if (HasInitialEquipment(culture.EliteBasicTroop))
+            {
+                source = "culture_elite_basic_fallback";
+                return culture.EliteBasicTroop;
+            }
+
+            return null;
+        }
+
+        private static CharacterObject SelectInitialEquipmentTroop(IEnumerable<CharacterObject> troops)
+        {
+            return troops
+                .OrderBy(troop => troop.DefaultFormationClass == FormationClass.Infantry ? 0 : 1)
+                .ThenBy(troop => troop.StringId ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                .FirstOrDefault();
+        }
+
+        private static bool HasInitialEquipment(CharacterObject troop)
+        {
+            return GetInitialEquipmentForTroop(troop) != null;
+        }
+
+        private static Equipment GetInitialEquipmentForTroop(CharacterObject troop)
+        {
+            if (troop == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var battleEquipment = troop.BattleEquipments?.FirstOrDefault();
+                if (battleEquipment != null)
+                {
+                    return battleEquipment;
+                }
+            }
+            catch
+            {
+                // Fall through to the base equipment template.
+            }
+
+            return troop.Equipment;
+        }
+
+        private static int SafeGetInitialEquipmentTroopTier(CharacterObject troop)
+        {
+            if (troop == null)
+            {
+                return 1;
+            }
+
+            try
+            {
+                return Math.Max(1, troop.GetBattleTier());
+            }
+            catch
+            {
+                return Math.Max(1, troop.Tier);
             }
         }
 

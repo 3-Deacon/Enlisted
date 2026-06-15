@@ -434,12 +434,10 @@ namespace Enlisted.Features.Escalation
             var oldValue = _state.Scrutiny;
             var isRoutineCampIncrease = delta > 0 &&
                 reason != null &&
-                reason.IndexOf("camp incident", StringComparison.OrdinalIgnoreCase) >= 0 &&
-                !reason.Contains("discipline") &&
-                delta <= 5;
+                reason.IndexOf("camp incident", StringComparison.OrdinalIgnoreCase) >= 0;
 
             var today = (int)CampaignTime.Now.ToDays;
-            if (isRoutineCampIncrease && oldValue >= 95 && _lastScrutinyDecayDayNumber == today)
+            if (isRoutineCampIncrease && _lastScrutinyDecayDayNumber == today)
             {
                 ModLogger.Info(LogCategory,
                     $"Routine scrutiny increase suppressed after same-day quiet decay: {oldValue} unchanged (delta={delta}, reason={reason})");
@@ -588,17 +586,19 @@ namespace Enlisted.Features.Escalation
             var cfg = ConfigurationManager.LoadEscalationConfig() ?? new EscalationConfig();
             var now = CampaignTime.Now;
 
-            // Scrutiny: -1 per 7 days with no corrupt choices (0-100 scale).
-            // Note: Using 1 point decay to match config settings. Scale is 10x larger but keeps same decay rate.
+            // Scrutiny: -1 per configured quiet-service interval. Long campaign jumps
+            // apply all elapsed intervals so bulk timeskip does not pin scrutiny at max.
             {
                 var old = _state.Scrutiny;
                 if (TryDecayDown(old, _state.LastScrutinyDecayTime, _state.LastScrutinyRaisedTime, cfg.ScrutinyDecayIntervalDays, 1,
-                        EscalationState.ScrutinyMin, EscalationState.ScrutinyMax, now, out var updated, out var updatedTime))
+                        EscalationState.ScrutinyMin, EscalationState.ScrutinyMax, now, out var updated, out var updatedTime,
+                        out var decaySteps))
                 {
                     _state.Scrutiny = updated;
                     _state.LastScrutinyDecayTime = updatedTime;
                     _lastScrutinyDecayDayNumber = (int)now.ToDays;
-                    ModLogger.Info(LogCategory, $"Scrutiny decayed: {old} -> {updated} (quiet service)");
+                    ModLogger.Info(LogCategory,
+                        $"Scrutiny decayed: {old} -> {updated} (quiet service, intervals={decaySteps}, intervalDays={cfg.ScrutinyDecayIntervalDays})");
                     ShowScrutinyEasedMessage(old, updated);
                 }
             }
@@ -640,22 +640,24 @@ namespace Enlisted.Features.Escalation
             int max,
             CampaignTime now,
             out int updatedValue,
-            out CampaignTime updatedLastDecayTime)
+            out CampaignTime updatedLastDecayTime,
+            out int decaySteps)
         {
             updatedValue = value;
             updatedLastDecayTime = lastDecayTime;
+            decaySteps = 0;
 
             if (value <= min)
             {
                 return false;
             }
 
-            if (intervalDays <= 0)
+            if (intervalDays <= 0 || amount <= 0)
             {
                 return false;
             }
 
-            // Require a quiet period since last raise.
+            // Require a quiet period since the last actual increase.
             if (lastRaisedTime != CampaignTime.Zero)
             {
                 var quietDays = now.ToDays - lastRaisedTime.ToDays;
@@ -665,13 +667,30 @@ namespace Enlisted.Features.Escalation
                 }
             }
 
-            var sinceLastDecay = lastDecayTime == CampaignTime.Zero ? float.MaxValue : (now.ToDays - lastDecayTime.ToDays);
-            if (sinceLastDecay < intervalDays)
+            var anchorTime = lastDecayTime;
+            if (lastRaisedTime != CampaignTime.Zero &&
+                (anchorTime == CampaignTime.Zero || lastRaisedTime.ToDays > anchorTime.ToDays))
             {
-                return false;
+                anchorTime = lastRaisedTime;
             }
 
-            updatedValue = Clamp(value - amount, min, max);
+            if (anchorTime == CampaignTime.Zero)
+            {
+                decaySteps = 1;
+            }
+            else
+            {
+                var elapsedDays = now.ToDays - anchorTime.ToDays;
+                if (elapsedDays < intervalDays)
+                {
+                    return false;
+                }
+
+                decaySteps = Math.Max(1, (int)Math.Floor(elapsedDays / intervalDays));
+            }
+
+            var totalDecay = decaySteps * amount;
+            updatedValue = Clamp(value - totalDecay, min, max);
             updatedLastDecayTime = now;
             return updatedValue != value;
         }
