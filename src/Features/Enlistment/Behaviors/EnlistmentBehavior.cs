@@ -3071,20 +3071,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Preserve supply level during grace period re-enlistment (same as tier/XP preservation)
                 CompanySupplyManager.Initialize(lord, preserveSupply: resumingGraceService);
 
-                // Initialize quartermaster inventory at enlistment start so items are available immediately
-                // Only initialize on new enlistment; grace period re-enlistment preserves existing inventory
-                if (!resumingGraceService)
-                {
-                    try
-                    {
-                        QuartermasterManager.Instance?.RollStockAvailability();
-                        ModLogger.Info("ENLISTMENT", "Initialized quartermaster inventory at enlistment start");
-                    }
-                    catch (Exception ex)
-                    {
-                        ModLogger.Caught("QUARTERMASTER", "Failed to initialize inventory at enlistment start", ex);
-                    }
-                }
+                // Quartermaster inventory must be initialized after the final tier is known.
+                // Grace/reservist re-entry can restore T6+ after base enlistment setup; rolling
+                // stock here would create stale T1-only armory inventory.
 
                 SyncActivationState("start_enlist");
 
@@ -3154,6 +3143,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _currentTermKills = 0;
 
                 TryApplyReservistReentryBoost(_enlistedLord?.MapFaction);
+                RefreshQuartermasterInventoryAfterTierResolution(resumedFromGrace ? "grace_reentry" : "start_enlist");
 
                 // Show experience track notification AFTER all tier calculations are complete.
                 // This ensures the displayed tier includes any reservist bonus adjustments.
@@ -4689,6 +4679,20 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Roll quartermaster stock availability for the new muster cycle
             OnMusterCycleComplete();
+        }
+
+        private void RefreshQuartermasterInventoryAfterTierResolution(string reason)
+        {
+            try
+            {
+                QuartermasterManager.Instance?.RefreshInventoryForCurrentEnlistment(reason);
+                ModLogger.Info("ENLISTMENT",
+                    $"Quartermaster inventory refreshed after tier resolution: tier={_enlistmentTier}, culture={_enlistedLord?.Culture?.StringId ?? "unknown"}, reason={reason ?? "unspecified"}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Failed to refresh inventory after tier resolution", ex);
+            }
         }
 
         /// <summary>
@@ -10518,6 +10522,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 return heroField;
             }
 
+            var candidates = GetExistingEnlistedCompanionCandidates();
+            if (TryReseatCompanionSlot(typeId, ref heroField, ref archetypeField, ref hasMetField, candidates))
+            {
+                return heroField;
+            }
+
             var settlement = _enlistedLord?.HomeSettlement
                 ?? _enlistedLord?.BornSettlement
                 ?? Hero.MainHero?.HomeSettlement
@@ -10536,6 +10546,131 @@ namespace Enlisted.Features.Enlistment.Behaviors
             }
 
             return heroField;
+        }
+
+        /// <summary>
+        /// Reseat companion slots from already-existing Enlisted companion heroes in
+        /// active rosters. This prevents grace/re-enlistment from spawning a fresh
+        /// companion every time a previous lord party has disappeared or per-lord
+        /// slots were cleared while the actual hero survived.
+        /// </summary>
+        public int ReseatCompanionSlotsFromExistingParties()
+        {
+            try
+            {
+                var candidates = GetExistingEnlistedCompanionCandidates();
+                if (candidates.Count == 0)
+                {
+                    return 0;
+                }
+
+                var reseated = 0;
+                if (TryReseatCompanionSlot("sergeant", ref _sergeantHero, ref _sergeantArchetype, ref _hasMetSergeant, candidates)) reseated++;
+                if (TryReseatCompanionSlot("field_medic", ref _fieldMedicHero, ref _fieldMedicArchetype, ref _hasMetFieldMedic, candidates)) reseated++;
+                if (TryReseatCompanionSlot("pathfinder", ref _pathfinderHero, ref _pathfinderArchetype, ref _hasMetPathfinder, candidates)) reseated++;
+                if (TryReseatCompanionSlot("veteran", ref _veteranHero, ref _veteranArchetype, ref _hasMetVeteran, candidates)) reseated++;
+                if (TryReseatCompanionSlot("qm_officer", ref _qmOfficerHero, ref _qmOfficerArchetype, ref _hasMetQmOfficer, candidates)) reseated++;
+                if (TryReseatCompanionSlot("junior_officer", ref _juniorOfficerHero, ref _juniorOfficerArchetype, ref _hasMetJuniorOfficer, candidates)) reseated++;
+
+                if (reseated > 0)
+                {
+                    ModLogger.Info("COMPANION",
+                        $"Reseated {reseated} companion slot(s) from existing rosters; suppressing duplicate spawn backfill");
+                }
+
+                return reseated;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("COMPANION", "reseat_existing_companions_failed", ex);
+                return 0;
+            }
+        }
+
+        private bool TryReseatCompanionSlot(
+            string typeId,
+            ref Hero heroField,
+            ref string archetypeField,
+            ref bool hasMetField,
+            List<Hero> candidates)
+        {
+            if (heroField != null && heroField.IsAlive)
+            {
+                return false;
+            }
+
+            var hero = candidates.FirstOrDefault(h => h != null && h.IsAlive && !IsAssignedCompanionSlot(h));
+            if (hero == null)
+            {
+                return false;
+            }
+
+            heroField = hero;
+            if (archetypeField == null)
+            {
+                archetypeField = string.Empty;
+            }
+            hasMetField = false;
+
+            ModLogger.Info("COMPANION",
+                $"Reseated existing companion '{hero.Name}' into slot {typeId}; no new companion spawned");
+            return true;
+        }
+
+        private List<Hero> GetExistingEnlistedCompanionCandidates()
+        {
+            var result = new List<Hero>();
+            AddExistingCompanionCandidatesFromRoster(MobileParty.MainParty?.MemberRoster, result);
+            AddExistingCompanionCandidatesFromRoster(_enlistedLord?.PartyBelongedTo?.MemberRoster, result);
+            return result;
+        }
+
+        private static void AddExistingCompanionCandidatesFromRoster(TroopRoster roster, List<Hero> result)
+        {
+            if (roster == null || result == null)
+            {
+                return;
+            }
+
+            foreach (var troop in roster.GetTroopRoster())
+            {
+                if (!troop.Character.IsHero || troop.Character == CharacterObject.PlayerCharacter)
+                {
+                    continue;
+                }
+
+                var hero = troop.Character.HeroObject;
+                if (!IsExistingEnlistedCompanionCandidate(hero))
+                {
+                    continue;
+                }
+
+                if (!result.Contains(hero))
+                {
+                    result.Add(hero);
+                }
+            }
+        }
+
+        private static bool IsExistingEnlistedCompanionCandidate(Hero hero)
+        {
+            return hero != null
+                   && hero.IsAlive
+                   && hero != Hero.MainHero
+                   && hero.Clan == Clan.PlayerClan
+                   && hero.IsPlayerCompanion
+                   && hero.HiddenInEncyclopedia;
+        }
+
+        private bool IsAssignedCompanionSlot(Hero hero)
+        {
+            return hero != null &&
+                   (hero == _sergeantHero
+                    || hero == _fieldMedicHero
+                    || hero == _pathfinderHero
+                    || hero == _veteranHero
+                    || hero == _qmOfficerHero
+                    || hero == _juniorOfficerHero);
         }
 
         /// <summary>
@@ -11964,7 +12099,9 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
                 if (lordParty == null)
                 {
-                    ModLogger.Warn("ENLISTMENT", "RestoreCompanionsToPlayer skipped - lord party missing");
+                    var restoredFromSlots = RestoreKnownCompanionSlotsToPlayer(main.MemberRoster, "lord_party_missing");
+                    ModLogger.Warn("ENLISTMENT",
+                        $"RestoreCompanionsToPlayer fallback used because lord party is missing; restoredKnownSlots={restoredFromSlots}");
                     return;
                 }
 
@@ -12034,6 +12171,41 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 ModLogger.Caught("ENLISTMENT", "Error restoring companions on retirement", ex);
             }
+        }
+
+        private int RestoreKnownCompanionSlotsToPlayer(TroopRoster mainRoster, string reason)
+        {
+            if (mainRoster == null)
+            {
+                return 0;
+            }
+
+            var restored = 0;
+            restored += RestoreKnownCompanionSlot(mainRoster, _sergeantHero, reason);
+            restored += RestoreKnownCompanionSlot(mainRoster, _fieldMedicHero, reason);
+            restored += RestoreKnownCompanionSlot(mainRoster, _pathfinderHero, reason);
+            restored += RestoreKnownCompanionSlot(mainRoster, _veteranHero, reason);
+            restored += RestoreKnownCompanionSlot(mainRoster, _qmOfficerHero, reason);
+            restored += RestoreKnownCompanionSlot(mainRoster, _juniorOfficerHero, reason);
+            return restored;
+        }
+
+        private static int RestoreKnownCompanionSlot(TroopRoster mainRoster, Hero hero, string reason)
+        {
+            if (!IsExistingEnlistedCompanionCandidate(hero) || hero.CharacterObject == null)
+            {
+                return 0;
+            }
+
+            if (mainRoster.GetTroopCount(hero.CharacterObject) > 0)
+            {
+                return 0;
+            }
+
+            mainRoster.AddToCounts(hero.CharacterObject, 1);
+            ModLogger.Info("ENLISTMENT",
+                $"Restored known Enlisted companion '{hero.Name}' to player party via fallback ({reason ?? "unspecified"})");
+            return 1;
         }
 
         /// <summary>

@@ -72,6 +72,13 @@ namespace Enlisted.Features.Companions
                     return;
                 }
 
+                if (enlistment.ReseatCompanionSlotsFromExistingParties() > 0)
+                {
+                    ModLogger.Info("COMPANION",
+                        "Existing Enlisted companions found on enlistment; skipped spawn backfill to prevent duplicates");
+                    return;
+                }
+
                 // T1 unlock — Sergeant. Always re-evaluated on every enlistment;
                 // per-player slot persists if already populated.
                 enlistment.GetOrCreateSergeant();
@@ -128,6 +135,13 @@ namespace Enlisted.Features.Companions
 
             try
             {
+                if (enlistment.ReseatCompanionSlotsFromExistingParties() > 0)
+                {
+                    ModLogger.Info("COMPANION",
+                        "Existing Enlisted companions found during tier backfill; skipped spawning new companions");
+                    return;
+                }
+
                 var tier = enlistment.EnlistmentTier;
                 if (tier >= 1)
                 {

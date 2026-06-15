@@ -280,8 +280,12 @@ namespace Enlisted.Features.Equipment.Behaviors
             // Sync primitive fields
             var lastRefreshDay = _inventoryState.LastRefreshDay;
             var lastRefreshSupply = _inventoryState.LastRefreshSupplyLevel;
+            var lastRefreshTier = _inventoryState.LastRefreshTier;
+            var lastRefreshCultureId = _inventoryState.LastRefreshCultureId ?? string.Empty;
             _ = dataStore.SyncData("qm_lastRefreshDay", ref lastRefreshDay);
             _ = dataStore.SyncData("qm_lastRefreshSupply", ref lastRefreshSupply);
+            _ = dataStore.SyncData("qm_lastRefreshTier", ref lastRefreshTier);
+            _ = dataStore.SyncData("qm_lastRefreshCultureId", ref lastRefreshCultureId);
 
             // Sync stock dictionary
             var stockCount = _inventoryState.CurrentStock?.Count ?? 0;
@@ -291,6 +295,8 @@ namespace Enlisted.Features.Equipment.Behaviors
             {
                 _inventoryState.LastRefreshDay = lastRefreshDay;
                 _inventoryState.LastRefreshSupplyLevel = lastRefreshSupply;
+                _inventoryState.LastRefreshTier = lastRefreshTier;
+                _inventoryState.LastRefreshCultureId = lastRefreshCultureId ?? string.Empty;
                 _inventoryState.CurrentStock ??= new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 _inventoryState.CurrentStock.Clear();
 
@@ -603,7 +609,10 @@ namespace Enlisted.Features.Equipment.Behaviors
             _inventoryState ??= new QMInventoryState();
 
             var supplyLevel = GetCurrentCompanySupplyPercent();
-            var needsRefresh = _inventoryState.NeedsRefreshForSupplyLevel(supplyLevel);
+            var enlistment = EnlistmentBehavior.Instance;
+            var tier = enlistment?.EnlistmentTier ?? -1;
+            var cultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
+            var needsRefresh = _inventoryState.NeedsRefreshForContext(supplyLevel, tier, cultureId);
 
             if (!needsRefresh)
             {
@@ -624,7 +633,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
             }
 
-            _inventoryState.RefreshInventory(supplyLevel, availableItems);
+            _inventoryState.RefreshInventory(supplyLevel, availableItems, tier, cultureId);
             EnsureStockAvailabilityReflectsSupply(supplyLevel);
             LogStockContext(allEquipment, refreshed: true, supplyLevel);
         }
@@ -718,11 +727,14 @@ namespace Enlisted.Features.Equipment.Behaviors
                 var logisticsStrain = GetCurrentLogisticsStrain();
                 var baggageAccess = GetCurrentBaggageAccessState();
                 var lastRefreshSupply = _inventoryState?.LastRefreshSupplyLevel ?? -1f;
+                var stockTier = _inventoryState?.LastRefreshTier ?? -1;
+                var stockCulture = _inventoryState?.LastRefreshCultureId ?? string.Empty;
 
                 ModLogger.Info("QUARTERMASTER",
                     $"QM stock context: candidates={candidateCount}, stockedItems={stockedCount}, stockedQty={stockedQuantity}, " +
-                    $"supply={supplyLevel:F1}%, lastStockSupply={lastRefreshSupply:F1}%, logistics={logisticsStrain:F0}, " +
-                    $"baggage={baggageAccess}, outOfStockFlags={_outOfStockItems.Count}, refreshed={refreshed}");
+                    $"supply={supplyLevel:F1}%, lastStockSupply={lastRefreshSupply:F1}%, stockTier={stockTier}, " +
+                    $"stockCulture={stockCulture}, logistics={logisticsStrain:F0}, baggage={baggageAccess}, " +
+                    $"outOfStockFlags={_outOfStockItems.Count}, refreshed={refreshed}");
             }
             catch (Exception ex)
             {
@@ -2937,10 +2949,12 @@ namespace Enlisted.Features.Equipment.Behaviors
             _outOfStockItems.Clear();
             _lastStockRollSupplyLevel = supplyLevel;
 
-            // Phase 7: Check if inventory needs refresh (12-day cycle)
+            // Phase 7: Check if inventory needs refresh (12-day cycle, supply band, tier, or culture)
             _inventoryState ??= new QMInventoryState();
+            var rollTier = enlistment?.EnlistmentTier ?? -1;
+            var rollCultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
 
-            if (_inventoryState.NeedsRefresh())
+            if (_inventoryState.NeedsRefreshForContext(supplyLevel, rollTier, rollCultureId))
             {
                 RefreshInventoryAtMuster(supplyLevel);
             }
@@ -3238,16 +3252,48 @@ namespace Enlisted.Features.Equipment.Behaviors
                     ModLogger.Debug("QUARTERMASTER", $"Added {foodItems.Count} food items to provisions inventory");
                 }
 
-                // Refresh inventory state with new stock quantities
-                _inventoryState.RefreshInventory(supplyLevel, availableItems);
+                var refreshTier = enlistment?.EnlistmentTier ?? -1;
+                var refreshCultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
+
+                // Refresh inventory state with new stock quantities. Tier/culture are
+                // stored as invalidation keys so re-enlistment cannot keep stale T1 stock.
+                _inventoryState.RefreshInventory(supplyLevel, availableItems, refreshTier, refreshCultureId);
 
                 ModLogger.Info("Quartermaster",
                     $"Inventory refreshed at muster: {availableItems.Count} items in pool, " +
-                    $"{_inventoryState.CurrentStock.Count} items stocked, supply: {supplyLevel:F1}%");
+                    $"{_inventoryState.CurrentStock.Count} items stocked, supply: {supplyLevel:F1}%, " +
+                    $"tier={refreshTier}, culture={refreshCultureId}");
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("QUARTERMASTER", "Error refreshing inventory at muster", ex);
+            }
+        }
+
+        /// <summary>
+        /// Forces QM stock to match the current enlisted lord, tier, culture, and supply.
+        /// Used after grace/reservist tier restoration so the armory does not keep
+        /// a stale T1 stock table while the player is actually T6+.
+        /// </summary>
+        public void RefreshInventoryForCurrentEnlistment(string reason)
+        {
+            try
+            {
+                _inventoryState ??= new QMInventoryState();
+                var supplyLevel = GetCurrentCompanySupplyPercent();
+
+                RefreshInventoryAtMuster(supplyLevel);
+                RollStockAvailability();
+
+                var enlistment = EnlistmentBehavior.Instance;
+                ModLogger.Info("QUARTERMASTER",
+                    $"Forced QM inventory refresh for current enlistment: reason={reason ?? "unspecified"}, " +
+                    $"tier={enlistment?.EnlistmentTier ?? -1}, culture={enlistment?.EnlistedLord?.Culture?.StringId ?? "unknown"}, " +
+                    $"stockedItems={_inventoryState.CurrentStock.Count}, supply={supplyLevel:F1}%");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Failed to force current enlistment inventory refresh", ex);
             }
         }
 
