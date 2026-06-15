@@ -58,6 +58,39 @@ namespace Enlisted.Features.Content
         internal int PendingQueueCountForDebug => _pendingEvents.Count;
         internal IEnumerable<string> PendingQueueIdsForDebug => _pendingEvents.Select(e => e?.Id ?? "(null)");
 
+        /// <summary>True while a named-order terminal resolve prompt is visible or queued for delivery.</summary>
+        public bool HasActiveOrPendingNamedOrderResolveEvent =>
+            IsNamedOrderResolveEventId(_currentEvent?.Id)
+            || _pendingEvents.Any(e => IsNamedOrderResolveEventId(e?.Id));
+
+        /// <summary>Best-effort id for diagnostics when a named-order resolve prompt is blocking order production.</summary>
+        public string ActiveOrPendingNamedOrderResolveEventId
+        {
+            get
+            {
+                if (IsNamedOrderResolveEventId(_currentEvent?.Id))
+                {
+                    return _currentEvent.Id;
+                }
+
+                return _pendingEvents.FirstOrDefault(e => IsNamedOrderResolveEventId(e?.Id))?.Id ?? string.Empty;
+            }
+        }
+
+        public static bool IsNamedOrderResolveEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("storylet_order_", StringComparison.OrdinalIgnoreCase)
+                && eventId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public static bool IsNamedOrderAcceptEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("storylet_order_", StringComparison.OrdinalIgnoreCase)
+                && eventId.IndexOf("_accept_", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         public EventDeliveryManager()
         {
             Instance = this;

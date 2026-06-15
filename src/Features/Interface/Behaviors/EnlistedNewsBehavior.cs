@@ -2530,6 +2530,32 @@ namespace Enlisted.Features.Interface.Behaviors
             }
         }
 
+        public int RemoveQueuedNamedOrderAcceptOutcomes(string reason)
+        {
+            try
+            {
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && EventDeliveryManager.IsNamedOrderAcceptEventId(e.EventId));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued named-order accept outcome(s) reason={reason ?? "unknown"}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedNamedOrderAcceptOutcomes failed", ex);
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Records an event outcome after an event popup is resolved.
         /// Adds to Personal Feed with a formatted headline showing effects.

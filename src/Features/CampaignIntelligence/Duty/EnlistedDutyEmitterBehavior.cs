@@ -322,7 +322,17 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return true;
                 }
 
-                var menuId = Campaign.Current?.GameMenuManager?.NextMenu?.StringId;
+                var delivery = EventDeliveryManager.Instance;
+                if (delivery?.HasActiveOrPendingNamedOrderResolveEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingNamedOrderResolveEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "named_order_resolve_choice_active"
+                        : "named_order_resolve_choice_active:" + eventId;
+                    return true;
+                }
+
+                var menuId = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId;
                 if (!string.IsNullOrEmpty(menuId)
                     && (menuId.StartsWith("enlisted_muster", StringComparison.OrdinalIgnoreCase)
                         || menuId.StartsWith("enlisted_qm", StringComparison.OrdinalIgnoreCase)))
@@ -353,7 +363,9 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             }
             catch (Exception ex)
             {
-                ModLogger.Caught("DUTY", "ShouldSuppressNamedOrderEmission threw", ex);
+                reason = "suppression_check_exception";
+                ModLogger.Caught("DUTY", "ShouldSuppressNamedOrderEmission threw; failing closed", ex);
+                return true;
             }
 
             return false;

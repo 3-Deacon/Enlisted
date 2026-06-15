@@ -32,6 +32,8 @@ namespace Enlisted.Features.Activities.Orders
                     return;
                 }
 
+                EnlistedNewsBehavior.Instance?.RemoveQueuedNamedOrderAcceptOutcomes("new_named_order_accept");
+
                 activity.ActiveNamedOrder = new NamedOrderState
                 {
                     OrderStoryletId = sourceStorylet.Id,
@@ -77,6 +79,7 @@ namespace Enlisted.Features.Activities.Orders
                 activity.ActiveNamedOrder = null;
                 EnlistedDutyEmitterBehavior.RecordNamedOrderCompletion(orderId, intent);
                 EnlistedNewsBehavior.Instance?.RemoveQueuedEventOutcomesForStorylet(orderId);
+                EnlistedNewsBehavior.Instance?.RemoveQueuedNamedOrderAcceptOutcomes("named_order_completion");
 
                 // Drop the spliced arc phase cache before resolving the base activity type.
                 // OrderActivity currently has no base phase definition in content, so leaving
