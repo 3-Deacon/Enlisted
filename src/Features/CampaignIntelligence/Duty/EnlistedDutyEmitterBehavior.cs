@@ -4,6 +4,7 @@ using System.Linq;
 using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Equipment.UI;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
@@ -109,13 +110,9 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
                 if (activity.ActiveNamedOrder == null)
                 {
-                    if (ShouldSuppressNamedOrderEmission(out var suppressReason))
+                    if (TryGetNamedOrderEmissionBlockReason(activity, out var blockReason))
                     {
-                        ModLogger.Debug("DUTY", $"named-order emission suppressed: {suppressReason}");
-                    }
-                    else if (IsNamedOrderCompletionCooldownActive(activity, out var cooldownReason))
-                    {
-                        ModLogger.Debug("DUTY", $"named-order emission suppressed: {cooldownReason}");
+                        LogNamedOrderRejected(namedOrderCandidates, blockReason, activity, emissionProfile);
                     }
                     else if (TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
                     {
@@ -168,23 +165,125 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             }
         }
 
-        private static bool IsNamedOrderCompletionCooldownActive(OrderActivity activity, out string reason)
+        public static void RecordNamedOrderCompletion(string orderId, string intent)
+        {
+            try
+            {
+                var completedAt = CampaignTime.Now;
+                var activity = OrderActivity.Instance;
+                if (activity != null)
+                {
+                    activity.LastNamedOrderCompletedAt = completedAt;
+                    activity.LastNamedOrderCompletedId = orderId ?? string.Empty;
+                    activity.LastNamedOrderCompletedIntent = intent ?? string.Empty;
+                }
+
+                var instance = Instance;
+                if (instance != null)
+                {
+                    instance._cooldowns = instance._cooldowns ?? new DutyCooldownStore();
+                    instance._cooldowns.EnsureInitialized();
+                    instance._cooldowns.RecordNamedOrderCompletion(orderId, intent, completedAt);
+                }
+
+                ModLogger.Info("DUTY",
+                    $"named-order completion recorded id={orderId ?? "unknown"} intent={intent ?? "unknown"}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "RecordNamedOrderCompletion threw", ex);
+            }
+        }
+
+        private bool TryGetNamedOrderEmissionBlockReason(OrderActivity activity, out string reason)
         {
             reason = string.Empty;
 
-            if (activity == null || activity.LastNamedOrderCompletedAt == CampaignTime.Zero)
+            if (activity?.ActiveNamedOrder != null)
+            {
+                reason = $"active_named_order id={activity.ActiveNamedOrder.OrderStoryletId} intent={activity.ActiveNamedOrder.Intent}";
+                return true;
+            }
+
+            if (ShouldSuppressNamedOrderEmission(out reason))
+            {
+                return true;
+            }
+
+            if (IsNamedOrderCompletionCooldownActive(activity, out reason))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsNamedOrderCompletionCooldownActive(OrderActivity activity, out string reason)
+        {
+            reason = string.Empty;
+
+            var completedAt = CampaignTime.Zero;
+            var completedId = string.Empty;
+            var completedIntent = string.Empty;
+
+            PickLatestCompletion(activity?.LastNamedOrderCompletedAt ?? CampaignTime.Zero,
+                activity?.LastNamedOrderCompletedId,
+                activity?.LastNamedOrderCompletedIntent,
+                ref completedAt,
+                ref completedId,
+                ref completedIntent);
+
+            PickLatestCompletion(_cooldowns?.LastNamedOrderCompletedAt ?? CampaignTime.Zero,
+                _cooldowns?.LastNamedOrderCompletedId,
+                _cooldowns?.LastNamedOrderCompletedIntent,
+                ref completedAt,
+                ref completedId,
+                ref completedIntent);
+
+            if (completedAt == CampaignTime.Zero)
             {
                 return false;
             }
 
-            var elapsedHours = (CampaignTime.Now - activity.LastNamedOrderCompletedAt).ToHours;
+            var elapsedHours = (CampaignTime.Now - completedAt).ToHours;
             if (elapsedHours >= NAMED_ORDER_COMPLETION_COOLDOWN_HOURS)
             {
                 return false;
             }
 
-            reason = $"recent_order_completed id={activity.LastNamedOrderCompletedId ?? "unknown"} intent={activity.LastNamedOrderCompletedIntent ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_COMPLETION_COOLDOWN_HOURS}h";
+            reason = $"arc_completion_cooldown id={completedId ?? "unknown"} intent={completedIntent ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_COMPLETION_COOLDOWN_HOURS}h";
             return true;
+        }
+
+        private static void PickLatestCompletion(
+            CampaignTime candidateAt,
+            string candidateId,
+            string candidateIntent,
+            ref CampaignTime completedAt,
+            ref string completedId,
+            ref string completedIntent)
+        {
+            if (candidateAt == CampaignTime.Zero)
+            {
+                return;
+            }
+
+            if (completedAt != CampaignTime.Zero && candidateAt.ToHours <= completedAt.ToHours)
+            {
+                return;
+            }
+
+            completedAt = candidateAt;
+            completedId = candidateId ?? string.Empty;
+            completedIntent = candidateIntent ?? string.Empty;
+        }
+
+        private static void LogNamedOrderRejected(List<DutyOpportunity> namedOrderCandidates, string reason, OrderActivity activity, string emissionProfile)
+        {
+            var candidateId = namedOrderCandidates?.FirstOrDefault()?.ArchetypeStoryletId ?? "none";
+            var count = namedOrderCandidates?.Count ?? 0;
+            ModLogger.Info("DUTY",
+                $"named-order rejected: reason={reason} candidate={candidateId} candidates={count} profile={emissionProfile ?? activity?.CurrentDutyProfile ?? "unknown"} active={activity?.ActiveNamedOrder?.OrderStoryletId ?? "none"}");
         }
 
         private static bool ShouldSuppressNamedOrderEmission(out string reason)
@@ -193,6 +292,45 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
             try
             {
+                if (MusterMenuHandler.Instance?.IsMusterSequenceActive == true)
+                {
+                    reason = "muster_active";
+                    return true;
+                }
+
+                if (MusterMenuHandler.Instance?.IsQuartermasterConversationFromMusterActive == true)
+                {
+                    reason = "muster_quartermaster_conversation_active";
+                    return true;
+                }
+
+                if (QuartermasterEquipmentSelectorBehavior.IsOpen)
+                {
+                    reason = "quartermaster_grid_ui_active";
+                    return true;
+                }
+
+                if (QuartermasterEquipmentSelectorBehavior.IsUpgradeScreenOpen)
+                {
+                    reason = "quartermaster_upgrade_ui_active";
+                    return true;
+                }
+
+                if (QuartermasterProvisionsBehavior.IsOpen)
+                {
+                    reason = "quartermaster_provisions_ui_active";
+                    return true;
+                }
+
+                var menuId = Campaign.Current?.GameMenuManager?.NextMenu?.StringId;
+                if (!string.IsNullOrEmpty(menuId)
+                    && (menuId.StartsWith("enlisted_muster", StringComparison.OrdinalIgnoreCase)
+                        || menuId.StartsWith("enlisted_qm", StringComparison.OrdinalIgnoreCase)))
+                {
+                    reason = "blocking_menu_active:" + menuId;
+                    return true;
+                }
+
                 var mainParty = MobileParty.MainParty;
                 if (mainParty?.Party?.MapEvent != null || mainParty?.MapEvent != null)
                 {

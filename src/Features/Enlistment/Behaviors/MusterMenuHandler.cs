@@ -78,6 +78,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
         /// </summary>
         private bool _qmOpenedFromMuster;
 
+        public bool IsMusterSequenceActive => _currentMuster != null;
+
+        public bool IsQuartermasterConversationFromMusterActive => _qmOpenedFromMuster;
+
         /// <summary>
         /// Tracks muster session data including outcomes, progression, and post-muster flags.
         /// Created fresh at the start of each muster and cleared when muster completes.

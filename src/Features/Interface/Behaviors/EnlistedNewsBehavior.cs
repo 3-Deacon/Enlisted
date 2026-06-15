@@ -2496,6 +2496,40 @@ namespace Enlisted.Features.Interface.Behaviors
             return $"{daysAgo} days ago";
         }
 
+        public int RemoveQueuedEventOutcomesForStorylet(string storyletId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(storyletId))
+                {
+                    return 0;
+                }
+
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var syntheticPrefix = "storylet_" + storyletId + "_";
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && !string.IsNullOrEmpty(e.EventId)
+                    && (string.Equals(e.EventId, storyletId, StringComparison.OrdinalIgnoreCase)
+                        || e.EventId.StartsWith(syntheticPrefix, StringComparison.OrdinalIgnoreCase)));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued event outcome(s) for completed storylet {storyletId}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedEventOutcomesForStorylet failed", ex);
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Records an event outcome after an event popup is resolved.
         /// Adds to Personal Feed with a formatted headline showing effects.
