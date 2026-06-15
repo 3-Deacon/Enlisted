@@ -2575,35 +2575,83 @@ namespace Enlisted.Features.Content
         /// <param name="fallbackText">The inline fallback text from JSON if XML lookup fails.</param>
         private string ResolveText(string textId, string fallbackText = null)
         {
-            // Determine the best fallback: use inline text if available, otherwise use the ID
+            // Determine the best fallback: use inline text if available, otherwise use the ID.
             var effectiveFallback = !string.IsNullOrEmpty(fallbackText) ? fallbackText : textId;
 
             if (string.IsNullOrEmpty(textId))
             {
-                // No XML ID provided, just return the fallback
-                return effectiveFallback ?? string.Empty;
+                return ResolveInlineText(effectiveFallback, SetEventTextVariables);
             }
 
-            // Use TextObject to look up the string from XML
-            // Format: "{=stringId}Fallback" - if string not found, uses the fallback text
-            var textObject = new TextObject($"{{={textId}}}{effectiveFallback}");
-
-            // Set NCO and soldier name text variables for personalized event dialogue
-            SetEventTextVariables(textObject);
-
-            var resolved = textObject.ToString();
-
-            // If resolution returned the raw {=...} pattern, the lookup failed - use fallback with variable substitution
-            if (resolved.StartsWith("{="))
+            // Use TextObject to look up the string from XML. Format: "{=stringId}Fallback".
+            var resolved = ResolveInlineText($"{{={textId}}}{effectiveFallback}", SetEventTextVariables);
+            if (LooksUnresolvedLocalization(resolved))
             {
                 ModLogger.Debug(LogCategory, $"XML lookup failed for '{textId}', using fallback");
-                // Create new TextObject from fallback and substitute variables
-                var fallbackTextObject = new TextObject(effectiveFallback ?? string.Empty);
-                SetEventTextVariables(fallbackTextObject);
-                return fallbackTextObject.ToString();
+                return ResolveInlineText(effectiveFallback, SetEventTextVariables);
             }
 
             return resolved;
+        }
+
+        /// <summary>
+        /// Resolves authored display text that may already contain Bannerlord inline
+        /// localization markup such as "{=key}Fallback". Safe for HUD/news/order
+        /// call sites that do not have separate textId/fallback fields.
+        /// </summary>
+        public static string ResolveDisplayText(string rawText)
+        {
+            if (Instance != null)
+            {
+                return Instance.ResolveText(null, rawText);
+            }
+            return ResolveInlineText(rawText, null);
+        }
+
+        private static string ResolveInlineText(string rawText, Action<TextObject> configure)
+        {
+            if (string.IsNullOrEmpty(rawText))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var textObject = new TextObject(rawText);
+                configure?.Invoke(textObject);
+                var resolved = textObject.ToString();
+                if (LooksUnresolvedLocalization(resolved))
+                {
+                    return StripLeadingLocalizationTag(resolved);
+                }
+                return resolved ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught(LogCategory, "ResolveInlineText failed", ex);
+                return StripLeadingLocalizationTag(rawText);
+            }
+        }
+
+        private static bool LooksUnresolvedLocalization(string text)
+        {
+            return !string.IsNullOrEmpty(text) && text.StartsWith("{=", StringComparison.Ordinal);
+        }
+
+        private static string StripLeadingLocalizationTag(string text)
+        {
+            if (string.IsNullOrEmpty(text) || !text.StartsWith("{=", StringComparison.Ordinal))
+            {
+                return text ?? string.Empty;
+            }
+
+            var closeBraceIndex = text.IndexOf('}');
+            if (closeBraceIndex < 0 || closeBraceIndex + 1 >= text.Length)
+            {
+                return string.Empty;
+            }
+
+            return text.Substring(closeBraceIndex + 1);
         }
 
         /// <summary>

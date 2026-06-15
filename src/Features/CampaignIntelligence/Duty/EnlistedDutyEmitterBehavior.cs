@@ -90,7 +90,8 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
-                var candidates = EnlistedDutyOpportunityBuilder.Build(snapshot, activity.CurrentDutyProfile);
+                var emissionProfile = ResolveEmissionProfile(activity);
+                var candidates = EnlistedDutyOpportunityBuilder.Build(snapshot, emissionProfile);
                 if (candidates == null || candidates.Count == 0)
                 {
                     return;
@@ -103,7 +104,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     .Where(c => c.Shape != DutyOpportunityShape.ArcScale)
                     .ToList();
 
-                if (activity.ActiveNamedOrder == null && TryEmitNamedOrder(activity, namedOrderCandidates))
+                if (activity.ActiveNamedOrder == null && TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
                 {
                     return;
                 }
@@ -136,7 +137,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     {
                         { "candidate_count", episodicCandidates.Count },
                         { "named_order_candidate_count", namedOrderCandidates.Count },
-                        { "profile", activity.CurrentDutyProfile },
+                        { "profile", emissionProfile ?? activity.CurrentDutyProfile },
                         { "active_named_order", activity.ActiveNamedOrder?.OrderStoryletId ?? "none" }
                     });
             }
@@ -146,7 +147,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             }
         }
 
-        private bool TryEmitNamedOrder(OrderActivity activity, List<DutyOpportunity> namedOrderCandidates)
+        private bool TryEmitNamedOrder(OrderActivity activity, List<DutyOpportunity> namedOrderCandidates, string emissionProfile)
         {
             if (activity == null || activity.ActiveNamedOrder != null)
             {
@@ -159,7 +160,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     "no named-order candidates produced for current duty profile",
                     new Dictionary<string, object>
                     {
-                        { "profile", activity.CurrentDutyProfile ?? "unknown" },
+                        { "profile", emissionProfile ?? activity.CurrentDutyProfile ?? "unknown" },
                         { "order_activity_active", true },
                         { "active_named_order", "none" }
                     });
@@ -176,7 +177,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 }
 
                 ModLogger.Info("DUTY",
-                    $"selected named-order storylet={storylet.Id} profile={activity.CurrentDutyProfile} reason={opp.TriggerReason} candidates={namedOrderCandidates.Count}");
+                    $"selected named-order storylet={storylet.Id} profile={emissionProfile ?? activity.CurrentDutyProfile} reason={opp.TriggerReason} candidates={namedOrderCandidates.Count}");
                 EmitOpportunity(opp, storylet);
                 return true;
             }
@@ -185,12 +186,33 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 "no eligible storylet found for any named-order candidate",
                 new Dictionary<string, object>
                 {
-                    { "profile", activity.CurrentDutyProfile ?? "unknown" },
+                    { "profile", emissionProfile ?? activity.CurrentDutyProfile ?? "unknown" },
                     { "named_order_candidate_count", namedOrderCandidates.Count },
                     { "active_named_order", "none" },
                     { "rejected_named_orders", string.Join(",", rejected.Take(8)) }
                 });
             return false;
+        }
+
+        private static string ResolveEmissionProfile(OrderActivity activity)
+        {
+            var committed = activity?.CurrentDutyProfile ?? DutyProfileIds.Wandering;
+            try
+            {
+                var lordParty = EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo;
+                var observed = DutyProfileSelector.Resolve(lordParty);
+                if (!string.Equals(observed, committed, StringComparison.OrdinalIgnoreCase))
+                {
+                    ModLogger.Expected("DUTY", "profile_emission_observed_override",
+                        $"named-order emission using observed profile {observed} over committed {committed}");
+                }
+                return observed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "ResolveEmissionProfile threw", ex);
+                return committed;
+            }
         }
 
         private bool TryResolveNamedOrderStorylet(DutyOpportunity opp, out Storylet storylet, out string rejectionReason)

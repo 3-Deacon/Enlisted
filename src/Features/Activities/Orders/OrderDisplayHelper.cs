@@ -27,6 +27,7 @@ namespace Enlisted.Features.Activities.Orders
             var storylet = StoryletCatalog.GetById(state.OrderStoryletId);
             var title = storylet?.Title;
             if (string.IsNullOrEmpty(title)) { title = storylet?.Id ?? "Order"; }
+            title = EventDeliveryManager.ResolveDisplayText(title);
             var totalHours = storylet?.Arc?.DurationHours ?? 0;
             var elapsedHours = (int)(CampaignTime.Now - state.StartedAt).ToHours;
 

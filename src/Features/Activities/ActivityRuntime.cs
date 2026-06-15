@@ -226,6 +226,7 @@ namespace Enlisted.Features.Activities
                 if (candidate != null)
                 {
                     candidate.ChainContinuation = true;
+                    MarkCandidateRelevantToActivity(activity, candidate);
                     StoryDirector.Instance?.EmitCandidate(candidate);
                 }
             }
@@ -343,9 +344,28 @@ namespace Enlisted.Features.Activities
                 var candidate = s.ToCandidate(ctx);
                 if (candidate != null)
                 {
+                    MarkCandidateRelevantToActivity(a, candidate);
                     StoryDirector.Instance?.EmitCandidate(candidate);
                 }
                 return;
+            }
+        }
+
+        private static void MarkCandidateRelevantToActivity(Activity activity, StoryCandidate candidate)
+        {
+            if (activity == null || candidate == null)
+            {
+                return;
+            }
+
+            var relevance = candidate.Relevance;
+            relevance.TouchesEnlistedLord = true;
+            candidate.Relevance = relevance;
+
+            if (activity is Enlisted.Features.Activities.Orders.OrderActivity orderActivity
+                && orderActivity.ActiveNamedOrder != null)
+            {
+                candidate.ChainContinuation = true;
             }
         }
 

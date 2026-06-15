@@ -351,19 +351,22 @@ namespace Enlisted.Features.Content
                 };
             }
 
+            var renderedTitle = EventDeliveryManager.ResolveDisplayText(c.RenderedTitle);
+            var renderedBody = EventDeliveryManager.ResolveDisplayText(c.RenderedBody);
+
             news.AddPersonalDispatch(
                 category: c.DispatchCategory ?? DefaultDispatchCategory,
-                headlineKey: c.RenderedTitle,
+                headlineKey: renderedTitle,
                 placeholderValues: null,
                 storyKey: c.StoryKey,
                 severity: severity,
                 minDisplayDays: c.MinDisplayDays,
                 tier: tier,
                 beats: c.Beats != null ? new HashSet<StoryBeat>(c.Beats) : null,
-                body: c.RenderedBody);
+                body: renderedBody);
 
             ModLogger.Info("CONTENT",
-                $"dispatch_written: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}, title={c.RenderedTitle}");
+                $"dispatch_written: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}, title={renderedTitle}");
         }
     }
 }
