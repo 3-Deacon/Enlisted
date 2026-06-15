@@ -365,6 +365,8 @@ namespace Enlisted.Features.Activities
                             candidate.InteractiveEvent = evt;
                             candidate.ProposedTier = StoryTier.Modal;
                             candidate.ChainContinuation = true;
+                            candidate.Beats.Add(StoryBeat.OrderPhaseTransition);
+                            ModLogger.Info("ACTIVITY", $"queued named-order resolve modal storylet={s.Id} event={evt.Id}");
                         }
                         else
                         {

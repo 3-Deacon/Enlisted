@@ -1934,6 +1934,12 @@ namespace Enlisted.Features.Content
 
             try
             {
+                if (ShouldSuppressNamedOrderAcceptOutcome(_currentEvent.Id, option.Id))
+                {
+                    ModLogger.Info(LogCategory, $"Skipped named-order accept outcome: event={_currentEvent.Id}, option={option.Id}");
+                    return;
+                }
+
                 // Get the appropriate result narrative (failure text if risky and failed, otherwise normal result)
                 var resultNarrative = showFailure
                     ? ResolveText(option.ResultTextFailureId, option.ResultTextFailureFallback)
@@ -1958,6 +1964,13 @@ namespace Enlisted.Features.Content
             {
                 ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of event outcome", ex);
             }
+        }
+
+        private static bool ShouldSuppressNamedOrderAcceptOutcome(string eventId, string optionId)
+        {
+            return IsNamedOrderAcceptEventId(eventId)
+                && !string.IsNullOrWhiteSpace(optionId)
+                && optionId.StartsWith("accept_", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
