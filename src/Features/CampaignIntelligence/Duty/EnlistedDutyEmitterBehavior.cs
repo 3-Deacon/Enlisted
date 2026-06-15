@@ -392,6 +392,8 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 SourceId = "duty.arcscale",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
                 ProposedTier = StoryTier.Modal,
+                SeverityHint = 0.50f,
+                Beats = { StoryBeat.OrderPhaseTransition },
                 Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 ChainContinuation = true,
                 EmittedAt = CampaignTime.Now,

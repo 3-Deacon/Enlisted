@@ -46,8 +46,10 @@ namespace Enlisted.Features.Equipment.UI
             EquipmentRows = new MBBindingList<QuartermasterEquipmentRowVm>();
             var currentCards = new MBBindingList<QuartermasterEquipmentItemVm>();
 
-            // Add equipment variants organized into rows of 4 cards each
-            foreach (var variant in availableVariants.Take(15)) // Reasonable limit for 4 rows
+            // Add all equipment variants organized into rows of 4 cards each.
+            // The selector is scrollable; truncating here hides later slots such as body armor,
+            // boots, gloves, shields, and harnesses when mixed categories are shown.
+            foreach (var variant in availableVariants)
             {
                 currentCards.Add(new QuartermasterEquipmentItemVm(variant, this));
 

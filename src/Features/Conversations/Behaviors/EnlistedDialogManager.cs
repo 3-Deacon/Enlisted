@@ -3131,6 +3131,10 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                 }
 
+                // Get harnesses through the public browsing API.
+                // They belong in accessories rather than mounts because they occupy HorseHarness.
+                combined.AddRange(qm.GetHarnessVariantsForBrowsing());
+
                 return combined;
             }
             catch (Exception ex)
