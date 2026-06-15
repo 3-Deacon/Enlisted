@@ -10622,7 +10622,37 @@ namespace Enlisted.Features.Enlistment.Behaviors
             var result = new List<Hero>();
             AddExistingCompanionCandidatesFromRoster(MobileParty.MainParty?.MemberRoster, result);
             AddExistingCompanionCandidatesFromRoster(_enlistedLord?.PartyBelongedTo?.MemberRoster, result);
+            AddExistingCompanionCandidatesFromAllHeroes(result);
             return result;
+        }
+
+
+        private static void AddExistingCompanionCandidatesFromAllHeroes(List<Hero> result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            try
+            {
+                foreach (var hero in Hero.AllAliveHeroes)
+                {
+                    if (!IsExistingEnlistedCompanionCandidate(hero))
+                    {
+                        continue;
+                    }
+
+                    if (!result.Contains(hero))
+                    {
+                        result.Add(hero);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("COMPANION", "scan_existing_companion_heroes_failed", ex);
+            }
         }
 
         private static void AddExistingCompanionCandidatesFromRoster(TroopRoster roster, List<Hero> result)

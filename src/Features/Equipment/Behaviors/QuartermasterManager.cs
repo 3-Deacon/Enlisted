@@ -267,6 +267,7 @@ namespace Enlisted.Features.Equipment.Behaviors
         public override void RegisterEvents()
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -330,6 +331,21 @@ namespace Enlisted.Features.Equipment.Behaviors
                         idx++;
                     }
                 }
+            }
+        }
+
+        private void OnGameLoaded(CampaignGameStarter starter)
+        {
+            try
+            {
+                if (EnlistmentBehavior.Instance?.IsEnlisted == true)
+                {
+                    RefreshInventoryForCurrentEnlistment("active_save_load");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "active_save_load_inventory_refresh_failed", ex);
             }
         }
 

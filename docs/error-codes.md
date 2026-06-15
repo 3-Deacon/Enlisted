@@ -11,7 +11,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 
 | Code | Summary | Source |
 |---|---|---|
-| E-ACTIVITY-5468 | activity started with no phases resolved — type may be missing from ActivityTypeCatalog | src/Features/Activities/ActivityRuntime.cs:137 |
+| E-ACTIVITY-5468 | activity started with no phases resolved — type may be missing from ActivityTypeCatalog | src/Features/Activities/ActivityRuntime.cs:138 |
 | E-ACTIVITY-6383 | ActivityTypeCatalog registered 0 types despite JSON files present | src/Features/Activities/ActivityTypeCatalog.cs:70 |
 | E-ACTIVITY-d0bb | Failed to load activity type | src/Features/Activities/ActivityTypeCatalog.cs:61 |
 
@@ -46,7 +46,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | E-COMPANION-3c31 | companion_type_no_archetypes | src/Features/Companions/CompanionSpawnFactory.cs:301 |
 | E-COMPANION-56bb | unknown_companion_type | src/Features/Companions/CompanionSpawnFactory.cs:160 |
 | E-COMPANION-6309 | spawn_no_template | src/Features/Companions/CompanionSpawnFactory.cs:196 |
-| E-COMPANION-71e1 | companion_death_cleanup_failed | src/Features/Companions/CompanionLifecycleHandler.cs:230 |
+| E-COMPANION-71e1 | companion_death_cleanup_failed | src/Features/Companions/CompanionLifecycleHandler.cs:242 |
 | E-COMPANION-7de6 | no_archetype | src/Features/Companions/CompanionSpawnFactory.cs:184 |
 | E-COMPANION-7ee5 | companion_type_missing_id | src/Features/Companions/CompanionSpawnFactory.cs:268 |
 | E-COMPANION-aad7 | main_party_missing | src/Features/Companions/CompanionSpawnFactory.cs:244 |
@@ -93,7 +93,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 | Code | Summary | Source |
 |---|---|---|
 | E-ENLISTMENT-133d | Cross-faction baggage prompt failed | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:2431 |
-| E-ENLISTMENT-27b8 | Error transferring service to new lord | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:11980 |
+| E-ENLISTMENT-27b8 | Error transferring service to new lord | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:12010 |
 | E-ENLISTMENT-547f | Error removing player from army | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:3455 |
 | E-ENLISTMENT-5b05 | Error triggering post-enlist bag check | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:3329 |
 | E-ENLISTMENT-6c6b | Error finishing PlayerEncounter before enlistment | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:3267 |
@@ -220,7 +220,7 @@ For pre-redesign codes (format `E-SUBSYSTEM-NNN`), see
 |---|---|---|
 | E-QUARTERMASTER-4df4 | Both QM and enlisted lord have no party — cannot open conversation with correct scene | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3628 |
 | E-QUARTERMASTER-6852 | GetOrCreateQuartermaster returned null or dead hero while enlisted | src/Features/Interface/Behaviors/EnlistedMenuBehavior.cs:3658 |
-| E-QUARTERMASTER-8adc | Error processing equipment variant request | src/Features/Equipment/Behaviors/QuartermasterManager.cs:1714 |
+| E-QUARTERMASTER-8adc | Error processing equipment variant request | src/Features/Equipment/Behaviors/QuartermasterManager.cs:1730 |
 | E-QUARTERMASTER-9cb7 | Cannot find troop template for culture - quartermaster hero creation will fail | src/Features/Enlistment/Behaviors/EnlistmentBehavior.cs:9971 |
 | E-QUARTERMASTER-b40e | Cannot open sell popup: QuartermasterManager.Instance is null | src/Features/Conversations/Behaviors/EnlistedDialogManager.cs:3322 |
 

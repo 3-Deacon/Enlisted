@@ -54,10 +54,10 @@ namespace Enlisted.Features.Companions
         {
             EnlistmentBehavior.Instance?.EnsureCompanionFieldsInitialized();
 
-            // If a save predates Plan 2 and the player is already enlisted at a
-            // higher tier, backfill any unlocked companions whose slots are still
-            // null. Spawn order matches the unlock-tier ordering.
-            TrySpawnAtCurrentTier();
+            // Active enlisted saves may already have companion heroes in saved slots or
+            // surviving hidden PlayerClan heroes. Re-seat first and do not spawn fresh
+            // companions on load merely because a per-slot reference is unavailable.
+            TryReseatOrBackfillAtCurrentTier(isLoadBackfill: true);
         }
 
         // ---------- Enlistment / tier hooks ----------
@@ -79,14 +79,10 @@ namespace Enlisted.Features.Companions
                     return;
                 }
 
-                // T1 unlock — Sergeant. Always re-evaluated on every enlistment;
-                // per-player slot persists if already populated.
-                enlistment.GetOrCreateSergeant();
-
-                // Backfill higher-tier slots when the player rejoins service at a
-                // tier above the unlock floor (e.g. discharged at T5, re-enlists
-                // at T5 — Veteran needs to re-spawn for the new lord).
-                TrySpawnAtCurrentTier();
+                // Backfill unlocked companion slots for this enlistment. The helper
+                // reseats surviving hidden companions first and only spawns when no
+                // existing Enlisted companion state is found.
+                TryReseatOrBackfillAtCurrentTier(isLoadBackfill: false);
             }
             catch (Exception ex)
             {
@@ -101,6 +97,13 @@ namespace Enlisted.Features.Companions
                 var enlistment = EnlistmentBehavior.Instance;
                 if (enlistment == null || !enlistment.IsEnlisted)
                 {
+                    return;
+                }
+
+                if (enlistment.ReseatCompanionSlotsFromExistingParties() > 0)
+                {
+                    ModLogger.Info("COMPANION",
+                        "Existing Enlisted companions found during tier change; skipped duplicate spawn backfill");
                     return;
                 }
 
@@ -125,7 +128,7 @@ namespace Enlisted.Features.Companions
             }
         }
 
-        private void TrySpawnAtCurrentTier()
+        private void TryReseatOrBackfillAtCurrentTier(bool isLoadBackfill)
         {
             var enlistment = EnlistmentBehavior.Instance;
             if (enlistment == null || !enlistment.IsEnlisted)
@@ -135,10 +138,19 @@ namespace Enlisted.Features.Companions
 
             try
             {
-                if (enlistment.ReseatCompanionSlotsFromExistingParties() > 0)
+                var reseated = enlistment.ReseatCompanionSlotsFromExistingParties();
+                var existingCount = enlistment.GetSpawnedCompanions()?.Count ?? 0;
+                if (reseated > 0 || existingCount > 0)
                 {
                     ModLogger.Info("COMPANION",
-                        "Existing Enlisted companions found during tier backfill; skipped spawning new companions");
+                        $"Existing Enlisted companions present during {(isLoadBackfill ? "save-load" : "tier")} backfill; reseated={reseated}, known={existingCount}; skipped duplicate spawn backfill");
+                    return;
+                }
+
+                if (isLoadBackfill)
+                {
+                    ModLogger.Info("COMPANION",
+                        "No existing Enlisted companions found on active save-load; skipped companion spawn backfill to prevent reload duplication");
                     return;
                 }
 

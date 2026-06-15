@@ -118,6 +118,13 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     }
                 }
 
+                if (activity.ActiveNamedOrder != null)
+                {
+                    ModLogger.Debug("DUTY",
+                        $"routine duty emission suppressed while named order is active: {activity.ActiveNamedOrder.OrderStoryletId}/{activity.ActiveNamedOrder.Intent}");
+                    return;
+                }
+
                 if (episodicCandidates.Count == 0)
                 {
                     return;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Content;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -303,12 +304,22 @@ namespace Enlisted.Features.Activities
                 CurrentContext = DeriveContext()
             };
 
+            var activeOrder = (a as OrderActivity)?.ActiveNamedOrder;
+
             // Weighted eligible selection.
             var eligible = new List<(Storylet storylet, float weight)>();
             foreach (var id in phase.Pool)
             {
                 var s = StoryletCatalog.GetById(id);
                 if (s == null)
+                {
+                    continue;
+                }
+                if (!IsNamedOrderPhaseStoryletAllowed(activeOrder, s.Id))
+                {
+                    continue;
+                }
+                if (HasNamedOrderAlreadyEmitted(activeOrder, s.Id))
                 {
                     continue;
                 }
@@ -341,13 +352,104 @@ namespace Enlisted.Features.Activities
                 {
                     continue;
                 }
+
+                ctx.SourceStorylet = s;
                 var candidate = s.ToCandidate(ctx);
                 if (candidate != null)
                 {
                     MarkCandidateRelevantToActivity(a, candidate);
                     StoryDirector.Instance?.EmitCandidate(candidate);
+                    MarkNamedOrderStoryletEmitted(activeOrder, s.Id);
+                    ApplySingleOptionEffectsForAutoPhase(s, ctx);
                 }
                 return;
+            }
+        }
+
+
+        private static bool IsNamedOrderPhaseStoryletAllowed(NamedOrderState activeOrder, string storyletId)
+        {
+            if (activeOrder == null || string.IsNullOrEmpty(storyletId))
+            {
+                return true;
+            }
+
+            if (storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return true;
+            }
+
+            var intent = NormalizeIntentForResolve(activeOrder.Intent);
+            if (string.IsNullOrEmpty(intent))
+            {
+                return true;
+            }
+
+            var allowed = storyletId.EndsWith("_" + intent, StringComparison.OrdinalIgnoreCase);
+            if (!allowed)
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped named-order resolve storylet outside accepted intent: order={activeOrder.OrderStoryletId}, intent={activeOrder.Intent}, storylet={storyletId}");
+            }
+            return allowed;
+        }
+
+        private static string NormalizeIntentForResolve(string intent)
+        {
+            if (string.IsNullOrWhiteSpace(intent))
+            {
+                return string.Empty;
+            }
+
+            var value = intent.Trim().ToLowerInvariant();
+            return value == "train" ? "train_hard" : value;
+        }
+
+        private static bool HasNamedOrderAlreadyEmitted(NamedOrderState activeOrder, string storyletId)
+        {
+            if (activeOrder?.AccumulatedOutcomes == null || string.IsNullOrEmpty(storyletId))
+            {
+                return false;
+            }
+
+            return activeOrder.AccumulatedOutcomes.ContainsKey(GetNamedOrderFiredKey(storyletId));
+        }
+
+        private static void MarkNamedOrderStoryletEmitted(NamedOrderState activeOrder, string storyletId)
+        {
+            if (activeOrder?.AccumulatedOutcomes == null || string.IsNullOrEmpty(storyletId))
+            {
+                return;
+            }
+
+            activeOrder.AccumulatedOutcomes[GetNamedOrderFiredKey(storyletId)] = (float)CampaignTime.Now.ToHours;
+        }
+
+        private static string GetNamedOrderFiredKey(string storyletId)
+        {
+            return "__fired_storylet:" + storyletId;
+        }
+
+        private static void ApplySingleOptionEffectsForAutoPhase(Storylet storylet, StoryletContext ctx)
+        {
+            try
+            {
+                if (storylet?.Options == null || storylet.Options.Count != 1)
+                {
+                    return;
+                }
+
+                var option = storylet.Options[0];
+                if (option?.Effects == null)
+                {
+                    return;
+                }
+
+                EffectExecutor.Apply(option.Effects, ctx);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ACTIVITY", "auto_phase_single_option_effects_failed", ex);
             }
         }
 
