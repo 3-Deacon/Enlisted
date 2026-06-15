@@ -7,6 +7,7 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
