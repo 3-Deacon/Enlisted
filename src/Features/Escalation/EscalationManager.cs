@@ -503,7 +503,7 @@ namespace Enlisted.Features.Escalation
                 return false;
             }
 
-            graceAgeDays = CampaignTime.Now.ToDays - _state.LastScrutinyDecayTime.ToDays;
+            graceAgeDays = (float)(CampaignTime.Now.ToDays - _state.LastScrutinyDecayTime.ToDays);
             if (graceAgeDays < 0f || graceAgeDays > graceDays)
             {
                 return false;
