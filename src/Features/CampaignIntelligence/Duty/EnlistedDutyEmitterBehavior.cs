@@ -37,6 +37,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
         private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
+        private const int NAMED_ORDER_COMPLETION_COOLDOWN_HOURS = 8;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
@@ -112,6 +113,10 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     {
                         ModLogger.Debug("DUTY", $"named-order emission suppressed: {suppressReason}");
                     }
+                    else if (IsNamedOrderCompletionCooldownActive(activity, out var cooldownReason))
+                    {
+                        ModLogger.Debug("DUTY", $"named-order emission suppressed: {cooldownReason}");
+                    }
                     else if (TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
                     {
                         return;
@@ -161,6 +166,25 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             {
                 ModLogger.Caught("DUTY", "OnHourlyTick threw", ex);
             }
+        }
+
+        private static bool IsNamedOrderCompletionCooldownActive(OrderActivity activity, out string reason)
+        {
+            reason = string.Empty;
+
+            if (activity == null || activity.LastNamedOrderCompletedAt == CampaignTime.Zero)
+            {
+                return false;
+            }
+
+            var elapsedHours = (CampaignTime.Now - activity.LastNamedOrderCompletedAt).ToHours;
+            if (elapsedHours >= NAMED_ORDER_COMPLETION_COOLDOWN_HOURS)
+            {
+                return false;
+            }
+
+            reason = $"recent_order_completed id={activity.LastNamedOrderCompletedId ?? "unknown"} intent={activity.LastNamedOrderCompletedIntent ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_COMPLETION_COOLDOWN_HOURS}h";
+            return true;
         }
 
         private static bool ShouldSuppressNamedOrderEmission(out string reason)

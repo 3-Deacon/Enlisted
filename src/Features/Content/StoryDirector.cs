@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -71,6 +72,13 @@ namespace Enlisted.Features.Content
                 {
                     ModLogger.Expected("CONTENT", "emit_no_main_hero",
                         $"candidate dropped before route: source={candidate.SourceId}, story={candidate.StoryKey}");
+                    return;
+                }
+
+                if (!NamedOrderPhaseCandidateAllowed(candidate, out var namedOrderRejectReason))
+                {
+                    ModLogger.Debug("CONTENT",
+                        $"candidate dropped by named-order arc guard: reason={namedOrderRejectReason}, source={candidate.SourceId}, story={candidate.StoryKey}, category={candidate.CategoryId}");
                     return;
                 }
 
@@ -254,6 +262,94 @@ namespace Enlisted.Features.Content
             }
 
             WriteDispatchItem(c, tier);
+        }
+
+        private static bool NamedOrderPhaseCandidateAllowed(StoryCandidate candidate, out string reason)
+        {
+            reason = string.Empty;
+            var storyletId = ExtractStoryletId(candidate);
+            if (!IsNamedOrderPhaseStorylet(storyletId))
+            {
+                return true;
+            }
+
+            var active = OrderActivity.Instance?.ActiveNamedOrder;
+            if (active == null || string.IsNullOrEmpty(active.OrderStoryletId))
+            {
+                reason = "no_active_named_order";
+                return false;
+            }
+
+            var activePrefix = GetNamedOrderPrefix(active.OrderStoryletId);
+            if (string.IsNullOrEmpty(activePrefix)
+                || !storyletId.StartsWith(activePrefix + "_", StringComparison.OrdinalIgnoreCase))
+            {
+                reason = $"stale_order active={active.OrderStoryletId ?? "none"} storylet={storyletId}";
+                return false;
+            }
+
+            if (storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var intent = NormalizeIntentForResolve(active.Intent);
+                if (!string.IsNullOrEmpty(intent)
+                    && !storyletId.EndsWith("_" + intent, StringComparison.OrdinalIgnoreCase))
+                {
+                    reason = $"wrong_intent active={active.OrderStoryletId} intent={active.Intent ?? "none"} storylet={storyletId}";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static string ExtractStoryletId(StoryCandidate candidate)
+        {
+            if (!string.IsNullOrEmpty(candidate?.StoryKey))
+            {
+                return candidate.StoryKey;
+            }
+
+            var source = candidate?.SourceId;
+            const string storyletPrefix = "storylet.";
+            if (!string.IsNullOrEmpty(source)
+                && source.StartsWith(storyletPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return source.Substring(storyletPrefix.Length);
+            }
+
+            return string.Empty;
+        }
+
+        private static bool IsNamedOrderPhaseStorylet(string storyletId)
+        {
+            return !string.IsNullOrEmpty(storyletId)
+                && storyletId.StartsWith("order_", StringComparison.OrdinalIgnoreCase)
+                && (storyletId.IndexOf("_mid_", StringComparison.OrdinalIgnoreCase) >= 0
+                    || storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static string GetNamedOrderPrefix(string orderStoryletId)
+        {
+            if (string.IsNullOrEmpty(orderStoryletId))
+            {
+                return string.Empty;
+            }
+
+            const string acceptSuffix = "_accept";
+            return orderStoryletId.EndsWith(acceptSuffix, StringComparison.OrdinalIgnoreCase)
+                ? orderStoryletId.Substring(0, orderStoryletId.Length - acceptSuffix.Length)
+                : orderStoryletId;
+        }
+
+        private static string NormalizeIntentForResolve(string intent)
+        {
+            if (string.IsNullOrWhiteSpace(intent))
+            {
+                return string.Empty;
+            }
+
+            var value = intent.Trim().ToLowerInvariant();
+            return value == "train" ? "train_hard" : value;
         }
 
         private static string CategoryKey(StoryCandidate c) => c.CategoryId ?? NoCategorySentinel;

@@ -67,10 +67,15 @@ namespace Enlisted.Features.Activities.Orders
                     return;
                 }
                 var orderId = activity.ActiveNamedOrder.OrderStoryletId;
+                var intent = activity.ActiveNamedOrder.Intent ?? string.Empty;
+                activity.LastNamedOrderCompletedAt = CampaignTime.Now;
+                activity.LastNamedOrderCompletedId = orderId ?? string.Empty;
+                activity.LastNamedOrderCompletedIntent = intent;
                 activity.ActiveNamedOrder = null;
                 activity.ResolvePhasesFromType(ActivityRuntime.Instance?.GetTypes());
                 activity.CurrentPhaseIndex = 0;
-                ModLogger.Info("ARC", $"unspliced {orderId}");
+                activity.LastAutoFireHour = -1;
+                ModLogger.Info("ARC", $"unspliced {orderId}; completion cooldown armed (intent={intent})");
             }
             catch (Exception ex)
             {

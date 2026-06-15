@@ -24,6 +24,9 @@ namespace Enlisted.Features.Activities.Orders
         public Dictionary<string, int> PendingProfileMatches { get; set; } = new Dictionary<string, int>();
         public int LastProfileSampleHourTick { get; set; }
         public NamedOrderState ActiveNamedOrder { get; set; }
+        public CampaignTime LastNamedOrderCompletedAt { get; set; } = CampaignTime.Zero;
+        public string LastNamedOrderCompletedId { get; set; } = string.Empty;
+        public string LastNamedOrderCompletedIntent { get; set; } = string.Empty;
         public FormationClass CachedCombatClass { get; set; } = FormationClass.Infantry;
         public int CombatClassResampleHourTick { get; set; }
         public Dictionary<string, int> DriftPendingXp { get; set; } = new Dictionary<string, int>();

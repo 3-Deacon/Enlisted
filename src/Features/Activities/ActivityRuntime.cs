@@ -369,9 +369,31 @@ namespace Enlisted.Features.Activities
 
         private static bool IsNamedOrderPhaseStoryletAllowed(NamedOrderState activeOrder, string storyletId)
         {
-            if (activeOrder == null || string.IsNullOrEmpty(storyletId))
+            if (string.IsNullOrEmpty(storyletId))
             {
                 return true;
+            }
+
+            var isNamedOrderPhaseStorylet = IsNamedOrderMidOrResolveStorylet(storyletId);
+            if (!isNamedOrderPhaseStorylet)
+            {
+                return true;
+            }
+
+            if (activeOrder == null || string.IsNullOrEmpty(activeOrder.OrderStoryletId))
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped named-order phase storylet with no active order: storylet={storyletId}");
+                return false;
+            }
+
+            var orderPrefix = GetNamedOrderPrefix(activeOrder.OrderStoryletId);
+            if (string.IsNullOrEmpty(orderPrefix)
+                || !storyletId.StartsWith(orderPrefix + "_", StringComparison.OrdinalIgnoreCase))
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped stale named-order phase storylet: active={activeOrder.OrderStoryletId}, storylet={storyletId}");
+                return false;
             }
 
             if (storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) < 0)
@@ -403,6 +425,27 @@ namespace Enlisted.Features.Activities
 
             var value = intent.Trim().ToLowerInvariant();
             return value == "train" ? "train_hard" : value;
+        }
+
+        private static bool IsNamedOrderMidOrResolveStorylet(string storyletId)
+        {
+            return !string.IsNullOrEmpty(storyletId)
+                && storyletId.StartsWith("order_", StringComparison.OrdinalIgnoreCase)
+                && (storyletId.IndexOf("_mid_", StringComparison.OrdinalIgnoreCase) >= 0
+                    || storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static string GetNamedOrderPrefix(string orderStoryletId)
+        {
+            if (string.IsNullOrEmpty(orderStoryletId))
+            {
+                return string.Empty;
+            }
+
+            const string acceptSuffix = "_accept";
+            return orderStoryletId.EndsWith(acceptSuffix, StringComparison.OrdinalIgnoreCase)
+                ? orderStoryletId.Substring(0, orderStoryletId.Length - acceptSuffix.Length)
+                : orderStoryletId;
         }
 
         private static bool HasNamedOrderAlreadyEmitted(NamedOrderState activeOrder, string storyletId)
