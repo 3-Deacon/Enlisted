@@ -7,6 +7,7 @@ using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
@@ -104,9 +105,16 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     .Where(c => c.Shape != DutyOpportunityShape.ArcScale)
                     .ToList();
 
-                if (activity.ActiveNamedOrder == null && TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
+                if (activity.ActiveNamedOrder == null)
                 {
-                    return;
+                    if (ShouldSuppressNamedOrderEmission(out var suppressReason))
+                    {
+                        ModLogger.Debug("DUTY", $"named-order emission suppressed: {suppressReason}");
+                    }
+                    else if (TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
+                    {
+                        return;
+                    }
                 }
 
                 if (episodicCandidates.Count == 0)
@@ -145,6 +153,40 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
             {
                 ModLogger.Caught("DUTY", "OnHourlyTick threw", ex);
             }
+        }
+
+        private static bool ShouldSuppressNamedOrderEmission(out string reason)
+        {
+            reason = string.Empty;
+
+            try
+            {
+                var mainParty = MobileParty.MainParty;
+                if (mainParty?.Party?.MapEvent != null || mainParty?.MapEvent != null)
+                {
+                    reason = "player_party_in_map_event";
+                    return true;
+                }
+
+                var lordParty = EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo;
+                if (lordParty?.Party?.MapEvent != null || lordParty?.MapEvent != null)
+                {
+                    reason = "lord_party_in_map_event";
+                    return true;
+                }
+
+                if (PlayerEncounter.Current != null && !PlayerEncounter.InsideSettlement)
+                {
+                    reason = "active_player_encounter";
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "ShouldSuppressNamedOrderEmission threw", ex);
+            }
+
+            return false;
         }
 
         private bool TryEmitNamedOrder(OrderActivity activity, List<DutyOpportunity> namedOrderCandidates, string emissionProfile)

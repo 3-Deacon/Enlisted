@@ -575,11 +575,7 @@ namespace Enlisted.Features.Equipment.Behaviors
             var price = CalculateQuartermasterPriceFromBase(basePrice);
             var quantityAvailable = GetTrackedQuantity(item);
             var isInStock = IsItemInStock(item) && quantityAvailable > 0;
-            string modifiedName = null;
-            if (modifier != null)
-            {
-                modifiedName = $"{modifier.Name} {item.Name}";
-            }
+            var modifiedName = BuildModifiedDisplayName(item, actualQuality);
 
             var duplicateCap = IsWeaponSlot(slot) || IsConsumableItem(item) ? 2 : 1;
 
@@ -606,12 +602,13 @@ namespace Enlisted.Features.Equipment.Behaviors
         {
             _inventoryState ??= new QMInventoryState();
 
-            var needsInitialRefresh = _inventoryState.NeedsRefresh()
-                || _inventoryState.CurrentStock == null
-                || _inventoryState.CurrentStock.Count == 0;
+            var supplyLevel = GetCurrentCompanySupplyPercent();
+            var needsRefresh = _inventoryState.NeedsRefreshForSupplyLevel(supplyLevel);
 
-            if (!needsInitialRefresh)
+            if (!needsRefresh)
             {
+                EnsureStockAvailabilityReflectsSupply(supplyLevel);
+                LogStockContext(allEquipment, refreshed: false, supplyLevel);
                 return;
             }
 
@@ -627,10 +624,9 @@ namespace Enlisted.Features.Equipment.Behaviors
                 }
             }
 
-            var supplyLevel = EnlistmentBehavior.Instance?.CompanyNeeds?.Supplies ?? 100;
             _inventoryState.RefreshInventory(supplyLevel, availableItems);
-            ModLogger.Info("QUARTERMASTER",
-                $"Inventory initialized during equipment browse: {availableItems.Count} items in pool, {_inventoryState.CurrentStock.Count} stocked, supply={supplyLevel:F1}%");
+            EnsureStockAvailabilityReflectsSupply(supplyLevel);
+            LogStockContext(allEquipment, refreshed: true, supplyLevel);
         }
 
         private int GetTrackedQuantity(ItemObject item)
@@ -642,6 +638,96 @@ namespace Enlisted.Features.Equipment.Behaviors
 
             _inventoryState ??= new QMInventoryState();
             return _inventoryState.GetAvailableQuantity(item.StringId);
+        }
+
+        private static float GetCurrentCompanySupplyPercent()
+        {
+            var enlistmentSupply = EnlistmentBehavior.Instance?.CompanyNeeds?.Supplies;
+            if (enlistmentSupply.HasValue)
+            {
+                return MathF.Clamp(enlistmentSupply.Value, 0f, 100f);
+            }
+
+            return MathF.Clamp((float)(CompanySupplyManager.Instance?.TotalSupply ?? 100), 0f, 100f);
+        }
+
+        private static float GetCurrentLogisticsStrain()
+        {
+            return MathF.Clamp(CampLifeBehavior.Instance?.LogisticsStrain ?? 0f, 0f, 100f);
+        }
+
+        private static BaggageAccessState GetCurrentBaggageAccessState()
+        {
+            try
+            {
+                return BaggageTrainManager.Instance?.GetCurrentAccess() ?? BaggageAccessState.FullAccess;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error resolving baggage access for stock context", ex);
+                return BaggageAccessState.NoAccess;
+            }
+        }
+
+        private void EnsureStockAvailabilityReflectsSupply(float supplyLevel)
+        {
+            var roundedSupply = Convert.ToInt32(MathF.Round(MathF.Clamp(supplyLevel, 0f, 100f)));
+            var oldBand = GetStockAvailabilityBand(_lastStockRollSupplyLevel);
+            var newBand = GetStockAvailabilityBand(roundedSupply);
+
+            if (_lastStockRollSupplyLevel < 0 || oldBand != newBand)
+            {
+                RollStockAvailability();
+                return;
+            }
+
+            if (roundedSupply >= 60 && _outOfStockItems.Count > 0)
+            {
+                var cleared = _outOfStockItems.Count;
+                _outOfStockItems.Clear();
+                _lastStockRollSupplyLevel = roundedSupply;
+                ModLogger.Info("QUARTERMASTER",
+                    $"Stock availability synchronized with recovered supplies: cleared {cleared} stale out-of-stock flags at supply={roundedSupply}%");
+            }
+        }
+
+        private static int GetStockAvailabilityBand(int supplyLevel)
+        {
+            if (supplyLevel < 0)
+            {
+                return -1;
+            }
+            if (supplyLevel >= 60)
+            {
+                return 2;
+            }
+            if (supplyLevel >= 40)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        private void LogStockContext(Dictionary<EquipmentIndex, List<ItemObject>> allEquipment, bool refreshed, float supplyLevel)
+        {
+            try
+            {
+                var candidateCount = allEquipment?.Values.Sum(items => items?.Count ?? 0) ?? 0;
+                var stockedCount = _inventoryState?.CurrentStock?.Count ?? 0;
+                var stockedQuantity = _inventoryState?.CurrentStock?.Values.Sum() ?? 0;
+                var logisticsStrain = GetCurrentLogisticsStrain();
+                var baggageAccess = GetCurrentBaggageAccessState();
+                var lastRefreshSupply = _inventoryState?.LastRefreshSupplyLevel ?? -1f;
+
+                ModLogger.Info("QUARTERMASTER",
+                    $"QM stock context: candidates={candidateCount}, stockedItems={stockedCount}, stockedQty={stockedQuantity}, " +
+                    $"supply={supplyLevel:F1}%, lastStockSupply={lastRefreshSupply:F1}%, logistics={logisticsStrain:F0}, " +
+                    $"baggage={baggageAccess}, outOfStockFlags={_outOfStockItems.Count}, refreshed={refreshed}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error logging stock context", ex);
+            }
         }
 
         /// <summary>
@@ -705,15 +791,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         var price = CalculateQuartermasterPriceFromBase(basePrice);
                         var canAfford = hero.Gold >= price;
+                        var quantityAvailable = GetTrackedQuantity(item);
                         var isInStock = IsItemInStock(item);
-                        var quantityAvailable = _inventoryState?.GetAvailableQuantity(item.StringId) ?? 999;
                         var isAvailable = quantityAvailable > 0;
 
-                        string modifiedName = null;
-                        if (modifier != null)
-                        {
-                            modifiedName = $"{modifier.Name} {item.Name}";
-                        }
+                        var modifiedName = BuildModifiedDisplayName(item, actualQuality);
 
                         mountOptions.Add(new EquipmentVariantOption
                         {
@@ -806,15 +888,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         var price = CalculateQuartermasterPriceFromBase(basePrice);
                         var canAfford = hero.Gold >= price;
+                        var quantityAvailable = GetTrackedQuantity(item);
                         var isInStock = IsItemInStock(item);
-                        var quantityAvailable = _inventoryState?.GetAvailableQuantity(item.StringId) ?? 999;
                         var isAvailable = quantityAvailable > 0;
 
-                        string modifiedName = null;
-                        if (modifier != null)
-                        {
-                            modifiedName = $"{modifier.Name} {item.Name}";
-                        }
+                        var modifiedName = BuildModifiedDisplayName(item, actualQuality);
 
                         harnessOptions.Add(new EquipmentVariantOption
                         {
@@ -2119,6 +2197,16 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
         }
 
+        private static string BuildModifiedDisplayName(ItemObject item, ItemQuality quality)
+        {
+            if (item == null || quality == ItemQuality.Common)
+            {
+                return null;
+            }
+
+            return $"{quality} {item.Name}";
+        }
+
         /// <summary>
         /// Apply equipment change to a specific slot while preserving other equipment.
         /// Uses safe cloning to avoid corrupting player equipment.
@@ -2142,7 +2230,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Equipment change is applied via EquipmentHelper which handles visual refresh
                 // The hero's equipment is updated immediately and visible in the game world
 
-                var modifierInfo = modifier != null ? $" with modifier '{modifier.Name}'" : "";
+                var modifierInfo = modifier != null ? $" with modifier id '{modifier.StringId ?? modifier.GetType().Name}'" : "";
                 ModLogger.Info("QUARTERMASTER", $"Equipment slot {slot} updated with {newItem.Name}{modifierInfo}");
             }
             catch (Exception ex)

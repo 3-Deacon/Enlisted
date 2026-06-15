@@ -57,6 +57,50 @@ namespace Enlisted.Features.Equipment.Managers
         }
 
         /// <summary>
+        /// Check whether inventory should be refreshed for the current supply state.
+        /// The normal muster cadence still applies, but a supply tier change also
+        /// invalidates stock so a recovered company does not keep stale low-supply
+        /// stock, and a collapsing supply line does not keep stale full stock.
+        /// </summary>
+        public bool NeedsRefreshForSupplyLevel(float supplyLevel)
+        {
+            if (NeedsRefresh())
+            {
+                return true;
+            }
+
+            if (CurrentStock == null || CurrentStock.Count == 0)
+            {
+                return true;
+            }
+
+            return GetSupplyBand(LastRefreshSupplyLevel) != GetSupplyBand(supplyLevel);
+        }
+
+        private static int GetSupplyBand(float supplyLevel)
+        {
+            supplyLevel = MathF.Clamp(supplyLevel, 0f, 100f);
+
+            if (supplyLevel >= 80f)
+            {
+                return 4;
+            }
+            if (supplyLevel >= 60f)
+            {
+                return 3;
+            }
+            if (supplyLevel >= 40f)
+            {
+                return 2;
+            }
+            if (supplyLevel >= 30f)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// Refresh inventory based on current supply level.
         /// Generates new stock quantities with supply-based variety and quantity scaling.
         /// </summary>

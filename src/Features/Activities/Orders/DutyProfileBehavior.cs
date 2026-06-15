@@ -174,8 +174,31 @@ namespace Enlisted.Features.Activities.Orders
 
             if (activity.ActiveNamedOrder != null)
             {
+                if (ShouldSuppressTransitionForFreshOrder(activity, oldProfile))
+                {
+                    ModLogger.Debug("DUTYPROFILE",
+                        $"profile transition storylet suppressed for fresh order: {oldProfile} -> {newProfile}, order={activity.ActiveNamedOrder.OrderStoryletId}");
+                    return;
+                }
+
                 TryEmitTransitionStorylet(activity, oldProfile, newProfile);
             }
+        }
+
+        private static bool ShouldSuppressTransitionForFreshOrder(OrderActivity activity, string oldProfile)
+        {
+            if (activity?.ActiveNamedOrder == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(oldProfile))
+            {
+                return true;
+            }
+
+            var orderAgeHours = CampaignTime.Now.ToHours - activity.ActiveNamedOrder.StartedAt.ToHours;
+            return orderAgeHours >= 0f && orderAgeHours < 2f;
         }
 
         /// <summary>Sets the profile unconditionally, clears any pending hysteresis samples, and does not fire a profile_changed beat.</summary>
