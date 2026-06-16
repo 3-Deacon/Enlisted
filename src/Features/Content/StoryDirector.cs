@@ -119,6 +119,14 @@ namespace Enlisted.Features.Content
         {
             try
             {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true &&
+                    enlistment?.IsOnLeave != true &&
+                    enlistment?.IsInDesertionGracePeriod != true)
+                {
+                    return;
+                }
+
                 int today = (int)CampaignTime.Now.ToDays;
 
                 // Goal 1: retry one deferred interactive candidate per day if floors now allow.

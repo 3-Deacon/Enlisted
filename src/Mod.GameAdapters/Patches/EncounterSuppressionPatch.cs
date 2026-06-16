@@ -51,14 +51,20 @@ namespace Enlisted.Mod.GameAdapters.Patches
         {
             try
             {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.TryRecoverBadSaveGraceState("encounter_guard") == true)
+                {
+                    ModLogger.Info("EncounterGuard", "Bad-save grace recovery ran before native encounter decision");
+                }
+
                 if (!EnlistedActivation.EnsureActive())
                 {
                     return true;
                 }
 
                 // Check if player is enlisted or just ended enlistment (grace period)
-                var enlistment = EnlistmentBehavior.Instance;
                 var isEnlisted = enlistment?.IsEnlisted == true;
+                var isInGracePeriod = enlistment?.IsInDesertionGracePeriod == true;
                 var hasGraceProtection = enlistment?.HasActiveGraceProtection == true;
 
                 // Check if player just ended enlistment and is still in a MapEvent/Encounter
@@ -130,6 +136,13 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 {
                     LogEncounterGuardState("grace_protection|" + attackerName,
                         $"BLOCKED: Grace protection active (Attacker={attackerName})");
+                    return false;
+                }
+
+                if (isInGracePeriod)
+                {
+                    LogEncounterGuardState("grace_period|" + attackerName,
+                        $"BLOCKED: Desertion grace period active (Attacker={attackerName})");
                     return false;
                 }
 

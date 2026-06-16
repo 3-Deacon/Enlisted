@@ -33,6 +33,8 @@ namespace Enlisted.Mod.Core.Logging
         private static string _conflictLogPath;
         private static bool _hasRunStartup;
         private static bool _hasDeferredPatchInfo;
+        private static bool _hasLoggedRegisteredBehaviors;
+        private static bool _hasLoggedRuntimeCatalogStatus;
         private const string ConflictPrefix = "Conflicts-";
         private static readonly string[] ConflictSlots = { "Conflicts-A", "Conflicts-B", "Conflicts-C" };
 
@@ -126,6 +128,16 @@ namespace Enlisted.Mod.Core.Logging
                 return;
             }
 
+            lock (Sync)
+            {
+                if (_hasLoggedRegisteredBehaviors)
+                {
+                    return;
+                }
+
+                _hasLoggedRegisteredBehaviors = true;
+            }
+
             try
             {
                 var ourBehaviors = (behaviors ?? Array.Empty<CampaignBehaviorBase>())
@@ -156,6 +168,16 @@ namespace Enlisted.Mod.Core.Logging
         public static void LogRuntimeCatalogStatus()
         {
             if (string.IsNullOrWhiteSpace(_conflictLogPath)) { return; }
+            lock (Sync)
+            {
+                if (_hasLoggedRuntimeCatalogStatus)
+                {
+                    return;
+                }
+
+                _hasLoggedRuntimeCatalogStatus = true;
+            }
+
             try { WriteRuntimeCatalogStatus(); }
             catch (Exception ex) { ModLogger.Caught("DIAGNOSTICS", "Failed to log runtime catalog status", ex); }
         }

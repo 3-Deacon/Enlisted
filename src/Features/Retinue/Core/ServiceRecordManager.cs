@@ -520,6 +520,67 @@ namespace Enlisted.Features.Retinue.Core
             }
         }
 
+        public bool TryGetRecoverableBadSaveGrace(
+            out string factionId,
+            out string lordId,
+            out int tier,
+            out int xp,
+            out string band,
+            out CampaignTime recordedAt,
+            out bool consumed)
+        {
+            factionId = null;
+            lordId = null;
+            tier = 1;
+            xp = 0;
+            band = null;
+            recordedAt = CampaignTime.Zero;
+            consumed = false;
+
+            try
+            {
+                var reservistBand = _reservistRecord?.DischargeBand?.ToLowerInvariant();
+                if (reservistBand == "grace" &&
+                    !string.IsNullOrWhiteSpace(_reservistRecord.LastFactionId) &&
+                    (_reservistRecord.TierAtExit > 1 || _reservistRecord.XpAtExit > 0))
+                {
+                    factionId = _reservistRecord.LastFactionId;
+                    lordId = _reservistRecord.LastLordId;
+                    tier = Math.Max(1, _reservistRecord.TierAtExit);
+                    xp = Math.Max(0, _reservistRecord.XpAtExit);
+                    band = reservistBand;
+                    recordedAt = _reservistRecord.RecordedAt;
+                    consumed = _reservistRecord.Consumed;
+                    return true;
+                }
+
+                var record = _factionRecords?.Values
+                    .Where(r => r != null &&
+                                string.Equals(r.LastDischargeBand, "grace", StringComparison.OrdinalIgnoreCase) &&
+                                (r.HighestTier > 1 || r.PreservedTier > 1))
+                    .OrderByDescending(r => Math.Max(r.HighestTier, r.PreservedTier))
+                    .FirstOrDefault();
+
+                if (record == null)
+                {
+                    return false;
+                }
+
+                factionId = record.FactionId;
+                tier = Math.Max(1, Math.Max(record.HighestTier, record.PreservedTier));
+                xp = 0;
+                band = record.LastDischargeBand?.ToLowerInvariant() ?? "grace";
+                recordedAt = CampaignTime.Zero;
+                consumed = true;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("SERVICERECORDS", "Error checking bad-save grace recovery record", ex);
+                return false;
+            }
+        }
+
         public bool TryConsumeReservistForFaction(IFaction faction, out int targetTier, out int bonusXp, out int relationBonus, out string band, out bool probation)
         {
             targetTier = 0;

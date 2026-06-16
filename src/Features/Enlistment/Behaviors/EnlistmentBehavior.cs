@@ -330,6 +330,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
         private string _savedGraceTroopId;
         private int _savedGraceXP;
         private bool _gracePreservedAfterKingdomChurn;
+        private bool _badSaveGraceRecoveryAttempted;
+        private bool _badSaveGraceRecoveryUnavailableLogged;
         private GraceLordMarkerSnapshot? _lastGraceLordMarkerSnapshot;
 
         // Grace period tracking for lord transfers
@@ -729,6 +731,127 @@ namespace Enlisted.Features.Enlistment.Behaviors
             if (shouldBeActive != EnlistedActivation.IsActive)
             {
                 EnlistedActivation.SetActive(shouldBeActive, reason);
+            }
+        }
+
+        public bool TryRecoverBadSaveGraceState(string trigger)
+        {
+            if (!IsBadSaveGraceRecoveryCandidate())
+            {
+                return false;
+            }
+
+            if (_badSaveGraceRecoveryAttempted)
+            {
+                return IsInDesertionGracePeriod;
+            }
+
+            var serviceRecords = ServiceRecordManager.Instance;
+            if (serviceRecords == null)
+            {
+                if (!_badSaveGraceRecoveryUnavailableLogged)
+                {
+                    _badSaveGraceRecoveryUnavailableLogged = true;
+                    ModLogger.Info("ENLISTMENT",
+                        $"Bad save grace recovery waiting for service records: trigger={trigger}, lord=null, tier={_enlistmentTier}, xp={_enlistmentXP}");
+                }
+                return false;
+            }
+
+            _badSaveGraceRecoveryAttempted = true;
+
+            if (!serviceRecords.TryGetRecoverableBadSaveGrace(
+                    out var factionId,
+                    out var lordId,
+                    out var tier,
+                    out var xp,
+                    out var band,
+                    out var recordedAt,
+                    out var consumed))
+            {
+                if (!_badSaveGraceRecoveryUnavailableLogged)
+                {
+                    _badSaveGraceRecoveryUnavailableLogged = true;
+                    ModLogger.Info("ENLISTMENT",
+                        $"Bad save grace recovery unavailable: trigger={trigger}, lord=null, tier={_enlistmentTier}, xp={_enlistmentXP}");
+                }
+                return false;
+            }
+
+            var kingdom = ResolveKingdomForRecoverableFaction(factionId);
+            if (kingdom == null)
+            {
+                ModLogger.Warn("ENLISTMENT",
+                    $"Bad save grace recovery skipped: recoverable faction not found (trigger={trigger}, faction={factionId}, band={band})");
+                return false;
+            }
+
+            _pendingDesertionKingdom = kingdom;
+            _desertionGracePeriodEnd = CampaignTime.Now + CampaignTime.Days(14f);
+            _savedGraceTier = Math.Max(1, tier);
+            _savedGraceXP = Math.Max(0, xp);
+            _savedGraceLord = ResolveHeroByStringId(lordId);
+            _savedGraceEnlistmentDate = recordedAt != CampaignTime.Zero ? recordedAt : CampaignTime.Now;
+            _graceProtectionEnds = CampaignTime.Now + CampaignTime.Hours(12f);
+            _gracePreservedAfterKingdomChurn = true;
+
+            var main = CampaignSafetyGuard.SafeMainParty;
+            if (main != null && !Hero.MainHero.IsPrisoner)
+            {
+                main.IsActive = true;
+                main.IsVisible = true;
+                main.IgnoreByOtherPartiesTill(_graceProtectionEnds);
+            }
+
+            SyncActivationState("bad_save_grace_recovery");
+            ModLogger.Info("ENLISTMENT",
+                $"Bad save grace recovery applied: trigger={trigger}, faction={kingdom.Name}, tier={_savedGraceTier}, xp={_savedGraceXP}, band={band}, consumed={consumed}, graceUntil={_desertionGracePeriodEnd}");
+            return true;
+        }
+
+        private bool IsBadSaveGraceRecoveryCandidate()
+        {
+            return _enlistedLord == null &&
+                   !_isOnLeave &&
+                   !IsInDesertionGracePeriod &&
+                   _enlistmentTier <= 1 &&
+                   _enlistmentXP <= 0;
+        }
+
+        private static Kingdom ResolveKingdomForRecoverableFaction(string factionId)
+        {
+            if (string.IsNullOrWhiteSpace(factionId))
+            {
+                return null;
+            }
+
+            var normalized = factionId;
+            const string KingdomPrefix = "kingdom_";
+            if (normalized.StartsWith(KingdomPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                normalized = normalized.Substring(KingdomPrefix.Length);
+            }
+
+            return Campaign.Current?.Kingdoms?.FirstOrDefault(k =>
+                string.Equals(k.StringId, normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static Hero ResolveHeroByStringId(string heroId)
+        {
+            if (string.IsNullOrWhiteSpace(heroId))
+            {
+                return null;
+            }
+
+            try
+            {
+                return Hero.AllAliveHeroes.FirstOrDefault(h =>
+                    string.Equals(h?.StringId, heroId, StringComparison.OrdinalIgnoreCase));
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ENLISTMENT", "Failed to resolve recoverable grace lord", ex);
+                return null;
             }
         }
 
@@ -1483,6 +1606,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 // Validate tier and XP values after loading
                 if (dataStore.IsLoading)
                 {
+                    _badSaveGraceRecoveryAttempted = false;
+                    _badSaveGraceRecoveryUnavailableLogged = false;
                     ModLogger.Info("SaveLoad",
                         $"Loading enlistment state - Lord: {_enlistedLord?.Name?.ToString() ?? "null"}, Tier: {_enlistmentTier}, XP: {_enlistmentXP}, OnLeave: {_isOnLeave}, GracePeriod: {IsInDesertionGracePeriod}");
                     ValidateLoadedState();
@@ -7163,6 +7288,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
             {
                 return;
             }
+
+            _ = TryRecoverBadSaveGraceState("realtime_tick");
 
             SyncActivationState("realtime_tick");
 
@@ -13552,6 +13679,12 @@ namespace Enlisted.Features.Enlistment.Behaviors
         {
             try
             {
+                if (!IsEnlisted || _isOnLeave)
+                {
+                    ModLogger.Debug("BATTLE", "Skipping battle rewards - not enlisted or on leave");
+                    return;
+                }
+
                 ModLogger.Info("BATTLE", "Player battle ended");
                 ModLogger.Info("BATTLE", $"Battle Type: {mapEvent?.EventType}, Was Siege: {mapEvent?.IsSiegeAssault}");
 
@@ -13570,13 +13703,6 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 {
                     ModLogger.Debug("BATTLE",
                         "Skipping battle rewards - player is entering reserve mode, not ending battle");
-                    return;
-                }
-
-                // Only process if enlisted
-                if (!IsEnlisted || _isOnLeave)
-                {
-                    ModLogger.Debug("BATTLE", "Skipping battle rewards - not enlisted or on leave");
                     return;
                 }
 
