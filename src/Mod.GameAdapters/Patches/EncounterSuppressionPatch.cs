@@ -134,6 +134,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (hasGraceProtection)
                 {
+                    if (attackerParty == mainParty)
+                    {
+                        LogEncounterGuardState("grace_protection_player_initiated|" + defenderName,
+                            $"ALLOWED: Player-initiated encounter during grace protection (Defender={defenderName})",
+                            true);
+                        return true;
+                    }
+
                     LogEncounterGuardState("grace_protection|" + attackerName,
                         $"BLOCKED: Grace protection active (Attacker={attackerName})");
                     return false;
@@ -141,6 +149,14 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (isInGracePeriod)
                 {
+                    if (attackerParty == mainParty)
+                    {
+                        LogEncounterGuardState("grace_period_player_initiated|" + defenderName,
+                            $"ALLOWED: Player-initiated encounter during desertion grace period (Defender={defenderName})",
+                            true);
+                        return true;
+                    }
+
                     LogEncounterGuardState("grace_period|" + attackerName,
                         $"BLOCKED: Desertion grace period active (Attacker={attackerName})");
                     return false;

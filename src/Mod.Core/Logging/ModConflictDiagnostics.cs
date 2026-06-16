@@ -142,7 +142,7 @@ namespace Enlisted.Mod.Core.Logging
             {
                 var ourBehaviors = (behaviors ?? Array.Empty<CampaignBehaviorBase>())
                     .Where(b => b?.GetType().Namespace?.StartsWith("Enlisted", StringComparison.Ordinal) == true)
-                    .Select(b => b.GetType().Name)
+                    .Select(GetBehaviorDiagnosticName)
                     .OrderBy(n => n)
                     .ToList();
 
@@ -162,6 +162,16 @@ namespace Enlisted.Mod.Core.Logging
             {
                 ModLogger.Caught("DIAGNOSTICS", "Failed to log behaviors", ex);
             }
+        }
+
+        private static string GetBehaviorDiagnosticName(CampaignBehaviorBase behavior)
+        {
+            if (behavior is SaveLoadDiagnosticsMarkerBehavior marker)
+            {
+                return marker.DiagnosticName;
+            }
+
+            return behavior.GetType().Name;
         }
 
         /// <summary>Appends the runtime catalog counts to the conflict log. Call after all catalogs have initialized (e.g. OnSessionLaunched).</summary>

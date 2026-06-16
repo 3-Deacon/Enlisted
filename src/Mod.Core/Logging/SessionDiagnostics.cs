@@ -283,6 +283,8 @@ namespace Enlisted.Mod.Core.Logging
             _phase = phase;
         }
 
+        public string DiagnosticName => $"{nameof(SaveLoadDiagnosticsMarkerBehavior)}.{_phase}";
+
         public override void RegisterEvents()
         {
             // No runtime events required.

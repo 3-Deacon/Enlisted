@@ -139,6 +139,14 @@ namespace Enlisted.Features.Content
                     return;
                 }
 
+                // Quiet-stretch fallback is enlisted-service content. During desertion grace
+                // or other lordless inactive states, emitting it only creates empty
+                // director.quiet_stretch candidates that are dropped by EmitCandidate.
+                if (enlistment.IsEnlisted != true || enlistment.EnlistedLord == null)
+                {
+                    return;
+                }
+
                 if (today - _lastModalDay < DensitySettings.QuietStretchDays)
                 {
                     return;
@@ -164,7 +172,8 @@ namespace Enlisted.Features.Content
                     EmittedAt = CampaignTime.Now,
                     InteractiveEvent = evt,
                     RenderedTitle = evt.TitleFallback,
-                    RenderedBody = evt.SetupFallback
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = evt.Id
                 });
             }
             catch (Exception ex)
