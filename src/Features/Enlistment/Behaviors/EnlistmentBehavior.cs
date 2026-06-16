@@ -818,6 +818,16 @@ namespace Enlisted.Features.Enlistment.Behaviors
                    _enlistmentXP <= 0;
         }
 
+        private static Kingdom ResolveLordKingdom(Hero lord)
+        {
+            return lord?.MapFaction as Kingdom ?? lord?.Clan?.Kingdom;
+        }
+
+        private static IFaction ResolveLordFaction(Hero lord)
+        {
+            return (IFaction)ResolveLordKingdom(lord) ?? lord?.MapFaction;
+        }
+
         private static Kingdom ResolveKingdomForRecoverableFaction(string factionId)
         {
             if (string.IsNullOrWhiteSpace(factionId))
@@ -2076,8 +2086,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 if (_enlistedLord != null && lord != _enlistedLord)
                 {
                     // Allow transfer to other lords in the SAME faction/kingdom
-                    var currentLordKingdom = _enlistedLord.MapFaction as Kingdom;
-                    var targetLordKingdom = lord.MapFaction as Kingdom;
+                    var currentLordKingdom = ResolveLordKingdom(_enlistedLord);
+                    var targetLordKingdom = ResolveLordKingdom(lord);
 
                     if (currentLordKingdom != null && targetLordKingdom == currentLordKingdom)
                     {
@@ -2107,7 +2117,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
             // During grace period, enforce kingdom loyalty
             if (IsInDesertionGracePeriod && _pendingDesertionKingdom != null)
             {
-                var lordKingdom = lord.MapFaction as Kingdom;
+                var lordKingdom = ResolveLordKingdom(lord);
                 if (lordKingdom != _pendingDesertionKingdom)
                 {
                     reason = new TextObject(
@@ -2211,8 +2221,10 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 return;
             }
 
+            var lordFaction = ResolveLordFaction(lord);
+
             // Check re-enlistment block before proceeding
-            if (!CanEnlistWithFaction(lord.MapFaction, out var blockedMessage))
+            if (!CanEnlistWithFaction(lordFaction, out var blockedMessage))
             {
                 InformationManager.DisplayMessage(new InformationMessage(blockedMessage, Colors.Red));
                 ModLogger.Info("ENLISTMENT", $"Re-enlistment blocked: {blockedMessage}");
@@ -2221,7 +2233,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             // Check for cross-faction baggage transfer before proceeding.
             // If player has baggage stored with a different faction, prompt them to transfer it.
-            if (HasCrossFactionBaggage(lord.MapFaction))
+            if (HasCrossFactionBaggage(lordFaction))
             {
                 ShowCrossFactionBaggagePrompt(lord);
                 return;
@@ -3175,7 +3187,8 @@ namespace Enlisted.Features.Enlistment.Behaviors
 
             try
             {
-                var rejoiningKingdom = lord.MapFaction as Kingdom;
+                var rejoiningKingdom = ResolveLordKingdom(lord);
+                var lordFaction = ResolveLordFaction(lord);
                 _graceProtectionEnds = CampaignTime.Zero;
                 var resumingGraceService = IsInDesertionGracePeriod && rejoiningKingdom == _pendingDesertionKingdom &&
                                            _savedGraceTier > 0;
@@ -3221,7 +3234,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                     // Higher-level characters start at higher tiers, and prior faction service
                     // can boost the starting tier (HighestTier - 2, minimum 1, capped at T3).
                     experienceTrack = ExperienceTrackHelper.GetExperienceTrack(Hero.MainHero);
-                    var factionRecord = ServiceRecordManager.Instance?.GetOrCreateRecord(lord.MapFaction);
+                    var factionRecord = ServiceRecordManager.Instance?.GetOrCreateRecord(lordFaction);
                     var startingTier = ExperienceTrackHelper.GetStartingTierForTrack(experienceTrack, factionRecord);
 
                     _enlistmentTier = startingTier;
@@ -3304,7 +3317,7 @@ namespace Enlisted.Features.Enlistment.Behaviors
                 _wasIndependentClan = playerClan?.Kingdom == null;
 
                 // Join lord's kingdom if they have one and player isn't already in it
-                var lordKingdom = lord.MapFaction as Kingdom;
+                var lordKingdom = rejoiningKingdom;
                 if (lordKingdom != null && playerClan != null)
                 {
                     if (playerClan.Kingdom != lordKingdom)
