@@ -36,6 +36,20 @@ namespace Enlisted.Features.Equipment.Managers
         [SaveableProperty(3)]
         public float LastRefreshSupplyLevel { get; set; }
 
+        /// <summary>
+        /// Enlistment tier used for the last inventory refresh.
+        /// Prevents stale low-tier stock from surviving reservist/grace re-entry.
+        /// </summary>
+        [SaveableProperty(4)]
+        public int LastRefreshTier { get; set; } = -1;
+
+        /// <summary>
+        /// Culture id used for the last inventory refresh.
+        /// Prevents stale stock from a previous lord/culture being reused.
+        /// </summary>
+        [SaveableProperty(5)]
+        public string LastRefreshCultureId { get; set; } = string.Empty;
+
         private const int RefreshCycleDays = 12; // Muster cycle duration
 
         /// <summary>
@@ -57,6 +71,77 @@ namespace Enlisted.Features.Equipment.Managers
         }
 
         /// <summary>
+        /// Check whether inventory should be refreshed for the current supply state.
+        /// The normal muster cadence still applies, but a supply tier change also
+        /// invalidates stock so a recovered company does not keep stale low-supply
+        /// stock, and a collapsing supply line does not keep stale full stock.
+        /// </summary>
+        public bool NeedsRefreshForSupplyLevel(float supplyLevel)
+        {
+            if (NeedsRefresh())
+            {
+                return true;
+            }
+
+            if (CurrentStock == null || CurrentStock.Count == 0)
+            {
+                return true;
+            }
+
+            return GetSupplyBand(LastRefreshSupplyLevel) != GetSupplyBand(supplyLevel);
+        }
+
+        /// <summary>
+        /// Check whether inventory should be refreshed for the current supply,
+        /// enlistment tier, and culture. The tier/culture checks are intentionally
+        /// hard invalidators so grace/reservist re-entry cannot keep stale T1 stock
+        /// after the real rank is restored.
+        /// </summary>
+        public bool NeedsRefreshForContext(float supplyLevel, int tier, string cultureId)
+        {
+            if (NeedsRefreshForSupplyLevel(supplyLevel))
+            {
+                return true;
+            }
+
+            if (tier > 0 && LastRefreshTier != tier)
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(cultureId) &&
+                !string.Equals(LastRefreshCultureId ?? string.Empty, cultureId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static int GetSupplyBand(float supplyLevel)
+        {
+            supplyLevel = MathF.Clamp(supplyLevel, 0f, 100f);
+
+            if (supplyLevel >= 80f)
+            {
+                return 4;
+            }
+            if (supplyLevel >= 60f)
+            {
+                return 3;
+            }
+            if (supplyLevel >= 40f)
+            {
+                return 2;
+            }
+            if (supplyLevel >= 30f)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// Refresh inventory based on current supply level.
         /// Generates new stock quantities with supply-based variety and quantity scaling.
         /// </summary>
@@ -64,17 +149,22 @@ namespace Enlisted.Features.Equipment.Managers
         /// <param name="availableItems">Pool of items that could be stocked</param>
         public void RefreshInventory(float supplyLevel, List<ItemObject> availableItems)
         {
+            RefreshInventory(supplyLevel, availableItems, LastRefreshTier, LastRefreshCultureId);
+        }
+
+        public void RefreshInventory(float supplyLevel, List<ItemObject> availableItems, int tier, string cultureId)
+        {
             if (availableItems == null || availableItems.Count == 0)
             {
                 ModLogger.Warn("Inventory", "RefreshInventory called with empty item pool");
                 CurrentStock.Clear();
-                UpdateRefreshMetadata(supplyLevel);
+                UpdateRefreshMetadata(supplyLevel, tier, cultureId);
                 return;
             }
 
             try
             {
-                ModLogger.Info("Inventory", $"Refreshing QM inventory at {supplyLevel:F1}% supply");
+                ModLogger.Info("Inventory", $"Refreshing QM inventory at {supplyLevel:F1}% supply (tier={tier}, culture={cultureId ?? "unknown"})");
 
                 CurrentStock.Clear();
 
@@ -97,16 +187,16 @@ namespace Enlisted.Features.Equipment.Managers
                     CurrentStock[item.StringId] = quantity;
                 }
 
-                UpdateRefreshMetadata(supplyLevel);
+                UpdateRefreshMetadata(supplyLevel, tier, cultureId);
 
-                ModLogger.Info("Inventory", $"Stocked {itemsToStock.Count} items (variety: {varietyPercent:P0}, qty range: {minQty}-{maxQty})");
+                ModLogger.Info("Inventory", $"Stocked {itemsToStock.Count} items (variety: {varietyPercent:P0}, qty range: {minQty}-{maxQty}, tier={tier}, culture={cultureId ?? "unknown"})");
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("Inventory", "Error refreshing inventory", ex);
                 // Fail safe - ensure inventory is cleared on error
                 CurrentStock.Clear();
-                UpdateRefreshMetadata(supplyLevel);
+                UpdateRefreshMetadata(supplyLevel, tier, cultureId);
             }
         }
 
@@ -223,8 +313,15 @@ namespace Enlisted.Features.Equipment.Managers
         /// </summary>
         private void UpdateRefreshMetadata(float supplyLevel)
         {
+            UpdateRefreshMetadata(supplyLevel, LastRefreshTier, LastRefreshCultureId);
+        }
+
+        private void UpdateRefreshMetadata(float supplyLevel, int tier, string cultureId)
+        {
             LastRefreshDay = (int)CampaignTime.Now.ToDays;
             LastRefreshSupplyLevel = supplyLevel;
+            LastRefreshTier = tier;
+            LastRefreshCultureId = cultureId ?? string.Empty;
         }
 
         /// <summary>
@@ -252,6 +349,12 @@ namespace Enlisted.Features.Equipment.Managers
         {
             ModLogger.Info("Inventory", "Forcing immediate inventory refresh");
             RefreshInventory(supplyLevel, availableItems);
+        }
+
+        public void ForceRefresh(float supplyLevel, List<ItemObject> availableItems, int tier, string cultureId)
+        {
+            ModLogger.Info("Inventory", $"Forcing immediate inventory refresh (tier={tier}, culture={cultureId ?? "unknown"})");
+            RefreshInventory(supplyLevel, availableItems, tier, cultureId);
         }
 
         /// <summary>

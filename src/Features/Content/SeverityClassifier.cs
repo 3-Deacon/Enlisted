@@ -58,7 +58,7 @@ namespace Enlisted.Features.Content
             { StoryBeat.SettlementEntered, StoryTier.Pertinent },
             { StoryBeat.SettlementLeft, StoryTier.Pertinent },
             { StoryBeat.PlayerBattleEnd, StoryTier.Pertinent },
-            { StoryBeat.OrderPhaseTransition, StoryTier.Log }
+            { StoryBeat.OrderPhaseTransition, StoryTier.Modal }
         };
 
         public static StoryTier Classify(StoryCandidate c, bool touchesEnlistedLord, bool touchesPlayerKingdom, bool recentlyVisitedSettlement)

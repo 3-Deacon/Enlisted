@@ -6,6 +6,7 @@ using Enlisted.Features.Camp;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Equipment.Managers;
 using Enlisted.Features.Interface.Behaviors;
+using Enlisted.Features.Logistics;
 using Enlisted.Features.Retinue.Core;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Entry;
@@ -266,6 +267,7 @@ namespace Enlisted.Features.Equipment.Behaviors
         public override void RegisterEvents()
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -279,8 +281,12 @@ namespace Enlisted.Features.Equipment.Behaviors
             // Sync primitive fields
             var lastRefreshDay = _inventoryState.LastRefreshDay;
             var lastRefreshSupply = _inventoryState.LastRefreshSupplyLevel;
+            var lastRefreshTier = _inventoryState.LastRefreshTier;
+            var lastRefreshCultureId = _inventoryState.LastRefreshCultureId ?? string.Empty;
             _ = dataStore.SyncData("qm_lastRefreshDay", ref lastRefreshDay);
             _ = dataStore.SyncData("qm_lastRefreshSupply", ref lastRefreshSupply);
+            _ = dataStore.SyncData("qm_lastRefreshTier", ref lastRefreshTier);
+            _ = dataStore.SyncData("qm_lastRefreshCultureId", ref lastRefreshCultureId);
 
             // Sync stock dictionary
             var stockCount = _inventoryState.CurrentStock?.Count ?? 0;
@@ -290,6 +296,8 @@ namespace Enlisted.Features.Equipment.Behaviors
             {
                 _inventoryState.LastRefreshDay = lastRefreshDay;
                 _inventoryState.LastRefreshSupplyLevel = lastRefreshSupply;
+                _inventoryState.LastRefreshTier = lastRefreshTier;
+                _inventoryState.LastRefreshCultureId = lastRefreshCultureId ?? string.Empty;
                 _inventoryState.CurrentStock ??= new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 _inventoryState.CurrentStock.Clear();
 
@@ -323,6 +331,21 @@ namespace Enlisted.Features.Equipment.Behaviors
                         idx++;
                     }
                 }
+            }
+        }
+
+        private void OnGameLoaded(CampaignGameStarter starter)
+        {
+            try
+            {
+                if (EnlistmentBehavior.Instance?.IsEnlisted == true)
+                {
+                    RefreshInventoryForCurrentEnlistment("active_save_load");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "active_save_load_inventory_refresh_failed", ex);
             }
         }
 
@@ -451,6 +474,291 @@ namespace Enlisted.Features.Equipment.Behaviors
         }
 
         /// <summary>
+        /// Builds weapon purchase options for the conversation-driven equipment selector.
+        /// EnlistedDialogManager still reflects this legacy method name, so keep the seam
+        /// present and route it through the current all-formation equipment discovery path.
+        /// </summary>
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildWeaponOptionsFromCurrentTroop()
+        {
+            return BuildEquipmentOptionsForSlots(new[]
+            {
+                EquipmentIndex.Weapon0,
+                EquipmentIndex.Weapon1,
+                EquipmentIndex.Weapon2,
+                EquipmentIndex.Weapon3
+            });
+        }
+
+        /// <summary>
+        /// Builds armor purchase options for the conversation-driven equipment selector.
+        /// EnlistedDialogManager reflects this legacy method name.
+        /// </summary>
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildArmorOptionsFromCurrentTroop()
+        {
+            return BuildEquipmentOptionsForSlots(new[]
+            {
+                EquipmentIndex.Head,
+                EquipmentIndex.Body,
+                EquipmentIndex.Gloves,
+                EquipmentIndex.Leg,
+                EquipmentIndex.Cape
+            });
+        }
+
+        /// <summary>
+        /// Builds shield purchase options from weapon-slot equipment.
+        /// EnlistedDialogManager reflects this legacy method name for the accessories tab.
+        /// </summary>
+        private List<EquipmentVariantOption> BuildShieldOptionsFromWeapons()
+        {
+            var weaponOptions = BuildWeaponOptionsFromCurrentTroop();
+            return weaponOptions
+                .SelectMany(kvp => kvp.Value)
+                .Where(option => option.Item?.WeaponComponent?.PrimaryWeapon?.IsShield == true)
+                .ToList();
+        }
+
+        private Dictionary<EquipmentIndex, List<EquipmentVariantOption>> BuildEquipmentOptionsForSlots(IEnumerable<EquipmentIndex> slots)
+        {
+            var result = new Dictionary<EquipmentIndex, List<EquipmentVariantOption>>();
+
+            try
+            {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true)
+                {
+                    return result;
+                }
+
+                var tier = enlistment.EnlistmentTier;
+                var culture = enlistment.EnlistedLord?.Culture;
+                var hero = Hero.MainHero;
+                if (culture == null || hero == null)
+                {
+                    return result;
+                }
+
+                var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
+
+                foreach (var slot in slots)
+                {
+                    if (!allEquipment.TryGetValue(slot, out var items) || items == null || items.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var options = new List<EquipmentVariantOption>();
+                    var currentItem = hero.BattleEquipment[slot].Item;
+
+                    foreach (var item in items)
+                    {
+                        if (item == null)
+                        {
+                            continue;
+                        }
+
+                        options.Add(BuildEquipmentVariantOption(hero, item, slot, currentItem, isOfficerExclusive: false));
+                    }
+
+                    if (options.Count > 0)
+                    {
+                        result[slot] = options
+                            .OrderBy(o => o.IsCurrent ? 0 : 1)
+                            .ThenBy(o => o.Item.Name.ToString())
+                            .ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error building equipment selector options", ex);
+            }
+
+            return result;
+        }
+
+        private EquipmentVariantOption BuildEquipmentVariantOption(
+            Hero hero,
+            ItemObject item,
+            EquipmentIndex slot,
+            ItemObject currentItem,
+            bool isOfficerExclusive)
+        {
+            var rolledQuality = RollItemQualityByReputation();
+            var (modifier, actualQuality) = GetRandomModifierForQuality(item, rolledQuality);
+
+            var basePrice = item.Value;
+            if (modifier != null)
+            {
+                basePrice = (int)(basePrice * modifier.PriceMultiplier);
+            }
+
+            var price = CalculateQuartermasterPriceFromBase(basePrice);
+            var quantityAvailable = GetTrackedQuantity(item);
+            var isInStock = IsItemInStock(item) && quantityAvailable > 0;
+            var modifiedName = BuildModifiedDisplayName(item, actualQuality);
+
+            var duplicateCap = IsWeaponSlot(slot) || IsConsumableItem(item) ? 2 : 1;
+
+            return new EquipmentVariantOption
+            {
+                Item = item,
+                Cost = price,
+                IsCurrent = item == currentItem,
+                CanAfford = hero.Gold >= price,
+                Slot = slot,
+                IsOfficerExclusive = isOfficerExclusive,
+                AllowsDuplicatePurchase = IsWeaponSlot(slot) || IsConsumableItem(item),
+                IsAtLimit = GetPlayerItemCount(hero, item.StringId) >= duplicateCap,
+                IsNewlyUnlocked = IsNewlyUnlockedItem(item),
+                IsInStock = isInStock,
+                QuantityAvailable = quantityAvailable,
+                Modifier = modifier,
+                Quality = actualQuality,
+                ModifiedName = modifiedName
+            };
+        }
+
+        private void EnsureInventoryStateForBrowsableEquipment(Dictionary<EquipmentIndex, List<ItemObject>> allEquipment)
+        {
+            _inventoryState ??= new QMInventoryState();
+
+            var supplyLevel = GetCurrentCompanySupplyPercent();
+            var enlistment = EnlistmentBehavior.Instance;
+            var tier = enlistment?.EnlistmentTier ?? -1;
+            var cultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
+            var needsRefresh = _inventoryState.NeedsRefreshForContext(supplyLevel, tier, cultureId);
+
+            if (!needsRefresh)
+            {
+                EnsureStockAvailabilityReflectsSupply(supplyLevel);
+                LogStockContext(allEquipment, refreshed: false, supplyLevel);
+                return;
+            }
+
+            var availableItems = new List<ItemObject>();
+            foreach (var slotItems in allEquipment.Values)
+            {
+                foreach (var item in slotItems)
+                {
+                    if (item != null && !availableItems.Contains(item))
+                    {
+                        availableItems.Add(item);
+                    }
+                }
+            }
+
+            _inventoryState.RefreshInventory(supplyLevel, availableItems, tier, cultureId);
+            EnsureStockAvailabilityReflectsSupply(supplyLevel);
+            LogStockContext(allEquipment, refreshed: true, supplyLevel);
+        }
+
+        private int GetTrackedQuantity(ItemObject item)
+        {
+            if (item == null)
+            {
+                return 0;
+            }
+
+            _inventoryState ??= new QMInventoryState();
+            return _inventoryState.GetAvailableQuantity(item.StringId);
+        }
+
+        private static float GetCurrentCompanySupplyPercent()
+        {
+            var enlistmentSupply = EnlistmentBehavior.Instance?.CompanyNeeds?.Supplies;
+            if (enlistmentSupply.HasValue)
+            {
+                return MathF.Clamp(enlistmentSupply.Value, 0f, 100f);
+            }
+
+            return MathF.Clamp((float)(CompanySupplyManager.Instance?.TotalSupply ?? 100), 0f, 100f);
+        }
+
+        private static float GetCurrentLogisticsStrain()
+        {
+            return MathF.Clamp(CampLifeBehavior.Instance?.LogisticsStrain ?? 0f, 0f, 100f);
+        }
+
+        private static BaggageAccessState GetCurrentBaggageAccessState()
+        {
+            try
+            {
+                return BaggageTrainManager.Instance?.GetCurrentAccess() ?? BaggageAccessState.FullAccess;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error resolving baggage access for stock context", ex);
+                return BaggageAccessState.NoAccess;
+            }
+        }
+
+        private void EnsureStockAvailabilityReflectsSupply(float supplyLevel)
+        {
+            var roundedSupply = Convert.ToInt32(MathF.Round(MathF.Clamp(supplyLevel, 0f, 100f)));
+            var oldBand = GetStockAvailabilityBand(_lastStockRollSupplyLevel);
+            var newBand = GetStockAvailabilityBand(roundedSupply);
+
+            if (_lastStockRollSupplyLevel < 0 || oldBand != newBand)
+            {
+                RollStockAvailability();
+                return;
+            }
+
+            if (roundedSupply >= 60 && _outOfStockItems.Count > 0)
+            {
+                var cleared = _outOfStockItems.Count;
+                _outOfStockItems.Clear();
+                _lastStockRollSupplyLevel = roundedSupply;
+                ModLogger.Info("QUARTERMASTER",
+                    $"Stock availability synchronized with recovered supplies: cleared {cleared} stale out-of-stock flags at supply={roundedSupply}%");
+            }
+        }
+
+        private static int GetStockAvailabilityBand(int supplyLevel)
+        {
+            if (supplyLevel < 0)
+            {
+                return -1;
+            }
+            if (supplyLevel >= 60)
+            {
+                return 2;
+            }
+            if (supplyLevel >= 40)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        private void LogStockContext(Dictionary<EquipmentIndex, List<ItemObject>> allEquipment, bool refreshed, float supplyLevel)
+        {
+            try
+            {
+                var candidateCount = allEquipment?.Values.Sum(items => items?.Count ?? 0) ?? 0;
+                var stockedCount = _inventoryState?.CurrentStock?.Count ?? 0;
+                var stockedQuantity = _inventoryState?.CurrentStock?.Values.Sum() ?? 0;
+                var logisticsStrain = GetCurrentLogisticsStrain();
+                var baggageAccess = GetCurrentBaggageAccessState();
+                var lastRefreshSupply = _inventoryState?.LastRefreshSupplyLevel ?? -1f;
+                var stockTier = _inventoryState?.LastRefreshTier ?? -1;
+                var stockCulture = _inventoryState?.LastRefreshCultureId ?? string.Empty;
+
+                ModLogger.Info("QUARTERMASTER",
+                    $"QM stock context: candidates={candidateCount}, stockedItems={stockedCount}, stockedQty={stockedQuantity}, " +
+                    $"supply={supplyLevel:F1}%, lastStockSupply={lastRefreshSupply:F1}%, stockTier={stockTier}, " +
+                    $"stockCulture={stockCulture}, logistics={logisticsStrain:F0}, baggage={baggageAccess}, " +
+                    $"outOfStockFlags={_outOfStockItems.Count}, refreshed={refreshed}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Error logging stock context", ex);
+            }
+        }
+
+        /// <summary>
         /// Get mount variants for the UI browser, using cross-formation discovery.
         /// Returns EquipmentVariantOption list with proper pricing, quality, and stock status.
         /// This is the public API for mount browsing - use this instead of reflection.
@@ -480,6 +788,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 // Get all equipment across all formations
                 var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
 
                 var mountOptions = new List<EquipmentVariantOption>();
 
@@ -510,15 +819,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         var price = CalculateQuartermasterPriceFromBase(basePrice);
                         var canAfford = hero.Gold >= price;
+                        var quantityAvailable = GetTrackedQuantity(item);
                         var isInStock = IsItemInStock(item);
-                        var quantityAvailable = _inventoryState?.GetAvailableQuantity(item.StringId) ?? 999;
                         var isAvailable = quantityAvailable > 0;
 
-                        string modifiedName = null;
-                        if (modifier != null)
-                        {
-                            modifiedName = $"{modifier.Name} {item.Name}";
-                        }
+                        var modifiedName = BuildModifiedDisplayName(item, actualQuality);
 
                         mountOptions.Add(new EquipmentVariantOption
                         {
@@ -580,6 +885,7 @@ namespace Enlisted.Features.Equipment.Behaviors
 
                 // Get all equipment across all formations
                 var allEquipment = GetAvailableEquipmentAllFormations(tier, culture);
+                EnsureInventoryStateForBrowsableEquipment(allEquipment);
 
                 var harnessOptions = new List<EquipmentVariantOption>();
 
@@ -610,15 +916,11 @@ namespace Enlisted.Features.Equipment.Behaviors
                         }
                         var price = CalculateQuartermasterPriceFromBase(basePrice);
                         var canAfford = hero.Gold >= price;
+                        var quantityAvailable = GetTrackedQuantity(item);
                         var isInStock = IsItemInStock(item);
-                        var quantityAvailable = _inventoryState?.GetAvailableQuantity(item.StringId) ?? 999;
                         var isAvailable = quantityAvailable > 0;
 
-                        string modifiedName = null;
-                        if (modifier != null)
-                        {
-                            modifiedName = $"{modifier.Name} {item.Name}";
-                        }
+                        var modifiedName = BuildModifiedDisplayName(item, actualQuality);
 
                         harnessOptions.Add(new EquipmentVariantOption
                         {
@@ -1923,6 +2225,16 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
         }
 
+        private static string BuildModifiedDisplayName(ItemObject item, ItemQuality quality)
+        {
+            if (item == null || quality == ItemQuality.Common)
+            {
+                return null;
+            }
+
+            return $"{quality} {item.Name}";
+        }
+
         /// <summary>
         /// Apply equipment change to a specific slot while preserving other equipment.
         /// Uses safe cloning to avoid corrupting player equipment.
@@ -1946,7 +2258,7 @@ namespace Enlisted.Features.Equipment.Behaviors
                 // Equipment change is applied via EquipmentHelper which handles visual refresh
                 // The hero's equipment is updated immediately and visible in the game world
 
-                var modifierInfo = modifier != null ? $" with modifier '{modifier.Name}'" : "";
+                var modifierInfo = modifier != null ? $" with modifier id '{modifier.StringId ?? modifier.GetType().Name}'" : "";
                 ModLogger.Info("QUARTERMASTER", $"Equipment slot {slot} updated with {newItem.Name}{modifierInfo}");
             }
             catch (Exception ex)
@@ -2604,6 +2916,8 @@ namespace Enlisted.Features.Equipment.Behaviors
                 _ = party.ItemRoster.AddToCounts(MBObjectManager.Instance.GetObject<ItemObject>("grain"), 5);
                 _ = party.ItemRoster.AddToCounts(MBObjectManager.Instance.GetObject<ItemObject>("tools"), 2);
 
+                CompanySupplyManager.Instance?.AddSupplies(10f, "quartermaster supply purchase");
+
                 InformationManager.DisplayMessage(new InformationMessage(
                     new TextObject("{=qm_purchased_supplies}Purchased basic supplies: 5 grain, 2 tools.").ToString()));
 
@@ -2624,7 +2938,7 @@ namespace Enlisted.Features.Equipment.Behaviors
         /// Check if an item is consumable (arrows, bolts, throwing weapons, etc).
         /// Consumable items can be stacked and soldiers may want multiple stacks.
         /// </summary>
-        private static bool IsConsumableItem(ItemObject item)
+        public static bool IsConsumableItem(ItemObject item)
         {
             if (item?.WeaponComponent?.PrimaryWeapon == null)
             {
@@ -2651,10 +2965,12 @@ namespace Enlisted.Features.Equipment.Behaviors
             _outOfStockItems.Clear();
             _lastStockRollSupplyLevel = supplyLevel;
 
-            // Phase 7: Check if inventory needs refresh (12-day cycle)
+            // Phase 7: Check if inventory needs refresh (12-day cycle, supply band, tier, or culture)
             _inventoryState ??= new QMInventoryState();
+            var rollTier = enlistment?.EnlistmentTier ?? -1;
+            var rollCultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
 
-            if (_inventoryState.NeedsRefresh())
+            if (_inventoryState.NeedsRefreshForContext(supplyLevel, rollTier, rollCultureId))
             {
                 RefreshInventoryAtMuster(supplyLevel);
             }
@@ -2952,16 +3268,48 @@ namespace Enlisted.Features.Equipment.Behaviors
                     ModLogger.Debug("QUARTERMASTER", $"Added {foodItems.Count} food items to provisions inventory");
                 }
 
-                // Refresh inventory state with new stock quantities
-                _inventoryState.RefreshInventory(supplyLevel, availableItems);
+                var refreshTier = enlistment?.EnlistmentTier ?? -1;
+                var refreshCultureId = enlistment?.EnlistedLord?.Culture?.StringId ?? string.Empty;
+
+                // Refresh inventory state with new stock quantities. Tier/culture are
+                // stored as invalidation keys so re-enlistment cannot keep stale T1 stock.
+                _inventoryState.RefreshInventory(supplyLevel, availableItems, refreshTier, refreshCultureId);
 
                 ModLogger.Info("Quartermaster",
                     $"Inventory refreshed at muster: {availableItems.Count} items in pool, " +
-                    $"{_inventoryState.CurrentStock.Count} items stocked, supply: {supplyLevel:F1}%");
+                    $"{_inventoryState.CurrentStock.Count} items stocked, supply: {supplyLevel:F1}%, " +
+                    $"tier={refreshTier}, culture={refreshCultureId}");
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("QUARTERMASTER", "Error refreshing inventory at muster", ex);
+            }
+        }
+
+        /// <summary>
+        /// Forces QM stock to match the current enlisted lord, tier, culture, and supply.
+        /// Used after grace/reservist tier restoration so the armory does not keep
+        /// a stale T1 stock table while the player is actually T6+.
+        /// </summary>
+        public void RefreshInventoryForCurrentEnlistment(string reason)
+        {
+            try
+            {
+                _inventoryState ??= new QMInventoryState();
+                var supplyLevel = GetCurrentCompanySupplyPercent();
+
+                RefreshInventoryAtMuster(supplyLevel);
+                RollStockAvailability();
+
+                var enlistment = EnlistmentBehavior.Instance;
+                ModLogger.Info("QUARTERMASTER",
+                    $"Forced QM inventory refresh for current enlistment: reason={reason ?? "unspecified"}, " +
+                    $"tier={enlistment?.EnlistmentTier ?? -1}, culture={enlistment?.EnlistedLord?.Culture?.StringId ?? "unknown"}, " +
+                    $"stockedItems={_inventoryState.CurrentStock.Count}, supply={supplyLevel:F1}%");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("QUARTERMASTER", "Failed to force current enlistment inventory refresh", ex);
             }
         }
 
@@ -3188,6 +3536,11 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             var item = currentElement.Item;
+            if (IsConsumableItem(item))
+            {
+                return 0;
+            }
+
             var currentModifier = currentElement.ItemModifier;
             var baseValue = item.Value;
 
@@ -3279,6 +3632,13 @@ namespace Enlisted.Features.Equipment.Behaviors
             }
 
             var item = currentElement.Item;
+            if (IsConsumableItem(item))
+            {
+                errorMessage = "Stacked ammunition and thrown supplies cannot be improved here.";
+                ModLogger.Info("EQUIPMENT", $"Upgrade blocked: consumable item {item.StringId} cannot be quality-upgraded");
+                return false;
+            }
+
             var modGroup = item.ItemComponent?.ItemModifierGroup;
 
             if (modGroup == null)

@@ -412,6 +412,7 @@
     
     
     <string id="esc_scrutiny_changed" text="Scrutiny increased (+{DELTA}) - Status: {STATUS}" />
+    <string id="esc_scrutiny_eased" text="Scrutiny eased: {OLD} -> {NEW}" />
     
     
     
@@ -7777,5 +7778,26 @@
     <string id="duty_raid_split_loot_trait_1_opt_take_tt" text="+30 gold, rank XP." />
     <string id="duty_raid_split_loot_trait_1_setup" text="Your lord will not touch the pile until every man has his share marked out in full view. Coin, cloth, a single good mail-shirt. The sergeant calls the count and each man steps up when his name is read. You watch the ritual work." />
     <string id="duty_raid_split_loot_trait_1_title" text="The share by the old measure" />
+    <!-- Runtime UI fallback strings -->
+    <string id="home_evening_nothing" text="There&#x27;s nothing here tonight." />
+    <string id="home_scheme_tooltip_vassal" text="Risky under an honour-bound lord. Scrutiny may rise." />
+    <string id="menu_ahead_readiness_low" text="The men are exhausted." />
+    <string id="dialog_unknown_action" text="That option is misconfigured and does nothing. Please report this bug." />
+    <string id="qm_no_variants_for_type" text="The quartermaster has no {EQUIPMENT_TYPE} available for your rank and formation." />
+    <string id="qm_ui_screen_unavailable" text="Unable to open the quartermaster screen right now. Try again in a moment." />
+    <string id="qm_ui_open_failed" text="Quartermaster screen failed to open. Check the log for details." />
+    <string id="qm_ui_upgrade_failed" text="Upgrade screen failed to open. Check the log for details." />
+    <string id="qm_ui_provisions_failed" text="Provisions screen failed to open. Check the log for details." />
+    <string id="enlisted_camp_talk_to_companion_none" text="No companions are with you yet." />
+    <string id="enlisted_camp_talk_to_companion_tooltip" text="Speak with a companion in your party." />
+    <string id="menu_qm_hero_unavailable" text="The quartermaster could not be reached. This is a bug — please report it." />
+    <string id="menu_qm_open_failed" text="Failed to open the quartermaster conversation. Check the log for details." />
+    <string id="enlisted_camp_talk_to_companion_not_enlisted" text="You must be enlisted to speak with companions." />
+    <string id="enlisted_camp_talk_to_companion_none_available" text="No companions are available for conversation." />
+    <string id="enlisted_camp_talk_to_companion_title" text="Speak with..." />
+    <string id="enlisted_camp_talk_to_companion_speak" text="Speak" />
+    <string id="enlisted_camp_talk_to_companion_back" text="Back" />
+    <string id="enlisted_camp_talk_to_companion_unavailable" text="Companion is not available for conversation." />
+
   </strings>
 </base>

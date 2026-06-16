@@ -58,6 +58,83 @@ namespace Enlisted.Features.Content
         internal int PendingQueueCountForDebug => _pendingEvents.Count;
         internal IEnumerable<string> PendingQueueIdsForDebug => _pendingEvents.Select(e => e?.Id ?? "(null)");
 
+
+        /// <summary>True while any interactive event modal is visible or queued.</summary>
+        public bool HasActiveOrPendingModalEvent =>
+            (_isShowingEvent && _currentEvent != null) || _pendingEvents.Count > 0;
+
+        /// <summary>Best-effort id for diagnostics when a modal event blocks order production.</summary>
+        public string ActiveOrPendingModalEventId
+        {
+            get
+            {
+                if (_isShowingEvent && _currentEvent != null)
+                {
+                    return _currentEvent.Id ?? string.Empty;
+                }
+
+                return _pendingEvents.FirstOrDefault()?.Id ?? string.Empty;
+            }
+        }
+
+        /// <summary>True while a promotion/proving event is visible or queued.</summary>
+        public bool HasActiveOrPendingPromotionEvent =>
+            IsPromotionEventId(_currentEvent?.Id)
+            || _pendingEvents.Any(e => IsPromotionEventId(e?.Id));
+
+        /// <summary>Best-effort id for diagnostics when a promotion blocks order production.</summary>
+        public string ActiveOrPendingPromotionEventId
+        {
+            get
+            {
+                if (IsPromotionEventId(_currentEvent?.Id))
+                {
+                    return _currentEvent.Id;
+                }
+
+                return _pendingEvents.FirstOrDefault(e => IsPromotionEventId(e?.Id))?.Id ?? string.Empty;
+            }
+        }
+
+        public static bool IsPromotionEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("promotion_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>True while a named-order terminal resolve prompt is visible or queued for delivery.</summary>
+        public bool HasActiveOrPendingNamedOrderResolveEvent =>
+            IsNamedOrderResolveEventId(_currentEvent?.Id)
+            || _pendingEvents.Any(e => IsNamedOrderResolveEventId(e?.Id));
+
+        /// <summary>Best-effort id for diagnostics when a named-order resolve prompt is blocking order production.</summary>
+        public string ActiveOrPendingNamedOrderResolveEventId
+        {
+            get
+            {
+                if (IsNamedOrderResolveEventId(_currentEvent?.Id))
+                {
+                    return _currentEvent.Id;
+                }
+
+                return _pendingEvents.FirstOrDefault(e => IsNamedOrderResolveEventId(e?.Id))?.Id ?? string.Empty;
+            }
+        }
+
+        public static bool IsNamedOrderResolveEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("storylet_order_", StringComparison.OrdinalIgnoreCase)
+                && eventId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        public static bool IsNamedOrderAcceptEventId(string eventId)
+        {
+            return !string.IsNullOrWhiteSpace(eventId)
+                && eventId.StartsWith("storylet_order_", StringComparison.OrdinalIgnoreCase)
+                && eventId.IndexOf("_accept_", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         public EventDeliveryManager()
         {
             Instance = this;
@@ -65,15 +142,49 @@ namespace Enlisted.Features.Content
 
         public override void RegisterEvents()
         {
-            // No campaign events needed - events are queued programmatically
+            CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
+        }
+
+        private void OnSessionLaunched(CampaignGameStarter starter)
+        {
+            Instance = this;
+        }
+
+        private void OnGameLoaded(CampaignGameStarter starter)
+        {
+            Instance = this;
+            _needsHydration = true;
+            HydrateFromPendingIdsIfNeeded();
+            ModLogger.Info(LogCategory,
+                $"load restore: pending={_pendingEvents.Count}, showing={_isShowingEvent}, current={_currentEvent?.Id ?? "none"}");
+            if (!_isShowingEvent && _pendingEvents.Count > 0)
+            {
+                TryDeliverNextEvent();
+            }
         }
 
         public override void SyncData(IDataStore dataStore)
         {
             if (dataStore.IsSaving)
             {
-                // Snapshot the current live queue into the serializable ID list.
-                _pendingEventIds = _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)).ToList();
+                // Snapshot the currently visible event first, then the queued events.
+                // Bannerlord inquiry UI state itself is not save-backed, so a save while
+                // a modal is visible must round-trip that event as the next pending id.
+                _pendingEventIds = new List<string>();
+                if (!string.IsNullOrEmpty(_currentEvent?.Id))
+                {
+                    _pendingEventIds.Add(_currentEvent.Id);
+                }
+
+                foreach (var id in _pendingEvents.Select(evt => evt?.Id).Where(id => !string.IsNullOrEmpty(id)))
+                {
+                    if (!_pendingEventIds.Contains(id, StringComparer.OrdinalIgnoreCase))
+                    {
+                        _pendingEventIds.Add(id);
+                    }
+                }
+
                 if (_pendingEventIds.Count > PendingQueueCap)
                 {
                     _pendingEventIds = _pendingEventIds.Take(PendingQueueCap).ToList();
@@ -82,8 +193,16 @@ namespace Enlisted.Features.Content
 
             _ = dataStore.SyncData("evt_delivery_pendingIds", ref _pendingEventIds);
 
-            // Re-hydration happens lazily on the next tick via HydrateFromPendingIdsIfNeeded — not
-            // here, because EventCatalog load-order relative to SyncData is not guaranteed.
+            if (dataStore.IsLoading)
+            {
+                _pendingEvents.Clear();
+                _currentEvent = null;
+                _isShowingEvent = false;
+                _needsHydration = true;
+            }
+
+            // Re-hydration happens lazily after load via HydrateFromPendingIdsIfNeeded —
+            // EventCatalog load-order relative to SyncData is not guaranteed.
         }
 
         /// <summary>
@@ -178,8 +297,14 @@ namespace Enlisted.Features.Content
 
             int resolved = 0;
             int dropped = 0;
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var id in _pendingEventIds)
             {
+                if (string.IsNullOrWhiteSpace(id) || !seen.Add(id))
+                {
+                    continue;
+                }
+
                 // EventCatalog.GetEvent is static and self-initializing (see EventCatalog.cs:127).
                 var evt = EventCatalog.GetEvent(id);
                 if (evt != null)
@@ -1901,6 +2026,12 @@ namespace Enlisted.Features.Content
 
             try
             {
+                if (ShouldSuppressNamedOrderAcceptOutcome(_currentEvent.Id, option.Id))
+                {
+                    ModLogger.Info(LogCategory, $"Skipped named-order accept outcome: event={_currentEvent.Id}, option={option.Id}");
+                    return;
+                }
+
                 // Get the appropriate result narrative (failure text if risky and failed, otherwise normal result)
                 var resultNarrative = showFailure
                     ? ResolveText(option.ResultTextFailureId, option.ResultTextFailureFallback)
@@ -1925,6 +2056,13 @@ namespace Enlisted.Features.Content
             {
                 ModLogger.Caught("EVENTDELIVERY", "Failed to notify news of event outcome", ex);
             }
+        }
+
+        private static bool ShouldSuppressNamedOrderAcceptOutcome(string eventId, string optionId)
+        {
+            return IsNamedOrderAcceptEventId(eventId)
+                && !string.IsNullOrWhiteSpace(optionId)
+                && optionId.StartsWith("accept_", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -2575,35 +2713,83 @@ namespace Enlisted.Features.Content
         /// <param name="fallbackText">The inline fallback text from JSON if XML lookup fails.</param>
         private string ResolveText(string textId, string fallbackText = null)
         {
-            // Determine the best fallback: use inline text if available, otherwise use the ID
+            // Determine the best fallback: use inline text if available, otherwise use the ID.
             var effectiveFallback = !string.IsNullOrEmpty(fallbackText) ? fallbackText : textId;
 
             if (string.IsNullOrEmpty(textId))
             {
-                // No XML ID provided, just return the fallback
-                return effectiveFallback ?? string.Empty;
+                return ResolveInlineText(effectiveFallback, SetEventTextVariables);
             }
 
-            // Use TextObject to look up the string from XML
-            // Format: "{=stringId}Fallback" - if string not found, uses the fallback text
-            var textObject = new TextObject($"{{={textId}}}{effectiveFallback}");
-
-            // Set NCO and soldier name text variables for personalized event dialogue
-            SetEventTextVariables(textObject);
-
-            var resolved = textObject.ToString();
-
-            // If resolution returned the raw {=...} pattern, the lookup failed - use fallback with variable substitution
-            if (resolved.StartsWith("{="))
+            // Use TextObject to look up the string from XML. Format: "{=stringId}Fallback".
+            var resolved = ResolveInlineText($"{{={textId}}}{effectiveFallback}", SetEventTextVariables);
+            if (LooksUnresolvedLocalization(resolved))
             {
                 ModLogger.Debug(LogCategory, $"XML lookup failed for '{textId}', using fallback");
-                // Create new TextObject from fallback and substitute variables
-                var fallbackTextObject = new TextObject(effectiveFallback ?? string.Empty);
-                SetEventTextVariables(fallbackTextObject);
-                return fallbackTextObject.ToString();
+                return ResolveInlineText(effectiveFallback, SetEventTextVariables);
             }
 
             return resolved;
+        }
+
+        /// <summary>
+        /// Resolves authored display text that may already contain Bannerlord inline
+        /// localization markup such as "{=key}Fallback". Safe for HUD/news/order
+        /// call sites that do not have separate textId/fallback fields.
+        /// </summary>
+        public static string ResolveDisplayText(string rawText)
+        {
+            if (Instance != null)
+            {
+                return Instance.ResolveText(null, rawText);
+            }
+            return ResolveInlineText(rawText, null);
+        }
+
+        private static string ResolveInlineText(string rawText, Action<TextObject> configure)
+        {
+            if (string.IsNullOrEmpty(rawText))
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                var textObject = new TextObject(rawText);
+                configure?.Invoke(textObject);
+                var resolved = textObject.ToString();
+                if (LooksUnresolvedLocalization(resolved))
+                {
+                    return StripLeadingLocalizationTag(resolved);
+                }
+                return resolved ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught(LogCategory, "ResolveInlineText failed", ex);
+                return StripLeadingLocalizationTag(rawText);
+            }
+        }
+
+        private static bool LooksUnresolvedLocalization(string text)
+        {
+            return !string.IsNullOrEmpty(text) && text.StartsWith("{=", StringComparison.Ordinal);
+        }
+
+        private static string StripLeadingLocalizationTag(string text)
+        {
+            if (string.IsNullOrEmpty(text) || !text.StartsWith("{=", StringComparison.Ordinal))
+            {
+                return text ?? string.Empty;
+            }
+
+            var closeBraceIndex = text.IndexOf('}');
+            if (closeBraceIndex < 0 || closeBraceIndex + 1 >= text.Length)
+            {
+                return string.Empty;
+            }
+
+            return text.Substring(closeBraceIndex + 1);
         }
 
         /// <summary>

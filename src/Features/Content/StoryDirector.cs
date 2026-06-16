@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
@@ -62,19 +63,37 @@ namespace Enlisted.Features.Content
         {
             try
             {
-                if (candidate == null || Hero.MainHero == null)
+                if (candidate == null)
                 {
+                    ModLogger.Expected("CONTENT", "emit_null_candidate", "StoryDirector.EmitCandidate received null candidate");
+                    return;
+                }
+                if (Hero.MainHero == null)
+                {
+                    ModLogger.Expected("CONTENT", "emit_no_main_hero",
+                        $"candidate dropped before route: source={candidate.SourceId}, story={candidate.StoryKey}");
+                    return;
+                }
+
+                if (!NamedOrderPhaseCandidateAllowed(candidate, out var namedOrderRejectReason))
+                {
+                    ModLogger.Debug("CONTENT",
+                        $"candidate dropped by named-order arc guard: reason={namedOrderRejectReason}, source={candidate.SourceId}, story={candidate.StoryKey}, category={candidate.CategoryId}");
                     return;
                 }
 
                 var lord = EnlistmentBehavior.Instance?.EnlistedLord;
                 if (lord == null)
                 {
+                    ModLogger.Expected("CONTENT", "emit_no_enlisted_lord",
+                        $"candidate dropped before route: source={candidate.SourceId}, story={candidate.StoryKey}");
                     return;
                 }
 
                 if (!RelevanceFilter.Passes(candidate.Relevance, lord, MobileParty.MainParty))
                 {
+                    ModLogger.Expected("CONTENT", "emit_relevance_rejected",
+                        $"candidate dropped by relevance: source={candidate.SourceId}, story={candidate.StoryKey}, category={candidate.CategoryId}");
                     return;
                 }
 
@@ -100,6 +119,14 @@ namespace Enlisted.Features.Content
         {
             try
             {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true &&
+                    enlistment?.IsOnLeave != true &&
+                    enlistment?.IsInDesertionGracePeriod != true)
+                {
+                    return;
+                }
+
                 int today = (int)CampaignTime.Now.ToDays;
 
                 // Goal 1: retry one deferred interactive candidate per day if floors now allow.
@@ -109,6 +136,14 @@ namespace Enlisted.Features.Content
                 {
                     // Re-firing a deferred interactive counts as the day's modal activity —
                     // don't also fire a quiet-stretch fallback on the same tick.
+                    return;
+                }
+
+                // Quiet-stretch fallback is enlisted-service content. During desertion grace
+                // or other lordless inactive states, emitting it only creates empty
+                // director.quiet_stretch candidates that are dropped by EmitCandidate.
+                if (enlistment.IsEnlisted != true || enlistment.EnlistedLord == null)
+                {
                     return;
                 }
 
@@ -137,7 +172,8 @@ namespace Enlisted.Features.Content
                     EmittedAt = CampaignTime.Now,
                     InteractiveEvent = evt,
                     RenderedTitle = evt.TitleFallback,
-                    RenderedBody = evt.SetupFallback
+                    RenderedBody = evt.SetupFallback,
+                    StoryKey = evt.Id
                 });
             }
             catch (Exception ex)
@@ -245,6 +281,94 @@ namespace Enlisted.Features.Content
             WriteDispatchItem(c, tier);
         }
 
+        private static bool NamedOrderPhaseCandidateAllowed(StoryCandidate candidate, out string reason)
+        {
+            reason = string.Empty;
+            var storyletId = ExtractStoryletId(candidate);
+            if (!IsNamedOrderPhaseStorylet(storyletId))
+            {
+                return true;
+            }
+
+            var active = OrderActivity.Instance?.ActiveNamedOrder;
+            if (active == null || string.IsNullOrEmpty(active.OrderStoryletId))
+            {
+                reason = "no_active_named_order";
+                return false;
+            }
+
+            var activePrefix = GetNamedOrderPrefix(active.OrderStoryletId);
+            if (string.IsNullOrEmpty(activePrefix)
+                || !storyletId.StartsWith(activePrefix + "_", StringComparison.OrdinalIgnoreCase))
+            {
+                reason = $"stale_order active={active.OrderStoryletId ?? "none"} storylet={storyletId}";
+                return false;
+            }
+
+            if (storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var intent = NormalizeIntentForResolve(active.Intent);
+                if (!string.IsNullOrEmpty(intent)
+                    && !storyletId.EndsWith("_" + intent, StringComparison.OrdinalIgnoreCase))
+                {
+                    reason = $"wrong_intent active={active.OrderStoryletId} intent={active.Intent ?? "none"} storylet={storyletId}";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static string ExtractStoryletId(StoryCandidate candidate)
+        {
+            if (!string.IsNullOrEmpty(candidate?.StoryKey))
+            {
+                return candidate.StoryKey;
+            }
+
+            var source = candidate?.SourceId;
+            const string storyletPrefix = "storylet.";
+            if (!string.IsNullOrEmpty(source)
+                && source.StartsWith(storyletPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return source.Substring(storyletPrefix.Length);
+            }
+
+            return string.Empty;
+        }
+
+        private static bool IsNamedOrderPhaseStorylet(string storyletId)
+        {
+            return !string.IsNullOrEmpty(storyletId)
+                && storyletId.StartsWith("order_", StringComparison.OrdinalIgnoreCase)
+                && (storyletId.IndexOf("_mid_", StringComparison.OrdinalIgnoreCase) >= 0
+                    || storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static string GetNamedOrderPrefix(string orderStoryletId)
+        {
+            if (string.IsNullOrEmpty(orderStoryletId))
+            {
+                return string.Empty;
+            }
+
+            const string acceptSuffix = "_accept";
+            return orderStoryletId.EndsWith(acceptSuffix, StringComparison.OrdinalIgnoreCase)
+                ? orderStoryletId.Substring(0, orderStoryletId.Length - acceptSuffix.Length)
+                : orderStoryletId;
+        }
+
+        private static string NormalizeIntentForResolve(string intent)
+        {
+            if (string.IsNullOrWhiteSpace(intent))
+            {
+                return string.Empty;
+            }
+
+            var value = intent.Trim().ToLowerInvariant();
+            return value == "train" ? "train_hard" : value;
+        }
+
         private static string CategoryKey(StoryCandidate c) => c.CategoryId ?? NoCategorySentinel;
 
         private bool ModalFloorsAllow(StoryCandidate c, int today)
@@ -262,10 +386,14 @@ namespace Enlisted.Features.Content
 
             // Chain continuations (promotions, bag checks, chain events) are follow-up
             // beats the player already opted into. They bypass the in-game floor and
-            // the per-category cooldown but still honor the wall-clock guard so two
-            // modals never fire in the same second.
+            // the per-category cooldown. Named orders bypass the wall-clock floor too
+            // because they establish active order state rather than flavor cadence.
             if (c != null && c.ChainContinuation)
             {
+                if (IsNamedOrderCandidate(c))
+                {
+                    return true;
+                }
                 return wallClockFloor;
             }
 
@@ -275,6 +403,17 @@ namespace Enlisted.Features.Content
                 || (today - lastDay) >= DensitySettings.CategoryCooldownDays;
 
             return inGameFloor && wallClockFloor && categoryOk;
+        }
+
+        private static bool IsNamedOrderCandidate(StoryCandidate c)
+        {
+            if (c == null)
+            {
+                return false;
+            }
+
+            return string.Equals(c.SourceId, "duty.arcscale", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(c.CategoryId, "named_order", StringComparison.OrdinalIgnoreCase);
         }
 
         private static void DownshiftSpeedIfNeeded()
@@ -307,7 +446,12 @@ namespace Enlisted.Features.Content
         private static void WriteDispatchItem(StoryCandidate c, StoryTier tier)
         {
             var news = Campaign.Current?.GetCampaignBehavior<Interface.Behaviors.EnlistedNewsBehavior>();
-            if (news == null) { return; }
+            if (news == null)
+            {
+                ModLogger.Expected("CONTENT", "dispatch_no_news_behavior",
+                    $"dispatch dropped: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}");
+                return;
+            }
 
             int severity = c.SeverityLevel;
             if (severity == 0)
@@ -320,16 +464,22 @@ namespace Enlisted.Features.Content
                 };
             }
 
+            var renderedTitle = EventDeliveryManager.ResolveDisplayText(c.RenderedTitle);
+            var renderedBody = EventDeliveryManager.ResolveDisplayText(c.RenderedBody);
+
             news.AddPersonalDispatch(
                 category: c.DispatchCategory ?? DefaultDispatchCategory,
-                headlineKey: c.RenderedTitle,
+                headlineKey: renderedTitle,
                 placeholderValues: null,
                 storyKey: c.StoryKey,
                 severity: severity,
                 minDisplayDays: c.MinDisplayDays,
                 tier: tier,
                 beats: c.Beats != null ? new HashSet<StoryBeat>(c.Beats) : null,
-                body: c.RenderedBody);
+                body: renderedBody);
+
+            ModLogger.Info("CONTENT",
+                $"dispatch_written: source={c.SourceId}, story={c.StoryKey}, category={c.CategoryId}, tier={tier}, title={renderedTitle}");
         }
     }
 }

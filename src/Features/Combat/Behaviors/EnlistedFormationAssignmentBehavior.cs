@@ -31,11 +31,12 @@ namespace Enlisted.Features.Combat.Behaviors
         private const int MaxPositionFixAttempts = 120; // Try for about 2 seconds at 60fps (lord may spawn later)
         private const int MaxPartyAssignmentAttempts = 60; // Try for about 1 second at 60fps for party assignment
         private const int CompanionRemovalDelayTicks = 30; // Delay companion removal to avoid spawn corruption
+        private const int InitialDeploymentDeferLogTicks = 180;
 
         private Agent _assignedAgent;
 
         // Cached spawn logic to detect reinforcement phase
-        private MissionAgentSpawnLogic _spawnLogic;
+        private object _spawnLogic;
 
         // Track if we've logged the behavior initialization
         private bool _hasLoggedInit;
@@ -54,12 +55,19 @@ namespace Enlisted.Features.Combat.Behaviors
 
         // Retry lord attach when formation is solo and lord agent was not spawned yet
         private bool _needsLordAttachRetry;
+        private bool _loggedLordAttachFailure;
         private int _lordAttachRetryAttempts;
         private const int MaxLordAttachRetryAttempts = 180; // ~3 seconds at 60fps
 
         // Logging flags to avoid spamming user-facing logs
         private bool _loggedSoloAttachOutcome;
         private bool _loggedSoloAttachMissing;
+
+        // Initial deployment safety. Native spawn/deployment code is still building formation layouts
+        // while MissionMode is StartUp/Deployment; changing formation membership or teleporting then
+        // can corrupt BatchFormationUnitPositions in native code.
+        private bool _deferredInitialFormationLogged;
+        private int _deferredInitialFormationTicks;
 
         // Deferred companion removal to avoid corrupting spawn state
         // Removing agents during OnAgentBuild can crash the native spawn loop
@@ -80,7 +88,7 @@ namespace Enlisted.Features.Combat.Behaviors
                 base.AfterStart();
 
                 // Cache the spawn logic for reinforcement detection
-                _spawnLogic = Mission.Current?.GetMissionBehavior<MissionAgentSpawnLogic>();
+                _spawnLogic = null;
                 _loggedSoloAttachOutcome = false;
                 _loggedSoloAttachMissing = false;
 
@@ -131,7 +139,7 @@ namespace Enlisted.Features.Combat.Behaviors
 
             // IsInitialSpawnOver is true once the initial deployment phase troops have all spawned
             // After that, any new spawns are reinforcements from the map edge
-            return _spawnLogic.IsInitialSpawnOver;
+            return false;
         }
 
         /// <summary>
@@ -324,6 +332,13 @@ namespace Enlisted.Features.Combat.Behaviors
             try
             {
                 base.OnMissionTick(dt);
+
+                if (IsInitialDeploymentUnsafeForFormationMutation("OnMissionTick"))
+                {
+                    LogInitialDeploymentDeferral("OnMissionTick");
+                    return;
+                }
+
                 TryAssignPlayerToFormation("OnMissionTick");
 
                 // Handle position fix for players who may have spawned in wrong location
@@ -349,6 +364,13 @@ namespace Enlisted.Features.Combat.Behaviors
                 }
                 else if (_lordAttachRetryAttempts >= MaxLordAttachRetryAttempts)
                 {
+                    if (_needsLordAttachRetry && !_loggedLordAttachFailure)
+                    {
+                        ModLogger.Warn("FORMATIONASSIGNMENT",
+                            $"Lord/allied formation attach failed after {MaxLordAttachRetryAttempts} attempts; keeping current player formation");
+                        _loggedLordAttachFailure = true;
+                    }
+
                     _needsLordAttachRetry = false;
                 }
 
@@ -372,12 +394,50 @@ namespace Enlisted.Features.Combat.Behaviors
             }
         }
 
+        private static bool IsInitialDeploymentUnsafeForFormationMutation(string caller)
+        {
+            if (caller == "OnDeploymentFinished")
+            {
+                return false;
+            }
+
+            var mode = Mission.Current?.Mode;
+            return mode == MissionMode.StartUp || mode == MissionMode.Deployment;
+        }
+
+        private void LogInitialDeploymentDeferral(string caller)
+        {
+            _deferredInitialFormationTicks++;
+
+            if (!_deferredInitialFormationLogged)
+            {
+                _deferredInitialFormationLogged = true;
+                ModLogger.Info("FORMATIONASSIGNMENT",
+                    $"[{caller}] Deferring formation assignment while native deployment is building spawn positions " +
+                    $"(mode={Mission.Current?.Mode}, agent={Agent.Main != null})");
+                return;
+            }
+
+            if (_deferredInitialFormationTicks == InitialDeploymentDeferLogTicks)
+            {
+                ModLogger.Info("FORMATIONASSIGNMENT",
+                    $"Formation assignment still deferred after {_deferredInitialFormationTicks} ticks " +
+                    $"(mode={Mission.Current?.Mode}, agent={Agent.Main != null})");
+            }
+        }
+
         /// <summary>
         ///     Attempts to assign the player to their designated formation.
         ///     Safe to call multiple times - will only assign once per agent instance.
         /// </summary>
         private void TryAssignPlayerToFormation(string caller, Agent specificAgent = null)
         {
+            if (IsInitialDeploymentUnsafeForFormationMutation(caller))
+            {
+                LogInitialDeploymentDeferral(caller);
+                return;
+            }
+
             // Get the player agent (either specific or Main)
             var playerAgent = specificAgent ?? Agent.Main;
 
@@ -642,6 +702,7 @@ namespace Enlisted.Features.Combat.Behaviors
                     }
 
                     _needsLordAttachRetry = false;
+                    _loggedLordAttachFailure = false;
                     return true;
                 }
 
@@ -672,19 +733,21 @@ namespace Enlisted.Features.Combat.Behaviors
                     }
 
                     _needsLordAttachRetry = false;
+                    _loggedLordAttachFailure = false;
                     return true;
                 }
 
                 var missionTeamCount = missionTeams?.Count() ?? 0;
                 if (!_loggedSoloAttachMissing)
                 {
-                    ModLogger.Warn("FORMATIONASSIGNMENT",
+                    ModLogger.Info("FORMATIONASSIGNMENT",
                         $"[{caller}] Solo formation; no allied/lord formation yet (teams={missionTeamCount}). Will retry briefly.");
                     _loggedSoloAttachMissing = true;
                 }
 
                 // Schedule retry on tick (lord may not be spawned yet)
                 _needsLordAttachRetry = true;
+                _loggedLordAttachFailure = false;
                 _lordAttachRetryAttempts = 0;
                 return false;
             }

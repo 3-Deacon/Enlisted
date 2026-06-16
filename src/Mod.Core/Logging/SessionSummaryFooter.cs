@@ -129,20 +129,23 @@ namespace Enlisted.Mod.Core.Logging
 
             try
             {
-                lock (Sync)
+                lock (ModLogger.FileWriteLock)
                 {
-                    var block = BuildFooterBlock();
-                    var all = File.ReadAllText(path);
-                    var idx = all.LastIndexOf(SentinelStart, StringComparison.Ordinal);
-                    if (idx >= 0)
+                    lock (Sync)
                     {
-                        all = all.Substring(0, idx).TrimEnd() + Environment.NewLine;
+                        var block = BuildFooterBlock();
+                        var all = File.ReadAllText(path);
+                        var idx = all.LastIndexOf(SentinelStart, StringComparison.Ordinal);
+                        if (idx >= 0)
+                        {
+                            all = all.Substring(0, idx).TrimEnd() + Environment.NewLine;
+                        }
+                        else if (!all.EndsWith(Environment.NewLine, StringComparison.Ordinal))
+                        {
+                            all += Environment.NewLine;
+                        }
+                        File.WriteAllText(path, all + block);
                     }
-                    else if (!all.EndsWith(Environment.NewLine, StringComparison.Ordinal))
-                    {
-                        all += Environment.NewLine;
-                    }
-                    File.WriteAllText(path, all + block);
                 }
             }
             catch { _footerDisabled = true; }

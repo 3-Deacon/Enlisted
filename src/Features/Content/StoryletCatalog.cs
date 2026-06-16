@@ -77,6 +77,8 @@ namespace Enlisted.Features.Content
 
         public static IEnumerable<Storylet> All => _byId.Values;
 
+        public static int Count => _byId.Count;
+
         public static IEnumerable<string> AllIds => _byId.Keys;
 
         private static Storylet Parse(JObject obj)

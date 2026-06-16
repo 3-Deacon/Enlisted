@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Activities.Orders;
+using Enlisted.Features.Escalation;
+using Enlisted.Features.Enlistment.Behaviors;
 using Enlisted.Features.Flags;
 using Enlisted.Features.Qualities;
 using Enlisted.Mod.Core.Logging;
@@ -259,7 +261,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // SetTraitLevel is the public API (SetTraitLevelInternal does not exist in v1.3.13).
+            // SetTraitLevel is the public API (SetTraitLevelInternal is not part of the supported public API).
             // Step by Math.Sign so a single effect nudges the trait by at most one level.
             var current = Hero.MainHero.GetTraitLevel(traitObj);
             Hero.MainHero.SetTraitLevel(traitObj, current + Math.Sign(amount));
@@ -274,9 +276,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            // Skills.All from TaleWorlds.CampaignSystem.Extensions provides the live registry.
-            var skillObj = Skills.All.FirstOrDefault(
-                s => string.Equals(s.StringId, skill, StringComparison.OrdinalIgnoreCase));
+            var skillObj = ResolveSkillObject(skill);
             if (skillObj == null)
             {
                 ModLogger.Expected("EFFECT", "unknown_skill_" + skill, "Unknown skill id: " + skill);
@@ -284,6 +284,30 @@ namespace Enlisted.Features.Content
             }
 
             Hero.MainHero?.AddSkillXp(skillObj, amount);
+        }
+
+        private static SkillObject ResolveSkillObject(string skill)
+        {
+            if (string.IsNullOrWhiteSpace(skill))
+            {
+                return null;
+            }
+
+            // Bannerlord 1.4.x exposes the smithing skill internally as Crafting.
+            // Content uses the player-facing name Smithing, so keep that alias here
+            // instead of forcing every storylet to leak engine naming.
+            if (string.Equals(skill, "Smithing", StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultSkills.Crafting;
+            }
+
+            if (string.Equals(skill, "Crafting", StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultSkills.Crafting;
+            }
+
+            return Skills.All.FirstOrDefault(
+                s => string.Equals(s.StringId, skill, StringComparison.OrdinalIgnoreCase));
         }
 
         private static void DoGiveGold(EffectDecl eff)
@@ -333,7 +357,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            var skill = ResolveSkillObject(skillId) ?? MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
                 ModLogger.Expected("EFFECT", "grant_skill_level_skill_not_found", $"grant_skill_level: skill='{skillId}' not in catalog");
@@ -359,7 +383,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            var skill = MBObjectManager.Instance.GetObject<SkillObject>(skillId);
+            var skill = ResolveSkillObject(skillId) ?? MBObjectManager.Instance.GetObject<SkillObject>(skillId);
             if (skill == null)
             {
                 ModLogger.Expected("EFFECT", "grant_focus_point_skill_not_found", $"grant_focus_point: skill='{skillId}' not in catalog");
@@ -502,7 +526,7 @@ namespace Enlisted.Features.Content
                 return;
             }
 
-            if (ctx == null || ctx.ResolvedSlots == null || !ctx.ResolvedSlots.TryGetValue(slotName, out var hero) || hero == null)
+            if (!TryResolveRelationTarget(slotName, ctx, out var hero) || hero == null)
             {
                 ModLogger.Expected("EFFECT", "relation_target_unresolved", $"relation_change: slot='{slotName}' not resolved on storylet");
                 return;
@@ -510,12 +534,42 @@ namespace Enlisted.Features.Content
 
             try
             {
-                ChangeRelationAction.ApplyPlayerRelation(hero, delta);
+                var enlistmentLord = EnlistmentBehavior.Instance?.EnlistedLord;
+                if (enlistmentLord != null && hero == enlistmentLord)
+                {
+                    EscalationManager.Instance?.ModifyLordReputation(delta, "relation_change:" + slotName);
+                    return;
+                }
+
+                var oldValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, hero);
+                ChangeRelationAction.ApplyPlayerRelation(hero, delta, affectRelatives: false, showQuickNotification: false);
+                var newValue = CharacterRelationManager.GetHeroRelation(Hero.MainHero, hero);
+                ModLogger.Info("EFFECT", $"RelationChange[{slotName}]: {oldValue} -> {newValue} (delta {delta:+#;-#;0})");
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("EFFECT", "relation_change threw", ex);
             }
+        }
+
+        private static bool TryResolveRelationTarget(string slotName, StoryletContext ctx, out Hero hero)
+        {
+            hero = null;
+
+            if (ctx?.ResolvedSlots != null && ctx.ResolvedSlots.TryGetValue(slotName, out hero) && hero != null)
+            {
+                return true;
+            }
+
+            if (string.Equals(slotName, "lord", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(slotName, "enlisted_lord", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(slotName, "commander", StringComparison.OrdinalIgnoreCase))
+            {
+                hero = EnlistmentBehavior.Instance?.EnlistedLord;
+                return hero != null;
+            }
+
+            return false;
         }
 
         private static void DoGrantItem(EffectDecl eff)

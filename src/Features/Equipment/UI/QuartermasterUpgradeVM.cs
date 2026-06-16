@@ -116,6 +116,11 @@ namespace Enlisted.Features.Equipment.UI
                     }
 
                     var item = element.Item;
+                    if (QuartermasterManager.IsConsumableItem(item))
+                    {
+                        continue;
+                    }
+
                     var modGroup = item.ItemComponent?.ItemModifierGroup;
 
                     // Skip items without modifier groups (cannot be upgraded)
@@ -143,8 +148,8 @@ namespace Enlisted.Features.Equipment.UI
                         }
                     }
 
-                    // If there's a next quality available, create a card for it
-                    if (nextQuality.HasValue)
+                    // If there's a next quality available and a positive upgrade cost, create a card for it
+                    if (nextQuality.HasValue && (QuartermasterManager.Instance?.CalculateUpgradeCost(element, nextQuality.Value) ?? 0) > 0)
                     {
                         var card = new QuartermasterUpgradeCardVm(
                             slot, item, element.ItemModifier, currentQuality, nextQuality.Value, this);

@@ -3,7 +3,7 @@
 **Summary:** Quick reference for building, modifying, and extending the Enlisted mod. Covers setup, structure, common tasks, and integration patterns.
 
 **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — new folders under `src/Features/`: Qualities, Flags, Activities. Content authoring now routes through storylets per AGENTS.md Critical Rule #11.)  
-**Target Game:** Bannerlord v1.3.13  
+**Target Game:** Bannerlord v1.4.6  
 **Related Docs:** [BLUEPRINT.md](BLUEPRINT.md), [Reference/native-apis.md](Reference/native-apis.md)
 
 ---
@@ -229,7 +229,7 @@ Each crash creates a timestamped folder (e.g., `2025-12-08_03.41.58\`) containin
 When working with Bannerlord APIs, verify usage against:
 
 - **The local native decompile** (authoritative) - `C:\Dev\Enlisted\Decompile\`
-- The official API docs for v1.3.13 when needed for quick lookups
+- The local decompile for v1.4.6 when needed for quick lookups
 
 ### Native Decompile Location
 

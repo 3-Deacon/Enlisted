@@ -19,6 +19,24 @@ namespace Enlisted.Mod.GameAdapters.Patches
     [HarmonyPatch(typeof(EncounterManager), "StartPartyEncounter")]
     public class EncounterSuppressionPatch
     {
+        private const int EncounterGuardLogCooldownSeconds = 30;
+        private static string _lastEncounterGuardLogKey;
+        private static DateTime _lastEncounterGuardLogAtUtc = DateTime.MinValue;
+
+        private static void LogEncounterGuardState(string key, string message, bool important = false)
+        {
+            var now = DateTime.UtcNow;
+            var stateChanged = !string.Equals(_lastEncounterGuardLogKey, key, StringComparison.Ordinal);
+            var elapsed = now - _lastEncounterGuardLogAtUtc;
+
+            if (important || stateChanged || elapsed.TotalSeconds >= EncounterGuardLogCooldownSeconds)
+            {
+                _lastEncounterGuardLogKey = key;
+                _lastEncounterGuardLogAtUtc = now;
+                ModLogger.Info("EncounterGuard", message);
+            }
+        }
+
         /// <summary>
         /// Prefix method that runs before EncounterManager.StartPartyEncounter.
         /// Checks if the encounter involves the enlisted player and whether it's a legitimate battle.
@@ -33,14 +51,20 @@ namespace Enlisted.Mod.GameAdapters.Patches
         {
             try
             {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.TryRecoverBadSaveGraceState("encounter_guard") == true)
+                {
+                    ModLogger.Info("EncounterGuard", "Bad-save grace recovery ran before native encounter decision");
+                }
+
                 if (!EnlistedActivation.EnsureActive())
                 {
                     return true;
                 }
 
                 // Check if player is enlisted or just ended enlistment (grace period)
-                var enlistment = EnlistmentBehavior.Instance;
                 var isEnlisted = enlistment?.IsEnlisted == true;
+                var isInGracePeriod = enlistment?.IsInDesertionGracePeriod == true;
                 var hasGraceProtection = enlistment?.HasActiveGraceProtection == true;
 
                 // Check if player just ended enlistment and is still in a MapEvent/Encounter
@@ -110,7 +134,31 @@ namespace Enlisted.Mod.GameAdapters.Patches
 
                 if (hasGraceProtection)
                 {
-                    ModLogger.Info("EncounterGuard", $"BLOCKED: Grace protection active (Attacker={attackerName})");
+                    if (attackerParty == mainParty)
+                    {
+                        LogEncounterGuardState("grace_protection_player_initiated|" + defenderName,
+                            $"ALLOWED: Player-initiated encounter during grace protection (Defender={defenderName})",
+                            true);
+                        return true;
+                    }
+
+                    LogEncounterGuardState("grace_protection|" + attackerName,
+                        $"BLOCKED: Grace protection active (Attacker={attackerName})");
+                    return false;
+                }
+
+                if (isInGracePeriod)
+                {
+                    if (attackerParty == mainParty)
+                    {
+                        LogEncounterGuardState("grace_period_player_initiated|" + defenderName,
+                            $"ALLOWED: Player-initiated encounter during desertion grace period (Defender={defenderName})",
+                            true);
+                        return true;
+                    }
+
+                    LogEncounterGuardState("grace_period|" + attackerName,
+                        $"BLOCKED: Desertion grace period active (Attacker={attackerName})");
                     return false;
                 }
 

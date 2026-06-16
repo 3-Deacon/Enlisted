@@ -289,8 +289,8 @@ Start-Process powershell.exe -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypas
 | AppID | 261550 |
 | Workshop ID | 3621116083 |
 | Mod Name | Enlisted |
-| Current Version | v0.9.1.4 |
-| Target Game | Bannerlord v1.3.13 |
+| Current Version | v0.9.1.6 |
+| Target Game | Bannerlord v1.4.6 |
 | Visibility | 0 (Public) |
 | Upload Script | `.\Tools\Steam\upload.ps1` |
 

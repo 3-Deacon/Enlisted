@@ -1,12 +1,15 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Activities.Orders;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Equipment.UI;
 using Enlisted.Mod.Core.Logging;
 using Enlisted.Mod.Core.Util;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Encounters;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
@@ -30,11 +33,17 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
         private int _lastHeartbeatHourTick = int.MinValue / 2;
         private int _lastDailyCountReportHourTick = int.MinValue / 2;
 
+        private static CampaignTime _lastServiceCadenceRejectLogAt = CampaignTime.Zero;
+        private static int _suppressedServiceCadenceRejectLogs;
+
         private readonly Dictionary<string, int> _sessionEmissionsByProfile = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
         private const int HEARTBEAT_INTERVAL_HOURS = 12;
         private const int DAILY_COUNT_REPORT_INTERVAL_HOURS = 24;
         private const int DEFAULT_COOLDOWN_HOURS = 36;
+        private const int NAMED_ORDER_COMPLETION_COOLDOWN_HOURS = 8;
+        private const int NAMED_ORDER_GLOBAL_CADENCE_HOURS = 168;
+        private const int SERVICE_CADENCE_REJECT_LOG_INTERVAL_HOURS = 24;
         private const int RECENT_HISTORY_SIZE = 3;
         private const float RECENT_PENALTY_PER_HIT = 0.7f;
 
@@ -90,20 +99,42 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
-                var candidates = EnlistedDutyOpportunityBuilder.Build(snapshot, activity.CurrentDutyProfile);
+                var emissionProfile = ResolveEmissionProfile(activity);
+                var candidates = EnlistedDutyOpportunityBuilder.Build(snapshot, emissionProfile);
                 if (candidates == null || candidates.Count == 0)
                 {
                     return;
                 }
 
-                // Cannot propose a new arc while one is active. Filter to Episodic-only.
-                if (activity.ActiveNamedOrder != null)
+                var namedOrderCandidates = candidates
+                    .Where(c => c.Shape == DutyOpportunityShape.ArcScale)
+                    .ToList();
+                var episodicCandidates = candidates
+                    .Where(c => c.Shape != DutyOpportunityShape.ArcScale)
+                    .ToList();
+
+                if (activity.ActiveNamedOrder == null)
                 {
-                    candidates.RemoveAll(c => c.Shape == DutyOpportunityShape.ArcScale);
-                    if (candidates.Count == 0)
+                    if (TryGetNamedOrderEmissionBlockReason(activity, out var blockReason))
+                    {
+                        LogNamedOrderRejected(namedOrderCandidates, blockReason, activity, emissionProfile);
+                    }
+                    else if (TryEmitNamedOrder(activity, namedOrderCandidates, emissionProfile))
                     {
                         return;
                     }
+                }
+
+                if (activity.ActiveNamedOrder != null)
+                {
+                    ModLogger.Debug("DUTY",
+                        $"routine duty emission suppressed while named order is active: {activity.ActiveNamedOrder.OrderStoryletId}/{activity.ActiveNamedOrder.Intent}");
+                    return;
+                }
+
+                if (episodicCandidates.Count == 0)
+                {
+                    return;
                 }
 
                 if (!OrdersNewsFeedThrottle.TryClaim())
@@ -111,7 +142,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     return;
                 }
 
-                foreach (var opp in candidates)
+                foreach (var opp in episodicCandidates)
                 {
                     var storylet = ResolveStoryletForOpportunity(opp);
                     if (storylet == null)
@@ -124,17 +155,413 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 }
 
                 ModLogger.Expected("DUTY", "no_opportunity_storylet",
-                    "no eligible storylet found for any candidate",
+                    "no eligible storylet found for any episodic candidate",
                     new Dictionary<string, object>
                     {
-                        { "candidate_count", candidates.Count },
-                        { "profile", activity.CurrentDutyProfile }
+                        { "candidate_count", episodicCandidates.Count },
+                        { "named_order_candidate_count", namedOrderCandidates.Count },
+                        { "profile", emissionProfile ?? activity.CurrentDutyProfile },
+                        { "active_named_order", activity.ActiveNamedOrder?.OrderStoryletId ?? "none" }
                     });
             }
             catch (Exception ex)
             {
                 ModLogger.Caught("DUTY", "OnHourlyTick threw", ex);
             }
+        }
+
+        public static void RecordNamedOrderCompletion(string orderId, string intent)
+        {
+            try
+            {
+                var completedAt = CampaignTime.Now;
+                var activity = OrderActivity.Instance;
+                if (activity != null)
+                {
+                    activity.LastNamedOrderCompletedAt = completedAt;
+                    activity.LastNamedOrderCompletedId = orderId ?? string.Empty;
+                    activity.LastNamedOrderCompletedIntent = intent ?? string.Empty;
+                }
+
+                var instance = Instance;
+                if (instance != null)
+                {
+                    instance._cooldowns = instance._cooldowns ?? new DutyCooldownStore();
+                    instance._cooldowns.EnsureInitialized();
+                    instance._cooldowns.RecordNamedOrderCompletion(orderId, intent, completedAt);
+                }
+
+                ModLogger.Info("DUTY",
+                    $"named-order completion recorded id={orderId ?? "unknown"} intent={intent ?? "unknown"}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "RecordNamedOrderCompletion threw", ex);
+            }
+        }
+
+        private bool TryGetNamedOrderEmissionBlockReason(OrderActivity activity, out string reason)
+        {
+            reason = string.Empty;
+
+            if (activity?.ActiveNamedOrder != null)
+            {
+                reason = $"active_named_order id={activity.ActiveNamedOrder.OrderStoryletId} intent={activity.ActiveNamedOrder.Intent}";
+                return true;
+            }
+
+            if (ShouldSuppressNamedOrderEmission(out reason))
+            {
+                return true;
+            }
+
+            if (IsNamedOrderCompletionCooldownActive(activity, out reason))
+            {
+                return true;
+            }
+
+            if (IsNamedOrderGlobalCadenceActive(out reason))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsNamedOrderGlobalCadenceActive(out string reason)
+        {
+            reason = string.Empty;
+
+            var emittedAt = _cooldowns?.LastNamedOrderEmittedAt ?? CampaignTime.Zero;
+            if (emittedAt == CampaignTime.Zero)
+            {
+                return false;
+            }
+
+            var elapsedHours = (CampaignTime.Now - emittedAt).ToHours;
+            if (elapsedHours >= NAMED_ORDER_GLOBAL_CADENCE_HOURS)
+            {
+                return false;
+            }
+
+            reason = $"named_order_service_cadence id={_cooldowns?.LastNamedOrderEmittedId ?? "unknown"} profile={_cooldowns?.LastNamedOrderEmittedProfile ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_GLOBAL_CADENCE_HOURS}h";
+            return true;
+        }
+
+        private bool IsNamedOrderCompletionCooldownActive(OrderActivity activity, out string reason)
+        {
+            reason = string.Empty;
+
+            var completedAt = CampaignTime.Zero;
+            var completedId = string.Empty;
+            var completedIntent = string.Empty;
+
+            PickLatestCompletion(activity?.LastNamedOrderCompletedAt ?? CampaignTime.Zero,
+                activity?.LastNamedOrderCompletedId,
+                activity?.LastNamedOrderCompletedIntent,
+                ref completedAt,
+                ref completedId,
+                ref completedIntent);
+
+            PickLatestCompletion(_cooldowns?.LastNamedOrderCompletedAt ?? CampaignTime.Zero,
+                _cooldowns?.LastNamedOrderCompletedId,
+                _cooldowns?.LastNamedOrderCompletedIntent,
+                ref completedAt,
+                ref completedId,
+                ref completedIntent);
+
+            if (completedAt == CampaignTime.Zero)
+            {
+                return false;
+            }
+
+            var elapsedHours = (CampaignTime.Now - completedAt).ToHours;
+            if (elapsedHours >= NAMED_ORDER_COMPLETION_COOLDOWN_HOURS)
+            {
+                return false;
+            }
+
+            reason = $"arc_completion_cooldown id={completedId ?? "unknown"} intent={completedIntent ?? "unknown"} cooldown={elapsedHours:0.0}/{NAMED_ORDER_COMPLETION_COOLDOWN_HOURS}h";
+            return true;
+        }
+
+        private static void PickLatestCompletion(
+            CampaignTime candidateAt,
+            string candidateId,
+            string candidateIntent,
+            ref CampaignTime completedAt,
+            ref string completedId,
+            ref string completedIntent)
+        {
+            if (candidateAt == CampaignTime.Zero)
+            {
+                return;
+            }
+
+            if (completedAt != CampaignTime.Zero && candidateAt.ToHours <= completedAt.ToHours)
+            {
+                return;
+            }
+
+            completedAt = candidateAt;
+            completedId = candidateId ?? string.Empty;
+            completedIntent = candidateIntent ?? string.Empty;
+        }
+
+        private static void LogNamedOrderRejected(List<DutyOpportunity> namedOrderCandidates, string reason, OrderActivity activity, string emissionProfile)
+        {
+            if (ShouldSuppressServiceCadenceRejectLog(reason, out var suppressedSummary))
+            {
+                return;
+            }
+
+            var candidateId = namedOrderCandidates?.FirstOrDefault()?.ArchetypeStoryletId ?? "none";
+            var count = namedOrderCandidates?.Count ?? 0;
+            var suffix = string.IsNullOrEmpty(suppressedSummary) ? string.Empty : $" {suppressedSummary}";
+            ModLogger.Info("DUTY",
+                $"named-order rejected: reason={reason} candidate={candidateId} candidates={count} profile={emissionProfile ?? activity?.CurrentDutyProfile ?? "unknown"} active={activity?.ActiveNamedOrder?.OrderStoryletId ?? "none"}{suffix}");
+        }
+
+        private static bool ShouldSuppressServiceCadenceRejectLog(string reason, out string suppressedSummary)
+        {
+            suppressedSummary = string.Empty;
+
+            if (string.IsNullOrEmpty(reason) ||
+                !reason.StartsWith("named_order_service_cadence", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var now = CampaignTime.Now;
+            if (_lastServiceCadenceRejectLogAt != CampaignTime.Zero)
+            {
+                var elapsedHours = (now - _lastServiceCadenceRejectLogAt).ToHours;
+                if (elapsedHours < SERVICE_CADENCE_REJECT_LOG_INTERVAL_HOURS)
+                {
+                    _suppressedServiceCadenceRejectLogs++;
+                    return true;
+                }
+            }
+
+            if (_suppressedServiceCadenceRejectLogs > 0)
+            {
+                suppressedSummary = $"(suppressed_service_cadence_rejects={_suppressedServiceCadenceRejectLogs})";
+                _suppressedServiceCadenceRejectLogs = 0;
+            }
+
+            _lastServiceCadenceRejectLogAt = now;
+            return false;
+        }
+
+        private static bool ShouldSuppressNamedOrderEmission(out string reason)
+        {
+            reason = string.Empty;
+
+            try
+            {
+                if (MusterMenuHandler.Instance?.IsMusterSequenceActive == true)
+                {
+                    reason = "muster_active";
+                    return true;
+                }
+
+                if (MusterMenuHandler.Instance?.IsQuartermasterConversationFromMusterActive == true)
+                {
+                    reason = "muster_quartermaster_conversation_active";
+                    return true;
+                }
+
+                if (QuartermasterEquipmentSelectorBehavior.IsOpen)
+                {
+                    reason = "quartermaster_grid_ui_active";
+                    return true;
+                }
+
+                if (QuartermasterEquipmentSelectorBehavior.IsUpgradeScreenOpen)
+                {
+                    reason = "quartermaster_upgrade_ui_active";
+                    return true;
+                }
+
+                if (QuartermasterProvisionsBehavior.IsOpen)
+                {
+                    reason = "quartermaster_provisions_ui_active";
+                    return true;
+                }
+
+                var delivery = EventDeliveryManager.Instance;
+                if (delivery?.HasActiveOrPendingNamedOrderResolveEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingNamedOrderResolveEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "named_order_resolve_choice_active"
+                        : "named_order_resolve_choice_active:" + eventId;
+                    return true;
+                }
+
+                if (delivery?.HasActiveOrPendingPromotionEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingPromotionEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "promotion_event_active"
+                        : "promotion_event_active:" + eventId;
+                    return true;
+                }
+
+                if (delivery?.HasActiveOrPendingModalEvent == true)
+                {
+                    var eventId = delivery.ActiveOrPendingModalEventId;
+                    reason = string.IsNullOrEmpty(eventId)
+                        ? "modal_event_active"
+                        : "modal_event_active:" + eventId;
+                    return true;
+                }
+
+                var menuId = Campaign.Current?.CurrentMenuContext?.GameMenu?.StringId;
+                if (!string.IsNullOrEmpty(menuId)
+                    && (menuId.StartsWith("enlisted_muster", StringComparison.OrdinalIgnoreCase)
+                        || menuId.StartsWith("enlisted_qm", StringComparison.OrdinalIgnoreCase)))
+                {
+                    reason = "blocking_menu_active:" + menuId;
+                    return true;
+                }
+
+                var mainParty = MobileParty.MainParty;
+                if (mainParty?.Party?.MapEvent != null || mainParty?.MapEvent != null)
+                {
+                    reason = "player_party_in_map_event";
+                    return true;
+                }
+
+                var lordParty = EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo;
+                if (lordParty?.Party?.MapEvent != null || lordParty?.MapEvent != null)
+                {
+                    reason = "lord_party_in_map_event";
+                    return true;
+                }
+
+                if (PlayerEncounter.Current != null && !PlayerEncounter.InsideSettlement)
+                {
+                    reason = "active_player_encounter";
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                reason = "suppression_check_exception";
+                ModLogger.Caught("DUTY", "ShouldSuppressNamedOrderEmission threw; failing closed", ex);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryEmitNamedOrder(OrderActivity activity, List<DutyOpportunity> namedOrderCandidates, string emissionProfile)
+        {
+            if (activity == null || activity.ActiveNamedOrder != null)
+            {
+                return false;
+            }
+
+            if (namedOrderCandidates == null || namedOrderCandidates.Count == 0)
+            {
+                ModLogger.Expected("DUTY", "no_named_order_candidates",
+                    "no named-order candidates produced for current duty profile",
+                    new Dictionary<string, object>
+                    {
+                        { "profile", emissionProfile ?? activity.CurrentDutyProfile ?? "unknown" },
+                        { "order_activity_active", true },
+                        { "active_named_order", "none" }
+                    });
+                return false;
+            }
+
+            var rejected = new List<string>();
+            foreach (var opp in namedOrderCandidates)
+            {
+                if (!TryResolveNamedOrderStorylet(opp, out var storylet, out var rejectionReason))
+                {
+                    rejected.Add($"{opp?.ArchetypeStoryletId ?? "unknown"}:{rejectionReason}");
+                    continue;
+                }
+
+                ModLogger.Info("DUTY",
+                    $"selected named-order storylet={storylet.Id} profile={emissionProfile ?? activity.CurrentDutyProfile} reason={opp.TriggerReason} candidates={namedOrderCandidates.Count}");
+                EmitOpportunity(opp, storylet);
+                return true;
+            }
+
+            ModLogger.Expected("DUTY", "no_named_order_storylet",
+                "no eligible storylet found for any named-order candidate",
+                new Dictionary<string, object>
+                {
+                    { "profile", emissionProfile ?? activity.CurrentDutyProfile ?? "unknown" },
+                    { "named_order_candidate_count", namedOrderCandidates.Count },
+                    { "active_named_order", "none" },
+                    { "rejected_named_orders", string.Join(",", rejected.Take(8)) }
+                });
+            return false;
+        }
+
+        private static string ResolveEmissionProfile(OrderActivity activity)
+        {
+            var committed = activity?.CurrentDutyProfile ?? DutyProfileIds.Wandering;
+            try
+            {
+                var lordParty = EnlistmentBehavior.Instance?.EnlistedLord?.PartyBelongedTo;
+                var observed = DutyProfileSelector.Resolve(lordParty);
+                if (!string.Equals(observed, committed, StringComparison.OrdinalIgnoreCase))
+                {
+                    ModLogger.Expected("DUTY", "profile_emission_observed_override",
+                        $"named-order emission using observed profile {observed} over committed {committed}");
+                }
+                return observed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("DUTY", "ResolveEmissionProfile threw", ex);
+                return committed;
+            }
+        }
+
+        private bool TryResolveNamedOrderStorylet(DutyOpportunity opp, out Storylet storylet, out string rejectionReason)
+        {
+            storylet = null;
+            rejectionReason = "unknown";
+
+            if (opp == null)
+            {
+                rejectionReason = "candidate_null";
+                return false;
+            }
+
+            if (opp.Shape != DutyOpportunityShape.ArcScale)
+            {
+                rejectionReason = "not_named_order";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(opp.ArchetypeStoryletId))
+            {
+                rejectionReason = "missing_storylet_id";
+                return false;
+            }
+
+            var direct = StoryletCatalog.GetById(opp.ArchetypeStoryletId);
+            if (direct == null)
+            {
+                rejectionReason = "storylet_missing";
+                return false;
+            }
+
+            if (!TryIsEligibleForEmit(direct, out rejectionReason))
+            {
+                return false;
+            }
+
+            storylet = direct;
+            rejectionReason = string.Empty;
+            return true;
         }
 
         private Storylet ResolveStoryletForOpportunity(DutyOpportunity opp)
@@ -246,8 +673,15 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
 
         private bool IsEligibleForEmit(Storylet storylet)
         {
+            return TryIsEligibleForEmit(storylet, out _);
+        }
+
+        private bool TryIsEligibleForEmit(Storylet storylet, out string rejectionReason)
+        {
+            rejectionReason = string.Empty;
             if (storylet == null || string.IsNullOrEmpty(storylet.Id))
             {
+                rejectionReason = "storylet_null_or_missing_id";
                 return false;
             }
 
@@ -259,12 +693,14 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                     : DEFAULT_COOLDOWN_HOURS;
                 if (nowHours - (int)last.ToHours < cooldownHours)
                 {
+                    rejectionReason = $"cooldown:{nowHours - (int)last.ToHours}/{cooldownHours}";
                     return false;
                 }
             }
 
             if (!TriggerRegistry.Evaluate(storylet.Trigger, null))
             {
+                rejectionReason = "trigger_failed";
                 return false;
             }
 
@@ -279,6 +715,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 {
                     if (storylet.RequiresCulture.Count > 0)
                     {
+                        rejectionReason = "required_culture_missing_lord_culture";
                         return false;
                     }
                 }
@@ -288,11 +725,13 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         && !storylet.RequiresCulture.Any(c =>
                             string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
                     {
+                        rejectionReason = $"required_culture_mismatch:{lordCulture}";
                         return false;
                     }
                     if (storylet.ExcludesCulture.Any(c =>
                         string.Equals(c, lordCulture, StringComparison.OrdinalIgnoreCase)))
                     {
+                        rejectionReason = $"excluded_culture:{lordCulture}";
                         return false;
                     }
                 }
@@ -311,6 +750,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 {
                     if (storylet.RequiresLordTrait.Count > 0)
                     {
+                        rejectionReason = "required_trait_missing_lord";
                         return false;
                     }
                 }
@@ -325,6 +765,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
                         if (trait == null || lord.GetTraitLevel(trait) <= 0)
                         {
+                            rejectionReason = $"required_trait_missing:{traitId}";
                             return false;
                         }
                     }
@@ -337,6 +778,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                         var trait = MBObjectManager.Instance.GetObject<TraitObject>(traitId);
                         if (trait != null && lord.GetTraitLevel(trait) > 0)
                         {
+                            rejectionReason = $"excluded_trait:{traitId}";
                             return false;
                         }
                     }
@@ -392,6 +834,9 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 SourceId = "duty.arcscale",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
                 ProposedTier = StoryTier.Modal,
+                SeverityHint = 0.50f,
+                Beats = { StoryBeat.OrderPhaseTransition },
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 ChainContinuation = true,
                 EmittedAt = CampaignTime.Now,
                 InteractiveEvent = evt,
@@ -400,7 +845,10 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 StoryKey = storylet.Id
             });
 
-            _cooldowns.LastFiredAt[storylet.Id] = CampaignTime.Now;
+            var emittedAt = CampaignTime.Now;
+            _cooldowns.LastFiredAt[storylet.Id] = emittedAt;
+            var profile = OrderActivity.Instance?.CurrentDutyProfile ?? "unknown";
+            _cooldowns.RecordNamedOrderEmission(storylet.Id, profile, emittedAt);
             IncrementProfileCount("arcscale");
 
             ModLogger.Info("DUTY",
@@ -414,6 +862,7 @@ namespace Enlisted.Features.CampaignIntelligence.Duty
                 SourceId = "duty.episodic",
                 CategoryId = string.IsNullOrEmpty(storylet.Category) ? "duty" : storylet.Category,
                 ProposedTier = StoryTier.Log,
+                Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                 EmittedAt = CampaignTime.Now,
                 RenderedTitle = storylet.Title,
                 RenderedBody = storylet.Setup,

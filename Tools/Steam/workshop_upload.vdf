@@ -57,7 +57,7 @@ Transform Bannerlord from a conquest simulator into a deep soldier career experi
 
 [h2]Requirements[/h2]
 [list]
-[*][b]Bannerlord v1.3.13[/b] (this specific version)
+[*][b]Bannerlord v1.4.6[/b]
 [*][b][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2859232415]Bannerlord.Harmony v2.4.2+[/url][/b] (required dependency)
 [/list]
 
@@ -102,7 +102,7 @@ Built-in diagnostics run on startup and log to the Debugging folder inside your 
 [h2]Links[/h2]
 [b]GitHub:[/b] [url=https://github.com/Arkpointt/Enlisted]Open Source - Contributions Welcome[/url]
 [b]Documentation:[/b] Full docs included in mod folder
-[b]Version:[/b] v0.9.1.5"
+[b]Version:[/b] v0.9.1.6"
 	"visibility"		"0"
     "tags"
     {
@@ -110,18 +110,14 @@ Built-in diagnostics run on startup and log to the Debugging folder inside your 
 		"1"		"Singleplayer"
 		"2"		"Overhaul"
     }
-	"changenote"		"v0.9.1.5 - CRITICAL HOTFIX: Steam Workshop Path Resolution (2026-01-04)
+	"changenote"		"v0.9.1.6 - Bannerlord v1.4.6 compatibility (2026-06-13)
 
-CRITICAL BUG FIX:
-- Fixed Steam Workshop installs not loading orders, events, or decisions
-- Workshop users reported 'no orders' because mod was looking for content files in wrong location
-- Nexus/manual installs worked fine (this is why some users found that workaround)
-- Now uses correct Bannerlord API that works for both Workshop and manual installs
+COMPATIBILITY:
+- Updated required base-game module versions to Bannerlord v1.4.6
+- Updated supported-version metadata used by diagnostics and config
+- Refreshed Workshop metadata for the current live Bannerlord release
 
-TECHNICAL:
-- Added ModulePaths utility using ModuleHelper.GetModuleFullPath()
-- Updated 13 source files to use centralized path resolution
-- Added validator check to prevent this bug from happening again
-
-If you were affected: Simply update the mod via Steam and it will work!"
+NOTES:
+- Bannerlord.Harmony v2.4.2+ remains required
+- Clean install is recommended if updating from an older Workshop copy"
 }

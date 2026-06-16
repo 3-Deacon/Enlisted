@@ -44,6 +44,23 @@ namespace Enlisted.Features.Combat.Behaviors
             IsWaitingInReserve = false;
         }
 
+        private const int WaitReserveLogCooldownSeconds = 30;
+        private static string _lastWaitReserveLogKey;
+        private static DateTime _lastWaitReserveLogAtUtc = DateTime.MinValue;
+
+        private static void LogWaitReserveState(string key, string message, bool important = false)
+        {
+            var now = DateTime.UtcNow;
+            var stateChanged = !string.Equals(_lastWaitReserveLogKey, key, StringComparison.Ordinal);
+            var elapsed = now - _lastWaitReserveLogAtUtc;
+
+            if (important || stateChanged || elapsed.TotalSeconds >= WaitReserveLogCooldownSeconds)
+            {
+                _lastWaitReserveLogKey = key;
+                _lastWaitReserveLogAtUtc = now;
+                ModLogger.Info("ENCOUNTERGUARD", message);
+            }
+        }
 
         public override void RegisterEvents()
         {
@@ -72,6 +89,8 @@ namespace Enlisted.Features.Combat.Behaviors
                 IsWaitingInReserve = false;
                 _postBattleCleanupScheduled = false;
                 _lastCleanupScheduledTime = CampaignTime.Never;
+                _lastWaitReserveLogKey = null;
+                _lastWaitReserveLogAtUtc = DateTime.MinValue;
 
                 AddEnlistedEncounterOptions(campaignStarter);
                 ModLogger.LogOnce("encounter_behavior_init", "COMBAT",
@@ -185,7 +204,9 @@ namespace Enlisted.Features.Combat.Behaviors
             var hasMapEvent = mapEvent != null;
             var hasSiegeEvent = siegeEvent != null;
 
-            ModLogger.Info("ENCOUNTERGUARD",
+            var waitReserveContextKey =
+                $"check|{currentMenu}|map={hasMapEvent}|siege={hasSiegeEvent}|event={mapEvent?.EventType}|winner={mapEvent?.HasWinner}|final={mapEvent?.IsFinalized}";
+            LogWaitReserveState(waitReserveContextKey,
                 $"WAIT_IN_RESERVE CHECK: Menu={currentMenu}, Lord={lordName}, MapEvent={hasMapEvent}, SiegeEvent={hasSiegeEvent}");
 
             // Two valid contexts for "Wait in Reserve":
@@ -198,8 +219,9 @@ namespace Enlisted.Features.Combat.Behaviors
             if (mapEvent != null && (mapEvent.HasWinner || mapEvent.IsFinalized))
             {
                 var winnerSide = mapEvent.WinningSide;
-                ModLogger.Info("ENCOUNTERGUARD",
-                    $"WAIT_IN_RESERVE: Battle already ended (HasWinner={mapEvent.HasWinner}, IsFinalized={mapEvent.IsFinalized}, WinningSide={winnerSide}) - triggering auto-cleanup");
+                LogWaitReserveState($"ended|{currentMenu}|winner={winnerSide}",
+                    $"WAIT_IN_RESERVE: Battle already ended (HasWinner={mapEvent.HasWinner}, IsFinalized={mapEvent.IsFinalized}, WinningSide={winnerSide}) - triggering auto-cleanup",
+                    important: true);
 
                 // Trigger deferred cleanup of the stale encounter
                 TriggerPostBattleCleanup();
@@ -214,11 +236,11 @@ namespace Enlisted.Features.Combat.Behaviors
                     // Active siege assault - not allowed
                     args.IsEnabled = false;
                     args.Tooltip = new TextObject("{=combat_reserve_siege_disabled}Wait in reserve is not available during active siege assault battles");
-                    ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Disabled - active siege assault");
+                    LogWaitReserveState($"disabled_active_siege|{currentMenu}", "WAIT_IN_RESERVE: Disabled - active siege assault");
                 }
                 else
                 {
-                    ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Not available - no valid battle or siege context");
+                    LogWaitReserveState($"not_available|{currentMenu}|map={hasMapEvent}|siege={hasSiegeEvent}", "WAIT_IN_RESERVE: Not available - no valid battle or siege context");
                 }
                 return false;
             }
@@ -228,11 +250,11 @@ namespace Enlisted.Features.Combat.Behaviors
             {
                 args.optionLeaveType = GameMenuOption.LeaveType.Wait;
                 args.Tooltip = new TextObject("{=combat_too_demoralized}You are too demoralized to fight.");
-                ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Available (demoralized)");
+                LogWaitReserveState($"available_demoralized|{currentMenu}", "WAIT_IN_RESERVE: Available (demoralized)");
                 return true;
             }
 
-            ModLogger.Info("ENCOUNTERGUARD", "WAIT_IN_RESERVE: Available (standard)");
+            LogWaitReserveState($"available_standard|{currentMenu}|map={hasMapEvent}|siege={hasSiegeEvent}", "WAIT_IN_RESERVE: Available (standard)");
             args.optionLeaveType = GameMenuOption.LeaveType.Wait;
             return true;
         }
@@ -321,7 +343,8 @@ namespace Enlisted.Features.Combat.Behaviors
                 if (originalMapEventId != "none" && currentMapEventId != originalMapEventId)
                 {
                     ModLogger.Info("ENCOUNTERGUARD",
-                        $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - OnMapEventEnded likely already handled cleanup");
+                        $"AUTO-CLEANUP: MapEvent changed during defer (was={originalMapEventId}, now={currentMapEventId}) - canonical cleanup already owns this transition");
+                    return;
                 }
 
                 // Check if cleanup is still needed - OnMapEventEnded may have already handled it

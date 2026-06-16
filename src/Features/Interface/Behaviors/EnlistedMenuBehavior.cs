@@ -724,7 +724,10 @@ namespace Enlisted.Features.Interface.Behaviors
                             return;
                         }
 
-                        ModLogger.Warn("MENU", $"FALLBACK: Overriding {_currentMenuId} to enlisted menu (patch may have been bypassed)");
+                        ModLogger.LogOnce(
+                            $"MenuFallback_{_currentMenuId}_Day{(int)CampaignTime.Now.ToDays}",
+                            "MENU",
+                            $"FALLBACK: Overriding {_currentMenuId} to enlisted menu (patch may have been bypassed)");
                         // Defer the override to next frame to avoid conflicts with the native menu system
                         NextFrameDispatcher.RunNextFrame(() =>
                         {
@@ -2378,7 +2381,7 @@ namespace Enlisted.Features.Interface.Behaviors
 
                     // Supplies with logistics strain context
                     // Only show "stretched thin" if logistics is strained AND supplies are actually concerning
-                    var logisticsHigh = campLife?.LogisticsStrain > 60;
+                    var logisticsHigh = campLife?.LogisticsStrain > 75;
                     var suppliesLow = companyNeeds.Supplies < 50;
 
                     // Diagnostic: Log supply status computation for troubleshooting news vs QM discrepancies
@@ -2386,8 +2389,8 @@ namespace Enlisted.Features.Interface.Behaviors
                     ModLogger.LogOnce(
                         $"SupplyStatus_Day{(int)CampaignTime.Now.ToDays}",
                         "Supply",
-                        $"Company Reports: Supplies={companyNeeds.Supplies}%, Logistics={logisticsValue:F0}, " +
-                        $"ShowStretchedThin={logisticsHigh && suppliesLow} (requires both logistics>60 AND supplies<50)");
+                        $"Company Reports: Supplies={companyNeeds.Supplies}%, LogisticsStrain={logisticsValue:F0} (lower is better), " +
+                        $"ShowStretchedThin={logisticsHigh && suppliesLow} (requires both logisticsStrain>75 AND supplies<50)");
 
                     if (logisticsHigh && suppliesLow)
                     {
@@ -2401,6 +2404,11 @@ namespace Enlisted.Features.Interface.Behaviors
                         if (!string.IsNullOrEmpty(supplyPhrase))
                         {
                             statusParts.Add(supplyPhrase);
+                        }
+
+                        if (logisticsHigh)
+                        {
+                            statusParts.Add("supply train under strain");
                         }
                     }
 
@@ -3374,8 +3382,9 @@ namespace Enlisted.Features.Interface.Behaviors
                 var freshlyEnlisted = enlistment?.DaysServed < 1f;
                 if (companyNeeds != null)
                 {
-                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 70;
+                    var logisticsHigh = !freshlyEnlisted && campLife?.LogisticsStrain > 90;
                     var suppliesLow = companyNeeds.Supplies < 40;
+                    var suppliesConcerning = companyNeeds.Supplies < 85;
 
                     // Only show hunger warnings when supplies are actually concerning
                     if (companyNeeds.Supplies < 20)
@@ -3390,12 +3399,21 @@ namespace Enlisted.Features.Interface.Behaviors
                     else if (logisticsHigh && suppliesLow)
                     {
                         // Logistics strained AND supplies concerning - combined warning
-                        sentences.Add("<span style=\"Alert\">Logistics collapsing</span> — resupply needed urgently.");
+                        sentences.Add("<span style=\"Alert\">Supply lines are stretched thin.</span> Stores are low and the train is under strain.");
                         var logisticsValue = campLife?.LogisticsStrain ?? 0f;
                         ModLogger.LogOnce(
                             $"PlayerStatus_Logistics_Day{(int)CampaignTime.Now.ToDays}",
                             "Supply",
-                            $"Player Status: Logistics warning (supplies={companyNeeds.Supplies}%, logistics={logisticsValue:F0})");
+                            $"Player Status: Logistics warning (supplies={companyNeeds.Supplies}%, logisticsStrain={logisticsValue:F0})");
+                    }
+                    else if (logisticsHigh && suppliesConcerning)
+                    {
+                        var logisticsValue = campLife?.LogisticsStrain ?? 0f;
+                        sentences.Add("<span style=\"Warning\">The baggage train is overworked.</span> Stores remain usable, but hard marching and recent disruption are wearing down the company train.");
+                        ModLogger.LogOnce(
+                            $"PlayerStatus_LogisticsStrain_Day{(int)CampaignTime.Now.ToDays}",
+                            "Supply",
+                            $"Player Status: Logistics strain warning (supplies={companyNeeds.Supplies}%, logisticsStrain={logisticsValue:F0})");
                     }
                 }
 

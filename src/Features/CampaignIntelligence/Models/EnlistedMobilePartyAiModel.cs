@@ -3,6 +3,7 @@ using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 
 namespace Enlisted.Features.CampaignIntelligence.Models
@@ -40,6 +41,9 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float FortificationPatrolDistanceAsDays =>
             BaseModel?.FortificationPatrolDistanceAsDays ?? 0.3f;
 
+        public override float FortificationPortPatrolDistanceAsDays =>
+            BaseModel?.FortificationPortPatrolDistanceAsDays ?? 0.3f;
+
         public override float VillagePatrolDistanceAsDays =>
             BaseModel?.VillagePatrolDistanceAsDays ?? 0.25f;
 
@@ -54,6 +58,9 @@ namespace Enlisted.Features.CampaignIntelligence.Models
 
         public override float NeededFoodsInDaysThresholdForRaid =>
             BaseModel?.NeededFoodsInDaysThresholdForRaid ?? 8f;
+
+        public override float GetSettlementNearbyThreatAndAllyCheckRadius(Settlement settlement, bool isFromPort) =>
+            BaseModel?.GetSettlementNearbyThreatAndAllyCheckRadius(settlement, isFromPort) ?? 25f;
 
         public override bool ShouldConsiderAvoiding(
             MobileParty party, MobileParty targetParty)

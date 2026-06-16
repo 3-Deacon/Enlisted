@@ -30,7 +30,7 @@ namespace Enlisted.Mod.Core.Logging
             }
         }
 
-        public const string TargetGameVersion = "1.3.13";
+        public const string TargetGameVersion = "1.4.6";
         private static bool _hasLoggedStartup;
         private static bool _hasLoggedConfigValues;
 
@@ -282,6 +282,8 @@ namespace Enlisted.Mod.Core.Logging
         {
             _phase = phase;
         }
+
+        public string DiagnosticName => $"{nameof(SaveLoadDiagnosticsMarkerBehavior)}.{_phase}";
 
         public override void RegisterEvents()
         {

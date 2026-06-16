@@ -1,6 +1,6 @@
 # Enlisted - Project Blueprint
 
-**Bannerlord v1.3.13 soldier career mod** | **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities/Flags/Activities/Storylets runtime + seed catalogs + validate_content.py Phase 12.)
+**Bannerlord v1.4.6 soldier career mod** | **Last Updated:** 2026-04-19 (Storylet Backbone Spec 0 shipped — Qualities/Flags/Activities/Storylets runtime + seed catalogs + validate_content.py Phase 12.)
 
 ---
 
@@ -8,7 +8,7 @@
 
 **Before making ANY code changes, you MUST:**
 
-1. **Target Bannerlord v1.3.13** — Never assume APIs from later versions exist
+1. **Target Bannerlord v1.4.6** — Never assume APIs from other versions exist
 2. **Verify all APIs** against `Decompile/` in workspace root (NEVER use online docs)
 3. **Add new C# files** to `Enlisted.csproj` manually via `<Compile Include="..."/>` entries
 4. **Use ModLogger** for all logging — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the three-tier API (`Surfaced` / `Caught` / `Expected`). Error codes auto-generate into [docs/error-codes.md](error-codes.md); don't hand-edit.
@@ -28,7 +28,7 @@
 | **Understand a feature** | `docs/Features/Core/enlistment.md` or relevant feature doc | Check docs/INDEX.md for full catalog |
 | **Code quality issues** | `.editorconfig`, `ruff.toml`, `PSScriptAnalyzerSettings.psd1`, `Tools/Validation/lint_repo.ps1` | ReSharper settings in .sln.DotSettings |
 | **Validation errors** | `Tools/README.md` | Run `.\Tools\Validation\lint_repo.ps1` for full repo checks or `python Tools/Validation/validate_content.py` for content-only checks |
-| **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.3.13 specific, don't use online docs |
+| **API questions** | Local decompile at `C:\Dev\Enlisted\Decompile\` | v1.4.6 specific, don't use online docs |
 | **Opportunity/orchestration** | `docs/Features/Content/storylet-backbone.md` | Storylet runtime, activities, triggers, effects |
 
 ## ⚡ QUICK COMMANDS
@@ -43,7 +43,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 
 ## 🚨 CRITICAL RULES
 
-1. **Target Version:** Bannerlord v1.3.13 (not latest)
+1. **Target Version:** Bannerlord v1.4.6
 2. **API Verification:** Use `Decompile/` in workspace root (never online docs)
 3. **New C# Files:** Manually add to `Enlisted.csproj` → run validator
 4. **Logging:** Use `ModLogger` — see [Tools/TECHNICAL-REFERENCE.md](../Tools/TECHNICAL-REFERENCE.md) for the current API
@@ -64,7 +64,7 @@ python Tools/Validation/sync_event_strings.py         # Sync localization
 | `Tools/Validation/` | Content validators |
 | `Tools/Debugging/` | Validation reports and analysis scripts |
 | `docs/` | All documentation |
-| `C:\Dev\Enlisted\Decompile\` | Native API reference (v1.3.13) |
+| `C:\Dev\Enlisted\Decompile\` | Native API reference (v1.4.6) |
 
 ## 📚 DOCUMENTATION INDEX
 
@@ -115,7 +115,7 @@ Enlisted/
 │
 ├── GUI/                    Gauntlet UI prefabs
 │
-└── Decompile/              Bannerlord v1.3.13 decompiled source (API reference)
+└── Decompile/              Bannerlord v1.4.6 decompiled source (API reference)
 ```
 
 ### Feature Folders (src/Features/)

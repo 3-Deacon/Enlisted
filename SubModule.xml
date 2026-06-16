@@ -2,16 +2,18 @@
 <Module>
     <Name value="Enlisted"/>
     <Id value="Enlisted"/>
-  <Version value="v0.9.1.5"/>
+  <Version value="v0.9.1.6"/>
     <SingleplayerModule value="true"/>
     <Official value="false"/>
     <DependedModules>
         <!-- Base game modules -->
-        <DependedModule Id="Native" DependentVersion="v1.3.13"/>
-        <DependedModule Id="SandBoxCore" DependentVersion="v1.3.13"/>
-        <DependedModule Id="Sandbox" DependentVersion="v1.3.13"/>
-        <DependedModule Id="StoryMode" Optional="true" DependentVersion="v1.3.13"/>
-        <DependedModule Id="CustomBattle" Optional="true" DependentVersion="v1.3.13"/>
+        <DependedModule Id="Native" DependentVersion="v1.4.6"/>
+        <DependedModule Id="SandBoxCore" DependentVersion="v1.4.6"/>
+        <DependedModule Id="Sandbox" DependentVersion="v1.4.6"/>
+        <DependedModule Id="StoryMode" Optional="true" DependentVersion="v1.4.6"/>
+        <DependedModule Id="CustomBattle" Optional="true" DependentVersion="v1.4.6"/>
+        <!-- War Sails / NavalDLC: optional so Enlisted still works without the DLC, but loads after it when present. -->
+        <DependedModule Id="NavalDLC" Optional="true" DependentVersion="v1.2.6"/>
         <!-- Harmony -->
         <DependedModule Id="Bannerlord.Harmony" DependentVersion="v2.4.2.225"/>
     </DependedModules>

@@ -1,11 +1,11 @@
 # Enlisted Documentation Index
 
-**Summary:** Single entry point for all Enlisted mod documentation, providing organized access to core systems, gameplay features, UI documentation, and technical references. This index reflects the current state of the mod (v0.9.0) targeting Bannerlord v1.3.13.
+**Summary:** Single entry point for all Enlisted mod documentation, providing organized access to core systems, gameplay features, UI documentation, and technical references. This index reflects the current state of the mod (v0.9.1.6) targeting Bannerlord v1.4.6.
 
 **Status:** ✅ Current  
 **Last Updated:** 2025-12-23  
 **Mod Version:** v0.9.0  
-**Game Target:** v1.3.13
+**Game Target:** v1.4.6
 
 ---
 

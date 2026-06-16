@@ -6,7 +6,7 @@
     - Requires ilspycmd (dotnet global tool). Installs it on first run if missing.
     - Scans the Bannerlord install tree (main bin + every Modules\*\bin\<Platform> folder) for each
       named assembly, then runs `ilspycmd -p -o <outDir>` to emit a C# project tree per assembly.
-    - The 40 assembly names below match the folder set under C:\Dev\Enlisted\Decompile (Bannerlord v1.3.13).
+    - The 40 assembly names below match the folder set under C:\Dev\Enlisted\Decompile (Bannerlord v1.4.6).
 
 .PARAMETER BannerlordRoot
     Path to the Mount & Blade II Bannerlord install. Defaults to the Steam default.
@@ -22,7 +22,7 @@
     pwsh -ExecutionPolicy Bypass -File .\Tools\Decompile-Bannerlord.ps1
 
 .NOTES
-    Target: Bannerlord v1.3.13.
+    Target: Bannerlord v1.4.6.
     Re-running overwrites each assembly's output folder.
 #>
 

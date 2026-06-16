@@ -15,7 +15,7 @@ The project uses external reference resources that are **not tracked in Git**:
 ```
 C:\Dev\Enlisted\
 ├── Enlisted\          ← Your workspace (Git repo)
-└── Decompile\         ← Bannerlord v1.3.13 decompiled source (reference only, not in Git)
+└── Decompile\         ← Bannerlord v1.4.6 decompiled source (reference only, not in Git)
 ```
 
 These resources are **installed separately per-platform** and are **not part of the mod build**.
@@ -24,12 +24,12 @@ These resources are **installed separately per-platform** and are **not part of 
 
 ## Decompile (Bannerlord Source Reference)
 
-**Purpose:** Bannerlord v1.3.13 decompiled source code for API verification
+**Purpose:** Bannerlord v1.4.6 decompiled source code for API verification
 
 **Location:** `C:\Dev\Enlisted\Decompile\` (sibling to workspace)
 
 **Setup:**
-1. Decompile Bannerlord v1.3.13 using your preferred tool (ILSpy, dotPeek, etc.)
+1. Decompile Bannerlord v1.4.6 using your preferred tool (ILSpy, dotPeek, etc.)
 2. Extract to `C:\Dev\Enlisted\Decompile\`
 3. AI tools will auto-detect it (checks multiple locations)
 
@@ -138,7 +138,7 @@ If you add new development resources:
 
 | Resource | Purpose | Location | In Git? |
 |----------|---------|----------|---------|
-| `Decompile/` | Bannerlord v1.3.13 API reference | `C:\Dev\Enlisted\Decompile\` (sibling to workspace) | ❌ No |
+| `Decompile/` | Bannerlord v1.4.6 API reference | `C:\Dev\Enlisted\Decompile\` (sibling to workspace) | ❌ No |
 | `steamcmd` | Workshop upload tool | System install | ❌ No |
 
 ---

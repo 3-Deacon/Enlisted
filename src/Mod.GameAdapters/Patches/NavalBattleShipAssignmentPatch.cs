@@ -302,19 +302,32 @@ namespace Enlisted.Mod.GameAdapters.Patches
         [HarmonyTargetMethod]
         public static MethodBase TargetMethod()
         {
-            var teamSideType = AccessTools.TypeByName("NavalDLC.Missions.MissionLogics.ShipAgentSpawnLogicTeamSide");
-            if (teamSideType == null)
+            var attemptedTargets = new[]
             {
-                return null;
+                "NavalDLC.Missions.MissionLogics.NavalTeamSideSpawnContext",
+                "NavalDLC.Missions.MissionLogics.ShipAgentSpawnLogicTeamSide"
+            };
+
+            foreach (var typeName in attemptedTargets)
+            {
+                var teamSideType = AccessTools.TypeByName(typeName);
+                if (teamSideType == null)
+                {
+                    continue;
+                }
+
+                var method = AccessTools.Method(teamSideType, "AllocateAndDeployInitialTroopsOfPlayerTeam");
+                if (method != null)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Naval troop allocation fix registered: {teamSideType.FullName}.AllocateAndDeployInitialTroopsOfPlayerTeam");
+                    return method;
+                }
             }
 
-            var method = AccessTools.Method(teamSideType, "AllocateAndDeployInitialTroopsOfPlayerTeam");
-            if (method != null)
-            {
-                ModLogger.Info(LogCategory, "Naval troop allocation fix registered");
-            }
-
-            return method;
+            ModLogger.Expected("Reflection", "reflect_naval_allocate_troops_target_missing",
+                "Naval troop allocation target not found; attempted NavalTeamSideSpawnContext and ShipAgentSpawnLogicTeamSide.");
+            return null;
         }
 
         /// <summary>
@@ -342,23 +355,21 @@ namespace Enlisted.Mod.GameAdapters.Patches
                     return true;
                 }
 
-                // Get _shipsLogic field via reflection
                 var instanceType = __instance.GetType();
-                var shipsLogicField = AccessTools.Field(instanceType, "_shipsLogic");
-                var agentsLogicField = AccessTools.Field(instanceType, "_agentsLogic");
-
-                if (shipsLogicField == null || agentsLogicField == null)
-                {
-                    ModLogger.Caught("Naval", "Cannot find Naval DLC internal fields", null);
-                    return true;
-                }
-
-                var shipsLogic = shipsLogicField.GetValue(__instance);
-                var agentsLogic = agentsLogicField.GetValue(__instance);
+                var shipsLogic = ResolveMemberValue(
+                    __instance,
+                    ["_shipsLogic", "_navalShipsLogic", "ShipsLogic", "NavalShipsLogic"],
+                    "NavalShipsLogic");
+                var agentsLogic = ResolveMemberValue(
+                    __instance,
+                    ["_agentsLogic", "_navalAgentsLogic", "AgentsLogic", "NavalAgentsLogic"],
+                    "NavalAgentsLogic");
 
                 if (shipsLogic == null || agentsLogic == null)
                 {
-                    return true;
+                    LogDeploymentGuard(
+                        $"unresolved internals context={instanceType.FullName} shipsLogic={shipsLogic != null} agentsLogic={agentsLogic != null}");
+                    return false;
                 }
 
                 // Check if player team's ship assignment has a valid MissionShip
@@ -503,8 +514,7 @@ namespace Enlisted.Mod.GameAdapters.Patches
                 // and CheckSpawnNextBatch - to properly set up the mission state.
 
                 // Get TeamSide for method calls (null = Player team = TeamSideEnum 0)
-                var teamSideProp = AccessTools.Property(instanceType, "TeamSide");
-                var teamSideValue = teamSideProp?.GetValue(__instance);
+                var teamSideValue = ResolveMemberValue(__instance, ["TeamSide", "_teamSide"], "TeamSideEnum");
                 var teamSideEnumType = AccessTools.TypeByName("NavalDLC.Missions.TeamSideEnum");
 
                 // If TeamSide is null, use 0 (Player)
@@ -554,7 +564,186 @@ namespace Enlisted.Mod.GameAdapters.Patches
             {
                 ModLogger.Caught("Naval",
                     $"AllocateTroops EXCEPTION: UsingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip}, Lord={NavalBattleShipAssignmentPatch.CurrentLord?.Name}", ex);
-                return true; // Fall back to original on error
+
+                if (NavalBattleShipAssignmentPatch.UsingLordShip && EnlistmentBehavior.Instance?.IsEnlisted == true)
+                {
+                    LogDeploymentGuard("allocation prefix failed; skipping unsafe native player-team allocation");
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        private static object ResolveMemberValue(object instance, string[] candidateNames, string typeSuffix)
+        {
+            if (instance == null)
+            {
+                return null;
+            }
+
+            var instanceType = instance.GetType();
+            foreach (var name in candidateNames)
+            {
+                var field = AccessTools.Field(instanceType, name);
+                if (field != null)
+                {
+                    return field.GetValue(instance);
+                }
+
+                var property = AccessTools.Property(instanceType, name);
+                if (property != null && property.GetIndexParameters().Length == 0)
+                {
+                    return property.GetValue(instance);
+                }
+            }
+
+            for (var type = instanceType; type != null; type = type.BaseType)
+            {
+                var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                foreach (var field in fields)
+                {
+                    if (field.FieldType?.Name?.EndsWith(typeSuffix, StringComparison.Ordinal) == true)
+                    {
+                        return field.GetValue(instance);
+                    }
+                }
+
+                var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                foreach (var property in properties)
+                {
+                    if (property.GetIndexParameters().Length != 0)
+                    {
+                        continue;
+                    }
+
+                    if (property.PropertyType?.Name?.EndsWith(typeSuffix, StringComparison.Ordinal) == true)
+                    {
+                        return property.GetValue(instance);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static void LogDeploymentGuard(string reason)
+        {
+            var enlistment = EnlistmentBehavior.Instance;
+            var mainParty = MobileParty.MainParty;
+            var lordParty = enlistment?.CurrentLord?.PartyBelongedTo;
+            var playerShipCount = mainParty?.Ships?.Count ?? 0;
+            var lordShipCount = lordParty?.Ships?.Count ?? 0;
+            var playerTroopCount = mainParty?.MemberRoster?.TotalManCount ?? 0;
+            var attachedTo = mainParty?.AttachedTo?.Name?.ToString() ?? "none";
+            var playerTeam = Mission.Current?.PlayerTeam?.Side.ToString() ?? "none";
+
+            ModLogger.Warn(LogCategory,
+                $"NAVAL_DEPLOYMENT_GUARD: {reason}; lord={enlistment?.CurrentLord?.Name}; " +
+                $"active={mainParty?.IsActive} visible={mainParty?.IsVisible} attachedTo={attachedTo}; " +
+                $"troops={playerTroopCount} playerShips={playerShipCount} lordShips={lordShipCount}; " +
+                $"usingLordShip={NavalBattleShipAssignmentPatch.UsingLordShip} playerTeam={playerTeam}");
+        }
+    }
+
+    [HarmonyPatch]
+    public static class NavalAddReservedTroopToShipGuardPatch
+    {
+        private const string LogCategory = "Naval";
+
+        [HarmonyTargetMethod]
+        public static MethodBase TargetMethod()
+        {
+            var navalAgentsType = AccessTools.TypeByName("NavalDLC.Missions.MissionLogics.NavalAgentsLogic");
+            if (navalAgentsType == null)
+            {
+                return null;
+            }
+
+            var method = navalAgentsType
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(m =>
+                    m.Name == "AddReservedTroopToShip" &&
+                    m.GetParameters().Length == 2 &&
+                    typeof(IAgentOriginBase).IsAssignableFrom(m.GetParameters()[0].ParameterType));
+
+            if (method != null)
+            {
+                ModLogger.Info(LogCategory,
+                    $"Naval AddReservedTroopToShip guard registered: {navalAgentsType.FullName}.AddReservedTroopToShip");
+            }
+
+            return method;
+        }
+
+        [HarmonyPrefix]
+        public static bool Prefix(IAgentOriginBase __0, object __1)
+        {
+            try
+            {
+                if (!EnlistedActivation.EnsureActive() || !CampaignSafetyGuard.IsCampaignReady)
+                {
+                    return true;
+                }
+
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true)
+                {
+                    return true;
+                }
+
+                if (__0 != null && __1 != null)
+                {
+                    return true;
+                }
+
+                ModLogger.Warn(LogCategory,
+                    $"Skipped NavalDLC AddReservedTroopToShip with null argument while enlisted: " +
+                    $"troopOrigin={__0 != null} ship={__1 != null} lord={enlistment.CurrentLord?.Name}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught(LogCategory, "Naval AddReservedTroopToShip guard prefix failed", ex);
+                return true;
+            }
+        }
+
+        [HarmonyFinalizer]
+        public static Exception Finalizer(Exception __exception, IAgentOriginBase __0, object __1)
+        {
+            if (__exception == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (!EnlistedActivation.EnsureActive() || !CampaignSafetyGuard.IsCampaignReady)
+                {
+                    return __exception;
+                }
+
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true)
+                {
+                    return __exception;
+                }
+
+                if (__exception is NullReferenceException)
+                {
+                    ModLogger.Warn(LogCategory,
+                        $"Suppressed NavalDLC AddReservedTroopToShip null-reference while enlisted: " +
+                        $"troopOrigin={__0 != null} ship={__1 != null} lord={enlistment.CurrentLord?.Name}");
+                    return null;
+                }
+
+                return __exception;
+            }
+            catch (Exception guardEx)
+            {
+                ModLogger.Caught(LogCategory, "Naval AddReservedTroopToShip finalizer failed", guardEx);
+                return __exception;
             }
         }
     }

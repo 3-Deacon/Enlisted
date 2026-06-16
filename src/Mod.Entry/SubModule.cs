@@ -132,6 +132,7 @@ namespace Enlisted.Mod.Entry
             {
                 // Initialize logging system - this clears old logs and starts fresh
                 ModLogger.Initialize();
+                ModLogger.HealthCheck("submodule_load_after_initialize");
                 ModLogger.Info("Bootstrap", "SubModule loading");
 
                 // Create Harmony instance with a unique identifier to avoid patch collisions
@@ -175,6 +176,7 @@ namespace Enlisted.Mod.Entry
                     _ = typeof(LootBlockPatch.LootScreenPatch);
                     _ = typeof(NavalBattleArmyWaitCrashFix);
                     _ = typeof(NavalBattleShipAssignmentPatch);
+                    _ = typeof(NavalAddReservedTroopToShipGuardPatch);
                     _ = typeof(NavalNavigationCapabilityPatch);
                     _ = typeof(NavalShipDamageProtectionPatch);
                     _ = typeof(OrderOfBattleSuppressionPatch);
@@ -201,7 +203,9 @@ namespace Enlisted.Mod.Entry
                         "EncounterAbandonArmyBlockPatch",         // Target: EncounterGameMenuBehavior (deferred)
                         "EncounterAbandonArmyBlockPatch2",        // Target: EncounterGameMenuBehavior (deferred)
                         "EncounterLeaveSuppressionPatch",         // Target: EncounterGameMenuBehavior (deferred)
-                        "MapConversationEndPatch"                 // Target: MapScreen explicit interface (deferred)
+                        "MapConversationEndPatch",                // Target: MapScreen explicit interface (deferred)
+                        "NavalAllocateTroopsPatch",                // Optional War Sails target; patch manually only when method resolves
+                        "NavalAddReservedTroopToShipGuardPatch"     // Optional War Sails target; patch manually only when method resolves
                     };
 
                     var assembly = Assembly.GetExecutingAssembly();
@@ -238,6 +242,77 @@ namespace Enlisted.Mod.Entry
                         }
                     }
 
+                    // Optional War Sails patch: Bannerlord/War Sails method names changed across versions.
+                    // Do not let a null HarmonyTargetMethod produce a scary boot-time exception.
+                    try
+                    {
+                        var navalAllocateTarget = NavalAllocateTroopsPatch.TargetMethod();
+                        if (navalAllocateTarget == null)
+                        {
+                            ModLogger.Info("Naval",
+                                "Naval troop allocation patch unavailable for this War Sails build; skipping optional crash guard");
+                        }
+                        else
+                        {
+                            var navalAllocatePrefix = typeof(NavalAllocateTroopsPatch).GetMethod(
+                                nameof(NavalAllocateTroopsPatch.Prefix),
+                                BindingFlags.Public | BindingFlags.Static);
+
+                            if (navalAllocatePrefix == null)
+                            {
+                                ModLogger.Warn("Naval", "Naval troop allocation prefix not found; skipping optional crash guard");
+                            }
+                            else
+                            {
+                                _harmony.Patch(navalAllocateTarget, prefix: new HarmonyMethod(navalAllocatePrefix));
+                                enabledCount++;
+                                ModLogger.Info("Naval", "Naval troop allocation fix applied manually");
+                            }
+                        }
+                    }
+                    catch (Exception optionalPatchEx)
+                    {
+                        ModLogger.Caught("Naval", "Optional NavalAllocateTroopsPatch manual apply failed", optionalPatchEx);
+                    }
+
+                    try
+                    {
+                        var navalAddReservedTarget = NavalAddReservedTroopToShipGuardPatch.TargetMethod();
+                        if (navalAddReservedTarget == null)
+                        {
+                            ModLogger.Info("Naval",
+                                "Naval AddReservedTroopToShip guard unavailable for this War Sails build; skipping optional crash guard");
+                        }
+                        else
+                        {
+                            var navalAddReservedPrefix = typeof(NavalAddReservedTroopToShipGuardPatch).GetMethod(
+                                nameof(NavalAddReservedTroopToShipGuardPatch.Prefix),
+                                BindingFlags.Public | BindingFlags.Static);
+                            var navalAddReservedFinalizer = typeof(NavalAddReservedTroopToShipGuardPatch).GetMethod(
+                                nameof(NavalAddReservedTroopToShipGuardPatch.Finalizer),
+                                BindingFlags.Public | BindingFlags.Static);
+
+                            if (navalAddReservedPrefix == null || navalAddReservedFinalizer == null)
+                            {
+                                ModLogger.Warn("Naval",
+                                    "Naval AddReservedTroopToShip guard prefix/finalizer not found; skipping optional crash guard");
+                            }
+                            else
+                            {
+                                _harmony.Patch(
+                                    navalAddReservedTarget,
+                                    prefix: new HarmonyMethod(navalAddReservedPrefix),
+                                    finalizer: new HarmonyMethod(navalAddReservedFinalizer));
+                                enabledCount++;
+                                ModLogger.Info("Naval", "Naval AddReservedTroopToShip guard applied manually");
+                            }
+                        }
+                    }
+                    catch (Exception optionalPatchEx)
+                    {
+                        ModLogger.Caught("Naval", "Optional NavalAddReservedTroopToShipGuardPatch manual apply failed", optionalPatchEx);
+                    }
+
                     // Deferred patches will be applied later when campaign starts
                     // Applying during SubModule load causes TypeInitializationException on Proton/Linux
                     ModLogger.Info("Bootstrap", $"{skippedCount} patches deferred until campaign start (2 nested classes)");
@@ -259,8 +334,10 @@ namespace Enlisted.Mod.Entry
                 // Run mod conflict diagnostics and write to Debugging/Conflicts-A_*.log
                 // This helps users identify when other mods interfere with Enlisted
                 ModConflictDiagnostics.RunStartupDiagnostics(_harmony);
+                ModLogger.HealthCheck("submodule_load_after_startup_diagnostics");
 
                 ModLogger.Info("Bootstrap", "Harmony patched");
+                ModLogger.HealthCheck("submodule_load_complete");
             }
             catch (Exception ex)
             {
@@ -282,6 +359,7 @@ namespace Enlisted.Mod.Entry
         {
             try
             {
+                ModLogger.HealthCheck("game_start_entry");
                 ModLogger.Info("Bootstrap", "Game start");
                 EnlistedActivation.SetActive(false, "game_start");
 
@@ -296,6 +374,7 @@ namespace Enlisted.Mod.Entry
                 // Apply log level configuration from settings
                 // This enables per-category verbosity control and message throttling
                 _settings.ApplyLogLevels();
+                ModLogger.HealthCheck("game_start_after_log_levels");
 
                 // Log configuration values for verification
                 SessionDiagnostics.LogConfigurationValues();
@@ -544,6 +623,7 @@ namespace Enlisted.Mod.Entry
                     // Initializes static helper methods used throughout the enlistment system
                     EncounterGuard.Initialize();
                     ModLogger.Info("Bootstrap", "Military service behaviors registered successfully");
+                    ModLogger.HealthCheck("game_start_behaviors_registered");
 
                     // Log registered behaviors for conflict diagnostics — enumerate the starter's
                     // collection directly, before the engine transfers it to CampaignBehaviorManager.
@@ -568,6 +648,7 @@ namespace Enlisted.Mod.Entry
         {
             try
             {
+                ModLogger.HealthCheck("submodule_unload_before_footer_flush");
                 SessionSummaryFooter.Flush();
             }
             catch
@@ -590,6 +671,7 @@ namespace Enlisted.Mod.Entry
                 base.OnMissionBehaviorInitialize(mission);
 
                 // DIAGNOSTIC: Log that we entered the method
+                ModLogger.HealthCheck($"mission_initialize_{mission.Mode}");
                 ModLogger.Info("Mission", $"OnMissionBehaviorInitialize called (Mode: {mission.Mode})");
 
                 var enlistment = EnlistmentBehavior.Instance;
@@ -688,10 +770,12 @@ namespace Enlisted.Mod.Entry
                     NavalMobilePartyVisualUpdateEntityPositionCrashGuardPatch.TryApplyPatch(harmony);
 
                     ModLogger.Info("Bootstrap", "Deferred patches applied (campaign ready)");
+                    ModLogger.HealthCheck("deferred_patches_applied");
 
                     // Update conflict diagnostics with deferred patch info
                     // This appends to the existing conflict log so users can see all patches.
                     ModConflictDiagnostics.RefreshDeferredPatches(harmony);
+                    ModLogger.HealthCheck("deferred_diagnostics_refreshed");
                 }
                 catch (Exception ex)
                 {

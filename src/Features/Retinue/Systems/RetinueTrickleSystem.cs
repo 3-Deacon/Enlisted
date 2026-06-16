@@ -66,8 +66,14 @@ namespace Enlisted.Features.Retinue.Systems
         {
             try
             {
+                var enlistment = EnlistmentBehavior.Instance;
+                if (enlistment?.IsEnlisted != true || enlistment.IsOnLeave)
+                {
+                    return;
+                }
+
                 // Only track battles where the player participated
-                if (!mapEvent.IsPlayerMapEvent)
+                if (mapEvent == null || !mapEvent.IsPlayerMapEvent)
                 {
                     return;
                 }

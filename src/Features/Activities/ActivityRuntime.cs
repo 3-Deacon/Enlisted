@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Enlisted.Features.Content;
+using Enlisted.Features.Activities.Orders;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -39,6 +40,11 @@ namespace Enlisted.Features.Activities
 
         public override void RegisterEvents()
         {
+            // Make the runtime discoverable as soon as Bannerlord registers the
+            // behavior. OnSessionLaunched/GameLoaded also set this, but enlistment
+            // lifecycle listeners can fire before those callbacks during some
+            // new-campaign/load flows.
+            Instance = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -72,6 +78,15 @@ namespace Enlisted.Features.Activities
         {
             Instance = this;
             ActivityTypeCatalog.LoadAll();
+            // OrderActivity arc reconstruction depends on authored storylet arcs.
+            // Load the storylet catalog before reconstructing saved active orders; otherwise
+            // valid saved OrderStoryletIds can look stale and get cleared during load.
+            StoryletCatalog.LoadAll();
+            _active ??= new List<Activity>();
+            _active.RemoveAll(a => a == null);
+
+            ModLogger.Info("ACTIVITY", $"load restore: activeCount={_active.Count}");
+
             foreach (var a in _active)
             {
                 a.ResolvePhasesFromType(_types);
@@ -83,6 +98,12 @@ namespace Enlisted.Features.Activities
             {
                 if (a is Enlisted.Features.Activities.Orders.OrderActivity oa)
                 {
+                    oa.EnsureInitialized();
+                    var activeOrder = oa.ActiveNamedOrder;
+                    ModLogger.Info("ACTIVITY",
+                        $"load order activity: profile={oa.CurrentDutyProfile ?? "unknown"}, phase={oa.CurrentPhaseIndex}, " +
+                        $"activeOrder={activeOrder?.OrderStoryletId ?? "none"}, intent={activeOrder?.Intent ?? "none"}, " +
+                        $"lastCompleted={oa.LastNamedOrderCompletedId ?? string.Empty}, lastIntent={oa.LastNamedOrderCompletedIntent ?? string.Empty}");
                     oa.ReconstructArcOnLoad();
                 }
             }
@@ -91,12 +112,14 @@ namespace Enlisted.Features.Activities
             // restore, a save taken mid-PlayerChoice phase would surface a hidden
             // menu slot-bank until the next phase transition. break on first match:
             // only one PlayerChoice phase is active at a time by design.
+            _activeChoicePhase = null;
             foreach (var a in _active)
             {
                 var phase = a.CurrentPhase;
                 if (phase != null && phase.Delivery == PhaseDelivery.PlayerChoice)
                 {
                     _activeChoicePhase = (a, phase);
+                    ModLogger.Info("ACTIVITY", $"load restored choice phase: activity={a.TypeId}, phase={phase.Id}");
                     break;
                 }
             }
@@ -221,6 +244,7 @@ namespace Enlisted.Features.Activities
                 if (candidate != null)
                 {
                     candidate.ChainContinuation = true;
+                    MarkCandidateRelevantToActivity(activity, candidate);
                     StoryDirector.Instance?.EmitCandidate(candidate);
                 }
             }
@@ -297,12 +321,22 @@ namespace Enlisted.Features.Activities
                 CurrentContext = DeriveContext()
             };
 
+            var activeOrder = (a as OrderActivity)?.ActiveNamedOrder;
+
             // Weighted eligible selection.
             var eligible = new List<(Storylet storylet, float weight)>();
             foreach (var id in phase.Pool)
             {
                 var s = StoryletCatalog.GetById(id);
                 if (s == null)
+                {
+                    continue;
+                }
+                if (!IsNamedOrderPhaseStoryletAllowed(activeOrder, s.Id))
+                {
+                    continue;
+                }
+                if (HasNamedOrderAlreadyEmitted(activeOrder, s.Id))
                 {
                     continue;
                 }
@@ -335,12 +369,213 @@ namespace Enlisted.Features.Activities
                 {
                     continue;
                 }
+
+                ctx.SourceStorylet = s;
                 var candidate = s.ToCandidate(ctx);
                 if (candidate != null)
                 {
+                    if (ShouldDeliverAutoPhaseStoryletAsModal(a, phase, s))
+                    {
+                        var evt = StoryletEventAdapter.BuildModal(s, ctx, a);
+                        if (evt != null)
+                        {
+                            candidate.InteractiveEvent = evt;
+                            candidate.ProposedTier = StoryTier.Modal;
+                            candidate.ChainContinuation = true;
+                            candidate.Beats.Add(StoryBeat.OrderPhaseTransition);
+                            ModLogger.Info("ACTIVITY", $"queued named-order resolve modal storylet={s.Id} event={evt.Id}");
+                        }
+                        else
+                        {
+                            ModLogger.Expected("ACTIVITY", "named_order_resolve_buildmodal_null",
+                                $"BuildModal returned null for named-order resolve storylet {s.Id}");
+                        }
+                    }
+
+                    MarkCandidateRelevantToActivity(a, candidate);
                     StoryDirector.Instance?.EmitCandidate(candidate);
+                    MarkNamedOrderStoryletEmitted(activeOrder, s.Id);
+                    ApplySingleOptionEffectsForAutoPhase(s, ctx);
                 }
                 return;
+            }
+        }
+
+
+        private static bool ShouldDeliverAutoPhaseStoryletAsModal(Activity activity, Phase phase, Storylet storylet)
+        {
+            if (!(activity is Enlisted.Features.Activities.Orders.OrderActivity orderActivity)
+                || orderActivity.ActiveNamedOrder == null
+                || phase == null
+                || storylet == null)
+            {
+                return false;
+            }
+
+            if (phase.Delivery != PhaseDelivery.Auto)
+            {
+                return false;
+            }
+
+            if (storylet.Options == null || storylet.Options.Count <= 1)
+            {
+                return false;
+            }
+
+            return IsNamedOrderResolveStorylet(storylet.Id);
+        }
+
+        private static bool IsNamedOrderResolveStorylet(string storyletId)
+        {
+            return !string.IsNullOrEmpty(storyletId)
+                && storyletId.StartsWith("order_", StringComparison.OrdinalIgnoreCase)
+                && storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool IsNamedOrderPhaseStoryletAllowed(NamedOrderState activeOrder, string storyletId)
+        {
+            if (string.IsNullOrEmpty(storyletId))
+            {
+                return true;
+            }
+
+            var isNamedOrderPhaseStorylet = IsNamedOrderMidOrResolveStorylet(storyletId);
+            if (!isNamedOrderPhaseStorylet)
+            {
+                return true;
+            }
+
+            if (activeOrder == null || string.IsNullOrEmpty(activeOrder.OrderStoryletId))
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped named-order phase storylet with no active order: storylet={storyletId}");
+                return false;
+            }
+
+            var orderPrefix = GetNamedOrderPrefix(activeOrder.OrderStoryletId);
+            if (string.IsNullOrEmpty(orderPrefix)
+                || !storyletId.StartsWith(orderPrefix + "_", StringComparison.OrdinalIgnoreCase))
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped stale named-order phase storylet: active={activeOrder.OrderStoryletId}, storylet={storyletId}");
+                return false;
+            }
+
+            if (storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                return true;
+            }
+
+            var intent = NormalizeIntentForResolve(activeOrder.Intent);
+            if (string.IsNullOrEmpty(intent))
+            {
+                return true;
+            }
+
+            var allowed = storyletId.EndsWith("_" + intent, StringComparison.OrdinalIgnoreCase);
+            if (!allowed)
+            {
+                ModLogger.Debug("ACTIVITY",
+                    $"Skipped named-order resolve storylet outside accepted intent: order={activeOrder.OrderStoryletId}, intent={activeOrder.Intent}, storylet={storyletId}");
+            }
+            return allowed;
+        }
+
+        private static string NormalizeIntentForResolve(string intent)
+        {
+            if (string.IsNullOrWhiteSpace(intent))
+            {
+                return string.Empty;
+            }
+
+            var value = intent.Trim().ToLowerInvariant();
+            return value == "train" ? "train_hard" : value;
+        }
+
+        private static bool IsNamedOrderMidOrResolveStorylet(string storyletId)
+        {
+            return !string.IsNullOrEmpty(storyletId)
+                && storyletId.StartsWith("order_", StringComparison.OrdinalIgnoreCase)
+                && (storyletId.IndexOf("_mid_", StringComparison.OrdinalIgnoreCase) >= 0
+                    || storyletId.IndexOf("_resolve_", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        private static string GetNamedOrderPrefix(string orderStoryletId)
+        {
+            if (string.IsNullOrEmpty(orderStoryletId))
+            {
+                return string.Empty;
+            }
+
+            const string acceptSuffix = "_accept";
+            return orderStoryletId.EndsWith(acceptSuffix, StringComparison.OrdinalIgnoreCase)
+                ? orderStoryletId.Substring(0, orderStoryletId.Length - acceptSuffix.Length)
+                : orderStoryletId;
+        }
+
+        private static bool HasNamedOrderAlreadyEmitted(NamedOrderState activeOrder, string storyletId)
+        {
+            if (activeOrder?.AccumulatedOutcomes == null || string.IsNullOrEmpty(storyletId))
+            {
+                return false;
+            }
+
+            return activeOrder.AccumulatedOutcomes.ContainsKey(GetNamedOrderFiredKey(storyletId));
+        }
+
+        private static void MarkNamedOrderStoryletEmitted(NamedOrderState activeOrder, string storyletId)
+        {
+            if (activeOrder?.AccumulatedOutcomes == null || string.IsNullOrEmpty(storyletId))
+            {
+                return;
+            }
+
+            activeOrder.AccumulatedOutcomes[GetNamedOrderFiredKey(storyletId)] = (float)CampaignTime.Now.ToHours;
+        }
+
+        private static string GetNamedOrderFiredKey(string storyletId)
+        {
+            return "__fired_storylet:" + storyletId;
+        }
+
+        private static void ApplySingleOptionEffectsForAutoPhase(Storylet storylet, StoryletContext ctx)
+        {
+            try
+            {
+                if (storylet?.Options == null || storylet.Options.Count != 1)
+                {
+                    return;
+                }
+
+                var option = storylet.Options[0];
+                if (option?.Effects == null)
+                {
+                    return;
+                }
+
+                EffectExecutor.Apply(option.Effects, ctx);
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("ACTIVITY", "auto_phase_single_option_effects_failed", ex);
+            }
+        }
+
+        private static void MarkCandidateRelevantToActivity(Activity activity, StoryCandidate candidate)
+        {
+            if (activity == null || candidate == null)
+            {
+                return;
+            }
+
+            var relevance = candidate.Relevance;
+            relevance.TouchesEnlistedLord = true;
+            candidate.Relevance = relevance;
+
+            if (activity is Enlisted.Features.Activities.Orders.OrderActivity orderActivity
+                && orderActivity.ActiveNamedOrder != null)
+            {
+                candidate.ChainContinuation = true;
             }
         }
 
@@ -406,6 +641,12 @@ namespace Enlisted.Features.Activities
             {
                 return;
             }
+
+            if (ShouldHoldNamedOrderResolvePhase(a, phase))
+            {
+                return;
+            }
+
             var elapsedHours = (CampaignTime.Now - a.StartedAt).ToHours;
             var cumulative = 0;
             for (var i = 0; i <= a.CurrentPhaseIndex && i < a.Phases.Count; i++)
@@ -417,6 +658,31 @@ namespace Enlisted.Features.Activities
                 return;
             }
             AdvancePhase(a);
+        }
+
+        private static bool ShouldHoldNamedOrderResolvePhase(Activity activity, Phase phase)
+        {
+            if (!(activity is Enlisted.Features.Activities.Orders.OrderActivity orderActivity)
+                || orderActivity.ActiveNamedOrder == null
+                || phase == null)
+            {
+                return false;
+            }
+
+            if (phase.Pool == null || !phase.Pool.Any(IsNamedOrderResolveStorylet))
+            {
+                return false;
+            }
+
+            var delivery = EventDeliveryManager.Instance;
+            if (delivery?.HasActiveOrPendingNamedOrderResolveEvent != true)
+            {
+                return false;
+            }
+
+            ModLogger.Debug("ACTIVITY",
+                $"Holding named-order resolve phase while terminal choice is active: order={orderActivity.ActiveNamedOrder.OrderStoryletId}, event={delivery.ActiveOrPendingNamedOrderResolveEventId}");
+            return true;
         }
 
         private static string DeriveContext()

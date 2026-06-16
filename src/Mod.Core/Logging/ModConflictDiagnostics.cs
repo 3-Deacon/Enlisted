@@ -33,6 +33,8 @@ namespace Enlisted.Mod.Core.Logging
         private static string _conflictLogPath;
         private static bool _hasRunStartup;
         private static bool _hasDeferredPatchInfo;
+        private static bool _hasLoggedRegisteredBehaviors;
+        private static bool _hasLoggedRuntimeCatalogStatus;
         private const string ConflictPrefix = "Conflicts-";
         private static readonly string[] ConflictSlots = { "Conflicts-A", "Conflicts-B", "Conflicts-C" };
 
@@ -126,11 +128,21 @@ namespace Enlisted.Mod.Core.Logging
                 return;
             }
 
+            lock (Sync)
+            {
+                if (_hasLoggedRegisteredBehaviors)
+                {
+                    return;
+                }
+
+                _hasLoggedRegisteredBehaviors = true;
+            }
+
             try
             {
                 var ourBehaviors = (behaviors ?? Array.Empty<CampaignBehaviorBase>())
                     .Where(b => b?.GetType().Namespace?.StartsWith("Enlisted", StringComparison.Ordinal) == true)
-                    .Select(b => b.GetType().Name)
+                    .Select(GetBehaviorDiagnosticName)
                     .OrderBy(n => n)
                     .ToList();
 
@@ -152,10 +164,30 @@ namespace Enlisted.Mod.Core.Logging
             }
         }
 
+        private static string GetBehaviorDiagnosticName(CampaignBehaviorBase behavior)
+        {
+            if (behavior is SaveLoadDiagnosticsMarkerBehavior marker)
+            {
+                return marker.DiagnosticName;
+            }
+
+            return behavior.GetType().Name;
+        }
+
         /// <summary>Appends the runtime catalog counts to the conflict log. Call after all catalogs have initialized (e.g. OnSessionLaunched).</summary>
         public static void LogRuntimeCatalogStatus()
         {
             if (string.IsNullOrWhiteSpace(_conflictLogPath)) { return; }
+            lock (Sync)
+            {
+                if (_hasLoggedRuntimeCatalogStatus)
+                {
+                    return;
+                }
+
+                _hasLoggedRuntimeCatalogStatus = true;
+            }
+
             try { WriteRuntimeCatalogStatus(); }
             catch (Exception ex) { ModLogger.Caught("DIAGNOSTICS", "Failed to log runtime catalog status", ex); }
         }
@@ -185,7 +217,18 @@ namespace Enlisted.Mod.Core.Logging
                         var instance = instanceProp?.GetValue(null);
                         var countProp = qmCatalogType.GetProperty("NodeCount");
                         var count = (int)(countProp?.GetValue(instance) ?? 0);
-                        catalogStatus.Add(("QM Dialogue", count, count > 0 ? "OK" : "EMPTY"));
+                        if (count == 0)
+                        {
+                            var dialoguePath = ModulePaths.GetContentPath("Dialogue");
+                            var fileCount = Directory.Exists(dialoguePath)
+                                ? Directory.GetFiles(dialoguePath, "*.json").Length
+                                : 0;
+                            catalogStatus.Add(("QM Dialogue", count, fileCount > 0 ? "PENDING" : "EMPTY"));
+                        }
+                        else
+                        {
+                            catalogStatus.Add(("QM Dialogue", count, "OK"));
+                        }
                     }
                 }
                 catch { catalogStatus.Add(("QM Dialogue", 0, "ERROR")); }
@@ -714,7 +757,8 @@ namespace Enlisted.Mod.Core.Logging
                     WriteLine("    Event Files: MISSING");
                 }
 
-                // Check Decisions JSON files
+                // Check legacy Decisions JSON files. Decisions are optional after the Spec 0 storylet backbone;
+                // missing Decisions should not be reported as a critical install failure.
                 WriteLine("  [Decision System]");
                 var decisionsPath = ModulePaths.GetContentPath("Decisions");
                 if (Directory.Exists(decisionsPath))
@@ -744,8 +788,8 @@ namespace Enlisted.Mod.Core.Logging
                 }
                 else
                 {
-                    issues.Add("Decisions directory missing");
-                    WriteLine("    Decision Files: MISSING");
+                    warnings.Add("Optional legacy Decisions directory missing");
+                    WriteLine("    Decision Files: optional legacy directory not present");
                 }
 
                 // Check Storylets JSON files (Spec 0 backbone)
@@ -799,7 +843,7 @@ namespace Enlisted.Mod.Core.Logging
                     var expectedConfigs = new[] {
                         "settings.json", "progression_config.json", "enlisted_config.json",
                         "equipment_pricing.json", "retinue_config.json", "baggage_config.json",
-                        "camp_schedule.json", "orchestrator_overrides.json", "routine_outcomes.json",
+                        "camp_schedule.json", "routine_outcomes.json",
                         "simulation_config.json", "strategic_context_config.json"
                     };
                     var foundCount = 0;
@@ -876,8 +920,15 @@ namespace Enlisted.Mod.Core.Logging
                     }
 
                     WriteLine();
-                    WriteLine("  RECOMMENDATION: Verify game files or reinstall the mod.");
-                    WriteLine("  Fallback systems may activate for missing content.");
+                    if (issues.Count > 0)
+                    {
+                        WriteLine("  RECOMMENDATION: Verify game files or reinstall the mod.");
+                        WriteLine("  Fallback systems may activate for missing content.");
+                    }
+                    else
+                    {
+                        WriteLine("  RECOMMENDATION: Review warnings. Optional legacy content may be intentionally absent.");
+                    }
                 }
             }
             catch (Exception ex)

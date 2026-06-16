@@ -34,6 +34,16 @@ namespace Enlisted.Features.Escalation
         public CampaignTime LastScrutinyRaisedTime { get; set; } = CampaignTime.Zero;
         public CampaignTime LastScrutinyDecayTime { get; set; } = CampaignTime.Zero;
 
+        // After quiet-service decay, ordinary scrutiny pressure should not erase the
+        // newly recovered value during the recovery grace window. This stores the
+        // latest decay floor so the grace survives save/load.
+        public int ScrutinyRecoveryFloor { get; set; } = ScrutinyMax;
+
+        // Ordinary high-scrutiny pressure (camp/storylet/routine events) is capped so
+        // routine noise cannot pin the player at critical exposure while no decay has
+        // had time to run. Severe discipline/crime/desertion reasons still bypass.
+        public CampaignTime LastOrdinaryHighScrutinyPressureTime { get; set; } = CampaignTime.Zero;
+
         // Medical risk is special: it should reset when treated and decay only when resting.
         public CampaignTime LastMedicalRiskDecayTime { get; set; } = CampaignTime.Zero;
 
@@ -279,6 +289,7 @@ namespace Enlisted.Features.Escalation
             Scrutiny = Clamp(Scrutiny, ScrutinyMin, ScrutinyMax);
             LordReputation = Clamp(LordReputation, LordReputationMin, LordReputationMax);
             MedicalRisk = Clamp(MedicalRisk, MedicalRiskMin, MedicalRiskMax);
+            ScrutinyRecoveryFloor = Clamp(ScrutinyRecoveryFloor, ScrutinyMin, ScrutinyMax);
 
             PendingThresholdStoryId ??= string.Empty;
             ThresholdStoryLastFired ??= new Dictionary<string, CampaignTime>(StringComparer.OrdinalIgnoreCase);

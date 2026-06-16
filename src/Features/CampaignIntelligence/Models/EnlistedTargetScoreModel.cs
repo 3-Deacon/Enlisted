@@ -26,8 +26,11 @@ namespace Enlisted.Features.CampaignIntelligence.Models
         public override float DefendingFactor =>
             BaseModel?.DefendingFactor ?? 2f;
 
-        public override float GetPatrollingFactor(bool isNavalPatrolling) =>
-            BaseModel?.GetPatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
+        public override float GetOffensivePatrollingFactor(bool isNavalPatrolling) =>
+            BaseModel?.GetOffensivePatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
+
+        public override float GetDefensivePatrollingFactor(bool isNavalPatrolling) =>
+            BaseModel?.GetDefensivePatrollingFactor(isNavalPatrolling) ?? (isNavalPatrolling ? 0.4356f : 0.66f);
 
         public override float GetTargetScoreForFaction(
             Settlement targetSettlement,
@@ -94,7 +97,7 @@ namespace Enlisted.Features.CampaignIntelligence.Models
             });
         }
 
-        public override float CalculatePatrollingScoreForSettlement(
+        public override float CalculateOffensivePatrollingScoreForSettlement(
             Settlement settlement,
             bool isFromPort,
             MobileParty mobileParty)
@@ -104,9 +107,29 @@ namespace Enlisted.Features.CampaignIntelligence.Models
                 ModLogger.Surfaced("INTELAI", "base_model_missing");
                 return 0f;
             }
-            var vanilla = BaseModel.CalculatePatrollingScoreForSettlement(
-                settlement, isFromPort, mobileParty);
+            return ApplyPatrollingBias(
+                mobileParty,
+                BaseModel.CalculateOffensivePatrollingScoreForSettlement(settlement, isFromPort, mobileParty));
+        }
 
+        public override float CalculateDefensivePatrollingScoreForSettlement(
+            Settlement settlement,
+            bool isFromPort,
+            MobileParty mobileParty)
+        {
+            if (BaseModel == null)
+            {
+                ModLogger.Surfaced("INTELAI", "base_model_missing");
+                return 0f;
+            }
+
+            return ApplyPatrollingBias(
+                mobileParty,
+                BaseModel.CalculateDefensivePatrollingScoreForSettlement(settlement, isFromPort, mobileParty));
+        }
+
+        private float ApplyPatrollingBias(MobileParty mobileParty, float vanilla)
+        {
             return VanillaOnlyOrBias(mobileParty, vanilla, (snapshot, v) =>
             {
                 // Patrol suppressor under pressure. Patrolling is the wrong

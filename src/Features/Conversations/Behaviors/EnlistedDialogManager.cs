@@ -143,6 +143,19 @@ namespace Enlisted.Features.Conversations.Behaviors
                 null,
                 120); // Higher priority - check this FIRST
 
+            // Grace-period service can only resume inside the pending kingdom. Show a clear
+            // rejection instead of hiding the whole military-service entry point.
+            _ = starter.AddDialogLine(
+                "enlisted_grace_wrong_kingdom_rejection",
+                "enlisted_main_hub",
+                "close_window",
+                GetLocalizedText(
+                        "{=enlisted_grace_wrong_kingdom_rejection}Your oath is still bound to another realm. Find a commander of that kingdom before the grace period ends, or your name will be marked as a deserter.")
+                    .ToString(),
+                IsGraceWithDifferentKingdom,
+                null,
+                121);
+
             // Lord responds to player's request (normal flow)
             _ = starter.AddDialogLine(
                 "enlisted_main_hub_response",
@@ -3131,6 +3144,10 @@ namespace Enlisted.Features.Conversations.Behaviors
                     }
                 }
 
+                // Get harnesses through the public browsing API.
+                // They belong in accessories rather than mounts because they occupy HorseHarness.
+                combined.AddRange(qm.GetHarnessVariantsForBrowsing());
+
                 return combined;
             }
             catch (Exception ex)
@@ -3648,16 +3665,14 @@ namespace Enlisted.Features.Conversations.Behaviors
 
             if (enlistment?.IsInDesertionGracePeriod == true)
             {
-                // During grace period, player can only rejoin the same kingdom they served
-                // Don't show enlistment dialog for different kingdoms
-                var lordKingdom = lord.MapFaction as Kingdom;
+                // During grace, keep the service entry visible. Same-kingdom lords can accept
+                // grace re-entry; different-kingdom lords explain why they cannot.
+                var lordKingdom = ResolveLordKingdom(lord);
                 if (lordKingdom != enlistment.PendingDesertionKingdom)
                 {
                     ModLogger.Debug("DIALOGMANAGER",
-                        $"Dialog hidden - player in grace period, can only rejoin {enlistment.PendingDesertionKingdom?.Name}");
-                    return false;
+                        $"Dialog shown for grace rejection - player can only rejoin {enlistment.PendingDesertionKingdom?.Name}; target={lordKingdom?.Name}");
                 }
-                // Allow dialog if same kingdom - they can rejoin during grace period
             }
 
             return true;
@@ -3673,6 +3688,27 @@ namespace Enlisted.Features.Conversations.Behaviors
         {
             var lord = Hero.OneToOneConversationHero;
             return lord?.Clan?.IsMinorFaction == true;
+        }
+
+        private static Kingdom ResolveLordKingdom(Hero lord)
+        {
+            return lord?.MapFaction as Kingdom ?? lord?.Clan?.Kingdom;
+        }
+
+        private bool IsGraceWithDifferentKingdom()
+        {
+            var enlistment = EnlistmentBehavior.Instance;
+            var lord = Hero.OneToOneConversationHero;
+
+            if (enlistment?.IsInDesertionGracePeriod != true || lord == null || !lord.IsLord || !lord.IsAlive)
+            {
+                return false;
+            }
+
+            var pendingKingdom = enlistment.PendingDesertionKingdom;
+            var lordKingdom = ResolveLordKingdom(lord);
+
+            return pendingKingdom != null && lordKingdom != pendingKingdom;
         }
 
         /// <summary>
@@ -3782,7 +3818,7 @@ namespace Enlisted.Features.Conversations.Behaviors
                 return false;
             }
 
-            var lordKingdom = lord.MapFaction as Kingdom;
+            var lordKingdom = ResolveLordKingdom(lord);
             if (lordKingdom == null || lordKingdom != enlistment.PendingDesertionKingdom)
             {
                 return false;

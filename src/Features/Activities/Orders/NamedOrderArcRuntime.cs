@@ -1,6 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using Enlisted.Features.Activities;
+using Enlisted.Features.CampaignIntelligence.Duty;
 using Enlisted.Features.Content;
+using Enlisted.Features.Interface.Behaviors;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 
@@ -28,6 +31,8 @@ namespace Enlisted.Features.Activities.Orders
                         $"Cannot splice {sourceStorylet.Id}: order {activity.ActiveNamedOrder.OrderStoryletId} still active");
                     return;
                 }
+
+                EnlistedNewsBehavior.Instance?.RemoveQueuedNamedOrderAcceptOutcomes("new_named_order_accept");
 
                 activity.ActiveNamedOrder = new NamedOrderState
                 {
@@ -67,10 +72,25 @@ namespace Enlisted.Features.Activities.Orders
                     return;
                 }
                 var orderId = activity.ActiveNamedOrder.OrderStoryletId;
+                var intent = activity.ActiveNamedOrder.Intent ?? string.Empty;
+                activity.LastNamedOrderCompletedAt = CampaignTime.Now;
+                activity.LastNamedOrderCompletedId = orderId ?? string.Empty;
+                activity.LastNamedOrderCompletedIntent = intent;
                 activity.ActiveNamedOrder = null;
+                EnlistedDutyEmitterBehavior.RecordNamedOrderCompletion(orderId, intent);
+                EnlistedNewsBehavior.Instance?.RemoveQueuedEventOutcomesForStorylet(orderId);
+                EnlistedNewsBehavior.Instance?.RemoveQueuedNamedOrderAcceptOutcomes("named_order_completion");
+
+                // Drop the spliced arc phase cache before resolving the base activity type.
+                // OrderActivity currently has no base phase definition in content, so leaving
+                // the old arc cache seated makes ActivityRuntime keep advancing stale mid/resolve
+                // phases after completion and can remove/restart the activity, losing cooldown state.
+                activity.Phases = new List<Phase>();
                 activity.ResolvePhasesFromType(ActivityRuntime.Instance?.GetTypes());
                 activity.CurrentPhaseIndex = 0;
-                ModLogger.Info("ARC", $"unspliced {orderId}");
+                activity.StartedAt = CampaignTime.Now;
+                activity.LastAutoFireHour = -1;
+                ModLogger.Info("ARC", $"unspliced {orderId}; completion cooldown armed (intent={intent})");
             }
             catch (Exception ex)
             {

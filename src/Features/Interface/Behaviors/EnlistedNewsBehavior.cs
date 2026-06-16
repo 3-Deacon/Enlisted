@@ -442,6 +442,11 @@ namespace Enlisted.Features.Interface.Behaviors
                 _dailyBriefUnit ??= string.Empty;
                 _dailyBriefKingdom ??= string.Empty;
 
+                if (dataStore.IsLoading)
+                {
+                    RemoveQueuedNamedOrderResolveOutcomes("load_stale_named_order_resolve");
+                }
+
                 // Trim feeds to max size
                 TrimFeeds();
 
@@ -2494,6 +2499,101 @@ namespace Enlisted.Features.Interface.Behaviors
             }
 
             return $"{daysAgo} days ago";
+        }
+
+        public int RemoveQueuedEventOutcomesForStorylet(string storyletId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(storyletId))
+                {
+                    return 0;
+                }
+
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var syntheticPrefix = "storylet_" + storyletId + "_";
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && !string.IsNullOrEmpty(e.EventId)
+                    && (string.Equals(e.EventId, storyletId, StringComparison.OrdinalIgnoreCase)
+                        || e.EventId.StartsWith(syntheticPrefix, StringComparison.OrdinalIgnoreCase)));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued event outcome(s) for completed storylet {storyletId}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedEventOutcomesForStorylet failed", ex);
+                return 0;
+            }
+        }
+
+        public int RemoveQueuedNamedOrderAcceptOutcomes(string reason)
+        {
+            try
+            {
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && EventDeliveryManager.IsNamedOrderAcceptEventId(e.EventId));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued named-order accept outcome(s) reason={reason ?? "unknown"}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedNamedOrderAcceptOutcomes failed", ex);
+                return 0;
+            }
+        }
+
+        public int RemoveQueuedNamedOrderResolveOutcomes(string reason)
+        {
+            try
+            {
+                _eventOutcomes ??= new List<EventOutcomeRecord>();
+                var removedIds = _eventOutcomes
+                    .Where(e => e != null
+                        && !e.IsCurrentlyShown
+                        && e.DayShown < 0
+                        && EventDeliveryManager.IsNamedOrderResolveEventId(e.EventId))
+                    .Select(e => e.EventId)
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .ToList();
+
+                var removed = _eventOutcomes.RemoveAll(e =>
+                    e != null
+                    && !e.IsCurrentlyShown
+                    && e.DayShown < 0
+                    && EventDeliveryManager.IsNamedOrderResolveEventId(e.EventId));
+
+                if (removed > 0)
+                {
+                    ModLogger.Info(LogCategory,
+                        $"Removed {removed} queued named-order resolve outcome(s) reason={reason ?? "unknown"} ids={string.Join(",", removedIds)}");
+                }
+
+                return removed;
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("News", "RemoveQueuedNamedOrderResolveOutcomes failed", ex);
+                return 0;
+            }
         }
 
         /// <summary>
@@ -5000,7 +5100,17 @@ namespace Enlisted.Features.Interface.Behaviors
 
             try
             {
-                AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                if (ShouldSurfacePersonalDispatch(tier, severity))
+                {
+                    AddPersonalNews(category, headlineKey, placeholderValues, storyKey, minDisplayDays, severity, tier, beats, body);
+                }
+                else
+                {
+                    ModLogger.Debug("NEWS",
+                        $"personal_dispatch_surface_skipped_low_tier: category={category}, story={storyKey}, tier={tier}, severity={severity}, title={headlineKey}");
+                }
+
+                WritePersonalDispatchToCampaignLog(category, headlineKey, placeholderValues, storyKey, severity, tier, body);
             }
             catch (Exception ex)
             {
@@ -5011,6 +5121,83 @@ namespace Enlisted.Features.Interface.Behaviors
         #endregion
 
         #region Internal Helpers
+
+        private static bool ShouldSurfacePersonalDispatch(StoryTier tier, int severity)
+        {
+            // Log-tier / severity-0 entries are background texture (order midbeats, rumors,
+            // silence-with-implication, routine duty notes). Keep them in diagnostics via
+            // CONTENT/NEWS logs but do not push every title into the visible Enlisted feed.
+            return tier != StoryTier.Log || severity > 0;
+        }
+
+        /// <summary>
+        /// Mirrors StoryDirector personal dispatches into Bannerlord's visible Campaign Log.
+        /// The personal feed is still the authoritative Enlisted feed; this bridge only makes
+        /// generated orders, duty notes, and incidents visible in the same log players already
+        /// watch for native campaign messages.
+        /// </summary>
+        private static void WritePersonalDispatchToCampaignLog(
+            string category,
+            string headlineKey,
+            Dictionary<string, string> placeholderValues,
+            string storyKey,
+            int severity,
+            StoryTier tier,
+            string body)
+        {
+            try
+            {
+                if (!IsEnlisted() || string.IsNullOrWhiteSpace(headlineKey))
+                {
+                    return;
+                }
+
+                if (tier == StoryTier.Log && severity <= 0)
+                {
+                    ModLogger.Debug("NEWS",
+                        $"campaign_log_skipped_low_tier: category={category}, story={storyKey}, tier={tier}, severity={severity}");
+                    return;
+                }
+
+                var item = new DispatchItem
+                {
+                    DayCreated = (int)CampaignTime.Now.ToDays,
+                    Category = category ?? "personal",
+                    HeadlineKey = headlineKey,
+                    PlaceholderValues = placeholderValues ?? new Dictionary<string, string>(),
+                    StoryKey = storyKey,
+                    Type = DispatchType.Report,
+                    Confidence = 100,
+                    MinDisplayDays = 1,
+                    FirstShownDay = -1,
+                    Severity = severity,
+                    Tier = tier,
+                    Body = body
+                };
+
+                var text = FormatDispatchItem(item);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    return;
+                }
+
+                var color = severity >= 3 || tier == StoryTier.Headline
+                    ? TaleWorlds.Library.Colors.Yellow
+                    : severity >= 1 || tier == StoryTier.Pertinent
+                        ? TaleWorlds.Library.Colors.Cyan
+                        : TaleWorlds.Library.Colors.White;
+
+                TaleWorlds.Library.InformationManager.DisplayMessage(
+                    new TaleWorlds.Library.InformationMessage(text, color));
+
+                ModLogger.Info("NEWS",
+                    $"campaign_log_written: category={category}, story={storyKey}, tier={tier}, title={text}");
+            }
+            catch (Exception ex)
+            {
+                ModLogger.Caught("NEWS", "WritePersonalDispatchToCampaignLog failed", ex);
+            }
+        }
 
         /// <summary>
         /// Checks if the player is currently enlisted.

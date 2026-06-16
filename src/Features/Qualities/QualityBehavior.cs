@@ -1,5 +1,6 @@
 using System;
 using Enlisted.Features.Enlistment.Behaviors;
+using Enlisted.Features.Escalation;
 using Enlisted.Mod.Core.Logging;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -165,6 +166,34 @@ namespace Enlisted.Features.Qualities
 
             defs.Add(new QualityDefinition
             {
+                Id = "scrutiny",
+                DisplayName = "{=q_scrutiny}Scrutiny",
+                Min = 0,
+                Max = 100,
+                Default = 0,
+                Scope = QualityScope.Global,
+                Kind = QualityKind.ReadThrough,
+                Writable = true,
+                Reader = _ => EscalationManager.Instance?.State?.Scrutiny ?? 0,
+                Writer = (hero, delta, reason) => EscalationManager.Instance?.ModifyScrutiny(delta, reason ?? "quality")
+            });
+
+            defs.Add(new QualityDefinition
+            {
+                Id = "medical_risk",
+                DisplayName = "{=q_med_risk}Medical Risk",
+                Min = 0,
+                Max = 5,
+                Default = 0,
+                Scope = QualityScope.Global,
+                Kind = QualityKind.ReadThrough,
+                Writable = true,
+                Reader = _ => EscalationManager.Instance?.State?.MedicalRisk ?? 0,
+                Writer = (hero, delta, reason) => EscalationManager.Instance?.ModifyMedicalRisk(delta, reason ?? "quality")
+            });
+
+            defs.Add(new QualityDefinition
+            {
                 Id = "lord_relation",
                 DisplayName = "{=q_lord_rel}Lord Relation",
                 Min = -100,
@@ -173,16 +202,8 @@ namespace Enlisted.Features.Qualities
                 Scope = QualityScope.Global,
                 Kind = QualityKind.ReadThrough,
                 Writable = true,
-                Reader = _ => (int)(EnlistmentBehavior.Instance?.EnlistedLord?.GetRelationWithPlayer() ?? 0),
-                Writer = (hero, delta, reason) =>
-                {
-                    var lord = EnlistmentBehavior.Instance?.EnlistedLord;
-                    if (lord == null)
-                    {
-                        return;
-                    }
-                    ChangeRelationAction.ApplyPlayerRelation(lord, delta, affectRelatives: false, showQuickNotification: false);
-                }
+                Reader = _ => EscalationManager.Instance?.GetCurrentLordRelation() ?? 0,
+                Writer = (hero, delta, reason) => EscalationManager.Instance?.ModifyLordReputation(delta, reason ?? "quality")
             });
 
             _store.RegisterDefinitions(defs);

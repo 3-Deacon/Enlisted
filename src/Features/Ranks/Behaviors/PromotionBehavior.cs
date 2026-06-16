@@ -30,7 +30,7 @@ namespace Enlisted.Features.Ranks.Behaviors
         public static PromotionRequirements GetForTier(int targetTier)
         {
             // Promotion requirements table (XP values shown for reference only - actual values from progression_config.json):
-            // NOTE: Scrutiny is now 0-100 scale (merged discipline into scrutiny). Thresholds scaled x10.
+            // NOTE: Scrutiny/relation values are advisory context only, not hard promotion blockers.
             // | Promotion | XP | Days | Battles | Leader Rel | Max Scrutiny |
             // |-----------|-----|------|---------|------------|-------------|
             // | T1→T2 | 700 | 14 | 2 | ≥0 | <80 |
@@ -138,13 +138,14 @@ namespace Enlisted.Features.Ranks.Behaviors
         /// </summary>
         private static string GetProvingEventId(int fromTier, int toTier)
         {
-            // Event IDs follow the pattern: promotion_t{from}_t{to}_*
-            // T1→T2 has no proving event; uses direct promotion (formation is equipment-based now)
+            // Event IDs follow the pattern: promotion_t{from}_t{to}_*.
+            // T1→T2 intentionally uses direct promotion; formation is now equipment/loadout-based.
             return fromTier switch
             {
+                1 => null,
                 2 => "promotion_t2_t3_sergeants_test",
                 3 => "promotion_t3_t4_crisis_of_command",
-                4 => "promotion_t4_t5_veterans_vote",
+                4 => "promotion_t4_t5_squad_vote",
                 5 => "promotion_t5_t6_lord_audience",
                 6 => "promotion_t6_t7_commanders_commission",
                 _ => $"promotion_t{fromTier}_t{toTier}" // Fallback pattern
@@ -229,23 +230,31 @@ namespace Enlisted.Features.Ranks.Behaviors
                 reasons.Add($"Battles: {enlistment.BattlesSurvived}/{req.BattlesRequired}");
             }
 
-            // Check scrutiny (escalation system - merged discipline into this 0-100 track)
+            // Scrutiny and leader relation are advisory context, not hard promotion blockers.
+            // Logs showed players could sit at 100% progress while blocked by campaign-state side effects
+            // such as high scrutiny or relation drift. Promotion eligibility should be earned by service
+            // progression requirements: XP, days in rank, and battles survived.
             if (escalation?.IsEnabled() == true)
             {
                 var scrutiny = escalation.State?.Scrutiny ?? 0;
                 if (scrutiny >= req.MaxScrutiny)
                 {
-                    reasons.Add($"Scrutiny too high: {scrutiny} (max: {req.MaxScrutiny - 1})");
+                    ModLogger.LogOnce(
+                        $"promo_scrutiny_advisory_t{targetTier}",
+                        "Promotion",
+                        $"Promotion advisory for T{targetTier}: scrutiny high ({scrutiny}, former max {req.MaxScrutiny - 1}) but no longer blocks promotion");
                 }
             }
 
-            // Check leader relation
             if (enlistment.EnlistedLord != null)
             {
                 var relation = enlistment.EnlistedLord.GetRelationWithPlayer();
                 if (relation < req.MinLeaderRelation)
                 {
-                    reasons.Add($"Leader relation: {relation}/{req.MinLeaderRelation}");
+                    ModLogger.LogOnce(
+                        $"promo_relation_advisory_t{targetTier}",
+                        "Promotion",
+                        $"Promotion advisory for T{targetTier}: leader relation low ({relation}/{req.MinLeaderRelation}) but no longer blocks promotion");
                 }
             }
 
@@ -356,8 +365,16 @@ namespace Enlisted.Features.Ranks.Behaviors
 
                 _pendingPromotionTier = targetTier;
 
-                // Try to queue the proving event
+                // Try to queue the proving event, except for tier transitions that are
+                // explicitly direct promotions.
                 var eventId = GetProvingEventId(currentTier, targetTier);
+                if (string.IsNullOrEmpty(eventId))
+                {
+                    ModLogger.Info("Promotion", $"Direct promotion path for T{currentTier} to T{targetTier} - no proving event required");
+                    FallbackDirectPromotion(targetTier, enlistment);
+                    return;
+                }
+
                 var provingEvent = Content.EventCatalog.GetEventById(eventId);
 
                 if (provingEvent != null)
@@ -395,8 +412,8 @@ namespace Enlisted.Features.Ranks.Behaviors
                 }
                 else
                 {
-                    // Fallback to direct promotion if event not in catalog
-                    ModLogger.Warn("Promotion", $"Proving event '{eventId}' not found - using direct promotion");
+                    // Fallback to direct promotion if optional proving content is absent.
+                    ModLogger.Info("Promotion", $"Optional proving event '{eventId}' not found - using direct promotion");
                     FallbackDirectPromotion(targetTier, enlistment);
                 }
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Enlisted.Features.Content;
 using Enlisted.Features.Enlistment.Behaviors;
@@ -50,7 +50,14 @@ namespace Enlisted.Features.Activities.Orders
                 var orderActivity = OrderActivity.Instance;
                 if (orderActivity == null)
                 {
-                    return;
+                    EnlistmentLifecycleListener.StartOrderActivityIfNeeded("duty_profile_hourly_tick");
+                    orderActivity = OrderActivity.Instance;
+                    if (orderActivity == null)
+                    {
+                        ModLogger.Expected("DUTYPROFILE", "order_activity_missing",
+                            "Enlisted and lord party exists, but OrderActivity is still unavailable");
+                        return;
+                    }
                 }
 
                 var observed = DutyProfileSelector.Resolve(lordParty);
@@ -167,8 +174,31 @@ namespace Enlisted.Features.Activities.Orders
 
             if (activity.ActiveNamedOrder != null)
             {
+                if (ShouldSuppressTransitionForFreshOrder(activity, oldProfile))
+                {
+                    ModLogger.Debug("DUTYPROFILE",
+                        $"profile transition storylet suppressed for fresh order: {oldProfile} -> {newProfile}, order={activity.ActiveNamedOrder.OrderStoryletId}");
+                    return;
+                }
+
                 TryEmitTransitionStorylet(activity, oldProfile, newProfile);
             }
+        }
+
+        private static bool ShouldSuppressTransitionForFreshOrder(OrderActivity activity, string oldProfile)
+        {
+            if (activity?.ActiveNamedOrder == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(oldProfile))
+            {
+                return true;
+            }
+
+            var orderAgeHours = CampaignTime.Now.ToHours - activity.ActiveNamedOrder.StartedAt.ToHours;
+            return orderAgeHours >= 0f && orderAgeHours < 2f;
         }
 
         /// <summary>Sets the profile unconditionally, clears any pending hysteresis samples, and does not fire a profile_changed beat.</summary>
@@ -245,6 +275,7 @@ namespace Enlisted.Features.Activities.Orders
                         SourceId = "duty.transition",
                         CategoryId = "duty.transition",
                         ProposedTier = StoryTier.Modal,
+                        Relevance = new RelevanceKey { TouchesEnlistedLord = true },
                         ChainContinuation = true,
                         EmittedAt = CampaignTime.Now,
                         InteractiveEvent = evt,
